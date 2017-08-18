@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
@@ -24,63 +24,65 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
 public class TransparentByteBufReader extends LinkableChannelByteBufReader {
-	
-	private ForeFutureAcceptor foreReadFutureAcceptor;
-	
-	public TransparentByteBufReader(SocketChannelContext context) {
-		this.foreReadFutureAcceptor = context.getForeReadFutureAcceptor();
-	}
 
-	@Override
-	public void accept(SocketChannel channel, ByteBuf buf) throws Exception {
+    private ForeFutureAcceptor foreReadFutureAcceptor;
 
-		UnsafeSocketSession session = channel.getSession();
+    public TransparentByteBufReader(SocketChannelContext context) {
+        this.foreReadFutureAcceptor = context.getForeReadFutureAcceptor();
+    }
 
-		for (;;) {
+    @Override
+    public void accept(SocketChannel channel, ByteBuf buf) throws Exception {
 
-			if (!buf.hasRemaining()) {
-				return;
-			}
+        UnsafeSocketSession session = channel.getSession();
 
-			ChannelFuture future = channel.getReadFuture();
+        for (;;) {
 
-			if (future == null) {
+            if (!buf.hasRemaining()) {
+                return;
+            }
 
-				ProtocolDecoder decoder = channel.getProtocolDecoder();
+            ChannelFuture future = channel.getReadFuture();
 
-				future = decoder.decode(session, buf);
+            if (future == null) {
 
-				if (future == null) {
-					CloseUtil.close(channel);
-					return;
-				}
+                ProtocolDecoder decoder = channel.getProtocolDecoder();
 
-				channel.setReadFuture(future);
-			}
+                future = decoder.decode(session, buf);
 
-			try {
+                if (future == null) {
+                    CloseUtil.close(channel);
+                    return;
+                }
 
-				if (!future.read(session, buf)) {
-					return;
-				}
+                channel.setReadFuture(future);
+            }
 
-				ReleaseUtil.release(future);
+            try {
 
-			} catch (Throwable e) {
+                if (!future.read(session, buf)) {
+                    return;
+                }
 
-				ReleaseUtil.release(future);
+                ReleaseUtil.release(future);
 
-				if (e instanceof IOException) {
-					throw (IOException) e;
-				}
+            } catch (Throwable e) {
 
-				throw new IOException("exception occurred when read from channel,the nested exception is,"
-						+ e.getMessage(), e);
-			}
+                ReleaseUtil.release(future);
 
-			channel.setReadFuture(null);
+                if (e instanceof IOException) {
+                    throw (IOException) e;
+                }
 
-			foreReadFutureAcceptor.accept(session, future);
-		}
-	}
+                throw new IOException(
+                        "exception occurred when read from channel,the nested exception is,"
+                                + e.getMessage(),
+                        e);
+            }
+
+            channel.setReadFuture(null);
+
+            foreReadFutureAcceptor.accept(session, future);
+        }
+    }
 }

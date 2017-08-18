@@ -17,34 +17,34 @@ package com.generallycloud.baseio.codec.http11.future;
 
 public class HttpHeader {
 
-	public static final String	CONTENT_TYPE		= "Content-Type";
-	public static final String	CONTENT_LENGTH	= "Content-Length";
-	public static final String	CONNECTION		= "Connection";
-	public static final String	LAST_MODIFIED		= "Last-Modified";
-	public static final String	IF_MODIFIED_SINCE	= "If-Modified-Since";
+    public static final String CONTENT_TYPE      = "Content-Type";
+    public static final String CONTENT_LENGTH    = "Content-Length";
+    public static final String CONNECTION        = "Connection";
+    public static final String LAST_MODIFIED     = "Last-Modified";
+    public static final String IF_MODIFIED_SINCE = "If-Modified-Since";
 
-	private String				name;
+    private String             name;
 
-	private String				value;
+    private String             value;
 
-	private String				key;
+    private String             key;
 
-	protected HttpHeader(String name, String value) {
-		this.name = name;
-		this.value = value;
-		this.key = name.toLowerCase();
-	}
+    protected HttpHeader(String name, String value) {
+        this.name = name;
+        this.value = value;
+        this.key = name.toLowerCase();
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getValue() {
-		return value;
-	}
+    public String getValue() {
+        return value;
+    }
 
-	public String getKey() {
-		return key;
-	}
+    public String getKey() {
+        return key;
+    }
 
 }

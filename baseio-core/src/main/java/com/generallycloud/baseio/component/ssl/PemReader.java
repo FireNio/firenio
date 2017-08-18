@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
 import java.io.File;
@@ -32,89 +32,88 @@ import com.generallycloud.baseio.common.FileUtil;
 
 final class PemReader {
 
-	static byte[][] readCertificates(File file) throws CertificateException {
-		try {
-			InputStream in = new FileInputStream(file);
+    static byte[][] readCertificates(File file) throws CertificateException {
+        try {
+            InputStream in = new FileInputStream(file);
 
-			try {
-				return readCertificates(in);
-			} finally {
-				CloseUtil.close(in);
-			}
-		} catch (FileNotFoundException e) {
-			throw new CertificateException("could not find certificate file: " + file);
-		}
-	}
+            try {
+                return readCertificates(in);
+            } finally {
+                CloseUtil.close(in);
+            }
+        } catch (FileNotFoundException e) {
+            throw new CertificateException("could not find certificate file: " + file);
+        }
+    }
 
-	static byte[][] readCertificates(InputStream in) throws CertificateException {
-		String content;
-		try {
-			content = FileUtil.input2String(in, Encoding.UTF8);
-		} catch (IOException e) {
-			throw new CertificateException("failed to read certificate input stream", e);
-		}
+    static byte[][] readCertificates(InputStream in) throws CertificateException {
+        String content;
+        try {
+            content = FileUtil.input2String(in, Encoding.UTF8);
+        } catch (IOException e) {
+            throw new CertificateException("failed to read certificate input stream", e);
+        }
 
-		String[] ls = content.split("\n");
+        String[] ls = content.split("\n");
 
-		StringBuilder b = new StringBuilder();
+        StringBuilder b = new StringBuilder();
 
-		for (String s : ls) {
-			if (s.startsWith("----")) {
-				continue;
-			}
-			b.append(s.trim().replace("\r", ""));
-		}
+        for (String s : ls) {
+            if (s.startsWith("----")) {
+                continue;
+            }
+            b.append(s.trim().replace("\r", ""));
+        }
 
-		List<byte[]> certs = new ArrayList<byte[]>();
+        List<byte[]> certs = new ArrayList<>();
 
-		byte[] data = BASE64Util.base64ToByteArray(b.toString());
+        byte[] data = BASE64Util.base64ToByteArray(b.toString());
 
-		certs.add(data);
+        certs.add(data);
 
-		if (certs.isEmpty()) {
-			throw new CertificateException("found no certificates in input stream");
-		}
+        if (certs.isEmpty()) {
+            throw new CertificateException("found no certificates in input stream");
+        }
 
-		return certs.toArray(new byte[][] {});
-	}
+        return certs.toArray(new byte[][] {});
+    }
 
-	static byte[] readPrivateKey(File file) throws KeyException {
-		try {
-			InputStream in = new FileInputStream(file);
+    static byte[] readPrivateKey(File file) throws KeyException {
+        try {
+            InputStream in = new FileInputStream(file);
 
-			try {
-				return readPrivateKey(in);
-			} finally {
-				CloseUtil.close(in);
-			}
-		} catch (FileNotFoundException e) {
-			throw new KeyException("could not fine key file: " + file);
-		}
-	}
+            try {
+                return readPrivateKey(in);
+            } finally {
+                CloseUtil.close(in);
+            }
+        } catch (FileNotFoundException e) {
+            throw new KeyException("could not fine key file: " + file);
+        }
+    }
 
-	static byte[] readPrivateKey(InputStream in) throws KeyException {
-		String content;
-		try {
-			content = FileUtil.input2String(in, Encoding.UTF8);
-		} catch (IOException e) {
-			throw new KeyException("failed to read key input stream", e);
-		}
+    static byte[] readPrivateKey(InputStream in) throws KeyException {
+        String content;
+        try {
+            content = FileUtil.input2String(in, Encoding.UTF8);
+        } catch (IOException e) {
+            throw new KeyException("failed to read key input stream", e);
+        }
 
-		String[] ls = content.split("\n");
+        String[] ls = content.split("\n");
 
-		StringBuilder b = new StringBuilder();
+        StringBuilder b = new StringBuilder();
 
-		for (String s : ls) {
-			if (s.startsWith("-----")) {
-				continue;
-			}
-			b.append(s.trim().replace("\r", ""));
-		}
+        for (String s : ls) {
+            if (s.startsWith("-----")) {
+                continue;
+            }
+            b.append(s.trim().replace("\r", ""));
+        }
 
-		byte[] der = BASE64Util.base64ToByteArray(b.toString());
-		return der;
-	}
+        byte[] der = BASE64Util.base64ToByteArray(b.toString());
+        return der;
+    }
 
-	private PemReader() {
-	}
+    private PemReader() {}
 }

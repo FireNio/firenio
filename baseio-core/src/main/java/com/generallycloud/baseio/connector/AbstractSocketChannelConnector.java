@@ -32,72 +32,73 @@ import com.generallycloud.baseio.log.Logger;
  */
 public abstract class AbstractSocketChannelConnector extends AbstractChannelConnector {
 
-	protected UnsafeSocketSession	session;
+    protected UnsafeSocketSession session;
 
-	private Throwable			connectException;
+    private Throwable             connectException;
 
-	private boolean			timeouted;
-	
-	private Object				wait4ConnectLock = new Object();
+    private boolean               timeouted;
 
-	@Override
-	public SocketSession getSession() {
-		return session;
-	}
+    private Object                wait4ConnectLock = new Object();
 
-	@Override
-	protected boolean canSafeClose() {
-		return session == null
-				|| (!session.inSelectorLoop() && !session.getExecutorEventLoop().inEventLoop());
-	}
+    @Override
+    public SocketSession getSession() {
+        return session;
+    }
 
-	//FIXME protected
-	public void finishConnect(UnsafeSocketSession session, Throwable exception) {
-		synchronized (wait4ConnectLock) {
-			if (timeouted) {
-				CloseUtil.close(session);
-				wait4ConnectLock.notify();
-				return;
-			}
-			if (session == null) {
-				connectException = exception;
-			} else {
-				this.session = session;
-				LoggerUtil.prettyLog(getLogger(), "connected to server @{}",
-						getServerSocketAddress());
-			}
-			wait4ConnectLock.notify();
-		}
-	}
+    @Override
+    protected boolean canSafeClose() {
+        return session == null
+                || (!session.inSelectorLoop() && !session.getExecutorEventLoop().inEventLoop());
+    }
 
-	@Override
-	public synchronized SocketSession connect() throws IOException {
-		this.session = null;
-		this.initialize();
-		return getSession();
-	}
+    //FIXME protected
+    public void finishConnect(UnsafeSocketSession session, Throwable exception) {
+        synchronized (wait4ConnectLock) {
+            if (timeouted) {
+                CloseUtil.close(session);
+                wait4ConnectLock.notify();
+                return;
+            }
+            if (session == null) {
+                connectException = exception;
+            } else {
+                this.session = session;
+                LoggerUtil.prettyLog(getLogger(), "connected to server @{}",
+                        getServerSocketAddress());
+            }
+            wait4ConnectLock.notify();
+        }
+    }
 
-	protected void wait4connect() throws TimeoutException {
-		timeouted = false;
-		connectException = null;
-		synchronized (wait4ConnectLock) {
-			ThreadUtil.wait(wait4ConnectLock, timeout);
-		}
-		if (getSession() == null) {
-			timeouted = true;
-			CloseUtil.close(this);
-			if (connectException == null) {
-				throw new TimeoutException(
-						"connect to " + getServerSocketAddress().toString() + " time out");
-			} else {
-				throw new TimeoutException(MessageFormatter.format(
-						"connect faild,connector:[{}],nested exception is {}",
-						getServerSocketAddress(), connectException.getMessage()),
-						connectException);
-			}
-		}
-	}
+    @Override
+    public synchronized SocketSession connect() throws IOException {
+        this.session = null;
+        this.initialize();
+        return getSession();
+    }
 
-	abstract Logger getLogger();
+    protected void wait4connect() throws TimeoutException {
+        timeouted = false;
+        connectException = null;
+        synchronized (wait4ConnectLock) {
+            ThreadUtil.wait(wait4ConnectLock, timeout);
+        }
+        if (getSession() == null) {
+            timeouted = true;
+            CloseUtil.close(this);
+            if (connectException == null) {
+                throw new TimeoutException(
+                        "connect to " + getServerSocketAddress().toString() + " time out");
+            } else {
+                throw new TimeoutException(
+                        MessageFormatter.format(
+                                "connect faild,connector:[{}],nested exception is {}",
+                                getServerSocketAddress(), connectException.getMessage()),
+                        connectException);
+            }
+        }
+    }
+
+    abstract Logger getLogger();
 
 }

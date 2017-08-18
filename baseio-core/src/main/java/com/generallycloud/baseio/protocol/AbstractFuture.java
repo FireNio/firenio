@@ -23,89 +23,90 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 
 public abstract class AbstractFuture implements Future {
 
-	protected boolean				flushed;
-	protected String				readText;
-	protected SocketChannelContext	context;
-	protected IoEventHandle			ioEventHandle;
-	protected ByteArrayBuffer		writeBuffer;
+    protected boolean              flushed;
+    protected String               readText;
+    protected SocketChannelContext context;
+    protected IoEventHandle        ioEventHandle;
+    protected ByteArrayBuffer      writeBuffer;
 
-	protected AbstractFuture(SocketChannelContext context) {
-		this.context = context;
-	}
+    protected AbstractFuture(SocketChannelContext context) {
+        this.context = context;
+    }
 
-	@Override
-	public boolean flushed() {
-		return flushed;
-	}
+    @Override
+    public boolean flushed() {
+        return flushed;
+    }
 
-	@Override
-	public SocketChannelContext getContext() {
-		return context;
-	}
+    @Override
+    public SocketChannelContext getContext() {
+        return context;
+    }
 
-	@Override
-	public IoEventHandle getIoEventHandle() {
-		if (ioEventHandle == null) {
-			this.ioEventHandle = context.getIoEventHandleAdaptor();
-		}
-		return ioEventHandle;
-	}
+    @Override
+    public IoEventHandle getIoEventHandle() {
+        if (ioEventHandle == null) {
+            this.ioEventHandle = context.getIoEventHandleAdaptor();
+        }
+        return ioEventHandle;
+    }
 
-	@Override
-	public String getReadText() {
-		return readText;
-	}
+    @Override
+    public String getReadText() {
+        return readText;
+    }
 
-	@Override
-	public void setIoEventHandle(IoEventHandle ioEventHandle) {
-		this.ioEventHandle = ioEventHandle;
-	}
+    @Override
+    public void setIoEventHandle(IoEventHandle ioEventHandle) {
+        this.ioEventHandle = ioEventHandle;
+    }
 
-	@Override
-	public void write(String text) {
-		write(text, context.getEncoding());
-	}
+    @Override
+    public void write(String text) {
+        write(text, context.getEncoding());
+    }
 
-	@Override
-	public String toString() {
-		return getReadText();
-	}
+    @Override
+    public String toString() {
+        return getReadText();
+    }
 
-	public ByteArrayBuffer getWriteBuffer() {
-		return writeBuffer;
-	}
+    @Override
+    public ByteArrayBuffer getWriteBuffer() {
+        return writeBuffer;
+    }
 
-	@Override
-	public void write(String text, Charset charset) {
-		write(text.getBytes(charset));
-	}
+    @Override
+    public void write(String text, Charset charset) {
+        write(text.getBytes(charset));
+    }
 
-	@Override
-	public void write(byte b) {
-		if (writeBuffer == null) {
-			writeBuffer = new ByteArrayBuffer();
-		}
-		writeBuffer.write(b);
-	}
+    @Override
+    public void write(byte b) {
+        if (writeBuffer == null) {
+            writeBuffer = new ByteArrayBuffer();
+        }
+        writeBuffer.write(b);
+    }
 
-	@Override
-	public void write(byte[] bytes) {
-		write(bytes, 0, bytes.length);
-	}
+    @Override
+    public void write(byte[] bytes) {
+        write(bytes, 0, bytes.length);
+    }
 
-	@Override
-	public void write(byte[] bytes, int off, int len) {
-		if (writeBuffer == null) {
-			if (off != 0) {
-				byte [] copy = new byte[len - off];
-				System.arraycopy(bytes, off, copy, 0, len);
-				writeBuffer = new ByteArrayBuffer(copy,len);
-				return;
-			}
-			writeBuffer = new ByteArrayBuffer(bytes,len);
-			return;
-		}
-		writeBuffer.write(bytes, off, len);
-	}
+    @Override
+    public void write(byte[] bytes, int off, int len) {
+        if (writeBuffer == null) {
+            if (off != 0) {
+                byte[] copy = new byte[len - off];
+                System.arraycopy(bytes, off, copy, 0, len);
+                writeBuffer = new ByteArrayBuffer(copy, len);
+                return;
+            }
+            writeBuffer = new ByteArrayBuffer(bytes, len);
+            return;
+        }
+        writeBuffer.write(bytes, off, len);
+    }
 
 }

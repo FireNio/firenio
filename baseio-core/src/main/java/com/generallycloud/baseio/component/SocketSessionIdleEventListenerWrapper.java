@@ -20,45 +20,45 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class SocketSessionIdleEventListenerWrapper extends AbstractLinkable
-		implements SocketSessionIdleEventListener {
+        implements SocketSessionIdleEventListener {
 
-	private SocketSessionIdleEventListenerWrapper	next;
+    private SocketSessionIdleEventListenerWrapper next;
 
-	private SocketSessionIdleEventListener			value;
+    private SocketSessionIdleEventListener        value;
 
-	public SocketSessionIdleEventListenerWrapper(SocketSessionIdleEventListener value) {
-		this.value = value;
-		this.logger = LoggerFactory.getLogger(value.getClass());
-	}
+    public SocketSessionIdleEventListenerWrapper(SocketSessionIdleEventListener value) {
+        this.value = value;
+        this.logger = LoggerFactory.getLogger(value.getClass());
+    }
 
-	@Override
-	public SocketSessionIdleEventListenerWrapper getNext() {
-		return next;
-	}
+    @Override
+    public SocketSessionIdleEventListenerWrapper getNext() {
+        return next;
+    }
 
-	@Override
-	public void setNext(Linkable next) {
-		this.next = (SocketSessionIdleEventListenerWrapper) next;
-	}
+    @Override
+    public void setNext(Linkable next) {
+        this.next = (SocketSessionIdleEventListenerWrapper) next;
+    }
 
-	private Logger logger = null;
+    private Logger logger = null;
 
-	@Override
-	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
+    @Override
+    public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
 
-		try {
-			value.sessionIdled(session, lastIdleTime, currentTime);
-		} catch (Exception e) {
-			logger.error(e.getMessage(),e);
-		}
+        try {
+            value.sessionIdled(session, lastIdleTime, currentTime);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
 
-		SocketSessionIdleEventListenerWrapper listener = getNext();
+        SocketSessionIdleEventListenerWrapper listener = getNext();
 
-		if (listener == null) {
-			return;
-		}
+        if (listener == null) {
+            return;
+        }
 
-		listener.sessionIdled(session, lastIdleTime, currentTime);
-	}
+        listener.sessionIdled(session, lastIdleTime, currentTime);
+    }
 
 }

@@ -32,120 +32,120 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class AuthorityLoginCenter extends AbstractInitializeable implements LoginCenter {
 
-	private Logger					logger		= LoggerFactory
-			.getLogger(AuthorityLoginCenter.class);
+    private Logger                 logger      = LoggerFactory
+            .getLogger(AuthorityLoginCenter.class);
 
-	private Map<String, Authority>	authorities	= new HashMap<String, Authority>();
+    private Map<String, Authority> authorities = new HashMap<>();
 
-	@Override
-	public boolean login(SocketSession session, Parameters parameters) {
+    @Override
+    public boolean login(SocketSession session, Parameters parameters) {
 
-		String username = parameters.getParameter("username");
-		String password = parameters.getParameter("password");
+        String username = parameters.getParameter("username");
+        String password = parameters.getParameter("password");
 
-		Authority authority = getAuthority(username, password);
+        Authority authority = getAuthority(username, password);
 
-		logger.debug("__________________user_login__{}", authority);
+        logger.debug("__________________user_login__{}", authority);
 
-		if (authority == null) {
-			return false;
-		}
+        if (authority == null) {
+            return false;
+        }
 
-		AuthorityContext plugin = AuthorityContext.getInstance();
+        AuthorityContext plugin = AuthorityContext.getInstance();
 
-		AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session
-				.getAttribute(plugin.getPluginKey());
+        AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session
+                .getAttribute(plugin.getPluginKey());
 
-		RoleManager roleManager = AuthorityContext.getInstance().getRoleManager();
+        RoleManager roleManager = AuthorityContext.getInstance().getRoleManager();
 
-		AuthorityManager authorityManager = roleManager.getAuthorityManager(authority);
+        AuthorityManager authorityManager = roleManager.getAuthorityManager(authority);
 
-		attachment.setAuthorityManager(authorityManager);
+        attachment.setAuthorityManager(authorityManager);
 
-		return true;
+        return true;
 
-	}
+    }
 
-	@Override
-	public boolean isLogined(SocketSession session) {
+    @Override
+    public boolean isLogined(SocketSession session) {
 
-		AuthorityContext plugin = AuthorityContext.getInstance();
+        AuthorityContext plugin = AuthorityContext.getInstance();
 
-		AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session
-				.getAttribute(plugin.getPluginKey());
+        AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session
+                .getAttribute(plugin.getPluginKey());
 
-		return attachment.getAuthorityManager() != null;
-	}
+        return attachment.getAuthorityManager() != null;
+    }
 
-	@Override
-	public void logout(SocketSession session) {
+    @Override
+    public void logout(SocketSession session) {
 
-		// 需要登出吗
-	}
+        // 需要登出吗
+    }
 
-	@Override
-	public boolean isValidate(Parameters parameters) {
+    @Override
+    public boolean isValidate(Parameters parameters) {
 
-		String username = parameters.getParameter("username");
-		String password = parameters.getParameter("password");
+        String username = parameters.getParameter("username");
+        String password = parameters.getParameter("password");
 
-		return getAuthority(username, password) != null;
-	}
+        return getAuthority(username, password) != null;
+    }
 
-	protected Authority getAuthority(String username, String password) {
+    protected Authority getAuthority(String username, String password) {
 
-		Authority authority = authorities.get(username);
+        Authority authority = authorities.get(username);
 
-		if (authority == null) {
-			return null;
-		}
+        if (authority == null) {
+            return null;
+        }
 
-		if (!authority.getPassword().equals(password)) {
-			return null;
-		}
+        if (!authority.getPassword().equals(password)) {
+            return null;
+        }
 
-		return authority;
-	}
+        return authority;
+    }
 
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		FixedProperties fixedProperties = FileUtil.readPropertiesByCls("server.properties");
+        FixedProperties fixedProperties = FileUtil.readPropertiesByCls("server.properties");
 
-		String username = fixedProperties.getProperty("SERVER.USERNAME", "admin");
-		String password = fixedProperties.getProperty("SERVER.PASSWORD", "admin100");
-		String UUID = fixedProperties.getProperty("SERVER.UUID", "uuid");
-		int roleID = fixedProperties.getIntegerProperty("SERVER.ROLEID");
+        String username = fixedProperties.getProperty("SERVER.USERNAME", "admin");
+        String password = fixedProperties.getProperty("SERVER.PASSWORD", "admin100");
+        String UUID = fixedProperties.getProperty("SERVER.UUID", "uuid");
+        int roleID = fixedProperties.getIntegerProperty("SERVER.ROLEID");
 
-		Authority authority = new Authority();
+        Authority authority = new Authority();
 
-		authority.setUsername(username);
-		authority.setPassword(password);
-		authority.setRoleID(roleID);
-		authority.setUuid(UUID);
+        authority.setUsername(username);
+        authority.setPassword(password);
+        authority.setRoleID(roleID);
+        authority.setUuid(UUID);
 
-		/* ------------------------------------------------------------- */
+        /* ------------------------------------------------------------- */
 
-		this.authorities.put(authority.getUsername(), authority);
+        this.authorities.put(authority.getUsername(), authority);
 
-		authority = new Authority();
+        authority = new Authority();
 
-		authority.setUsername("udp1");
-		authority.setPassword(MD5Token.getInstance().getLongToken("udp1", context.getEncoding()));
-		authority.setRoleID(0);
-		authority.setUuid("udp1");
+        authority.setUsername("udp1");
+        authority.setPassword(MD5Token.getInstance().getLongToken("udp1", context.getEncoding()));
+        authority.setRoleID(0);
+        authority.setUuid("udp1");
 
-		this.authorities.put(authority.getUsername(), authority);
+        this.authorities.put(authority.getUsername(), authority);
 
-		authority = new Authority();
+        authority = new Authority();
 
-		authority.setUsername("udp2");
-		authority.setPassword(MD5Token.getInstance().getLongToken("udp2", context.getEncoding()));
-		authority.setRoleID(0);
-		authority.setUuid("udp2");
+        authority.setUsername("udp2");
+        authority.setPassword(MD5Token.getInstance().getLongToken("udp2", context.getEncoding()));
+        authority.setRoleID(0);
+        authority.setUuid("udp2");
 
-		this.authorities.put(authority.getUsername(), authority);
+        this.authorities.put(authority.getUsername(), authority);
 
-	}
+    }
 
 }

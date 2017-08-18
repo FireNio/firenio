@@ -12,86 +12,88 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.authority;
 
 public class Authority {
-	
-	public static final Authority GUEST = new Authority(){{
-		setRoleID(-1);
-	}};
 
-	private String className;
-	
-	private String password;
+    public static final Authority GUEST = new Authority() {
+                                            {
+                                                setRoleID(-1);
+                                            }
+                                        };
 
-	private int roleID;
-		
-	private int userID;
-	
-	private String username;
-	
-	private String uuid;
+    private String                className;
 
-	public Authority() {
-		this.className = this.getClass().getName();
-	}
+    private String                password;
 
-	public Authority(String username, String uuid) {
-		this.username = username;
-		this.uuid = uuid;
-	}
+    private int                   roleID;
 
-	public String getClassName() {
-		return className;
-	}
+    private int                   userID;
 
-	public String getPassword() {
-		return password;
-	}
+    private String                username;
 
-	public int getRoleID() {
-		return roleID;
-	}
-	
-	public int getUserID() {
-		return userID;
-	}
+    private String                uuid;
 
-	public String getUsername() {
-		return username;
-	}
+    public Authority() {
+        this.className = this.getClass().getName();
+    }
 
-	public void setClassName(String className) {
-		this.className = className;
-	}
+    public Authority(String username, String uuid) {
+        this.username = username;
+        this.uuid = uuid;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public String getClassName() {
+        return className;
+    }
 
-	public void setRoleID(int roleID) {
-		this.roleID = roleID;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setUserID(int userID) {
-		this.userID = userID;
-	}
+    public int getRoleID() {
+        return roleID;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public int getUserID() {
+        return userID;
+    }
 
-	public String getUuid() {
-		return uuid;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
-	
-	@Override
-	public String toString() {
-		return "authority:"+username;
-	}
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setRoleID(int roleID) {
+        this.roleID = roleID;
+    }
+
+    public void setUserID(int userID) {
+        this.userID = userID;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    @Override
+    public String toString() {
+        return "authority:" + username;
+    }
 }

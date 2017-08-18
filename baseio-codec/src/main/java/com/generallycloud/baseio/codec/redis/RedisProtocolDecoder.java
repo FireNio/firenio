@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.redis;
 
 import java.io.IOException;
@@ -23,11 +23,11 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
-public class RedisProtocolDecoder implements ProtocolDecoder{
+public class RedisProtocolDecoder implements ProtocolDecoder {
 
-	@Override
-	public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
-		return new RedisFutureImpl(session.getContext());
-	}
-	
+    @Override
+    public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+        return new RedisFutureImpl(session.getContext());
+    }
+
 }

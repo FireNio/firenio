@@ -23,38 +23,38 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 //FIXME 扩展更多Channel
 public interface Channel extends Closeable {
 
-	public abstract void active();
+    public abstract void active();
 
-	public abstract long getCreationTime();
+    public abstract long getCreationTime();
 
-	public abstract long getLastAccessTime();
+    public abstract long getLastAccessTime();
 
-	public abstract String getLocalAddr();
+    public abstract String getLocalAddr();
 
-	public abstract String getLocalHost();
+    public abstract String getLocalHost();
 
-	public abstract int getLocalPort();
+    public abstract int getLocalPort();
 
-	public abstract boolean isOpened();
+    public abstract boolean isOpened();
 
-	public abstract String getRemoteAddr();
+    public abstract String getRemoteAddr();
 
-	public abstract String getRemoteHost();
+    public abstract String getRemoteHost();
 
-	public abstract int getRemotePort();
+    public abstract int getRemotePort();
 
-	public abstract ChannelContext getContext();
+    public abstract ChannelContext getContext();
 
-	public abstract InetSocketAddress getLocalSocketAddress();
+    public abstract InetSocketAddress getLocalSocketAddress();
 
-	public abstract Session getSession();
+    public abstract Session getSession();
 
-	public abstract int getChannelId();
-	
-	public abstract ByteBufAllocator getByteBufAllocator();
+    public abstract int getChannelId();
 
-	public abstract InetSocketAddress getRemoteSocketAddress();
+    public abstract ByteBufAllocator getByteBufAllocator();
 
-	public abstract boolean inSelectorLoop();
+    public abstract InetSocketAddress getRemoteSocketAddress();
+
+    public abstract boolean inSelectorLoop();
 
 }

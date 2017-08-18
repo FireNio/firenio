@@ -23,10 +23,10 @@ import java.io.File;
  */
 public class DefaultExtLoader implements ApplicationExtLoader {
 
-	@Override
-	public void loadExts(ApplicationContext context, DynamicClassLoader classLoader)
-			throws Exception {
-		classLoader.scan(new File(context.getAppLocalAddress()));
-	}
+    @Override
+    public void loadExts(ApplicationContext context, DynamicClassLoader classLoader)
+            throws Exception {
+        classLoader.scan(new File(context.getAppLocalAddress()));
+    }
 
 }

@@ -12,24 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.configuration;
 
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.component.JsonParameters;
 
-public class Configuration extends JsonParameters{
+public class Configuration extends JsonParameters {
 
-	public Configuration(JSONObject object) {
-		super(object);
-	}
+    public Configuration(JSONObject object) {
+        super(object);
+    }
 
-	public Configuration(String json) {
-		super(json);
-	}
-	
-	public Configuration(){
-		
-	}
+    public Configuration(String json) {
+        super(json);
+    }
+
+    public Configuration() {
+
+    }
 
 }

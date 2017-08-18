@@ -27,225 +27,227 @@ import com.generallycloud.baseio.log.LoggerFactory;
  * @author wangkai
  *
  */
-public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllocator{
+public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllocator {
 
-	protected int					capacity;
+    protected int               capacity;
 
-	protected int					mask;
+    protected int               mask;
 
-	protected int					unitMemorySize;
+    protected int               unitMemorySize;
 
-	protected ByteBufFactory		bufFactory;
+    protected ByteBufFactory    bufFactory;
 
-	protected ReentrantLock			lock		;
+    protected ReentrantLock     lock;
 
-	protected List<ByteBufUnit>		busyUnit	= new ArrayList<ByteBufUnit>();
+    protected List<ByteBufUnit> busyUnit = new ArrayList<>();
 
-	protected Logger				logger	= LoggerFactory.getLogger(AbstractPooledByteBufAllocator.class);
+    protected Logger            logger   = LoggerFactory
+            .getLogger(AbstractPooledByteBufAllocator.class);
 
-	public AbstractPooledByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
-		super(isDirect);
-		this.capacity = capacity;
-		this.unitMemorySize = unitMemorySize;
-	}
+    public AbstractPooledByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
+        super(isDirect);
+        this.capacity = capacity;
+        this.unitMemorySize = unitMemorySize;
+    }
 
-	@Override
-	public ByteBuf allocate(int limit) {
-		return allocate(bufFactory, limit);
-	}
-	
-	private PooledByteBuf allocate(ByteBufNew byteBufNew,int limit) {
-		
-		int size = (limit + unitMemorySize - 1) / unitMemorySize;
+    @Override
+    public ByteBuf allocate(int limit) {
+        return allocate(bufFactory, limit);
+    }
 
-		ReentrantLock lock = this.lock;
+    private PooledByteBuf allocate(ByteBufNew byteBufNew, int limit) {
 
-		lock.lock();
-		
-		try {
-			
-			if (!isRunning()) {
-				return null;
-			}
+        int size = (limit + unitMemorySize - 1) / unitMemorySize;
 
-			int mask = this.mask;
-			
-			PooledByteBuf buf = allocate(byteBufNew,limit, mask, this.capacity, size);
+        ReentrantLock lock = this.lock;
 
-			if (buf == null) {
+        lock.lock();
 
-				buf = allocate(byteBufNew,limit, 0, mask, size);
-			}
+        try {
 
-			return buf;
+            if (!isRunning()) {
+                return null;
+            }
 
-		} finally {
-			lock.unlock();
-		}
-	}
-	
-	@Override
-	public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
-		
-		if (limit <= buf.capacity()) {
-			
-			if (copyOld) {
-				return buf.limit(limit);
-			}
-			
-			return buf.position(0).limit(limit);
-		}
-		
-		if (copyOld) {
-			
-			PooledByteBuf newBuf = allocate(bufFactory,limit);
-			
-			if (newBuf == null) {
-				throw new BufferException("reallocate failed");
-			}
-			
-			newBuf.read(buf.flip());
-			
-			ReleaseUtil.release(buf);
-			
-			return buf.newByteBuf(this).produce(newBuf);
-		}
-		
-		ReleaseUtil.release(buf);
-		
-		ByteBuf newBuf = allocate(buf, limit);
-		
-		if (newBuf == null) {
-			throw new BufferException("reallocate failed");
-		}
-		return newBuf;
-	}
+            int mask = this.mask;
 
-	@Override
-	public void freeMemory() {
-		bufFactory.freeMemory();
-	}
+            PooledByteBuf buf = allocate(byteBufNew, limit, mask, this.capacity, size);
 
-	protected abstract PooledByteBuf allocate(ByteBufNew byteBufNew,int limit, int start, int end, int size);
+            if (buf == null) {
 
-	@Override
-	protected void doStart() throws Exception {
-		
-		lock		= new ReentrantLock();
+                buf = allocate(byteBufNew, limit, 0, mask, size);
+            }
 
-		createBufFactory();
+            return buf;
 
-		int capacity = this.capacity;
+        } finally {
+            lock.unlock();
+        }
+    }
 
-		initializeMemory(capacity * unitMemorySize);
+    @Override
+    public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
 
-		ByteBufUnit[] bufs = createUnits(capacity);
+        if (limit <= buf.capacity()) {
 
-		for (int i = 0; i < capacity; i++) {
-			ByteBufUnit buf = new ByteBufUnit();
-			buf.index = i;
-			bufs[i] = buf;
-		}
+            if (copyOld) {
+                return buf.limit(limit);
+            }
 
-	}
-	
-	protected abstract ByteBufUnit[] createUnits(int capacity) ;
-	
-	protected abstract ByteBufUnit[] getUnits() ;
+            return buf.position(0).limit(limit);
+        }
 
-	private void createBufFactory() {
-		if (isDirect) {
-			if (!(bufFactory instanceof DirectByteBufFactory)) {
-				bufFactory = new DirectByteBufFactory();
-			}
-		}else{
-			if (!(bufFactory instanceof HeapByteBufFactory)) {
-				bufFactory = new HeapByteBufFactory();
-			}
-		}
-	}
+        if (copyOld) {
 
-	@Override
-	public int getCapacity() {
-		return capacity;
-	}
+            PooledByteBuf newBuf = allocate(bufFactory, limit);
 
-	@Override
-	public int getUnitMemorySize() {
-		return unitMemorySize;
-	}
+            if (newBuf == null) {
+                throw new BufferException("reallocate failed");
+            }
 
-	protected void initializeMemory(int capacity) {
-		bufFactory.initializeMemory(capacity);
-	}
+            newBuf.read(buf.flip());
 
-	@Override
-	protected void doStop() throws Exception {
-		
-		ReentrantLock lock = this.lock;
-		
-		lock.lock();
-		
-		try{
-			freeMemory();
-		}finally{
-			lock.unlock();
-		}
-	}
-	
-	private int fillBusy(){
-		busyUnit.clear();
+            ReleaseUtil.release(buf);
 
-		ByteBufUnit[] memoryUnits = getUnits();
+            return buf.newByteBuf(this).produce(newBuf);
+        }
 
-		int free = 0;
+        ReleaseUtil.release(buf);
 
-		for (ByteBufUnit b : memoryUnits) {
+        ByteBuf newBuf = allocate(buf, limit);
 
-			if (b.free) {
-				free++;
-			} else {
-				busyUnit.add(b);
-			}
-		}
-		return free;
-	}
+        if (newBuf == null) {
+            throw new BufferException("reallocate failed");
+        }
+        return newBuf;
+    }
 
-	@Override
-	public synchronized String toString() {
+    @Override
+    public void freeMemory() {
+        bufFactory.freeMemory();
+    }
 
-		int free = fillBusy();
+    protected abstract PooledByteBuf allocate(ByteBufNew byteBufNew, int limit, int start, int end,
+            int size);
 
-		StringBuilder b = new StringBuilder();
-		b.append(this.getClass().getSimpleName());
-		b.append("[free=");
-		b.append(free);
-		b.append(",memory=");
-		b.append(capacity);
-		b.append(",isDirect=");
-		b.append(isDirect);
-		b.append("]");
-		return b.toString();
-	}
+    @Override
+    protected void doStart() throws Exception {
 
-	public synchronized void printBusy(){
-		fillBusy();
-		HeapByteBufFactory factory = (HeapByteBufFactory) bufFactory;
-		byte [] memory = factory.getMemory();
-		if (busyUnit.size() == 0) {
-			logger.info("no busy to print!");
-		}
-		for (int i = 0; i < busyUnit.size(); i++) {
-			ByteBufUnit u = busyUnit.get(i);
-			int off = unitMemorySize * u.index;
-			int end = unitMemorySize * u.blockEnd;
-			StringBuilder b = new StringBuilder((end - off) * 4);
-			for (int j = off; j < end; j++) {
-				b.append(memory[j]);
-				b.append(',');
-			}
-			logger.info("busy memory:{}",b);
-		}
-	}
-	
+        lock = new ReentrantLock();
+
+        createBufFactory();
+
+        int capacity = this.capacity;
+
+        initializeMemory(capacity * unitMemorySize);
+
+        ByteBufUnit[] bufs = createUnits(capacity);
+
+        for (int i = 0; i < capacity; i++) {
+            ByteBufUnit buf = new ByteBufUnit();
+            buf.index = i;
+            bufs[i] = buf;
+        }
+
+    }
+
+    protected abstract ByteBufUnit[] createUnits(int capacity);
+
+    protected abstract ByteBufUnit[] getUnits();
+
+    private void createBufFactory() {
+        if (isDirect) {
+            if (!(bufFactory instanceof DirectByteBufFactory)) {
+                bufFactory = new DirectByteBufFactory();
+            }
+        } else {
+            if (!(bufFactory instanceof HeapByteBufFactory)) {
+                bufFactory = new HeapByteBufFactory();
+            }
+        }
+    }
+
+    @Override
+    public int getCapacity() {
+        return capacity;
+    }
+
+    @Override
+    public int getUnitMemorySize() {
+        return unitMemorySize;
+    }
+
+    protected void initializeMemory(int capacity) {
+        bufFactory.initializeMemory(capacity);
+    }
+
+    @Override
+    protected void doStop() throws Exception {
+
+        ReentrantLock lock = this.lock;
+
+        lock.lock();
+
+        try {
+            freeMemory();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private int fillBusy() {
+        busyUnit.clear();
+
+        ByteBufUnit[] memoryUnits = getUnits();
+
+        int free = 0;
+
+        for (ByteBufUnit b : memoryUnits) {
+
+            if (b.free) {
+                free++;
+            } else {
+                busyUnit.add(b);
+            }
+        }
+        return free;
+    }
+
+    @Override
+    public synchronized String toString() {
+
+        int free = fillBusy();
+
+        StringBuilder b = new StringBuilder();
+        b.append(this.getClass().getSimpleName());
+        b.append("[free=");
+        b.append(free);
+        b.append(",memory=");
+        b.append(capacity);
+        b.append(",isDirect=");
+        b.append(isDirect);
+        b.append("]");
+        return b.toString();
+    }
+
+    public synchronized void printBusy() {
+        fillBusy();
+        HeapByteBufFactory factory = (HeapByteBufFactory) bufFactory;
+        byte[] memory = factory.getMemory();
+        if (busyUnit.size() == 0) {
+            logger.info("no busy to print!");
+        }
+        for (int i = 0; i < busyUnit.size(); i++) {
+            ByteBufUnit u = busyUnit.get(i);
+            int off = unitMemorySize * u.index;
+            int end = unitMemorySize * u.blockEnd;
+            StringBuilder b = new StringBuilder((end - off) * 4);
+            for (int j = off; j < end; j++) {
+                b.append(memory[j]);
+                b.append(',');
+            }
+            logger.info("busy memory:{}", b);
+        }
+    }
+
 }

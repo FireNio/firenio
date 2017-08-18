@@ -27,106 +27,107 @@ import com.generallycloud.baseio.common.CloseUtil;
 
 public class DatagramSessionManager extends AbstractSessionManager {
 
-	private DatagramChannelContext						context			= null;
-	private ConcurrentMap<InetSocketAddress, DatagramSession>	sessions			= new ConcurrentHashMap<>();
-	private Map<InetSocketAddress, DatagramSession>			readOnlySessions	= Collections.unmodifiableMap(sessions);
+    private DatagramChannelContext                            context          = null;
+    private ConcurrentMap<InetSocketAddress, DatagramSession> sessions         = new ConcurrentHashMap<>();
+    private Map<InetSocketAddress, DatagramSession>           readOnlySessions = Collections
+            .unmodifiableMap(sessions);
 
-	public DatagramSessionManager(DatagramChannelContext context) {
-		super(context.getSessionIdleTime());
-		this.context = context;
-	}
+    public DatagramSessionManager(DatagramChannelContext context) {
+        super(context.getSessionIdleTime());
+        this.context = context;
+    }
 
-	@Override
-	protected void sessionIdle(long lastIdleTime, long currentTime) {
+    @Override
+    protected void sessionIdle(long lastIdleTime, long currentTime) {
 
-		Map<InetSocketAddress, DatagramSession> map = sessions;
+        Map<InetSocketAddress, DatagramSession> map = sessions;
 
-		if (map.size() == 0) {
-			return;
-		}
+        if (map.size() == 0) {
+            return;
+        }
 
-		Collection<DatagramSession> es = map.values();
+        Collection<DatagramSession> es = map.values();
 
-		DatagramChannelContext context = this.context;
+        DatagramChannelContext context = this.context;
 
-		for (DatagramSession session : es) {
+        for (DatagramSession session : es) {
 
-			sessionIdle(context, session, lastIdleTime, currentTime);
-		}
+            sessionIdle(context, session, lastIdleTime, currentTime);
+        }
 
-	}
+    }
 
-	protected void sessionIdle(DatagramChannelContext context, DatagramSession session,
-			long lastIdleTime, long currentTime) {
-		//FIXME rm session
-	}
+    protected void sessionIdle(DatagramChannelContext context, DatagramSession session,
+            long lastIdleTime, long currentTime) {
+        //FIXME rm session
+    }
 
-	@Override
-	public void stop() {
+    @Override
+    public void stop() {
 
-		Map<InetSocketAddress, DatagramSession> map = sessions;
+        Map<InetSocketAddress, DatagramSession> map = sessions;
 
-		if (map.size() == 0) {
-			return;
-		}
+        if (map.size() == 0) {
+            return;
+        }
 
-		Collection<DatagramSession> es = map.values();
+        Collection<DatagramSession> es = map.values();
 
-		for (DatagramSession session : es) {
+        for (DatagramSession session : es) {
 
-			CloseUtil.close(session);
-		}
-	}
+            CloseUtil.close(session);
+        }
+    }
 
-	public void putSession(DatagramSession session) {
+    public void putSession(DatagramSession session) {
 
-		ConcurrentMap<InetSocketAddress, DatagramSession> sessions = this.sessions;
+        ConcurrentMap<InetSocketAddress, DatagramSession> sessions = this.sessions;
 
-		InetSocketAddress remote = session.getRemoteSocketAddress();
+        InetSocketAddress remote = session.getRemoteSocketAddress();
 
-		DatagramSession old = sessions.get(remote);
+        DatagramSession old = sessions.get(remote);
 
-		if (old != null) {
-			CloseUtil.close(old);
-			removeSession(old);
-		}
+        if (old != null) {
+            CloseUtil.close(old);
+            removeSession(old);
+        }
 
-		sessions.put(remote, session);
-	}
+        sessions.put(remote, session);
+    }
 
-	public void removeSession(DatagramSession session) {
-		sessions.remove(session.getRemoteSocketAddress());
-	}
+    public void removeSession(DatagramSession session) {
+        sessions.remove(session.getRemoteSocketAddress());
+    }
 
-	public int getManagedSessionSize() {
-		return sessions.size();
-	}
+    @Override
+    public int getManagedSessionSize() {
+        return sessions.size();
+    }
 
-	public DatagramSession getSession(InetSocketAddress sessionID) {
-		return sessions.get(sessionID);
-	}
+    public DatagramSession getSession(InetSocketAddress sessionID) {
+        return sessions.get(sessionID);
+    }
 
-	public DatagramSession getSession(java.nio.channels.DatagramChannel nioChannel,
-			InetSocketAddress remote, DatagramSelectorEventLoop selectorLoop)
-			throws IOException {
+    public DatagramSession getSession(java.nio.channels.DatagramChannel nioChannel,
+            InetSocketAddress remote, DatagramSelectorEventLoop selectorLoop) throws IOException {
 
-		DatagramSession session = sessions.get(remote);
+        DatagramSession session = sessions.get(remote);
 
-		if (session == null) {
+        if (session == null) {
 
-			@SuppressWarnings("resource")
-			DatagramChannel channel = new NioDatagramChannel(selectorLoop, nioChannel, remote,1);
+            @SuppressWarnings("resource")
+            DatagramChannel channel = new NioDatagramChannel(selectorLoop, nioChannel, remote, 1);
 
-			session = channel.getSession();
+            session = channel.getSession();
 
-			putSession(session);
-		}
+            putSession(session);
+        }
 
-		return session;
-	}
-	
-	public Map<InetSocketAddress, DatagramSession> getManagedSessions() {
-		return readOnlySessions;
-	}
+        return session;
+    }
+
+    public Map<InetSocketAddress, DatagramSession> getManagedSessions() {
+        return readOnlySessions;
+    }
 
 }

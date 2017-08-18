@@ -25,43 +25,45 @@ import com.generallycloud.baseio.log.DebugUtil;
 
 public class ApplicationBootstrap {
 
-	public static void main(String[] args) throws Exception {
-		
-		String className = ApplicationBootstrapEngine.class.getName(); 
-		
-		String rootPath = StringUtil.getValueFromArray(args, 0,FileUtil.getCurrentPath());
-		
-		DebugUtil.info(" ROOT_PATH: {}", rootPath);
-		
-		boolean deployModel = Boolean.parseBoolean(StringUtil.getValueFromArray(args, 1, "false"));
+    public static void main(String[] args) throws Exception {
 
-		startup(className,rootPath,deployModel);
-	}
-	
-	public static void startup(String className,String rootPath,boolean deployModel) throws Exception{
-		
-		URLDynamicClassLoader classLoader = newClassLoader(deployModel, rootPath);
+        String className = ApplicationBootstrapEngine.class.getName();
 
-		Class<?> bootClass = classLoader.loadClass(className);
+        String rootPath = StringUtil.getValueFromArray(args, 0, FileUtil.getCurrentPath());
 
-		Thread.currentThread().setContextClassLoader(classLoader); 
-		
-		Bootstrap startup = (Bootstrap) bootClass.newInstance();
-		
-		startup.bootstrap(rootPath, deployModel);
-	}
-	
-	private static URLDynamicClassLoader newClassLoader(boolean deployModel,String rootLocalAddress) throws IOException{
-		URLDynamicClassLoader classLoader = new URLDynamicClassLoader(false);
-		classLoader.addMatchExtend(Bootstrap.class.getName());
-		if (deployModel) {
-			classLoader.scan(new File(rootLocalAddress+"/lib"));
-			classLoader.scan(new File(rootLocalAddress+"/conf"));
-		}else{
-			classLoader.addExcludePath("/app");
-			classLoader.scan(new File(rootLocalAddress));
-		}
-		return classLoader;
-	}
+        DebugUtil.info(" ROOT_PATH: {}", rootPath);
+
+        boolean deployModel = Boolean.parseBoolean(StringUtil.getValueFromArray(args, 1, "false"));
+
+        startup(className, rootPath, deployModel);
+    }
+
+    public static void startup(String className, String rootPath, boolean deployModel)
+            throws Exception {
+
+        URLDynamicClassLoader classLoader = newClassLoader(deployModel, rootPath);
+
+        Class<?> bootClass = classLoader.loadClass(className);
+
+        Thread.currentThread().setContextClassLoader(classLoader);
+
+        Bootstrap startup = (Bootstrap) bootClass.newInstance();
+
+        startup.bootstrap(rootPath, deployModel);
+    }
+
+    private static URLDynamicClassLoader newClassLoader(boolean deployModel,
+            String rootLocalAddress) throws IOException {
+        URLDynamicClassLoader classLoader = new URLDynamicClassLoader(false);
+        classLoader.addMatchExtend(Bootstrap.class.getName());
+        if (deployModel) {
+            classLoader.scan(new File(rootLocalAddress + "/lib"));
+            classLoader.scan(new File(rootLocalAddress + "/conf"));
+        } else {
+            classLoader.addExcludePath("/app");
+            classLoader.scan(new File(rootLocalAddress));
+        }
+        return classLoader;
+    }
 
 }

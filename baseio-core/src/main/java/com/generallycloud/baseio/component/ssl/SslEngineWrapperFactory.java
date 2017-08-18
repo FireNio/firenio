@@ -23,7 +23,7 @@ import javax.net.ssl.SSLEngine;
  */
 public interface SslEngineWrapperFactory {
 
-     SSLEngine wrapSslEngine(SSLEngine engine, JdkApplicationProtocolNegotiator applicationNegotiator,
-             boolean isServer);
-     
+    SSLEngine wrapSslEngine(SSLEngine engine,
+            JdkApplicationProtocolNegotiator applicationNegotiator, boolean isServer);
+
 }

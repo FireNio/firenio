@@ -25,132 +25,133 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.protocol.DatagramPacket;
 
-public class NioDatagramChannel extends AbstractChannel implements com.generallycloud.baseio.component.DatagramChannel {
+public class NioDatagramChannel extends AbstractChannel
+        implements com.generallycloud.baseio.component.DatagramChannel {
 
-	private DatagramChannel			channel;
-	private DatagramChannelContext	context;
-	private DatagramSession			session;
-	private DatagramSelectorEventLoop selectorLoop;
+    private DatagramChannel           channel;
+    private DatagramChannelContext    context;
+    private DatagramSession           session;
+    private DatagramSelectorEventLoop selectorLoop;
 
-	public NioDatagramChannel(DatagramSelectorEventLoop selectorLoop, DatagramChannel channel,
-			InetSocketAddress remote,int channelId){
-		super(selectorLoop.getByteBufAllocator(),selectorLoop.getChannelContext(),channelId);
-		this.selectorLoop = selectorLoop;
-		this.context = selectorLoop.getChannelContext();
-		this.channel = channel;
-		this.remote = remote;
-		this.session = new DatagramSession(this);
-	}
-	
-	@Override
-	public void close() throws IOException {
-		ReentrantLock lock = getCloseLock();
-		lock.lock();
-		try{
-			if (!isOpened()) {
-				return;
-			}
-			physicalClose();
-		}finally{
-			lock.unlock();
-		}
-	}
+    public NioDatagramChannel(DatagramSelectorEventLoop selectorLoop, DatagramChannel channel,
+            InetSocketAddress remote, int channelId) {
+        super(selectorLoop.getByteBufAllocator(), selectorLoop.getChannelContext(), channelId);
+        this.selectorLoop = selectorLoop;
+        this.context = selectorLoop.getChannelContext();
+        this.channel = channel;
+        this.remote = remote;
+        this.session = new DatagramSession(this);
+    }
 
-	@Override
-	public DatagramChannelContext getContext() {
-		return context;
-	}
+    @Override
+    public void close() throws IOException {
+        ReentrantLock lock = getCloseLock();
+        lock.lock();
+        try {
+            if (!isOpened()) {
+                return;
+            }
+            physicalClose();
+        } finally {
+            lock.unlock();
+        }
+    }
 
-	@Override
-	protected void physicalClose() {
-		CloseUtil.close(channel);
-	}
+    @Override
+    public DatagramChannelContext getContext() {
+        return context;
+    }
 
-	@Override
-	public InetSocketAddress getLocalSocketAddress() {
-		if (local == null) {
-			try {
-				local = (InetSocketAddress) channel.getLocalAddress();
-			} catch (IOException e) {
-				local = ERROR_SOCKET_ADDRESS;
-			}
-		}
-		return local;
-	}
+    @Override
+    protected void physicalClose() {
+        CloseUtil.close(channel);
+    }
 
-	@Override
-	public InetSocketAddress getRemoteSocketAddress() {
-		return remote;
-	}
+    @Override
+    public InetSocketAddress getLocalSocketAddress() {
+        if (local == null) {
+            try {
+                local = (InetSocketAddress) channel.getLocalAddress();
+            } catch (IOException e) {
+                local = ERROR_SOCKET_ADDRESS;
+            }
+        }
+        return local;
+    }
 
-	@Override
-	public DatagramSession getSession() {
-		return session;
-	}
+    @Override
+    public InetSocketAddress getRemoteSocketAddress() {
+        return remote;
+    }
 
-//	private void sendPacket(ByteBuf buf, SocketAddress socketAddress) throws IOException {
-//		channel.send(buf.nioBuffer(), socketAddress);
-//	}
-	
-	private void sendPacket(ByteBuffer buffer, SocketAddress socketAddress) throws IOException {
-		channel.send(buffer, socketAddress);
-	}
+    @Override
+    public DatagramSession getSession() {
+        return session;
+    }
 
-	@Override
-	protected String getMarkPrefix() {
-		return "udp";
-	}
+    //	private void sendPacket(ByteBuf buf, SocketAddress socketAddress) throws IOException {
+    //		channel.send(buf.nioBuffer(), socketAddress);
+    //	}
 
-	@Override
-	public boolean isOpened() {
-		return channel.isConnected() || channel.isOpen();
-	}
+    private void sendPacket(ByteBuffer buffer, SocketAddress socketAddress) throws IOException {
+        channel.send(buffer, socketAddress);
+    }
 
-	@Override
-	public void sendPacket(DatagramPacket packet, SocketAddress socketAddress) throws IOException {
-		sendPacket(ByteBuffer.wrap(packet.getData()),socketAddress);
-//		ByteBuf buf = allocate(packet);
-//		try {
-//			sendPacket(buf.flip(), socketAddress);
-//		} finally {
-//			ReleaseUtil.release(buf);
-//		}
-	}
+    @Override
+    protected String getMarkPrefix() {
+        return "udp";
+    }
 
-	@Override
-	public void sendPacket(DatagramPacket packet) throws IOException {
-		sendPacket(packet, remote);
-	}
+    @Override
+    public boolean isOpened() {
+        return channel.isConnected() || channel.isOpen();
+    }
 
-//	private ByteBuf allocate(DatagramPacket packet) {
-//
-//		if (packet.getTimestamp() == -1) {
-//
-//			int length = packet.getData().length;
-//
-//			ByteBuf buf = session.getByteBufAllocator().allocate(DatagramPacket.PACKET_HEADER + length);
-//			buf.skipBytes(DatagramPacket.PACKET_HEADER);
-//			buf.put(packet.getData());
-//			return buf;
-//		}
-//
-//		return allocate(packet.getTimestamp(), packet.getSequenceNo(), packet.getData());
-//	}
-//
-//	private ByteBuf allocate(long timestamp, int sequenceNO, byte[] data) {
-//
-//		ByteBuf buf = session.getByteBufAllocator().allocate(DatagramPacket.PACKET_MAX);
-//
-//		buf.putLong(0);
-//		buf.putInt(sequenceNO);
-//		buf.put(data);
-//
-//		return buf;
-//	}
+    @Override
+    public void sendPacket(DatagramPacket packet, SocketAddress socketAddress) throws IOException {
+        sendPacket(ByteBuffer.wrap(packet.getData()), socketAddress);
+        //		ByteBuf buf = allocate(packet);
+        //		try {
+        //			sendPacket(buf.flip(), socketAddress);
+        //		} finally {
+        //			ReleaseUtil.release(buf);
+        //		}
+    }
 
-	@Override
-	public boolean inSelectorLoop() {
-		return selectorLoop.inEventLoop();
-	}
+    @Override
+    public void sendPacket(DatagramPacket packet) throws IOException {
+        sendPacket(packet, remote);
+    }
+
+    //	private ByteBuf allocate(DatagramPacket packet) {
+    //
+    //		if (packet.getTimestamp() == -1) {
+    //
+    //			int length = packet.getData().length;
+    //
+    //			ByteBuf buf = session.getByteBufAllocator().allocate(DatagramPacket.PACKET_HEADER + length);
+    //			buf.skipBytes(DatagramPacket.PACKET_HEADER);
+    //			buf.put(packet.getData());
+    //			return buf;
+    //		}
+    //
+    //		return allocate(packet.getTimestamp(), packet.getSequenceNo(), packet.getData());
+    //	}
+    //
+    //	private ByteBuf allocate(long timestamp, int sequenceNO, byte[] data) {
+    //
+    //		ByteBuf buf = session.getByteBufAllocator().allocate(DatagramPacket.PACKET_MAX);
+    //
+    //		buf.putLong(0);
+    //		buf.putInt(sequenceNO);
+    //		buf.put(data);
+    //
+    //		return buf;
+    //	}
+
+    @Override
+    public boolean inSelectorLoop() {
+        return selectorLoop.inEventLoop();
+    }
 
 }

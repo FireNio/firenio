@@ -19,68 +19,69 @@ import java.nio.ByteBuffer;
 
 public class PooledDirectByteBuf extends AbstractDirectByteBuf implements PooledByteBuf {
 
-	protected PooledDirectByteBuf(ByteBufAllocator allocator,ByteBuffer memory) {
-		super(allocator,memory);
-	}
+    protected PooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
+        super(allocator, memory);
+    }
 
-	private int		beginUnit;
+    private int beginUnit;
 
-	@Override
-	public int getBeginUnit() {
-		return beginUnit;
-	}
+    @Override
+    public int getBeginUnit() {
+        return beginUnit;
+    }
 
-	@Override
-	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
-		return this;
-	}
-	
-	@Override
-	public ByteBuf duplicate() {
-		synchronized (this) {
-			if (released) {
-				throw new ReleasedException("released");
-			}
-			this.referenceCount++;
-			return new DuplicateByteBuf(
-					new PooledDirectByteBuf(allocator, memory.duplicate()).produce(this), this);
-		}
-	}
+    @Override
+    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+        return this;
+    }
 
-	protected ByteBuf doDuplicate() {
-		
-		PooledDirectByteBuf buf = new PooledDirectByteBuf(allocator, memory.duplicate()).produce(this);
-		
-		return new DuplicateByteBuf(buf, this);
-	}
-	
-	@Override
-	public PooledByteBuf produce(int begin, int end, int newLimit) {
-		this.offset = begin * allocator.getUnitMemorySize();
-		this.capacity = (end - begin) * allocator.getUnitMemorySize();
-		this.limit(newLimit);
-		this.position(0);
-		this.beginUnit = begin;
-		this.referenceCount = 1;
-		this.released = false;
-		return this;
-	}
-	
-	@Override
-	public PooledDirectByteBuf produce(PooledByteBuf buf) {
-		this.offset = buf.offset();
-		this.capacity = buf.capacity();
-		this.limit(buf.limit());
-		this.position(buf.position());
-		this.beginUnit = buf.getBeginUnit();
-		this.referenceCount = 1;
-		this.released = false;
-		return this;
-	}
+    @Override
+    public ByteBuf duplicate() {
+        synchronized (this) {
+            if (released) {
+                throw new ReleasedException("released");
+            }
+            this.referenceCount++;
+            return new DuplicateByteBuf(
+                    new PooledDirectByteBuf(allocator, memory.duplicate()).produce(this), this);
+        }
+    }
 
-	@Override
-	protected void doRelease() {
-		allocator.release(this);
-	}
-	
+    protected ByteBuf doDuplicate() {
+
+        PooledDirectByteBuf buf = new PooledDirectByteBuf(allocator, memory.duplicate())
+                .produce(this);
+
+        return new DuplicateByteBuf(buf, this);
+    }
+
+    @Override
+    public PooledByteBuf produce(int begin, int end, int newLimit) {
+        this.offset = begin * allocator.getUnitMemorySize();
+        this.capacity = (end - begin) * allocator.getUnitMemorySize();
+        this.limit(newLimit);
+        this.position(0);
+        this.beginUnit = begin;
+        this.referenceCount = 1;
+        this.released = false;
+        return this;
+    }
+
+    @Override
+    public PooledDirectByteBuf produce(PooledByteBuf buf) {
+        this.offset = buf.offset();
+        this.capacity = buf.capacity();
+        this.limit(buf.limit());
+        this.position(buf.position());
+        this.beginUnit = buf.getBeginUnit();
+        this.referenceCount = 1;
+        this.released = false;
+        return this;
+    }
+
+    @Override
+    protected void doRelease() {
+        allocator.release(this);
+    }
+
 }

@@ -27,38 +27,38 @@ import com.generallycloud.baseio.file.RAFOutputStream;
  */
 public class FileLoggerPrinter implements LoggerPrinter {
 
-	private RAFOutputStream outputStream;
+    private RAFOutputStream outputStream;
 
-	public FileLoggerPrinter(File file) throws IOException {
-		if (!file.exists()) {
-			FileUtil.createDirectory(file.getParentFile());
-		}
-		this.outputStream = new RAFOutputStream(file);
-	}
+    public FileLoggerPrinter(File file) throws IOException {
+        if (!file.exists()) {
+            FileUtil.createDirectory(file.getParentFile());
+        }
+        this.outputStream = new RAFOutputStream(file);
+    }
 
-	@Override
-	public synchronized void println(String msg) {
-		try {
-			outputStream.write((msg+"\n").getBytes());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    @Override
+    public synchronized void println(String msg) {
+        try {
+            outputStream.write((msg + "\n").getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	@Override
-	public void printThrowable(Throwable t) {
-		String msg = DebugUtil.exception2string(t);
-		println(msg);
-	}
+    @Override
+    public void printThrowable(Throwable t) {
+        String msg = DebugUtil.exception2string(t);
+        println(msg);
+    }
 
-	@Override
-	public void errPrintln(String msg) {
-		println(msg);
-	}
+    @Override
+    public void errPrintln(String msg) {
+        println(msg);
+    }
 
-	@Override
-	public void errPrintThrowable(Throwable t) {
-		printThrowable(t);
-	}
+    @Override
+    public void errPrintThrowable(Throwable t) {
+        printThrowable(t);
+    }
 
 }

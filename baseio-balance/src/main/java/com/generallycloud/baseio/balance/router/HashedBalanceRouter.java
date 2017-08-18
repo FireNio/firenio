@@ -22,34 +22,34 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class HashedBalanceRouter extends AbstractBalanceRouter {
 
-	public HashedBalanceRouter(int maxNode) {
-		this.virtualNodes = new VirtualNodes<BalanceReverseSocketSession>(maxNode);
-	}
+    public HashedBalanceRouter(int maxNode) {
+        this.virtualNodes = new VirtualNodes<>(maxNode);
+    }
 
-	private VirtualNodes<BalanceReverseSocketSession> virtualNodes;
+    private VirtualNodes<BalanceReverseSocketSession> virtualNodes;
 
-	@Override
-	public void addRouterSession(BalanceReverseSocketSession session) {
-		virtualNodes.addMachine(session);
-	}
+    @Override
+    public void addRouterSession(BalanceReverseSocketSession session) {
+        virtualNodes.addMachine(session);
+    }
 
-	@Override
-	public void removeRouterSession(BalanceReverseSocketSession session) {
-		virtualNodes.removeMachine(session);
-	}
+    @Override
+    public void removeRouterSession(BalanceReverseSocketSession session) {
+        virtualNodes.removeMachine(session);
+    }
 
-	@Override
-	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session,
-			Future future) {
+    @Override
+    public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session,
+            Future future) {
 
-		HashedBalanceFuture f = (HashedBalanceFuture) future;
+        HashedBalanceFuture f = (HashedBalanceFuture) future;
 
-		return virtualNodes.getMachine(f.getHashCode());
-	}
+        return virtualNodes.getMachine(f.getHashCode());
+    }
 
-	@Override
-	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session) {
-		return null;
-	}
+    @Override
+    public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session) {
+        return null;
+    }
 
 }

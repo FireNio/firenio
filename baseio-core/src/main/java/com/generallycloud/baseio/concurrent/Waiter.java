@@ -12,105 +12,104 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.concurrent;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Waiter<T>{
+public class Waiter<T> {
 
-	private ReentrantLock	lock		= new ReentrantLock();
-	private Condition		callback	= lock.newCondition();
-	private boolean		isDnoe;
-	private boolean		timeouted;
-	private T				t;
-	
-	/**
-	 * @param timeout
-	 * @return timeouted
-	 */
-	public boolean await() {
+    private ReentrantLock lock     = new ReentrantLock();
+    private Condition     callback = lock.newCondition();
+    private boolean       isDnoe;
+    private boolean       timeouted;
+    private T             t;
 
-		ReentrantLock lock = this.lock;
+    /**
+     * @param timeout
+     * @return timeouted
+     */
+    public boolean await() {
 
-		lock.lock();
+        ReentrantLock lock = this.lock;
 
-		if (isDnoe) {
+        lock.lock();
 
-			lock.unlock();
+        if (isDnoe) {
 
-			return false;
-		}
+            lock.unlock();
 
-		try {
-			callback.await();
-		} catch (InterruptedException e) {
-			callback.signal();
-		}
+            return false;
+        }
 
-		timeouted = !isDnoe;
+        try {
+            callback.await();
+        } catch (InterruptedException e) {
+            callback.signal();
+        }
 
-		lock.unlock();
+        timeouted = !isDnoe;
 
-		return timeouted;
-	}
-	
+        lock.unlock();
 
-	/**
-	 * @param timeout
-	 * @return timeouted
-	 */
-	public boolean await(long timeout) {
+        return timeouted;
+    }
 
-		ReentrantLock lock = this.lock;
+    /**
+     * @param timeout
+     * @return timeouted
+     */
+    public boolean await(long timeout) {
 
-		lock.lock();
+        ReentrantLock lock = this.lock;
 
-		if (isDnoe) {
+        lock.lock();
 
-			lock.unlock();
+        if (isDnoe) {
 
-			return false;
-		}
+            lock.unlock();
 
-		try {
-			callback.await(timeout, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			callback.signal();
-		}
+            return false;
+        }
 
-		timeouted = !isDnoe;
+        try {
+            callback.await(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            callback.signal();
+        }
 
-		lock.unlock();
+        timeouted = !isDnoe;
 
-		return timeouted;
-	}
+        lock.unlock();
 
-	public void setPayload(T t) {
-		ReentrantLock lock = this.lock;
+        return timeouted;
+    }
 
-		lock.lock();
+    public void setPayload(T t) {
+        ReentrantLock lock = this.lock;
 
-		this.isDnoe = true;
+        lock.lock();
 
-		this.t = t;
+        this.isDnoe = true;
 
-		callback.signal();
+        this.t = t;
 
-		lock.unlock();
-	}
-	
-	public boolean isDnoe() {
-		return isDnoe;
-	}
+        callback.signal();
 
-	public T getPayload() {
-		return t;
-	}
+        lock.unlock();
+    }
 
-	public boolean isTimeouted() {
-		return timeouted;
-	}
+    public boolean isDnoe() {
+        return isDnoe;
+    }
+
+    public T getPayload() {
+        return t;
+    }
+
+    public boolean isTimeouted() {
+        return timeouted;
+    }
 }

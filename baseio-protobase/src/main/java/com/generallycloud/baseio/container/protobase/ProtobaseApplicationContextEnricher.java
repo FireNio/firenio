@@ -30,28 +30,28 @@ import com.generallycloud.baseio.container.service.FutureAcceptorServiceFilter;
  * @author wangkai
  *
  */
-public class ProtobaseApplicationContextEnricher implements ApplicationContextEnricher{
+public class ProtobaseApplicationContextEnricher implements ApplicationContextEnricher {
 
-	@Override
-	public void enrich(ApplicationContext context) {
-		
-		SocketChannelContext channelContext = context.getChannelContext();
+    @Override
+    public void enrich(ApplicationContext context) {
 
-		context.setServiceFilter(new FutureAcceptorServiceFilter());
-		
-		//FIXME 重复的
-		Set<String> blackIPs = context.getBlackIPs();
-		
-		if (blackIPs != null && !blackIPs.isEmpty()) {
-			channelContext.addSessionEventListener(new BlackIPFilter(blackIPs));
-		}
+        SocketChannelContext channelContext = context.getChannelContext();
 
-		channelContext.addSessionEventListener(new LoggerSocketSEListener());
+        context.setServiceFilter(new FutureAcceptorServiceFilter());
 
-		channelContext.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		channelContext.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
-		
-	}
-	
+        //FIXME 重复的
+        Set<String> blackIPs = context.getBlackIPs();
+
+        if (blackIPs != null && !blackIPs.isEmpty()) {
+            channelContext.addSessionEventListener(new BlackIPFilter(blackIPs));
+        }
+
+        channelContext.addSessionEventListener(new LoggerSocketSEListener());
+
+        channelContext.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        channelContext.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
+
+    }
+
 }

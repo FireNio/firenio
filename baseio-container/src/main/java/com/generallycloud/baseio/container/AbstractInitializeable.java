@@ -12,30 +12,28 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
 
 import com.generallycloud.baseio.container.configuration.Configuration;
 
 public abstract class AbstractInitializeable implements Initializeable {
 
-	private Configuration	config	;
+    private Configuration config;
 
-	@Override
-	public Configuration getConfig() {
-		return this.config;
-	}
+    @Override
+    public Configuration getConfig() {
+        return this.config;
+    }
 
-	@Override
-	public void setConfig(Configuration config) {
-		this.config = config;
-	}
+    @Override
+    public void setConfig(Configuration config) {
+        this.config = config;
+    }
 
-	@Override
-	public void destroy(ApplicationContext context, Configuration config) throws Exception {
-	}
-	
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
-	}
+    @Override
+    public void destroy(ApplicationContext context, Configuration config) throws Exception {}
+
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {}
 }

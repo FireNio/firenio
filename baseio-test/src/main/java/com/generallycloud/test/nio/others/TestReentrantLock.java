@@ -25,26 +25,26 @@ import com.generallycloud.baseio.common.ThreadUtil;
  */
 public class TestReentrantLock {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		ReentrantLock lock = new ReentrantLock();
+        ReentrantLock lock = new ReentrantLock();
 
-		ThreadUtil.execute(() -> {
+        ThreadUtil.execute(() -> {
 
-			lock.lock();
+            lock.lock();
 
-			lock.unlock();
+            lock.unlock();
 
-		});
+        });
 
-		ThreadUtil.execute(() -> {
+        ThreadUtil.execute(() -> {
 
-			lock.lock();
+            lock.lock();
 
-			lock.unlock();
+            lock.unlock();
 
-		});
+        });
 
-	}
+    }
 
 }

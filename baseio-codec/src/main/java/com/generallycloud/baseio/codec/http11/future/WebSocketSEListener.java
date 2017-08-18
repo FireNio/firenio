@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http11.future;
 
 import com.generallycloud.baseio.codec.http11.WebSocketProtocolDecoder;
@@ -23,31 +23,32 @@ import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class WebSocketSEListener extends SocketSessionEventListenerAdapter{
-	
-	private Logger logger = LoggerFactory.getLogger(WebSocketSEListener.class);
+public class WebSocketSEListener extends SocketSessionEventListenerAdapter {
 
-	public void sessionClosed(SocketSession session) {
-		
-		if(!WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolId())){
-			return;
-		}
-		
-		SocketChannelContext context = session.getContext();
-		
-		WebSocketFutureImpl future = new WebSocketFutureImpl(context);
-		
-		future.setType(WebSocketProtocolDecoder.TYPE_CLOSE);
-		
-		future.setServiceName(session);
-		
-		try {
-			context.getForeReadFutureAcceptor().accept(session, future);
-		} catch (Exception e) {
-			logger.error(e.getMessage(),e);
-		}
-		
-		super.sessionClosed(session);
-	}
-	
+    private Logger logger = LoggerFactory.getLogger(WebSocketSEListener.class);
+
+    @Override
+    public void sessionClosed(SocketSession session) {
+
+        if (!WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolId())) {
+            return;
+        }
+
+        SocketChannelContext context = session.getContext();
+
+        WebSocketFutureImpl future = new WebSocketFutureImpl(context);
+
+        future.setType(WebSocketProtocolDecoder.TYPE_CLOSE);
+
+        future.setServiceName(session);
+
+        try {
+            context.getForeReadFutureAcceptor().accept(session, future);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        super.sessionClosed(session);
+    }
+
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.others;
 
 import java.io.File;
@@ -23,22 +23,15 @@ import com.generallycloud.baseio.common.CloseUtil;
 
 public class TestFileInputStream {
 
-	
-	
-	public static void main(String[] args) throws IOException {
-		
-		
-		File file = new File("test.txt");
-		
-		
-		FileInputStream inputStream = new FileInputStream(file);
-		
-		inputStream.skip(100);
-		
-		CloseUtil.close(inputStream);
-		
-		
-		
-		
-	}
+    public static void main(String[] args) throws IOException {
+
+        File file = new File("test.txt");
+
+        FileInputStream inputStream = new FileInputStream(file);
+
+        inputStream.skip(100);
+
+        CloseUtil.close(inputStream);
+
+    }
 }

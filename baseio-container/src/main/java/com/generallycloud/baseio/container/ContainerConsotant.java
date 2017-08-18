@@ -21,6 +21,6 @@ package com.generallycloud.baseio.container;
  */
 public class ContainerConsotant {
 
-	public static String ACTION_LOGIN = "/login";
-	
+    public static String ACTION_LOGIN = "/login";
+
 }

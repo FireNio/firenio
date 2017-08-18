@@ -17,34 +17,34 @@ package com.generallycloud.baseio.container.configuration;
 
 public class ApplicationConfiguration {
 
-	private FiltersConfiguration		filtersConfiguration;
+    private FiltersConfiguration  filtersConfiguration;
 
-	private PluginsConfiguration		pluginsConfiguration;
+    private PluginsConfiguration  pluginsConfiguration;
 
-	private ServicesConfiguration		servletsConfiguration;
+    private ServicesConfiguration servletsConfiguration;
 
-	public FiltersConfiguration getFiltersConfiguration() {
-		return filtersConfiguration;
-	}
+    public FiltersConfiguration getFiltersConfiguration() {
+        return filtersConfiguration;
+    }
 
-	public PluginsConfiguration getPluginsConfiguration() {
-		return pluginsConfiguration;
-	}
+    public PluginsConfiguration getPluginsConfiguration() {
+        return pluginsConfiguration;
+    }
 
-	public ServicesConfiguration getServletsConfiguration() {
-		return servletsConfiguration;
-	}
+    public ServicesConfiguration getServletsConfiguration() {
+        return servletsConfiguration;
+    }
 
-	protected void setFiltersConfiguration(FiltersConfiguration filtersConfiguration) {
-		this.filtersConfiguration = filtersConfiguration;
-	}
+    protected void setFiltersConfiguration(FiltersConfiguration filtersConfiguration) {
+        this.filtersConfiguration = filtersConfiguration;
+    }
 
-	protected void setPluginsConfiguration(PluginsConfiguration pluginsConfiguration) {
-		this.pluginsConfiguration = pluginsConfiguration;
-	}
+    protected void setPluginsConfiguration(PluginsConfiguration pluginsConfiguration) {
+        this.pluginsConfiguration = pluginsConfiguration;
+    }
 
-	protected void setServletsConfiguration(ServicesConfiguration servletsConfiguration) {
-		this.servletsConfiguration = servletsConfiguration;
-	}
+    protected void setServletsConfiguration(ServicesConfiguration servletsConfiguration) {
+        this.servletsConfiguration = servletsConfiguration;
+    }
 
 }

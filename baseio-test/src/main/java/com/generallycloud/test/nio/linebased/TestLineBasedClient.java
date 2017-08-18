@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.linebased;
 
 import com.generallycloud.baseio.codec.linebased.LineBasedProtocolFactory;
@@ -31,40 +31,40 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class TestLineBasedClient {
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
 
-				System.out.println();
-				System.out.println("____________________"+future.getReadText());
-				System.out.println();
-			}
-		};
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
+                System.out.println();
+                System.out.println("____________________" + future.getReadText());
+                System.out.println();
+            }
+        };
 
-		SocketChannelConnector connector = new SocketChannelConnector(context);
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
 
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		context.setProtocolFactory(new LineBasedProtocolFactory());
-		
-		SocketSession session = connector.connect();
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-		LineBasedFuture future = new LineBasedFutureImpl(context);
+        context.addSessionEventListener(new LoggerSocketSEListener());
 
-		future.write("hello server!");
+        context.setProtocolFactory(new LineBasedProtocolFactory());
 
-		session.flush(future);
-		
-		ThreadUtil.sleep(100);
+        SocketSession session = connector.connect();
 
-		CloseUtil.close(connector);
+        LineBasedFuture future = new LineBasedFutureImpl(context);
 
-	}
+        future.write("hello server!");
+
+        session.flush(future);
+
+        ThreadUtil.sleep(100);
+
+        CloseUtil.close(connector);
+
+    }
 }

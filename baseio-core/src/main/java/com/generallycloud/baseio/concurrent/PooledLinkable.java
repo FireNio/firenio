@@ -23,33 +23,33 @@ import com.generallycloud.baseio.component.AbstractLinkable;
  */
 public class PooledLinkable<V> extends AbstractLinkable {
 
-	private PooledLinkable<V>	next;
+    private PooledLinkable<V> next;
 
-	private V					value;
+    private V                 value;
 
-	@Override
-	public PooledLinkable<V> getNext() {
-		return next;
-	}
+    @Override
+    public PooledLinkable<V> getNext() {
+        return next;
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public void setNext(Linkable next) {
-		this.next = (PooledLinkable<V>) next;
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public void setNext(Linkable next) {
+        this.next = (PooledLinkable<V>) next;
+    }
 
-	public V getValue() {
-		return value;
-	}
+    public V getValue() {
+        return value;
+    }
 
-	public void setValue(V value) {
-		this.reset();
-		this.value = value;
-	}
-	
-	public void reset(){
-		this.next = null;
-		this.setValidate(true);
-	}
+    public void setValue(V value) {
+        this.reset();
+        this.value = value;
+    }
+
+    public void reset() {
+        this.next = null;
+        this.setValidate(true);
+    }
 
 }

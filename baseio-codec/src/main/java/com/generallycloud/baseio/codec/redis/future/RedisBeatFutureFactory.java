@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.redis.future;
 
 import com.generallycloud.baseio.codec.redis.future.RedisFuture.RedisCommand;
@@ -20,31 +20,30 @@ import com.generallycloud.baseio.component.BeatFutureFactory;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.Future;
 
-public class RedisBeatFutureFactory implements BeatFutureFactory{
+public class RedisBeatFutureFactory implements BeatFutureFactory {
 
-	@Override
-	public Future createPINGPacket(SocketSession session) {
-		
-		RedisCmdFuture f = new RedisCmdFuture(session.getContext());
-		
-		f.setPING();
-		
-		f.writeCommand(RedisCommand.PING.raw);
-		
-		return f;
-	}
+    @Override
+    public Future createPINGPacket(SocketSession session) {
 
-	@Override
-	public Future createPONGPacket(SocketSession session) {
-		
-		RedisCmdFuture f = new RedisCmdFuture(session.getContext());
-		
-		f.setPONG();
-		
-		f.writeCommand(RedisCommand.PONG.raw);
-		
-		return f;
-	}
+        RedisCmdFuture f = new RedisCmdFuture(session.getContext());
 
-	
+        f.setPING();
+
+        f.writeCommand(RedisCommand.PING.raw);
+
+        return f;
+    }
+
+    @Override
+    public Future createPONGPacket(SocketSession session) {
+
+        RedisCmdFuture f = new RedisCmdFuture(session.getContext());
+
+        f.setPONG();
+
+        f.writeCommand(RedisCommand.PONG.raw);
+
+        return f;
+    }
+
 }

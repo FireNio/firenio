@@ -12,20 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.rtp.client;
 
 import com.generallycloud.baseio.container.jms.MapMessage;
 import com.generallycloud.baseio.protocol.DatagramPacketGroup;
 
 public abstract class RTPHandle {
-	
-	public abstract void onReceiveUDPPacket(RTPClient client,DatagramPacketGroup group);
-	
-	public abstract void onInvite(RTPClient client,MapMessage message);
-	
-	public abstract void onInviteReplyed(RTPClient client,MapMessage message);
-	
-	public abstract void onBreak(RTPClient client,MapMessage message);
-	
+
+    public abstract void onReceiveUDPPacket(RTPClient client, DatagramPacketGroup group);
+
+    public abstract void onInvite(RTPClient client, MapMessage message);
+
+    public abstract void onInviteReplyed(RTPClient client, MapMessage message);
+
+    public abstract void onBreak(RTPClient client, MapMessage message);
+
 }

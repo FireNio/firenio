@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.authority;
 
 import java.util.List;
@@ -30,78 +30,78 @@ import com.generallycloud.baseio.container.service.FutureAcceptorService;
 
 public class AuthorityContext extends AbstractPluginContext {
 
-	private static AuthorityContext	instance	= null;
-	
-	private LoginCenter				loginCenter;
-	
-	private RoleManager				roleManager;
+    private static AuthorityContext instance = null;
 
-	public static AuthorityContext getInstance() {
-		return instance;
-	}
+    private LoginCenter             loginCenter;
 
-	@Override
-	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
-		
-		String loginAction = ContainerConsotant.ACTION_LOGIN;
-		
-		loginAction = getConfig().getParameter("login-action",loginAction);
-		
-		ContainerConsotant.ACTION_LOGIN = loginAction;
-		
-		putServlet(acceptors, new SystemAuthorityServlet(loginAction));
-	}
+    private RoleManager             roleManager;
 
-	@Override
-	public void configFutureAcceptorFilter(List<FutureAcceptorFilter> filters) {
+    public static AuthorityContext getInstance() {
+        return instance;
+    }
 
-		AuthorityFilter authorityFilter = new AuthorityFilter();
-		
-		authorityFilter.setSortIndex(0);
+    @Override
+    public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
 
-		filters.add(authorityFilter);
-	}
+        String loginAction = ContainerConsotant.ACTION_LOGIN;
 
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+        loginAction = getConfig().getParameter("login-action", loginAction);
 
-		super.initialize(context, config);
-		
-		context.addSessionEventListener(new AuthoritySEListener());
-		
-		//TODO read config
-		loginCenter = new AuthorityLoginCenter();
-		roleManager = new RoleManager();
-		
-		loginCenter.initialize(context, config);
-		roleManager.initialize(context, config);
-		
-		instance = this;
-	}
+        ContainerConsotant.ACTION_LOGIN = loginAction;
 
-	public AuthoritySessionAttachment getSessionAttachment(SocketSession session) {
-		return (AuthoritySessionAttachment) session.getAttribute(getPluginKey());
-	}
-	
-	@Override
-	public void destroy(ApplicationContext context, Configuration config) throws Exception {
-		super.destroy(context, config);
-		InitializeUtil.destroy(loginCenter, context, config);
-		InitializeUtil.destroy(roleManager, context, config);
-	}
+        putServlet(acceptors, new SystemAuthorityServlet(loginAction));
+    }
 
-	/**
-	 * @return the loginCenter
-	 */
-	public LoginCenter getLoginCenter() {
-		return loginCenter;
-	}
-	
-	/**
-	 * @return the roleManager
-	 */
-	public RoleManager getRoleManager() {
-		return roleManager;
-	}
+    @Override
+    public void configFutureAcceptorFilter(List<FutureAcceptorFilter> filters) {
+
+        AuthorityFilter authorityFilter = new AuthorityFilter();
+
+        authorityFilter.setSortIndex(0);
+
+        filters.add(authorityFilter);
+    }
+
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
+
+        super.initialize(context, config);
+
+        context.addSessionEventListener(new AuthoritySEListener());
+
+        //TODO read config
+        loginCenter = new AuthorityLoginCenter();
+        roleManager = new RoleManager();
+
+        loginCenter.initialize(context, config);
+        roleManager.initialize(context, config);
+
+        instance = this;
+    }
+
+    public AuthoritySessionAttachment getSessionAttachment(SocketSession session) {
+        return (AuthoritySessionAttachment) session.getAttribute(getPluginKey());
+    }
+
+    @Override
+    public void destroy(ApplicationContext context, Configuration config) throws Exception {
+        super.destroy(context, config);
+        InitializeUtil.destroy(loginCenter, context, config);
+        InitializeUtil.destroy(roleManager, context, config);
+    }
+
+    /**
+     * @return the loginCenter
+     */
+    public LoginCenter getLoginCenter() {
+        return loginCenter;
+    }
+
+    /**
+     * @return the roleManager
+     */
+    public RoleManager getRoleManager() {
+        return roleManager;
+    }
 
 }

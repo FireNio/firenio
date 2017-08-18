@@ -23,28 +23,28 @@ import java.util.Random;
  */
 public class MyUUID {
 
-	private static Random seed = new Random();
+    private static Random seed = new Random();
 
-	public static String random32() {
-		return random16() + random16();
-	}
-	
-	public static String random16() {
-		long L1 = seed.nextLong();
-		return MathUtil.long2HexString(L1);
-	}
+    public static String random32() {
+        return random16() + random16();
+    }
 
-	public static void main(String[] args) {
+    public static String random16() {
+        long L1 = seed.nextLong();
+        return MathUtil.long2HexString(L1);
+    }
 
-		for (int i = 0; i < 10; i++) {
-			String s = random32();
-			System.out.println(s);
-		}
+    public static void main(String[] args) {
 
-		random32();
-		
-		System.out.println(random16());
+        for (int i = 0; i < 10; i++) {
+            String s = random32();
+            System.out.println(s);
+        }
 
-	}
+        random32();
+
+        System.out.println(random16());
+
+    }
 
 }

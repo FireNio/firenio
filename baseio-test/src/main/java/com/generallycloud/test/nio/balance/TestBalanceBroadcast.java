@@ -12,12 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.balance;
 
 import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.codec.protobase.HashedProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFutureImpl;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
@@ -34,58 +33,58 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class TestBalanceBroadcast {
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
 
-				ProtobaseFuture f = (ProtobaseFuture) future;
-				
-				if (BalanceContext.BALANCE_CHANNEL_LOST.equals(f.getFutureName())) {
-					System.out.println("客户端已下线：" + f.getReadText());
-				} else {
-					System.out.println("~~~~~~收到报文：" + future.toString());
-					String res = "(***" + f.getReadText() + "***)";
-					System.out.println("~~~~~~处理报文：" + res);
-					f.write(res);
-					session.flush(future);
-				}
-			}
-		};
+                ProtobaseFuture f = (ProtobaseFuture) future;
 
-		ServerConfiguration configuration = new ServerConfiguration(8800);
-		
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
+                if (BalanceContext.BALANCE_CHANNEL_LOST.equals(f.getFutureName())) {
+                    System.out.println("客户端已下线：" + f.getReadText());
+                } else {
+                    System.out.println("~~~~~~收到报文：" + future.toString());
+                    String res = "(***" + f.getReadText() + "***)";
+                    System.out.println("~~~~~~处理报文：" + res);
+                    f.write(res);
+                    session.flush(future);
+                }
+            }
+        };
 
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        ServerConfiguration configuration = new ServerConfiguration(8800);
 
-		context.setProtocolFactory(new HashedProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		SocketSession session = connector.connect();
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
 
-		for (;session.isOpened();) {
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-			HashedProtobaseFuture future = new HashedProtobaseFutureImpl(context,"broadcast");
-			
-			future.setBroadcast(true);
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-			String msg = "broadcast msg___S:" + System.currentTimeMillis();
-			
-			future.write(msg);
+        context.setProtocolFactory(new HashedProtobaseProtocolFactory());
 
-			session.flush(future);
+        context.addSessionEventListener(new LoggerSocketSEListener());
 
-			ThreadUtil.sleep(1);
-		}
-		
-		CloseUtil.close(connector);
-		
-	}
+        SocketSession session = connector.connect();
+
+        for (; session.isOpened();) {
+
+            HashedProtobaseFuture future = new HashedProtobaseFutureImpl(context, "broadcast");
+
+            future.setBroadcast(true);
+
+            String msg = "broadcast msg___S:" + System.currentTimeMillis();
+
+            future.write(msg);
+
+            session.flush(future);
+
+            ThreadUtil.sleep(1);
+        }
+
+        CloseUtil.close(connector);
+
+    }
 
 }

@@ -25,20 +25,19 @@ import com.generallycloud.baseio.log.LoggerFactory;
  */
 public class TestLogger {
 
-	public static void main(String[] args) {
-		
-		LoggerFactory.setEnableSLF4JLogger(false);
-		DebugUtil.setEnableDebug(true);
-		
-		Logger logger = LoggerFactory.getLogger(TestLogger.class);
-		
-		for (int i = 0; i < 10; i++) {
-			logger.debug("debug test..........");
-			logger.info("info test..............");
-			logger.error("error test......");
-		}
-		
-	}
-	
-	
+    public static void main(String[] args) {
+
+        LoggerFactory.setEnableSLF4JLogger(false);
+        DebugUtil.setEnableDebug(true);
+
+        Logger logger = LoggerFactory.getLogger(TestLogger.class);
+
+        for (int i = 0; i < 10; i++) {
+            logger.debug("debug test..........");
+            logger.info("info test..............");
+            logger.error("error test......");
+        }
+
+    }
+
 }

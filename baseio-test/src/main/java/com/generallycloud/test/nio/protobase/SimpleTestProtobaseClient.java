@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
@@ -26,48 +26,48 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.connector.CloseConnectorSEListener;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleTestProtobaseClient {
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				System.out.println();
-				System.out.println("____________________"+future.getReadText());
-				System.out.println();
-			}
-		};
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                System.out.println();
+                System.out.println("____________________" + future.getReadText());
+                System.out.println();
+            }
+        };
 
-		context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		connector.setTimeout(99999999);
+        SocketChannelContext context = new NioSocketChannelContext(
+                new ServerConfiguration("localhost", 18300));
 
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
 
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		SocketSession session = connector.connect();
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		ProtobaseFuture future = new ProtobaseFutureImpl(context,"test222");
+        connector.setTimeout(99999999);
 
-		future.write("hello server!");
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-		session.flush(future);
-		
-		ThreadUtil.sleep(100);
+        context.addSessionEventListener(new LoggerSocketSEListener());
 
-		CloseUtil.close(connector);
-	}
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        SocketSession session = connector.connect();
+
+        ProtobaseFuture future = new ProtobaseFutureImpl(context, "test222");
+
+        future.write("hello server!");
+
+        session.flush(future);
+
+        ThreadUtil.sleep(100);
+
+        CloseUtil.close(connector);
+    }
 }

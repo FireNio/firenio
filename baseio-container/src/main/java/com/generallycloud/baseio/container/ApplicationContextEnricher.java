@@ -21,5 +21,5 @@ package com.generallycloud.baseio.container;
  */
 public interface ApplicationContextEnricher {
 
-	public abstract void enrich(ApplicationContext context);
+    public abstract void enrich(ApplicationContext context);
 }

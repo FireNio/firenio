@@ -23,9 +23,9 @@ import com.generallycloud.baseio.collection.ObjectPoolFactory;
  */
 public class PooledLinkableFactory<T> implements ObjectPoolFactory<PooledLinkable<T>> {
 
-	@Override
-	public PooledLinkable<T> newInstance() {
-		return new PooledLinkable<>();
-	}
+    @Override
+    public PooledLinkable<T> newInstance() {
+        return new PooledLinkable<>();
+    }
 
 }

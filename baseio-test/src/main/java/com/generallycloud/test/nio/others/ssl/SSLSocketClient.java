@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.others.ssl;
 
 import java.io.InputStream;
@@ -30,55 +30,55 @@ import com.generallycloud.baseio.common.FileUtil;
 
 public class SSLSocketClient {
 
-	public static void main(String [] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		X509TrustManager x509m = new X509TrustManager() {
+        X509TrustManager x509m = new X509TrustManager() {
 
-			@Override
-			public void checkClientTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
-					throws java.security.cert.CertificateException {
+            @Override
+            public void checkClientTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
+                    throws java.security.cert.CertificateException {
 
-			}
+            }
 
-			@Override
-			public void checkServerTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
-					throws java.security.cert.CertificateException {
+            @Override
+            public void checkServerTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
+                    throws java.security.cert.CertificateException {
 
-			}
+            }
 
-			@Override
-			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-				return null;
-			}
-		};
-		SSLContext context = SSLContext.getInstance("SSL");
-		// 初始化
-		context.init(null, new TrustManager[] { x509m }, new SecureRandom());
-		SSLSocketFactory factory = context.getSocketFactory();
-		SSLSocket s = (SSLSocket) factory.createSocket("localhost", 18300);
-		System.out.println("ok");
+            @Override
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+        };
+        SSLContext context = SSLContext.getInstance("SSL");
+        // 初始化
+        context.init(null, new TrustManager[] { x509m }, new SecureRandom());
+        SSLSocketFactory factory = context.getSocketFactory();
+        SSLSocket s = (SSLSocket) factory.createSocket("localhost", 18300);
+        System.out.println("ok");
 
-		OutputStream output = s.getOutputStream();
-		InputStream input = s.getInputStream();
+        OutputStream output = s.getOutputStream();
+        InputStream input = s.getInputStream();
 
-		int length = 50000;
-		StringBuilder b = new StringBuilder(length+1);
-		for (int i = 0; i < length; i++) {
-			b.append('a');
-		}
-		b.append('\n');
-		
-		output.write(b.toString().getBytes());
-		System.out.println("sent: alert");
-		output.flush();
+        int length = 50000;
+        StringBuilder b = new StringBuilder(length + 1);
+        for (int i = 0; i < length; i++) {
+            b.append('a');
+        }
+        b.append('\n');
 
-		byte[] buf = new byte[length + 200];
-		int len = input.read(buf);
-		
-		CloseUtil.close(output);
-		CloseUtil.close(input);
-		String str = new String(buf, 0, len);
-		FileUtil.writeByCls("test.txt", str,false);
-		System.out.println("received:" + str);
-	}
+        output.write(b.toString().getBytes());
+        System.out.println("sent: alert");
+        output.flush();
+
+        byte[] buf = new byte[length + 200];
+        int len = input.read(buf);
+
+        CloseUtil.close(output);
+        CloseUtil.close(input);
+        String str = new String(buf, 0, len);
+        FileUtil.writeByCls("test.txt", str, false);
+        System.out.println("received:" + str);
+    }
 }

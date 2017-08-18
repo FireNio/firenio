@@ -24,67 +24,72 @@ import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.StringUtil;
 
 public class FileSystemACLoader extends AbstractACLoader {
-	
-	@Override
-	protected FiltersConfiguration loadFiltersConfiguration(ClassLoader classLoader)
-			throws IOException {
 
-		String json = FileUtil.input2String(classLoader.getResourceAsStream("filters.cfg"), Encoding.UTF8);
+    @Override
+    protected FiltersConfiguration loadFiltersConfiguration(ClassLoader classLoader)
+            throws IOException {
 
-		return loadFiltersConfiguration(json);
-	}
+        String json = FileUtil.input2String(classLoader.getResourceAsStream("filters.cfg"),
+                Encoding.UTF8);
 
-	@Override
-	protected PluginsConfiguration loadPluginsConfiguration(ClassLoader classLoader)
-			throws IOException {
+        return loadFiltersConfiguration(json);
+    }
 
-		String json = FileUtil.input2String(classLoader.getResourceAsStream("plugins.cfg"), Encoding.UTF8);
+    @Override
+    protected PluginsConfiguration loadPluginsConfiguration(ClassLoader classLoader)
+            throws IOException {
 
-		return loadPluginsConfiguration(json);
-	}
+        String json = FileUtil.input2String(classLoader.getResourceAsStream("plugins.cfg"),
+                Encoding.UTF8);
 
-	@Override
-	protected ServicesConfiguration loadServletsConfiguration(ClassLoader classLoader)
-			throws IOException {
+        return loadPluginsConfiguration(json);
+    }
 
-		String json = FileUtil.input2String(classLoader.getResourceAsStream("services.cfg"), Encoding.UTF8);
+    @Override
+    protected ServicesConfiguration loadServletsConfiguration(ClassLoader classLoader)
+            throws IOException {
 
-		return loadServletsConfiguration(json);
-	}
+        String json = FileUtil.input2String(classLoader.getResourceAsStream("services.cfg"),
+                Encoding.UTF8);
 
-	@Override
-	public PermissionConfiguration loadPermissionConfiguration(ClassLoader classLoader)
-			throws IOException {
+        return loadServletsConfiguration(json);
+    }
 
-		String roles = FileUtil.input2String(classLoader.getResourceAsStream("roles.cfg"), Encoding.UTF8);
+    @Override
+    public PermissionConfiguration loadPermissionConfiguration(ClassLoader classLoader)
+            throws IOException {
 
-		String permissions = FileUtil.input2String(classLoader.getResourceAsStream("permissions.cfg"), Encoding.UTF8);
+        String roles = FileUtil.input2String(classLoader.getResourceAsStream("roles.cfg"),
+                Encoding.UTF8);
 
-		if (StringUtil.isNullOrBlank(roles) || StringUtil.isNullOrBlank(permissions)) {
-			return null;
-		}
+        String permissions = FileUtil
+                .input2String(classLoader.getResourceAsStream("permissions.cfg"), Encoding.UTF8);
 
-		PermissionConfiguration configuration = new PermissionConfiguration();
+        if (StringUtil.isNullOrBlank(roles) || StringUtil.isNullOrBlank(permissions)) {
+            return null;
+        }
 
-		JSONArray array = JSON.parseArray(permissions);
+        PermissionConfiguration configuration = new PermissionConfiguration();
 
-		for (int i = 0; i < array.size(); i++) {
+        JSONArray array = JSON.parseArray(permissions);
 
-			Configuration permission = new Configuration(array.getJSONObject(i));
+        for (int i = 0; i < array.size(); i++) {
 
-			configuration.addPermission(permission);
-		}
+            Configuration permission = new Configuration(array.getJSONObject(i));
 
-		array = JSON.parseArray(roles);
+            configuration.addPermission(permission);
+        }
 
-		for (int i = 0; i < array.size(); i++) {
+        array = JSON.parseArray(roles);
 
-			Configuration role = new Configuration(array.getJSONObject(i));
+        for (int i = 0; i < array.size(); i++) {
 
-			configuration.addRole(role);
-		}
+            Configuration role = new Configuration(array.getJSONObject(i));
 
-		return configuration;
-	}
+            configuration.addRole(role);
+        }
+
+        return configuration;
+    }
 
 }

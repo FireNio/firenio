@@ -21,7 +21,6 @@ import com.generallycloud.baseio.balance.SessionIdBalanceFuture;
  * @author wangkai
  *
  */
-public interface SessionIdProtobaseFuture
-		extends ProtobaseFuture, SessionIdBalanceFuture {
+public interface SessionIdProtobaseFuture extends ProtobaseFuture, SessionIdBalanceFuture {
 
 }

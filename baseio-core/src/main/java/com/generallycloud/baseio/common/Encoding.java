@@ -12,17 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.common;
 
 import java.nio.charset.Charset;
 
 public class Encoding {
 
-	public static Charset UTF8 = Charset.forName("UTF-8");
-	
-	public static Charset GBK = Charset.forName("GBK");
-	
-	public static Charset ASCII = Charset.forName("ASCII");
-	
+    public static Charset UTF8  = Charset.forName("UTF-8");
+
+    public static Charset GBK   = Charset.forName("GBK");
+
+    public static Charset ASCII = Charset.forName("ASCII");
+
 }

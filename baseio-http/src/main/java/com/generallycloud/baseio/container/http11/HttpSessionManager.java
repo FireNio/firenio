@@ -25,17 +25,16 @@ import com.generallycloud.baseio.concurrent.EventLoop;
  * @author wangkai
  *
  */
-public interface HttpSessionManager extends EventLoop{
+public interface HttpSessionManager extends EventLoop {
 
-	void putSession(String sessionID, HttpSession session);
+    void putSession(String sessionID, HttpSession session);
 
-	void removeSession(String sessionID);
+    void removeSession(String sessionID);
 
-	HttpSession getHttpSession(HttpContext context, SocketSession ioSession,
-			HttpFuture future);
+    HttpSession getHttpSession(HttpContext context, SocketSession ioSession, HttpFuture future);
 
-	Map<String, HttpSession> getManagedSessions();
+    Map<String, HttpSession> getManagedSessions();
 
-	int getManagedSessionSize();
+    int getManagedSessionSize();
 
 }

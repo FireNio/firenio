@@ -25,51 +25,50 @@ import com.google.protobuf.Parser;
 
 public class ProtobufUtil {
 
-	private Map<String, Parser<? extends MessageLite>> parses = new HashMap<String, Parser<? extends MessageLite>>();
+    private Map<String, Parser<? extends MessageLite>> parses = new HashMap<>();
 
-	public void regist(String name, Parser<? extends MessageLite> parser) {
-		parses.put(name, parser);
-	}
+    public void regist(String name, Parser<? extends MessageLite> parser) {
+        parses.put(name, parser);
+    }
 
-	public void regist(MessageLite messageLite) {
+    public void regist(MessageLite messageLite) {
 
-		parses.put(messageLite.getClass().getName(), messageLite.getParserForType());
-	}
+        parses.put(messageLite.getClass().getName(), messageLite.getParserForType());
+    }
 
-	public Parser<? extends MessageLite> getParser(String name)
-			throws InvalidProtocolBufferException {
+    public Parser<? extends MessageLite> getParser(String name)
+            throws InvalidProtocolBufferException {
 
-		Parser<? extends MessageLite> parser = parses.get(name);
+        Parser<? extends MessageLite> parser = parses.get(name);
 
-		if (parser == null) {
-			throw new InvalidProtocolBufferException("did not found parse by name " + name);
-		}
+        if (parser == null) {
+            throw new InvalidProtocolBufferException("did not found parse by name " + name);
+        }
 
-		return parser;
-	}
+        return parser;
+    }
 
-	public MessageLite getMessage(ProtobaseFuture future)
-			throws InvalidProtocolBufferException {
+    public MessageLite getMessage(ProtobaseFuture future) throws InvalidProtocolBufferException {
 
-		Parser<? extends MessageLite> parser = getParser(future.getFutureName());
+        Parser<? extends MessageLite> parser = getParser(future.getFutureName());
 
-		return parser.parseFrom(future.getBinary());
-	}
+        return parser.parseFrom(future.getBinary());
+    }
 
-	public void writeProtobuf(MessageLite messageLite, ProtobaseFuture future)
-			throws InvalidProtocolBufferException {
-		writeProtobuf(messageLite.getClass().getName(), messageLite, future);
-	}
+    public void writeProtobuf(MessageLite messageLite, ProtobaseFuture future)
+            throws InvalidProtocolBufferException {
+        writeProtobuf(messageLite.getClass().getName(), messageLite, future);
+    }
 
-	public void writeProtobuf(String parserName, MessageLite messageLite,
-			ProtobaseFuture future) throws InvalidProtocolBufferException {
+    public void writeProtobuf(String parserName, MessageLite messageLite, ProtobaseFuture future)
+            throws InvalidProtocolBufferException {
 
-		future.setFutureName(parserName);
+        future.setFutureName(parserName);
 
-		// FIXME 判断array是否过大
-		byte[] array = messageLite.toByteArray();
+        // FIXME 判断array是否过大
+        byte[] array = messageLite.toByteArray();
 
-		future.writeBinary(array, 0, array.length);
-	}
+        future.writeBinary(array, 0, array.length);
+    }
 
 }

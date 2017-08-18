@@ -38,11 +38,11 @@ import com.generallycloud.baseio.protocol.Future;
 
 public interface Http2FrameHeader extends Future {
 
-	public abstract byte getFlags();
+    public abstract byte getFlags();
 
-	public abstract int getStreamIdentifier();
+    public abstract int getStreamIdentifier();
 
-	public abstract Http2Frame getFrame();
+    public abstract Http2Frame getFrame();
 
-	public abstract Http2FrameType getHttp2FrameType();
+    public abstract Http2FrameType getHttp2FrameType();
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.protocol;
 
 import java.io.IOException;
@@ -21,13 +21,14 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 
 public interface ProtocolEncoder {
 
-	/**
-	 * 注意：encode失败要release掉encode过程中申请的内存
-	 * @param channel
-	 * @param future
-	 * @return
-	 * @throws IOException
-	 */
-	public abstract void encode(ByteBufAllocator allocator,ChannelFuture future) throws IOException;
+    /**
+     * 注意：encode失败要release掉encode过程中申请的内存
+     * @param channel
+     * @param future
+     * @return
+     * @throws IOException
+     */
+    public abstract void encode(ByteBufAllocator allocator, ChannelFuture future)
+            throws IOException;
 
 }

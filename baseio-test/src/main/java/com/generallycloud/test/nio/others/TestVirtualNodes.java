@@ -24,172 +24,171 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.balance.router.VirtualMachine;
 import com.generallycloud.baseio.balance.router.VirtualNodes;
-import com.generallycloud.baseio.common.ThreadUtil;
 
 /**
  * @author wangkai
  *
  */
 public class TestVirtualNodes extends VirtualNodes<VirtualMachine> {
-	
-	private VirtualMachine[] lastNodes;
-	
-	public TestVirtualNodes(int nodes) {
-		super(nodes);
-	}
 
-	public static void main(String[] args) {
-		test3();
-	}
+    private VirtualMachine[] lastNodes;
 
-	static void test2() {
+    public TestVirtualNodes(int nodes) {
+        super(nodes);
+    }
 
-		int node = new Random().nextInt(1000000) + 100;
+    public static void main(String[] args) {
+        test3();
+    }
 
-		TestVirtualNodes group = new TestVirtualNodes(node);
+    static void test2() {
 
-		int time = new Random().nextInt(50) + 1;
-		System.out.println(time);
+        int node = new Random().nextInt(1000000) + 100;
 
-		List<StringMachine> machines = new ArrayList<>(time);
+        TestVirtualNodes group = new TestVirtualNodes(node);
 
-		int machineIndex = 0;
+        int time = new Random().nextInt(50) + 1;
+        System.out.println(time);
 
-		for (int i = 0; i < 5; i++) {
-			StringMachine m = new StringMachine(String.valueOf(machineIndex++));
-			machines.add(m);
-			group.addMachine(m);
-			group.count();
-		}
+        List<StringMachine> machines = new ArrayList<>(time);
 
-		for (int i = 0; i < time; i++) {
-			int r = new Random().nextInt(100);
-			if (r > 35) {
-				StringMachine m = new StringMachine(String.valueOf(machineIndex++));
-				machines.add(m);
-				group.addMachine(m);
-				group.count();
-			} else {
-				if (machines.size() < 5) {
-					continue;
-				}
-				int index = new Random().nextInt(machines.size());
-				group.removeMachine(machines.remove(index));
-				group.count();
-			}
-		}
+        int machineIndex = 0;
 
-		System.out.println();
+        for (int i = 0; i < 5; i++) {
+            StringMachine m = new StringMachine(String.valueOf(machineIndex++));
+            machines.add(m);
+            group.addMachine(m);
+            group.count();
+        }
 
-	}
-	
-	static void test3() {
+        for (int i = 0; i < time; i++) {
+            int r = new Random().nextInt(100);
+            if (r > 35) {
+                StringMachine m = new StringMachine(String.valueOf(machineIndex++));
+                machines.add(m);
+                group.addMachine(m);
+                group.count();
+            } else {
+                if (machines.size() < 5) {
+                    continue;
+                }
+                int index = new Random().nextInt(machines.size());
+                group.removeMachine(machines.remove(index));
+                group.count();
+            }
+        }
 
-		int node = 9999;
-		
-		int time = 10;
+        System.out.println();
 
-		TestVirtualNodes group = new TestVirtualNodes(node);
-		
-		List<StringMachine> machines = new ArrayList<>(time);
+    }
 
-		for (int i = 0; i < time; i++) {
-			group.lastNodes = group.nodes.clone();
-			StringMachine m = new StringMachine(String.valueOf(i));
-			machines.add(m);
-			group.addMachine(m);
-			group.count();
-		}
+    static void test3() {
 
-		for (int i = 0; i < time; i++) {
-			group.lastNodes = group.nodes.clone();
-			int index = new Random().nextInt(machines.size());
-			group.removeMachine(machines.remove(index));
-			group.count();
-		}
+        int node = 9999;
 
-		System.out.println();
-	}
+        int time = 10;
 
-	static void test1() {
+        TestVirtualNodes group = new TestVirtualNodes(node);
 
-		int node = new Random().nextInt(1000000) + 100;
-		
-		TestVirtualNodes group = new TestVirtualNodes(node);
+        List<StringMachine> machines = new ArrayList<>(time);
 
-		int time = new Random().nextInt(20) + 1;
-		
-		List<StringMachine> machines = new ArrayList<>(time);
+        for (int i = 0; i < time; i++) {
+            group.lastNodes = group.nodes.clone();
+            StringMachine m = new StringMachine(String.valueOf(i));
+            machines.add(m);
+            group.addMachine(m);
+            group.count();
+        }
 
-		for (int i = 0; i < time; i++) {
-			StringMachine m = new StringMachine(String.valueOf(i));
-			machines.add(m);
-			group.addMachine(m);
-			group.count();
-		}
+        for (int i = 0; i < time; i++) {
+            group.lastNodes = group.nodes.clone();
+            int index = new Random().nextInt(machines.size());
+            group.removeMachine(machines.remove(index));
+            group.count();
+        }
 
-		for (int i = 0; i < time; i++) {
-			int index = new Random().nextInt(machines.size());
-			group.removeMachine(machines.remove(index));
-			group.count();
-		}
+        System.out.println();
+    }
 
-		System.out.println();
-	}
-	
-	private void count() {
-		int max = -1;
-		int min = Integer.MAX_VALUE;
-		Map<VirtualMachine, AtomicInteger> map = new LinkedHashMap<>();
-		if (machines.isEmpty()) {
-			return;
-		}
-		for (VirtualMachine machine : machines) {
-			map.put(machine, new AtomicInteger());
-		}
+    static void test1() {
 
-		for (VirtualMachine node : nodes) {
-			AtomicInteger a = map.get(node);
-			if (a == null) {
-				continue;
-			}
-			a.incrementAndGet();
-		}
+        int node = new Random().nextInt(1000000) + 100;
 
-		for (AtomicInteger a : map.values()) {
-			if (a.get() > max) {
-				max = a.get();
-			}
-			if (a.get() < min) {
-				min = a.get();
-			}
-		}
+        TestVirtualNodes group = new TestVirtualNodes(node);
 
-		int notEqual = 0;
-		for (int j = 0; j < lastNodes.length; j++) {
-			if (lastNodes[j] != nodes[j]) {
-				notEqual++;
-			}
-		}
-		
-		System.out.print(map);
-//		ThreadUtil.sleep(1);
-		String str = (max - min) +"===="+(notEqual * 1f / lastNodes.length);
-		System.err.println(str);
-	}
+        int time = new Random().nextInt(20) + 1;
 
-	static class StringMachine implements VirtualMachine {
+        List<StringMachine> machines = new ArrayList<>(time);
 
-		private String		value;
+        for (int i = 0; i < time; i++) {
+            StringMachine m = new StringMachine(String.valueOf(i));
+            machines.add(m);
+            group.addMachine(m);
+            group.count();
+        }
 
-		public StringMachine(String value) {
-			this.value = value;
-		}
+        for (int i = 0; i < time; i++) {
+            int index = new Random().nextInt(machines.size());
+            group.removeMachine(machines.remove(index));
+            group.count();
+        }
 
-		@Override
-		public String toString() {
-			return value;
-		}
-	}
+        System.out.println();
+    }
+
+    private void count() {
+        int max = -1;
+        int min = Integer.MAX_VALUE;
+        Map<VirtualMachine, AtomicInteger> map = new LinkedHashMap<>();
+        if (machines.isEmpty()) {
+            return;
+        }
+        for (VirtualMachine machine : machines) {
+            map.put(machine, new AtomicInteger());
+        }
+
+        for (VirtualMachine node : nodes) {
+            AtomicInteger a = map.get(node);
+            if (a == null) {
+                continue;
+            }
+            a.incrementAndGet();
+        }
+
+        for (AtomicInteger a : map.values()) {
+            if (a.get() > max) {
+                max = a.get();
+            }
+            if (a.get() < min) {
+                min = a.get();
+            }
+        }
+
+        int notEqual = 0;
+        for (int j = 0; j < lastNodes.length; j++) {
+            if (lastNodes[j] != nodes[j]) {
+                notEqual++;
+            }
+        }
+
+        System.out.print(map);
+        //		ThreadUtil.sleep(1);
+        String str = (max - min) + "====" + (notEqual * 1f / lastNodes.length);
+        System.err.println(str);
+    }
+
+    static class StringMachine implements VirtualMachine {
+
+        private String value;
+
+        public StringMachine(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
 
 }

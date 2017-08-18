@@ -24,30 +24,30 @@ import com.generallycloud.baseio.component.SocketChannel;
  *
  */
 public class TokenBalanceFacadeSocketSessionImpl extends BalanceFacadeSocketSessionImpl
-		implements TokenBalanceFacadeSocketSession {
+        implements TokenBalanceFacadeSocketSession {
 
-	public TokenBalanceFacadeSocketSessionImpl(SocketChannel channel) {
-		super(channel);
-		this.token = generateToken();
-	}
+    public TokenBalanceFacadeSocketSessionImpl(SocketChannel channel) {
+        super(channel);
+        this.token = generateToken();
+    }
 
-	private Long token;
+    private Long token;
 
-	private Long generateToken() {
-		long r = new Random().nextInt();
-		if (r < 0) {
-			r *= -1;
-		}
-		return (r << 32) | getSessionId();
-	}
-	
-	@Override
-	public Object getSessionKey() {
-		return getToken();
-	}
+    private Long generateToken() {
+        long r = new Random().nextInt();
+        if (r < 0) {
+            r *= -1;
+        }
+        return (r << 32) | getSessionId();
+    }
 
-	@Override
-	public Long getToken() {
-		return token;
-	}
+    @Override
+    public Object getSessionKey() {
+        return getToken();
+    }
+
+    @Override
+    public Long getToken() {
+        return token;
+    }
 }

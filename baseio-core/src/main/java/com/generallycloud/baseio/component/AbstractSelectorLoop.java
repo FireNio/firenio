@@ -25,47 +25,48 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractSelectorLoop extends AbstractEventLoop implements SelectorEventLoop {
 
-	private static final Logger	logger			= LoggerFactory.getLogger(AbstractSelectorLoop.class);
+    private static final Logger logger           = LoggerFactory
+            .getLogger(AbstractSelectorLoop.class);
 
-	private int				coreIndex;
-	
-	private ByteBufAllocator		byteBufAllocator	= null;
+    private int                 coreIndex;
 
-	private boolean			mainEventLoop		= true;
+    private ByteBufAllocator    byteBufAllocator = null;
 
-	@Override
-	public boolean isMainEventLoop() {
-		return mainEventLoop;
-	}
+    private boolean             mainEventLoop    = true;
 
-	protected AbstractSelectorLoop(ChannelContext context,int coreIndex) {
-		this.setCoreIndex(coreIndex);
-		this.byteBufAllocator = context.getByteBufAllocatorManager().getNextBufAllocator();
-	}
+    @Override
+    public boolean isMainEventLoop() {
+        return mainEventLoop;
+    }
 
-	@Override
-	public ByteBufAllocator getByteBufAllocator() {
-		return byteBufAllocator;
-	}
+    protected AbstractSelectorLoop(ChannelContext context, int coreIndex) {
+        this.setCoreIndex(coreIndex);
+        this.byteBufAllocator = context.getByteBufAllocatorManager().getNextBufAllocator();
+    }
 
-	protected void cancelSelectionKey(Channel channel, Throwable t) {
-		logger.error(t.getMessage() + " channel:" + channel,t);
-		CloseUtil.close(channel);
-	}
+    @Override
+    public ByteBufAllocator getByteBufAllocator() {
+        return byteBufAllocator;
+    }
 
-	@Override
-	public void doStartup() throws IOException {
-		rebuildSelector();
-	}
+    protected void cancelSelectionKey(Channel channel, Throwable t) {
+        logger.error(t.getMessage() + " channel:" + channel, t);
+        CloseUtil.close(channel);
+    }
 
-	@Override
-	public int getCoreIndex() {
-		return coreIndex;
-	}
+    @Override
+    public void doStartup() throws IOException {
+        rebuildSelector();
+    }
 
-	private void setCoreIndex(int coreIndex) {
-		this.coreIndex = coreIndex;
-		this.mainEventLoop = coreIndex == 0;
-	}
+    @Override
+    public int getCoreIndex() {
+        return coreIndex;
+    }
+
+    private void setCoreIndex(int coreIndex) {
+        this.coreIndex = coreIndex;
+        this.mainEventLoop = coreIndex == 0;
+    }
 
 }

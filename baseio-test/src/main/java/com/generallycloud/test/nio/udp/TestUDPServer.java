@@ -28,33 +28,31 @@ import com.generallycloud.baseio.protocol.DatagramPacket;
 
 public class TestUDPServer {
 
-	public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
 
-		DatagramPacketAcceptor datagramPacketAcceptor = new DatagramPacketAcceptor() {
+        DatagramPacketAcceptor datagramPacketAcceptor = new DatagramPacketAcceptor() {
 
-			@Override
-			public void accept(DatagramSession session, DatagramPacket packet)
-					throws IOException {
-				String req = packet.getDataString(Encoding.UTF8);
+            @Override
+            public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
+                String req = packet.getDataString(Encoding.UTF8);
 
-				DebugUtil.debug(req);
+                DebugUtil.debug(req);
 
-				byte[] resMsg = ("yes ," + req).getBytes(Encoding.UTF8);
+                byte[] resMsg = ("yes ," + req).getBytes(Encoding.UTF8);
 
-				DatagramPacket res = DatagramPacket.createSendPacket(resMsg);
+                DatagramPacket res = DatagramPacket.createSendPacket(resMsg);
 
-				session.sendPacket(res);
-			}
-		};
+                session.sendPacket(res);
+            }
+        };
 
-		DatagramChannelContext context = new DatagramChannelContext(
-				new ServerConfiguration(18500));
+        DatagramChannelContext context = new DatagramChannelContext(new ServerConfiguration(18500));
 
-		context.setDatagramPacketAcceptor(datagramPacketAcceptor);
+        context.setDatagramPacketAcceptor(datagramPacketAcceptor);
 
-		DatagramChannelAcceptor acceptor = new DatagramChannelAcceptor(context);
+        DatagramChannelAcceptor acceptor = new DatagramChannelAcceptor(context);
 
-		acceptor.bind();
-	}
+        acceptor.bind();
+    }
 
 }

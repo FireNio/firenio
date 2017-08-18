@@ -12,33 +12,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.buffer;
 
 public class EmptyByteBuf extends UnpooledHeapByteBuf {
 
-	private EmptyByteBuf() {
-		super(UnpooledByteBufAllocator.getHeapInstance(),new byte[] {});
-	}
+    private EmptyByteBuf() {
+        super(UnpooledByteBufAllocator.getHeapInstance(), new byte[] {});
+    }
 
-	private static EmptyByteBuf EMPTY_BYTEBUF = new EmptyByteBuf();
-	
-	public static ByteBuf getInstance(){
-		return EMPTY_BYTEBUF;
-	}
+    private static EmptyByteBuf EMPTY_BYTEBUF = new EmptyByteBuf();
 
-	@Override
-	public void release() {
-		
-	}
+    public static ByteBuf getInstance() {
+        return EMPTY_BYTEBUF;
+    }
 
-	@Override
-	public ByteBuf duplicate() {
-		return this;
-	}
+    @Override
+    public void release() {
 
-	@Override
-	public boolean isReleased() {
-		return true;
-	}
+    }
+
+    @Override
+    public ByteBuf duplicate() {
+        return this;
+    }
+
+    @Override
+    public boolean isReleased() {
+        return true;
+    }
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.jdkproxy;
 
 import java.lang.reflect.Proxy;
@@ -21,19 +21,18 @@ import com.generallycloud.baseio.common.ClassUtil;
 
 public class ProviderFactory {
 
-	public static FontProvider getFontProvider() {
-		return (FontProvider) Proxy.newProxyInstance(
-				FontProvider.class.getClassLoader(), 
-				ClassUtil.getInterfaces(FontProvider.class),
-				new CachedProviderHandler(new FontProviderFromDisk()));
-	}
+    public static FontProvider getFontProvider() {
+        return (FontProvider) Proxy.newProxyInstance(FontProvider.class.getClassLoader(),
+                ClassUtil.getInterfaces(FontProvider.class),
+                new CachedProviderHandler(new FontProviderFromDisk()));
+    }
 
-	static class FontProviderFromDisk implements FontProvider {
+    static class FontProviderFromDisk implements FontProvider {
 
-		@Override
-		public String getFont(String name) {
-			return "DISK:" + name;
-		}
-	}
-	
+        @Override
+        public String getFont(String name) {
+            return "DISK:" + name;
+        }
+    }
+
 }

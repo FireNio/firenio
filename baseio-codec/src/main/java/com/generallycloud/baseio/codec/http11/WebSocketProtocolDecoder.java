@@ -52,24 +52,25 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
  */
 public class WebSocketProtocolDecoder implements ProtocolDecoder {
 
-	public static final int	PROTOCOL_HEADER	= 2;
+    public static final int PROTOCOL_HEADER = 2;
 
-	public static final int	TYPE_TEXT		= 1;
-	public static final int	TYPE_BINARY		= 2;
-	public static final int	TYPE_CLOSE		= 8;
-	public static final int	TYPE_PING		= 9;
-	public static final int	TYPE_PONG		= 10;
+    public static final int TYPE_TEXT       = 1;
+    public static final int TYPE_BINARY     = 2;
+    public static final int TYPE_CLOSE      = 8;
+    public static final int TYPE_PING       = 9;
+    public static final int TYPE_PONG       = 10;
 
-	private int			limit;
+    private int             limit;
 
-	public WebSocketProtocolDecoder(int limit) {
-		this.limit = limit;
-	}
+    public WebSocketProtocolDecoder(int limit) {
+        this.limit = limit;
+    }
 
-	@Override
-	public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+    @Override
+    public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		return new WebSocketFutureImpl(session, session.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
-	}
+        return new WebSocketFutureImpl(session,
+                session.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
+    }
 
 }

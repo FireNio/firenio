@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.configuration;
 
 import java.io.IOException;
@@ -21,86 +21,89 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.generallycloud.baseio.common.StringUtil;
 
-public abstract class AbstractACLoader implements ApplicationConfigurationLoader{
+public abstract class AbstractACLoader implements ApplicationConfigurationLoader {
 
-	@Override
-	public ApplicationConfiguration loadConfiguration(ClassLoader classLoader) throws Exception {
-		
-		ApplicationConfiguration configuration = new ApplicationConfiguration();
-		
-		configuration.setFiltersConfiguration(loadFiltersConfiguration(classLoader));
-		configuration.setPluginsConfiguration(loadPluginsConfiguration(classLoader));
-		configuration.setServletsConfiguration(loadServletsConfiguration(classLoader));
-		
-		return configuration;
-	}
-	
-	protected abstract FiltersConfiguration loadFiltersConfiguration(ClassLoader classLoader) throws IOException;
-	
-	protected abstract PluginsConfiguration loadPluginsConfiguration(ClassLoader classLoader) throws IOException;
-	
-	protected abstract ServicesConfiguration loadServletsConfiguration(ClassLoader classLoader) throws IOException;
-	
-	protected FiltersConfiguration loadFiltersConfiguration(String json){
-		
-		if (StringUtil.isNullOrBlank(json)) {
-			return null;
-		}
-		
-		JSONArray array = JSON.parseArray(json);
-		
-		FiltersConfiguration configuration = new FiltersConfiguration();
-		
-		for (int i = 0; i < array.size(); i++) {
-			
-			Configuration c = new Configuration(array.getJSONObject(i));
-			
-			configuration.addFilters(c);
-			
-		}
-		
-		return configuration;
-	}
-	
-	protected PluginsConfiguration loadPluginsConfiguration(String json){
-		
-		if (StringUtil.isNullOrBlank(json)) {
-			return null;
-		}
-		
-		JSONArray array = JSON.parseArray(json);
-		
-		PluginsConfiguration configuration = new PluginsConfiguration();
-		
-		for (int i = 0; i < array.size(); i++) {
-			
-			Configuration c = new Configuration(array.getJSONObject(i));
-			
-			configuration.addPlugins(c);
-			
-		}
-		
-		return configuration;
-	}
-	
-	protected ServicesConfiguration loadServletsConfiguration(String json){
-		
-		if (StringUtil.isNullOrBlank(json)) {
-			return null;
-		}
-		
-		JSONArray array = JSON.parseArray(json);
-		
-		ServicesConfiguration configuration = new ServicesConfiguration();
-		
-		for (int i = 0; i < array.size(); i++) {
-			
-			Configuration c = new Configuration(array.getJSONObject(i));
-			
-			configuration.addServlets(c);
-			
-		}
-		
-		return configuration;
-	}
+    @Override
+    public ApplicationConfiguration loadConfiguration(ClassLoader classLoader) throws Exception {
+
+        ApplicationConfiguration configuration = new ApplicationConfiguration();
+
+        configuration.setFiltersConfiguration(loadFiltersConfiguration(classLoader));
+        configuration.setPluginsConfiguration(loadPluginsConfiguration(classLoader));
+        configuration.setServletsConfiguration(loadServletsConfiguration(classLoader));
+
+        return configuration;
+    }
+
+    protected abstract FiltersConfiguration loadFiltersConfiguration(ClassLoader classLoader)
+            throws IOException;
+
+    protected abstract PluginsConfiguration loadPluginsConfiguration(ClassLoader classLoader)
+            throws IOException;
+
+    protected abstract ServicesConfiguration loadServletsConfiguration(ClassLoader classLoader)
+            throws IOException;
+
+    protected FiltersConfiguration loadFiltersConfiguration(String json) {
+
+        if (StringUtil.isNullOrBlank(json)) {
+            return null;
+        }
+
+        JSONArray array = JSON.parseArray(json);
+
+        FiltersConfiguration configuration = new FiltersConfiguration();
+
+        for (int i = 0; i < array.size(); i++) {
+
+            Configuration c = new Configuration(array.getJSONObject(i));
+
+            configuration.addFilters(c);
+
+        }
+
+        return configuration;
+    }
+
+    protected PluginsConfiguration loadPluginsConfiguration(String json) {
+
+        if (StringUtil.isNullOrBlank(json)) {
+            return null;
+        }
+
+        JSONArray array = JSON.parseArray(json);
+
+        PluginsConfiguration configuration = new PluginsConfiguration();
+
+        for (int i = 0; i < array.size(); i++) {
+
+            Configuration c = new Configuration(array.getJSONObject(i));
+
+            configuration.addPlugins(c);
+
+        }
+
+        return configuration;
+    }
+
+    protected ServicesConfiguration loadServletsConfiguration(String json) {
+
+        if (StringUtil.isNullOrBlank(json)) {
+            return null;
+        }
+
+        JSONArray array = JSON.parseArray(json);
+
+        ServicesConfiguration configuration = new ServicesConfiguration();
+
+        for (int i = 0; i < array.size(); i++) {
+
+            Configuration c = new Configuration(array.getJSONObject(i));
+
+            configuration.addServlets(c);
+
+        }
+
+        return configuration;
+    }
 }

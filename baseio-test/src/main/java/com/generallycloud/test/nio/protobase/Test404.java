@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
@@ -31,36 +31,36 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class Test404 {
 
-	public static void main(String[] args) throws Exception {
-		
-		String serviceKey = "22";
+    public static void main(String[] args) throws Exception {
 
-		LoggerFactory.configure();
-		
-		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+        String serviceKey = "22";
 
-		ServerConfiguration configuration = new ServerConfiguration(8300);
+        LoggerFactory.configure();
 
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandle);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		FixedSession session = new FixedSession(connector.connect());
+        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		ProtobaseFuture future = session.request(serviceKey, null);
+        ServerConfiguration configuration = new ServerConfiguration(8300);
 
-		System.out.println(future.getReadText());
-		
-		Future future1 = new ProtobaseFutureImpl(connector.getContext()).setPING();
-				
-		session.getSession().flush(future1);
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
 
-		CloseUtil.close(connector);
-	}
+        SocketChannelConnector connector = new SocketChannelConnector(context);
+
+        context.setIoEventHandleAdaptor(eventHandle);
+
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        FixedSession session = new FixedSession(connector.connect());
+
+        ProtobaseFuture future = session.request(serviceKey, null);
+
+        System.out.println(future.getReadText());
+
+        Future future1 = new ProtobaseFutureImpl(connector.getContext()).setPING();
+
+        session.getSession().flush(future1);
+
+        CloseUtil.close(connector);
+    }
 }

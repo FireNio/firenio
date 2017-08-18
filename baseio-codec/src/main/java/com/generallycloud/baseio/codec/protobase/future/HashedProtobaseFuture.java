@@ -21,7 +21,6 @@ import com.generallycloud.baseio.balance.HashedBalanceFuture;
  * @author wangkai
  *
  */
-public interface HashedProtobaseFuture
-		extends SessionIdProtobaseFuture, HashedBalanceFuture {
+public interface HashedProtobaseFuture extends SessionIdProtobaseFuture, HashedBalanceFuture {
 
 }

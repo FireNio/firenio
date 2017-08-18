@@ -25,19 +25,19 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
 public class ClientHTTPProtocolDecoder implements ProtocolDecoder {
 
-	private int	headerLimit;
+    private int headerLimit;
 
-	private int	bodyLimit;
+    private int bodyLimit;
 
-	public ClientHTTPProtocolDecoder(int headerLimit, int bodyLimit) {
-		this.headerLimit = headerLimit;
-		this.bodyLimit = bodyLimit;
-	}
+    public ClientHTTPProtocolDecoder(int headerLimit, int bodyLimit) {
+        this.headerLimit = headerLimit;
+        this.bodyLimit = bodyLimit;
+    }
 
-	@Override
-	public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+    @Override
+    public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		return new ClientHttpFuture(session, buffer, headerLimit, bodyLimit);
-	}
+        return new ClientHttpFuture(session, buffer, headerLimit, bodyLimit);
+    }
 
 }

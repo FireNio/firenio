@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import java.util.Map;
@@ -21,9 +21,9 @@ import com.alibaba.fastjson.JSONObject;
 
 public class MapParameters extends JsonParameters {
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public MapParameters(Map parameters) {
-		super(new JSONObject(parameters));
-	}
-	
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public MapParameters(Map parameters) {
+        super(new JSONObject(parameters));
+    }
+
 }

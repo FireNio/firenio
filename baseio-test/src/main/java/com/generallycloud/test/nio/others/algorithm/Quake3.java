@@ -21,20 +21,19 @@ package com.generallycloud.test.nio.others.algorithm;
  */
 public class Quake3 {
 
-	public static float invsqrt(float x) {
-		float xhalf = 0.5f * x;
-		int i = 0x5f375a86 - (Float.floatToIntBits(x) >> 1); //MagicNumber:0x5f3759df,0x5f375a86
-		x = Float.intBitsToFloat(i);
-		x = x * (1.5f - xhalf * x * x); //Newton-Raphson Method based on Taylor Series
-		return x;
-	}
+    public static float invsqrt(float x) {
+        float xhalf = 0.5f * x;
+        int i = 0x5f375a86 - (Float.floatToIntBits(x) >> 1); //MagicNumber:0x5f3759df,0x5f375a86
+        x = Float.intBitsToFloat(i);
+        x = x * (1.5f - xhalf * x * x); //Newton-Raphson Method based on Taylor Series
+        return x;
+    }
 
-	
-	public static void main(String[] args) {
-		
-		float f = invsqrt(100f);
-		
-		System.out.println(1/f);
-	}
-	
+    public static void main(String[] args) {
+
+        float f = invsqrt(100f);
+
+        System.out.println(1 / f);
+    }
+
 }

@@ -24,50 +24,51 @@ import com.generallycloud.baseio.component.SocketSession;
  */
 public class ProtobaseBinaryFutureImpl extends ProtobaseFutureImpl {
 
-	private byte[]	binary;
-	private int	binaryLength;
-	private int	binaryLimit;
+    private byte[] binary;
+    private int    binaryLength;
+    private int    binaryLimit;
 
-	public ProtobaseBinaryFutureImpl(SocketChannelContext context) {
-		super(context);
-	}
+    public ProtobaseBinaryFutureImpl(SocketChannelContext context) {
+        super(context);
+    }
 
-	public ProtobaseBinaryFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit) {
-		super(session, buf);
-		this.binaryLimit = binaryLimit;
-	}
+    public ProtobaseBinaryFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit) {
+        super(session, buf);
+        this.binaryLimit = binaryLimit;
+    }
 
-	@Override
-	protected void generateHeaderBinary(ByteBuf buf) {
-		binaryLength = buf.getInt();
-	}
+    @Override
+    protected void generateHeaderBinary(ByteBuf buf) {
+        binaryLength = buf.getInt();
+    }
 
-	@Override
-	protected void reallocateBuf(ByteBuf buf) {
+    @Override
+    protected void reallocateBuf(ByteBuf buf) {
 
-		int all_length = future_name_length + textLength + binaryLength;
+        int all_length = future_name_length + textLength + binaryLength;
 
-		buf.reallocate(all_length, binaryLimit);
-	}
+        buf.reallocate(all_length, binaryLimit);
+    }
 
-	protected void gainBinary(ByteBuf buf, int offset) {
-		buf.skipBytes(future_name_length + textLength);
-		binary = buf.getBytes();
-	}
+    @Override
+    protected void gainBinary(ByteBuf buf, int offset) {
+        buf.skipBytes(future_name_length + textLength);
+        binary = buf.getBytes();
+    }
 
-	@Override
-	public byte[] getBinary() {
-		return binary;
-	}
+    @Override
+    public byte[] getBinary() {
+        return binary;
+    }
 
-	@Override
-	public int getBinaryLength() {
-		return binaryLength;
-	}
+    @Override
+    public int getBinaryLength() {
+        return binaryLength;
+    }
 
-	@Override
-	public boolean hasBinary() {
-		return true;
-	}
+    @Override
+    public boolean hasBinary() {
+        return true;
+    }
 
 }

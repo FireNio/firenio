@@ -17,44 +17,45 @@ package com.generallycloud.baseio.concurrent;
 
 public class ScmpBlockingQueue<E> extends ScspBlockingQueue<E> {
 
-	/**
-	 * @param capacity
-	 */
-	public ScmpBlockingQueue(int capacity) {
-		super(capacity);
-	}
+    /**
+     * @param capacity
+     */
+    public ScmpBlockingQueue(int capacity) {
+        super(capacity);
+    }
 
-	@Override
-	public boolean offer(E e) {
-		if (count.get() == capacity)
-			return false;
-		else {
-			synchronized (notFull) {
-				if (count.get() == capacity)
-					return false;
-				enqueue(e);
-				return true;
-			}
-		}
-	}
+    @Override
+    public boolean offer(E e) {
+        if (count.get() == capacity) {
+            return false;
+        } else {
+            synchronized (notFull) {
+                if (count.get() == capacity) {
+                    return false;
+                }
+                enqueue(e);
+                return true;
+            }
+        }
+    }
 
-	@Override
-	public void put(E e) throws InterruptedException {
-		offer(e, 0);
-	}
+    @Override
+    public void put(E e) throws InterruptedException {
+        offer(e, 0);
+    }
 
-	@Override
-	public boolean offer(E e, long timeout) throws InterruptedException {
-		synchronized (notFull) {
-			if (count.get() == capacity) {
-				notFull.wait(timeout);
-			}
-			if (count.get() == capacity) {
-				return false;
-			}
-			enqueue(e);
-			return true;
-		}
-	}
+    @Override
+    public boolean offer(E e, long timeout) throws InterruptedException {
+        synchronized (notFull) {
+            if (count.get() == capacity) {
+                notFull.wait(timeout);
+            }
+            if (count.get() == capacity) {
+                return false;
+            }
+            enqueue(e);
+            return true;
+        }
+    }
 
 }

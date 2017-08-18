@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.redis;
 
 import com.generallycloud.baseio.codec.redis.RedisProtocolFactory;
@@ -29,45 +29,45 @@ import com.generallycloud.baseio.connector.SocketChannelConnector;
 
 public class TestRedisClient {
 
-	public static void main(String[] args) throws Exception {
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(6379));
+    public static void main(String[] args) throws Exception {
 
-		SocketChannelConnector connector = new SocketChannelConnector(context);
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(6379));
 
-		context.setIoEventHandleAdaptor(new RedisIOEventHandle());
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        context.setIoEventHandleAdaptor(new RedisIOEventHandle());
 
-		context.setProtocolFactory(new RedisProtocolFactory());
+        context.addSessionEventListener(new LoggerSocketSEListener());
 
-		SocketSession session = connector.connect();
+        context.setProtocolFactory(new RedisProtocolFactory());
 
-		RedisClient client = new RedisClient(session);
+        SocketSession session = connector.connect();
 
-		String value = client.set("name222", "hello redis!");
+        RedisClient client = new RedisClient(session);
 
-		System.out.println("__________________res______" + value);
+        String value = client.set("name222", "hello redis!");
 
-		value = client.get("name222");
+        System.out.println("__________________res______" + value);
 
-		System.out.println("__________________res______" + value);
+        value = client.get("name222");
 
-		value = client.set("debug", "PONG");
+        System.out.println("__________________res______" + value);
 
-		System.out.println("__________________res______" + value);
+        value = client.set("debug", "PONG");
 
-		value = client.get("debug");
+        System.out.println("__________________res______" + value);
 
-		System.out.println("__________________res______" + value);
+        value = client.get("debug");
 
-		value = client.ping();
+        System.out.println("__________________res______" + value);
 
-		System.out.println("__________________res______" + value);
+        value = client.ping();
 
-		ThreadUtil.sleep(100);
+        System.out.println("__________________res______" + value);
 
-		CloseUtil.close(connector);
+        ThreadUtil.sleep(100);
 
-	}
+        CloseUtil.close(connector);
+
+    }
 }

@@ -25,36 +25,36 @@ import java.util.Random;
  */
 public class IntRandom {
 
-	private List<Integer>	list;
+    private List<Integer> list;
 
-	private Random			random	= new Random();
+    private Random        random = new Random();
 
-	public IntRandom(int max) {
-		list = new ArrayList<>(max);
-		for (int i = 0; i < max; i++) {
-			list.add(i);
-		}
-	}
+    public IntRandom(int max) {
+        list = new ArrayList<>(max);
+        for (int i = 0; i < max; i++) {
+            list.add(i);
+        }
+    }
 
-	public int nextInt() {
-		if (list.size() == 0) {
-			return -1;
-		}
-		return list.remove(random.nextInt(list.size()));
-	}
+    public int nextInt() {
+        if (list.size() == 0) {
+            return -1;
+        }
+        return list.remove(random.nextInt(list.size()));
+    }
 
-	public static void main(String[] args) {
-		int max = 100;
-		IntRandom random = new IntRandom(max);
+    public static void main(String[] args) {
+        int max = 100;
+        IntRandom random = new IntRandom(max);
 
-		for (int i = 0; i < max; i++) {
-			System.out.print(random.nextInt());
-			System.out.print(',');
-			if ((i+1) % 20 == 0) {
-				System.out.println();
-			}
-		}
+        for (int i = 0; i < max; i++) {
+            System.out.print(random.nextInt());
+            System.out.print(',');
+            if ((i + 1) % 20 == 0) {
+                System.out.println();
+            }
+        }
 
-	}
+    }
 
 }

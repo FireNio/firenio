@@ -21,25 +21,25 @@ import com.generallycloud.baseio.protocol.ParametersFuture;
 
 public interface ProtobaseFuture extends NamedFuture, ParametersFuture {
 
-	public abstract int getTextLength();
+    public abstract int getTextLength();
 
-	public abstract int getBinaryLength();
+    public abstract int getBinaryLength();
 
-	public abstract boolean hasBinary();
+    public abstract boolean hasBinary();
 
-	public abstract byte[] getBinary();
+    public abstract byte[] getBinary();
 
-	public abstract int getFutureId();
+    public abstract int getFutureId();
 
-	public abstract void setFutureId(int futureId);
+    public abstract void setFutureId(int futureId);
 
-	public abstract ByteArrayBuffer getWriteBinaryBuffer();
+    public abstract ByteArrayBuffer getWriteBinaryBuffer();
 
-	public abstract void writeBinary(byte b);
+    public abstract void writeBinary(byte b);
 
-	public abstract void writeBinary(byte[] bytes);
+    public abstract void writeBinary(byte[] bytes);
 
-	public abstract void writeBinary(byte[] bytes, int offset, int length);
+    public abstract void writeBinary(byte[] bytes, int offset, int length);
 
-	public abstract void setFutureName(String parserName);
+    public abstract void setFutureName(String parserName);
 }

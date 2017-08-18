@@ -19,9 +19,9 @@ package com.generallycloud.baseio.concurrent;
  * @author wangkai
  *
  */
-public interface ExecutorEventLoopGroup extends EventLoopGroup{
+public interface ExecutorEventLoopGroup extends EventLoopGroup {
 
-	@Override
-	public abstract ExecutorEventLoop getNext() ;
-	
+    @Override
+    public abstract ExecutorEventLoop getNext();
+
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.common;
 
 import java.lang.reflect.Field;
@@ -24,100 +24,100 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class BeanUtil {
 
-	private static Map<Class<?>, FieldMapping>	fieldMapping	= new HashMap<Class<?>, FieldMapping>();
-	private static ReentrantLock			lock				= new ReentrantLock();
-	
-	public static Object map2Object(Map<String, Object> map, Class<?> clazz) {
-		if (map == null || clazz == null) {
-			return null;
-		}
+    private static Map<Class<?>, FieldMapping> fieldMapping = new HashMap<>();
+    private static ReentrantLock               lock         = new ReentrantLock();
 
-		Object object = ClassUtil.newInstance(clazz);
+    public static Object map2Object(Map<String, Object> map, Class<?> clazz) {
+        if (map == null || clazz == null) {
+            return null;
+        }
 
-		FieldMapping mapping = fieldMapping.get(object.getClass());
+        Object object = ClassUtil.newInstance(clazz);
 
-		if (mapping == null) {
+        FieldMapping mapping = fieldMapping.get(object.getClass());
 
-			ReentrantLock lock = BeanUtil.lock;
+        if (mapping == null) {
 
-			lock.lock();
+            ReentrantLock lock = BeanUtil.lock;
 
-			mapping = fieldMapping.get(object.getClass());
+            lock.lock();
 
-			if (mapping == null) {
+            mapping = fieldMapping.get(object.getClass());
 
-				mapping = new FieldMapping(object.getClass());
+            if (mapping == null) {
 
-				fieldMapping.put(object.getClass(), mapping);
-			}
+                mapping = new FieldMapping(object.getClass());
 
-			lock.unlock();
-		}
+                fieldMapping.put(object.getClass(), mapping);
+            }
 
-		List<Field> fieldList = mapping.getFieldList();
+            lock.unlock();
+        }
 
-		for (Field f : fieldList) {
+        List<Field> fieldList = mapping.getFieldList();
 
-			Object v = map.get(f.getName());
+        for (Field f : fieldList) {
 
-			if (v == null) {
-				continue;
-			}
+            Object v = map.get(f.getName());
 
-			if (!f.isAccessible()) {
-				f.setAccessible(true);
-			}
+            if (v == null) {
+                continue;
+            }
 
-			try {
-				f.set(object, v);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		}
+            if (!f.isAccessible()) {
+                f.setAccessible(true);
+            }
 
-		return object;
-	}
-	
-	static class FieldMapping{
+            try {
+                f.set(object, v);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
-		private Class<?>				mappingClass	;
+        return object;
+    }
 
-		private Map<String, Field>	fieldMapping	= new HashMap<String, Field>();
+    static class FieldMapping {
 
-		private List<Field>			fieldList		= new ArrayList<Field>();
+        private Class<?>           mappingClass;
 
-		public FieldMapping(Class<?> clazz) {
-			this.mappingClass = clazz;
-			analyse(clazz);
-		}
+        private Map<String, Field> fieldMapping = new HashMap<>();
 
-		private void analyse(Class<?> clazz) {
+        private List<Field>        fieldList    = new ArrayList<>();
 
-			Field[] fields = clazz.getDeclaredFields();
+        public FieldMapping(Class<?> clazz) {
+            this.mappingClass = clazz;
+            analyse(clazz);
+        }
 
-			for (Field f : fields) {
-				this.fieldMapping.put(f.getName(), f);
-				this.fieldList.add(f);
-			}
+        private void analyse(Class<?> clazz) {
 
-			Class<?> c = clazz.getSuperclass();
+            Field[] fields = clazz.getDeclaredFields();
 
-			if (c != Object.class) {
-				analyse(c);
-			}
-		}
-		
-		public List<Field> getFieldList(){
-			return fieldList;
-		}
+            for (Field f : fields) {
+                this.fieldMapping.put(f.getName(), f);
+                this.fieldList.add(f);
+            }
 
-		public Field getField(String fieldName) {
+            Class<?> c = clazz.getSuperclass();
 
-			return fieldMapping.get(fieldName);
-		}
+            if (c != Object.class) {
+                analyse(c);
+            }
+        }
 
-		public Class<?> getMappingClass() {
-			return mappingClass;
-		}
-	}
+        public List<Field> getFieldList() {
+            return fieldList;
+        }
+
+        public Field getField(String fieldName) {
+
+            return fieldMapping.get(fieldName);
+        }
+
+        public Class<?> getMappingClass() {
+            return mappingClass;
+        }
+    }
 }

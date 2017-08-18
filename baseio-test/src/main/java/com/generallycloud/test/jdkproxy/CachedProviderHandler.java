@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.jdkproxy;
 
 import java.lang.reflect.InvocationHandler;
@@ -23,26 +23,27 @@ import java.util.Map;
 
 public class CachedProviderHandler implements InvocationHandler {
 
-	private Map<String, Object>	cached	= new HashMap<>();
-	private Object				target;
+    private Map<String, Object> cached = new HashMap<>();
+    private Object              target;
 
-	public CachedProviderHandler(Object target) {
-		this.target = target;
-	}
+    public CachedProviderHandler(Object target) {
+        this.target = target;
+    }
 
-	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		Type[] types = method.getParameterTypes();
-		if (method.getName().matches("get.+") && (types.length == 1) && (types[0] == String.class)) {
-			String key = (String) args[0];
-			Object value = cached.get(key);
-			if (value == null) {
-				value = method.invoke(target, args);
-				cached.put(key, value);
-			}
-			return value;
-		}
-		return method.invoke(target, args);
-	}
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        Type[] types = method.getParameterTypes();
+        if (method.getName().matches("get.+") && (types.length == 1)
+                && (types[0] == String.class)) {
+            String key = (String) args[0];
+            Object value = cached.get(key);
+            if (value == null) {
+                value = method.invoke(target, args);
+                cached.put(key, value);
+            }
+            return value;
+        }
+        return method.invoke(target, args);
+    }
 
 }

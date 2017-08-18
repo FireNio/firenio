@@ -21,18 +21,18 @@ package com.generallycloud.baseio.log;
  */
 public class DebugLogger extends InternalLogger {
 
-	public DebugLogger(Class<?> clazz) {
-		super(SysLoggerPrinter.get(), clazz);
-	}
+    public DebugLogger(Class<?> clazz) {
+        super(SysLoggerPrinter.get(), clazz);
+    }
 
-	@Override
-	public void setEnableDebug(boolean enable) {
-		DebugUtil.setEnableDebug(enable);
-	}
+    @Override
+    public void setEnableDebug(boolean enable) {
+        DebugUtil.setEnableDebug(enable);
+    }
 
-	@Override
-	public boolean isEnableDebug() {
-		return DebugUtil.isEnableDebug();
-	}
+    @Override
+    public boolean isEnableDebug() {
+        return DebugUtil.isEnableDebug();
+    }
 
 }

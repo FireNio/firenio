@@ -27,33 +27,33 @@ import com.generallycloud.baseio.protocol.DatagramRequest;
 
 public abstract class ServerDatagramPacketAcceptor implements DatagramPacketAcceptor {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Override
-	public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
+    @Override
+    public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
 
-		if (packet.getType() == DatagramPacket.TYPE_ACTION) {
-			
-			execute(session, new DatagramRequest(packet.getDataString()));
-			return;
-		}
+        if (packet.getType() == DatagramPacket.TYPE_ACTION) {
 
-		//		logger.debug("___________________server receive,packet:{}",packet);
+            execute(session, new DatagramRequest(packet.getDataString()));
+            return;
+        }
 
-		SocketSession socketSession = session.getSocketSession();
+        //		logger.debug("___________________server receive,packet:{}",packet);
 
-		if (socketSession == null) {
-			logger.debug("___________________null session,packet:{}", packet);
-			return;
-		}
+        SocketSession socketSession = session.getSocketSession();
 
-		doAccept(session, packet, socketSession); //FIXME UDP
+        if (socketSession == null) {
+            logger.debug("___________________null session,packet:{}", packet);
+            return;
+        }
 
-	}
+        doAccept(session, packet, socketSession); //FIXME UDP
 
-	protected abstract void doAccept(DatagramSession session, DatagramPacket packet,
-			SocketSession socketSession) throws IOException;
+    }
 
-	protected abstract void execute(DatagramSession session, DatagramRequest request);
+    protected abstract void doAccept(DatagramSession session, DatagramPacket packet,
+            SocketSession socketSession) throws IOException;
+
+    protected abstract void execute(DatagramSession session, DatagramRequest request);
 
 }

@@ -12,23 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.concurrent;
 
-public interface EventLoop extends Looper{
-	
-	public abstract boolean inEventLoop();
+public interface EventLoop extends Looper {
 
-	public abstract boolean inEventLoop(Thread thread);
+    public abstract boolean inEventLoop();
 
-	public abstract Thread getMonitor();
-	
-	public abstract boolean isRunning();
-	
-	public abstract EventLoopGroup getEventLoopGroup();
-	
-	public abstract void wakeup();
-	
-	public abstract void startup(String threadName) throws Exception;
-	
+    public abstract boolean inEventLoop(Thread thread);
+
+    public abstract Thread getMonitor();
+
+    public abstract boolean isRunning();
+
+    public abstract EventLoopGroup getEventLoopGroup();
+
+    public abstract void wakeup();
+
+    public abstract void startup(String threadName) throws Exception;
+
 }

@@ -12,26 +12,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.common;
 
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ReleaseUtil {
-	
-	private static final Logger logger = LoggerFactory.getLogger(ReleaseUtil.class);
 
-	public static void release(Releasable releasable){
-		
-		if (releasable == null || releasable.isReleased()) {
-			return;
-		}
-		
-		try {
-			releasable.release();
-		} catch (Throwable e) {
-			logger.error(e.getMessage(),e);
-		}
-	}
+    private static final Logger logger = LoggerFactory.getLogger(ReleaseUtil.class);
+
+    public static void release(Releasable releasable) {
+
+        if (releasable == null || releasable.isReleased()) {
+            return;
+        }
+
+        try {
+            releasable.release();
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
 }

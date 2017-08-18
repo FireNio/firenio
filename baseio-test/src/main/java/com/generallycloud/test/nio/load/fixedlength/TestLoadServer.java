@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.load.fixedlength;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,56 +28,55 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.test.nio.fixedlength.SetOptionListener;
 
 public class TestLoadServer {
 
-	public static void main(String[] args) throws Exception {
-		
-		LoggerFactory.configure();
-		
-		final AtomicInteger res = new AtomicInteger();
-		final AtomicInteger req = new AtomicInteger();
+    public static void main(String[] args) throws Exception {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        LoggerFactory.configure();
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				FixedLengthFuture f = (FixedLengthFuture)future;
-				String res = "yes server already accept your message" + f.getReadText();
-				f.write(res);
-				session.flush(future);
-//				System.out.println("req======================"+req.getAndIncrement());
-			}
-			
-			@Override
-			public void futureSent(SocketSession session, Future future) {
-//				NIOReadFuture f = (NIOReadFuture) future;
-//				System.out.println(f.getWriteBuffer());
-//				System.out.println("res==========="+res.getAndIncrement());
-			}
-		};
+        final AtomicInteger res = new AtomicInteger();
+        final AtomicInteger req = new AtomicInteger();
 
-		ServerConfiguration c = new ServerConfiguration(8300);
-		
-		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
-		c.setSERVER_MEMORY_POOL_UNIT(128);
-		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
-		c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-		c.setSERVER_CORE_SIZE(4);
-		
-		SocketChannelContext context = new NioSocketChannelContext(c);
-		
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-		
-		context.setProtocolFactory(new FixedLengthProtocolFactory());
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-//		context.addSessionEventListener(new SetOptionListener());
-		
-		acceptor.bind();
-	}
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                FixedLengthFuture f = (FixedLengthFuture) future;
+                String res = "yes server already accept your message" + f.getReadText();
+                f.write(res);
+                session.flush(future);
+                //				System.out.println("req======================"+req.getAndIncrement());
+            }
+
+            @Override
+            public void futureSent(SocketSession session, Future future) {
+                //				NIOReadFuture f = (NIOReadFuture) future;
+                //				System.out.println(f.getWriteBuffer());
+                //				System.out.println("res==========="+res.getAndIncrement());
+            }
+        };
+
+        ServerConfiguration c = new ServerConfiguration(8300);
+
+        c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
+        c.setSERVER_MEMORY_POOL_UNIT(128);
+        c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
+        c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
+        c.setSERVER_CORE_SIZE(4);
+
+        SocketChannelContext context = new NioSocketChannelContext(c);
+
+        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+
+        context.setProtocolFactory(new FixedLengthProtocolFactory());
+
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        //		context.addSessionEventListener(new SetOptionListener());
+
+        acceptor.bind();
+    }
 }

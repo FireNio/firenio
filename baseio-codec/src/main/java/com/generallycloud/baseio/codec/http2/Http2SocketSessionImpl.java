@@ -22,44 +22,44 @@ import com.generallycloud.baseio.component.UnsafeSocketSessionImpl;
 
 public class Http2SocketSessionImpl extends UnsafeSocketSessionImpl implements Http2SocketSession {
 
-	public Http2SocketSessionImpl(SocketChannel channel) {
-		super(channel);
-	}
+    public Http2SocketSessionImpl(SocketChannel channel) {
+        super(channel);
+    }
 
-	private boolean		prefaceRead	= true;
+    private boolean      prefaceRead  = true;
 
-	private long[]		settings		= new long[] { 0, 4096, 1, 128, 65535, 16384, 0 };
+    private long[]       settings     = new long[] { 0, 4096, 1, 128, 65535, 16384, 0 };
 
-	private Http2Headers	http2Headers	= new Http2HeadersImpl();
+    private Http2Headers http2Headers = new Http2HeadersImpl();
 
-	@Override
-	public long getSettings(int i) {
-		return settings[i];
-	}
+    @Override
+    public long getSettings(int i) {
+        return settings[i];
+    }
 
-	@Override
-	public void setSettings(int key, long value) {
-		settings[key] = value;
-	}
+    @Override
+    public void setSettings(int key, long value) {
+        settings[key] = value;
+    }
 
-	@Override
-	public long[] getSettings() {
-		return settings;
-	}
+    @Override
+    public long[] getSettings() {
+        return settings;
+    }
 
-	@Override
-	public Http2Headers getHttp2Headers() {
-		return http2Headers;
-	}
+    @Override
+    public Http2Headers getHttp2Headers() {
+        return http2Headers;
+    }
 
-	@Override
-	public boolean isPrefaceRead() {
-		return prefaceRead;
-	}
+    @Override
+    public boolean isPrefaceRead() {
+        return prefaceRead;
+    }
 
-	@Override
-	public void setPrefaceRead(boolean prefaceRead) {
-		this.prefaceRead = prefaceRead;
-	}
+    @Override
+    public void setPrefaceRead(boolean prefaceRead) {
+        this.prefaceRead = prefaceRead;
+    }
 
 }

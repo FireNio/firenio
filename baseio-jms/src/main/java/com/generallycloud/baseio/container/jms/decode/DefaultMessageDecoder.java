@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.decode;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
@@ -20,21 +20,21 @@ import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.Message;
 
 public class DefaultMessageDecoder implements MessageDecoder {
-	
-	private MessageDecoder[] decoders = new MessageDecoder[6];
-	
-	public DefaultMessageDecoder(){
-		decoders[Message.TYPE_ERROR] = new ErrorMessageDecoder();
-		decoders[Message.TYPE_NULL] = new EmptyMessageDecoder();
-		decoders[Message.TYPE_TEXT] = new TextMessageDecoder();
-		decoders[Message.TYPE_TEXT_BYTE] = new TextByteMessageDecoder();
-		decoders[Message.TYPE_MAP] = new MapMessageDecoder();
-		decoders[Message.TYPE_MAP_BYTE] = new MapByteMessageDecoder();
-	}
-	
-	@Override
-	public Message decode(ProtobaseFuture future) throws MQException{
-		int msgType = future.getParameters().getIntegerParameter("msgType");
-		return decoders[msgType].decode(future);
-	}
+
+    private MessageDecoder[] decoders = new MessageDecoder[6];
+
+    public DefaultMessageDecoder() {
+        decoders[Message.TYPE_ERROR] = new ErrorMessageDecoder();
+        decoders[Message.TYPE_NULL] = new EmptyMessageDecoder();
+        decoders[Message.TYPE_TEXT] = new TextMessageDecoder();
+        decoders[Message.TYPE_TEXT_BYTE] = new TextByteMessageDecoder();
+        decoders[Message.TYPE_MAP] = new MapMessageDecoder();
+        decoders[Message.TYPE_MAP_BYTE] = new MapByteMessageDecoder();
+    }
+
+    @Override
+    public Message decode(ProtobaseFuture future) throws MQException {
+        int msgType = future.getParameters().getIntegerParameter("msgType");
+        return decoders[msgType].decode(future);
+    }
 }

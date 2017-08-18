@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.linebased;
 
 import java.io.IOException;
@@ -28,18 +28,18 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
  */
 public class LineBasedProtocolDecoder implements ProtocolDecoder {
 
-	public static final byte	LINE_BASE	= '\n';
+    public static final byte LINE_BASE = '\n';
 
-	private int limit;
+    private int              limit;
 
-	public LineBasedProtocolDecoder(int limit) {
-		this.limit = limit;
-	}
+    public LineBasedProtocolDecoder(int limit) {
+        this.limit = limit;
+    }
 
-	@Override
-	public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+    @Override
+    public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		return new LineBasedFutureImpl(session.getContext(), limit);
-	}
+        return new LineBasedFutureImpl(session.getContext(), limit);
+    }
 
 }

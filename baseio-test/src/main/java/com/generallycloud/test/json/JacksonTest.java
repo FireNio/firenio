@@ -25,17 +25,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class JacksonTest {
 
-	public static void main(String[] args) throws Exception {
-		
-		//JSON input
-		String json = "{\"id\":1,\"name\":\"Lokesh Gupta\",\"age\":34,\"location\":\"India\"}";
-		 
-		//Object mapper instance
-		ObjectMapper mapper = new ObjectMapper();
-		
-		Map v = mapper.readValue(json, Map.class);
-		
-		System.out.println(v);
-	}
-	
+    public static void main(String[] args) throws Exception {
+
+        //JSON input
+        String json = "{\"id\":1,\"name\":\"Lokesh Gupta\",\"age\":34,\"location\":\"India\"}";
+
+        //Object mapper instance
+        ObjectMapper mapper = new ObjectMapper();
+
+        Map v = mapper.readValue(json, Map.class);
+
+        System.out.println(v);
+    }
+
 }

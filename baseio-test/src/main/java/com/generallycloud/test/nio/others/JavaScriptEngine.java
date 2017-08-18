@@ -25,21 +25,21 @@ import javax.script.ScriptException;
  */
 public class JavaScriptEngine {
 
-	public static void test() throws ScriptException {
-		ScriptEngineManager manager = new ScriptEngineManager();
-		ScriptEngine engine = manager.getEngineByName("JavaScript");
+    public static void test() throws ScriptException {
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine engine = manager.getEngineByName("JavaScript");
 
-		if (engine == null) {
-			throw new RuntimeException("not found JavaScript engine!");
-		}
+        if (engine == null) {
+            throw new RuntimeException("not found JavaScript engine!");
+        }
 
-		Object res = engine.eval("1+1");
-		
-		System.out.println(res);
-	}
+        Object res = engine.eval("1+1");
 
-	public static void main(String[] args) throws ScriptException {
-		test();
-	}
+        System.out.println(res);
+    }
+
+    public static void main(String[] args) throws ScriptException {
+        test();
+    }
 
 }

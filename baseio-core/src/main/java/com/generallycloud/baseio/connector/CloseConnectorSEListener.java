@@ -12,23 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.connector;
 
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
 
-public class CloseConnectorSEListener extends SocketSessionEventListenerAdapter{
-	
-	private SocketChannelConnector connector;
-	
-	protected CloseConnectorSEListener(SocketChannelConnector connector) {
-		this.connector = connector;
-	}
+public class CloseConnectorSEListener extends SocketSessionEventListenerAdapter {
 
-	@Override
-	public void sessionClosed(SocketSession session) {
-		connector.physicalClose();
-	}
-	
+    private SocketChannelConnector connector;
+
+    protected CloseConnectorSEListener(SocketChannelConnector connector) {
+        this.connector = connector;
+    }
+
+    @Override
+    public void sessionClosed(SocketSession session) {
+        connector.physicalClose();
+    }
+
 }

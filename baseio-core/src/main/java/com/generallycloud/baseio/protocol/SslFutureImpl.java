@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.protocol;
 
 import java.io.IOException;
@@ -26,141 +26,141 @@ import com.generallycloud.baseio.component.ssl.SslHandler;
 
 public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
 
-	private boolean	body_complete;
-	
-	private boolean	header_complete;
+    private boolean       body_complete;
 
-	private int		limit;
-	
-	private SocketChannel channel;
+    private boolean       header_complete;
 
-	public SslFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
-		super(channel.getContext());
-		this.buf = buf;
-		this.limit = limit;
-		this.channel = channel;
-	}
+    private int           limit;
 
-	private void doBodyComplete(ByteBuf buf) throws IOException {
+    private SocketChannel channel;
 
-		body_complete = true;
+    public SslFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
+        super(channel.getContext());
+        this.buf = buf;
+        this.limit = limit;
+        this.channel = channel;
+    }
 
-		buf.flip();
+    private void doBodyComplete(ByteBuf buf) throws IOException {
 
-		SslHandler handler = channel.getSslHandler();
+        body_complete = true;
 
-		try {
+        buf.flip();
 
-			this.buf = handler.unwrap(channel, buf);
+        SslHandler handler = channel.getSslHandler();
 
-		} finally {
-			ReleaseUtil.release(buf);
-		}
-	}
+        try {
 
-	private void doHeaderComplete(Session session, ByteBuf buf) throws IOException {
+            this.buf = handler.unwrap(channel, buf);
 
-		header_complete = true;
-		
-		int re = getEncryptedPacketLength(buf);
-		if (re < 256) {
-//			System.out.println();
-		}
+        } finally {
+            ReleaseUtil.release(buf);
+        }
+    }
 
-		buf.reallocate(re, limit, true);
-	}
+    private void doHeaderComplete(Session session, ByteBuf buf) throws IOException {
 
-	private int getEncryptedPacketLength(ByteBuf buffer) {
-		int packetLength = 0;
-		int offset = 0;
-		// FIXME offset
+        header_complete = true;
 
-		// SSLv3 or TLS - Check ContentType
-		boolean tls;
-		switch (buffer.getUnsignedByte(offset)) {
-		case SSL_CONTENT_TYPE_CHANGE_CIPHER_SPEC:
-		case SSL_CONTENT_TYPE_ALERT:
-		case SSL_CONTENT_TYPE_HANDSHAKE:
-		case SSL_CONTENT_TYPE_APPLICATION_DATA:
-			tls = true;
-			break;
-		default:
-			// SSLv2 or bad data
-			tls = false;
-		}
+        int re = getEncryptedPacketLength(buf);
+        if (re < 256) {
+            //			System.out.println();
+        }
 
-		if (tls) {
-			// SSLv3 or TLS - Check ProtocolVersion
-			int majorVersion = buffer.getUnsignedByte(offset + 1);
-			if (majorVersion == 3) {
-				// SSLv3 or TLS
-				packetLength = buffer.getUnsignedShort(offset + 3) + SSL_RECORD_HEADER_LENGTH;
-				if (packetLength <= SSL_RECORD_HEADER_LENGTH) {
-					// Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
-					tls = false;
-				}
-			} else {
-				// Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
-				tls = false;
-			}
-		}
+        buf.reallocate(re, limit, true);
+    }
 
-		if (!tls) {
-			// SSLv2 or bad data - Check the version
-			int headerLength = (buffer.getUnsignedByte(offset) & 0x80) != 0 ? 2 : 3;
-			int majorVersion = buffer.getUnsignedByte(offset + headerLength + 1);
-			if (majorVersion == 2 || majorVersion == 3) {
-				// SSLv2
-				if (headerLength == 2) {
-					packetLength = (buffer.getShort(offset) & 0x7FFF) + 2;
-				} else {
-					packetLength = (buffer.getShort(offset) & 0x3FFF) + 3;
-				}
-				if (packetLength <= headerLength) {
-					return -1;
-				}
-			} else {
-				return -1;
-			}
-		}
-		return packetLength;
-	}
+    private int getEncryptedPacketLength(ByteBuf buffer) {
+        int packetLength = 0;
+        int offset = 0;
+        // FIXME offset
 
-	@Override
-	public ByteBuf getProduce() {
-		return buf;
-	}
+        // SSLv3 or TLS - Check ContentType
+        boolean tls;
+        switch (buffer.getUnsignedByte(offset)) {
+            case SSL_CONTENT_TYPE_CHANGE_CIPHER_SPEC:
+            case SSL_CONTENT_TYPE_ALERT:
+            case SSL_CONTENT_TYPE_HANDSHAKE:
+            case SSL_CONTENT_TYPE_APPLICATION_DATA:
+                tls = true;
+                break;
+            default:
+                // SSLv2 or bad data
+                tls = false;
+        }
 
-	@Override
-	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+        if (tls) {
+            // SSLv3 or TLS - Check ProtocolVersion
+            int majorVersion = buffer.getUnsignedByte(offset + 1);
+            if (majorVersion == 3) {
+                // SSLv3 or TLS
+                packetLength = buffer.getUnsignedShort(offset + 3) + SSL_RECORD_HEADER_LENGTH;
+                if (packetLength <= SSL_RECORD_HEADER_LENGTH) {
+                    // Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
+                    tls = false;
+                }
+            } else {
+                // Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
+                tls = false;
+            }
+        }
 
-		if (!header_complete) {
+        if (!tls) {
+            // SSLv2 or bad data - Check the version
+            int headerLength = (buffer.getUnsignedByte(offset) & 0x80) != 0 ? 2 : 3;
+            int majorVersion = buffer.getUnsignedByte(offset + headerLength + 1);
+            if (majorVersion == 2 || majorVersion == 3) {
+                // SSLv2
+                if (headerLength == 2) {
+                    packetLength = (buffer.getShort(offset) & 0x7FFF) + 2;
+                } else {
+                    packetLength = (buffer.getShort(offset) & 0x3FFF) + 3;
+                }
+                if (packetLength <= headerLength) {
+                    return -1;
+                }
+            } else {
+                return -1;
+            }
+        }
+        return packetLength;
+    }
 
-			ByteBuf buf = this.buf;
+    @Override
+    public ByteBuf getProduce() {
+        return buf;
+    }
 
-			buf.read(buffer);
+    @Override
+    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
-			if (buf.hasRemaining()) {
-				return false;
-			}
+        if (!header_complete) {
 
-			doHeaderComplete(session, buf);
-		}
+            ByteBuf buf = this.buf;
 
-		if (!body_complete) {
+            buf.read(buffer);
 
-			ByteBuf buf = this.buf;
+            if (buf.hasRemaining()) {
+                return false;
+            }
 
-			buf.read(buffer);
+            doHeaderComplete(session, buf);
+        }
 
-			if (buf.hasRemaining()) {
-				return false;
-			}
+        if (!body_complete) {
 
-			doBodyComplete(buf);
-		}
+            ByteBuf buf = this.buf;
 
-		return true;
-	}
-	
+            buf.read(buffer);
+
+            if (buf.hasRemaining()) {
+                return false;
+            }
+
+            doBodyComplete(buf);
+        }
+
+        return true;
+    }
+
 }

@@ -34,63 +34,63 @@ import com.generallycloud.test.test.ITestThreadHandle;
 
 public class TestHttpLoadClient extends ITestThread {
 
-	private SocketChannelConnector	connector;
+    private SocketChannelConnector connector;
 
-	private SocketSession			session;
+    private SocketSession          session;
 
-	@Override
-	public void run() {
+    @Override
+    public void run() {
 
-		int time = getTime();
+        int time = getTime();
 
-		for (int i = 0; i < time; i++) {
+        for (int i = 0; i < time; i++) {
 
-			HttpFuture future = FutureFactory.createHttpReadFuture(session, "/test");
+            HttpFuture future = FutureFactory.createHttpReadFuture(session, "/test");
 
-			session.flush(future);
-		}
-	}
+            session.flush(future);
+        }
+    }
 
-	@Override
-	public void prepare() throws Exception {
+    @Override
+    public void prepare() throws Exception {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				addCount(1000);
-			}
-		};
-		
-		ServerConfiguration c = new ServerConfiguration("localhost",80);
-		
-		c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
-		c.setSERVER_MEMORY_POOL_UNIT(128);
-		c.setSERVER_CORE_SIZE(1);
-		c.setSERVER_HOST("192.168.0.180");
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                addCount(1000);
+            }
+        };
 
-		SocketChannelContext context = new NioSocketChannelContext(c);
-		
-		connector = new SocketChannelConnector(context);
+        ServerConfiguration c = new ServerConfiguration("localhost", 80);
 
-		context.setProtocolFactory(new ClientHTTPProtocolFactory());
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
+        c.setSERVER_MEMORY_POOL_UNIT(128);
+        c.setSERVER_CORE_SIZE(1);
+        c.setSERVER_HOST("192.168.0.180");
 
-		session = connector.connect();
-	}
+        SocketChannelContext context = new NioSocketChannelContext(c);
 
-	@Override
-	public void stop() {
-		CloseUtil.close(connector);
-	}
+        connector = new SocketChannelConnector(context);
 
-	public static void main(String[] args) throws IOException {
+        context.setProtocolFactory(new ClientHTTPProtocolFactory());
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.addSessionEventListener(new LoggerSocketSEListener());
 
-		int time = 160 * 10000;
+        session = connector.connect();
+    }
 
-		int core_size = 4;
+    @Override
+    public void stop() {
+        CloseUtil.close(connector);
+    }
 
-		ITestThreadHandle.doTest(TestHttpLoadClient.class, core_size, time / core_size);
-	}
+    public static void main(String[] args) throws IOException {
+
+        int time = 160 * 10000;
+
+        int core_size = 4;
+
+        ITestThreadHandle.doTest(TestHttpLoadClient.class, core_size, time / core_size);
+    }
 
 }

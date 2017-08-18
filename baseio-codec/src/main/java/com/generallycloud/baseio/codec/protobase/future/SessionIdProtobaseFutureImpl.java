@@ -25,68 +25,68 @@ import com.generallycloud.baseio.component.SocketSession;
  *
  */
 public class SessionIdProtobaseFutureImpl extends ProtobaseFutureImpl
-		implements SessionIdProtobaseFuture {
+        implements SessionIdProtobaseFuture {
 
-	public SessionIdProtobaseFutureImpl(SocketChannelContext context) {
-		super(context);
-	}
-	
-	public SessionIdProtobaseFutureImpl(SocketChannelContext context, int futureID, String futureName) {
-		super(context, futureID, futureName);
-	}
+    public SessionIdProtobaseFutureImpl(SocketChannelContext context) {
+        super(context);
+    }
 
-	public SessionIdProtobaseFutureImpl(SocketChannelContext context, String futureName) {
-		this(context, 0, futureName);
-	}
+    public SessionIdProtobaseFutureImpl(SocketChannelContext context, int futureID,
+            String futureName) {
+        super(context, futureID, futureName);
+    }
 
-	public SessionIdProtobaseFutureImpl(SocketSession session, ByteBuf buf,
-			boolean isBroadcast) {
-		super(session, buf);
-		this.isBroadcast = isBroadcast;
-	}
+    public SessionIdProtobaseFutureImpl(SocketChannelContext context, String futureName) {
+        this(context, 0, futureName);
+    }
 
-	private int		sessionId;
+    public SessionIdProtobaseFutureImpl(SocketSession session, ByteBuf buf, boolean isBroadcast) {
+        super(session, buf);
+        this.isBroadcast = isBroadcast;
+    }
 
-	private boolean	isBroadcast;
+    private int     sessionId;
 
-	@Override
-	public Object getSessionKey() {
-		return getSessionId();
-	}
+    private boolean isBroadcast;
 
-	@Override
-	public boolean isBroadcast() {
-		return isBroadcast;
-	}
+    @Override
+    public Object getSessionKey() {
+        return getSessionId();
+    }
 
-	@Override
-	public void setBroadcast(boolean broadcast) {
-		this.isBroadcast = broadcast;
-	}
+    @Override
+    public boolean isBroadcast() {
+        return isBroadcast;
+    }
 
-	@Override
-	public BalanceFuture translate() {
-		String text = getReadText();
-		if (StringUtil.isNullOrBlank(text)) {
-			return this;
-		}
-		write(text);
-		return this;
-	}
+    @Override
+    public void setBroadcast(boolean broadcast) {
+        this.isBroadcast = broadcast;
+    }
 
-	@Override
-	public int getSessionId() {
-		return sessionId;
-	}
+    @Override
+    public BalanceFuture translate() {
+        String text = getReadText();
+        if (StringUtil.isNullOrBlank(text)) {
+            return this;
+        }
+        write(text);
+        return this;
+    }
 
-	@Override
-	public void setSessionId(int sessionId) {
-		this.sessionId = sessionId;
-	}
+    @Override
+    public int getSessionId() {
+        return sessionId;
+    }
 
-	@Override
-	protected void generateHeaderExtend(ByteBuf buf) {
-		this.sessionId = buf.getInt();
-	}
+    @Override
+    public void setSessionId(int sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    @Override
+    protected void generateHeaderExtend(ByteBuf buf) {
+        this.sessionId = buf.getInt();
+    }
 
 }

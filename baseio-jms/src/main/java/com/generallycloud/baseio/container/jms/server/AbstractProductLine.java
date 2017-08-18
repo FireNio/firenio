@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.server;
 
 import java.util.HashMap;
@@ -29,95 +29,95 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractProductLine extends AbstractEventLoop implements MessageQueue {
 
-	protected MQContext					context;
-	protected MessageStorage				storage;
-	protected long						dueTime;
-	protected Map<String, ConsumerQueue>		consumerMap;
-	private Logger							logger	= LoggerFactory.getLogger(getClass());
+    protected MQContext                  context;
+    protected MessageStorage             storage;
+    protected long                       dueTime;
+    protected Map<String, ConsumerQueue> consumerMap;
+    private Logger                       logger = LoggerFactory.getLogger(getClass());
 
-	public AbstractProductLine(MQContext context) {
+    public AbstractProductLine(MQContext context) {
 
-		this.context = context;
+        this.context = context;
 
-		this.storage = new MessageStorage();
+        this.storage = new MessageStorage();
 
-		this.consumerMap = new HashMap<String, ConsumerQueue>();
+        this.consumerMap = new HashMap<>();
 
-		this.dueTime = context.getMessageDueTime();
-	}
+        this.dueTime = context.getMessageDueTime();
+    }
 
-	// TODO 处理剩下的message 和 receiver
-	@Override
-	protected void doStop() {
-	}
+    // TODO 处理剩下的message 和 receiver
+    @Override
+    protected void doStop() {}
 
-	public MQContext getContext() {
-		return context;
-	}
+    public MQContext getContext() {
+        return context;
+    }
 
-	@Override
-	public void pollMessage(SocketSession session, ProtobaseFuture future, MQSessionAttachment attachment) {
+    @Override
+    public void pollMessage(SocketSession session, ProtobaseFuture future,
+            MQSessionAttachment attachment) {
 
-		if (attachment.getConsumer() != null) {
-			return;
-		}
+        if (attachment.getConsumer() != null) {
+            return;
+        }
 
-		Authority authority = ApplicationContextUtil.getAuthority(session);
+        Authority authority = ApplicationContextUtil.getAuthority(session);
 
-		String queueName = authority.getUuid();
+        String queueName = authority.getUuid();
 
-		// 来自终端类型
-		context.addReceiver(queueName);
+        // 来自终端类型
+        context.addReceiver(queueName);
 
-		ConsumerQueue consumerQueue = getConsumerQueue(queueName);
+        ConsumerQueue consumerQueue = getConsumerQueue(queueName);
 
-		Consumer consumer = new Consumer(consumerQueue, attachment, session, future, queueName);
+        Consumer consumer = new Consumer(consumerQueue, attachment, session, future, queueName);
 
-		attachment.setConsumer(consumer);
+        attachment.setConsumer(consumer);
 
-		consumerQueue.offer(consumer);
-	}
+        consumerQueue.offer(consumer);
+    }
 
-	protected ConsumerQueue getConsumerQueue(String queueName) {
+    protected ConsumerQueue getConsumerQueue(String queueName) {
 
-		ConsumerQueue consumerQueue = consumerMap.get(queueName);
+        ConsumerQueue consumerQueue = consumerMap.get(queueName);
 
-		if (consumerQueue == null) {
+        if (consumerQueue == null) {
 
-			synchronized (consumerMap) {
+            synchronized (consumerMap) {
 
-				consumerQueue = consumerMap.get(queueName);
+                consumerQueue = consumerMap.get(queueName);
 
-				if (consumerQueue == null) {
-					consumerQueue = createConsumerQueue();
-					consumerMap.put(queueName, consumerQueue);
-				}
-			}
-		}
-		return consumerQueue;
-	}
+                if (consumerQueue == null) {
+                    consumerQueue = createConsumerQueue();
+                    consumerMap.put(queueName, consumerQueue);
+                }
+            }
+        }
+        return consumerQueue;
+    }
 
-	protected abstract ConsumerQueue createConsumerQueue();
+    protected abstract ConsumerQueue createConsumerQueue();
 
-	@Override
-	public void offerMessage(Message message) {
+    @Override
+    public void offerMessage(Message message) {
 
-		storage.offer(message);
-	}
+        storage.offer(message);
+    }
 
-	protected void filterUseless(Message message) {
-		long now = System.currentTimeMillis();
-		long dueTime = this.dueTime;
+    protected void filterUseless(Message message) {
+        long now = System.currentTimeMillis();
+        long dueTime = this.dueTime;
 
-		if (now - message.getTimestamp() > dueTime) {
-			// 消息过期了
-			logger.debug(">>>> message invalidate : {}", message);
-			return;
-		}
-		this.offerMessage(message);
-	}
+        if (now - message.getTimestamp() > dueTime) {
+            // 消息过期了
+            logger.debug(">>>> message invalidate : {}", message);
+            return;
+        }
+        this.offerMessage(message);
+    }
 
-	public void setDueTime(long dueTime) {
-		this.dueTime = dueTime;
-	}
+    public void setDueTime(long dueTime) {
+        this.dueTime = dueTime;
+    }
 }

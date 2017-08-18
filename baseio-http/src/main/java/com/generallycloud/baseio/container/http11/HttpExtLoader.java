@@ -27,10 +27,10 @@ import com.generallycloud.baseio.container.DynamicClassLoader;
  */
 public class HttpExtLoader implements ApplicationExtLoader {
 
-	@Override
-	public void loadExts(ApplicationContext context, DynamicClassLoader classLoader)
-			throws Exception {
-		classLoader.scan(new File(context.getAppLocalAddress()+"/lib"));
-	}
+    @Override
+    public void loadExts(ApplicationContext context, DynamicClassLoader classLoader)
+            throws Exception {
+        classLoader.scan(new File(context.getAppLocalAddress() + "/lib"));
+    }
 
 }

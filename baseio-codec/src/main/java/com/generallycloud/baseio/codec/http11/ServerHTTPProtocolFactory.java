@@ -21,31 +21,31 @@ import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class ServerHTTPProtocolFactory implements ProtocolFactory {
 
-	private int	headerLimit;
+    private int headerLimit;
 
-	private int	bodyLimit;
+    private int bodyLimit;
 
-	public ServerHTTPProtocolFactory() {
-		this(1024 * 8, 1024 * 512);
-	}
+    public ServerHTTPProtocolFactory() {
+        this(1024 * 8, 1024 * 512);
+    }
 
-	public ServerHTTPProtocolFactory(int headerLimit, int bodyLimit) {
-		this.headerLimit = headerLimit;
-		this.bodyLimit = bodyLimit;
-	}
+    public ServerHTTPProtocolFactory(int headerLimit, int bodyLimit) {
+        this.headerLimit = headerLimit;
+        this.bodyLimit = bodyLimit;
+    }
 
-	@Override
-	public ProtocolDecoder getProtocolDecoder() {
-		return new ServerHTTPProtocolDecoder(headerLimit, bodyLimit);
-	}
+    @Override
+    public ProtocolDecoder getProtocolDecoder() {
+        return new ServerHTTPProtocolDecoder(headerLimit, bodyLimit);
+    }
 
-	@Override
-	public ProtocolEncoder getProtocolEncoder() {
-		return new ServerHTTPProtocolEncoder();
-	}
+    @Override
+    public ProtocolEncoder getProtocolEncoder() {
+        return new ServerHTTPProtocolEncoder();
+    }
 
-	@Override
-	public String getProtocolId() {
-		return "HTTP1.1";
-	}
+    @Override
+    public String getProtocolId() {
+        return "HTTP1.1";
+    }
 }

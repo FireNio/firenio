@@ -38,45 +38,46 @@ import com.generallycloud.baseio.common.ThreadUtil;
  *
  */
 public class AioServerDemo {
-	private static Charset		charset	= Charset.forName("UTF-8");
-	private static CharsetEncoder	encoder	= charset.newEncoder();
+    private static Charset        charset = Charset.forName("UTF-8");
+    private static CharsetEncoder encoder = charset.newEncoder();
 
-	public static void main(String[] args) throws Exception {
-		AsynchronousChannelGroup group = AsynchronousChannelGroup.withThreadPool(Executors.newFixedThreadPool(4));
-		AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open(group)
-				.bind(new InetSocketAddress("0.0.0.0", 8013));
-		server.accept(null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
-			@Override
-			public void completed(AsynchronousSocketChannel result, Void attachment) {
-				server.accept(null, this); // 接受下一个连接
-				try {
-					
-					ByteBuffer readBuffer = ByteBuffer.allocate(999);
-					
-					result.read(readBuffer);
-					
-					String now = new Date().toString();
-					ByteBuffer buffer = encoder.encode(CharBuffer.wrap(now + "\r\n"));
-					// result.write(buffer, null, new
-					// CompletionHandler<Integer,Void>(){...}); //callback
-					// or
-					Future<Integer> f = result.write(buffer);
-					f.get();
-					System.out.println("sent to client: " + now);
-					result.close();
-				} catch (IOException | InterruptedException | ExecutionException e) {
-					e.printStackTrace();
-				}
-			}
+    public static void main(String[] args) throws Exception {
+        AsynchronousChannelGroup group = AsynchronousChannelGroup
+                .withThreadPool(Executors.newFixedThreadPool(4));
+        AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open(group)
+                .bind(new InetSocketAddress("0.0.0.0", 8013));
+        server.accept(null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
+            @Override
+            public void completed(AsynchronousSocketChannel result, Void attachment) {
+                server.accept(null, this); // 接受下一个连接
+                try {
 
-			@Override
-			public void failed(Throwable exc, Void attachment) {
-				exc.printStackTrace();
-			}
-		});
-		
-		ThreadUtil.sleep(9999999);
-		
-		group.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-	}
+                    ByteBuffer readBuffer = ByteBuffer.allocate(999);
+
+                    result.read(readBuffer);
+
+                    String now = new Date().toString();
+                    ByteBuffer buffer = encoder.encode(CharBuffer.wrap(now + "\r\n"));
+                    // result.write(buffer, null, new
+                    // CompletionHandler<Integer,Void>(){...}); //callback
+                    // or
+                    Future<Integer> f = result.write(buffer);
+                    f.get();
+                    System.out.println("sent to client: " + now);
+                    result.close();
+                } catch (IOException | InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                exc.printStackTrace();
+            }
+        });
+
+        ThreadUtil.sleep(9999999);
+
+        group.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+    }
 }

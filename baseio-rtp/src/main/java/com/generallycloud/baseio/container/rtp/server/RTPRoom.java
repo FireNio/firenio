@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.rtp.server;
 
 import java.util.ArrayList;
@@ -31,124 +31,126 @@ import com.generallycloud.baseio.protocol.DatagramPacket;
 //FIXME 是不是要限制最多room数
 public class RTPRoom {
 
-	private static final FixedAtomicInteger			ROOM_ID = new FixedAtomicInteger();
-	private static final Logger		logger		= LoggerFactory.getLogger(RTPRoom.class);
+    private static final FixedAtomicInteger ROOM_ID             = new FixedAtomicInteger();
+    private static final Logger             logger              = LoggerFactory
+            .getLogger(RTPRoom.class);
 
-	private RTPContext				context		;
-	private ReentrantList<DatagramSession>	datagramChannelList	= new ReentrantList<DatagramSession>(new ArrayList<DatagramSession>());
-	private RTPRoomFactory			roomFactory	;
-	private int					roomID		;
-	private boolean				closed		= false;
+    private RTPContext                      context;
+    private ReentrantList<DatagramSession>  datagramChannelList = new ReentrantList<>(
+            new ArrayList<DatagramSession>());
+    private RTPRoomFactory                  roomFactory;
+    private int                             roomID;
+    private boolean                         closed              = false;
 
-	public RTPRoom(RTPContext context, Session session) {
-		this.roomID = genRoomID();
-		this.roomFactory = context.getRTPRoomFactory();
-		this.context = context;
-//		this.join(session.getDatagramChannel()); //FIXME udp 
-	}
+    public RTPRoom(RTPContext context, Session session) {
+        this.roomID = genRoomID();
+        this.roomFactory = context.getRTPRoomFactory();
+        this.context = context;
+        //		this.join(session.getDatagramChannel()); //FIXME udp 
+    }
 
-	public void broadcast(DatagramSession session, DatagramPacket packet) {
+    public void broadcast(DatagramSession session, DatagramPacket packet) {
 
-		List<DatagramSession> datagramChannels = datagramChannelList.takeSnapshot();
+        List<DatagramSession> datagramChannels = datagramChannelList.takeSnapshot();
 
-		for (DatagramSession ch : datagramChannels) {
+        for (DatagramSession ch : datagramChannels) {
 
-			if (session == ch) {
-				continue;
-			}
+            if (session == ch) {
+                continue;
+            }
 
-			try {
-				ch.sendPacket(packet);
-			} catch (Throwable e) {
-				logger.debug(e);
-			}
-		}
-	}
+            try {
+                ch.sendPacket(packet);
+            } catch (Throwable e) {
+                logger.debug(e);
+            }
+        }
+    }
 
-	private int genRoomID() {
-		return ROOM_ID.getAndIncrement();
-	}
+    private int genRoomID() {
+        return ROOM_ID.getAndIncrement();
+    }
 
-	public int getRoomID() {
-		return roomID;
-	}
+    public int getRoomID() {
+        return roomID;
+    }
 
-	public boolean join(DatagramSession session) {
-		
-		if (session == null) {
-			return false;
-		}
+    public boolean join(DatagramSession session) {
 
-		ReentrantLock lock = datagramChannelList.getReentrantLock();
+        if (session == null) {
+            return false;
+        }
 
-		lock.lock();
+        ReentrantLock lock = datagramChannelList.getReentrantLock();
 
-		if (closed) {
+        lock.lock();
 
-			lock.unlock();
+        if (closed) {
 
-			return false;
-		}
+            lock.unlock();
 
-		if (!datagramChannelList.add(session)) {
+            return false;
+        }
 
-			lock.unlock();
+        if (!datagramChannelList.add(session)) {
 
-			return false;
-		}
+            lock.unlock();
 
-		lock.unlock();
+            return false;
+        }
 
-//		Session session = (Session) session.getSession();
+        lock.unlock();
 
-		//FIXME RTP
-//		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context.getPluginIndex());
+        //		Session session = (Session) session.getSession();
 
-//		attachment.setRTPRoom(this);
+        //FIXME RTP
+        //		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context.getPluginIndex());
 
-		return true;
-	}
+        //		attachment.setRTPRoom(this);
 
-	public void leave(DatagramSession channel) {
+        return true;
+    }
 
-		ReentrantLock lock = datagramChannelList.getReentrantLock();
+    public void leave(DatagramSession channel) {
 
-		lock.lock();
+        ReentrantLock lock = datagramChannelList.getReentrantLock();
 
-		datagramChannelList.remove(channel);
+        lock.lock();
 
-		List<DatagramSession> chs = datagramChannelList.takeSnapshot();
+        datagramChannelList.remove(channel);
 
-		for (DatagramSession ch : chs) {
+        List<DatagramSession> chs = datagramChannelList.takeSnapshot();
 
-			if (ch == channel) {
-				continue;
-			}
+        for (DatagramSession ch : chs) {
 
-			//FIXME RTP
-//			SocketSession session = (SocketSession) ch.getSession();
-			
-//			Authority authority = ApplicationContextUtil.getAuthority(session);
-//
-//			MapMessage message = new MapMessage("mmm", authority.getUuid());
-//
-//			message.setEventName("break");
-//
-//			message.put("userID", authority.getUserID());
-//
-//			MQContext mqContext = MQContext.getInstance();
-//
-//			mqContext.offerMessage(message);
-		}
+            if (ch == channel) {
+                continue;
+            }
 
-		if (datagramChannelList.size() == 0) {
+            //FIXME RTP
+            //			SocketSession session = (SocketSession) ch.getSession();
 
-			this.closed = true;
+            //			Authority authority = ApplicationContextUtil.getAuthority(session);
+            //
+            //			MapMessage message = new MapMessage("mmm", authority.getUuid());
+            //
+            //			message.setEventName("break");
+            //
+            //			message.put("userID", authority.getUserID());
+            //
+            //			MQContext mqContext = MQContext.getInstance();
+            //
+            //			mqContext.offerMessage(message);
+        }
 
-			roomFactory.removeRTPRoom(roomID);
-		}
+        if (datagramChannelList.size() == 0) {
 
-		lock.unlock();
-	}
+            this.closed = true;
+
+            roomFactory.removeRTPRoom(roomID);
+        }
+
+        lock.unlock();
+    }
 
 }

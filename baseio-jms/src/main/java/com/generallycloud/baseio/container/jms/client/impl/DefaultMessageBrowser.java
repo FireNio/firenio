@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.client.impl;
 
 import java.io.IOException;
@@ -29,60 +29,60 @@ import com.generallycloud.baseio.container.jms.decode.MessageDecoder;
 import com.generallycloud.baseio.container.jms.server.MQBrowserServlet;
 
 public class DefaultMessageBrowser implements MessageBrowser {
-	
-	private final String SERVICE_NAME = "MQBrowserServlet";
 
-	private MessageDecoder	messageDecoder	= new DefaultMessageDecoder();
+    private final String   SERVICE_NAME   = "MQBrowserServlet";
 
-	private FixedSession session = null;
-	
-	public DefaultMessageBrowser(FixedSession session) {
-		this.session = session;
-	}
+    private MessageDecoder messageDecoder = new DefaultMessageDecoder();
 
-	@Override
-	public Message browser(String messageID) throws MQException {
-		JSONObject param = new JSONObject();
-		param.put("messageID", messageID);
-		param.put("cmd", MQBrowserServlet.BROWSER);
+    private FixedSession   session        = null;
 
-		ProtobaseFuture future;
-		try {
-			future = session.request(SERVICE_NAME, param.toJSONString());
-		} catch (IOException e) {
-			throw new MQException(e.getMessage(), e);
-		}
+    public DefaultMessageBrowser(FixedSession session) {
+        this.session = session;
+    }
 
-		return messageDecoder.decode(future);
-	}
+    @Override
+    public Message browser(String messageID) throws MQException {
+        JSONObject param = new JSONObject();
+        param.put("messageID", messageID);
+        param.put("cmd", MQBrowserServlet.BROWSER);
 
-	@Override
-	public int size() throws MQException {
-		String param = "{cmd:\"0\"}";
+        ProtobaseFuture future;
+        try {
+            future = session.request(SERVICE_NAME, param.toJSONString());
+        } catch (IOException e) {
+            throw new MQException(e.getMessage(), e);
+        }
 
-		ProtobaseFuture future;
-		try {
-			future = session.request(SERVICE_NAME, param);
-		} catch (IOException e) {
-			throw new MQException(e.getMessage(), e);
-		}
-		return Integer.parseInt(future.getReadText());
-	}
+        return messageDecoder.decode(future);
+    }
 
-	@Override
-	public boolean isOnline(String queueName) throws MQException {
+    @Override
+    public int size() throws MQException {
+        String param = "{cmd:\"0\"}";
 
-		JSONObject param = new JSONObject();
-		param.put("queueName", queueName);
-		param.put("cmd", MQBrowserServlet.ONLINE);
+        ProtobaseFuture future;
+        try {
+            future = session.request(SERVICE_NAME, param);
+        } catch (IOException e) {
+            throw new MQException(e.getMessage(), e);
+        }
+        return Integer.parseInt(future.getReadText());
+    }
 
-		ProtobaseFuture future;
-		try {
-			future = session.request(SERVICE_NAME, param.toJSONString());
-		} catch (IOException e) {
-			throw new MQException(e.getMessage(), e);
-		}
+    @Override
+    public boolean isOnline(String queueName) throws MQException {
 
-		return ByteUtil.isTrue(future.getReadText());
-	}
+        JSONObject param = new JSONObject();
+        param.put("queueName", queueName);
+        param.put("cmd", MQBrowserServlet.ONLINE);
+
+        ProtobaseFuture future;
+        try {
+            future = session.request(SERVICE_NAME, param.toJSONString());
+        } catch (IOException e) {
+            throw new MQException(e.getMessage(), e);
+        }
+
+        return ByteUtil.isTrue(future.getReadText());
+    }
 }

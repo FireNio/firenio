@@ -35,64 +35,58 @@ import com.google.protobuf.ByteString;
 
 public class TestProtobufClient {
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		ProtobufUtil protobufUtil = new ProtobufUtil();
+        ProtobufUtil protobufUtil = new ProtobufUtil();
 
-		protobufUtil.regist(SearchRequest.getDefaultInstance());
+        protobufUtil.regist(SearchRequest.getDefaultInstance());
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
 
-				ProtobaseFuture f = (ProtobaseFuture) future;
+                ProtobaseFuture f = (ProtobaseFuture) future;
 
-				SearchRequest res = (SearchRequest) protobufUtil.getMessage(f);
+                SearchRequest res = (SearchRequest) protobufUtil.getMessage(f);
 
-				System.out.println();
-				System.out.println("________" + res);
-				System.out.println();
-			}
-		};
+                System.out.println();
+                System.out.println("________" + res);
+                System.out.println();
+            }
+        };
 
-		SocketChannelContext context = new NioSocketChannelContext(
-				new ServerConfiguration(18300));
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
 
-		SocketChannelConnector connector = new SocketChannelConnector(context);
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addSessionEventListener(new LoggerSocketSEListener());
 
-		//		context.addSessionEventListener(new SessionActiveSEListener());
+        //		context.addSessionEventListener(new SessionActiveSEListener());
 
-		//		context.setBeatFutureFactory(new FLBeatFutureFactory());
+        //		context.setBeatFutureFactory(new FLBeatFutureFactory());
 
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
 
-		SocketSession session = connector.connect();
+        SocketSession session = connector.connect();
 
-		ProtobaseFuture f = new ProtobaseFutureImpl(context);
+        ProtobaseFuture f = new ProtobaseFutureImpl(context);
 
-		ByteString byteString = ByteString.copyFrom("222".getBytes());
+        ByteString byteString = ByteString.copyFrom("222".getBytes());
 
-		SearchRequest request = SearchRequest
-				.newBuilder()
-				.setCorpus(Corpus.IMAGES)
-				.setPageNumber(100)
-				.setQuery("test")
-				.setQueryBytes(byteString)
-				.setResultPerPage(-1)
-				.build();
+        SearchRequest request = SearchRequest.newBuilder().setCorpus(Corpus.IMAGES)
+                .setPageNumber(100).setQuery("test").setQueryBytes(byteString).setResultPerPage(-1)
+                .build();
 
-		protobufUtil.writeProtobuf(request, f);
+        protobufUtil.writeProtobuf(request, f);
 
-		session.flush(f);
+        session.flush(f);
 
-		ThreadUtil.sleep(100);
+        ThreadUtil.sleep(100);
 
-		CloseUtil.close(connector);
+        CloseUtil.close(connector);
 
-	}
+    }
 }

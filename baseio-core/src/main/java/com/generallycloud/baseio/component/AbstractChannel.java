@@ -23,153 +23,145 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.common.StringUtil;
 
 public abstract class AbstractChannel implements Channel {
-	
-	static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
-	
-	protected String			edp_description;
-	protected int				channelId;
-	protected InetSocketAddress	local;
-	protected InetSocketAddress	remote;
-	protected long			lastAccess;
-	protected long			creationTime	= System.currentTimeMillis();
-	protected ReentrantLock		closeLock		= new ReentrantLock();
-	protected ByteBufAllocator	byteBufAllocator;
 
-	public AbstractChannel(ByteBufAllocator allocator,ChannelContext context,int channelId) {
-		// 认为在第一次Idle之前，连接都是畅通的
-		this.byteBufAllocator = allocator;
-		this.lastAccess = creationTime + context.getSessionIdleTime();
-		this.channelId = channelId;
-	}
+    static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
 
-	@Override
-	public int getChannelId() {
-		return channelId;
-	}
+    protected String               edp_description;
+    protected int                  channelId;
+    protected InetSocketAddress    local;
+    protected InetSocketAddress    remote;
+    protected long                 lastAccess;
+    protected long                 creationTime         = System.currentTimeMillis();
+    protected ReentrantLock        closeLock            = new ReentrantLock();
+    protected ByteBufAllocator     byteBufAllocator;
 
-	@Override
-	public String getLocalAddr() {
+    public AbstractChannel(ByteBufAllocator allocator, ChannelContext context, int channelId) {
+        // 认为在第一次Idle之前，连接都是畅通的
+        this.byteBufAllocator = allocator;
+        this.lastAccess = creationTime + context.getSessionIdleTime();
+        this.channelId = channelId;
+    }
 
-		InetAddress address = getLocalSocketAddress().getAddress();
+    @Override
+    public int getChannelId() {
+        return channelId;
+    }
 
-		if (address == null) {
-			return "127.0.0.1";
-		}
+    @Override
+    public String getLocalAddr() {
 
-		return address.getHostAddress();
-	}
-	
-	@Override
-	public ByteBufAllocator getByteBufAllocator() {
-		return byteBufAllocator;
-	}
-	
-	protected abstract void physicalClose();
+        InetAddress address = getLocalSocketAddress().getAddress();
 
-	@Override
-	public String getLocalHost() {
-		return getLocalSocketAddress().getHostName();
-	}
+        if (address == null) {
+            return "127.0.0.1";
+        }
 
-	@Override
-	public int getLocalPort() {
-		return getLocalSocketAddress().getPort();
-	}
+        return address.getHostAddress();
+    }
 
-	@Override
-	public abstract InetSocketAddress getLocalSocketAddress();
+    @Override
+    public ByteBufAllocator getByteBufAllocator() {
+        return byteBufAllocator;
+    }
 
-	protected abstract String getMarkPrefix();
+    protected abstract void physicalClose();
 
-	@Override
-	public String getRemoteAddr() {
+    @Override
+    public String getLocalHost() {
+        return getLocalSocketAddress().getHostName();
+    }
 
-		InetSocketAddress address = getRemoteSocketAddress();
+    @Override
+    public int getLocalPort() {
+        return getLocalSocketAddress().getPort();
+    }
 
-		if (address == null) {
+    @Override
+    public abstract InetSocketAddress getLocalSocketAddress();
 
-			return "closed";
-		}
+    protected abstract String getMarkPrefix();
 
-		return address.getAddress().getHostAddress();
-	}
+    @Override
+    public String getRemoteAddr() {
 
-	/**
-	 * 请勿使用,可能出现阻塞
-	 * 
-	 * @see http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6487744
-	 */
-	@Override
-	@Deprecated
-	public String getRemoteHost() {
+        InetSocketAddress address = getRemoteSocketAddress();
 
-		InetSocketAddress address = getRemoteSocketAddress();
+        if (address == null) {
 
-		if (address == null) {
+            return "closed";
+        }
 
-			return "closed";
-		}
+        return address.getAddress().getHostAddress();
+    }
 
-		return address.getAddress().getHostName();
-	}
+    /**
+     * 请勿使用,可能出现阻塞
+     * 
+     * @see http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6487744
+     */
+    @Override
+    @Deprecated
+    public String getRemoteHost() {
 
-	@Override
-	public int getRemotePort() {
+        InetSocketAddress address = getRemoteSocketAddress();
 
-		InetSocketAddress address = getRemoteSocketAddress();
+        if (address == null) {
 
-		if (address == null) {
+            return "closed";
+        }
 
-			return -1;
-		}
+        return address.getAddress().getHostName();
+    }
 
-		return address.getPort();
-	}
+    @Override
+    public int getRemotePort() {
 
-	@Override
-	public String toString() {
+        InetSocketAddress address = getRemoteSocketAddress();
 
-		if (edp_description == null) {
-			edp_description = new StringBuilder("[")
-				.append("Id(")
-				.append(getIdHexString(channelId))
-				.append(")R/")
-				.append(getRemoteAddr())
-				.append(":")
-				.append(getRemotePort())
-				.append("; L:")
-				.append(getLocalPort())
-				.append("]")
-				.toString();
-		}
+        if (address == null) {
 
-		return edp_description;
-	}
+            return -1;
+        }
 
-	private String getIdHexString(int channelID) {
+        return address.getPort();
+    }
 
-		String id = Long.toHexString(channelID);
+    @Override
+    public String toString() {
 
-		return "0x" + StringUtil.getZeroString(8 - id.length()) + id;
-	}
+        if (edp_description == null) {
+            edp_description = new StringBuilder("[").append("Id(").append(getIdHexString(channelId))
+                    .append(")R/").append(getRemoteAddr()).append(":").append(getRemotePort())
+                    .append("; L:").append(getLocalPort()).append("]").toString();
+        }
 
-	@Override
-	public void active() {
-		this.lastAccess = System.currentTimeMillis();
-	}
+        return edp_description;
+    }
 
-	@Override
-	public long getCreationTime() {
-		return creationTime;
-	}
+    private String getIdHexString(int channelID) {
 
-	@Override
-	public long getLastAccessTime() {
-		return lastAccess;
-	}
+        String id = Long.toHexString(channelID);
 
-	protected ReentrantLock getCloseLock() {
-		return closeLock;
-	}
-	
+        return "0x" + StringUtil.getZeroString(8 - id.length()) + id;
+    }
+
+    @Override
+    public void active() {
+        this.lastAccess = System.currentTimeMillis();
+    }
+
+    @Override
+    public long getCreationTime() {
+        return creationTime;
+    }
+
+    @Override
+    public long getLastAccessTime() {
+        return lastAccess;
+    }
+
+    protected ReentrantLock getCloseLock() {
+        return closeLock;
+    }
+
 }

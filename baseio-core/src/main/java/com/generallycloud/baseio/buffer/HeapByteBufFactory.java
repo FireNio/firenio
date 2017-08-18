@@ -12,37 +12,37 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.buffer;
 
 public class HeapByteBufFactory implements ByteBufFactory {
 
-	private byte[]	memory	= null;
+    private byte[] memory = null;
 
-	@Override
-	public void freeMemory() {
-		//FIXME 这里不free了，如果在次申请的时候大小和这次一致，则不在重新申请
-//		this.memory = null;
-	}
+    @Override
+    public void freeMemory() {
+        //FIXME 这里不free了，如果在次申请的时候大小和这次一致，则不在重新申请
+        //		this.memory = null;
+    }
 
-	@Override
-	public void initializeMemory(int capacity) {
-		if (memory != null && memory.length == capacity) {
-			return;
-		}
-		this.memory = new byte[capacity];
-	}
-	
-	/**
-	 * @return the memory
-	 */
-	public byte[] getMemory() {
-		return memory;
-	}
+    @Override
+    public void initializeMemory(int capacity) {
+        if (memory != null && memory.length == capacity) {
+            return;
+        }
+        this.memory = new byte[capacity];
+    }
 
-	@Override
-	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
-		return new PooledHeapByteBuf(allocator, memory);
-	}
+    /**
+     * @return the memory
+     */
+    public byte[] getMemory() {
+        return memory;
+    }
+
+    @Override
+    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+        return new PooledHeapByteBuf(allocator, memory);
+    }
 
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.protobuf;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
@@ -30,47 +30,48 @@ import com.generallycloud.test.nio.protobuf.TestProtoBufBean.SearchRequest;
 
 public class TestProtobufServer {
 
-	public static void main(String[] args) throws Exception {
-		
-		ProtobufUtil protobufUtil = new ProtobufUtil();
+    public static void main(String[] args) throws Exception {
 
-		protobufUtil.regist(SearchRequest.getDefaultInstance());
+        ProtobufUtil protobufUtil = new ProtobufUtil();
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        protobufUtil.regist(SearchRequest.getDefaultInstance());
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				
-				ProtobaseFuture f = (ProtobaseFuture) future;
-				
-				SearchRequest req =  (SearchRequest) protobufUtil.getMessage(f);
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-				String message = "yes server already accept your message:\n" + req;
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
 
-				System.out.println(message);
-				
-				SearchRequest res = SearchRequest.newBuilder().mergeFrom(req).setQuery("query_______").build();
-				
-				protobufUtil.writeProtobuf(res.getClass().getName(), res,f);
-				
-				session.flush(future);
-			}
-		};
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
+                ProtobaseFuture f = (ProtobaseFuture) future;
 
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+                SearchRequest req = (SearchRequest) protobufUtil.getMessage(f);
 
-		context.addSessionEventListener(new LoggerSocketSEListener());
+                String message = "yes server already accept your message:\n" + req;
 
-//		context.addSessionEventListener(new SessionAliveSEListener());
+                System.out.println(message);
 
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
+                SearchRequest res = SearchRequest.newBuilder().mergeFrom(req)
+                        .setQuery("query_______").build();
 
-//		context.setBeatFutureFactory(new NIOBeatFutureFactory());
+                protobufUtil.writeProtobuf(res.getClass().getName(), res, f);
 
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
+                session.flush(future);
+            }
+        };
 
-		acceptor.bind();
-	}
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
+
+        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        //		context.addSessionEventListener(new SessionAliveSEListener());
+
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+
+        //		context.setBeatFutureFactory(new NIOBeatFutureFactory());
+
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        acceptor.bind();
+    }
 }

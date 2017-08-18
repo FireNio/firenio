@@ -12,16 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 
-public class IoLimitChannelByteBufReader extends LinkableChannelByteBufReader{
+public class IoLimitChannelByteBufReader extends LinkableChannelByteBufReader {
 
-	@Override
-	public void accept(SocketChannel channel, ByteBuf buffer) throws Exception {
-		nextAccept(channel, buffer);
-	}
+    @Override
+    public void accept(SocketChannel channel, ByteBuf buffer) throws Exception {
+        nextAccept(channel, buffer);
+    }
 
 }

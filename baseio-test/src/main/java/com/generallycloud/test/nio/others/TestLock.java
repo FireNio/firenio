@@ -23,66 +23,63 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class TestLock {
 
-	private AtomicBoolean	lockCAS		= new AtomicBoolean();
+    private AtomicBoolean lockCAS    = new AtomicBoolean();
 
-	private AtomicBoolean	unlockCAS		= new AtomicBoolean();
+    private AtomicBoolean unlockCAS  = new AtomicBoolean();
 
-	private AtomicBoolean	releaseCAS	= new AtomicBoolean();
+    private AtomicBoolean releaseCAS = new AtomicBoolean();
 
-	private Thread			owner		= null;
+    private Thread        owner      = null;
 
-	private int			locks		= 0;
+    private int           locks      = 0;
 
-	private Object			lock			= new Object();
+    private Object        lock       = new Object();
 
-	public void lock() {
-		if (getOwner() == currentThread()) {
-			locks++;
-			return;
-		}
+    public void lock() {
+        if (getOwner() == currentThread()) {
+            locks++;
+            return;
+        }
 
-		if (cas(lockCAS)) {
-			locks++;
-			setOwner();
-			return;
-		}
+        if (cas(lockCAS)) {
+            locks++;
+            setOwner();
+            return;
+        }
 
-		if (cas(unlockCAS)) {
-			synchronized (lock) {
-				try {
-					lock.wait();
-				} catch (InterruptedException e) {
-				}
-				
-			}
-		}
+        if (cas(unlockCAS)) {
+            synchronized (lock) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException e) {}
 
-		
-		
-	}
+            }
+        }
 
-	private boolean cas(AtomicBoolean cas) {
-		return cas.compareAndSet(false, true);
-	}
+    }
 
-	private void releaseCas(AtomicBoolean cas) {
-		cas.set(false);
-	}
+    private boolean cas(AtomicBoolean cas) {
+        return cas.compareAndSet(false, true);
+    }
 
-	private void setOwner() {
-		owner = currentThread();
-	}
+    private void releaseCas(AtomicBoolean cas) {
+        cas.set(false);
+    }
 
-	private Thread currentThread() {
-		return Thread.currentThread();
-	}
+    private void setOwner() {
+        owner = currentThread();
+    }
 
-	private Thread getOwner() {
-		return owner;
-	}
+    private Thread currentThread() {
+        return Thread.currentThread();
+    }
 
-	public void unlock() {
+    private Thread getOwner() {
+        return owner;
+    }
 
-	}
+    public void unlock() {
+
+    }
 
 }

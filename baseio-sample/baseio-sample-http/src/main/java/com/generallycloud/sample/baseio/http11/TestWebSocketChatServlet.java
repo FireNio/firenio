@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.sample.baseio.http11;
 
 import com.alibaba.fastjson.JSON;
@@ -31,177 +31,177 @@ import com.generallycloud.baseio.protocol.Future;
 //FIXME ________根据当前是否正在redeploy来保存和恢复client
 public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 
-	private WebSocketMsgAdapter msgAdapter = new WebSocketMsgAdapter();
-	
-	@Override
-	protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
+    private WebSocketMsgAdapter msgAdapter = new WebSocketMsgAdapter();
 
-		future.updateWebSocketProtocol();
+    @Override
+    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
 
-		session.flush(future);
-	}
+        future.updateWebSocketProtocol();
 
-	@Override
-	public void accept(SocketSession session, Future future) throws Exception {
+        session.flush(future);
+    }
 
-		if (future instanceof HttpFuture) {
-			super.accept(session, future);
-			return;
-		}
-		
-		WebSocketFuture f = (WebSocketFuture) future;
+    @Override
+    public void accept(SocketSession session, Future future) throws Exception {
 
-		// CLOSE
-		if (f.isCloseFrame()) {
-			
-			if (!msgAdapter.removeClient(session)) {
-				return;
-			}
+        if (future instanceof HttpFuture) {
+            super.accept(session, future);
+            return;
+        }
 
-			JSONObject obj = new JSONObject();
+        WebSocketFuture f = (WebSocketFuture) future;
 
-			obj.put("username", session.getAttribute("username"));
-			obj.put("numUsers", msgAdapter.getClientSize());
-			obj.put("action", "user-left");
+        // CLOSE
+        if (f.isCloseFrame()) {
 
-			String msg1 = obj.toJSONString();
+            if (!msgAdapter.removeClient(session)) {
+                return;
+            }
 
-			msgAdapter.sendMsg(msg1);
+            JSONObject obj = new JSONObject();
 
-		} else {
+            obj.put("username", session.getAttribute("username"));
+            obj.put("numUsers", msgAdapter.getClientSize());
+            obj.put("action", "user-left");
 
-			String msg = f.getReadText();
+            String msg1 = obj.toJSONString();
 
-			JSONObject obj = JSON.parseObject(msg);
+            msgAdapter.sendMsg(msg1);
 
-			String action = obj.getString("action");
+        } else {
 
-			if ("new-message".equals(action)) {
-				
-				String owner = (String) session.getAttribute("username");
+            String msg = f.getReadText();
 
-				String message = obj.getString("message");
-				
-				if (message.charAt(0) == '@') {
-					
-					int nIndex = message.indexOf(' ');
-					
-					if (nIndex > 1) {
+            JSONObject obj = JSON.parseObject(msg);
 
-						String username = message.substring(1, nIndex);
-						
-						SocketSession s = msgAdapter.getSession(username);
-						
-						if (s == null) {
-							obj.put("message", "用户不存在或者已离线");
-							obj.put("username", owner);
-							msgAdapter.sendMsg(session, obj.toJSONString());
-							return;
-						}
-						
-						obj.put("username", owner);
-						
-						msgAdapter.sendMsg(session, obj.toJSONString());
-						
-						obj.put("username", owner+"@你");
-						obj.put("message", message.substring(nIndex));
-						msgAdapter.sendMsg(s, obj.toJSONString());
-						
-						return;
-					}
-				}
-				
-				obj.put("username", owner);
+            String action = obj.getString("action");
 
-				String msg1 = obj.toJSONString();
+            if ("new-message".equals(action)) {
 
-				msgAdapter.sendMsg(msg1);
-				
-			} else if ("add-user".equals(action)) {
+                String owner = (String) session.getAttribute("username");
 
-				String username = (String) session.getAttribute("username");
+                String message = obj.getString("message");
 
-				if (username != null) {
-					return;
-				}
-				
-				username = obj.getString("username");
+                if (message.charAt(0) == '@') {
 
-				if (StringUtil.isNullOrBlank(username)) {
-					return;
-				}
-				
-				msgAdapter.addClient(username,session);
+                    int nIndex = message.indexOf(' ');
 
-				session.setAttribute("username", username);
+                    if (nIndex > 1) {
 
-				obj.put("numUsers", msgAdapter.getClientSize());
-				obj.put("action", "login");
+                        String username = message.substring(1, nIndex);
 
-				msgAdapter.sendMsg(session, obj.toJSONString());
+                        SocketSession s = msgAdapter.getSession(username);
 
-				obj.put("username", username);
-				obj.put("action", "user-joined");
+                        if (s == null) {
+                            obj.put("message", "用户不存在或者已离线");
+                            obj.put("username", owner);
+                            msgAdapter.sendMsg(session, obj.toJSONString());
+                            return;
+                        }
 
-				msgAdapter.sendMsg(obj.toJSONString());
-				
-				obj.put("action", "new-message");
-				
-				obj.put("username", "系统消息");
-				
-				obj.put("message", "欢迎加入QQ群讨论java io相关技术：540637859，@某人可以单独向他发送消息。");
-				
-				msgAdapter.sendMsg(session, obj.toJSONString());
-				
-			} else if ("typing".equals(action)) {
+                        obj.put("username", owner);
 
-				obj.put("username", session.getAttribute("username"));
+                        msgAdapter.sendMsg(session, obj.toJSONString());
 
-				String msg1 = obj.toJSONString();
+                        obj.put("username", owner + "@你");
+                        obj.put("message", message.substring(nIndex));
+                        msgAdapter.sendMsg(s, obj.toJSONString());
 
-				msgAdapter.sendMsg(msg1);
+                        return;
+                    }
+                }
 
-			} else if ("stop-typing".equals(action)) {
+                obj.put("username", owner);
 
-				obj.put("username", session.getAttribute("username"));
+                String msg1 = obj.toJSONString();
 
-				String msg1 = obj.toJSONString();
+                msgAdapter.sendMsg(msg1);
 
-				msgAdapter.sendMsg(msg1);
+            } else if ("add-user".equals(action)) {
 
-			} else if ("disconnect".equals(action)) {
+                String username = (String) session.getAttribute("username");
 
-				msgAdapter.removeClient(session);
+                if (username != null) {
+                    return;
+                }
 
-				obj.put("username", session.getAttribute("username"));
-				obj.put("numUsers", msgAdapter.getClientSize());
-				obj.put("action", "user-left");
+                username = obj.getString("username");
 
-				String msg1 = obj.toJSONString();
+                if (StringUtil.isNullOrBlank(username)) {
+                    return;
+                }
 
-				msgAdapter.sendMsg(msg1);
-			} else {
+                msgAdapter.addClient(username, session);
 
-				f.write("no action matched:" + action);
+                session.setAttribute("username", username);
 
-				session.flush(f);
-			}
-		}
-	}
+                obj.put("numUsers", msgAdapter.getClientSize());
+                obj.put("action", "login");
 
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+                msgAdapter.sendMsg(session, obj.toJSONString());
 
-		this.msgAdapter.startup("WebSocketChat");
+                obj.put("username", username);
+                obj.put("action", "user-joined");
 
-		super.initialize(context, config);
-	}
+                msgAdapter.sendMsg(obj.toJSONString());
 
-	@Override
-	public void destroy(ApplicationContext context, Configuration config) throws Exception {
+                obj.put("action", "new-message");
 
-		LifeCycleUtil.stop(msgAdapter);
+                obj.put("username", "系统消息");
 
-		super.destroy(context, config);
-	}
+                obj.put("message", "欢迎加入QQ群讨论java io相关技术：540637859，@某人可以单独向他发送消息。");
+
+                msgAdapter.sendMsg(session, obj.toJSONString());
+
+            } else if ("typing".equals(action)) {
+
+                obj.put("username", session.getAttribute("username"));
+
+                String msg1 = obj.toJSONString();
+
+                msgAdapter.sendMsg(msg1);
+
+            } else if ("stop-typing".equals(action)) {
+
+                obj.put("username", session.getAttribute("username"));
+
+                String msg1 = obj.toJSONString();
+
+                msgAdapter.sendMsg(msg1);
+
+            } else if ("disconnect".equals(action)) {
+
+                msgAdapter.removeClient(session);
+
+                obj.put("username", session.getAttribute("username"));
+                obj.put("numUsers", msgAdapter.getClientSize());
+                obj.put("action", "user-left");
+
+                String msg1 = obj.toJSONString();
+
+                msgAdapter.sendMsg(msg1);
+            } else {
+
+                f.write("no action matched:" + action);
+
+                session.flush(f);
+            }
+        }
+    }
+
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
+
+        this.msgAdapter.startup("WebSocketChat");
+
+        super.initialize(context, config);
+    }
+
+    @Override
+    public void destroy(ApplicationContext context, Configuration config) throws Exception {
+
+        LifeCycleUtil.stop(msgAdapter);
+
+        super.destroy(context, config);
+    }
 }

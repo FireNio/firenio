@@ -23,22 +23,21 @@ import java.util.List;
  */
 public interface ProtocolSelector {
 
-	
-	/**
+    /**
       * Callback invoked to let the application know that the peer does not support this
       * {@link ApplicationProtocolNegotiator}.
       */
-     void unsupported();
+    void unsupported();
 
-     /**
-      * Callback invoked to select the application level protocol from the {@code protocols} provided.
-      *
-      * @param protocols the protocols sent by the protocol advertiser
-      * @return the protocol selected by this {@link ProtocolSelector}. A {@code null} value will indicate the no
-      * protocols were selected but the handshake should not fail. The decision to fail the handshake is left to the
-      * other end negotiating the SSL handshake.
-      * @throws Exception If the {@code protocols} provide warrant failing the SSL handshake with a fatal alert.
-      */
-     String select(List<String> protocols) throws Exception;
-	
+    /**
+     * Callback invoked to select the application level protocol from the {@code protocols} provided.
+     *
+     * @param protocols the protocols sent by the protocol advertiser
+     * @return the protocol selected by this {@link ProtocolSelector}. A {@code null} value will indicate the no
+     * protocols were selected but the handshake should not fail. The decision to fail the handshake is left to the
+     * other end negotiating the SSL handshake.
+     * @throws Exception If the {@code protocols} provide warrant failing the SSL handshake with a fatal alert.
+     */
+    String select(List<String> protocols) throws Exception;
+
 }

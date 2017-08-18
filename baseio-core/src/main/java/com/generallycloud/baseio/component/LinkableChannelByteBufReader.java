@@ -19,24 +19,24 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 
 public abstract class LinkableChannelByteBufReader implements ChannelByteBufReader {
 
-	private ChannelByteBufReader next;
+    private ChannelByteBufReader next;
 
-	@Override
-	public ChannelByteBufReader getNext() {
-		return next;
-	}
+    @Override
+    public ChannelByteBufReader getNext() {
+        return next;
+    }
 
-	@Override
-	public void setNext(ChannelByteBufReader channelByteBufReader) {
-		this.next = channelByteBufReader;
-	}
+    @Override
+    public void setNext(ChannelByteBufReader channelByteBufReader) {
+        this.next = channelByteBufReader;
+    }
 
-	protected ByteBuf allocate(Session session, int capacity) {
-		return session.getByteBufAllocator().allocate(capacity);
-	}
+    protected ByteBuf allocate(Session session, int capacity) {
+        return session.getByteBufAllocator().allocate(capacity);
+    }
 
-	protected void nextAccept(SocketChannel channel, ByteBuf buffer) throws Exception {
-		getNext().accept(channel, buffer);
-	}
+    protected void nextAccept(SocketChannel channel, ByteBuf buffer) throws Exception {
+        getNext().accept(channel, buffer);
+    }
 
 }

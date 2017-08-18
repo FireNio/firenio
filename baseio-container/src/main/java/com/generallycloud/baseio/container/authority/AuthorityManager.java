@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.authority;
 
 import java.util.ArrayList;
@@ -24,66 +24,66 @@ import com.generallycloud.baseio.common.StringUtil;
 
 public class AuthorityManager {
 
-	private int					roleID			;
-	
-	private Authority				authority			;
+    private int                     roleID;
 
-	private Map<String, Permission>	permissions		= new HashMap<String, Permission>();
+    private Authority               authority;
 
-	private List<Permission>			permissionsList	= new ArrayList<Permission>();
+    private Map<String, Permission> permissions     = new HashMap<>();
 
-	protected void addPermission(Permission permission) {
-		
-		if (permissions.containsKey(permission.getPermissionAPI())) {
-			return;
-		}
-		
-		permissions.put(permission.getPermissionAPI(), permission);
-		permissionsList.add(permission);
-	}
+    private List<Permission>        permissionsList = new ArrayList<>();
 
-	protected int getRoleID() {
-		return roleID;
-	}
+    protected void addPermission(Permission permission) {
 
-	public boolean isInvokeApproved(String permissionAPI) {
-		
-		if (!isNeedAuthor(permissionAPI)) {
-			return true;
-		}
+        if (permissions.containsKey(permission.getPermissionAPI())) {
+            return;
+        }
 
-		Permission permission = permissions.get(permissionAPI);
+        permissions.put(permission.getPermissionAPI(), permission);
+        permissionsList.add(permission);
+    }
 
-		return permission != null && permission.invoke();
-	}
+    protected int getRoleID() {
+        return roleID;
+    }
 
-	protected void setRoleID(int roleID) {
-		this.roleID = roleID;
-	}
+    public boolean isInvokeApproved(String permissionAPI) {
 
-	@Override
-	protected AuthorityManager clone() {
-		AuthorityManager manager = new AuthorityManager();
+        if (!isNeedAuthor(permissionAPI)) {
+            return true;
+        }
 
-		manager.setRoleID(roleID);
+        Permission permission = permissions.get(permissionAPI);
 
-		for (Permission p : permissionsList) {
-			manager.addPermission(p.clone());
-		}
+        return permission != null && permission.invoke();
+    }
 
-		return manager;
-	}
-	
-	private boolean isNeedAuthor(String permissionAPI){
-		return StringUtil.isNullOrBlank(permissionAPI) || permissionAPI.endsWith(".auth");
-	}
-	
-	protected void setAuthority(Authority authority){
-		this.authority = authority;
-	}
-	
-	public Authority getAuthority(){
-		return authority;
-	}
+    protected void setRoleID(int roleID) {
+        this.roleID = roleID;
+    }
+
+    @Override
+    protected AuthorityManager clone() {
+        AuthorityManager manager = new AuthorityManager();
+
+        manager.setRoleID(roleID);
+
+        for (Permission p : permissionsList) {
+            manager.addPermission(p.clone());
+        }
+
+        return manager;
+    }
+
+    private boolean isNeedAuthor(String permissionAPI) {
+        return StringUtil.isNullOrBlank(permissionAPI) || permissionAPI.endsWith(".auth");
+    }
+
+    protected void setAuthority(Authority authority) {
+        this.authority = authority;
+    }
+
+    public Authority getAuthority() {
+        return authority;
+    }
 
 }

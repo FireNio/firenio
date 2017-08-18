@@ -19,12 +19,12 @@ import com.generallycloud.baseio.concurrent.Linkable;
 
 public interface LinkAbleByteBufAllocator extends ByteBufAllocator, Linkable {
 
-	int getIndex();
+    int getIndex();
 
-	ByteBufAllocator unwrap();
+    ByteBufAllocator unwrap();
 
-	@Override
-	LinkAbleByteBufAllocator getNext();
+    @Override
+    LinkAbleByteBufAllocator getNext();
 
-	ByteBuf allocate(int capacity, LinkAbleByteBufAllocator allocator);
+    ByteBuf allocate(int capacity, LinkAbleByteBufAllocator allocator);
 }

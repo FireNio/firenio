@@ -12,16 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.decode;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.container.jms.Message;
 
-public class EmptyMessageDecoder implements MessageDecoder{
+public class EmptyMessageDecoder implements MessageDecoder {
 
-	@Override
-	public Message decode(ProtobaseFuture future) {
-		return null;
-	}
+    @Override
+    public Message decode(ProtobaseFuture future) {
+        return null;
+    }
 }

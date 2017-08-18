@@ -24,237 +24,236 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
-public class WebSocketFutureImpl extends AbstractChannelFuture
-		implements WebSocketFuture {
+public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSocketFuture {
 
-	private int			type;
-	private boolean		eof;
-	private boolean		hasMask;
-	private int			length;
-	private String			serviceName;
-	private boolean		data_complete;
-	private boolean		header_complete;
-	private boolean		remain_header_complete;
-	private int			limit;
-	private byte[]		mask;
-	private byte[]		byteArray;
+    private int     type;
+    private boolean eof;
+    private boolean hasMask;
+    private int     length;
+    private String  serviceName;
+    private boolean data_complete;
+    private boolean header_complete;
+    private boolean remain_header_complete;
+    private int     limit;
+    private byte[]  mask;
+    private byte[]  byteArray;
 
-	public WebSocketFutureImpl(SocketSession session, ByteBuf buf, int limit) {
-		super(session.getContext());
+    public WebSocketFutureImpl(SocketSession session, ByteBuf buf, int limit) {
+        super(session.getContext());
 
-		this.limit = limit;
+        this.limit = limit;
 
-		this.buf = buf;
+        this.buf = buf;
 
-		this.setServiceName(session);
-	}
+        this.setServiceName(session);
+    }
 
-	public WebSocketFutureImpl(SocketChannelContext context) {
-		super(context);
-		this.type = WebSocketProtocolDecoder.TYPE_TEXT;
-	}
+    public WebSocketFutureImpl(SocketChannelContext context) {
+        super(context);
+        this.type = WebSocketProtocolDecoder.TYPE_TEXT;
+    }
 
-	protected void setServiceName(SocketSession session) {
-		this.serviceName = (String) session.getAttribute(SESSION_KEY_SERVICE_NAME);
-	}
+    protected void setServiceName(SocketSession session) {
+        this.serviceName = (String) session.getAttribute(SESSION_KEY_SERVICE_NAME);
+    }
 
-	@Override
-	public boolean isCloseFrame() {
-		return OP_CONNECTION_CLOSE_FRAME == type;
-	}
+    @Override
+    public boolean isCloseFrame() {
+        return OP_CONNECTION_CLOSE_FRAME == type;
+    }
 
-	private void doHeaderComplete(ByteBuf buf) {
+    private void doHeaderComplete(ByteBuf buf) {
 
-		int remain_header_size = 0;
+        int remain_header_size = 0;
 
-		byte b = buf.getByte();
+        byte b = buf.getByte();
 
-		eof  = (b & 0b10000000) > 0;
+        eof = (b & 0b10000000) > 0;
 
-		type = (b & 0xF);
+        type = (b & 0xF);
 
-//		switch (type) {
-//		case WebSocketProtocolDecoder.TYPE_PING:
-//			setPING();
-//			break;
-//		case WebSocketProtocolDecoder.TYPE_PONG:
-//			setPONG();
-//			break;
-//		case WebSocketProtocolDecoder.TYPE_TEXT:
-//			break;
-//		case WebSocketProtocolDecoder.TYPE_BINARY:
-//			break;
-//		case WebSocketProtocolDecoder.TYPE_CLOSE:
-//			break;
-//
-//		default:
-//			break;
-//		}
+        //		switch (type) {
+        //		case WebSocketProtocolDecoder.TYPE_PING:
+        //			setPING();
+        //			break;
+        //		case WebSocketProtocolDecoder.TYPE_PONG:
+        //			setPONG();
+        //			break;
+        //		case WebSocketProtocolDecoder.TYPE_TEXT:
+        //			break;
+        //		case WebSocketProtocolDecoder.TYPE_BINARY:
+        //			break;
+        //		case WebSocketProtocolDecoder.TYPE_CLOSE:
+        //			break;
+        //
+        //		default:
+        //			break;
+        //		}
 
-		if (type == WebSocketProtocolDecoder.TYPE_PING) {
-			setPING();
-		} else if (type == WebSocketProtocolDecoder.TYPE_PONG) {
-			setPONG();
-		}
+        if (type == WebSocketProtocolDecoder.TYPE_PING) {
+            setPING();
+        } else if (type == WebSocketProtocolDecoder.TYPE_PONG) {
+            setPONG();
+        }
 
-		b = buf.getByte();
+        b = buf.getByte();
 
-		hasMask = (b & 0b10000000)> 0;
+        hasMask = (b & 0b10000000) > 0;
 
-		if (hasMask) {
-			remain_header_size += 4;
-		}
+        if (hasMask) {
+            remain_header_size += 4;
+        }
 
-		length = (b & 0x7f);
+        length = (b & 0x7f);
 
-		if (length < 126) {
+        if (length < 126) {
 
-		} else if (length == 126) {
+        } else if (length == 126) {
 
-			remain_header_size += 2;
+            remain_header_size += 2;
 
-		} else {
+        } else {
 
-			remain_header_size += 4;
-		}
+            remain_header_size += 4;
+        }
 
-		buf.reallocate(remain_header_size);
-	}
+        buf.reallocate(remain_header_size);
+    }
 
-	private void doRemainHeaderComplete(SocketSession session, ByteBuf buf) throws IOException {
+    private void doRemainHeaderComplete(SocketSession session, ByteBuf buf) throws IOException {
 
-		remain_header_complete = true;
+        remain_header_complete = true;
 
-		if (length < 126) {
+        if (length < 126) {
 
-		} else if (length == 126) {
+        } else if (length == 126) {
 
-			length = buf.getUnsignedShort();
+            length = buf.getUnsignedShort();
 
-		} else {
+        } else {
 
-			length = (int) buf.getUnsignedInt();
+            length = (int) buf.getUnsignedInt();
 
-			if (length < 0) {
-				throw new IOException("too long data length");
-			}
-		}
+            if (length < 0) {
+                throw new IOException("too long data length");
+            }
+        }
 
-		mask = buf.getBytes();
+        mask = buf.getBytes();
 
-		buf.reallocate(length, limit);
-	}
+        buf.reallocate(length, limit);
+    }
 
-	private void doDataComplete(ByteBuf buf) {
+    private void doDataComplete(ByteBuf buf) {
 
-		byte[] array = buf.getBytes();
+        byte[] array = buf.getBytes();
 
-		if (hasMask) {
+        if (hasMask) {
 
-			byte[] mask = this.mask;
+            byte[] mask = this.mask;
 
-			int length = array.length;
+            int length = array.length;
 
-			for (int i = 0; i < length; i++) {
+            for (int i = 0; i < length; i++) {
 
-				array[i] = (byte) (array[i] ^ mask[i % 4]);
-			}
-		}
+                array[i] = (byte) (array[i] ^ mask[i % 4]);
+            }
+        }
 
-		this.byteArray = array;
-		
-		if (type == WebSocketProtocolDecoder.TYPE_BINARY) {
-			// FIXME 处理binary
-			return;
-		}
-		
-		this.readText = new String(array, context.getEncoding());
-	}
+        this.byteArray = array;
 
-	@Override
-	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+        if (type == WebSocketProtocolDecoder.TYPE_BINARY) {
+            // FIXME 处理binary
+            return;
+        }
 
-		ByteBuf buf = this.buf;
+        this.readText = new String(array, context.getEncoding());
+    }
 
-		if (!header_complete) {
+    @Override
+    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
-			buf.read(buffer);
+        ByteBuf buf = this.buf;
 
-			if (buf.hasRemaining()) {
-				return false;
-			}
+        if (!header_complete) {
 
-			header_complete = true;
+            buf.read(buffer);
 
-			doHeaderComplete(buf.flip());
-		}
+            if (buf.hasRemaining()) {
+                return false;
+            }
 
-		if (!remain_header_complete) {
+            header_complete = true;
 
-			buf.read(buffer);
+            doHeaderComplete(buf.flip());
+        }
 
-			if (buf.hasRemaining()) {
-				return false;
-			}
+        if (!remain_header_complete) {
 
-			remain_header_complete = true;
+            buf.read(buffer);
 
-			doRemainHeaderComplete(session, buf.flip());
-		}
+            if (buf.hasRemaining()) {
+                return false;
+            }
 
-		if (!data_complete) {
+            remain_header_complete = true;
 
-			buf.read(buffer);
+            doRemainHeaderComplete(session, buf.flip());
+        }
 
-			if (buf.hasRemaining()) {
-				return false;
-			}
+        if (!data_complete) {
 
-			doDataComplete(buf.flip());
-		}
+            buf.read(buffer);
 
-		return true;
-	}
+            if (buf.hasRemaining()) {
+                return false;
+            }
 
-	@Override
-	public String getFutureName() {
-		return serviceName;
-	}
+            doDataComplete(buf.flip());
+        }
 
-	@Override
-	public boolean isEof() {
-		return eof;
-	}
+        return true;
+    }
 
-	@Override
-	public int getType() {
-		return type;
-	}
+    @Override
+    public String getFutureName() {
+        return serviceName;
+    }
 
-	@Override
-	public int getLength() {
-		return length;
-	}
+    @Override
+    public boolean isEof() {
+        return eof;
+    }
 
-	@Override
-	public byte[] getByteArray() {
-		return byteArray;
-	}
+    @Override
+    public int getType() {
+        return type;
+    }
 
-	@Override
-	public ChannelFuture setPING() {
-		this.type = WebSocketProtocolDecoder.TYPE_PING;
-		return super.setPING();
-	}
+    @Override
+    public int getLength() {
+        return length;
+    }
 
-	@Override
-	public ChannelFuture setPONG() {
-		this.type = WebSocketProtocolDecoder.TYPE_PONG;
-		return super.setPONG();
-	}
+    @Override
+    public byte[] getByteArray() {
+        return byteArray;
+    }
 
-	protected void setType(int type) {
-		this.type = type;
-	}
+    @Override
+    public ChannelFuture setPING() {
+        this.type = WebSocketProtocolDecoder.TYPE_PING;
+        return super.setPING();
+    }
+
+    @Override
+    public ChannelFuture setPONG() {
+        this.type = WebSocketProtocolDecoder.TYPE_PONG;
+        return super.setPONG();
+    }
+
+    protected void setType(int type) {
+        this.type = type;
+    }
 
 }

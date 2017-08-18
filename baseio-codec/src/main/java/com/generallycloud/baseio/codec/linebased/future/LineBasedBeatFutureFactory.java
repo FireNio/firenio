@@ -12,23 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.linebased.future;
 
 import com.generallycloud.baseio.component.BeatFutureFactory;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.Future;
 
-public class LineBasedBeatFutureFactory implements BeatFutureFactory{
+public class LineBasedBeatFutureFactory implements BeatFutureFactory {
 
-	@Override
-	public Future createPINGPacket(SocketSession session) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public Future createPINGPacket(SocketSession session) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public Future createPONGPacket(SocketSession session) {
-		throw new UnsupportedOperationException();
-	}
-	
+    @Override
+    public Future createPONGPacket(SocketSession session) {
+        throw new UnsupportedOperationException();
+    }
+
 }

@@ -32,62 +32,62 @@ import com.generallycloud.baseio.container.service.FutureAcceptorService;
 
 public class RTPContext extends AbstractPluginContext {
 
-	private ServerConfiguration	socketChannelConfig;
+    private ServerConfiguration socketChannelConfig;
 
-	private ServerConfiguration	datagramChannelConfig;
+    private ServerConfiguration datagramChannelConfig;
 
-	public ServerConfiguration getSocketChannelConfig() {
-		return socketChannelConfig;
-	}
+    public ServerConfiguration getSocketChannelConfig() {
+        return socketChannelConfig;
+    }
 
-	public void setSocketChannelConfig(ServerConfiguration socketChannelConfig) {
-		this.socketChannelConfig = socketChannelConfig;
-	}
+    public void setSocketChannelConfig(ServerConfiguration socketChannelConfig) {
+        this.socketChannelConfig = socketChannelConfig;
+    }
 
-	public ServerConfiguration getDatagramChannelConfig() {
-		return datagramChannelConfig;
-	}
+    public ServerConfiguration getDatagramChannelConfig() {
+        return datagramChannelConfig;
+    }
 
-	public void setDatagramChannelConfig(ServerConfiguration datagramChannelConfig) {
-		this.datagramChannelConfig = datagramChannelConfig;
-	}
+    public void setDatagramChannelConfig(ServerConfiguration datagramChannelConfig) {
+        this.datagramChannelConfig = datagramChannelConfig;
+    }
 
-	private RTPRoomFactory		rtpRoomFactory	= new RTPRoomFactory();
-	private static RTPContext	instance;
+    private RTPRoomFactory    rtpRoomFactory = new RTPRoomFactory();
+    private static RTPContext instance;
 
-	public static RTPContext getInstance() {
-		return instance;
-	}
+    public static RTPContext getInstance() {
+        return instance;
+    }
 
-	@Override
-	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
+    @Override
+    public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
 
-		putServlet(acceptors, new RTPJoinRoomServlet());
-		putServlet(acceptors, new RTPCreateRoomServlet());
-		putServlet(acceptors, new RTPLeaveRoomServlet());
-	}
+        putServlet(acceptors, new RTPJoinRoomServlet());
+        putServlet(acceptors, new RTPCreateRoomServlet());
+        putServlet(acceptors, new RTPLeaveRoomServlet());
+    }
 
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
-		
-		super.initialize(context, config);
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		context.addSessionEventListener(new RTPSessionEventListener());
+        super.initialize(context, config);
 
-		instance = this;
-	}
+        context.addSessionEventListener(new RTPSessionEventListener());
 
-	public RTPSessionAttachment getSessionAttachment(SocketSession session) {
-		return (RTPSessionAttachment) session.getAttribute(getPluginKey());
-	}
+        instance = this;
+    }
 
-	public RTPRoomFactory getRTPRoomFactory() {
-		return rtpRoomFactory;
-	}
+    public RTPSessionAttachment getSessionAttachment(SocketSession session) {
+        return (RTPSessionAttachment) session.getAttribute(getPluginKey());
+    }
 
-	@Override
-	public void destroy(ApplicationContext context, Configuration config) throws Exception {
-		instance = null;
-	}
+    public RTPRoomFactory getRTPRoomFactory() {
+        return rtpRoomFactory;
+    }
+
+    @Override
+    public void destroy(ApplicationContext context, Configuration config) throws Exception {
+        instance = null;
+    }
 
 }

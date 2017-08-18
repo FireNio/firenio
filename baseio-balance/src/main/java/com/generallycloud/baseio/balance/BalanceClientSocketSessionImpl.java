@@ -23,22 +23,22 @@ import com.generallycloud.baseio.component.UnsafeSocketSessionImpl;
  *
  */
 public class BalanceClientSocketSessionImpl extends UnsafeSocketSessionImpl
-		implements BalanceClientSocketSession {
+        implements BalanceClientSocketSession {
 
-	public BalanceClientSocketSessionImpl(SocketChannel channel) {
-		super(channel);
-	}
+    public BalanceClientSocketSessionImpl(SocketChannel channel) {
+        super(channel);
+    }
 
-	private Long token;
+    private Long token;
 
-	@Override
-	public Long getToken() {
-		return token;
-	}
+    @Override
+    public Long getToken() {
+        return token;
+    }
 
-	@Override
-	public void setToken(Long token) {
-		this.token = token;
-	}
+    @Override
+    public void setToken(Long token) {
+        this.token = token;
+    }
 
 }

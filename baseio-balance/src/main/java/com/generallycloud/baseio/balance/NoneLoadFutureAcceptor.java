@@ -20,6 +20,6 @@ import com.generallycloud.baseio.balance.reverse.BalanceReverseLogger;
 
 public interface NoneLoadFutureAcceptor {
 
-	public abstract void accept(BalanceFacadeSocketSession session, BalanceFuture future,
-			BalanceReverseLogger reverseLogger);
+    public abstract void accept(BalanceFacadeSocketSession session, BalanceFuture future,
+            BalanceReverseLogger reverseLogger);
 }

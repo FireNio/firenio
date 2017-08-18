@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
 import java.security.PrivateKey;
@@ -34,78 +34,81 @@ import javax.net.ssl.X509TrustManager;
  */
 final class JdkSslClientContext extends JdkSslContext {
 
-	JdkSslClientContext(X509Certificate[] trustCertCollection, TrustManagerFactory trustManagerFactory,
-			X509Certificate[] keyCertChain, PrivateKey key, String keyPassword, KeyManagerFactory keyManagerFactory,
-			Iterable<String> ciphers, CipherSuiteFilter cipherFilter, ApplicationProtocolConfig apn,
-			long sessionCacheSize, long sessionTimeout) throws SSLException {
-		super(newSSLContext(trustCertCollection, trustManagerFactory, keyCertChain, key, keyPassword,
-				keyManagerFactory, sessionCacheSize, sessionTimeout), true, ciphers, cipherFilter,
-				toNegotiator(apn, false), ClientAuth.NONE, false);
-	}
+    JdkSslClientContext(X509Certificate[] trustCertCollection,
+            TrustManagerFactory trustManagerFactory, X509Certificate[] keyCertChain, PrivateKey key,
+            String keyPassword, KeyManagerFactory keyManagerFactory, Iterable<String> ciphers,
+            CipherSuiteFilter cipherFilter, ApplicationProtocolConfig apn, long sessionCacheSize,
+            long sessionTimeout) throws SSLException {
+        super(newSSLContext(trustCertCollection, trustManagerFactory, keyCertChain, key,
+                keyPassword, keyManagerFactory, sessionCacheSize, sessionTimeout), true, ciphers,
+                cipherFilter, toNegotiator(apn, false), ClientAuth.NONE, false);
+    }
 
-	private static SSLContext newSSLContext(X509Certificate[] trustCertCollection,
-			TrustManagerFactory trustManagerFactory, X509Certificate[] keyCertChain, PrivateKey key,
-			String keyPassword, KeyManagerFactory keyManagerFactory, long sessionCacheSize, long sessionTimeout)
-			throws SSLException {
-		try {
-			if (trustCertCollection != null) {
-				trustManagerFactory = buildTrustManagerFactory(trustCertCollection, trustManagerFactory);
-			}
-			if (keyCertChain != null) {
-				keyManagerFactory = buildKeyManagerFactory(keyCertChain, key, keyPassword, keyManagerFactory);
-			}
-			SSLContext ctx = SSLContext.getInstance(PROTOCOL);
+    private static SSLContext newSSLContext(X509Certificate[] trustCertCollection,
+            TrustManagerFactory trustManagerFactory, X509Certificate[] keyCertChain, PrivateKey key,
+            String keyPassword, KeyManagerFactory keyManagerFactory, long sessionCacheSize,
+            long sessionTimeout) throws SSLException {
+        try {
+            if (trustCertCollection != null) {
+                trustManagerFactory = buildTrustManagerFactory(trustCertCollection,
+                        trustManagerFactory);
+            }
+            if (keyCertChain != null) {
+                keyManagerFactory = buildKeyManagerFactory(keyCertChain, key, keyPassword,
+                        keyManagerFactory);
+            }
+            SSLContext ctx = SSLContext.getInstance(PROTOCOL);
 
-			TrustManager[] tms;
-			KeyManager[] kms = null;
+            TrustManager[] tms;
+            KeyManager[] kms = null;
 
-			if (keyManagerFactory == null) {
+            if (keyManagerFactory == null) {
 
-				X509TrustManager x509m = new X509TrustManager() {
+                X509TrustManager x509m = new X509TrustManager() {
 
-					@Override
-					public void checkClientTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
-							throws java.security.cert.CertificateException {
+                    @Override
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] arg0,
+                            String arg1) throws java.security.cert.CertificateException {
 
-					}
+                    }
 
-					@Override
-					public void checkServerTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
-							throws java.security.cert.CertificateException {
+                    @Override
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] arg0,
+                            String arg1) throws java.security.cert.CertificateException {
 
-					}
+                    }
 
-					@Override
-					public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-						return null;
-					}
-				};
+                    @Override
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                };
 
-				tms = new X509TrustManager[] { x509m };
-			} else {
+                tms = new X509TrustManager[] { x509m };
+            } else {
 
-				tms = trustManagerFactory.getTrustManagers();
-			}
+                tms = trustManagerFactory.getTrustManagers();
+            }
 
-			if (keyManagerFactory != null) {
-				kms = keyManagerFactory.getKeyManagers();
-			}
+            if (keyManagerFactory != null) {
+                kms = keyManagerFactory.getKeyManagers();
+            }
 
-			ctx.init(kms, tms, new SecureRandom());
+            ctx.init(kms, tms, new SecureRandom());
 
-			SSLSessionContext sessCtx = ctx.getClientSessionContext();
-			if (sessionCacheSize > 0) {
-				sessCtx.setSessionCacheSize((int) Math.min(sessionCacheSize, Integer.MAX_VALUE));
-			}
-			if (sessionTimeout > 0) {
-				sessCtx.setSessionTimeout((int) Math.min(sessionTimeout, Integer.MAX_VALUE));
-			}
-			return ctx;
-		} catch (Exception e) {
-			if (e instanceof SSLException) {
-				throw (SSLException) e;
-			}
-			throw new SSLException("failed to initialize the client-side SSL context", e);
-		}
-	}
+            SSLSessionContext sessCtx = ctx.getClientSessionContext();
+            if (sessionCacheSize > 0) {
+                sessCtx.setSessionCacheSize((int) Math.min(sessionCacheSize, Integer.MAX_VALUE));
+            }
+            if (sessionTimeout > 0) {
+                sessCtx.setSessionTimeout((int) Math.min(sessionTimeout, Integer.MAX_VALUE));
+            }
+            return ctx;
+        } catch (Exception e) {
+            if (e instanceof SSLException) {
+                throw (SSLException) e;
+            }
+            throw new SSLException("failed to initialize the client-side SSL context", e);
+        }
+    }
 }

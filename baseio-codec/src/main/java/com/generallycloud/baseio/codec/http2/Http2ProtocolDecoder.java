@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http2;
 
 import java.io.IOException;
@@ -92,29 +92,29 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
 //http://httpwg.org/specs/rfc7540.html
 public class Http2ProtocolDecoder implements ProtocolDecoder {
 
-	public static final int	PROTOCOL_PREFACE_HEADER	= 24;
+    public static final int PROTOCOL_PREFACE_HEADER = 24;
 
-	public static final int	PROTOCOL_HEADER		= 9;
+    public static final int PROTOCOL_HEADER         = 9;
 
-	public static final int	PROTOCOL_PING			= -1;
+    public static final int PROTOCOL_PING           = -1;
 
-	public static final int	PROTOCOL_PONG			= -2;
+    public static final int PROTOCOL_PONG           = -2;
 
-	@Override
-	public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+    @Override
+    public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		Http2SocketSession http2UnsafeSession = (Http2SocketSession) session;
+        Http2SocketSession http2UnsafeSession = (Http2SocketSession) session;
 
-		SocketChannelContext context = session.getContext();
-		
-		if (http2UnsafeSession.isPrefaceRead()) {
-			return new Http2PrefaceFuture(context, allocate(session,PROTOCOL_PREFACE_HEADER));
-		}
-		return new Http2FrameHeaderImpl(session, allocate(session, PROTOCOL_HEADER));
-	}
+        SocketChannelContext context = session.getContext();
 
-	private ByteBuf allocate(Session session, int capacity) {
-		return session.getByteBufAllocator().allocate(capacity);
-	}
-	
+        if (http2UnsafeSession.isPrefaceRead()) {
+            return new Http2PrefaceFuture(context, allocate(session, PROTOCOL_PREFACE_HEADER));
+        }
+        return new Http2FrameHeaderImpl(session, allocate(session, PROTOCOL_HEADER));
+    }
+
+    private ByteBuf allocate(Session session, int capacity) {
+        return session.getByteBufAllocator().allocate(capacity);
+    }
+
 }

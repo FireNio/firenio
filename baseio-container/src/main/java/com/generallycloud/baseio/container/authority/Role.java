@@ -12,63 +12,63 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.authority;
 
 import java.util.List;
 
 import com.generallycloud.baseio.common.MessageFormatter;
 
-public class Role{
+public class Role {
 
-	private int		roleID;
-	private String			roleName;
-	private String			description;
-	private List<Integer>	children;
-	private List<Integer>	permissions;
+    private int           roleID;
+    private String        roleName;
+    private String        description;
+    private List<Integer> children;
+    private List<Integer> permissions;
 
-	public int getRoleID() {
-		return roleID;
-	}
+    public int getRoleID() {
+        return roleID;
+    }
 
-	public String getRoleName() {
-		return roleName;
-	}
+    public String getRoleName() {
+        return roleName;
+    }
 
-	public List<Integer> getChildren() {
-		return children;
-	}
+    public List<Integer> getChildren() {
+        return children;
+    }
 
-	public List<Integer> getPermissions() {
-		return permissions;
-	}
+    public List<Integer> getPermissions() {
+        return permissions;
+    }
 
-	protected void setRoleID(int roleID) {
-		this.roleID = roleID;
-	}
+    protected void setRoleID(int roleID) {
+        this.roleID = roleID;
+    }
 
-	protected void setRoleName(String roleName) {
-		this.roleName = roleName;
-	}
+    protected void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
 
-	protected void setChildren(List<Integer> children) {
-		this.children = children;
-	}
+    protected void setChildren(List<Integer> children) {
+        this.children = children;
+    }
 
-	protected void setPermissions(List<Integer> permissions) {
-		this.permissions = permissions;
-	}
+    protected void setPermissions(List<Integer> permissions) {
+        this.permissions = permissions;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	protected void setDescription(String description) {
-		this.description = description;
-	}
-	
-	@Override
-	public String toString() {
-		return MessageFormatter.format("[id:{},name:{}]", roleID,roleName);
-	}
+    protected void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return MessageFormatter.format("[id:{},name:{}]", roleID, roleName);
+    }
 }

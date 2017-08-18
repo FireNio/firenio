@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.client.impl;
 
 import java.io.IOException;
@@ -31,113 +31,113 @@ import com.generallycloud.baseio.container.jms.server.MQTransactionServlet;
 
 public class DefaultMessageConsumer implements MessageConsumer {
 
-	private MessageDecoder	messageDecoder			= new DefaultMessageDecoder();
-	private boolean		needSendReceiveCommand	= true;
-	private boolean		needSendSubscribeCommand	= true;
-	private FixedSession	session;
+    private MessageDecoder messageDecoder           = new DefaultMessageDecoder();
+    private boolean        needSendReceiveCommand   = true;
+    private boolean        needSendSubscribeCommand = true;
+    private FixedSession   session;
 
-	public DefaultMessageConsumer(FixedSession session) {
-		this.session = session;
-	}
+    public DefaultMessageConsumer(FixedSession session) {
+        this.session = session;
+    }
 
-	@Override
-	public boolean beginTransaction() throws MQException {
-		return transactionVal("begin");
-	}
+    @Override
+    public boolean beginTransaction() throws MQException {
+        return transactionVal("begin");
+    }
 
-	private boolean transactionVal(String action) throws MQException {
-		try {
+    private boolean transactionVal(String action) throws MQException {
+        try {
 
-			WaiterOnFuture onReadFuture = new WaiterOnFuture();
+            WaiterOnFuture onReadFuture = new WaiterOnFuture();
 
-			session.listen(MQTransactionServlet.SERVICE_NAME, onReadFuture);
+            session.listen(MQTransactionServlet.SERVICE_NAME, onReadFuture);
 
-			session.write(MQTransactionServlet.SERVICE_NAME, action);
+            session.write(MQTransactionServlet.SERVICE_NAME, action);
 
-			if (onReadFuture.await(3000)) {
-				throw MQException.TIME_OUT;
-			}
+            if (onReadFuture.await(3000)) {
+                throw MQException.TIME_OUT;
+            }
 
-			ProtobaseFuture future = (ProtobaseFuture) onReadFuture.getReadFuture();
+            ProtobaseFuture future = (ProtobaseFuture) onReadFuture.getReadFuture();
 
-			RESMessage message = RESMessageDecoder.decode(future.getReadText());
+            RESMessage message = RESMessageDecoder.decode(future.getReadText());
 
-			if (message.getCode() == 0) {
-				return true;
-			} else {
-				throw new MQException(message.getDescription());
-			}
+            if (message.getCode() == 0) {
+                return true;
+            } else {
+                throw new MQException(message.getDescription());
+            }
 
-		} catch (IOException e) {
-			throw new MQException(e.getMessage(), e);
-		}
-	}
+        } catch (IOException e) {
+            throw new MQException(e.getMessage(), e);
+        }
+    }
 
-	@Override
-	public boolean commit() throws MQException {
-		return transactionVal("commit");
-	}
+    @Override
+    public boolean commit() throws MQException {
+        return transactionVal("commit");
+    }
 
-	@Override
-	public boolean rollback() throws MQException {
-		return transactionVal("rollback");
-	}
+    @Override
+    public boolean rollback() throws MQException {
+        return transactionVal("rollback");
+    }
 
-	@Override
-	public void receive(OnMessage onMessage) throws MQException {
+    @Override
+    public void receive(OnMessage onMessage) throws MQException {
 
-		sendReceiveCommandCallback(onMessage);
-	}
+        sendReceiveCommandCallback(onMessage);
+    }
 
-	@Override
-	public void subscribe(OnMessage onMessage) throws MQException {
+    @Override
+    public void subscribe(OnMessage onMessage) throws MQException {
 
-		sendSubscribeCommandCallback(onMessage);
-	}
+        sendSubscribeCommandCallback(onMessage);
+    }
 
-	private void sendReceiveCommandCallback(OnMessage onMessage) throws MQException {
+    private void sendReceiveCommandCallback(OnMessage onMessage) throws MQException {
 
-		if (!needSendReceiveCommand) {
-			return;
-		}
+        if (!needSendReceiveCommand) {
+            return;
+        }
 
-		checkLoginState();
+        checkLoginState();
 
-		try {
+        try {
 
-			session.listen("MQConsumerServlet", new ConsumerOnFuture(onMessage, messageDecoder));
+            session.listen("MQConsumerServlet", new ConsumerOnFuture(onMessage, messageDecoder));
 
-			session.write("MQConsumerServlet", null);
+            session.write("MQConsumerServlet", null);
 
-			needSendReceiveCommand = false;
-		} catch (IOException e) {
-			throw new MQException(e);
-		}
-	}
+            needSendReceiveCommand = false;
+        } catch (IOException e) {
+            throw new MQException(e);
+        }
+    }
 
-	private void checkLoginState() throws MQException {
-		if (session.getAuthority() == null) {
-			throw new MQException("not login");
-		}
-	}
+    private void checkLoginState() throws MQException {
+        if (session.getAuthority() == null) {
+            throw new MQException("not login");
+        }
+    }
 
-	private void sendSubscribeCommandCallback(OnMessage onMessage) throws MQException {
+    private void sendSubscribeCommandCallback(OnMessage onMessage) throws MQException {
 
-		if (!needSendSubscribeCommand) {
-			return;
-		}
+        if (!needSendSubscribeCommand) {
+            return;
+        }
 
-		checkLoginState();
+        checkLoginState();
 
-		try {
+        try {
 
-			session.listen("MQSubscribeServlet", new ConsumerOnFuture(onMessage, messageDecoder));
+            session.listen("MQSubscribeServlet", new ConsumerOnFuture(onMessage, messageDecoder));
 
-			session.write("MQSubscribeServlet", null);
+            session.write("MQSubscribeServlet", null);
 
-			needSendSubscribeCommand = false;
-		} catch (IOException e) {
-			throw new MQException(e);
-		}
-	}
+            needSendSubscribeCommand = false;
+        } catch (IOException e) {
+            throw new MQException(e);
+        }
+    }
 }

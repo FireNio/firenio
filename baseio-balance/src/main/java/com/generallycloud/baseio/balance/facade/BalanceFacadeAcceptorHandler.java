@@ -31,57 +31,57 @@ import com.generallycloud.baseio.protocol.Future;
 
 public abstract class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor {
 
-	private Logger					logger	= LoggerFactory.getLogger(getClass());
-	private BalanceRouter			balanceRouter;
-	private FacadeInterceptor		facadeInterceptor;
-	private BalanceReverseLogger		balanceReverseLogger;
-	private ExceptionCaughtHandle		exceptionCaughtHandle;
-	private NoneLoadFutureAcceptor	 noneLoadReadFutureAcceptor;
+    private Logger                 logger = LoggerFactory.getLogger(getClass());
+    private BalanceRouter          balanceRouter;
+    private FacadeInterceptor      facadeInterceptor;
+    private BalanceReverseLogger   balanceReverseLogger;
+    private ExceptionCaughtHandle  exceptionCaughtHandle;
+    private NoneLoadFutureAcceptor noneLoadReadFutureAcceptor;
 
-	public BalanceFacadeAcceptorHandler(BalanceContext context) {
-		this.balanceRouter = context.getBalanceRouter();
-		this.facadeInterceptor = context.getFacadeInterceptor();
-		this.balanceReverseLogger = context.getBalanceReverseLogger();
-		this.exceptionCaughtHandle = context.getFacadeExceptionCaughtHandle();
-		this.noneLoadReadFutureAcceptor = context.getNoneLoadReadFutureAcceptor();
-	}
+    public BalanceFacadeAcceptorHandler(BalanceContext context) {
+        this.balanceRouter = context.getBalanceRouter();
+        this.facadeInterceptor = context.getFacadeInterceptor();
+        this.balanceReverseLogger = context.getBalanceReverseLogger();
+        this.exceptionCaughtHandle = context.getFacadeExceptionCaughtHandle();
+        this.noneLoadReadFutureAcceptor = context.getNoneLoadReadFutureAcceptor();
+    }
 
-	@Override
-	public void accept(SocketSession session, Future future) throws Exception {
+    @Override
+    public void accept(SocketSession session, Future future) throws Exception {
 
-		BalanceFacadeSocketSession fs = (BalanceFacadeSocketSession) session;
-		
-		BalanceFuture f = (BalanceFuture) future;
+        BalanceFacadeSocketSession fs = (BalanceFacadeSocketSession) session;
 
-		if (facadeInterceptor.intercept(fs, f)) {
-			logger.info("msg intercepted [ {} ], msg: {}", fs.getRemoteSocketAddress(), f);
-			return;
-		}
-		
-		BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs, f);
-		
-		if (rs == null || rs.isClosed()) {
-			noneLoadReadFutureAcceptor.accept(fs, f,balanceReverseLogger);
-			return;
-		}
+        BalanceFuture f = (BalanceFuture) future;
 
-		doAccept(fs, rs, f);
-	}
-	
-	protected abstract void doAccept(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
-			,BalanceFuture future);
-	
-	protected void logDispatchMsg(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
-			,BalanceFuture f){
-		
-		logger.info("dispatch msg: F:[ {} ],T:[ {} ], msg :{}", new Object[] {
-				fs.getRemoteSocketAddress(), rs.getRemoteSocketAddress(), f });
-	}
+        if (facadeInterceptor.intercept(fs, f)) {
+            logger.info("msg intercepted [ {} ], msg: {}", fs.getRemoteSocketAddress(), f);
+            return;
+        }
 
-	@Override
-	public void exceptionCaught(SocketSession session, Future future, Exception cause,
-			IoEventState state) {
-		exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
-	}
+        BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs, f);
+
+        if (rs == null || rs.isClosed()) {
+            noneLoadReadFutureAcceptor.accept(fs, f, balanceReverseLogger);
+            return;
+        }
+
+        doAccept(fs, rs, f);
+    }
+
+    protected abstract void doAccept(BalanceFacadeSocketSession fs, BalanceReverseSocketSession rs,
+            BalanceFuture future);
+
+    protected void logDispatchMsg(BalanceFacadeSocketSession fs, BalanceReverseSocketSession rs,
+            BalanceFuture f) {
+
+        logger.info("dispatch msg: F:[ {} ],T:[ {} ], msg :{}",
+                new Object[] { fs.getRemoteSocketAddress(), rs.getRemoteSocketAddress(), f });
+    }
+
+    @Override
+    public void exceptionCaught(SocketSession session, Future future, Exception cause,
+            IoEventState state) {
+        exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
+    }
 
 }

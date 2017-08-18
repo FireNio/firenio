@@ -17,62 +17,61 @@ package com.generallycloud.baseio.buffer;
 
 public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteBuf {
 
-	protected PooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
-		super(allocator, memory);
-	}
+    protected PooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
+        super(allocator, memory);
+    }
 
-	private int		beginUnit;
+    private int beginUnit;
 
-	@Override
-	public int getBeginUnit() {
-		return beginUnit;
-	}
+    @Override
+    public int getBeginUnit() {
+        return beginUnit;
+    }
 
-	@Override
-	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
-		return this;
-	}
-	
-	@Override
-	public ByteBuf duplicate() {
-		synchronized (this) {
-			if (released) {
-				throw new ReleasedException("released");
-			}
-			this.referenceCount++;
-			return new DuplicateByteBuf(
-					new PooledHeapByteBuf(allocator, memory).produce(this), this);
-		}
-	}
+    @Override
+    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+        return this;
+    }
 
-	@Override
-	public PooledHeapByteBuf produce(int begin, int end, int newLimit) {
-		this.offset = begin * allocator.getUnitMemorySize();
-		this.capacity = (end - begin) * allocator.getUnitMemorySize();
-		this.limit = newLimit;
-		this.position = 0;
-		this.beginUnit = begin;
-		this.referenceCount = 1;
-		this.released = false;
-		return this;
-	}
-	
-	@Override
-	protected void doRelease() {
-		allocator.release(this);
-	}
+    @Override
+    public ByteBuf duplicate() {
+        synchronized (this) {
+            if (released) {
+                throw new ReleasedException("released");
+            }
+            this.referenceCount++;
+            return new DuplicateByteBuf(new PooledHeapByteBuf(allocator, memory).produce(this),
+                    this);
+        }
+    }
 
-	@Override
-	public PooledByteBuf produce(PooledByteBuf buf) {
-		this.offset = buf.offset();
-		this.capacity = buf.capacity();
-		this.limit = buf.limit();
-		this.position = buf.position();
-		this.beginUnit = buf.getBeginUnit();
-		this.referenceCount = 1;
-		this.released = false;
-		return this;
-	}
+    @Override
+    public PooledHeapByteBuf produce(int begin, int end, int newLimit) {
+        this.offset = begin * allocator.getUnitMemorySize();
+        this.capacity = (end - begin) * allocator.getUnitMemorySize();
+        this.limit = newLimit;
+        this.position = 0;
+        this.beginUnit = begin;
+        this.referenceCount = 1;
+        this.released = false;
+        return this;
+    }
 
+    @Override
+    protected void doRelease() {
+        allocator.release(this);
+    }
+
+    @Override
+    public PooledByteBuf produce(PooledByteBuf buf) {
+        this.offset = buf.offset();
+        this.capacity = buf.capacity();
+        this.limit = buf.limit();
+        this.position = buf.position();
+        this.beginUnit = buf.getBeginUnit();
+        this.referenceCount = 1;
+        this.released = false;
+        return this;
+    }
 
 }

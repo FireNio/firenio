@@ -29,29 +29,30 @@ import com.generallycloud.baseio.component.SocketSelectorEventLoop;
  * @author wangkai
  *
  */
-public class ServerNioSocketSelectorBuilder implements SocketSelectorBuilder{
+public class ServerNioSocketSelectorBuilder implements SocketSelectorBuilder {
 
-	@Override
-	public SocketSelector build(SocketSelectorEventLoop selectorLoop) throws IOException {
-		
-		NioSocketChannelContext context = selectorLoop.getChannelContext();
-		
-		NioChannelService nioChannelService = (NioChannelService) context.getChannelService();
-		
-		ServerSocketChannel channel = (ServerSocketChannel)nioChannelService.getSelectableChannel();
-		
-		// 打开selector
-		java.nio.channels.Selector selector = java.nio.channels.Selector.open();
-		
-		if (selectorLoop.isMainEventLoop()) {
-			
-			// 注册监听事件到该selector
-			channel.register(selector, SelectionKey.OP_ACCEPT);
+    @Override
+    public SocketSelector build(SocketSelectorEventLoop selectorLoop) throws IOException {
 
-			return new ServerNioSocketSelector(selectorLoop, selector, channel);
-		}
+        NioSocketChannelContext context = selectorLoop.getChannelContext();
 
-		return new ServerNioSocketSelector(selectorLoop, selector, channel);
-	}
-	
+        NioChannelService nioChannelService = (NioChannelService) context.getChannelService();
+
+        ServerSocketChannel channel = (ServerSocketChannel) nioChannelService
+                .getSelectableChannel();
+
+        // 打开selector
+        java.nio.channels.Selector selector = java.nio.channels.Selector.open();
+
+        if (selectorLoop.isMainEventLoop()) {
+
+            // 注册监听事件到该selector
+            channel.register(selector, SelectionKey.OP_ACCEPT);
+
+            return new ServerNioSocketSelector(selectorLoop, selector, channel);
+        }
+
+        return new ServerNioSocketSelector(selectorLoop, selector, channel);
+    }
+
 }

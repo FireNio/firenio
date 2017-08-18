@@ -19,9 +19,9 @@ import java.io.IOException;
 
 public abstract class SelectorLoopEventAdapter implements SelectorLoopEvent {
 
-	@Override
-	public void close() throws IOException {
-		fireEvent(null);
-	}
+    @Override
+    public void close() throws IOException {
+        fireEvent(null);
+    }
 
 }

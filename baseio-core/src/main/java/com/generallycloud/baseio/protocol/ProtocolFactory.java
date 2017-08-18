@@ -12,15 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.protocol;
-
 
 public interface ProtocolFactory {
 
-	public abstract ProtocolDecoder getProtocolDecoder();
-	
-	public abstract ProtocolEncoder getProtocolEncoder();
-	
-	public abstract String getProtocolId();
+    public abstract ProtocolDecoder getProtocolDecoder();
+
+    public abstract ProtocolEncoder getProtocolEncoder();
+
+    public abstract String getProtocolId();
 }

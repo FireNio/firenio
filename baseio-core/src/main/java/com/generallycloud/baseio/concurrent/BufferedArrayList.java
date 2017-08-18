@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.concurrent;
 
 import java.util.ArrayList;
@@ -21,66 +21,66 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class BufferedArrayList<T> {
 
-	private ReentrantLock	lock		= new ReentrantLock();
+    private ReentrantLock lock   = new ReentrantLock();
 
-	private List<T>		list1	= new ArrayList<T>();
+    private List<T>       list1  = new ArrayList<>();
 
-	private List<T>		list2	= new ArrayList<T>();
-	
-	private List<T>		buffer	= list1;
-	
-	public void offer(T t) {
+    private List<T>       list2  = new ArrayList<>();
 
-		ReentrantLock lock = this.lock;
+    private List<T>       buffer = list1;
 
-		lock.lock();
+    public void offer(T t) {
 
-		try {
+        ReentrantLock lock = this.lock;
 
-			buffer.add(t);
-			
-		} finally {
+        lock.lock();
 
-			lock.unlock();
-		}
-	}
-	
-	public ReentrantLock getReentrantLock(){
-		return lock;
-	}
-	
-	public List<T> getBuffer(){
-		
-		ReentrantLock lock = this.lock;
+        try {
 
-		lock.lock();
+            buffer.add(t);
 
-		try {
+        } finally {
 
-			if (buffer == list1) {
-				
-				buffer = list2;
-				
-				buffer.clear();
-				
-				return list1;
-			}else{
-				
-				buffer = list1;
-				
-				buffer.clear();
-				
-				return list2;
-			}
-			
-		} finally {
+            lock.unlock();
+        }
+    }
 
-			lock.unlock();
-		}
-	}
-	
-	public int getBufferSize(){
-		return list1.size() + list2.size();
-	}
-	
+    public ReentrantLock getReentrantLock() {
+        return lock;
+    }
+
+    public List<T> getBuffer() {
+
+        ReentrantLock lock = this.lock;
+
+        lock.lock();
+
+        try {
+
+            if (buffer == list1) {
+
+                buffer = list2;
+
+                buffer.clear();
+
+                return list1;
+            } else {
+
+                buffer = list1;
+
+                buffer.clear();
+
+                return list2;
+            }
+
+        } finally {
+
+            lock.unlock();
+        }
+    }
+
+    public int getBufferSize() {
+        return list1.size() + list2.size();
+    }
+
 }

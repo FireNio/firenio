@@ -12,22 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.collection;
 
 import java.util.Set;
 
-public abstract interface Attributes{
-	  
-	  public abstract Object removeAttribute(Object key);
-	  
-	  public abstract void setAttribute(Object key, Object value);
-	  
-	  public abstract Object getAttribute(Object key);
-	  
-	  public abstract Set<Object> getAttributeNames();
-	  
-	  public abstract void clearAttributes();
+public abstract interface Attributes {
 
+    public abstract Object removeAttribute(Object key);
+
+    public abstract void setAttribute(Object key, Object value);
+
+    public abstract Object getAttribute(Object key);
+
+    public abstract Set<Object> getAttributeNames();
+
+    public abstract void clearAttributes();
 
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.balance.BalanceContext;
@@ -26,46 +26,46 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class BalanceFacadeAcceptorSEListener extends SocketSessionEventListenerAdapter {
 
-	private Logger			logger	= LoggerFactory.getLogger(BalanceFacadeAcceptorSEListener.class);
+    private Logger         logger = LoggerFactory.getLogger(BalanceFacadeAcceptorSEListener.class);
 
-	private BalanceContext	balanceContext;
+    private BalanceContext balanceContext;
 
-	private BalanceRouter		balanceRouter;
+    private BalanceRouter  balanceRouter;
 
-	public BalanceFacadeAcceptorSEListener(BalanceContext balanceContext) {
-		this.balanceContext = balanceContext;
-		this.balanceRouter = balanceContext.getBalanceRouter();
-	}
+    public BalanceFacadeAcceptorSEListener(BalanceContext balanceContext) {
+        this.balanceContext = balanceContext;
+        this.balanceRouter = balanceContext.getBalanceRouter();
+    }
 
-	@Override
-	public void sessionOpened(SocketSession session) {
-		balanceRouter.addClientSession((BalanceFacadeSocketSession) session);
-		logger.info("client from [ {} ] connected.",session.getRemoteSocketAddress());
-	}
+    @Override
+    public void sessionOpened(SocketSession session) {
+        balanceRouter.addClientSession((BalanceFacadeSocketSession) session);
+        logger.info("client from [ {} ] connected.", session.getRemoteSocketAddress());
+    }
 
-	@Override
-	public void sessionClosed(SocketSession session) {
-		
-		BalanceFacadeSocketSession fs = (BalanceFacadeSocketSession) session;
+    @Override
+    public void sessionClosed(SocketSession session) {
 
-		balanceRouter.removeClientSession(fs);
+        BalanceFacadeSocketSession fs = (BalanceFacadeSocketSession) session;
 
-		logger.info("client from [ {} ] disconnected.",session.getRemoteSocketAddress());
+        balanceRouter.removeClientSession(fs);
 
-		BalanceRouter balanceRouter = balanceContext.getBalanceRouter();
+        logger.info("client from [ {} ] disconnected.", session.getRemoteSocketAddress());
 
-		BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs);
+        BalanceRouter balanceRouter = balanceContext.getBalanceRouter();
 
-		if (rs == null) {
-			return;
-		}
+        BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs);
 
-		ChannelLostFutureFactory factory = balanceContext.getChannelLostReadFutureFactory();
-		
-		if (factory == null) {
-			return;
-		}
+        if (rs == null) {
+            return;
+        }
 
-		rs.flush(factory.createChannelLostPacket(fs));
-	}
+        ChannelLostFutureFactory factory = balanceContext.getChannelLostReadFutureFactory();
+
+        if (factory == null) {
+            return;
+        }
+
+        rs.flush(factory.createChannelLostPacket(fs));
+    }
 }

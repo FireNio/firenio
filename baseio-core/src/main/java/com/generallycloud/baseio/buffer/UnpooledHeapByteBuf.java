@@ -21,57 +21,54 @@ package com.generallycloud.baseio.buffer;
  */
 public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
 
-	protected UnpooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
-		super(allocator, memory);
-		this.produce(memory.length);
-	}
+    protected UnpooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
+        super(allocator, memory);
+        this.produce(memory.length);
+    }
 
-	protected void produce(int capacity) {
-		this.capacity = capacity;
-		this.limit = capacity;
-		this.referenceCount = 1;
-	}
-	
-	protected UnpooledHeapByteBuf produce(ByteBuf buf) {
-		this.capacity = buf.capacity();
-		this.limit = buf.limit();
-		this.position = buf.position();
-		this.referenceCount = 1;
-		return this;
-	}
+    protected void produce(int capacity) {
+        this.capacity = capacity;
+        this.limit = capacity;
+        this.referenceCount = 1;
+    }
 
-	@Override
-	public ByteBuf reallocate(int limit, boolean copyOld) {
-		byte[] newMemory = new byte[limit];
-		if (copyOld) {
-			System.arraycopy(memory, 0, newMemory, 0, position());
-		} else {
-			this.position = 0;
-		}
-		this.memory = newMemory;
-		this.capacity = limit;
-		this.limit = limit;
-		this.referenceCount = 1;
-		return this;
-	}
-	
-	@Override
-	public ByteBuf duplicate() {
-		return new DuplicateByteBuf(
-				new UnpooledHeapByteBuf(allocator, memory).produce(this), this);
-	}
-	
-	@Override
-	public void release() {
-	}
+    protected UnpooledHeapByteBuf produce(ByteBuf buf) {
+        this.capacity = buf.capacity();
+        this.limit = buf.limit();
+        this.position = buf.position();
+        this.referenceCount = 1;
+        return this;
+    }
 
-	@Override
-	protected void doRelease() {
-	}
+    @Override
+    public ByteBuf reallocate(int limit, boolean copyOld) {
+        byte[] newMemory = new byte[limit];
+        if (copyOld) {
+            System.arraycopy(memory, 0, newMemory, 0, position());
+        } else {
+            this.position = 0;
+        }
+        this.memory = newMemory;
+        this.capacity = limit;
+        this.limit = limit;
+        this.referenceCount = 1;
+        return this;
+    }
 
-	@Override
-	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public ByteBuf duplicate() {
+        return new DuplicateByteBuf(new UnpooledHeapByteBuf(allocator, memory).produce(this), this);
+    }
+
+    @Override
+    public void release() {}
+
+    @Override
+    protected void doRelease() {}
+
+    @Override
+    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+        throw new UnsupportedOperationException();
+    }
 
 }

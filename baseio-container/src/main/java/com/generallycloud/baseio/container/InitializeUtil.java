@@ -12,9 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
-
 
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
@@ -22,19 +21,20 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class InitializeUtil {
 
-	private static Logger	logger	= LoggerFactory.getLogger(InitializeUtil.class);
+    private static Logger logger = LoggerFactory.getLogger(InitializeUtil.class);
 
-	public static void destroy(Initializeable initializeable, ApplicationContext context, Configuration config) {
+    public static void destroy(Initializeable initializeable, ApplicationContext context,
+            Configuration config) {
 
-		if (initializeable == null) {
-			return;
-		}
+        if (initializeable == null) {
+            return;
+        }
 
-		try {
-			initializeable.destroy(context, config);
-		} catch (Throwable e) {
-			logger.error(e.getMessage(), e);
-		}
+        try {
+            initializeable.destroy(context, config);
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
 
-	}
+    }
 }

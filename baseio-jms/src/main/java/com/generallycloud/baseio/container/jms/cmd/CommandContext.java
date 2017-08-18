@@ -12,27 +12,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.cmd;
 
 import java.util.HashMap;
 
 import com.generallycloud.baseio.collection.AttributesImpl;
 
-public class CommandContext extends AttributesImpl{
+public class CommandContext extends AttributesImpl {
 
-	private HashMap<String, Executable>	executors	= new HashMap<String, Executable>();
-	
-	public void registExecutable(String cmd, Executable executable) {
-		executors.put(cmd.toUpperCase(), executable);
-	}
-	
-	public Executable getExecutable(String cmd){
-		return executors.get(cmd.toUpperCase());
-	}
-	
-	public String getCommandKeys(){
-		return executors.keySet().toString();
-		
-	}
+    private HashMap<String, Executable> executors = new HashMap<>();
+
+    public void registExecutable(String cmd, Executable executable) {
+        executors.put(cmd.toUpperCase(), executable);
+    }
+
+    public Executable getExecutable(String cmd) {
+        return executors.get(cmd.toUpperCase());
+    }
+
+    public String getCommandKeys() {
+        return executors.keySet().toString();
+
+    }
 }

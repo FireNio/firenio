@@ -21,53 +21,55 @@ package com.generallycloud.baseio.common;
  */
 public class BitSet {
 
-	private byte[]			data;
+    private byte[]        data;
 
-	private int			capacity;
+    private int           capacity;
 
-	private transient int	wordsInUse	= 0;
+    private transient int wordsInUse = 0;
 
-	public BitSet(int capacity) {
-		if ((capacity & 7) != 0) {
-			throw new IllegalArgumentException("(capacity & 7) != 0");
-		}
-		this.capacity = capacity;
-		this.data = new byte[capacity >> 3];
-	}
+    public BitSet(int capacity) {
+        if ((capacity & 7) != 0) {
+            throw new IllegalArgumentException("(capacity & 7) != 0");
+        }
+        this.capacity = capacity;
+        this.data = new byte[capacity >> 3];
+    }
 
-	public void set(int index) {
-		int idx = index >> 3;
-		data[idx] |= (0b10000000 >> (index & 7));
-		expandTo(idx);
-	}
+    public void set(int index) {
+        int idx = index >> 3;
+        data[idx] |= (0b10000000 >> (index & 7));
+        expandTo(idx);
+    }
 
-	public void clear(int index) {
-		data[index >> 3] &= ~(0b10000000 >> (index & 7));
-		recalculateWordsInUse();
-	}
+    public void clear(int index) {
+        data[index >> 3] &= ~(0b10000000 >> (index & 7));
+        recalculateWordsInUse();
+    }
 
-	public boolean get(int index) {
-		int idx = index >> 3;
-		return (idx < wordsInUse) && (data[idx] & (0b10000000 >> (index & 7))) != 0;
-	}
+    public boolean get(int index) {
+        int idx = index >> 3;
+        return (idx < wordsInUse) && (data[idx] & (0b10000000 >> (index & 7))) != 0;
+    }
 
-	public int getCapacity() {
-		return capacity;
-	}
+    public int getCapacity() {
+        return capacity;
+    }
 
-	private void recalculateWordsInUse() {
-		int i;
-		for (i = wordsInUse - 1; i >= 0; i--)
-			if (data[i] != 0)
-				break;
-		wordsInUse = i + 1; 
-	}
+    private void recalculateWordsInUse() {
+        int i;
+        for (i = wordsInUse - 1; i >= 0; i--) {
+            if (data[i] != 0) {
+                break;
+            }
+        }
+        wordsInUse = i + 1;
+    }
 
-	private void expandTo(int idx) {
-		int wordsRequired = idx + 1;
-		if (wordsInUse < wordsRequired) {
-			wordsInUse = wordsRequired;
-		}
-	}
+    private void expandTo(int idx) {
+        int wordsRequired = idx + 1;
+        if (wordsInUse < wordsRequired) {
+            wordsInUse = wordsRequired;
+        }
+    }
 
 }

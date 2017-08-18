@@ -22,10 +22,10 @@ import com.generallycloud.baseio.container.startup.ApplicationBootstrap;
  *
  */
 public class ProtobaseStartup {
-	
-	public static void main(String[] args) throws Exception{
-		
-		ApplicationBootstrap.main(args);
-	}
+
+    public static void main(String[] args) throws Exception {
+
+        ApplicationBootstrap.main(args);
+    }
 
 }

@@ -25,64 +25,64 @@ import com.generallycloud.baseio.component.SocketSession;
  *
  */
 public class SessionIdProtobaseBinaryFutureImpl extends ProtobaseBinaryFutureImpl
-		implements SessionIdProtobaseFuture {
+        implements SessionIdProtobaseFuture {
 
-	public SessionIdProtobaseBinaryFutureImpl(SocketChannelContext context) {
-		super(context);
-	}
+    public SessionIdProtobaseBinaryFutureImpl(SocketChannelContext context) {
+        super(context);
+    }
 
-	public SessionIdProtobaseBinaryFutureImpl(SocketSession session, ByteBuf buf,
-			int binaryLimit, boolean isBroadcast) {
-		super(session, buf, binaryLimit);
-		this.isBroadcast = isBroadcast;
-	}
+    public SessionIdProtobaseBinaryFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit,
+            boolean isBroadcast) {
+        super(session, buf, binaryLimit);
+        this.isBroadcast = isBroadcast;
+    }
 
-	private int		sessionId;
+    private int     sessionId;
 
-	private boolean	isBroadcast;
+    private boolean isBroadcast;
 
-	@Override
-	public Object getSessionKey() {
-		return getSessionId();
-	}
+    @Override
+    public Object getSessionKey() {
+        return getSessionId();
+    }
 
-	@Override
-	public boolean isBroadcast() {
-		return isBroadcast;
-	}
+    @Override
+    public boolean isBroadcast() {
+        return isBroadcast;
+    }
 
-	@Override
-	public void setBroadcast(boolean broadcast) {
-		this.isBroadcast = broadcast;
-	}
+    @Override
+    public void setBroadcast(boolean broadcast) {
+        this.isBroadcast = broadcast;
+    }
 
-	@Override
-	public BalanceFuture translate() {
-		String text = getReadText();
-		if (!StringUtil.isNullOrBlank(text)) {
-			write(text);
-		}
-		byte [] binary = getBinary();
-		if (binary == null) {
-			return this;
-		}
-		writeBinary(binary);
-		return this;
-	}
+    @Override
+    public BalanceFuture translate() {
+        String text = getReadText();
+        if (!StringUtil.isNullOrBlank(text)) {
+            write(text);
+        }
+        byte[] binary = getBinary();
+        if (binary == null) {
+            return this;
+        }
+        writeBinary(binary);
+        return this;
+    }
 
-	@Override
-	public int getSessionId() {
-		return sessionId;
-	}
+    @Override
+    public int getSessionId() {
+        return sessionId;
+    }
 
-	@Override
-	public void setSessionId(int sessionId) {
-		this.sessionId = sessionId;
-	}
+    @Override
+    public void setSessionId(int sessionId) {
+        this.sessionId = sessionId;
+    }
 
-	@Override
-	protected void generateHeaderExtend(ByteBuf buf) {
-		this.sessionId = buf.getInt();
-	}
+    @Override
+    protected void generateHeaderExtend(ByteBuf buf) {
+        this.sessionId = buf.getInt();
+    }
 
 }

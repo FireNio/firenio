@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.implementation;
 
 import java.util.HashSet;
@@ -32,60 +32,59 @@ import com.generallycloud.baseio.protocol.ParametersFuture;
 
 public class LoggerFilter extends FutureAcceptorFilter {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
-	
-	private Set<String> noneLogger = new HashSet<>();
+    private Logger      logger     = LoggerFactory.getLogger(getClass());
 
-	@Override
-	protected void accept(SocketSession session, NamedFuture future) throws Exception {
+    private Set<String> noneLogger = new HashSet<>();
 
-		String futureName = future.getFutureName();
+    @Override
+    protected void accept(SocketSession session, NamedFuture future) throws Exception {
 
-		if(noneLogger.contains(futureName)
-			||futureName.endsWith(".html") 
-			||futureName.endsWith(".css")
-			||futureName.endsWith(".js")
-			||futureName.endsWith(".jpg")
-			||futureName.endsWith(".png")
-			||futureName.endsWith(".ico")){
-			return;
-		}
-		
-		String remoteAddr = session.getRemoteAddr();
+        String futureName = future.getFutureName();
 
-		String readText = future.getReadText();
-		
-		if (!StringUtil.isNullOrBlank(readText)) {
-			logger.info("request ip:{}, service name:{}, content: {}", new String[] { remoteAddr, futureName, readText });
-			return;
-		}
-		
-		if (future instanceof ParametersFuture) {
-			
-			Parameters parameters = ((ParametersFuture) future).getParameters();
-			
-			if (parameters.size() > 0) {
-				logger.info("request ip:{}, service name:{}, content: {}", new String[] { remoteAddr, futureName, parameters.toString() });				
-				return;
-			}
-		}
-		logger.info("request ip:{}, service name:{}", remoteAddr, futureName);
-	}
+        if (noneLogger.contains(futureName) || futureName.endsWith(".html")
+                || futureName.endsWith(".css") || futureName.endsWith(".js")
+                || futureName.endsWith(".jpg") || futureName.endsWith(".png")
+                || futureName.endsWith(".ico")) {
+            return;
+        }
 
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+        String remoteAddr = session.getRemoteAddr();
 
-		super.initialize(context, config);
-		
-		JSONArray array = config.getJSONArray("none-logger");
-		
-		if (array == null) {
-			return;
-		}
-		
-		for (int i = 0; i < array.size(); i++) {
-			noneLogger.add(array.getString(i));
-		}
-	}
+        String readText = future.getReadText();
+
+        if (!StringUtil.isNullOrBlank(readText)) {
+            logger.info("request ip:{}, service name:{}, content: {}",
+                    new String[] { remoteAddr, futureName, readText });
+            return;
+        }
+
+        if (future instanceof ParametersFuture) {
+
+            Parameters parameters = ((ParametersFuture) future).getParameters();
+
+            if (parameters.size() > 0) {
+                logger.info("request ip:{}, service name:{}, content: {}",
+                        new String[] { remoteAddr, futureName, parameters.toString() });
+                return;
+            }
+        }
+        logger.info("request ip:{}, service name:{}", remoteAddr, futureName);
+    }
+
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
+
+        super.initialize(context, config);
+
+        JSONArray array = config.getJSONArray("none-logger");
+
+        if (array == null) {
+            return;
+        }
+
+        for (int i = 0; i < array.size(); i++) {
+            noneLogger.add(array.getString(i));
+        }
+    }
 
 }

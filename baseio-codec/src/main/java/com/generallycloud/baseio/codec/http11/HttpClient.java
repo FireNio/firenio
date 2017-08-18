@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http11;
 
 import java.io.IOException;
@@ -25,36 +25,36 @@ import com.generallycloud.baseio.concurrent.Waiter;
 
 public class HttpClient {
 
-	private SocketChannelContext	context;
+    private SocketChannelContext context;
 
-	private SocketSession		session;
+    private SocketSession        session;
 
-	private HttpIOEventHandle	ioEventHandle;
+    private HttpIOEventHandle    ioEventHandle;
 
-	public HttpClient(SocketSession session) {
-		this.session = session;
-		this.context = session.getContext();
-		this.ioEventHandle = (HttpIOEventHandle) context.getIoEventHandleAdaptor();
-	}
+    public HttpClient(SocketSession session) {
+        this.session = session;
+        this.context = session.getContext();
+        this.ioEventHandle = (HttpIOEventHandle) context.getIoEventHandleAdaptor();
+    }
 
-	public synchronized HttpFuture request(HttpFuture future, long timeout) throws IOException {
+    public synchronized HttpFuture request(HttpFuture future, long timeout) throws IOException {
 
-		Waiter<HttpFuture> waiter = new Waiter<HttpFuture>();
+        Waiter<HttpFuture> waiter = new Waiter<>();
 
-		ioEventHandle.setWaiter(waiter);
+        ioEventHandle.setWaiter(waiter);
 
-		session.flush(future);
+        session.flush(future);
 
-		if (waiter.await(timeout)) {
-			throw new TimeoutException("timeout");
-		}
+        if (waiter.await(timeout)) {
+            throw new TimeoutException("timeout");
+        }
 
-		return waiter.getPayload();
-	}
+        return waiter.getPayload();
+    }
 
-	public synchronized HttpFuture request(HttpFuture future) throws IOException {
+    public synchronized HttpFuture request(HttpFuture future) throws IOException {
 
-		return request(future, 3000);
-	}
+        return request(future, 3000);
+    }
 
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
 import java.util.ArrayList;
@@ -23,29 +23,28 @@ import java.util.Set;
  * This class will not do any filtering of ciphers suites.
  */
 public final class IdentityCipherSuiteFilter implements CipherSuiteFilter {
-	public static final IdentityCipherSuiteFilter	INSTANCE	= new IdentityCipherSuiteFilter();
+    public static final IdentityCipherSuiteFilter INSTANCE = new IdentityCipherSuiteFilter();
 
-	private IdentityCipherSuiteFilter() {
-	}
+    private IdentityCipherSuiteFilter() {}
 
-	@Override
-	public String[] filterCipherSuites(Iterable<String> ciphers, List<String> defaultCiphers,
-			Set<String> supportedCiphers) {
-		if (ciphers == null) {
-			return defaultCiphers.toArray(new String[defaultCiphers.size()]);
-		} else {
-			// List<String> newCiphers =
-			// InternalThreadLocalMap.get().arrayList(supportedCiphers.size());
+    @Override
+    public String[] filterCipherSuites(Iterable<String> ciphers, List<String> defaultCiphers,
+            Set<String> supportedCiphers) {
+        if (ciphers == null) {
+            return defaultCiphers.toArray(new String[defaultCiphers.size()]);
+        } else {
+            // List<String> newCiphers =
+            // InternalThreadLocalMap.get().arrayList(supportedCiphers.size());
 
-			List<String> newCiphers = new ArrayList<String>();
-			for (String c : ciphers) {
-				if (c == null) {
-					break;
-				}
-				newCiphers.add(c);
-			}
-			return newCiphers.toArray(new String[newCiphers.size()]);
-		}
-	}
+            List<String> newCiphers = new ArrayList<>();
+            for (String c : ciphers) {
+                if (c == null) {
+                    break;
+                }
+                newCiphers.add(c);
+            }
+            return newCiphers.toArray(new String[newCiphers.size()]);
+        }
+    }
 
 }

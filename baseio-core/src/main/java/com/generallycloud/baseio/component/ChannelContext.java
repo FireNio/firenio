@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import java.nio.charset.Charset;
@@ -24,20 +24,21 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public interface ChannelContext extends Attributes, LifeCycle {
 
-	public abstract Charset getEncoding();
+    public abstract Charset getEncoding();
 
-	public abstract ServerConfiguration getServerConfiguration();
+    public abstract ServerConfiguration getServerConfiguration();
 
-	public abstract ChannelService getChannelService();
+    public abstract ChannelService getChannelService();
 
-	public abstract ByteBufAllocatorManager getByteBufAllocatorManager();
-	
-	public abstract void setByteBufAllocatorManager(ByteBufAllocatorManager byteBufAllocatorManager);
+    public abstract ByteBufAllocatorManager getByteBufAllocatorManager();
 
-	public abstract void setChannelService(ChannelService service);
+    public abstract void setByteBufAllocatorManager(
+            ByteBufAllocatorManager byteBufAllocatorManager);
 
-	public abstract long getSessionIdleTime();
+    public abstract void setChannelService(ChannelService service);
 
-	public abstract long getStartupTime();
-	
+    public abstract long getSessionIdleTime();
+
+    public abstract long getStartupTime();
+
 }

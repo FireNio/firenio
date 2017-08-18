@@ -12,38 +12,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.linebased;
 
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
-public class LineBasedProtocolFactory implements ProtocolFactory{
+public class LineBasedProtocolFactory implements ProtocolFactory {
 
-	private int limit;
+    private int limit;
 
-	public LineBasedProtocolFactory() {
-		this(1024 * 8);
-	}
+    public LineBasedProtocolFactory() {
+        this(1024 * 8);
+    }
 
-	public LineBasedProtocolFactory(int limit) {
-		this.limit = limit;
-	}
+    public LineBasedProtocolFactory(int limit) {
+        this.limit = limit;
+    }
 
-	@Override
-	public ProtocolDecoder getProtocolDecoder() {
-		return new LineBasedProtocolDecoder(limit);
-	}
+    @Override
+    public ProtocolDecoder getProtocolDecoder() {
+        return new LineBasedProtocolDecoder(limit);
+    }
 
-	@Override
-	public ProtocolEncoder getProtocolEncoder() {
-		return new LineBasedProtocolEncoder();
-	}
+    @Override
+    public ProtocolEncoder getProtocolEncoder() {
+        return new LineBasedProtocolEncoder();
+    }
 
-	@Override
-	public String getProtocolId() {
-		return "LineBased";
-	}
-	
+    @Override
+    public String getProtocolId() {
+        return "LineBased";
+    }
+
 }

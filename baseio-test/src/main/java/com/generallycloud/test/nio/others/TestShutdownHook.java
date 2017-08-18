@@ -21,24 +21,19 @@ package com.generallycloud.test.nio.others;
  */
 public class TestShutdownHook {
 
-	
-	public static void main(String[] args) {
-		
+    public static void main(String[] args) {
 
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			
-			public void run() {
-				
-				System.out.println("shutdown.....");
-			}
-		}));
-		
-		System.out.println("before shutdown....");
-		
-	}
-	
-	
-	
-	
-	
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                System.out.println("shutdown.....");
+            }
+        }));
+
+        System.out.println("before shutdown....");
+
+    }
+
 }

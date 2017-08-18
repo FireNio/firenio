@@ -12,11 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.fixedlength.future;
 
 import com.generallycloud.baseio.protocol.Future;
 
-public interface FixedLengthFuture extends Future{
+public interface FixedLengthFuture extends Future {
 
 }

@@ -21,15 +21,15 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.concurrent.EventLoop;
 
 public interface SelectorEventLoop extends EventLoop {
-	
-	public abstract ChannelContext getChannelContext();
 
-	public abstract ByteBufAllocator getByteBufAllocator();
+    public abstract ChannelContext getChannelContext();
 
-	public abstract void rebuildSelector() throws IOException;
+    public abstract ByteBufAllocator getByteBufAllocator();
 
-	public abstract boolean isMainEventLoop();
+    public abstract void rebuildSelector() throws IOException;
 
-	public abstract int getCoreIndex();
+    public abstract boolean isMainEventLoop();
+
+    public abstract int getCoreIndex();
 
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.configuration;
 
 import java.util.ArrayList;
@@ -20,23 +20,23 @@ import java.util.List;
 
 public class PermissionConfiguration {
 
-	private List<Configuration>	roles		= new ArrayList<Configuration>();
-	private List<Configuration>	permissions	= new ArrayList<Configuration>();
+    private List<Configuration> roles       = new ArrayList<>();
+    private List<Configuration> permissions = new ArrayList<>();
 
-	public List<Configuration> getRoles() {
-		return roles;
-	}
+    public List<Configuration> getRoles() {
+        return roles;
+    }
 
-	protected void addRole(Configuration role) {
-		this.roles.add(role);
-	}
+    protected void addRole(Configuration role) {
+        this.roles.add(role);
+    }
 
-	public List<Configuration> getPermissions() {
-		return permissions;
-	}
+    public List<Configuration> getPermissions() {
+        return permissions;
+    }
 
-	protected void addPermission(Configuration permission) {
-		this.permissions.add(permission);
-	}
+    protected void addPermission(Configuration permission) {
+        this.permissions.add(permission);
+    }
 
 }

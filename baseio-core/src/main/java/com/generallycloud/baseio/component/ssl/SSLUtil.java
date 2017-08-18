@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
 import java.io.File;
@@ -31,68 +31,75 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class SSLUtil {
 
-	private static SslContext	sslContext;
+    private static SslContext sslContext;
 
-	private static Logger		logger	= LoggerFactory.getLogger(SSLUtil.class);
+    private static Logger     logger = LoggerFactory.getLogger(SSLUtil.class);
 
-	public synchronized static SslContext initServer(File privateKey, File certificate) throws IOException {
-		if (sslContext == null) {
-			doInit(privateKey, certificate);
-		}
-		return sslContext;
-	}
-	
-	public synchronized static SslContext initServerHttp2(File privateKey, File certificate) throws IOException {
-		if (sslContext == null) {
-			doInitHttp2(privateKey, certificate);
-		}
-		return sslContext;
-	}
+    public synchronized static SslContext initServer(File privateKey, File certificate)
+            throws IOException {
+        if (sslContext == null) {
+            doInit(privateKey, certificate);
+        }
+        return sslContext;
+    }
 
-	public synchronized static SslContext initClient() {
-		if (sslContext == null) {
-			try {
-				sslContext = SslContextBuilder.forClient().build();
-			} catch (SSLException e) {
-				DebugUtil.debug(e);
-			}
-		}
-		return sslContext;
-	}
+    public synchronized static SslContext initServerHttp2(File privateKey, File certificate)
+            throws IOException {
+        if (sslContext == null) {
+            doInitHttp2(privateKey, certificate);
+        }
+        return sslContext;
+    }
 
-	private static void doInit(File privateKey, File certificate) throws IOException {
+    public synchronized static SslContext initClient() {
+        if (sslContext == null) {
+            try {
+                sslContext = SslContextBuilder.forClient().build();
+            } catch (SSLException e) {
+                DebugUtil.debug(e);
+            }
+        }
+        return sslContext;
+    }
 
-		LoggerUtil.prettyLog(logger, "load certificate public  key: {}", certificate.getCanonicalPath());
-		LoggerUtil.prettyLog(logger, "load certificate private key: {}", privateKey.getCanonicalPath());
+    private static void doInit(File privateKey, File certificate) throws IOException {
 
-		sslContext = SslContextBuilder.forServer(certificate, privateKey).build();
-	}
-	
-	private static void doInitHttp2(File privateKey, File certificate) throws IOException {
+        LoggerUtil.prettyLog(logger, "load certificate public  key: {}",
+                certificate.getCanonicalPath());
+        LoggerUtil.prettyLog(logger, "load certificate private key: {}",
+                privateKey.getCanonicalPath());
 
-		LoggerUtil.prettyLog(logger, "load certificate public key: {}", certificate.getCanonicalPath());
-		LoggerUtil.prettyLog(logger, "load certificate private key: {}", privateKey.getCanonicalPath());
+        sslContext = SslContextBuilder.forServer(certificate, privateKey).build();
+    }
 
-		sslContext = SslContextBuilder.forServer(certificate, privateKey).applicationProtocolConfig(new ApplicationProtocolConfig(Protocol.ALPN,
-									// NO_ADVERTISE is currently the
-									// only mode supported by both
-									// OpenSsl and JDK providers.
-									SelectorFailureBehavior.NO_ADVERTISE,
-									// ACCEPT is currently the only
-									// mode supported by both OpenSsl
-									// and JDK providers.
-									SelectedListenerFailureBehavior.ACCEPT, 
-									ApplicationProtocolNames.HTTP_2,
-									ApplicationProtocolNames.HTTP_1_1)).build();
+    private static void doInitHttp2(File privateKey, File certificate) throws IOException {
 
-	}
+        LoggerUtil.prettyLog(logger, "load certificate public key: {}",
+                certificate.getCanonicalPath());
+        LoggerUtil.prettyLog(logger, "load certificate private key: {}",
+                privateKey.getCanonicalPath());
 
-	public static SSLEngine getSslEngine() {
-		return sslContext.newEngine();
-	}
+        sslContext = SslContextBuilder.forServer(certificate, privateKey)
+                .applicationProtocolConfig(new ApplicationProtocolConfig(Protocol.ALPN,
+                        // NO_ADVERTISE is currently the
+                        // only mode supported by both
+                        // OpenSsl and JDK providers.
+                        SelectorFailureBehavior.NO_ADVERTISE,
+                        // ACCEPT is currently the only
+                        // mode supported by both OpenSsl
+                        // and JDK providers.
+                        SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_2,
+                        ApplicationProtocolNames.HTTP_1_1))
+                .build();
 
-	public static SslContext getSslContext() {
-		return sslContext;
-	}
+    }
+
+    public static SSLEngine getSslEngine() {
+        return sslContext.newEngine();
+    }
+
+    public static SslContext getSslContext() {
+        return sslContext;
+    }
 
 }

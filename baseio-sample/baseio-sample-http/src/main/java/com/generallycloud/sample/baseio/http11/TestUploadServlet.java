@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.sample.baseio.http11;
 
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
@@ -21,22 +21,24 @@ import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorServ
 
 public class TestUploadServlet extends HttpFutureAcceptorService {
 
-	@Override
-	protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
-		
-		String res;
+    @Override
+    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
 
-		if (future.hasBodyContent()) {
+        String res;
 
-			res = "yes server already accept your message :) "+future.getRequestParams()+" </BR><PRE style='font-size: 18px;color: #FF9800;'>" + new String(future.getBodyContent())+"</PRE>";
-		} else {
-			res = "yes server already accept your message :) " + future.getRequestParams();
-		}
+        if (future.hasBodyContent()) {
 
-		future.setResponseHeader("Content-Type", "text/html");
-		
-		future.write(res);
-		session.flush(future);
-	}
+            res = "yes server already accept your message :) " + future.getRequestParams()
+                    + " </BR><PRE style='font-size: 18px;color: #FF9800;'>"
+                    + new String(future.getBodyContent()) + "</PRE>";
+        } else {
+            res = "yes server already accept your message :) " + future.getRequestParams();
+        }
+
+        future.setResponseHeader("Content-Type", "text/html");
+
+        future.write(res);
+        session.flush(future);
+    }
 
 }

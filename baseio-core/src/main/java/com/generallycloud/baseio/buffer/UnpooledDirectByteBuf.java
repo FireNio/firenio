@@ -25,58 +25,58 @@ import com.generallycloud.baseio.common.ByteBufferUtil;
  */
 public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
 
-	protected UnpooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
-		super(allocator, memory);
-		this.produce(memory.capacity());
-	}
+    protected UnpooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
+        super(allocator, memory);
+        this.produce(memory.capacity());
+    }
 
-	protected void produce(int capacity) {
-		this.capacity = capacity;
-		this.limit(capacity);
-		this.referenceCount = 1;
-	}
+    protected void produce(int capacity) {
+        this.capacity = capacity;
+        this.limit(capacity);
+        this.referenceCount = 1;
+    }
 
-	@Override
-	public ByteBuf reallocate(int limit, boolean copyOld) {
+    @Override
+    public ByteBuf reallocate(int limit, boolean copyOld) {
 
-		ByteBuffer newMemory = ByteBuffer.allocateDirect(limit);
+        ByteBuffer newMemory = ByteBuffer.allocateDirect(limit);
 
-		if (copyOld) {
-			memory.flip();
-			newMemory.put(memory);
-			ByteBufferUtil.release(memory);
-		}else{
-			this.position(0);
-		}
+        if (copyOld) {
+            memory.flip();
+            newMemory.put(memory);
+            ByteBufferUtil.release(memory);
+        } else {
+            this.position(0);
+        }
 
-		this.memory = newMemory;
-		this.capacity = limit;
-		this.limit(limit);
-		this.referenceCount = 1;
-		return this;
-	}
-	
-	@Override
-	public ByteBuf duplicate() {
-		synchronized (this) {
-		    if (released) {
+        this.memory = newMemory;
+        this.capacity = limit;
+        this.limit(limit);
+        this.referenceCount = 1;
+        return this;
+    }
+
+    @Override
+    public ByteBuf duplicate() {
+        synchronized (this) {
+            if (released) {
                 throw new ReleasedException("released");
             }
-			//请勿移除此行，DirectByteBuffer需要手动回收，doRelease要确保被执行
-			this.referenceCount++;
-			return new DuplicateByteBuf(
-					new UnpooledDirectByteBuf(allocator, memory.duplicate()), this);
-		}
-	}
+            //请勿移除此行，DirectByteBuffer需要手动回收，doRelease要确保被执行
+            this.referenceCount++;
+            return new DuplicateByteBuf(new UnpooledDirectByteBuf(allocator, memory.duplicate()),
+                    this);
+        }
+    }
 
-	@Override
-	public void doRelease() {
-		ByteBufferUtil.release(memory);
-	}
+    @Override
+    public void doRelease() {
+        ByteBufferUtil.release(memory);
+    }
 
-	@Override
-	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+        throw new UnsupportedOperationException();
+    }
 
 }

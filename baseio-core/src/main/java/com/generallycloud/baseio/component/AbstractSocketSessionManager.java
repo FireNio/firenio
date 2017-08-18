@@ -21,95 +21,98 @@ import java.util.concurrent.RejectedExecutionException;
 import com.generallycloud.baseio.collection.IntObjectHashMap;
 import com.generallycloud.baseio.common.CloseUtil;
 
-public abstract class AbstractSocketSessionManager extends AbstractSessionManager implements SocketSessionManager{
+public abstract class AbstractSocketSessionManager extends AbstractSessionManager
+        implements SocketSessionManager {
 
-	protected SocketChannelContext				context			= null;
-	protected IntObjectHashMap<SocketSession>		sessions			= new IntObjectHashMap<>();
+    protected SocketChannelContext            context  = null;
+    protected IntObjectHashMap<SocketSession> sessions = new IntObjectHashMap<>();
 
-	public AbstractSocketSessionManager(SocketChannelContext context) {
-		super(context.getSessionIdleTime());
-		this.context = context;
-	}
+    public AbstractSocketSessionManager(SocketChannelContext context) {
+        super(context.getSessionIdleTime());
+        this.context = context;
+    }
 
-	@Override
-	protected void sessionIdle(long lastIdleTime, long currentTime) {
+    @Override
+    protected void sessionIdle(long lastIdleTime, long currentTime) {
 
-		IntObjectHashMap<SocketSession> sessions = this.sessions;
+        IntObjectHashMap<SocketSession> sessions = this.sessions;
 
-		if (sessions.size() == 0) {
-			return;
-		}
+        if (sessions.size() == 0) {
+            return;
+        }
 
-		Collection<SocketSession> es = sessions.values();
+        Collection<SocketSession> es = sessions.values();
 
-		SocketChannelContext context = this.context;
+        SocketChannelContext context = this.context;
 
-		SocketSessionIdleEventListenerWrapper linkable = context
-				.getSessionIdleEventListenerLink();
-		
-		if (linkable == null) {
-			return;
-		}
-		
-		for (SocketSession session : es) {
+        SocketSessionIdleEventListenerWrapper linkable = context.getSessionIdleEventListenerLink();
 
-			linkable.sessionIdled(session, lastIdleTime, currentTime);
-		}
-	}
+        if (linkable == null) {
+            return;
+        }
 
-	@Override
-	public void stop() {
+        for (SocketSession session : es) {
 
-		IntObjectHashMap<SocketSession> sessions = this.sessions;
+            linkable.sessionIdled(session, lastIdleTime, currentTime);
+        }
+    }
 
-		if (sessions.size() == 0) {
-			return;
-		}
+    @Override
+    public void stop() {
 
-		Collection<SocketSession> es = sessions.values();
+        IntObjectHashMap<SocketSession> sessions = this.sessions;
 
-		for (SocketSession session : es) {
+        if (sessions.size() == 0) {
+            return;
+        }
 
-			CloseUtil.close(session);
-		}
-	}
+        Collection<SocketSession> es = sessions.values();
 
-	public void putSession(SocketSession session) throws RejectedExecutionException {
+        for (SocketSession session : es) {
 
-		IntObjectHashMap<SocketSession> sessions = this.sessions;
+            CloseUtil.close(session);
+        }
+    }
 
-		int sessionId = session.getSessionId();
+    @Override
+    public void putSession(SocketSession session) throws RejectedExecutionException {
 
-		SocketSession old = sessions.get(sessionId);
+        IntObjectHashMap<SocketSession> sessions = this.sessions;
 
-		if (old != null) {
-			CloseUtil.close(old);
-			removeSession(old);
-		}
+        int sessionId = session.getSessionId();
 
-		if (sessions.size() >= getSessionSizeLimit()) {
-			throw new RejectedExecutionException("session size limit:" + getSessionSizeLimit()
-			+ ",current:" + sessions.size());
-		}
+        SocketSession old = sessions.get(sessionId);
 
-		sessions.put(sessionId, session);
-	}
+        if (old != null) {
+            CloseUtil.close(old);
+            removeSession(old);
+        }
 
-	public void removeSession(SocketSession session) {
-		sessions.remove(session.getSessionId());
-	}
+        if (sessions.size() >= getSessionSizeLimit()) {
+            throw new RejectedExecutionException(
+                    "session size limit:" + getSessionSizeLimit() + ",current:" + sessions.size());
+        }
 
-	@Override
-	public int getManagedSessionSize() {
-		return sessions.size();
-	}
+        sessions.put(sessionId, session);
+    }
 
-	public SocketSession getSession(int sessionID) {
-		return sessions.get(sessionID);
-	}
-	
-	public interface SocketSessionManagerEvent {
-		public abstract void fire(SocketChannelContext context,
-				IntObjectHashMap<SocketSession> sessions);
-	}
+    @Override
+    public void removeSession(SocketSession session) {
+        sessions.remove(session.getSessionId());
+    }
+
+    @Override
+    public int getManagedSessionSize() {
+        return sessions.size();
+    }
+
+    @Override
+    public SocketSession getSession(int sessionID) {
+        return sessions.get(sessionID);
+    }
+
+    public interface SocketSessionManagerEvent {
+        public abstract void fire(SocketChannelContext context,
+                IntObjectHashMap<SocketSession> sessions);
+    }
 }

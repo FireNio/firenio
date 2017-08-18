@@ -21,30 +21,30 @@ package com.generallycloud.baseio.component;
  */
 public class ChannelByteBufReaderLinkGroup {
 
-	private ChannelByteBufReader	rootLink;
+    private ChannelByteBufReader rootLink;
 
-	private ChannelByteBufReader	tailLink;
+    private ChannelByteBufReader tailLink;
 
-	public ChannelByteBufReader getRootLink() {
-		return rootLink;
-	}
+    public ChannelByteBufReader getRootLink() {
+        return rootLink;
+    }
 
-	public void addLink(ChannelByteBufReader linkable) {
+    public void addLink(ChannelByteBufReader linkable) {
 
-		if (rootLink == null) {
-			rootLink = linkable;
-			tailLink = rootLink;
-			return;
-		}
+        if (rootLink == null) {
+            rootLink = linkable;
+            tailLink = rootLink;
+            return;
+        }
 
-		tailLink.setNext(linkable);
+        tailLink.setNext(linkable);
 
-		tailLink = linkable;
-	}
+        tailLink = linkable;
+    }
 
-	public void clear() {
-		rootLink = null;
-		tailLink = null;
-	}
+    public void clear() {
+        rootLink = null;
+        tailLink = null;
+    }
 
 }

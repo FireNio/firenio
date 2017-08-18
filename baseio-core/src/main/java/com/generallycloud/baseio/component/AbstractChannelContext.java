@@ -28,106 +28,106 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelContext extends AbstractLifeCycle implements ChannelContext {
 
-	protected Charset					encoding;
-	protected ServerConfiguration		serverConfiguration;
-	protected long					sessionIdleTime;
-	protected ChannelService			channelService;
-	protected ByteBufAllocatorManager		byteBufAllocatorManager;
-	protected Map<Object, Object>		attributes	= new HashMap<Object, Object>();
-	protected long					startupTime	= System.currentTimeMillis();
+    protected Charset                 encoding;
+    protected ServerConfiguration     serverConfiguration;
+    protected long                    sessionIdleTime;
+    protected ChannelService          channelService;
+    protected ByteBufAllocatorManager byteBufAllocatorManager;
+    protected Map<Object, Object>     attributes  = new HashMap<>();
+    protected long                    startupTime = System.currentTimeMillis();
 
-	protected void clearContext() {
-		this.clearAttributes();
-	}
-	
-	@Override
-	public ByteBufAllocatorManager getByteBufAllocatorManager() {
-		return byteBufAllocatorManager;
-	}
+    protected void clearContext() {
+        this.clearAttributes();
+    }
 
-	public AbstractChannelContext(ServerConfiguration configuration) {
+    @Override
+    public ByteBufAllocatorManager getByteBufAllocatorManager() {
+        return byteBufAllocatorManager;
+    }
 
-		if (configuration == null) {
-			throw new IllegalArgumentException("null configuration");
-		}
+    public AbstractChannelContext(ServerConfiguration configuration) {
 
-		this.serverConfiguration = configuration;
+        if (configuration == null) {
+            throw new IllegalArgumentException("null configuration");
+        }
 
-		this.addLifeCycleListener(new ChannelContextListener());
-		
-		this.sessionIdleTime = configuration.getSERVER_SESSION_IDLE_TIME();
-	}
-	
-	protected void initializeByteBufAllocator(){
-		
-		if (getByteBufAllocatorManager() == null) {
-			
-			if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
-				this.byteBufAllocatorManager = new PooledByteBufAllocatorManager(this);
-			}else{
-				this.byteBufAllocatorManager = new UnpooledByteBufAllocatorManager(this);
-			}
-		}
-	}
+        this.serverConfiguration = configuration;
 
-	@Override
-	public void clearAttributes() {
-		this.attributes.clear();
-	}
+        this.addLifeCycleListener(new ChannelContextListener());
 
-	@Override
-	public Object getAttribute(Object key) {
-		return this.attributes.get(key);
-	}
+        this.sessionIdleTime = configuration.getSERVER_SESSION_IDLE_TIME();
+    }
 
-	@Override
-	public Set<Object> getAttributeNames() {
-		return this.attributes.keySet();
-	}
+    protected void initializeByteBufAllocator() {
 
-	@Override
-	public Charset getEncoding() {
-		return encoding;
-	}
+        if (getByteBufAllocatorManager() == null) {
 
-	@Override
-	public ServerConfiguration getServerConfiguration() {
-		return serverConfiguration;
-	}
+            if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
+                this.byteBufAllocatorManager = new PooledByteBufAllocatorManager(this);
+            } else {
+                this.byteBufAllocatorManager = new UnpooledByteBufAllocatorManager(this);
+            }
+        }
+    }
 
-	@Override
-	public Object removeAttribute(Object key) {
-		return this.attributes.remove(key);
-	}
+    @Override
+    public void clearAttributes() {
+        this.attributes.clear();
+    }
 
-	@Override
-	public void setAttribute(Object key, Object value) {
-		this.attributes.put(key, value);
-	}
+    @Override
+    public Object getAttribute(Object key) {
+        return this.attributes.get(key);
+    }
 
-	@Override
-	public long getSessionIdleTime() {
-		return sessionIdleTime;
-	}
+    @Override
+    public Set<Object> getAttributeNames() {
+        return this.attributes.keySet();
+    }
 
-	@Override
-	public long getStartupTime() {
-		return startupTime;
-	}
+    @Override
+    public Charset getEncoding() {
+        return encoding;
+    }
 
-	@Override
-	public ChannelService getChannelService() {
-		return channelService;
-	}
+    @Override
+    public ServerConfiguration getServerConfiguration() {
+        return serverConfiguration;
+    }
 
-	@Override
-	public void setChannelService(ChannelService channelService) {
-		this.channelService = channelService;
-	}
-	
-	@Override
-	public void setByteBufAllocatorManager(ByteBufAllocatorManager byteBufAllocatorManager) {
-		this.byteBufAllocatorManager = byteBufAllocatorManager;
-	}
+    @Override
+    public Object removeAttribute(Object key) {
+        return this.attributes.remove(key);
+    }
+
+    @Override
+    public void setAttribute(Object key, Object value) {
+        this.attributes.put(key, value);
+    }
+
+    @Override
+    public long getSessionIdleTime() {
+        return sessionIdleTime;
+    }
+
+    @Override
+    public long getStartupTime() {
+        return startupTime;
+    }
+
+    @Override
+    public ChannelService getChannelService() {
+        return channelService;
+    }
+
+    @Override
+    public void setChannelService(ChannelService channelService) {
+        this.channelService = channelService;
+    }
+
+    @Override
+    public void setByteBufAllocatorManager(ByteBufAllocatorManager byteBufAllocatorManager) {
+        this.byteBufAllocatorManager = byteBufAllocatorManager;
+    }
 
 }

@@ -12,17 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http2.future;
 
 import com.generallycloud.baseio.protocol.Future;
 
-public interface Http2Frame extends Future{
-	
-	public abstract Http2FrameHeader getHeader();
-	
-	public abstract Http2FrameType getHttp2FrameType();
-	
+public interface Http2Frame extends Future {
+
+    public abstract Http2FrameHeader getHeader();
+
+    public abstract Http2FrameType getHttp2FrameType();
+
 }
 // ERROR CODE
 //
@@ -41,15 +41,3 @@ public interface Http2Frame extends Future{
 // ENHANCE_YOUR_CALM	0xb		Processing capacity exceeded
 // INADEQUATE_SECURITY	0xc		Negotiated TLS parameters not acceptable
 // HTTP_1_1_REQUIRED	0xd		Use HTTP/1.1 for the request
-
-
-
-
-
-
-
-
-
-
-
-

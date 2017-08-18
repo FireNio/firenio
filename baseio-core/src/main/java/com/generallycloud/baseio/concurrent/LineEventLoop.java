@@ -19,68 +19,67 @@ import java.util.concurrent.RejectedExecutionException;
 
 public class LineEventLoop implements ExecutorEventLoop {
 
-	private ExecutorEventLoopGroup	eventLoopGroup;
+    private ExecutorEventLoopGroup eventLoopGroup;
 
-	private EventLoop				eventLoop;
+    private EventLoop              eventLoop;
 
-	@Override
-	public void dispatch(Runnable job) throws RejectedExecutionException {
+    @Override
+    public void dispatch(Runnable job) throws RejectedExecutionException {
 
-		if (job == null) {
-			return;
-		}
+        if (job == null) {
+            return;
+        }
 
-		job.run();
-	}
+        job.run();
+    }
 
-	public Thread getMonitor() {
-		return unwrap().getMonitor();
-	}
+    @Override
+    public Thread getMonitor() {
+        return unwrap().getMonitor();
+    }
 
-	public void setMonitor(EventLoop eventLoop) {
-		this.eventLoop = eventLoop;
-	}
+    public void setMonitor(EventLoop eventLoop) {
+        this.eventLoop = eventLoop;
+    }
 
-	@Override
-	public boolean inEventLoop() {
-		return inEventLoop(Thread.currentThread());
-	}
+    @Override
+    public boolean inEventLoop() {
+        return inEventLoop(Thread.currentThread());
+    }
 
-	@Override
-	public boolean inEventLoop(Thread thread) {
-		return getMonitor() == thread;
-	}
+    @Override
+    public boolean inEventLoop(Thread thread) {
+        return getMonitor() == thread;
+    }
 
-	@Override
-	public boolean isRunning() {
-		return unwrap().isRunning();
-	}
+    @Override
+    public boolean isRunning() {
+        return unwrap().isRunning();
+    }
 
-	@Override
-	public void startup(String threadName) throws Exception {
-	}
+    @Override
+    public void startup(String threadName) throws Exception {}
 
-	@Override
-	public void loop() {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void loop() {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public void stop() {
-	}
+    @Override
+    public void stop() {}
 
-	private EventLoop unwrap() {
-		return eventLoop;
-	}
+    private EventLoop unwrap() {
+        return eventLoop;
+    }
 
-	@Override
-	public void wakeup() {
-		unwrap().wakeup();
-	}
+    @Override
+    public void wakeup() {
+        unwrap().wakeup();
+    }
 
-	@Override
-	public ExecutorEventLoopGroup getEventLoopGroup() {
-		return eventLoopGroup;
-	}
+    @Override
+    public ExecutorEventLoopGroup getEventLoopGroup() {
+        return eventLoopGroup;
+    }
 
 }

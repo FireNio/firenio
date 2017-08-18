@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.sample.baseio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
@@ -22,13 +22,13 @@ import com.generallycloud.baseio.container.protobase.service.ProtobaseFutureAcce
 
 public class TestUploadServlet extends ProtobaseFutureAcceptorService {
 
-	public static final String	SERVICE_NAME		= TestUploadServlet.class.getSimpleName();
+    public static final String SERVICE_NAME    = TestUploadServlet.class.getSimpleName();
 
-	private FileReceiveUtil		fileReceiveUtil	= new FileReceiveUtil("upload-");
+    private FileReceiveUtil    fileReceiveUtil = new FileReceiveUtil("upload-");
 
-	@Override
-	protected void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
+    @Override
+    protected void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
 
-		fileReceiveUtil.accept(session, future, true);
-	}
+        fileReceiveUtil.accept(session, future, true);
+    }
 }

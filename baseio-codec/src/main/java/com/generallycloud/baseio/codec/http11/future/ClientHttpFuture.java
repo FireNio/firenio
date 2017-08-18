@@ -24,62 +24,62 @@ import com.generallycloud.baseio.component.SocketSession;
 
 public class ClientHttpFuture extends AbstractHttpFuture {
 
-	public ClientHttpFuture(SocketChannelContext context, String url, String method) {
-		super(context);
-		this.method = method;
-		this.setRequestURL(url);
-	}
+    public ClientHttpFuture(SocketChannelContext context, String url, String method) {
+        super(context);
+        this.method = method;
+        this.setRequestURL(url);
+    }
 
-	public ClientHttpFuture(SocketSession session, ByteBuf buffer, int headerLimit, int bodyLimit) {
-		super(session, buffer, headerLimit, bodyLimit);
-	}
+    public ClientHttpFuture(SocketSession session, ByteBuf buffer, int headerLimit, int bodyLimit) {
+        super(session, buffer, headerLimit, bodyLimit);
+    }
 
-	@Override
-	protected void setDefaultResponseHeaders(Map<String, String> headers) {
-		headers.put("Connection", "keep-alive");
-	}
+    @Override
+    protected void setDefaultResponseHeaders(Map<String, String> headers) {
+        headers.put("Connection", "keep-alive");
+    }
 
-	@Override
-	public void updateWebSocketProtocol() {
-		session.setProtocolFactory(WS_PROTOCOL_FACTORY);
-		session.setProtocolDecoder(WS_PROTOCOL_DECODER);
-		session.setProtocolEncoder(WS_PROTOCOL_ENCODER);
-	}
+    @Override
+    public void updateWebSocketProtocol() {
+        session.setProtocolFactory(WS_PROTOCOL_FACTORY);
+        session.setProtocolDecoder(WS_PROTOCOL_DECODER);
+        session.setProtocolEncoder(WS_PROTOCOL_ENCODER);
+    }
 
-	@Override
-	protected void parseContentType(String contentType) {
+    @Override
+    protected void parseContentType(String contentType) {
 
-		if (StringUtil.isNullOrBlank(contentType)) {
+        if (StringUtil.isNullOrBlank(contentType)) {
 
-			this.contentType = CONTENT_APPLICATION_URLENCODED;
+            this.contentType = CONTENT_APPLICATION_URLENCODED;
 
-			return;
-		}
+            return;
+        }
 
-		if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
+        if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
 
-			this.contentType = CONTENT_APPLICATION_URLENCODED;
+            this.contentType = CONTENT_APPLICATION_URLENCODED;
 
-		} else if (contentType.startsWith("multipart/form-data;")) {
+        } else if (contentType.startsWith("multipart/form-data;")) {
 
-			int index = KMP_BOUNDARY.match(contentType);
+            int index = KMP_BOUNDARY.match(contentType);
 
-			if (index != -1) {
-				this.boundary = contentType.substring(index + 9);
-			}
+            if (index != -1) {
+                this.boundary = contentType.substring(index + 9);
+            }
 
-			this.contentType = CONTENT_TYPE_MULTIPART;
-		} else {
-			// FIXME other content-type
-		}
-	}
+            this.contentType = CONTENT_TYPE_MULTIPART;
+        } else {
+            // FIXME other content-type
+        }
+    }
 
-	@Override
-	protected void parseFirstLine(String line) {
-		int index = line.indexOf(' ');
-		int status = Integer.parseInt(line.substring(index + 1, index + 4));
-		this.version = line.substring(0, index);
-		this.status = HttpStatus.getHttpStatus(status);
-	}
-	
+    @Override
+    protected void parseFirstLine(String line) {
+        int index = line.indexOf(' ');
+        int status = Integer.parseInt(line.substring(index + 1, index + 4));
+        this.version = line.substring(0, index);
+        this.status = HttpStatus.getHttpStatus(status);
+    }
+
 }

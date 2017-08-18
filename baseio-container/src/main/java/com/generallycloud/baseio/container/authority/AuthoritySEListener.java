@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.authority;
 
 import com.generallycloud.baseio.component.SocketSession;
@@ -20,35 +20,35 @@ import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.baseio.container.ApplicationContextUtil;
 
 public class AuthoritySEListener extends SocketSessionEventListenerAdapter {
-	
-	@Override
-	public void sessionOpened(SocketSession session) {
-		
-		AuthorityContext context = AuthorityContext.getInstance();
-		
-		AuthoritySessionAttachment attachment = context.getSessionAttachment(session);
 
-		if (attachment == null) {
+    @Override
+    public void sessionOpened(SocketSession session) {
 
-			attachment = new AuthoritySessionAttachment();
+        AuthorityContext context = AuthorityContext.getInstance();
 
-			session.setAttribute(context.getPluginKey(), attachment);
-		}
+        AuthoritySessionAttachment attachment = context.getSessionAttachment(session);
 
-	}
+        if (attachment == null) {
 
-	@Override
-	public void sessionClosed(SocketSession session) {
-		
-		Authority authority = ApplicationContextUtil.getAuthority(session);
-		
-		if (authority == null) {
-			return;
-		}
-		
-//		AuthorityContext context = AuthorityContext.getInstance();
-//		
-//		session.setAttachment(context.getPluginIndex(), null);
-	}
-	
+            attachment = new AuthoritySessionAttachment();
+
+            session.setAttribute(context.getPluginKey(), attachment);
+        }
+
+    }
+
+    @Override
+    public void sessionClosed(SocketSession session) {
+
+        Authority authority = ApplicationContextUtil.getAuthority(session);
+
+        if (authority == null) {
+            return;
+        }
+
+        //		AuthorityContext context = AuthorityContext.getInstance();
+        //		
+        //		session.setAttachment(context.getPluginIndex(), null);
+    }
+
 }

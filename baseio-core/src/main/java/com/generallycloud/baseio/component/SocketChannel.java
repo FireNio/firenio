@@ -31,57 +31,56 @@ import com.generallycloud.baseio.protocol.SslFuture;
 
 public interface SocketChannel extends DuplexChannel {
 
-	public abstract ChannelFuture getReadFuture();
+    public abstract ChannelFuture getReadFuture();
 
-	public abstract SslFuture getSslReadFuture();
+    public abstract SslFuture getSslReadFuture();
 
-	public abstract void setReadFuture(ChannelFuture future);
+    public abstract void setReadFuture(ChannelFuture future);
 
-	public abstract void setSslReadFuture(SslFuture future);
+    public abstract void setSslReadFuture(SslFuture future);
 
-	public abstract void flush(ChannelFuture future);
-	
-	public abstract void doFlush(ChannelFuture future);
+    public abstract void flush(ChannelFuture future);
 
-	@Override
-	public abstract SocketChannelContext getContext();
+    public abstract void doFlush(ChannelFuture future);
 
-	public abstract ProtocolEncoder getProtocolEncoder();
+    @Override
+    public abstract SocketChannelContext getContext();
 
-	public abstract void setProtocolEncoder(ProtocolEncoder protocolEncoder);
+    public abstract ProtocolEncoder getProtocolEncoder();
 
-	public abstract ProtocolDecoder getProtocolDecoder();
+    public abstract void setProtocolEncoder(ProtocolEncoder protocolEncoder);
 
-	public abstract void setProtocolDecoder(ProtocolDecoder protocolDecoder);
+    public abstract ProtocolDecoder getProtocolDecoder();
 
-	public abstract ProtocolFactory getProtocolFactory();
+    public abstract void setProtocolDecoder(ProtocolDecoder protocolDecoder);
 
-	public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
+    public abstract ProtocolFactory getProtocolFactory();
 
-	public abstract int getWriteFutureSize();
+    public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
 
-	public abstract int getWriteFutureLength();
+    public abstract int getWriteFutureSize();
 
-	@Override
-	public abstract UnsafeSocketSession getSession();
+    public abstract int getWriteFutureLength();
 
-	public abstract ExecutorEventLoop getExecutorEventLoop();
+    @Override
+    public abstract UnsafeSocketSession getSession();
 
-	public abstract <T> T getOption(SocketOption<T> name) throws IOException;
+    public abstract ExecutorEventLoop getExecutorEventLoop();
 
-	public abstract <T> void setOption(SocketOption<T> name, T value)
-			throws IOException;
+    public abstract <T> T getOption(SocketOption<T> name) throws IOException;
 
-	public abstract boolean isEnableSSL();
+    public abstract <T> void setOption(SocketOption<T> name, T value) throws IOException;
 
-	public abstract SSLEngine getSSLEngine();
-	
-	public abstract SslHandler getSslHandler();
+    public abstract boolean isEnableSSL();
 
-	public abstract void finishHandshake(Exception e);
+    public abstract SSLEngine getSSLEngine();
 
-	public abstract void fireOpend();
+    public abstract SslHandler getSslHandler();
 
-	public abstract void write(ByteBuf buf) throws IOException;
+    public abstract void finishHandshake(Exception e);
+
+    public abstract void fireOpend();
+
+    public abstract void write(ByteBuf buf) throws IOException;
 
 }

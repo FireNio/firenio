@@ -23,47 +23,47 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class NioSocketSessionManager extends AbstractSocketSessionManager {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public NioSocketSessionManager(SocketChannelContext context,
-			SocketSelectorEventLoop selectorEventLoop) {
-		super(context);
-		this.selectorEventLoop = selectorEventLoop;
-	}
+    public NioSocketSessionManager(SocketChannelContext context,
+            SocketSelectorEventLoop selectorEventLoop) {
+        super(context);
+        this.selectorEventLoop = selectorEventLoop;
+    }
 
-	private SocketSelectorEventLoop selectorEventLoop;
+    private SocketSelectorEventLoop selectorEventLoop;
 
-	public void offerSessionMEvent(SocketSessionManagerEvent event) {
-		this.selectorEventLoop.dispatch(new SsmSelectorLoopEvent(context, event));
-	}
+    @Override
+    public void offerSessionMEvent(SocketSessionManagerEvent event) {
+        this.selectorEventLoop.dispatch(new SsmSelectorLoopEvent(context, event));
+    }
 
-	class SsmSelectorLoopEvent extends SelectorLoopEventAdapter {
+    class SsmSelectorLoopEvent extends SelectorLoopEventAdapter {
 
-		private SocketChannelContext		context;
+        private SocketChannelContext      context;
 
-		private SocketSessionManagerEvent	event;
+        private SocketSessionManagerEvent event;
 
-		public SsmSelectorLoopEvent(SocketChannelContext context,
-				SocketSessionManagerEvent event) {
-			this.context = context;
-			this.event = event;
-		}
+        public SsmSelectorLoopEvent(SocketChannelContext context, SocketSessionManagerEvent event) {
+            this.context = context;
+            this.event = event;
+        }
 
-		@Override
-		public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
+        @Override
+        public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
 
-			IntObjectHashMap<SocketSession> sessions = NioSocketSessionManager.this.sessions;
+            IntObjectHashMap<SocketSession> sessions = NioSocketSessionManager.this.sessions;
 
-			if (sessions.size() == 0) {
-				return;
-			}
+            if (sessions.size() == 0) {
+                return;
+            }
 
-			try {
-				event.fire(context, sessions);
-			} catch (Throwable e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
+            try {
+                event.fire(context, sessions);
+            } catch (Throwable e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
 
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.load.http11;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,57 +31,57 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class TestHttpLoadServerAio {
 
-	public static void main(String[] args) throws Exception {
-		
-		final AtomicInteger res = new AtomicInteger();
-		final AtomicInteger req = new AtomicInteger();
+    public static void main(String[] args) throws Exception {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        final AtomicInteger res = new AtomicInteger();
+        final AtomicInteger req = new AtomicInteger();
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				HttpFuture f = (HttpFuture) future;
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-				String res;
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                HttpFuture f = (HttpFuture) future;
 
-				if (f.hasBodyContent()) {
+                String res;
 
-					byte[] array = f.getBodyContent();
+                if (f.hasBodyContent()) {
 
-					res = "yes server already accept your message :) </BR><PRE style='font-size: 18px;color: #FF9800;'>"
-							+ new String(array) + "</PRE>";
-				} else {
-					res = "yes server already accept your message :) " + f.getRequestParams();
-				}
+                    byte[] array = f.getBodyContent();
 
-				f.write(res);
-				session.flush(f);
-//				System.out.println("req======================"+req.getAndIncrement());
-			}
-			
-			@Override
-			public void futureSent(SocketSession session, Future future) {
-//				System.out.println("res==========="+res.getAndIncrement());
-			}
-		};
-		
-		ServerConfiguration c = new ServerConfiguration(80);
-		
-		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
-		c.setSERVER_MEMORY_POOL_UNIT(256);
-		c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-		c.setSERVER_CORE_SIZE(4);
-		c.setSERVER_ENABLE_MEMORY_POOL(true);
-		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
+                    res = "yes server already accept your message :) </BR><PRE style='font-size: 18px;color: #FF9800;'>"
+                            + new String(array) + "</PRE>";
+                } else {
+                    res = "yes server already accept your message :) " + f.getRequestParams();
+                }
 
-		SocketChannelContext context = new AioSocketChannelContext(c);
+                f.write(res);
+                session.flush(f);
+                //				System.out.println("req======================"+req.getAndIncrement());
+            }
 
-		context.setProtocolFactory(new ServerHTTPProtocolFactory());
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		new SocketChannelAcceptor(context).bind();
-		
-		ThreadUtil.sleep(99999999);
-	}
+            @Override
+            public void futureSent(SocketSession session, Future future) {
+                //				System.out.println("res==========="+res.getAndIncrement());
+            }
+        };
+
+        ServerConfiguration c = new ServerConfiguration(80);
+
+        c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
+        c.setSERVER_MEMORY_POOL_UNIT(256);
+        c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
+        c.setSERVER_CORE_SIZE(4);
+        c.setSERVER_ENABLE_MEMORY_POOL(true);
+        c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
+
+        SocketChannelContext context = new AioSocketChannelContext(c);
+
+        context.setProtocolFactory(new ServerHTTPProtocolFactory());
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        new SocketChannelAcceptor(context).bind();
+
+        ThreadUtil.sleep(99999999);
+    }
 }

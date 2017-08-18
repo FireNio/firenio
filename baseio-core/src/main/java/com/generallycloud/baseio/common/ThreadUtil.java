@@ -19,38 +19,36 @@ import com.generallycloud.baseio.log.DebugUtil;
 
 public class ThreadUtil {
 
-	public static void sleep(long millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (InterruptedException e) {
-			DebugUtil.debug(e);
-		}
-	}
+    public static void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            DebugUtil.debug(e);
+        }
+    }
 
-	public static void execute(Runnable runnable) {
-		execute(runnable, null);
-	}
+    public static void execute(Runnable runnable) {
+        execute(runnable, null);
+    }
 
-	public static void execute(Runnable runnable, String name) {
-		if (!StringUtil.isNullOrBlank(name)) {
-			new Thread(runnable, name).start();
-		} else {
-			new Thread(runnable).start();
-		}
-	}
+    public static void execute(Runnable runnable, String name) {
+        if (!StringUtil.isNullOrBlank(name)) {
+            new Thread(runnable, name).start();
+        } else {
+            new Thread(runnable).start();
+        }
+    }
 
-	public static void wait(Object o) {
-		try {
-			o.wait();
-		} catch (InterruptedException e) {
-		}
-	}
+    public static void wait(Object o) {
+        try {
+            o.wait();
+        } catch (InterruptedException e) {}
+    }
 
-	public static void wait(Object o, long timeout) {
-		try {
-			o.wait(timeout);
-		} catch (InterruptedException e) {
-		}
-	}
+    public static void wait(Object o, long timeout) {
+        try {
+            o.wait(timeout);
+        } catch (InterruptedException e) {}
+    }
 
 }

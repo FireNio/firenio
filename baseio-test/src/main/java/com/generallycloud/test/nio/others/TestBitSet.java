@@ -25,79 +25,78 @@ import com.generallycloud.test.test.ITestHandle;
  */
 public class TestBitSet {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		int capacity = 1024 * 1024 * 1024;
-		int time = 1;
+        int capacity = 1024 * 1024 * 1024;
+        int time = 1;
 
-//				testMyBitSetCorrect();
-//				testJdkBitSet(capacity,time);
-				testMyBitSet(capacity,time);
+        //				testMyBitSetCorrect();
+        //				testJdkBitSet(capacity,time);
+        testMyBitSet(capacity, time);
 
-		System.out.println(32 / 8);
-		System.out.println(32 >> 3);
+        System.out.println(32 / 8);
+        System.out.println(32 >> 3);
 
-	}
+    }
 
-	/**
-	 * 
-	 */
-	private static void testMyBitSetCorrect() {
-		int capacity = 32;
-		BitSet set = new BitSet(capacity);
-		for (int j = 0; j < capacity; j++) {
-			set.set(j);
-			System.out.println(set.get(j));
-		}
-		for (int j = 0; j < capacity; j++) {
-			set.clear(j);
-			System.out.println(set.get(j));
-		}
-	}
+    /**
+     * 
+     */
+    private static void testMyBitSetCorrect() {
+        int capacity = 32;
+        BitSet set = new BitSet(capacity);
+        for (int j = 0; j < capacity; j++) {
+            set.set(j);
+            System.out.println(set.get(j));
+        }
+        for (int j = 0; j < capacity; j++) {
+            set.clear(j);
+            System.out.println(set.get(j));
+        }
+    }
 
-	static void testMyBitSet(int capacity, int time) {
+    static void testMyBitSet(int capacity, int time) {
 
-		final BitSet set = new BitSet(capacity);
+        final BitSet set = new BitSet(capacity);
 
-		ITestHandle.doTest(new ITest() {
+        ITestHandle.doTest(new ITest() {
 
-			@Override
-			public void test(int i) throws Exception {
-				for (int j = 0; j < capacity; j++) {
-					set.set(j);
-				}
-				for (int j = 0; j < capacity; j++) {
-					set.get(j);
-				}
-				for (int j = 0; j < capacity; j++) {
-					set.clear(j);
-				}
-			}
-		}, time, "My bitSet");
+            @Override
+            public void test(int i) throws Exception {
+                for (int j = 0; j < capacity; j++) {
+                    set.set(j);
+                }
+                for (int j = 0; j < capacity; j++) {
+                    set.get(j);
+                }
+                for (int j = 0; j < capacity; j++) {
+                    set.clear(j);
+                }
+            }
+        }, time, "My bitSet");
 
-	}
+    }
 
-	static void testJdkBitSet(int capacity, int time) {
+    static void testJdkBitSet(int capacity, int time) {
 
-		final java.util.BitSet set = new java.util.BitSet(capacity);
+        final java.util.BitSet set = new java.util.BitSet(capacity);
 
-		ITestHandle.doTest(new ITest() {
+        ITestHandle.doTest(new ITest() {
 
-			@Override
-			public void test(int i) throws Exception {
-				for (int j = 0; j < capacity; j++) {
-					set.set(j);
-				}
-				for (int j = 0; j < capacity; j++) {
-					set.get(j);
-				}
-				for (int j = 0; j < capacity; j++) {
-					set.clear(j);
-				}
-			}
-		}, time, "Jdk bitSet");
+            @Override
+            public void test(int i) throws Exception {
+                for (int j = 0; j < capacity; j++) {
+                    set.set(j);
+                }
+                for (int j = 0; j < capacity; j++) {
+                    set.get(j);
+                }
+                for (int j = 0; j < capacity; j++) {
+                    set.clear(j);
+                }
+            }
+        }, time, "Jdk bitSet");
 
-	}
-
+    }
 
 }

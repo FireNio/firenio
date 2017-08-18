@@ -21,35 +21,35 @@ package com.generallycloud.baseio.component;
  */
 public class DoubleLinkableGroup {
 
-	private DoubleLinkable rootLink;
-	
-	private DoubleLinkable tailLink;
+    private DoubleLinkable rootLink;
 
-	public DoubleLinkable getRootLink() {
-		return rootLink;
-	}
-	
-	public void addLink(DoubleLinkable linkable){
-		
-		if (rootLink == null) {
-			rootLink = linkable;
-			tailLink = rootLink;
-			return;
-		}
-		
-		tailLink.setNext(linkable);
-		
-		tailLink = linkable;
-	}
-	
-	public void removeLink(DoubleLinkable linkable){
-		//TODO removeLink
-		throw new UnsupportedOperationException();
-	}
-	
-	public void clear(){
-		rootLink = null;
-		tailLink = null;
-	}
-	
+    private DoubleLinkable tailLink;
+
+    public DoubleLinkable getRootLink() {
+        return rootLink;
+    }
+
+    public void addLink(DoubleLinkable linkable) {
+
+        if (rootLink == null) {
+            rootLink = linkable;
+            tailLink = rootLink;
+            return;
+        }
+
+        tailLink.setNext(linkable);
+
+        tailLink = linkable;
+    }
+
+    public void removeLink(DoubleLinkable linkable) {
+        //TODO removeLink
+        throw new UnsupportedOperationException();
+    }
+
+    public void clear() {
+        rootLink = null;
+        tailLink = null;
+    }
+
 }

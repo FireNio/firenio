@@ -20,32 +20,34 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class CachedAioThreadFactory implements ThreadFactory {
 
-	private ThreadGroup				group;
-	private AtomicInteger			threadNumber	= new AtomicInteger(0);
-	private String					namePrefix;
-	private AioSocketChannelContext	channelContext;
+    private ThreadGroup             group;
+    private AtomicInteger           threadNumber = new AtomicInteger(0);
+    private String                  namePrefix;
+    private AioSocketChannelContext channelContext;
 
-	public CachedAioThreadFactory(AioSocketChannelContext channelContext, String namePrefix) {
-		SecurityManager s = System.getSecurityManager();
-		this.channelContext = channelContext;
-		this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-		this.namePrefix = namePrefix;
-	}
+    public CachedAioThreadFactory(AioSocketChannelContext channelContext, String namePrefix) {
+        SecurityManager s = System.getSecurityManager();
+        this.channelContext = channelContext;
+        this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+        this.namePrefix = namePrefix;
+    }
 
-	@Override
-	public Thread newThread(Runnable r) {
-		int coreIndex = threadNumber.getAndIncrement();
-		String name = namePrefix + "-" + coreIndex;
-		Thread t = new CachedAioThread(channelContext, group, r, name, coreIndex);
-		if (t.isDaemon())
-			t.setDaemon(false);
-		if (t.getPriority() != Thread.NORM_PRIORITY)
-			t.setPriority(Thread.NORM_PRIORITY);
-		return t;
-	}
+    @Override
+    public Thread newThread(Runnable r) {
+        int coreIndex = threadNumber.getAndIncrement();
+        String name = namePrefix + "-" + coreIndex;
+        Thread t = new CachedAioThread(channelContext, group, r, name, coreIndex);
+        if (t.isDaemon()) {
+            t.setDaemon(false);
+        }
+        if (t.getPriority() != Thread.NORM_PRIORITY) {
+            t.setPriority(Thread.NORM_PRIORITY);
+        }
+        return t;
+    }
 
-	public boolean inFactory(Thread thread) {
-		return thread instanceof SocketChannelThreadContext;
-	}
+    public boolean inFactory(Thread thread) {
+        return thread instanceof SocketChannelThreadContext;
+    }
 
 }

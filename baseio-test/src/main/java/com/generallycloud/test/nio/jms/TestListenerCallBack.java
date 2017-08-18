@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.jms;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
@@ -33,43 +33,41 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestListenerCallBack {
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		LoggerFactory.configure();
-		
-		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+        LoggerFactory.configure();
 
-		ServerConfiguration configuration = new ServerConfiguration(8300);
+        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandle);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        ServerConfiguration configuration = new ServerConfiguration(8300);
 
-		FixedSession session = new FixedSession(connector.connect());
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
 
-		session.login("admin", "admin100");
-		
-		MessageConsumer consumer = new DefaultMessageConsumer(session);
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		consumer.receive( new OnMessage() {
-			
-			@Override
-			public void onReceive(Message message) {
-				System.out.println(message);
-			}
-		});
+        context.setIoEventHandleAdaptor(eventHandle);
 
-		
-		ThreadUtil.sleep(1000);
-		CloseUtil.close(connector);
-		
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
 
-	}
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        FixedSession session = new FixedSession(connector.connect());
+
+        session.login("admin", "admin100");
+
+        MessageConsumer consumer = new DefaultMessageConsumer(session);
+
+        consumer.receive(new OnMessage() {
+
+            @Override
+            public void onReceive(Message message) {
+                System.out.println(message);
+            }
+        });
+
+        ThreadUtil.sleep(1000);
+        CloseUtil.close(connector);
+
+    }
 
 }

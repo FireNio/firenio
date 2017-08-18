@@ -12,17 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 
 public interface ChannelByteBufReader {
-	
-	public abstract ChannelByteBufReader getNext();
-	
-	public abstract void setNext(ChannelByteBufReader channelByteBufReader);
-	
-	public abstract void accept(SocketChannel channel, ByteBuf buf) throws Exception;
+
+    public abstract ChannelByteBufReader getNext();
+
+    public abstract void setNext(ChannelByteBufReader channelByteBufReader);
+
+    public abstract void accept(SocketChannel channel, ByteBuf buf) throws Exception;
 
 }

@@ -25,44 +25,44 @@ import com.generallycloud.baseio.concurrent.AbstractEventLoop;
  * @author wangkai
  *
  */
-public class FakeHttpSessionManager extends AbstractEventLoop implements HttpSessionManager{
-	
-	private final String HTTP_SESSION_KEY = "_HTTP_SESSION_KEY";
+public class FakeHttpSessionManager extends AbstractEventLoop implements HttpSessionManager {
 
-	@Override
-	public void putSession(String sessionID, HttpSession session) {
-		throw new UnsupportedOperationException();
-	}
+    private final String HTTP_SESSION_KEY = "_HTTP_SESSION_KEY";
 
-	@Override
-	public void removeSession(String sessionID) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void putSession(String sessionID, HttpSession session) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public HttpSession getHttpSession(HttpContext context, SocketSession ioSession,
-			HttpFuture future) {
-		HttpSession httpSession = (HttpSession) ioSession.getAttribute(HTTP_SESSION_KEY);
-		if (httpSession == null) {
-			httpSession = new DefaultHttpSession(context, ioSession,null);
-			ioSession.setAttribute(HTTP_SESSION_KEY, httpSession);
-		}
-		return httpSession;
-	}
+    @Override
+    public void removeSession(String sessionID) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public Map<String, HttpSession> getManagedSessions() {
-		return null;
-	}
+    @Override
+    public HttpSession getHttpSession(HttpContext context, SocketSession ioSession,
+            HttpFuture future) {
+        HttpSession httpSession = (HttpSession) ioSession.getAttribute(HTTP_SESSION_KEY);
+        if (httpSession == null) {
+            httpSession = new DefaultHttpSession(context, ioSession, null);
+            ioSession.setAttribute(HTTP_SESSION_KEY, httpSession);
+        }
+        return httpSession;
+    }
 
-	@Override
-	public int getManagedSessionSize() {
-		return -1;
-	}
+    @Override
+    public Map<String, HttpSession> getManagedSessions() {
+        return null;
+    }
 
-	@Override
-	protected void doLoop() {
-		
-	}
-	
+    @Override
+    public int getManagedSessionSize() {
+        return -1;
+    }
+
+    @Override
+    protected void doLoop() {
+
+    }
+
 }

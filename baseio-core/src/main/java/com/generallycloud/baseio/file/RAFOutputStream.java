@@ -27,25 +27,25 @@ import java.io.RandomAccessFile;
  */
 public class RAFOutputStream extends OutputStream {
 
-	private RandomAccessFile raf;
+    private RandomAccessFile raf;
 
-	public RAFOutputStream(File file) throws FileNotFoundException {
-		this.raf = new RandomAccessFile(file, "rw");
-	}
+    public RAFOutputStream(File file) throws FileNotFoundException {
+        this.raf = new RandomAccessFile(file, "rw");
+    }
 
-	@Override
-	public void write(int b) throws IOException {
-		raf.write(b);
-	}
+    @Override
+    public void write(int b) throws IOException {
+        raf.write(b);
+    }
 
-	@Override
-	public synchronized void write(byte[] b, int off, int len) throws IOException {
-		raf.write(b, off, len);
-	}
+    @Override
+    public synchronized void write(byte[] b, int off, int len) throws IOException {
+        raf.write(b, off, len);
+    }
 
-	@Override
-	public void close() throws IOException {
-		raf.close();
-	}
+    @Override
+    public void close() throws IOException {
+        raf.close();
+    }
 
 }

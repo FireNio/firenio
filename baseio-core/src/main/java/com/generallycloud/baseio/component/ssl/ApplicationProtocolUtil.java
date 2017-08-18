@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
 import java.util.ArrayList;
@@ -21,8 +21,7 @@ import java.util.List;
 final class ApplicationProtocolUtil {
     private static final int DEFAULT_LIST_SIZE = 2;
 
-    private ApplicationProtocolUtil() {
-    }
+    private ApplicationProtocolUtil() {}
 
     static List<String> toList(Iterable<String> protocols) {
         return toList(DEFAULT_LIST_SIZE, protocols);
@@ -33,7 +32,7 @@ final class ApplicationProtocolUtil {
             return null;
         }
 
-        List<String> result = new ArrayList<String>(initialListSize);
+        List<String> result = new ArrayList<>(initialListSize);
         for (String p : protocols) {
             if (p == null || p.isEmpty()) {
                 throw new IllegalArgumentException("protocol cannot be null or empty");
@@ -57,7 +56,7 @@ final class ApplicationProtocolUtil {
             return null;
         }
 
-        List<String> result = new ArrayList<String>(initialListSize);
+        List<String> result = new ArrayList<>(initialListSize);
         for (String p : protocols) {
             if (p == null || p.isEmpty()) {
                 throw new IllegalArgumentException("protocol cannot be null or empty");

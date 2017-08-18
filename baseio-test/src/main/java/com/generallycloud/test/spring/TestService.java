@@ -25,21 +25,22 @@ import org.springframework.stereotype.Service;
 @Service("test")
 public class TestService {
 
-	public void service(){
-		System.out.println("service.....");
-	}
-	
-	public static void main(String[] args) {
-		
-		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("spring-core.xml");
-		context.start();
-		
-		TestService service = (TestService) context.getBean("test");
-		
-		service.service();
-		
-		context.close();
-		
-	}
-	
+    public void service() {
+        System.out.println("service.....");
+    }
+
+    public static void main(String[] args) {
+
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                "spring-core.xml");
+        context.start();
+
+        TestService service = (TestService) context.getBean("test");
+
+        service.service();
+
+        context.close();
+
+    }
+
 }

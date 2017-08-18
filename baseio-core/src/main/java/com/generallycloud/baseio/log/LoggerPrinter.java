@@ -21,11 +21,11 @@ package com.generallycloud.baseio.log;
  */
 public interface LoggerPrinter {
 
-	void println(String msg);
-	
-	void printThrowable(Throwable t);
-	
-	void errPrintln(String msg);
-	
-	void errPrintThrowable(Throwable t);
+    void println(String msg);
+
+    void printThrowable(Throwable t);
+
+    void errPrintln(String msg);
+
+    void errPrintThrowable(Throwable t);
 }

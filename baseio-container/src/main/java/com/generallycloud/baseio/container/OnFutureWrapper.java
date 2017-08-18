@@ -23,39 +23,39 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class OnFutureWrapper implements OnFuture {
 
-	private OnFuture					listener	= null;
+    private OnFuture                      listener = null;
 
-	private BlockingQueue<WaiterOnFuture>	waiters	= new ArrayBlockingQueue<WaiterOnFuture>(
-			1024 * 8);
+    private BlockingQueue<WaiterOnFuture> waiters  = new ArrayBlockingQueue<>(
+            1024 * 8);
 
-	@Override
-	public void onResponse(final SocketSession session, final Future future) {
+    @Override
+    public void onResponse(final SocketSession session, final Future future) {
 
-		WaiterOnFuture waiter = waiters.poll();
+        WaiterOnFuture waiter = waiters.poll();
 
-		if (waiter != null) {
+        if (waiter != null) {
 
-			waiter.onResponse(session, future);
+            waiter.onResponse(session, future);
 
-			return;
-		}
+            return;
+        }
 
-		if (listener == null) {
-			return;
-		}
+        if (listener == null) {
+            return;
+        }
 
-		listener.onResponse(session, future);
-	}
+        listener.onResponse(session, future);
+    }
 
-	public void listen(WaiterOnFuture onReadFuture) {
-		this.waiters.offer(onReadFuture);
-	}
+    public void listen(WaiterOnFuture onReadFuture) {
+        this.waiters.offer(onReadFuture);
+    }
 
-	public OnFuture getListener() {
-		return listener;
-	}
+    public OnFuture getListener() {
+        return listener;
+    }
 
-	public void setListener(OnFuture listener) {
-		this.listener = listener;
-	}
+    public void setListener(OnFuture listener) {
+        this.listener = listener;
+    }
 }

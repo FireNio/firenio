@@ -26,50 +26,50 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class BalanceFacadeAcceptor {
 
-	private boolean			running			= false;
-	private BalanceContext		balanceContext		= null;
-	private SocketChannelAcceptor	channelAcceptor	= null;
+    private boolean               running         = false;
+    private BalanceContext        balanceContext  = null;
+    private SocketChannelAcceptor channelAcceptor = null;
 
-	public void start(BalanceContext balanceContext, SocketChannelContext facadeContext,
-			SocketChannelContext reverseContext) throws IOException {
+    public void start(BalanceContext balanceContext, SocketChannelContext facadeContext,
+            SocketChannelContext reverseContext) throws IOException {
 
-		if (balanceContext == null) {
-			throw new IllegalArgumentException("null configuration");
-		}
+        if (balanceContext == null) {
+            throw new IllegalArgumentException("null configuration");
+        }
 
-		synchronized (this) {
+        synchronized (this) {
 
-			if (running) {
-				return;
-			}
+            if (running) {
+                return;
+            }
 
-			this.balanceContext = balanceContext;
+            this.balanceContext = balanceContext;
 
-			this.balanceContext.getBalanceReverseAcceptor().start(reverseContext);
+            this.balanceContext.getBalanceReverseAcceptor().start(reverseContext);
 
-			this.channelAcceptor = new SocketChannelAcceptor(facadeContext);
+            this.channelAcceptor = new SocketChannelAcceptor(facadeContext);
 
-			this.channelAcceptor.bind();
+            this.channelAcceptor.bind();
 
-			LoggerUtil.prettyLog(LoggerFactory.getLogger(BalanceFacadeAcceptor.class),
-					"Balance Facade Acceptor startup completed ...");
-		}
+            LoggerUtil.prettyLog(LoggerFactory.getLogger(BalanceFacadeAcceptor.class),
+                    "Balance Facade Acceptor startup completed ...");
+        }
 
-	}
+    }
 
-	public void stop() {
-		synchronized (this) {
-			CloseUtil.unbind(channelAcceptor);
-			this.balanceContext.getBalanceReverseAcceptor().stop();
-		}
-	}
+    public void stop() {
+        synchronized (this) {
+            CloseUtil.unbind(channelAcceptor);
+            this.balanceContext.getBalanceReverseAcceptor().stop();
+        }
+    }
 
-	public BalanceContext getBalanceContext() {
-		return balanceContext;
-	}
+    public BalanceContext getBalanceContext() {
+        return balanceContext;
+    }
 
-	public SocketChannelAcceptor getAcceptor() {
-		return channelAcceptor;
-	}
+    public SocketChannelAcceptor getAcceptor() {
+        return channelAcceptor;
+    }
 
 }

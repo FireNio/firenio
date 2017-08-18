@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.redis;
 
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
@@ -21,19 +21,19 @@ import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class RedisProtocolFactory implements ProtocolFactory {
 
-	@Override
-	public ProtocolDecoder getProtocolDecoder() {
-		return new RedisProtocolDecoder();
-	}
+    @Override
+    public ProtocolDecoder getProtocolDecoder() {
+        return new RedisProtocolDecoder();
+    }
 
-	@Override
-	public ProtocolEncoder getProtocolEncoder() {
-		return new RedisProtocolEncoder();
-	}
+    @Override
+    public ProtocolEncoder getProtocolEncoder() {
+        return new RedisProtocolEncoder();
+    }
 
-	@Override
-	public String getProtocolId() {
-		return "Redis";
-	}
+    @Override
+    public String getProtocolId() {
+        return "Redis";
+    }
 
 }

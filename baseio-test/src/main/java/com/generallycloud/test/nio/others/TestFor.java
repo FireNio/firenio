@@ -23,39 +23,34 @@ import com.generallycloud.baseio.log.DebugUtil;
  */
 public class TestFor {
 
-	
-	
-	public static void main(String[] args) {
-		
-		
-		long startTime = System.currentTimeMillis();
-		int time = 2000000000;
-		
-//		testWhile1(time);
-//		testWhile2(time);
-		testWhile3(time);
-		
-		DebugUtil.info("Time:{}", System.currentTimeMillis() - startTime);
-		
-	}
-	
-	static void testWhile1(long time){
-		int i = 0;
-		while(i++<time){
-		}
-	}
-	
-	static void testWhile2(long time){
-		int i = 0;
-		while(i<time){
-			i++;
-		}
-	}
-	
-	static void testWhile3(long time){
-		int i = 0;
-		while(++i<time){
-		}
-	}
-	
+    public static void main(String[] args) {
+
+        long startTime = System.currentTimeMillis();
+        int time = 2000000000;
+
+        //		testWhile1(time);
+        //		testWhile2(time);
+        testWhile3(time);
+
+        DebugUtil.info("Time:{}", System.currentTimeMillis() - startTime);
+
+    }
+
+    static void testWhile1(long time) {
+        int i = 0;
+        while (i++ < time) {}
+    }
+
+    static void testWhile2(long time) {
+        int i = 0;
+        while (i < time) {
+            i++;
+        }
+    }
+
+    static void testWhile3(long time) {
+        int i = 0;
+        while (++i < time) {}
+    }
+
 }

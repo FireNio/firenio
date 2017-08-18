@@ -22,11 +22,12 @@ import com.generallycloud.baseio.protocol.Future;
  * @author wangkai
  *
  */
-public class SilentExceptionCaughtHandle implements ExceptionCaughtHandle{
-	
-	@Override
-	public void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state) {
-		
-	}
-	
+public class SilentExceptionCaughtHandle implements ExceptionCaughtHandle {
+
+    @Override
+    public void exceptionCaught(SocketSession session, Future future, Exception cause,
+            IoEventState state) {
+
+    }
+
 }

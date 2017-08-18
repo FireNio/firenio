@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.rtp.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
@@ -22,21 +22,21 @@ import com.generallycloud.baseio.container.rtp.RTPContext;
 
 public abstract class RTPServlet extends ProtobaseFutureAcceptorService {
 
-	private RTPContext	context	= RTPContext.getInstance();
+    private RTPContext context = RTPContext.getInstance();
 
-	public RTPContext getRTPContext() {
-		return context;
-	}
+    public RTPContext getRTPContext() {
+        return context;
+    }
 
-	@Override
-	public void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
+    @Override
+    public void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
 
-		RTPSessionAttachment attachment = context.getSessionAttachment(session);
+        RTPSessionAttachment attachment = context.getSessionAttachment(session);
 
-		this.doAccept(session, future, attachment);
-	}
+        this.doAccept(session, future, attachment);
+    }
 
-	public abstract void doAccept(SocketSession session, ProtobaseFuture future, RTPSessionAttachment attachment)
-			throws Exception;
+    public abstract void doAccept(SocketSession session, ProtobaseFuture future,
+            RTPSessionAttachment attachment) throws Exception;
 
 }

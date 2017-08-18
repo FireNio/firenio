@@ -23,25 +23,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class AtomicLockImpl implements Lock {
 
-	private AtomicBoolean lock = new AtomicBoolean();
+    private AtomicBoolean lock = new AtomicBoolean();
 
-	@Override
-	public boolean tryLock() {
-		return lock.compareAndSet(false, true);
-	}
+    @Override
+    public boolean tryLock() {
+        return lock.compareAndSet(false, true);
+    }
 
-	@Override
-	public void unlock() {
-		lock.set(false);
-	}
+    @Override
+    public void unlock() {
+        lock.set(false);
+    }
 
-	@Override
-	public void lock() {
-		AtomicBoolean lock = this.lock;
-		if (!lock.compareAndSet(false, true)) {
-			for (; !lock.compareAndSet(false, true);) {
-			}
-		}
-	}
+    @Override
+    public void lock() {
+        AtomicBoolean lock = this.lock;
+        if (!lock.compareAndSet(false, true)) {
+            for (; !lock.compareAndSet(false, true);) {}
+        }
+    }
 
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance.reverse;
 
 import com.generallycloud.baseio.balance.BalanceContext;
@@ -23,23 +23,23 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class BalanceReverseAcceptorSEListener extends SocketSessionEventListenerAdapter {
 
-	private Logger			logger	= LoggerFactory.getLogger(BalanceReverseAcceptorSEListener.class);
+    private Logger         logger = LoggerFactory.getLogger(BalanceReverseAcceptorSEListener.class);
 
-	private BalanceContext	context;
+    private BalanceContext context;
 
-	public BalanceReverseAcceptorSEListener(BalanceContext context) {
-		this.context = context;
-	}
+    public BalanceReverseAcceptorSEListener(BalanceContext context) {
+        this.context = context;
+    }
 
-	@Override
-	public void sessionOpened(SocketSession session) {
-		logger.info("load node from [ {} ] connected.", session);
-		context.getBalanceRouter().addRouterSession((BalanceReverseSocketSession) session);
-	}
+    @Override
+    public void sessionOpened(SocketSession session) {
+        logger.info("load node from [ {} ] connected.", session);
+        context.getBalanceRouter().addRouterSession((BalanceReverseSocketSession) session);
+    }
 
-	@Override
-	public void sessionClosed(SocketSession session) {
-		logger.info("load node from [ {} ] disconnected.", session);
-		context.getBalanceRouter().removeRouterSession((BalanceReverseSocketSession) session);
-	}
+    @Override
+    public void sessionClosed(SocketSession session) {
+        logger.info("load node from [ {} ] disconnected.", session);
+        context.getBalanceRouter().removeRouterSession((BalanceReverseSocketSession) session);
+    }
 }

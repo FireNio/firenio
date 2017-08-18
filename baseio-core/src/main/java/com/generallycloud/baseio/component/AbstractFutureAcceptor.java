@@ -23,103 +23,104 @@ import com.generallycloud.baseio.protocol.Future;
 
 public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
-	
-	private HeartBeatLogger heartBeatLogger;
-	
-	@Override
-	public void initialize(SocketChannelContext channelContext) throws Exception {
-		createHeartBeatLogger(channelContext);
-	}
-	
-	@Override
-	public void accept(final SocketSession session, final Future future) throws Exception {
+    private Logger          logger = LoggerFactory.getLogger(getClass());
 
-		ChannelFuture f = (ChannelFuture) future;
+    private HeartBeatLogger heartBeatLogger;
 
-		if (f.isSilent()) {
-			return;
-		}
+    @Override
+    public void initialize(SocketChannelContext channelContext) throws Exception {
+        createHeartBeatLogger(channelContext);
+    }
 
-		if (f.isHeartbeat()) {
+    @Override
+    public void accept(final SocketSession session, final Future future) throws Exception {
 
-			acceptHeartBeat(session, f);
+        ChannelFuture f = (ChannelFuture) future;
 
-			return;
-		}
+        if (f.isSilent()) {
+            return;
+        }
 
-		SocketChannelContext context = session.getContext();
+        if (f.isHeartbeat()) {
 
-		IoEventHandle eventHandle = context.getIoEventHandleAdaptor();
+            acceptHeartBeat(session, f);
 
-		accept(eventHandle, session, f);
-	}
+            return;
+        }
 
-	protected abstract void accept(IoEventHandle eventHandle, SocketSession session,
-			ChannelFuture future);
+        SocketChannelContext context = session.getContext();
 
-	private void acceptHeartBeat(final SocketSession session, final ChannelFuture future) {
+        IoEventHandle eventHandle = context.getIoEventHandleAdaptor();
 
-		if (future.isPING()) {
+        accept(eventHandle, session, f);
+    }
 
-			heartBeatLogger.logRequest(session);
+    protected abstract void accept(IoEventHandle eventHandle, SocketSession session,
+            ChannelFuture future);
 
-			SocketChannelContext context = session.getContext();
+    private void acceptHeartBeat(final SocketSession session, final ChannelFuture future) {
 
-			BeatFutureFactory factory = context.getBeatFutureFactory();
+        if (future.isPING()) {
 
-			if (factory == null) {
+            heartBeatLogger.logRequest(session);
 
-				RuntimeException e = new RuntimeException("none factory of BeatFuture");
+            SocketChannelContext context = session.getContext();
 
-				CloseUtil.close(session);
+            BeatFutureFactory factory = context.getBeatFutureFactory();
 
-				logger.error(e.getMessage(), e);
+            if (factory == null) {
 
-				return;
-			}
+                RuntimeException e = new RuntimeException("none factory of BeatFuture");
 
-			Future f = factory.createPONGPacket(session);
+                CloseUtil.close(session);
 
-			session.flush(f);
-		} else {
-			heartBeatLogger.logResponse(session);
-		}
+                logger.error(e.getMessage(), e);
 
-	}
-	
-	private void createHeartBeatLogger(SocketChannelContext context){
-		
-		if (context.getServerConfiguration().isSERVER_ENABLE_HEARTBEAT_LOG()) {
-			heartBeatLogger = new HeartBeatLogger() {
-				@Override
-				public void logRequest(SocketSession session) {
-					logger.info("heart beat request from: {}", session);
-				}
+                return;
+            }
 
-				@Override
-				public void logResponse(SocketSession session) {
-					logger.info("heart beat response from: {}", session);
-				}
-			};
-		}else{
-			heartBeatLogger = new HeartBeatLogger() {
-				@Override
-				public void logRequest(SocketSession session) {
-					logger.debug("heart beat request from: {}", session);
-				}
+            Future f = factory.createPONGPacket(session);
 
-				@Override
-				public void logResponse(SocketSession session) {
-					logger.debug("heart beat response from: {}", session);
-				}
-			};
-		}
-	}
-	
-	private interface HeartBeatLogger{
-		void logRequest(SocketSession session);
-		void logResponse(SocketSession session);
-	}
+            session.flush(f);
+        } else {
+            heartBeatLogger.logResponse(session);
+        }
+
+    }
+
+    private void createHeartBeatLogger(SocketChannelContext context) {
+
+        if (context.getServerConfiguration().isSERVER_ENABLE_HEARTBEAT_LOG()) {
+            heartBeatLogger = new HeartBeatLogger() {
+                @Override
+                public void logRequest(SocketSession session) {
+                    logger.info("heart beat request from: {}", session);
+                }
+
+                @Override
+                public void logResponse(SocketSession session) {
+                    logger.info("heart beat response from: {}", session);
+                }
+            };
+        } else {
+            heartBeatLogger = new HeartBeatLogger() {
+                @Override
+                public void logRequest(SocketSession session) {
+                    logger.debug("heart beat request from: {}", session);
+                }
+
+                @Override
+                public void logResponse(SocketSession session) {
+                    logger.debug("heart beat response from: {}", session);
+                }
+            };
+        }
+    }
+
+    private interface HeartBeatLogger {
+        void logRequest(SocketSession session);
+
+        void logResponse(SocketSession session);
+    }
 
 }

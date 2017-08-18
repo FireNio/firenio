@@ -24,66 +24,71 @@ import io.netty.util.CharsetUtil;
 
 public class TestLoadEchoClient1 extends ITestThread {
 
-	private ChannelInboundHandlerAdapter		eventHandleAdaptor	= null;
-	
-	private EventLoopGroup group = new NioEventLoopGroup();
-	
-	private ChannelFuture f;
+    private ChannelInboundHandlerAdapter eventHandleAdaptor = null;
 
-	public void run() {
+    private EventLoopGroup               group              = new NioEventLoopGroup();
 
-		int time1 = getTime();
+    private ChannelFuture                f;
 
-		for (int i = 0; i < time1; i++) {
-			
-			f.channel().writeAndFlush("hello server !");			
-			
-		}
-	}
+    @Override
+    public void run() {
 
-	public void prepare() throws Exception {
+        int time1 = getTime();
 
-		eventHandleAdaptor = new ChannelInboundHandlerAdapter(){
-			
-			public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        for (int i = 0; i < time1; i++) {
 
-//				System.out.println("_________________"+msg);
-				
-//				ctx.write(msg);
+            f.channel().writeAndFlush("hello server !");
 
-				addCount(1);
-			}
-		};
+        }
+    }
 
-		Bootstrap b = new Bootstrap();
-		b.group(group);
-		b.channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, false);
-		b.handler(new ChannelInitializer<SocketChannel>() {
-			@Override
-			protected void initChannel(SocketChannel ch) throws Exception {
-				ChannelPipeline pipeline = ch.pipeline();
-				pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0,	4));
-				pipeline.addLast("frameEncoder", new LengthFieldPrepender(4));
-				pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
-				pipeline.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
+    @Override
+    public void prepare() throws Exception {
 
-				pipeline.addLast("handler", eventHandleAdaptor);
-			}
-		});
-		
-		f = b.connect("localhost", 5656).sync();
-	}
+        eventHandleAdaptor = new ChannelInboundHandlerAdapter() {
 
-	public void stop() {
-		group.shutdownGracefully();
-	}
+            @Override
+            public void channelRead(ChannelHandlerContext ctx, Object msg) {
 
-	public static void main(String[] args) throws IOException {
+                //				System.out.println("_________________"+msg);
 
-		int time = 1280000;
+                //				ctx.write(msg);
 
-		int core_size = 4;
+                addCount(1);
+            }
+        };
 
-		ITestThreadHandle.doTest(TestLoadEchoClient1.class, core_size, time / core_size);
-	}
+        Bootstrap b = new Bootstrap();
+        b.group(group);
+        b.channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, false);
+        b.handler(new ChannelInitializer<SocketChannel>() {
+            @Override
+            protected void initChannel(SocketChannel ch) throws Exception {
+                ChannelPipeline pipeline = ch.pipeline();
+                pipeline.addLast("frameDecoder",
+                        new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
+                pipeline.addLast("frameEncoder", new LengthFieldPrepender(4));
+                pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
+                pipeline.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
+
+                pipeline.addLast("handler", eventHandleAdaptor);
+            }
+        });
+
+        f = b.connect("localhost", 5656).sync();
+    }
+
+    @Override
+    public void stop() {
+        group.shutdownGracefully();
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        int time = 1280000;
+
+        int core_size = 4;
+
+        ITestThreadHandle.doTest(TestLoadEchoClient1.class, core_size, time / core_size);
+    }
 }

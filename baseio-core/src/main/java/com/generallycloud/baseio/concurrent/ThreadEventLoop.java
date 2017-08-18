@@ -27,82 +27,83 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventLoop {
-	
-	private SocketChannelContext		context;
 
-	private static Logger			logger	= LoggerFactory.getLogger(ThreadEventLoop.class);
+    private SocketChannelContext   context;
 
-	private ExecutorEventLoopGroup	executorEventLoopGroup;
+    private static Logger          logger = LoggerFactory.getLogger(ThreadEventLoop.class);
 
-	public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup,SocketChannelContext context) {
-		this.executorEventLoopGroup = eventLoopGroup;
-		this.context = context;
-	}
+    private ExecutorEventLoopGroup executorEventLoopGroup;
 
-	private BlockingQueue<Runnable>	jobs;
-	
-	@Override
-	protected void doLoop() throws InterruptedException {
+    public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, SocketChannelContext context) {
+        this.executorEventLoopGroup = eventLoopGroup;
+        this.context = context;
+    }
 
-		Runnable runnable = jobs.poll(32,TimeUnit.MILLISECONDS);
+    private BlockingQueue<Runnable> jobs;
 
-		if (runnable == null) {
-			return;
-		}
+    @Override
+    protected void doLoop() throws InterruptedException {
 
-		runnable.run();
-	}
-	
-	@Override
-	protected void doStartup() throws Exception {
-		
-		ServerConfiguration sc = context.getServerConfiguration();
-		
-		int eventQueueSize = sc.getSERVER_WORK_EVENT_QUEUE_SIZE();
-		
-		this.jobs = new ArrayBlockingQueue<>(eventQueueSize);
-		
-		super.doStartup();
-	}
+        Runnable runnable = jobs.poll(32, TimeUnit.MILLISECONDS);
 
-	//FIXME 观察这里是否部分event没有被fire
-	public void dispatch(Runnable job) throws RejectedExecutionException{
-		if (!isRunning() || !jobs.offer(job)) {
-			throw new RejectedExecutionException();
-		}
-	}
+        if (runnable == null) {
+            return;
+        }
 
-	@Override
-	protected void doStop() {
+        runnable.run();
+    }
 
-		boolean sleeped = false;
-		
-		for(;;){
-			
-			Runnable runnable = jobs.poll();
-			
-			if (runnable == null) {
-				if (sleeped) {
-					break;
-				}
-				ThreadUtil.sleep(8);
-				sleeped = true;
-				continue;
-			}
-			
-			try {
-				runnable.run();
-			} catch (Throwable e) {
-				logger.error(e);
-			}
-		}
-		
-		super.doStop();
-	}
+    @Override
+    protected void doStartup() throws Exception {
 
-	@Override
-	public ExecutorEventLoopGroup getEventLoopGroup() {
-		return executorEventLoopGroup;
-	}
+        ServerConfiguration sc = context.getServerConfiguration();
+
+        int eventQueueSize = sc.getSERVER_WORK_EVENT_QUEUE_SIZE();
+
+        this.jobs = new ArrayBlockingQueue<>(eventQueueSize);
+
+        super.doStartup();
+    }
+
+    //FIXME 观察这里是否部分event没有被fire
+    @Override
+    public void dispatch(Runnable job) throws RejectedExecutionException {
+        if (!isRunning() || !jobs.offer(job)) {
+            throw new RejectedExecutionException();
+        }
+    }
+
+    @Override
+    protected void doStop() {
+
+        boolean sleeped = false;
+
+        for (;;) {
+
+            Runnable runnable = jobs.poll();
+
+            if (runnable == null) {
+                if (sleeped) {
+                    break;
+                }
+                ThreadUtil.sleep(8);
+                sleeped = true;
+                continue;
+            }
+
+            try {
+                runnable.run();
+            } catch (Throwable e) {
+                logger.error(e);
+            }
+        }
+
+        super.doStop();
+    }
+
+    @Override
+    public ExecutorEventLoopGroup getEventLoopGroup() {
+        return executorEventLoopGroup;
+    }
 
 }

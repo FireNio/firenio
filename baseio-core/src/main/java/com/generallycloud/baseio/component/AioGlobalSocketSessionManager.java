@@ -22,44 +22,42 @@ import com.generallycloud.baseio.component.AbstractSocketSessionManager.SocketSe
  *
  */
 public class AioGlobalSocketSessionManager implements SocketSessionManager {
-	
-	private SocketSessionManager sessionManager;
-	
-	public AioGlobalSocketSessionManager(SocketSessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
 
-	@Override
-	public int getManagedSessionSize(){
-		return sessionManager.getManagedSessionSize();
-	}
+    private SocketSessionManager sessionManager;
 
-	@Override
-	public SocketSession getSession(int sessionId){
-		return sessionManager.getSession(sessionId);
-	}
+    public AioGlobalSocketSessionManager(SocketSessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
 
-	@Override
-	public void offerSessionMEvent(SocketSessionManagerEvent event){
-		sessionManager.offerSessionMEvent(event);
-	}
+    @Override
+    public int getManagedSessionSize() {
+        return sessionManager.getManagedSessionSize();
+    }
 
-	@Override
-	public void loop() {
-		
-	}
+    @Override
+    public SocketSession getSession(int sessionId) {
+        return sessionManager.getSession(sessionId);
+    }
 
-	@Override
-	public void stop() {
-		
-	}
+    @Override
+    public void offerSessionMEvent(SocketSessionManagerEvent event) {
+        sessionManager.offerSessionMEvent(event);
+    }
 
-	@Override
-	public void putSession(SocketSession session) {
-	}
+    @Override
+    public void loop() {
 
-	@Override
-	public void removeSession(SocketSession session) {
-	}
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public void putSession(SocketSession session) {}
+
+    @Override
+    public void removeSession(SocketSession session) {}
 
 }

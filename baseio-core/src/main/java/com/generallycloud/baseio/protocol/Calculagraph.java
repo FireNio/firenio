@@ -12,59 +12,58 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.protocol;
-
 
 public class Calculagraph {
 
-	private int	markInterval	= 1;
-	private long	nextMark		;
-	private long	currentMark	;
-	private int	sequenceNO	;
-	private long	alphaTimestamp	;
-//	private Logger	logger		= LoggerFactory.getLogger(Calculagraph.class);
+    private int  markInterval = 1;
+    private long nextMark;
+    private long currentMark;
+    private int  sequenceNO;
+    private long alphaTimestamp;
+    //	private Logger	logger		= LoggerFactory.getLogger(Calculagraph.class);
 
-	public Calculagraph(int markInterval, long currentMark) {
-		this.markInterval = markInterval;
-		this.currentMark = currentMark;
-		this.nextMark = currentMark + markInterval;
-		this.alphaTimestamp = currentMark;
-//		logger.debug("________________lastMark______create:{}", currentMark);
-	}
+    public Calculagraph(int markInterval, long currentMark) {
+        this.markInterval = markInterval;
+        this.currentMark = currentMark;
+        this.nextMark = currentMark + markInterval;
+        this.alphaTimestamp = currentMark;
+        //		logger.debug("________________lastMark______create:{}", currentMark);
+    }
 
-	public Calculagraph(int markInterval) {
-		this(markInterval, System.currentTimeMillis());
-	}
+    public Calculagraph(int markInterval) {
+        this(markInterval, System.currentTimeMillis());
+    }
 
-	public long getTimestamp() {
+    public long getTimestamp() {
 
-		long current = System.currentTimeMillis();
+        long current = System.currentTimeMillis();
 
-		if (current < nextMark) {
+        if (current < nextMark) {
 
-			return currentMark;
-		}
+            return currentMark;
+        }
 
-		for (; current >= nextMark;) {
+        for (; current >= nextMark;) {
 
-//			logger.debug("________________current - nextMark:{}", current - nextMark);
-			nextMark = nextMark + markInterval;
-		}
+            //			logger.debug("________________current - nextMark:{}", current - nextMark);
+            nextMark = nextMark + markInterval;
+        }
 
-		currentMark = nextMark - markInterval;
+        currentMark = nextMark - markInterval;
 
-		sequenceNO = 0;
+        sequenceNO = 0;
 
-		return currentMark;
+        return currentMark;
 
-	}
+    }
 
-	public int getSequenceNO() {
-		return sequenceNO++;
-	}
+    public int getSequenceNO() {
+        return sequenceNO++;
+    }
 
-	public long getAlphaTimestamp() {
-		return alphaTimestamp;
-	}
+    public long getAlphaTimestamp() {
+        return alphaTimestamp;
+    }
 }

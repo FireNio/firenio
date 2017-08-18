@@ -12,18 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
-public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl implements UnsafeSocketSession {
+public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl
+        implements UnsafeSocketSession {
 
-	public UnsafeSocketSessionImpl(SocketChannel channel) {
-		super(channel);
-	}
+    public UnsafeSocketSessionImpl(SocketChannel channel) {
+        super(channel);
+    }
 
-	@Override
-	public SocketChannel getSocketChannel() {
-		return channel;
-	}
-	
+    @Override
+    public SocketChannel getSocketChannel() {
+        return channel;
+    }
+
 }

@@ -24,60 +24,59 @@ import com.generallycloud.baseio.component.AbstractSocketSessionManager.SocketSe
  *
  */
 public class NioGlobalSocketSessionManager implements SocketSessionManager {
-	
-	private SocketSessionManager [] socketSessionManagers;
-	
-	private int managerLen;
-	
-	public void init(NioSocketChannelContext context){
-		NioChannelService service = (NioChannelService) context.getChannelService();
-		SocketSelectorEventLoopGroup group = service.getSelectorEventLoopGroup();
-		SocketSelectorEventLoop[] loops = group.getSelectorEventLoops();
-		socketSessionManagers = new SocketSessionManager[loops.length];
-		managerLen = loops.length;
-		for (int i = 0; i < managerLen; i++) {
-			socketSessionManagers[i] = loops[i].getSocketSessionManager();
-		}
-	}
 
-	private AtomicInteger managedSessionSize = new AtomicInteger();
-	
-	@Override
-	public int getManagedSessionSize(){
-		return managedSessionSize.get();
-	}
+    private SocketSessionManager[] socketSessionManagers;
 
-	@Override
-	public SocketSession getSession(int sessionId){
-		return socketSessionManagers[sessionId % managerLen].getSession(sessionId);
-	}
+    private int                    managerLen;
 
-	@Override
-	public void offerSessionMEvent(SocketSessionManagerEvent event){
-		for(SocketSessionManager m : socketSessionManagers){
-			m.offerSessionMEvent(event);
-		}
-	}
+    public void init(NioSocketChannelContext context) {
+        NioChannelService service = (NioChannelService) context.getChannelService();
+        SocketSelectorEventLoopGroup group = service.getSelectorEventLoopGroup();
+        SocketSelectorEventLoop[] loops = group.getSelectorEventLoops();
+        socketSessionManagers = new SocketSessionManager[loops.length];
+        managerLen = loops.length;
+        for (int i = 0; i < managerLen; i++) {
+            socketSessionManagers[i] = loops[i].getSocketSessionManager();
+        }
+    }
 
-	@Override
-	public void loop() {
-		
-	}
+    private AtomicInteger managedSessionSize = new AtomicInteger();
 
-	@Override
-	public void stop() {
-		
-	}
+    @Override
+    public int getManagedSessionSize() {
+        return managedSessionSize.get();
+    }
 
-	@Override
-	public void putSession(SocketSession session) {
-		managedSessionSize.incrementAndGet();
-	}
+    @Override
+    public SocketSession getSession(int sessionId) {
+        return socketSessionManagers[sessionId % managerLen].getSession(sessionId);
+    }
 
-	@Override
-	public void removeSession(SocketSession session) {
-		managedSessionSize.decrementAndGet();
-	}
-	
+    @Override
+    public void offerSessionMEvent(SocketSessionManagerEvent event) {
+        for (SocketSessionManager m : socketSessionManagers) {
+            m.offerSessionMEvent(event);
+        }
+    }
+
+    @Override
+    public void loop() {
+
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public void putSession(SocketSession session) {
+        managedSessionSize.incrementAndGet();
+    }
+
+    @Override
+    public void removeSession(SocketSession session) {
+        managedSessionSize.decrementAndGet();
+    }
 
 }

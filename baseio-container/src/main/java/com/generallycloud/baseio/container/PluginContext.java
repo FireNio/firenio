@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
 
 import java.util.List;
@@ -21,12 +21,12 @@ import java.util.Map;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 
-public interface PluginContext extends Initializeable{
+public interface PluginContext extends Initializeable {
 
-	public abstract void configFutureAcceptorFilter(List<FutureAcceptorFilter> filters);
-	
-	public abstract void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors);
-	
-	public abstract String getPluginKey();
+    public abstract void configFutureAcceptorFilter(List<FutureAcceptorFilter> filters);
+
+    public abstract void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors);
+
+    public abstract String getPluginKey();
 
 }

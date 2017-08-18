@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.server;
 
 import com.generallycloud.baseio.component.SocketSession;
@@ -22,55 +22,55 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class MQSessionEventListener extends SocketSessionEventListenerAdapter {
 
-	private static final Logger	LOGGER	= LoggerFactory.getLogger(MQSessionEventListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MQSessionEventListener.class);
 
-	@Override
-	public void sessionOpened(SocketSession session) {
-		
-		MQContext context = MQContext.getInstance();
+    @Override
+    public void sessionOpened(SocketSession session) {
 
-		MQSessionAttachment attachment = context.getSessionAttachment(session);
+        MQContext context = MQContext.getInstance();
 
-		if (attachment == null) {
+        MQSessionAttachment attachment = context.getSessionAttachment(session);
 
-			attachment = new MQSessionAttachment(context);
+        if (attachment == null) {
 
-			session.setAttribute(context.getPluginKey(), attachment);
-		}
-	}
+            attachment = new MQSessionAttachment(context);
 
-	// FIXME 移除该session上的consumer
-	@Override
-	public void sessionClosed(SocketSession session) {
-		
-		MQContext context = MQContext.getInstance();
+            session.setAttribute(context.getPluginKey(), attachment);
+        }
+    }
 
-		MQSessionAttachment attachment = context.getSessionAttachment(session);
-		
-		if (attachment == null) {
-			return;
-		}
+    // FIXME 移除该session上的consumer
+    @Override
+    public void sessionClosed(SocketSession session) {
 
-		TransactionSection section = attachment.getTransactionSection();
+        MQContext context = MQContext.getInstance();
 
-		if (section != null) {
+        MQSessionAttachment attachment = context.getSessionAttachment(session);
 
-			section.rollback();
-		}
+        if (attachment == null) {
+            return;
+        }
 
-		Consumer consumer = attachment.getConsumer();
+        TransactionSection section = attachment.getTransactionSection();
 
-		if (consumer != null) {
+        if (section != null) {
 
-			consumer.getConsumerQueue().remove(consumer);
+            section.rollback();
+        }
 
-			consumer.getConsumerQueue().getSnapshot();
+        Consumer consumer = attachment.getConsumer();
 
-			context.removeReceiver(consumer.getQueueName());
-		}
+        if (consumer != null) {
 
-		LOGGER.debug(">>>> TransactionProtectListener execute");
+            consumer.getConsumerQueue().remove(consumer);
 
-	}
+            consumer.getConsumerQueue().getSnapshot();
+
+            context.removeReceiver(consumer.getQueueName());
+        }
+
+        LOGGER.debug(">>>> TransactionProtectListener execute");
+
+    }
 
 }

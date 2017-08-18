@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.connector;
 
 import java.io.Closeable;
@@ -23,12 +23,12 @@ import com.generallycloud.baseio.component.Session;
 
 public interface ChannelConnector extends ChannelService, Connectable, Closeable {
 
-	public abstract Session getSession();
-	
-	public abstract boolean isConnected();
-	
-	public abstract long getTimeout() ;
+    public abstract Session getSession();
 
-	public abstract void setTimeout(long timeout) ;
-	
+    public abstract boolean isConnected();
+
+    public abstract long getTimeout();
+
+    public abstract void setTimeout(long timeout);
+
 }

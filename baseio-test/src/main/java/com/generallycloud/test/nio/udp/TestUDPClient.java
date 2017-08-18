@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.udp;
 
 import java.io.IOException;
@@ -29,33 +29,34 @@ import com.generallycloud.baseio.protocol.DatagramPacket;
 
 public class TestUDPClient {
 
-	public static void main(String[] args) throws Exception {
-		
-		DatagramPacketAcceptor acceptor = new DatagramPacketAcceptor() {
-			
-			@Override
-			public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
-				System.out.println(packet.getDataString(Encoding.UTF8));
-				
-			}
-		};
+    public static void main(String[] args) throws Exception {
 
-		DatagramChannelContext context = new DatagramChannelContext(new ServerConfiguration("localhost", 18500));
+        DatagramPacketAcceptor acceptor = new DatagramPacketAcceptor() {
 
-		DatagramChannelConnector connector = new DatagramChannelConnector(context);
+            @Override
+            public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
+                System.out.println(packet.getDataString(Encoding.UTF8));
 
-		context.setDatagramPacketAcceptor(acceptor);
+            }
+        };
 
-		DatagramSession session = connector.connect();
-		
-		DatagramPacket packet = DatagramPacket.createSendPacket("hello world!".getBytes());
-		
-		session.sendPacket(packet);
+        DatagramChannelContext context = new DatagramChannelContext(
+                new ServerConfiguration("localhost", 18500));
 
-		ThreadUtil.sleep(30);
+        DatagramChannelConnector connector = new DatagramChannelConnector(context);
 
-		CloseUtil.close(connector);
+        context.setDatagramPacketAcceptor(acceptor);
 
-	}
+        DatagramSession session = connector.connect();
+
+        DatagramPacket packet = DatagramPacket.createSendPacket("hello world!".getBytes());
+
+        session.sendPacket(packet);
+
+        ThreadUtil.sleep(30);
+
+        CloseUtil.close(connector);
+
+    }
 
 }

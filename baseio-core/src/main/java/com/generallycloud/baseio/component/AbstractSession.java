@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import java.net.InetSocketAddress;
@@ -24,139 +24,139 @@ import com.generallycloud.baseio.common.CloseUtil;
 
 public abstract class AbstractSession implements Session {
 
-	protected Object				attachment;
-	protected HashMap<Object, Object>	attributes	= new HashMap<Object, Object>();
+    protected Object                  attachment;
+    protected HashMap<Object, Object> attributes = new HashMap<>();
 
-	protected abstract Channel getChannel();
+    protected abstract Channel getChannel();
 
-	@Override
-	public void active() {
-		getChannel().active();
-	}
+    @Override
+    public void active() {
+        getChannel().active();
+    }
 
-	@Override
-	public void clearAttributes() {
-		attributes.clear();
-	}
+    @Override
+    public void clearAttributes() {
+        attributes.clear();
+    }
 
-	@Override
-	public Object getAttachment() {
-		return attachment;
-	}
+    @Override
+    public Object getAttachment() {
+        return attachment;
+    }
 
-	@Override
-	public Object getAttribute(Object key) {
-		return attributes.get(key);
-	}
+    @Override
+    public Object getAttribute(Object key) {
+        return attributes.get(key);
+    }
 
-	@Override
-	public HashMap<Object, Object> getAttributes() {
-		return attributes;
-	}
+    @Override
+    public HashMap<Object, Object> getAttributes() {
+        return attributes;
+    }
 
-	@Override
-	public long getCreationTime() {
-		return getChannel().getCreationTime();
-	}
+    @Override
+    public long getCreationTime() {
+        return getChannel().getCreationTime();
+    }
 
-	@Override
-	public Charset getEncoding() {
-		return getContext().getEncoding();
-	}
+    @Override
+    public Charset getEncoding() {
+        return getContext().getEncoding();
+    }
 
-	@Override
-	public long getLastAccessTime() {
-		return getChannel().getLastAccessTime();
-	}
+    @Override
+    public long getLastAccessTime() {
+        return getChannel().getLastAccessTime();
+    }
 
-	@Override
-	public String getLocalAddr() {
-		return getChannel().getLocalAddr();
-	}
+    @Override
+    public String getLocalAddr() {
+        return getChannel().getLocalAddr();
+    }
 
-	@Override
-	public String getLocalHost() {
-		return getChannel().getLocalHost();
-	}
+    @Override
+    public String getLocalHost() {
+        return getChannel().getLocalHost();
+    }
 
-	@Override
-	public int getLocalPort() {
-		return getChannel().getLocalPort();
-	}
+    @Override
+    public int getLocalPort() {
+        return getChannel().getLocalPort();
+    }
 
-	@Override
-	public InetSocketAddress getLocalSocketAddress() {
-		return getChannel().getLocalSocketAddress();
-	}
+    @Override
+    public InetSocketAddress getLocalSocketAddress() {
+        return getChannel().getLocalSocketAddress();
+    }
 
-	@Override
-	public String getRemoteAddr() {
-		return getChannel().getRemoteAddr();
-	}
+    @Override
+    public String getRemoteAddr() {
+        return getChannel().getRemoteAddr();
+    }
 
-	@Override
-	public String getRemoteHost() {
-		return getChannel().getRemoteHost();
-	}
+    @Override
+    public String getRemoteHost() {
+        return getChannel().getRemoteHost();
+    }
 
-	@Override
-	public int getRemotePort() {
-		return getChannel().getRemotePort();
-	}
+    @Override
+    public int getRemotePort() {
+        return getChannel().getRemotePort();
+    }
 
-	@Override
-	public InetSocketAddress getRemoteSocketAddress() {
-		return getChannel().getRemoteSocketAddress();
-	}
+    @Override
+    public InetSocketAddress getRemoteSocketAddress() {
+        return getChannel().getRemoteSocketAddress();
+    }
 
-	@Override
-	public int getSessionId() {
-		return getChannel().getChannelId();
-	}
+    @Override
+    public int getSessionId() {
+        return getChannel().getChannelId();
+    }
 
-	@Override
-	public boolean isClosed() {
-		return !isOpened();
-	}
+    @Override
+    public boolean isClosed() {
+        return !isOpened();
+    }
 
-	@Override
-	public boolean isOpened() {
-		return getChannel().isOpened();
-	}
+    @Override
+    public boolean isOpened() {
+        return getChannel().isOpened();
+    }
 
-	@Override
-	public Object removeAttribute(Object key) {
-		return attributes.remove(key);
-	}
+    @Override
+    public Object removeAttribute(Object key) {
+        return attributes.remove(key);
+    }
 
-	@Override
-	public void setAttachment(Object attachment) {
-		this.attachment = attachment;
-	}
+    @Override
+    public void setAttachment(Object attachment) {
+        this.attachment = attachment;
+    }
 
-	@Override
-	public void setAttribute(Object key, Object value) {
-		attributes.put(key, value);
-	}
+    @Override
+    public void setAttribute(Object key, Object value) {
+        attributes.put(key, value);
+    }
 
-	@Override
-	public String toString() {
-		return getChannel().toString();
-	}
+    @Override
+    public String toString() {
+        return getChannel().toString();
+    }
 
-	@Override
-	public ByteBufAllocator getByteBufAllocator() {
-		return getChannel().getByteBufAllocator();
-	}
+    @Override
+    public ByteBufAllocator getByteBufAllocator() {
+        return getChannel().getByteBufAllocator();
+    }
 
-	@Override
-	public boolean inSelectorLoop() {
-		return getChannel().inSelectorLoop();
-	}
+    @Override
+    public boolean inSelectorLoop() {
+        return getChannel().inSelectorLoop();
+    }
 
-	@Override
-	public void close() {
-		CloseUtil.close(getChannel());
-	}
+    @Override
+    public void close() {
+        CloseUtil.close(getChannel());
+    }
 
 }

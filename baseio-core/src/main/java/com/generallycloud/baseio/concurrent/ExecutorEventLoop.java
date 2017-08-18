@@ -21,10 +21,10 @@ import java.util.concurrent.RejectedExecutionException;
  * @author wangkai
  *
  */
-public interface ExecutorEventLoop extends EventLoop{
+public interface ExecutorEventLoop extends EventLoop {
 
-	public void dispatch(Runnable job) throws RejectedExecutionException;
-	
-	@Override
-	public abstract ExecutorEventLoopGroup getEventLoopGroup();
+    public void dispatch(Runnable job) throws RejectedExecutionException;
+
+    @Override
+    public abstract ExecutorEventLoopGroup getEventLoopGroup();
 }

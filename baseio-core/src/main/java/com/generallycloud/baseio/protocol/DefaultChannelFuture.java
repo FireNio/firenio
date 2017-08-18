@@ -28,14 +28,14 @@ import com.generallycloud.baseio.component.SocketSession;
 //FIXME 部分方法需要抛UnsupportedException
 public class DefaultChannelFuture extends AbstractChannelFuture {
 
-	public DefaultChannelFuture(SocketChannelContext context,ByteBuf buf) {
-		super(context);
-		this.buf = buf;
-	}
+    public DefaultChannelFuture(SocketChannelContext context, ByteBuf buf) {
+        super(context);
+        this.buf = buf;
+    }
 
-	@Override
-	public boolean read(SocketSession session, ByteBuf src) throws IOException {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean read(SocketSession session, ByteBuf src) throws IOException {
+        throw new UnsupportedOperationException();
+    }
 
 }

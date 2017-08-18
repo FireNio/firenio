@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import java.math.BigDecimal;
@@ -27,46 +27,47 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ChannelContextListener extends AbstractLifeCycleListener implements LifeCycleListener {
 
-	private Logger		logger		= LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Override
-	public int lifeCycleListenerSortIndex() {
-		return 999;
-	}
+    @Override
+    public int lifeCycleListenerSortIndex() {
+        return 999;
+    }
 
-	@Override
-	public void lifeCycleStarted(LifeCycle lifeCycle) {
-//		LoggerUtil.prettyLog(logger, "CONTEXT加载完成");
-	}
+    @Override
+    public void lifeCycleStarted(LifeCycle lifeCycle) {
+        //		LoggerUtil.prettyLog(logger, "CONTEXT加载完成");
+    }
 
-	@Override
-	public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
-		// NIOConnector connector = (NIOConnector) lifeCycle;
-		logger.error(exception.getMessage(), exception);
-	}
+    @Override
+    public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
+        // NIOConnector connector = (NIOConnector) lifeCycle;
+        logger.error(exception.getMessage(), exception);
+    }
 
-	@Override
-	public void lifeCycleStopped(LifeCycle lifeCycle) {
-		LoggerUtil.prettyLog(logger, "service stoped");
-	}
+    @Override
+    public void lifeCycleStopped(LifeCycle lifeCycle) {
+        LoggerUtil.prettyLog(logger, "service stoped");
+    }
 
-	@Override
-	public void lifeCycleStopping(LifeCycle lifeCycle) {
-		ChannelContext context = (ChannelContext) lifeCycle;
-		
-		if (context == null) {
-			LoggerUtil.prettyLog(logger, "service start failed, prepare to stop ...");
-			return;
-		}
-		
-		ChannelService service = context.getChannelService();
-		
-		BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
-		BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
-		BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
-		String[] params = { String.valueOf(service.getServerSocketAddress()), String.valueOf(hour) };
-		LoggerUtil.prettyLog(logger, "service running {} for {} hours", params);
-		LoggerUtil.prettyLog(logger, "begin to stop service, please wait ...");
-	}
+    @Override
+    public void lifeCycleStopping(LifeCycle lifeCycle) {
+        ChannelContext context = (ChannelContext) lifeCycle;
+
+        if (context == null) {
+            LoggerUtil.prettyLog(logger, "service start failed, prepare to stop ...");
+            return;
+        }
+
+        ChannelService service = context.getChannelService();
+
+        BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
+        BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
+        BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
+        String[] params = { String.valueOf(service.getServerSocketAddress()),
+                String.valueOf(hour) };
+        LoggerUtil.prettyLog(logger, "service running {} for {} hours", params);
+        LoggerUtil.prettyLog(logger, "begin to stop service, please wait ...");
+    }
 
 }

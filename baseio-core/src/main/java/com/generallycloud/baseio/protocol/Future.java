@@ -24,26 +24,26 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 
 public interface Future extends Releasable {
 
-	public abstract IoEventHandle getIoEventHandle();
+    public abstract IoEventHandle getIoEventHandle();
 
-	public abstract void setIoEventHandle(IoEventHandle ioEventHandle);
+    public abstract void setIoEventHandle(IoEventHandle ioEventHandle);
 
-	public abstract SocketChannelContext getContext();
+    public abstract SocketChannelContext getContext();
 
-	public abstract boolean flushed();
+    public abstract boolean flushed();
 
-	public abstract String getReadText();
+    public abstract String getReadText();
 
-	public abstract ByteArrayBuffer getWriteBuffer();
+    public abstract ByteArrayBuffer getWriteBuffer();
 
-	public abstract void write(String text);
-	
-	public abstract void write(String text,Charset charset);
+    public abstract void write(String text);
 
-	public abstract void write(byte b);
+    public abstract void write(String text, Charset charset);
 
-	public abstract void write(byte b[]);
+    public abstract void write(byte b);
 
-	public abstract void write(byte b[], int off, int len);
+    public abstract void write(byte b[]);
+
+    public abstract void write(byte b[], int off, int len);
 
 }

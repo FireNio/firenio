@@ -18,17 +18,17 @@ package com.generallycloud.baseio.component;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public class NioSocketChannelContext extends AbstractSocketChannelContext {
-	
-	protected NioGlobalSocketSessionManager	sessionManager;
 
-	public NioSocketChannelContext(ServerConfiguration configuration) {
-		super(configuration);
-		this.sessionManager = new NioGlobalSocketSessionManager();
-	}
+    protected NioGlobalSocketSessionManager sessionManager;
 
-	@Override
-	public NioGlobalSocketSessionManager getSessionManager() {
-		return sessionManager;
-	}
-	
+    public NioSocketChannelContext(ServerConfiguration configuration) {
+        super(configuration);
+        this.sessionManager = new NioGlobalSocketSessionManager();
+    }
+
+    @Override
+    public NioGlobalSocketSessionManager getSessionManager() {
+        return sessionManager;
+    }
+
 }

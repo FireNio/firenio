@@ -12,31 +12,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.buffer;
 
 import java.nio.ByteBuffer;
 
 public class DirectByteBufFactory implements ByteBufFactory {
 
-	private ByteBuffer	memory	= null;
+    private ByteBuffer memory = null;
 
-	@Override
-	public void initializeMemory(int capacity) {
-		this.memory = ByteBuffer.allocateDirect(capacity);
-	}
+    @Override
+    public void initializeMemory(int capacity) {
+        this.memory = ByteBuffer.allocateDirect(capacity);
+    }
 
-	@Override
-	public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
-		return new PooledDirectByteBuf(allocator, memory.duplicate());
-	}
+    @Override
+    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+        return new PooledDirectByteBuf(allocator, memory.duplicate());
+    }
 
-	@Override
-	@SuppressWarnings("restriction")
-	public void freeMemory() {
-		if (((sun.nio.ch.DirectBuffer) memory).cleaner() != null) {
-			((sun.nio.ch.DirectBuffer) memory).cleaner().clean();
-		}
-	}
+    @Override
+    @SuppressWarnings("restriction")
+    public void freeMemory() {
+        if (((sun.nio.ch.DirectBuffer) memory).cleaner() != null) {
+            ((sun.nio.ch.DirectBuffer) memory).cleaner().clean();
+        }
+    }
 
 }

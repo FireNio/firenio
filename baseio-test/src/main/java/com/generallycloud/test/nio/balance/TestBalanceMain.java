@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.balance;
 
 import java.io.IOException;
@@ -27,31 +27,30 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public class TestBalanceMain {
 
-	public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
 
-		BalanceServerBootStrap f = new BalanceServerBootStrap();
-		
-		f.setBalanceProtocolFactory(new ProtobaseProtocolFactory());
-		f.setBalanceReverseProtocolFactory(new ProtobaseProtocolFactory());
-		
-		f.setBalanceProtocolFactory(new HashedProtobaseProtocolFactory());
-		f.setBalanceReverseProtocolFactory(new HashedProtobaseProtocolFactory());
-		
-		
-		ServerConfiguration fc = new ServerConfiguration();
-		fc.setSERVER_PORT(8600);
-		
-		ServerConfiguration frc = new ServerConfiguration();
-		frc.setSERVER_PORT(8800);
-		
-		f.setFacadeExceptionCaughtHandle(new LoggerExceptionCaughtHandle());
-		f.setReverseExceptionCaughtHandle(new LoggerExceptionCaughtHandle());
-		f.setBalanceServerConfiguration(fc);
-		f.setBalanceReverseServerConfiguration(frc);
-		f.setFacadeInterceptor(new FacadeInterceptorImpl(500,50000));
-		f.setBalanceRouter(new HashedBalanceRouter(10240));
-//		f.setBalanceRouter(new SimpleNextRouter());
-		
-		f.startup();
-	}
+        BalanceServerBootStrap f = new BalanceServerBootStrap();
+
+        f.setBalanceProtocolFactory(new ProtobaseProtocolFactory());
+        f.setBalanceReverseProtocolFactory(new ProtobaseProtocolFactory());
+
+        f.setBalanceProtocolFactory(new HashedProtobaseProtocolFactory());
+        f.setBalanceReverseProtocolFactory(new HashedProtobaseProtocolFactory());
+
+        ServerConfiguration fc = new ServerConfiguration();
+        fc.setSERVER_PORT(8600);
+
+        ServerConfiguration frc = new ServerConfiguration();
+        frc.setSERVER_PORT(8800);
+
+        f.setFacadeExceptionCaughtHandle(new LoggerExceptionCaughtHandle());
+        f.setReverseExceptionCaughtHandle(new LoggerExceptionCaughtHandle());
+        f.setBalanceServerConfiguration(fc);
+        f.setBalanceReverseServerConfiguration(frc);
+        f.setFacadeInterceptor(new FacadeInterceptorImpl(500, 50000));
+        f.setBalanceRouter(new HashedBalanceRouter(10240));
+        //		f.setBalanceRouter(new SimpleNextRouter());
+
+        f.startup();
+    }
 }

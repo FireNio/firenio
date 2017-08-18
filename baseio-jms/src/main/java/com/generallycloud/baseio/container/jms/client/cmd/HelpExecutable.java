@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.client.cmd;
 
 import java.util.HashMap;
@@ -23,13 +23,13 @@ import com.generallycloud.baseio.container.jms.cmd.CommandContext;
 @Deprecated
 public class HelpExecutable extends MQCommandExecutor {
 
-	@Override
-	public CmdResponse exec(CommandContext context, HashMap<String, String> params) {
+    @Override
+    public CmdResponse exec(CommandContext context, HashMap<String, String> params) {
 
-		CmdResponse response = new CmdResponse();
-		
-		response.setResponse("请尝试："+context.getCommandKeys());
-		
-		return response;
-	}
+        CmdResponse response = new CmdResponse();
+
+        response.setResponse("请尝试：" + context.getCommandKeys());
+
+        return response;
+    }
 }

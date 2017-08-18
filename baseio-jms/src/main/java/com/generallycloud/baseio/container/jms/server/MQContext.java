@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.server;
 
 import java.util.Map;
@@ -34,117 +34,119 @@ import com.generallycloud.baseio.container.service.FutureAcceptorService;
 
 public class MQContext extends AbstractPluginContext implements MessageQueue {
 
-	private long						dueTime;
-	private ConcurrentMap<String, Message>	messageIDs	= new ConcurrentHashMap<>();
-	private P2PProductLine				p2pProductLine	= new P2PProductLine(this);
-	private SubscribeProductLine			subProductLine	= new SubscribeProductLine(this);
-	private ConcurrentSet<String>			receivers		= new ConcurrentSet<String>();
-	private MessageDecoder				messageDecoder	= new DefaultMessageDecoder();
-	private static MQContext			instance;
+    private long                           dueTime;
+    private ConcurrentMap<String, Message> messageIDs     = new ConcurrentHashMap<>();
+    private P2PProductLine                 p2pProductLine = new P2PProductLine(this);
+    private SubscribeProductLine           subProductLine = new SubscribeProductLine(this);
+    private ConcurrentSet<String>          receivers      = new ConcurrentSet<>();
+    private MessageDecoder                 messageDecoder = new DefaultMessageDecoder();
+    private static MQContext               instance;
 
-	public static MQContext getInstance() {
-		return instance;
-	}
+    public static MQContext getInstance() {
+        return instance;
+    }
 
-	public Message browser(String messageID) {
-		return messageIDs.get(messageID);
-	}
+    public Message browser(String messageID) {
+        return messageIDs.get(messageID);
+    }
 
-	public MQSessionAttachment getSessionAttachment(SocketSession session) {
-		return (MQSessionAttachment) session.getAttribute(getPluginKey());
-	}
+    public MQSessionAttachment getSessionAttachment(SocketSession session) {
+        return (MQSessionAttachment) session.getAttribute(getPluginKey());
+    }
 
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
-		
-		super.initialize(context, config);
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		long dueTime = config.getLongParameter("due-time");
+        super.initialize(context, config);
 
-		setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
+        long dueTime = config.getLongParameter("due-time");
 
-		p2pProductLine.startup("MQ-P2P-ProductLine");
-		subProductLine.startup("MQ-SUB-ProductLine");
+        setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
 
-		context.addSessionEventListener(new MQSessionEventListener());
+        p2pProductLine.startup("MQ-P2P-ProductLine");
+        subProductLine.startup("MQ-SUB-ProductLine");
 
-		instance = this;
-	}
+        context.addSessionEventListener(new MQSessionEventListener());
 
-	@Override
-	public void destroy(ApplicationContext context, Configuration config) throws Exception {
-		LifeCycleUtil.stop(p2pProductLine);
-		LifeCycleUtil.stop(subProductLine);
-		instance = null;
-		super.destroy(context, config);
-	}
+        instance = this;
+    }
 
-	public long getMessageDueTime() {
-		return this.dueTime;
-	}
+    @Override
+    public void destroy(ApplicationContext context, Configuration config) throws Exception {
+        LifeCycleUtil.stop(p2pProductLine);
+        LifeCycleUtil.stop(subProductLine);
+        instance = null;
+        super.destroy(context, config);
+    }
 
-	public int messageSize() {
-		return this.p2pProductLine.messageSize();
-	}
+    public long getMessageDueTime() {
+        return this.dueTime;
+    }
 
-	@Override
-	public void offerMessage(Message message) {
+    public int messageSize() {
+        return this.p2pProductLine.messageSize();
+    }
 
-		messageIDs.put(message.getMsgID(), message);
+    @Override
+    public void offerMessage(Message message) {
 
-		p2pProductLine.offerMessage(message);
-	}
+        messageIDs.put(message.getMsgID(), message);
 
-	public void publishMessage(Message message) {
+        p2pProductLine.offerMessage(message);
+    }
 
-		subProductLine.offerMessage(message);
-	}
+    public void publishMessage(Message message) {
 
-	public void consumerMessage(Message message) {
+        subProductLine.offerMessage(message);
+    }
 
-		messageIDs.remove(message.getMsgID());
-	}
+    public void consumerMessage(Message message) {
 
-	public Message parse(ProtobaseFuture future) throws MQException {
-		return messageDecoder.decode(future);
-	}
+        messageIDs.remove(message.getMsgID());
+    }
 
-	@Override
-	public void pollMessage(SocketSession session, ProtobaseFuture future, MQSessionAttachment attachment) {
-		p2pProductLine.pollMessage(session, future, attachment);
-	}
+    public Message parse(ProtobaseFuture future) throws MQException {
+        return messageDecoder.decode(future);
+    }
 
-	public void subscribeMessage(SocketSession session, ProtobaseFuture future, MQSessionAttachment attachment) {
+    @Override
+    public void pollMessage(SocketSession session, ProtobaseFuture future,
+            MQSessionAttachment attachment) {
+        p2pProductLine.pollMessage(session, future, attachment);
+    }
 
-		subProductLine.pollMessage(session, future, attachment);
-	}
+    public void subscribeMessage(SocketSession session, ProtobaseFuture future,
+            MQSessionAttachment attachment) {
 
-	public void setMessageDueTime(long dueTime) {
-		this.dueTime = dueTime;
-		this.p2pProductLine.setDueTime(dueTime);
-		this.subProductLine.setDueTime(dueTime);
-	}
+        subProductLine.pollMessage(session, future, attachment);
+    }
 
-	public void addReceiver(String queueName) {
-		receivers.add(queueName);
-	}
+    public void setMessageDueTime(long dueTime) {
+        this.dueTime = dueTime;
+        this.p2pProductLine.setDueTime(dueTime);
+        this.subProductLine.setDueTime(dueTime);
+    }
 
-	public boolean isOnLine(String queueName) {
-		return receivers.contains(queueName);
-	}
+    public void addReceiver(String queueName) {
+        receivers.add(queueName);
+    }
 
-	public void removeReceiver(String queueName) {
-		receivers.remove(queueName);
-	}
+    public boolean isOnLine(String queueName) {
+        return receivers.contains(queueName);
+    }
 
-	@Override
-	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
-		putServlet(acceptors,new MQConsumerServlet());
-		putServlet(acceptors,new MQProducerServlet());
-		putServlet(acceptors,new MQSubscribeServlet());
-		putServlet(acceptors,new MQPublishServlet());
-		putServlet(acceptors,new MQTransactionServlet());
-		putServlet(acceptors,new MQBrowserServlet());
-	}
+    public void removeReceiver(String queueName) {
+        receivers.remove(queueName);
+    }
+
+    @Override
+    public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
+        putServlet(acceptors, new MQConsumerServlet());
+        putServlet(acceptors, new MQProducerServlet());
+        putServlet(acceptors, new MQSubscribeServlet());
+        putServlet(acceptors, new MQPublishServlet());
+        putServlet(acceptors, new MQTransactionServlet());
+        putServlet(acceptors, new MQBrowserServlet());
+    }
 
 }

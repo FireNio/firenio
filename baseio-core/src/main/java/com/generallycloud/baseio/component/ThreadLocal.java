@@ -24,35 +24,35 @@ import java.util.Map;
  */
 public class ThreadLocal {
 
-	private static Map<Thread, ThreadLocal> threadLocals = new HashMap<>();
-	
-	public static ThreadLocal get() {
-		Thread thread = Thread.currentThread();
-		ThreadLocal local = threadLocals.get(thread);
-		if (local == null) {
-			synchronized (threadLocals) {
-				local = threadLocals.get(thread);
-				if (local != null) {
-					return local;
-				}
-				local = new ThreadLocal();
-				threadLocals.put(thread, local);
-				return local;
-			}
-		}
-		return local;
-	}
-	
-	public static ThreadLocal remove(){
-		synchronized (threadLocals) {
-			return threadLocals.remove(Thread.currentThread());
-		}
-	}
+    private static Map<Thread, ThreadLocal> threadLocals = new HashMap<>();
 
-	private WriteFutureRecycler writeFutureRecycler = new WriteFutureRecycler();
-	
-	public WriteFutureRecycler getWriteFutureRecycler() {
-		return writeFutureRecycler;
-	}
+    public static ThreadLocal get() {
+        Thread thread = Thread.currentThread();
+        ThreadLocal local = threadLocals.get(thread);
+        if (local == null) {
+            synchronized (threadLocals) {
+                local = threadLocals.get(thread);
+                if (local != null) {
+                    return local;
+                }
+                local = new ThreadLocal();
+                threadLocals.put(thread, local);
+                return local;
+            }
+        }
+        return local;
+    }
+
+    public static ThreadLocal remove() {
+        synchronized (threadLocals) {
+            return threadLocals.remove(Thread.currentThread());
+        }
+    }
+
+    private WriteFutureRecycler writeFutureRecycler = new WriteFutureRecycler();
+
+    public WriteFutureRecycler getWriteFutureRecycler() {
+        return writeFutureRecycler;
+    }
 
 }

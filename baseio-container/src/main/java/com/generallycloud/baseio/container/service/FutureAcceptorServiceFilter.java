@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.service;
 
 import java.io.IOException;
@@ -25,84 +25,88 @@ import com.generallycloud.baseio.container.RESMessage;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.NamedFuture;
 import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.NamedFuture;
 
 public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
-	private Logger						logger	= LoggerFactory.getLogger(FutureAcceptorServiceFilter.class);
-	private FutureAcceptorServiceLoader	acceptorServiceLoader;
+    private Logger                      logger = LoggerFactory
+            .getLogger(FutureAcceptorServiceFilter.class);
+    private FutureAcceptorServiceLoader acceptorServiceLoader;
 
-	public FutureAcceptorServiceFilter() {
-		this.setSortIndex(Integer.MAX_VALUE);
-	}
+    public FutureAcceptorServiceFilter() {
+        this.setSortIndex(Integer.MAX_VALUE);
+    }
 
-	@Override
-	protected void accept(SocketSession session, NamedFuture future) throws Exception {
+    @Override
+    protected void accept(SocketSession session, NamedFuture future) throws Exception {
 
-		String serviceName = future.getFutureName();
+        String serviceName = future.getFutureName();
 
-		if (StringUtil.isNullOrBlank(serviceName)) {
+        if (StringUtil.isNullOrBlank(serviceName)) {
 
-			this.accept404(session, future, serviceName);
+            this.accept404(session, future, serviceName);
 
-		} else {
+        } else {
 
-			this.accept(serviceName, session, future);
-		}
-	}
+            this.accept(serviceName, session, future);
+        }
+    }
 
-	private void accept(String serviceName, SocketSession session, NamedFuture future) throws Exception {
+    private void accept(String serviceName, SocketSession session, NamedFuture future)
+            throws Exception {
 
-		FutureAcceptorService acceptor = acceptorServiceLoader.getFutureAcceptor(serviceName);
+        FutureAcceptorService acceptor = acceptorServiceLoader.getFutureAcceptor(serviceName);
 
-		if (acceptor == null) {
+        if (acceptor == null) {
 
-			future.setIoEventHandle(this);
-			
-			accept404(session, future, serviceName);
+            future.setIoEventHandle(this);
 
-		} else {
+            accept404(session, future, serviceName);
 
-			future.setIoEventHandle(acceptor);
+        } else {
 
-			acceptor.accept(session, future);
-		}
-	}
+            future.setIoEventHandle(acceptor);
 
-	protected void accept404(SocketSession session, NamedFuture future, String serviceName) throws IOException {
+            acceptor.accept(session, future);
+        }
+    }
 
-		logger.info("service name [{}] not found" , serviceName);
+    protected void accept404(SocketSession session, NamedFuture future, String serviceName)
+            throws IOException {
 
-		RESMessage message = new RESMessage(404, "service name not found :" + serviceName);
+        logger.info("service name [{}] not found", serviceName);
 
-		flush(session, future, message);
-	}
+        RESMessage message = new RESMessage(404, "service name not found :" + serviceName);
 
-	private void flush(SocketSession session, Future future, RESMessage message) throws IOException {
+        flush(session, future, message);
+    }
 
-		future.setIoEventHandle(this);
+    private void flush(SocketSession session, Future future, RESMessage message)
+            throws IOException {
 
-		future.write(message.toString());
+        future.setIoEventHandle(this);
 
-		session.flush(future);
-	}
-	
-	@Override
-	public void destroy(ApplicationContext context, Configuration config) throws Exception {
-		LifeCycleUtil.stop(acceptorServiceLoader);
-	}
+        future.write(message.toString());
 
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+        session.flush(future);
+    }
 
-		this.acceptorServiceLoader = new FutureAcceptorServiceLoader(context);
+    @Override
+    public void destroy(ApplicationContext context, Configuration config) throws Exception {
+        LifeCycleUtil.stop(acceptorServiceLoader);
+    }
 
-		LifeCycleUtil.start(acceptorServiceLoader);
-	}
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-	public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
-		return acceptorServiceLoader;
-	}
+        this.acceptorServiceLoader = new FutureAcceptorServiceLoader(context);
+
+        LifeCycleUtil.start(acceptorServiceLoader);
+    }
+
+    public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
+        return acceptorServiceLoader;
+    }
 
 }

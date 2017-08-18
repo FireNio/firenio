@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
@@ -29,43 +29,40 @@ import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestSimpleBigParam {
-	
-	
-	public static void main(String[] args) throws Exception {
 
-		String serviceKey = "TestSimpleServlet";
-		
-		LoggerFactory.configure();
-		
-		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+    public static void main(String[] args) throws Exception {
 
-		ServerConfiguration configuration = new ServerConfiguration(8300);
+        String serviceKey = "TestSimpleServlet";
 
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandle);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        LoggerFactory.configure();
 
-		FixedSession session = new FixedSession(connector.connect());
+        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		String temp = "网易科技腾讯科技阿里巴巴";
-		StringBuilder builder = new StringBuilder(temp);
-		for (int i = 0; i < 600000; i++) {
-			builder.append("\n");
-			builder.append(temp);
-		}
-		ProtobaseFuture future = session.request(serviceKey, builder.toString());
-		FileUtil.writeByCls(TestSimpleBigParam.class.getName(), future.getReadText());
-		System.out.println("处理完成");
-		
-		CloseUtil.close(connector);
-		
-		
-		
-	}
+        ServerConfiguration configuration = new ServerConfiguration(8300);
+
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
+
+        SocketChannelConnector connector = new SocketChannelConnector(context);
+
+        context.setIoEventHandleAdaptor(eventHandle);
+
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        FixedSession session = new FixedSession(connector.connect());
+
+        String temp = "网易科技腾讯科技阿里巴巴";
+        StringBuilder builder = new StringBuilder(temp);
+        for (int i = 0; i < 600000; i++) {
+            builder.append("\n");
+            builder.append(temp);
+        }
+        ProtobaseFuture future = session.request(serviceKey, builder.toString());
+        FileUtil.writeByCls(TestSimpleBigParam.class.getName(), future.getReadText());
+        System.out.println("处理完成");
+
+        CloseUtil.close(connector);
+
+    }
 }

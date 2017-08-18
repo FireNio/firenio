@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.authority;
 
 import com.generallycloud.baseio.common.StringUtil;
@@ -27,55 +27,57 @@ import com.generallycloud.baseio.protocol.ParametersFuture;
 
 public class AuthorityFilter extends FutureAcceptorFilter {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Override
-	protected void accept(SocketSession session, NamedFuture future) throws Exception {
-		
-		AuthorityContext authorityContext = AuthorityContext.getInstance();
+    @Override
+    protected void accept(SocketSession session, NamedFuture future) throws Exception {
 
-		AuthoritySessionAttachment attachment = authorityContext.getSessionAttachment(session);
+        AuthorityContext authorityContext = AuthorityContext.getInstance();
 
-		AuthorityManager authorityManager = attachment.getAuthorityManager();
+        AuthoritySessionAttachment attachment = authorityContext.getSessionAttachment(session);
 
-		if (authorityManager == null) {
-			
-			RoleManager roleManager = authorityContext.getRoleManager();
+        AuthorityManager authorityManager = attachment.getAuthorityManager();
 
-			authorityManager = roleManager.getAuthorityManager(Authority.GUEST);
+        if (authorityManager == null) {
 
-			attachment.setAuthorityManager(authorityManager);
-		}
-		
-		if (!authorityManager.isInvokeApproved(future.getFutureName())) {
+            RoleManager roleManager = authorityContext.getRoleManager();
 
-			future.write(RESMessage.UNAUTH.toString());
+            authorityManager = roleManager.getAuthorityManager(Authority.GUEST);
 
-			session.flush(future);
+            attachment.setAuthorityManager(authorityManager);
+        }
 
-			String futureName = future.getFutureName();
-			
-			String remoteAddr = session.getRemoteAddr();
+        if (!authorityManager.isInvokeApproved(future.getFutureName())) {
 
-			String readText = future.getReadText();
-			
-			if (!StringUtil.isNullOrBlank(readText)) {
-				logger.info("refuse connection, ip:{}, service name:{}, content: {}", new String[] { remoteAddr, futureName, readText });
-				return;
-			}
-			
-			if (future instanceof ParametersFuture) {
-				
-				Parameters parameters = ((ParametersFuture) future).getParameters();
-				
-				if (parameters.size() > 0) {
-					logger.info("refuse connection, ip:{}, service name:{}, content: {}", new String[] { remoteAddr, futureName, parameters.toString() });
-					return;
-				}
-			}
+            future.write(RESMessage.UNAUTH.toString());
 
-			logger.info("refuse connection, ip:{}, service name:{}", remoteAddr, futureName);
-		}
-	}
+            session.flush(future);
+
+            String futureName = future.getFutureName();
+
+            String remoteAddr = session.getRemoteAddr();
+
+            String readText = future.getReadText();
+
+            if (!StringUtil.isNullOrBlank(readText)) {
+                logger.info("refuse connection, ip:{}, service name:{}, content: {}",
+                        new String[] { remoteAddr, futureName, readText });
+                return;
+            }
+
+            if (future instanceof ParametersFuture) {
+
+                Parameters parameters = ((ParametersFuture) future).getParameters();
+
+                if (parameters.size() > 0) {
+                    logger.info("refuse connection, ip:{}, service name:{}, content: {}",
+                            new String[] { remoteAddr, futureName, parameters.toString() });
+                    return;
+                }
+            }
+
+            logger.info("refuse connection, ip:{}, service name:{}", remoteAddr, futureName);
+        }
+    }
 
 }

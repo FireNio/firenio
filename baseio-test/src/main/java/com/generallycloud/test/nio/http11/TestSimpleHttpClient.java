@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.http11;
 
 import com.generallycloud.baseio.codec.http11.ClientHTTPProtocolFactory;
@@ -30,33 +30,33 @@ import com.generallycloud.test.nio.common.FutureFactory;
 
 public class TestSimpleHttpClient {
 
-	public static void main(String[] args) throws Exception {
-		
-		HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
+    public static void main(String[] args) throws Exception {
 
-//		ServerConfiguration c = new ServerConfiguration("localhost",80);
+        HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
 
-		ServerConfiguration c = new ServerConfiguration("generallycloud.com",443);
-		
-		SocketChannelContext context = new NioSocketChannelContext(c);
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
+        //		ServerConfiguration c = new ServerConfiguration("localhost",80);
 
-		context.setProtocolFactory(new ClientHTTPProtocolFactory());
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        ServerConfiguration c = new ServerConfiguration("generallycloud.com", 443);
 
-		SocketSession session = connector.connect();
+        SocketChannelContext context = new NioSocketChannelContext(c);
 
-		HttpClient client = new HttpClient(session);
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		HttpFuture future = FutureFactory.createHttpReadFuture(session, "/test");
+        context.setProtocolFactory(new ClientHTTPProtocolFactory());
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.addSessionEventListener(new LoggerSocketSEListener());
 
-		HttpFuture res = client.request(future);
-		System.out.println();
-		System.out.println(new String(res.getBodyContent()));
-		System.out.println();
-		CloseUtil.close(connector);
+        SocketSession session = connector.connect();
 
-	}
+        HttpClient client = new HttpClient(session);
+
+        HttpFuture future = FutureFactory.createHttpReadFuture(session, "/test");
+
+        HttpFuture res = client.request(future);
+        System.out.println();
+        System.out.println(new String(res.getBodyContent()));
+        System.out.println();
+        CloseUtil.close(connector);
+
+    }
 }

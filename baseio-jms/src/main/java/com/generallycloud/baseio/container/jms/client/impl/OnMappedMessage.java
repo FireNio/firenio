@@ -12,15 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.client.impl;
 
 import com.generallycloud.baseio.container.jms.MapByteMessage;
 import com.generallycloud.baseio.container.jms.MapMessage;
 
 public abstract class OnMappedMessage {
-	
-	public void onReceive(MapMessage message) {}
-	public void onReceive(MapByteMessage message){}
+
+    public void onReceive(MapMessage message) {}
+
+    public void onReceive(MapByteMessage message) {}
 
 }

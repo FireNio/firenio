@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http2.future;
 
 import java.io.IOException;
@@ -28,73 +28,74 @@ import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 
 public class Http2PrefaceFuture extends AbstractChannelFuture {
 
-	private boolean	isComplete;
-	
-	private static byte [] PREFACE_BINARY = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n".getBytes(); 
-	
-	private static ByteBuf PREFACE_BUF;
-	
-	static{
-		
-		PREFACE_BUF = UnpooledByteBufAllocator.getHeapInstance().wrap(ByteBuffer.wrap(PREFACE_BINARY));
-	}
+    private boolean        isComplete;
 
-	public Http2PrefaceFuture(SocketChannelContext context,ByteBuf buf) {
-		super(context);
-		this.buf = buf;
-	}
+    private static byte[]  PREFACE_BINARY = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n".getBytes();
 
-	@Override
-	public boolean isSilent() {
-		return true;
-	}
+    private static ByteBuf PREFACE_BUF;
 
-	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
-		
-		session.setPrefaceRead(false);
+    static {
 
-		if (!isPreface(buf)) {
-			throw new IOException("not http2 preface");
-		}
-		
-		session.doFlush(new DefaultChannelFuture(context, PREFACE_BUF.duplicate()));
-	}
-	
-	private boolean isPreface(ByteBuf buf){
-		
-		if(PREFACE_BINARY.length > buf.remaining()){
-			return false;
-		}
-		
-		for (int i = 0; i < PREFACE_BINARY.length; i++) {
-			
-			if(PREFACE_BINARY[i] != buf.getByte()){
-				return false;
-			}
-		}
-		
-		return true;
-	}
+        PREFACE_BUF = UnpooledByteBufAllocator.getHeapInstance()
+                .wrap(ByteBuffer.wrap(PREFACE_BINARY));
+    }
 
-	@Override
-	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    public Http2PrefaceFuture(SocketChannelContext context, ByteBuf buf) {
+        super(context);
+        this.buf = buf;
+    }
 
-		ByteBuf buf = this.buf;
+    @Override
+    public boolean isSilent() {
+        return true;
+    }
 
-		if (!isComplete) {
+    private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
 
-			buf.read(buffer);
+        session.setPrefaceRead(false);
 
-			if (buf.hasRemaining()) {
-				return false;
-			}
-			
-			this.isComplete = true;
+        if (!isPreface(buf)) {
+            throw new IOException("not http2 preface");
+        }
 
-			doComplete((Http2SocketSession) session, buf.flip());
-		}
+        session.doFlush(new DefaultChannelFuture(context, PREFACE_BUF.duplicate()));
+    }
 
-		return true;
-	}
+    private boolean isPreface(ByteBuf buf) {
+
+        if (PREFACE_BINARY.length > buf.remaining()) {
+            return false;
+        }
+
+        for (int i = 0; i < PREFACE_BINARY.length; i++) {
+
+            if (PREFACE_BINARY[i] != buf.getByte()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+
+        ByteBuf buf = this.buf;
+
+        if (!isComplete) {
+
+            buf.read(buffer);
+
+            if (buf.hasRemaining()) {
+                return false;
+            }
+
+            this.isComplete = true;
+
+            doComplete((Http2SocketSession) session, buf.flip());
+        }
+
+        return true;
+    }
 
 }

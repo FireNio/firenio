@@ -16,30 +16,30 @@
 package com.generallycloud.baseio.component.ssl;
 
 public final class JdkAlpnApplicationProtocolNegotiator
-		extends JdkBaseApplicationProtocolNegotiator {
-	
-	private static SslEngineWrapperFactory ALPN_WRAPPER = new ALPNSslEngineWrapperFactory();
+        extends JdkBaseApplicationProtocolNegotiator {
 
-	public JdkAlpnApplicationProtocolNegotiator(Iterable<String> protocols) {
-		this(false, protocols);
-	}
+    private static SslEngineWrapperFactory ALPN_WRAPPER = new ALPNSslEngineWrapperFactory();
 
-	public JdkAlpnApplicationProtocolNegotiator(boolean failIfNoCommonProtocols,
-			Iterable<String> protocols) {
-		this(failIfNoCommonProtocols, failIfNoCommonProtocols, protocols);
-	}
+    public JdkAlpnApplicationProtocolNegotiator(Iterable<String> protocols) {
+        this(false, protocols);
+    }
 
-	public JdkAlpnApplicationProtocolNegotiator(boolean clientFailIfNoCommonProtocols,
-			boolean serverFailIfNoCommonProtocols, Iterable<String> protocols) {
-		this(serverFailIfNoCommonProtocols ? FAIL_SELECTOR_FACTORY : NO_FAIL_SELECTOR_FACTORY,
-				clientFailIfNoCommonProtocols ? FAIL_SELECTION_LISTENER_FACTORY
-						: NO_FAIL_SELECTION_LISTENER_FACTORY,
-				protocols);
-	}
+    public JdkAlpnApplicationProtocolNegotiator(boolean failIfNoCommonProtocols,
+            Iterable<String> protocols) {
+        this(failIfNoCommonProtocols, failIfNoCommonProtocols, protocols);
+    }
 
-	public JdkAlpnApplicationProtocolNegotiator(ProtocolSelectorFactory selectorFactory,
-			ProtocolSelectionListenerFactory listenerFactory, Iterable<String> protocols) {
-		super(ALPN_WRAPPER, selectorFactory, listenerFactory, protocols);
-	}
+    public JdkAlpnApplicationProtocolNegotiator(boolean clientFailIfNoCommonProtocols,
+            boolean serverFailIfNoCommonProtocols, Iterable<String> protocols) {
+        this(serverFailIfNoCommonProtocols ? FAIL_SELECTOR_FACTORY : NO_FAIL_SELECTOR_FACTORY,
+                clientFailIfNoCommonProtocols ? FAIL_SELECTION_LISTENER_FACTORY
+                        : NO_FAIL_SELECTION_LISTENER_FACTORY,
+                protocols);
+    }
+
+    public JdkAlpnApplicationProtocolNegotiator(ProtocolSelectorFactory selectorFactory,
+            ProtocolSelectionListenerFactory listenerFactory, Iterable<String> protocols) {
+        super(ALPN_WRAPPER, selectorFactory, listenerFactory, protocols);
+    }
 
 }

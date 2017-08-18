@@ -33,297 +33,299 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public abstract class AbstractSocketChannelContext extends AbstractChannelContext
-		implements SocketChannelContext {
+        implements SocketChannelContext {
 
-	private IoEventHandleAdaptor								ioEventHandleAdaptor;
-	private ProtocolFactory									protocolFactory;
-	private BeatFutureFactory								beatFutureFactory;
-	private int											sessionAttachmentSize;
-	private ExecutorEventLoopGroup							executorEventLoopGroup;
-	private ProtocolEncoder									protocolEncoder;
-	private ProtocolDecoder									protocolDecoder;
-	private SslContext										sslContext;
-	private boolean										enableSSL;
-	private boolean										initialized;
-	private ForeFutureAcceptor							foreReadFutureAcceptor;
-	private SocketSessionFactory								sessionFactory;
-	private ChannelByteBufReaderLinkGroup						channelByteBufReaderGroup	= new ChannelByteBufReaderLinkGroup();
-	private LinkableGroup<SocketSessionEventListenerWrapper>		sessionEventListenerGroup	= new LinkableGroup<>();
-	private LinkableGroup<SocketSessionIdleEventListenerWrapper>	sessionIdleEventListenerGroup	= new LinkableGroup<>();
-	private Logger											logger					= LoggerFactory.getLogger(getClass());
-	private FixedAtomicInteger								CHANNEL_IDS;
+    private IoEventHandleAdaptor                                 ioEventHandleAdaptor;
+    private ProtocolFactory                                      protocolFactory;
+    private BeatFutureFactory                                    beatFutureFactory;
+    private int                                                  sessionAttachmentSize;
+    private ExecutorEventLoopGroup                               executorEventLoopGroup;
+    private ProtocolEncoder                                      protocolEncoder;
+    private ProtocolDecoder                                      protocolDecoder;
+    private SslContext                                           sslContext;
+    private boolean                                              enableSSL;
+    private boolean                                              initialized;
+    private ForeFutureAcceptor                                   foreReadFutureAcceptor;
+    private SocketSessionFactory                                 sessionFactory;
+    private ChannelByteBufReaderLinkGroup                        channelByteBufReaderGroup     = new ChannelByteBufReaderLinkGroup();
+    private LinkableGroup<SocketSessionEventListenerWrapper>     sessionEventListenerGroup     = new LinkableGroup<>();
+    private LinkableGroup<SocketSessionIdleEventListenerWrapper> sessionIdleEventListenerGroup = new LinkableGroup<>();
+    private Logger                                               logger                        = LoggerFactory
+            .getLogger(getClass());
+    private FixedAtomicInteger                                   CHANNEL_IDS;
 
-	@Override
-	public int getSessionAttachmentSize() {
-		return sessionAttachmentSize;
-	}
+    @Override
+    public int getSessionAttachmentSize() {
+        return sessionAttachmentSize;
+    }
 
-	@Override
-	public void addSessionEventListener(SocketSessionEventListener listener) {
-		sessionEventListenerGroup.addLink(new SocketSessionEventListenerWrapper(listener));
-	}
+    @Override
+    public void addSessionEventListener(SocketSessionEventListener listener) {
+        sessionEventListenerGroup.addLink(new SocketSessionEventListenerWrapper(listener));
+    }
 
-	@Override
-	public void addSessionIdleEventListener(SocketSessionIdleEventListener listener) {
-		sessionIdleEventListenerGroup
-				.addLink(new SocketSessionIdleEventListenerWrapper(listener));
-	}
+    @Override
+    public void addSessionIdleEventListener(SocketSessionIdleEventListener listener) {
+        sessionIdleEventListenerGroup.addLink(new SocketSessionIdleEventListenerWrapper(listener));
+    }
 
-	@Override
-	public SocketSessionEventListenerWrapper getSessionEventListenerLink() {
-		return sessionEventListenerGroup.getRootLink();
-	}
+    @Override
+    public SocketSessionEventListenerWrapper getSessionEventListenerLink() {
+        return sessionEventListenerGroup.getRootLink();
+    }
 
-	@Override
-	public SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink() {
-		return sessionIdleEventListenerGroup.getRootLink();
-	}
+    @Override
+    public SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink() {
+        return sessionIdleEventListenerGroup.getRootLink();
+    }
 
-	@Override
-	public void setSessionAttachmentSize(int sessionAttachmentSize) {
-		this.sessionAttachmentSize = sessionAttachmentSize;
-	}
+    @Override
+    public void setSessionAttachmentSize(int sessionAttachmentSize) {
+        this.sessionAttachmentSize = sessionAttachmentSize;
+    }
 
-	@Override
-	public BeatFutureFactory getBeatFutureFactory() {
-		return beatFutureFactory;
-	}
+    @Override
+    public BeatFutureFactory getBeatFutureFactory() {
+        return beatFutureFactory;
+    }
 
-	@Override
-	public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
-		this.beatFutureFactory = beatFutureFactory;
-	}
+    @Override
+    public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
+        this.beatFutureFactory = beatFutureFactory;
+    }
 
-	@Override
-	public ProtocolEncoder getProtocolEncoder() {
-		return protocolEncoder;
-	}
+    @Override
+    public ProtocolEncoder getProtocolEncoder() {
+        return protocolEncoder;
+    }
 
-	public ProtocolDecoder getProtocolDecoder() {
-		return protocolDecoder;
-	}
+    @Override
+    public ProtocolDecoder getProtocolDecoder() {
+        return protocolDecoder;
+    }
 
-	public AbstractSocketChannelContext(ServerConfiguration configuration) {
-		super(configuration);
-	}
+    public AbstractSocketChannelContext(ServerConfiguration configuration) {
+        super(configuration);
+    }
 
-	@Override
-	protected void clearContext() {
-		super.clearContext();
-		createChannelIdsSequence();
-	}
-	
-	private void createChannelIdsSequence(){
-		int core_size = serverConfiguration.getSERVER_CORE_SIZE();
-		int max = (Integer.MAX_VALUE / core_size) * core_size - 1;
-		this.CHANNEL_IDS = new FixedAtomicInteger(0,max);
-	}
+    @Override
+    protected void clearContext() {
+        super.clearContext();
+        createChannelIdsSequence();
+    }
 
-	@Override
-	protected void doStart() throws Exception {
+    private void createChannelIdsSequence() {
+        int core_size = serverConfiguration.getSERVER_CORE_SIZE();
+        int max = (Integer.MAX_VALUE / core_size) * core_size - 1;
+        this.CHANNEL_IDS = new FixedAtomicInteger(0, max);
+    }
 
-		if (ioEventHandleAdaptor == null) {
-			throw new IllegalArgumentException("null ioEventHandle");
-		}
+    @Override
+    protected void doStart() throws Exception {
 
-		if (protocolFactory == null) {
-			throw new IllegalArgumentException("null protocolFactory");
-		}
+        if (ioEventHandleAdaptor == null) {
+            throw new IllegalArgumentException("null ioEventHandle");
+        }
 
-		if (!initialized) {
-			initialized = true;
-			serverConfiguration.initializeDefault(this);
-		}
-		
-		createChannelIdsSequence();
+        if (protocolFactory == null) {
+            throw new IllegalArgumentException("null protocolFactory");
+        }
 
-		EmptyFuture.initializeReadFuture(this);
+        if (!initialized) {
+            initialized = true;
+            serverConfiguration.initializeDefault(this);
+        }
 
-		if (isEnableSSL()) {
-//			this.sslContext.initialize(this);
-		}
+        createChannelIdsSequence();
 
-		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
-		int server_port = serverConfiguration.getSERVER_PORT();
-		long session_idle = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
-		String protocolId = protocolFactory.getProtocolId();
+        EmptyFuture.initializeReadFuture(this);
 
-		this.encoding = serverConfiguration.getSERVER_ENCODING();
-		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
+        if (isEnableSSL()) {
+            //			this.sslContext.initialize(this);
+        }
 
-		if (protocolEncoder == null) {
-			this.protocolEncoder = protocolFactory.getProtocolEncoder();
-			this.protocolDecoder = protocolFactory.getProtocolDecoder();
-		}
+        int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
+        int server_port = serverConfiguration.getSERVER_PORT();
+        long session_idle = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
+        String protocolId = protocolFactory.getProtocolId();
 
-		this.initializeByteBufAllocator();
+        this.encoding = serverConfiguration.getSERVER_ENCODING();
+        this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 
-		LoggerUtil.prettyLog(logger,
-				"======================================= service begin to start =======================================");
-		LoggerUtil.prettyLog(logger, "encoding              :{ {} }", encoding);
-		LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
-		LoggerUtil.prettyLog(logger, "cpu size              :{ cpu * {} }",SERVER_CORE_SIZE);
-		LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSSL());
-		LoggerUtil.prettyLog(logger, "session idle          :{ {} }", session_idle);
-		LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", server_port);
+        if (protocolEncoder == null) {
+            this.protocolEncoder = protocolFactory.getProtocolEncoder();
+            this.protocolDecoder = protocolFactory.getProtocolDecoder();
+        }
 
-		if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
+        this.initializeByteBufAllocator();
 
-			long SERVER_MEMORY_POOL_CAPACITY = serverConfiguration
-					.getSERVER_MEMORY_POOL_CAPACITY() * SERVER_CORE_SIZE;
-			long SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
+        LoggerUtil.prettyLog(logger,
+                "======================================= service begin to start =======================================");
+        LoggerUtil.prettyLog(logger, "encoding              :{ {} }", encoding);
+        LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
+        LoggerUtil.prettyLog(logger, "cpu size              :{ cpu * {} }", SERVER_CORE_SIZE);
+        LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSSL());
+        LoggerUtil.prettyLog(logger, "session idle          :{ {} }", session_idle);
+        LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", server_port);
 
-			double MEMORY_POOL_SIZE = new BigDecimal(
-					SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
-							.divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
-							.doubleValue();
+        if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
 
-			LoggerUtil.prettyLog(logger, "memory pool cap       :{ {} * {} ≈ {} M }",
-					new Object[] { SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY,
-							MEMORY_POOL_SIZE });
-		}
+            long SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY()
+                    * SERVER_CORE_SIZE;
+            long SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
 
-		ioEventHandleAdaptor.initialize(this);
+            double MEMORY_POOL_SIZE = new BigDecimal(
+                    SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
+                            .divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
+                            .doubleValue();
 
-		if (executorEventLoopGroup == null) {
+            LoggerUtil.prettyLog(logger, "memory pool cap       :{ {} * {} ≈ {} M }", new Object[] {
+                    SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
+        }
 
-			int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
+        ioEventHandleAdaptor.initialize(this);
 
-			if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
-				this.executorEventLoopGroup = new ThreadEventLoopGroup(this,"event-process",eventLoopSize);
-			} else {
-				this.executorEventLoopGroup = new LineEventLoopGroup("event-process", eventLoopSize);
-			}
-		}
+        if (executorEventLoopGroup == null) {
 
-		if (foreReadFutureAcceptor == null) {
-			foreReadFutureAcceptor = new EventLoopFutureAcceptor();
-		}
-		
-		foreReadFutureAcceptor.initialize(this);
+            int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
 
-		if (channelByteBufReaderGroup.getRootLink() == null) {
-			
-			channelByteBufReaderGroup.addLink(new IoLimitChannelByteBufReader());
+            if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
+                this.executorEventLoopGroup = new ThreadEventLoopGroup(this, "event-process",
+                        eventLoopSize);
+            } else {
+                this.executorEventLoopGroup = new LineEventLoopGroup("event-process",
+                        eventLoopSize);
+            }
+        }
 
-			if (enableSSL) {
-				channelByteBufReaderGroup.addLink(new SslChannelByteBufReader());
-			}
-			
-			channelByteBufReaderGroup.addLink(new TransparentByteBufReader(this));
-		}
+        if (foreReadFutureAcceptor == null) {
+            foreReadFutureAcceptor = new EventLoopFutureAcceptor();
+        }
 
-		if (sessionFactory == null) {
-			sessionFactory = new SocketSessionFactoryImpl();
-		}
+        foreReadFutureAcceptor.initialize(this);
 
-		LifeCycleUtil.start(byteBufAllocatorManager);
+        if (channelByteBufReaderGroup.getRootLink() == null) {
 
-		LifeCycleUtil.start(executorEventLoopGroup);
+            channelByteBufReaderGroup.addLink(new IoLimitChannelByteBufReader());
 
-		doStartModule();
-	}
+            if (enableSSL) {
+                channelByteBufReaderGroup.addLink(new SslChannelByteBufReader());
+            }
 
-	protected void doStartModule() throws Exception {
+            channelByteBufReaderGroup.addLink(new TransparentByteBufReader(this));
+        }
 
-	}
+        if (sessionFactory == null) {
+            sessionFactory = new SocketSessionFactoryImpl();
+        }
 
-	protected void doStopModule() {
+        LifeCycleUtil.start(byteBufAllocatorManager);
 
-	}
+        LifeCycleUtil.start(executorEventLoopGroup);
 
-	@Override
-	protected void doStop() throws Exception {
+        doStartModule();
+    }
 
-		LifeCycleUtil.stop(executorEventLoopGroup);
+    protected void doStartModule() throws Exception {
 
-		try {
-			ioEventHandleAdaptor.destroy(this);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
+    }
 
-		LifeCycleUtil.stop(byteBufAllocatorManager);
+    protected void doStopModule() {
 
-		clearContext();
+    }
 
-		doStopModule();
-	}
+    @Override
+    protected void doStop() throws Exception {
 
-	@Override
-	public ProtocolFactory getProtocolFactory() {
-		return protocolFactory;
-	}
+        LifeCycleUtil.stop(executorEventLoopGroup);
 
-	@Override
-	public IoEventHandleAdaptor getIoEventHandleAdaptor() {
-		return ioEventHandleAdaptor;
-	}
+        try {
+            ioEventHandleAdaptor.destroy(this);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
 
-	@Override
-	public ExecutorEventLoopGroup getExecutorEventLoopGroup() {
-		return executorEventLoopGroup;
-	}
+        LifeCycleUtil.stop(byteBufAllocatorManager);
 
-	@Override
-	public void setIoEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor) {
-		this.ioEventHandleAdaptor = ioEventHandleAdaptor;
-	}
+        clearContext();
 
-	@Override
-	public void setProtocolFactory(ProtocolFactory protocolFactory) {
-		this.protocolFactory = protocolFactory;
-	}
+        doStopModule();
+    }
 
-	@Override
-	public void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup) {
-		this.executorEventLoopGroup = executorEventLoopGroup;
-	}
+    @Override
+    public ProtocolFactory getProtocolFactory() {
+        return protocolFactory;
+    }
 
-	@Override
-	public SslContext getSslContext() {
-		return sslContext;
-	}
+    @Override
+    public IoEventHandleAdaptor getIoEventHandleAdaptor() {
+        return ioEventHandleAdaptor;
+    }
 
-	@Override
-	public void setSslContext(SslContext sslContext) {
-		if (sslContext == null) {
-			throw new IllegalArgumentException("null sslContext");
-		}
-		this.sslContext = sslContext;
-		this.enableSSL = true;
-	}
+    @Override
+    public ExecutorEventLoopGroup getExecutorEventLoopGroup() {
+        return executorEventLoopGroup;
+    }
 
-	@Override
-	public boolean isEnableSSL() {
-		return enableSSL;
-	}
+    @Override
+    public void setIoEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor) {
+        this.ioEventHandleAdaptor = ioEventHandleAdaptor;
+    }
 
-	@Override
-	public SocketSessionFactory getSessionFactory() {
-		return sessionFactory;
-	}
+    @Override
+    public void setProtocolFactory(ProtocolFactory protocolFactory) {
+        this.protocolFactory = protocolFactory;
+    }
 
-	@Override
-	public void setSocketSessionFactory(SocketSessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+    @Override
+    public void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup) {
+        this.executorEventLoopGroup = executorEventLoopGroup;
+    }
 
-	@Override
-	public ChannelByteBufReader getChannelByteBufReader() {
-		return channelByteBufReaderGroup.getRootLink();
-	}
+    @Override
+    public SslContext getSslContext() {
+        return sslContext;
+    }
 
-	@Override
-	public ForeFutureAcceptor getForeReadFutureAcceptor() {
-		return foreReadFutureAcceptor;
-	}
-	
-	/**
-	 * @return the cHANNEL_IDS
-	 */
-	public FixedAtomicInteger getCHANNEL_IDS() {
-		return CHANNEL_IDS;
-	}
+    @Override
+    public void setSslContext(SslContext sslContext) {
+        if (sslContext == null) {
+            throw new IllegalArgumentException("null sslContext");
+        }
+        this.sslContext = sslContext;
+        this.enableSSL = true;
+    }
+
+    @Override
+    public boolean isEnableSSL() {
+        return enableSSL;
+    }
+
+    @Override
+    public SocketSessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+
+    @Override
+    public void setSocketSessionFactory(SocketSessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    @Override
+    public ChannelByteBufReader getChannelByteBufReader() {
+        return channelByteBufReaderGroup.getRootLink();
+    }
+
+    @Override
+    public ForeFutureAcceptor getForeReadFutureAcceptor() {
+        return foreReadFutureAcceptor;
+    }
+
+    /**
+     * @return the cHANNEL_IDS
+     */
+    public FixedAtomicInteger getCHANNEL_IDS() {
+        return CHANNEL_IDS;
+    }
 
 }

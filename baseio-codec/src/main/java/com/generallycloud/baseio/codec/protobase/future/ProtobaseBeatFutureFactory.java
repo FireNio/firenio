@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.protobase.future;
 
 import com.generallycloud.baseio.component.BeatFutureFactory;
@@ -21,14 +21,14 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class ProtobaseBeatFutureFactory implements BeatFutureFactory {
 
-	@Override
-	public Future createPINGPacket(SocketSession session) {
-		return new ProtobaseFutureImpl(session.getContext()).setPING();
-	}
+    @Override
+    public Future createPINGPacket(SocketSession session) {
+        return new ProtobaseFutureImpl(session.getContext()).setPING();
+    }
 
-	@Override
-	public Future createPONGPacket(SocketSession session) {
-		return new ProtobaseFutureImpl(session.getContext()).setPONG();
-	}
+    @Override
+    public Future createPONGPacket(SocketSession session) {
+        return new ProtobaseFutureImpl(session.getContext()).setPONG();
+    }
 
 }

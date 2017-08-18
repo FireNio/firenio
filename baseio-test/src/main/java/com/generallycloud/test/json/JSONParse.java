@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.json;
 
 import java.util.List;
@@ -25,67 +25,68 @@ import com.generallycloud.test.test.ITestHandle;
 
 public class JSONParse {
 
-	private static final Logger logger = LoggerFactory.getLogger(JSONParse.class);
-	
-	public static void main(String[] args) throws JSONSyntaxException {
+    private static final Logger logger = LoggerFactory.getLogger(JSONParse.class);
 
-		String text = "{\"a\":\"sss\",\"b\":true,\"c\": false ,\"1     d\":-3.6  ,\"e\":{\"a\":[true,false,1.]},\"f\":{\"a\":\"xx\"}}";
-		System.out.println(JSON.stringToMap(text));
-		System.out.println(com.alibaba.fastjson.JSON.parseObject(text));
-		// System.out.println(text);
-		// System.out.println(JSON.stringToMap(text));
-		text = "[null,\"a\",-1.6,true,false,[1,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":-3.6,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[1,true,{\"a\":\"aa\"}]}}]]]";
-		text = "[   null    ,   {  a   :   \"a\"   ,   b   :   1.   }   ,   1   ]";
-		System.out.println(JSON.stringToArray(text));
-//		testFastJson();
-//		testJackson();
-		testMyJson();
-		System.out.println("1\f11");
-		
-	}
+    public static void main(String[] args) throws JSONSyntaxException {
 
-	static void testFastJson() {
-		ITestHandle.doTest(new ITest() {
+        String text = "{\"a\":\"sss\",\"b\":true,\"c\": false ,\"1     d\":-3.6  ,\"e\":{\"a\":[true,false,1.]},\"f\":{\"a\":\"xx\"}}";
+        System.out.println(JSON.stringToMap(text));
+        System.out.println(com.alibaba.fastjson.JSON.parseObject(text));
+        // System.out.println(text);
+        // System.out.println(JSON.stringToMap(text));
+        text = "[null,\"a\",-1.6,true,false,[1,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":-3.6,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[1,true,{\"a\":\"aa\"}]}}]]]";
+        text = "[   null    ,   {  a   :   \"a\"   ,   b   :   1.   }   ,   1   ]";
+        System.out.println(JSON.stringToArray(text));
+        //		testFastJson();
+        //		testJackson();
+        testMyJson();
+        System.out.println("1\f11");
 
-			@Override
-			public void test(int i) {
-				com.alibaba.fastjson.JSON
-						.parseArray("[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
-			}
+    }
 
-		}, 1500000, "Fast Json");
-	}
+    static void testFastJson() {
+        ITestHandle.doTest(new ITest() {
 
-	static void testMyJson() {
-		ITestHandle.doTest(new ITest() {
-			@Override
-			public void test(int i) {
-				try {
-					JSON.stringToArray("[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
-				} catch (JSONSyntaxException e) {
-					logger.debug(e);
-				}
-			}
-		}, 1500000, "My Json");
-	}
-	
-	
-	
-	static void testJackson() {
-		
-		//Object mapper instance
-		ObjectMapper mapper = new ObjectMapper();
-		
-		ITestHandle.doTest(new ITest() {
-			@Override
-			public void test(int i) {
-				try {
-					mapper.readValue("[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]", List.class);
-				} catch (Exception e) {
-					logger.debug(e);
-				}
-			}
-		}, 1500000, "Jackson");
-	}
+            @Override
+            public void test(int i) {
+                com.alibaba.fastjson.JSON.parseArray(
+                        "[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
+            }
+
+        }, 1500000, "Fast Json");
+    }
+
+    static void testMyJson() {
+        ITestHandle.doTest(new ITest() {
+            @Override
+            public void test(int i) {
+                try {
+                    JSON.stringToArray(
+                            "[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
+                } catch (JSONSyntaxException e) {
+                    logger.debug(e);
+                }
+            }
+        }, 1500000, "My Json");
+    }
+
+    static void testJackson() {
+
+        //Object mapper instance
+        ObjectMapper mapper = new ObjectMapper();
+
+        ITestHandle.doTest(new ITest() {
+            @Override
+            public void test(int i) {
+                try {
+                    mapper.readValue(
+                            "[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]",
+                            List.class);
+                } catch (Exception e) {
+                    logger.debug(e);
+                }
+            }
+        }, 1500000, "Jackson");
+    }
 
 }

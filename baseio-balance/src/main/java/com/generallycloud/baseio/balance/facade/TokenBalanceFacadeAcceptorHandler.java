@@ -23,25 +23,26 @@ import com.generallycloud.baseio.protocol.Future;
 
 public abstract class TokenBalanceFacadeAcceptorHandler extends BalanceFacadeAcceptorHandler {
 
-	public TokenBalanceFacadeAcceptorHandler(BalanceContext context) {
-		super(context);
-	}
+    public TokenBalanceFacadeAcceptorHandler(BalanceContext context) {
+        super(context);
+    }
 
-	protected void doAccept(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
-			,BalanceFuture future){
-		
-		TokenBalanceFuture f = (TokenBalanceFuture) future;
-		
-		if (f.getToken() == 0) {
-			fs.flush(createTokenPacket(fs));
-			return;
-		}
+    @Override
+    protected void doAccept(BalanceFacadeSocketSession fs, BalanceReverseSocketSession rs,
+            BalanceFuture future) {
 
-		rs.flush(f.translate());
-		
-		logDispatchMsg(fs, rs, f);
-	}
-	
-	protected abstract Future createTokenPacket(BalanceFacadeSocketSession session);
+        TokenBalanceFuture f = (TokenBalanceFuture) future;
+
+        if (f.getToken() == 0) {
+            fs.flush(createTokenPacket(fs));
+            return;
+        }
+
+        rs.flush(f.translate());
+
+        logDispatchMsg(fs, rs, f);
+    }
+
+    protected abstract Future createTokenPacket(BalanceFacadeSocketSession session);
 
 }

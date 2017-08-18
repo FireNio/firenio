@@ -26,129 +26,129 @@ import javax.security.cert.X509Certificate;
 
 final class JdkSslSession implements SSLSession {
 
-	private int		packetBufferSize;
-	private String		applicationProtocol;
-	private SSLSession	sslSession;
+    private int        packetBufferSize;
+    private String     applicationProtocol;
+    private SSLSession sslSession;
 
-	JdkSslSession(SSLSession	sslSession) {
-		this.sslSession = sslSession;
-		this.packetBufferSize = sslSession.getPacketBufferSize();
-	}
+    JdkSslSession(SSLSession sslSession) {
+        this.sslSession = sslSession;
+        this.packetBufferSize = sslSession.getPacketBufferSize();
+    }
 
-	private SSLSession unwrap() {
-		return sslSession;
-	}
+    private SSLSession unwrap() {
+        return sslSession;
+    }
 
-	@Override
-	public String getProtocol() {
-		return unwrap().getProtocol();
-	}
+    @Override
+    public String getProtocol() {
+        return unwrap().getProtocol();
+    }
 
-	public String getApplicationProtocol() {
-		return applicationProtocol;
-	}
+    public String getApplicationProtocol() {
+        return applicationProtocol;
+    }
 
-	protected void setApplicationProtocol(String applicationProtocol) {
-		this.applicationProtocol = applicationProtocol;
-	}
+    protected void setApplicationProtocol(String applicationProtocol) {
+        this.applicationProtocol = applicationProtocol;
+    }
 
-	@Override
-	public byte[] getId() {
-		return unwrap().getId();
-	}
+    @Override
+    public byte[] getId() {
+        return unwrap().getId();
+    }
 
-	@Override
-	public SSLSessionContext getSessionContext() {
-		return unwrap().getSessionContext();
-	}
+    @Override
+    public SSLSessionContext getSessionContext() {
+        return unwrap().getSessionContext();
+    }
 
-	@Override
-	public long getCreationTime() {
-		return unwrap().getCreationTime();
-	}
+    @Override
+    public long getCreationTime() {
+        return unwrap().getCreationTime();
+    }
 
-	@Override
-	public long getLastAccessedTime() {
-		return unwrap().getLastAccessedTime();
-	}
+    @Override
+    public long getLastAccessedTime() {
+        return unwrap().getLastAccessedTime();
+    }
 
-	@Override
-	public void invalidate() {
-		unwrap().invalidate();
-	}
+    @Override
+    public void invalidate() {
+        unwrap().invalidate();
+    }
 
-	@Override
-	public boolean isValid() {
-		return unwrap().isValid();
-	}
+    @Override
+    public boolean isValid() {
+        return unwrap().isValid();
+    }
 
-	@Override
-	public void putValue(String s, Object o) {
-		unwrap().putValue(s, o);
-	}
+    @Override
+    public void putValue(String s, Object o) {
+        unwrap().putValue(s, o);
+    }
 
-	@Override
-	public Object getValue(String s) {
-		return unwrap().getValue(s);
-	}
+    @Override
+    public Object getValue(String s) {
+        return unwrap().getValue(s);
+    }
 
-	@Override
-	public void removeValue(String s) {
-		unwrap().removeValue(s);
-	}
+    @Override
+    public void removeValue(String s) {
+        unwrap().removeValue(s);
+    }
 
-	@Override
-	public String[] getValueNames() {
-		return unwrap().getValueNames();
-	}
+    @Override
+    public String[] getValueNames() {
+        return unwrap().getValueNames();
+    }
 
-	@Override
-	public Certificate[] getPeerCertificates() throws SSLPeerUnverifiedException {
-		return unwrap().getPeerCertificates();
-	}
+    @Override
+    public Certificate[] getPeerCertificates() throws SSLPeerUnverifiedException {
+        return unwrap().getPeerCertificates();
+    }
 
-	@Override
-	public Certificate[] getLocalCertificates() {
-		return unwrap().getLocalCertificates();
-	}
+    @Override
+    public Certificate[] getLocalCertificates() {
+        return unwrap().getLocalCertificates();
+    }
 
-	@Override
-	public X509Certificate[] getPeerCertificateChain() throws SSLPeerUnverifiedException {
-		return unwrap().getPeerCertificateChain();
-	}
+    @Override
+    public X509Certificate[] getPeerCertificateChain() throws SSLPeerUnverifiedException {
+        return unwrap().getPeerCertificateChain();
+    }
 
-	@Override
-	public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
-		return unwrap().getPeerPrincipal();
-	}
+    @Override
+    public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
+        return unwrap().getPeerPrincipal();
+    }
 
-	@Override
-	public Principal getLocalPrincipal() {
-		return unwrap().getLocalPrincipal();
-	}
+    @Override
+    public Principal getLocalPrincipal() {
+        return unwrap().getLocalPrincipal();
+    }
 
-	@Override
-	public String getCipherSuite() {
-		return unwrap().getCipherSuite();
-	}
+    @Override
+    public String getCipherSuite() {
+        return unwrap().getCipherSuite();
+    }
 
-	@Override
-	public String getPeerHost() {
-		return unwrap().getPeerHost();
-	}
+    @Override
+    public String getPeerHost() {
+        return unwrap().getPeerHost();
+    }
 
-	@Override
-	public int getPeerPort() {
-		return unwrap().getPeerPort();
-	}
+    @Override
+    public int getPeerPort() {
+        return unwrap().getPeerPort();
+    }
 
-	@Override
-	public int getPacketBufferSize() {
-		return packetBufferSize;
-	}
+    @Override
+    public int getPacketBufferSize() {
+        return packetBufferSize;
+    }
 
-	@Override
-	public int getApplicationBufferSize() {
-		return getPacketBufferSize();
-	}
+    @Override
+    public int getApplicationBufferSize() {
+        return getPacketBufferSize();
+    }
 }

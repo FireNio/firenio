@@ -17,13 +17,13 @@ package com.generallycloud.baseio.concurrent;
 
 public class LineEventLoopGroup extends AbstractExecutorEventLoopGroup {
 
-	public LineEventLoopGroup(String eventLoopName, int eventLoopSize) {
-		super(eventLoopName, eventLoopSize);
-	}
+    public LineEventLoopGroup(String eventLoopName, int eventLoopSize) {
+        super(eventLoopName, eventLoopSize);
+    }
 
-	@Override
-	protected ExecutorEventLoop newEventLoop(int coreIndex) {
-		return new LineEventLoop();
-	}
+    @Override
+    protected ExecutorEventLoop newEventLoop(int coreIndex) {
+        return new LineEventLoop();
+    }
 
 }

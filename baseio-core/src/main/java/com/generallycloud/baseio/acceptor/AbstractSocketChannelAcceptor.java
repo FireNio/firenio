@@ -28,65 +28,66 @@ import com.generallycloud.baseio.component.SocketSessionManager;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
-import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 /**
  * @author wangkai
  */
 public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAcceptor {
 
-	private Logger				logger	= LoggerFactory.getLogger(getClass());
+    private Logger               logger = LoggerFactory.getLogger(getClass());
 
-	private SocketChannelContext	context;
-	
-	private SocketSessionManager socketSessionManager;
+    private SocketChannelContext context;
 
-	AbstractSocketChannelAcceptor(SocketChannelContext context) {
-		this.context = context;
-		this.socketSessionManager = context.getSessionManager();
-	}
+    private SocketSessionManager socketSessionManager;
 
-	@Override
-	public SocketChannelContext getContext() {
-		return context;
-	}
+    AbstractSocketChannelAcceptor(SocketChannelContext context) {
+        this.context = context;
+        this.socketSessionManager = context.getSessionManager();
+    }
 
-	@Override
-	public void broadcast(Future future) {
-		ChannelFuture f = (ChannelFuture) future;
-		ProtocolEncoder encoder = context.getProtocolEncoder();
-		ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeapInstance();
-		try {
-			encoder.encode(allocator, f);
-		} catch (Throwable e) {
-			ReleaseUtil.release(future);
-			logger.error(e.getMessage(), e);
-			return;
-		}
-		broadcastChannelFuture(f);
-	}
-	
-	@Override
-	public void broadcastChannelFuture(final ChannelFuture future) {
-		socketSessionManager.offerSessionMEvent(new SocketSessionManagerEvent() {
-			@Override
-			public void fire(SocketChannelContext context, IntObjectHashMap<SocketSession> sessions) {
-				if (sessions.isEmpty()) {
-					ReleaseUtil.release(future);
-					return;
-				}
-				Collection<SocketSession> ss = sessions.values();
-				for (SocketSession s : ss) {
-					s.doFlush(future.duplicate());
-				}
-				ReleaseUtil.release(future);
-			}
-		});
-	}
+    @Override
+    public SocketChannelContext getContext() {
+        return context;
+    }
 
-	@Override
-	public int getManagedSessionSize() {
-		return socketSessionManager.getManagedSessionSize();
-	}
+    @Override
+    public void broadcast(Future future) {
+        ChannelFuture f = (ChannelFuture) future;
+        ProtocolEncoder encoder = context.getProtocolEncoder();
+        ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeapInstance();
+        try {
+            encoder.encode(allocator, f);
+        } catch (Throwable e) {
+            ReleaseUtil.release(future);
+            logger.error(e.getMessage(), e);
+            return;
+        }
+        broadcastChannelFuture(f);
+    }
+
+    @Override
+    public void broadcastChannelFuture(final ChannelFuture future) {
+        socketSessionManager.offerSessionMEvent(new SocketSessionManagerEvent() {
+            @Override
+            public void fire(SocketChannelContext context,
+                    IntObjectHashMap<SocketSession> sessions) {
+                if (sessions.isEmpty()) {
+                    ReleaseUtil.release(future);
+                    return;
+                }
+                Collection<SocketSession> ss = sessions.values();
+                for (SocketSession s : ss) {
+                    s.doFlush(future.duplicate());
+                }
+                ReleaseUtil.release(future);
+            }
+        });
+    }
+
+    @Override
+    public int getManagedSessionSize() {
+        return socketSessionManager.getManagedSessionSize();
+    }
 }

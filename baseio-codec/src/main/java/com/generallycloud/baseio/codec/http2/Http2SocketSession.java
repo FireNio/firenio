@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http2;
 
 import com.generallycloud.baseio.codec.http2.hpack.Http2Headers;
@@ -20,16 +20,16 @@ import com.generallycloud.baseio.component.SocketSession;
 
 public interface Http2SocketSession extends SocketSession {
 
-	public abstract long getSettings(int i);
+    public abstract long getSettings(int i);
 
-	public abstract long[] getSettings();
+    public abstract long[] getSettings();
 
-	public abstract void setSettings(int key, long value);
+    public abstract void setSettings(int key, long value);
 
-	public abstract boolean isPrefaceRead();
-	
-	public abstract Http2Headers getHttp2Headers();
+    public abstract boolean isPrefaceRead();
 
-	public abstract void setPrefaceRead(boolean prefaceRead);
+    public abstract Http2Headers getHttp2Headers();
+
+    public abstract void setPrefaceRead(boolean prefaceRead);
 
 }

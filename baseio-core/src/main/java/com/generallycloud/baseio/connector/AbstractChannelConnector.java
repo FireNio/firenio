@@ -24,82 +24,83 @@ import com.generallycloud.baseio.component.AbstractChannelService;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelConnector extends AbstractChannelService
-		implements ChannelConnector {
+        implements ChannelConnector {
 
-	protected long timeout = 3000;
-	
-	@Override
-	public synchronized void close() throws IOException {
-		if (canSafeClose()) {
-			close0();
-			if (isActive()) {
-				ThreadUtil.wait(this);
-			}
-		}else{
-			ThreadUtil.execute(new Runnable() {
-				@Override
-				public void run() {
-					close0();
-				}
-			});
-		}
-	}
+    protected long timeout = 3000;
 
-	protected void physicalClose(){
-		if (canSafeClose()) {
-			destroy();
-		}else{
-			ThreadUtil.execute(new Runnable() {
-				@Override
-				public void run() {
-					destroy();
-				}
-			});
-		}
-	}
+    @Override
+    public synchronized void close() throws IOException {
+        if (canSafeClose()) {
+            close0();
+            if (isActive()) {
+                ThreadUtil.wait(this);
+            }
+        } else {
+            ThreadUtil.execute(new Runnable() {
+                @Override
+                public void run() {
+                    close0();
+                }
+            });
+        }
+    }
 
-	private void close0() {
-		if (getSession() == null) {
-			physicalClose();
-		}else{
-			CloseUtil.close(getSession());
-		}
-	}
+    protected void physicalClose() {
+        if (canSafeClose()) {
+            destroy();
+        } else {
+            ThreadUtil.execute(new Runnable() {
+                @Override
+                public void run() {
+                    destroy();
+                }
+            });
+        }
+    }
 
-	protected abstract boolean canSafeClose();
+    private void close0() {
+        if (getSession() == null) {
+            physicalClose();
+        } else {
+            CloseUtil.close(getSession());
+        }
+    }
 
-	protected void initService(ServerConfiguration configuration) throws IOException {
-		String SERVER_HOST = configuration.getSERVER_HOST();
-		int SERVER_PORT = configuration.getSERVER_PORT();
-		this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
-		this.connect(getServerSocketAddress());
-	}
+    protected abstract boolean canSafeClose();
 
-	protected abstract void connect(InetSocketAddress socketAddress) throws IOException;
+    @Override
+    protected void initService(ServerConfiguration configuration) throws IOException {
+        String SERVER_HOST = configuration.getSERVER_HOST();
+        int SERVER_PORT = configuration.getSERVER_PORT();
+        this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
+        this.connect(getServerSocketAddress());
+    }
 
-	@Override
-	public boolean isConnected() {
-		return getSession() != null && getSession().isOpened();
-	}
+    protected abstract void connect(InetSocketAddress socketAddress) throws IOException;
 
-	@Override
-	public boolean isActive() {
-		return isConnected();
-	}
+    @Override
+    public boolean isConnected() {
+        return getSession() != null && getSession().isOpened();
+    }
 
-	@Override
-	public long getTimeout() {
-		return timeout;
-	}
+    @Override
+    public boolean isActive() {
+        return isConnected();
+    }
 
-	@Override
-	public void setTimeout(long timeout) {
-		this.timeout = timeout;
-	}
+    @Override
+    public long getTimeout() {
+        return timeout;
+    }
 
-	@Override
-	protected void setServerCoreSize(ServerConfiguration configuration) {
-		configuration.setSERVER_CORE_SIZE(1);
-	}
+    @Override
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }
+
+    @Override
+    protected void setServerCoreSize(ServerConfiguration configuration) {
+        configuration.setSERVER_CORE_SIZE(1);
+    }
 
 }

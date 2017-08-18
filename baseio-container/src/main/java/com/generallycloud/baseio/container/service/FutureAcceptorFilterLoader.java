@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.service;
 
 import java.io.IOException;
@@ -33,133 +33,137 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class FutureAcceptorFilterLoader extends AbstractLifeCycle implements LifeCycle {
 
-	private Logger						logger		= LoggerFactory.getLogger(FutureAcceptorFilterLoader.class);
-	private FutureAcceptorFilterWrapper	rootFilter	;
-	private ApplicationContext			context		;
-	private FiltersConfiguration			configuration	;
-	private FutureAcceptorServiceFilter	serviceFilter	;
+    private Logger                      logger = LoggerFactory
+            .getLogger(FutureAcceptorFilterLoader.class);
+    private FutureAcceptorFilterWrapper rootFilter;
+    private ApplicationContext          context;
+    private FiltersConfiguration        configuration;
+    private FutureAcceptorServiceFilter serviceFilter;
 
-	public FutureAcceptorFilterLoader(ApplicationContext context, FutureAcceptorServiceFilter	serviceFilter) {
-		this.configuration = context.getConfiguration().getFiltersConfiguration();
-		this.context = context;
-		this.serviceFilter = serviceFilter;
-	}
+    public FutureAcceptorFilterLoader(ApplicationContext context,
+            FutureAcceptorServiceFilter serviceFilter) {
+        this.configuration = context.getConfiguration().getFiltersConfiguration();
+        this.context = context;
+        this.serviceFilter = serviceFilter;
+    }
 
-	public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
-		return serviceFilter.getFutureAcceptorServiceLoader();
-	}
+    public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
+        return serviceFilter.getFutureAcceptorServiceLoader();
+    }
 
-	private FutureAcceptorFilterWrapper loadFilters(ApplicationContext context, DynamicClassLoader classLoader)
-			throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+    private FutureAcceptorFilterWrapper loadFilters(ApplicationContext context,
+            DynamicClassLoader classLoader) throws IOException, InstantiationException,
+            IllegalAccessException, ClassNotFoundException {
 
-		List<Configuration> filterConfigurations = configuration.getFilters();
+        List<Configuration> filterConfigurations = configuration.getFilters();
 
-		List<FutureAcceptorFilter> filters = new ArrayList<FutureAcceptorFilter>();
-		
-		filters.add(serviceFilter);
-		
-		if (filterConfigurations == null || filterConfigurations.isEmpty()) {
-			LoggerUtil.prettyLog(logger, "did not found filter config");
-			filterConfigurations = new ArrayList<Configuration>();
-		}
+        List<FutureAcceptorFilter> filters = new ArrayList<>();
 
-		FutureAcceptorFilterWrapper rootFilter = null;
+        filters.add(serviceFilter);
 
-		FutureAcceptorFilterWrapper last = null;
+        if (filterConfigurations == null || filterConfigurations.isEmpty()) {
+            LoggerUtil.prettyLog(logger, "did not found filter config");
+            filterConfigurations = new ArrayList<>();
+        }
 
-		for (int i = 0; i < filterConfigurations.size(); i++) {
+        FutureAcceptorFilterWrapper rootFilter = null;
 
-			Configuration filterConfig = filterConfigurations.get(i);
+        FutureAcceptorFilterWrapper last = null;
 
-			String clazzName = filterConfig.getParameter("class", "empty");
+        for (int i = 0; i < filterConfigurations.size(); i++) {
 
-			FutureAcceptorFilter filter = (FutureAcceptorFilter) classLoader.loadClass(clazzName).newInstance();
+            Configuration filterConfig = filterConfigurations.get(i);
 
-			filter.setConfig(filterConfig);
-			
-			int sortIndex = filterConfig.getIntegerParameter("sortIndex",999);
-			
-			filter.setSortIndex(sortIndex);
+            String clazzName = filterConfig.getParameter("class", "empty");
 
-			filters.add(filter);
-		}
+            FutureAcceptorFilter filter = (FutureAcceptorFilter) classLoader.loadClass(clazzName)
+                    .newInstance();
 
-		filters.addAll(context.getPluginFilters());
-		
-		Collections.sort(filters,new Comparator<FutureAcceptorFilter>() {
+            filter.setConfig(filterConfig);
 
-			@Override
-			public int compare(FutureAcceptorFilter o1, FutureAcceptorFilter o2) {
-				
-				int i1 = o1.getSortIndex();
-				int i2 = o2.getSortIndex();
-				
-				if (i1 == i2) {
-					return 0;
-				}
-				
-				return i1 > i2 ? 1 : -1;
-			}
-		});
+            int sortIndex = filterConfig.getIntegerParameter("sortIndex", 999);
 
-		for (int i = 0; i < filters.size(); i++) {
+            filter.setSortIndex(sortIndex);
 
-			FutureAcceptorFilter filter = filters.get(i);
+            filters.add(filter);
+        }
 
-			FutureAcceptorFilterWrapper _filter = new FutureAcceptorFilterWrapper(context, filter,
-					filter.getConfig());
+        filters.addAll(context.getPluginFilters());
 
-			if (last == null) {
+        Collections.sort(filters, new Comparator<FutureAcceptorFilter>() {
 
-				last = _filter;
+            @Override
+            public int compare(FutureAcceptorFilter o1, FutureAcceptorFilter o2) {
 
-				rootFilter = _filter;
-			} else {
+                int i1 = o1.getSortIndex();
+                int i2 = o2.getSortIndex();
 
-				last.setNext(_filter);
+                if (i1 == i2) {
+                    return 0;
+                }
 
-				last = _filter;
-			}
-		}
+                return i1 > i2 ? 1 : -1;
+            }
+        });
 
-		return rootFilter;
-	}
+        for (int i = 0; i < filters.size(); i++) {
 
-	public FutureAcceptorFilterWrapper getRootFilter() {
-		return rootFilter;
-	}
+            FutureAcceptorFilter filter = filters.get(i);
 
-	@Override
-	protected void doStart() throws Exception {
-		this.rootFilter = this.loadFilters(context,context.getClassLoader());
+            FutureAcceptorFilterWrapper _filter = new FutureAcceptorFilterWrapper(context, filter,
+                    filter.getConfig());
 
-		// start all filter
-		this.initializeFilters(rootFilter);
-	}
+            if (last == null) {
 
-	private void initializeFilters(FutureAcceptorFilterWrapper filter) throws Exception {
-		for (; filter != null;) {
-			filter.initialize(context, filter.getConfig());
-			LoggerUtil.prettyLog(logger, "loaded [ {} ] ", filter);
-			filter = filter.getNext();
-		}
-	}
+                last = _filter;
 
-	private void destroyFilters(FutureAcceptorFilterWrapper filter) {
-		for (; filter != null;) {
-			try {
-				filter.destroy(context, filter.getConfig());
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-			LoggerUtil.prettyLog(logger, "unloaded [ {} ] ", filter);
-			filter = filter.getNext();
-		}
-	}
+                rootFilter = _filter;
+            } else {
 
-	@Override
-	protected void doStop() throws Exception {
-		this.destroyFilters(rootFilter);
-	}
+                last.setNext(_filter);
+
+                last = _filter;
+            }
+        }
+
+        return rootFilter;
+    }
+
+    public FutureAcceptorFilterWrapper getRootFilter() {
+        return rootFilter;
+    }
+
+    @Override
+    protected void doStart() throws Exception {
+        this.rootFilter = this.loadFilters(context, context.getClassLoader());
+
+        // start all filter
+        this.initializeFilters(rootFilter);
+    }
+
+    private void initializeFilters(FutureAcceptorFilterWrapper filter) throws Exception {
+        for (; filter != null;) {
+            filter.initialize(context, filter.getConfig());
+            LoggerUtil.prettyLog(logger, "loaded [ {} ] ", filter);
+            filter = filter.getNext();
+        }
+    }
+
+    private void destroyFilters(FutureAcceptorFilterWrapper filter) {
+        for (; filter != null;) {
+            try {
+                filter.destroy(context, filter.getConfig());
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+            LoggerUtil.prettyLog(logger, "unloaded [ {} ] ", filter);
+            filter = filter.getNext();
+        }
+    }
+
+    @Override
+    protected void doStop() throws Exception {
+        this.destroyFilters(rootFilter);
+    }
 
 }

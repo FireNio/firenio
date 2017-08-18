@@ -12,18 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSessionFactoryImpl;
 import com.generallycloud.baseio.component.UnsafeSocketSession;
 
-public class BalanceFacadeSocketSessionFactory extends SocketSessionFactoryImpl{
+public class BalanceFacadeSocketSessionFactory extends SocketSessionFactoryImpl {
 
-	@Override
-	public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
-		return new BalanceFacadeSocketSessionImpl(channel);
-	}
-	
+    @Override
+    public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
+        return new BalanceFacadeSocketSessionImpl(channel);
+    }
+
 }

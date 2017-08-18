@@ -26,24 +26,24 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class BalanceReverseAcceptor {
 
-	private Logger				logger	= LoggerFactory.getLogger(getClass());
+    private Logger                logger   = LoggerFactory.getLogger(getClass());
 
-	private SocketChannelAcceptor	acceptor	= null;
+    private SocketChannelAcceptor acceptor = null;
 
-	public void start(SocketChannelContext context) throws IOException {
+    public void start(SocketChannelContext context) throws IOException {
 
-		this.acceptor = new SocketChannelAcceptor(context);
+        this.acceptor = new SocketChannelAcceptor(context);
 
-		this.acceptor.bind();
+        this.acceptor.bind();
 
-		LoggerUtil.prettyLog(logger, "Balance Reverse Acceptor startup completed ...");
-	}
+        LoggerUtil.prettyLog(logger, "Balance Reverse Acceptor startup completed ...");
+    }
 
-	public SocketChannelAcceptor getAcceptor() {
-		return acceptor;
-	}
+    public SocketChannelAcceptor getAcceptor() {
+        return acceptor;
+    }
 
-	public void stop() {
-		CloseUtil.unbind(acceptor);
-	}
+    public void stop() {
+        CloseUtil.unbind(acceptor);
+    }
 }

@@ -21,23 +21,23 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author wangkai
  *
  */
-public class ReentrantLockImpl implements Lock{
-	
-	private ReentrantLock lock = new ReentrantLock();
+public class ReentrantLockImpl implements Lock {
 
-	@Override
-	public void lock() {
-		lock.lock();
-	}
+    private ReentrantLock lock = new ReentrantLock();
 
-	@Override
-	public void unlock() {
-		lock.unlock();
-	}
+    @Override
+    public void lock() {
+        lock.lock();
+    }
 
-	@Override
-	public boolean tryLock() {
-		return lock.tryLock();
-	}
-	
+    @Override
+    public void unlock() {
+        lock.unlock();
+    }
+
+    @Override
+    public boolean tryLock() {
+        return lock.tryLock();
+    }
+
 }

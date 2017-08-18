@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.fixedlength;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
@@ -35,48 +35,49 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class TestFIxedLengthClient {
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				System.out.println();
-				System.out.println("____________________"+future.getReadText());
-				System.out.println();
-			}
-		};
-		
-		SslContext sslContext = SSLUtil.initClient();
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                System.out.println();
+                System.out.println("____________________" + future.getReadText());
+                System.out.println();
+            }
+        };
 
-		SocketChannelConnector connector = new SocketChannelConnector(context);
+        SslContext sslContext = SSLUtil.initClient();
 
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        SocketChannelContext context = new NioSocketChannelContext(
+                new ServerConfiguration("localhost", 18300));
 
-//		context.addSessionEventListener(new SessionActiveSEListener());
-		
-		context.setBeatFutureFactory(new FLBeatFutureFactory());
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		context.setProtocolFactory(new FixedLengthProtocolFactory());
-		
-		context.setSslContext(sslContext);
-		
-		SocketSession session = connector.connect();
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-		FixedLengthFuture future = new FixedLengthFutureImpl(context);
+        context.addSessionEventListener(new LoggerSocketSEListener());
 
-		future.write("hello server!");
+        //		context.addSessionEventListener(new SessionActiveSEListener());
 
-		session.flush(future);
-		
-		ThreadUtil.sleep(100);
+        context.setBeatFutureFactory(new FLBeatFutureFactory());
 
-		CloseUtil.close(connector);
-		
-		DebugUtil.debug("连接已关闭。。。");
-	}
+        context.setProtocolFactory(new FixedLengthProtocolFactory());
+
+        context.setSslContext(sslContext);
+
+        SocketSession session = connector.connect();
+
+        FixedLengthFuture future = new FixedLengthFutureImpl(context);
+
+        future.write("hello server!");
+
+        session.flush(future);
+
+        ThreadUtil.sleep(100);
+
+        CloseUtil.close(connector);
+
+        DebugUtil.debug("连接已关闭。。。");
+    }
 }

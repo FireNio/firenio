@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
 public final class ApplicationProtocolNames {
@@ -20,7 +20,7 @@ public final class ApplicationProtocolNames {
     /**
      * {@code "h2"}: HTTP version 2
      */
-    public static final String HTTP_2 = "h2";
+    public static final String HTTP_2   = "h2";
 
     /**
      * {@code "http/1.1"}: HTTP version 1.1
@@ -35,17 +35,17 @@ public final class ApplicationProtocolNames {
     /**
      * {@code "spdy/3"}: SPDY version 3
      */
-    public static final String SPDY_3 = "spdy/3";
+    public static final String SPDY_3   = "spdy/3";
 
     /**
      * {@code "spdy/2"}: SPDY version 2
      */
-    public static final String SPDY_2 = "spdy/2";
+    public static final String SPDY_2   = "spdy/2";
 
     /**
      * {@code "spdy/1"}: SPDY version 1
      */
-    public static final String SPDY_1 = "spdy/1";
+    public static final String SPDY_1   = "spdy/1";
 
-    private ApplicationProtocolNames() { }
+    private ApplicationProtocolNames() {}
 }

@@ -12,34 +12,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 
+public class NullMessage extends BasicMessage implements Message {
 
-public class NullMessage extends BasicMessage implements Message{
-	
-	public static final NullMessage NULL_MESSAGE = new NullMessage();
+    public static final NullMessage NULL_MESSAGE = new NullMessage();
 
-	private NullMessage() {
-		super(null, null);
-	}
+    private NullMessage() {
+        super(null, null);
+    }
 
-	@Override
-	public int getMsgType() {
-		return Message.TYPE_NULL;
-	}
-	
-	@Override
-	public String toString() {
-		return "{\"msgType\":1}";
-	}
-	
-	public static void main(String[] args) {
-		
-		System.out.println(JSONObject.toJSONString(NULL_MESSAGE));
-		System.out.println(NULL_MESSAGE.toString());
-	}
+    @Override
+    public int getMsgType() {
+        return Message.TYPE_NULL;
+    }
+
+    @Override
+    public String toString() {
+        return "{\"msgType\":1}";
+    }
+
+    public static void main(String[] args) {
+
+        System.out.println(JSON.toJSONString(NULL_MESSAGE));
+        System.out.println(NULL_MESSAGE.toString());
+    }
 
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.linebased;
 
 import java.io.IOException;
@@ -26,24 +26,24 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 public class LineBasedProtocolEncoder implements ProtocolEncoder {
 
-	@Override
-	public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
+    @Override
+    public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
 
-		LineBasedFuture f = (LineBasedFuture) future;
+        LineBasedFuture f = (LineBasedFuture) future;
 
-		ByteArrayBuffer buffer = f.getWriteBuffer();
+        ByteArrayBuffer buffer = f.getWriteBuffer();
 
-		if (buffer == null) {
-			throw new IOException("null write buffer");
-		}
-		
-		ByteBuf buf = allocator.allocate(buffer.size() + 1);
+        if (buffer == null) {
+            throw new IOException("null write buffer");
+        }
 
-		buf.put(buffer.array(), 0, buffer.size());
+        ByteBuf buf = allocator.allocate(buffer.size() + 1);
 
-		buf.putByte(LineBasedProtocolDecoder.LINE_BASE);
+        buf.put(buffer.array(), 0, buffer.size());
 
-		future.setByteBuf(buf.flip());
-	}
+        buf.putByte(LineBasedProtocolDecoder.LINE_BASE);
+
+        future.setByteBuf(buf.flip());
+    }
 
 }

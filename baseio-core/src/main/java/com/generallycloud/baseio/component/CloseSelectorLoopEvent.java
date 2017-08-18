@@ -25,21 +25,21 @@ import com.generallycloud.baseio.common.CloseUtil;
  */
 public class CloseSelectorLoopEvent extends SelectorLoopEventAdapter {
 
-	private boolean			closed;
+    private boolean           closed;
 
-	private SelectorLoopEvent	event;
+    private SelectorLoopEvent event;
 
-	public CloseSelectorLoopEvent(SelectorLoopEvent event) {
-		this.event = event;
-	}
+    public CloseSelectorLoopEvent(SelectorLoopEvent event) {
+        this.event = event;
+    }
 
-	@Override
-	public void fireEvent(SocketSelectorEventLoop selectorLoop) throws IOException {
-		if (closed) {
-			return;
-		}
-		closed = true;
-		CloseUtil.close(event);
-	}
+    @Override
+    public void fireEvent(SocketSelectorEventLoop selectorLoop) throws IOException {
+        if (closed) {
+            return;
+        }
+        closed = true;
+        CloseUtil.close(event);
+    }
 
 }

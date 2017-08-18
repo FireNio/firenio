@@ -31,33 +31,32 @@ import com.generallycloud.baseio.container.http11.service.FutureAcceptorHttpFilt
  * @author wangkai
  *
  */
-public class HttpApplicationContextEnricher implements ApplicationContextEnricher{
+public class HttpApplicationContextEnricher implements ApplicationContextEnricher {
 
-	@Override
-	public void enrich(ApplicationContext context) {
-		
-		SocketChannelContext channelContext = context.getChannelContext();
+    @Override
+    public void enrich(ApplicationContext context) {
 
-		context.setServiceFilter(new FutureAcceptorHttpFilter());
-		
-		context.setExceptionCaughtHandle(new HttpExceptionCaughtHandle());
-		
-		//FIXME 重复的
-		Set<String> blackIPs = context.getBlackIPs();
-		
-		if (blackIPs != null && !blackIPs.isEmpty()) {
-			channelContext.addSessionEventListener(new BlackIPFilter(blackIPs));
-		}
-		
-		channelContext.setBeatFutureFactory(new WebSocketBeatFutureFactory());
+        SocketChannelContext channelContext = context.getChannelContext();
 
-		channelContext.addSessionEventListener(new LoggerSocketSEListener());
-		
-		channelContext.addSessionIdleEventListener(new SocketSessionAliveSEListener());
-		
-		channelContext.setProtocolFactory(new ServerHTTPProtocolFactory());
-	
-		
-	}
-	
+        context.setServiceFilter(new FutureAcceptorHttpFilter());
+
+        context.setExceptionCaughtHandle(new HttpExceptionCaughtHandle());
+
+        //FIXME 重复的
+        Set<String> blackIPs = context.getBlackIPs();
+
+        if (blackIPs != null && !blackIPs.isEmpty()) {
+            channelContext.addSessionEventListener(new BlackIPFilter(blackIPs));
+        }
+
+        channelContext.setBeatFutureFactory(new WebSocketBeatFutureFactory());
+
+        channelContext.addSessionEventListener(new LoggerSocketSEListener());
+
+        channelContext.addSessionIdleEventListener(new SocketSessionAliveSEListener());
+
+        channelContext.setProtocolFactory(new ServerHTTPProtocolFactory());
+
+    }
+
 }

@@ -12,119 +12,118 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.redis.future;
 
 public class RedisNode {
 
-	private char		type;
+    private char        type;
 
-	private Object		value;
+    private Object      value;
 
-	private RedisNode	parent;
+    private RedisNode   parent;
 
-	private RedisNode[]	children;
+    private RedisNode[] children;
 
-	private RedisNode	next;
-	
-	public RedisNode() {
-	}
+    private RedisNode   next;
 
-	public RedisNode(RedisNode parent) {
-		this.parent = parent;
-	}
+    public RedisNode() {}
 
-	public Object getValue() {
-		return value;
-	}
+    public RedisNode(RedisNode parent) {
+        this.parent = parent;
+    }
 
-	public void setValue(Object value) {
-		this.value = value;
-	}
+    public Object getValue() {
+        return value;
+    }
 
-	public RedisNode getParent() {
-		return parent;
-	}
+    public void setValue(Object value) {
+        this.value = value;
+    }
 
-	public void setParent(RedisNode parent) {
-		this.parent = parent;
-	}
+    public RedisNode getParent() {
+        return parent;
+    }
 
-	public RedisNode[] getChildren() {
-		return children;
-	}
+    public void setParent(RedisNode parent) {
+        this.parent = parent;
+    }
 
-	// public void setChildren(RedisNode[] children) {
-	// this.children = children;
-	// }
+    public RedisNode[] getChildren() {
+        return children;
+    }
 
-	public RedisNode getNext() {
-		return next;
-	}
+    // public void setChildren(RedisNode[] children) {
+    // this.children = children;
+    // }
 
-	public void setNext(RedisNode next) {
-		this.next = next;
-	}
+    public RedisNode getNext() {
+        return next;
+    }
 
-	public char getType() {
-		return type;
-	}
+    public void setNext(RedisNode next) {
+        this.next = next;
+    }
 
-	public void setType(char type) {
-		this.type = type;
-	}
+    public char getType() {
+        return type;
+    }
 
-	public RedisNode deepNext() {
+    public void setType(char type) {
+        this.type = type;
+    }
 
-		if (next == null) {
+    public RedisNode deepNext() {
 
-			if (parent == null) {
-				return null;
-			}
+        if (next == null) {
 
-			return parent.deepNext();
-		}
+            if (parent == null) {
+                return null;
+            }
 
-		return next;
-	}
+            return parent.deepNext();
+        }
 
-	public void createChildren(int size) {
+        return next;
+    }
 
-		this.children = new RedisNode[size];
+    public void createChildren(int size) {
 
-		RedisNode last = null;
+        this.children = new RedisNode[size];
 
-		for (int i = 0; i < size; i++) {
+        RedisNode last = null;
 
-			RedisNode n = new RedisNode(this);
+        for (int i = 0; i < size; i++) {
 
-			if (last == null) {
-				last = n;
-			} else {
-				last.setNext(n);
-				last = n;
-			}
+            RedisNode n = new RedisNode(this);
 
-			children[i] = n;
-		}
-	}
-	
-	@Override
-	public String toString() {
-		
-		if (value == null) {
-			
-			StringBuilder b = new StringBuilder();
-			
-			for (int i = 0; i < children.length; i++) {
-				b.append(children[i].toString());
-				b.append(";");
-			}
-			
-			return b.toString();
-		}
-		
-		return String.valueOf(value);
-	}
+            if (last == null) {
+                last = n;
+            } else {
+                last.setNext(n);
+                last = n;
+            }
+
+            children[i] = n;
+        }
+    }
+
+    @Override
+    public String toString() {
+
+        if (value == null) {
+
+            StringBuilder b = new StringBuilder();
+
+            for (int i = 0; i < children.length; i++) {
+                b.append(children[i].toString());
+                b.append(";");
+            }
+
+            return b.toString();
+        }
+
+        return String.valueOf(value);
+    }
 
 }

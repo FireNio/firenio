@@ -12,40 +12,37 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.server;
 
+public class MQSessionAttachment {
 
-public class MQSessionAttachment{
+    private MQContext          context;
+    private TransactionSection transactionSection;
+    private Consumer           consumer;
 
-	private MQContext			context				;
-	private TransactionSection	transactionSection		;
-	private Consumer			consumer				;
+    public MQSessionAttachment(MQContext context) {
+        this.context = context;
+    }
 
-	public MQSessionAttachment(MQContext context) {
-		this.context = context;
-	}
+    public TransactionSection getTransactionSection() {
+        return transactionSection;
+    }
 
-	public TransactionSection getTransactionSection() {
-		return transactionSection;
-	}
+    public void setTransactionSection(TransactionSection transactionSection) {
+        this.transactionSection = transactionSection;
+    }
 
-	public void setTransactionSection(TransactionSection transactionSection) {
-		this.transactionSection = transactionSection;
-	}
+    public MQContext getContext() {
+        return context;
+    }
 
-	public MQContext getContext() {
-		return context;
-	}
+    protected Consumer getConsumer() {
+        return consumer;
+    }
 
-	protected Consumer getConsumer() {
-		return consumer;
-	}
-
-	protected void setConsumer(Consumer consumer) {
-		this.consumer = consumer;
-	}
-	
-	
+    protected void setConsumer(Consumer consumer) {
+        this.consumer = consumer;
+    }
 
 }

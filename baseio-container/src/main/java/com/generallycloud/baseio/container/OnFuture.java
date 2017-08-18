@@ -12,13 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
 
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.Future;
 
 public interface OnFuture {
-	
-	public abstract void onResponse(SocketSession session ,Future future);
+
+    public abstract void onResponse(SocketSession session, Future future);
 }

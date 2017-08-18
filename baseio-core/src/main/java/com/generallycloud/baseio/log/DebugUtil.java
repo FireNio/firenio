@@ -17,75 +17,75 @@ package com.generallycloud.baseio.log;
 
 public class DebugUtil {
 
-	private static DebugLogger	printer		= new DebugLogger(DebugUtil.class);
+    private static DebugLogger printer     = new DebugLogger(DebugUtil.class);
 
-	private static boolean		enableDebug	= false;
+    private static boolean     enableDebug = false;
 
-	public static void debug(String message) {
-		printer.debug(message);
-	}
+    public static void debug(String message) {
+        printer.debug(message);
+    }
 
-	public static void debug(String message, Object param) {
-		printer.debug(message, param);
-	}
+    public static void debug(String message, Object param) {
+        printer.debug(message, param);
+    }
 
-	public static void debug(String message, Object param, Object param1) {
-		printer.debug(message, param, param1);
-	}
+    public static void debug(String message, Object param, Object param1) {
+        printer.debug(message, param, param1);
+    }
 
-	public static void debug(String message, Object[] param) {
-		printer.debug(message, param);
-	}
+    public static void debug(String message, Object[] param) {
+        printer.debug(message, param);
+    }
 
-	public static void debug(Throwable e) {
-		printer.debug(e);
-	}
+    public static void debug(Throwable e) {
+        printer.debug(e);
+    }
 
-	public static void error(String message) {
-		printer.error(message);
-	}
+    public static void error(String message) {
+        printer.error(message);
+    }
 
-	public static void error(String message, Throwable e) {
-		printer.error(message, e);
-	}
+    public static void error(String message, Throwable e) {
+        printer.error(message, e);
+    }
 
-	public static void error(Throwable e) {
-		printer.error(e);
-	}
+    public static void error(Throwable e) {
+        printer.error(e);
+    }
 
-	public static String exception2string(Throwable exception) {
-		StackTraceElement[] es = exception.getStackTrace();
-		StringBuilder builder = new StringBuilder();
-		builder.append(exception.toString());
-		for (StackTraceElement e : es) {
-			builder.append("\n\tat ");
-			builder.append(e.toString());
-		}
-		return builder.toString();
-	}
+    public static String exception2string(Throwable exception) {
+        StackTraceElement[] es = exception.getStackTrace();
+        StringBuilder builder = new StringBuilder();
+        builder.append(exception.toString());
+        for (StackTraceElement e : es) {
+            builder.append("\n\tat ");
+            builder.append(e.toString());
+        }
+        return builder.toString();
+    }
 
-	public static void info(String message) {
-		printer.info(message);
-	}
+    public static void info(String message) {
+        printer.info(message);
+    }
 
-	public static void info(String message, Object param) {
-		printer.info(message, param);
-	}
+    public static void info(String message, Object param) {
+        printer.info(message, param);
+    }
 
-	public static void info(String message, Object param, Object param1) {
-		printer.info(message, param, param1);
-	}
+    public static void info(String message, Object param, Object param1) {
+        printer.info(message, param, param1);
+    }
 
-	public static void info(String message, Object[] param) {
-		printer.info(message, param);
-	}
+    public static void info(String message, Object[] param) {
+        printer.info(message, param);
+    }
 
-	public static void setEnableDebug(boolean enable) {
-		enableDebug = enable;
-	}
+    public static void setEnableDebug(boolean enable) {
+        enableDebug = enable;
+    }
 
-	public static boolean isEnableDebug() {
-		return enableDebug;
-	}
+    public static boolean isEnableDebug() {
+        return enableDebug;
+    }
 
 }

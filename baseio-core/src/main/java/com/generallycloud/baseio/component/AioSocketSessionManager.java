@@ -22,36 +22,37 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class AioSocketSessionManager extends AbstractSocketSessionManager {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public AioSocketSessionManager(SocketChannelContext context,
-			ExecutorEventLoop selectorEventLoop) {
-		super(context);
-		this.selectorEventLoop = selectorEventLoop;
-	}
+    public AioSocketSessionManager(SocketChannelContext context,
+            ExecutorEventLoop selectorEventLoop) {
+        super(context);
+        this.selectorEventLoop = selectorEventLoop;
+    }
 
-	private ExecutorEventLoop selectorEventLoop;
+    private ExecutorEventLoop selectorEventLoop;
 
-	public void offerSessionMEvent(final SocketSessionManagerEvent event) {
+    @Override
+    public void offerSessionMEvent(final SocketSessionManagerEvent event) {
 
-		this.selectorEventLoop.dispatch(new Runnable() {
+        this.selectorEventLoop.dispatch(new Runnable() {
 
-			@Override
-			public void run() {
+            @Override
+            public void run() {
 
-				IntObjectHashMap<SocketSession> sessions = AioSocketSessionManager.this.sessions;
+                IntObjectHashMap<SocketSession> sessions = AioSocketSessionManager.this.sessions;
 
-				if (sessions.size() == 0) {
-					return;
-				}
+                if (sessions.size() == 0) {
+                    return;
+                }
 
-				try {
-					event.fire(context, sessions);
-				} catch (Throwable e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		});
-	}
+                try {
+                    event.fire(context, sessions);
+                } catch (Throwable e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        });
+    }
 
 }

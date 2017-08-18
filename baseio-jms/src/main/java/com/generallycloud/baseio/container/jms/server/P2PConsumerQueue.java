@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.server;
 
 import java.util.ArrayList;
@@ -20,28 +20,29 @@ import java.util.List;
 
 import com.generallycloud.baseio.concurrent.ReentrantList;
 
-public class P2PConsumerQueue implements ConsumerQueue{
-	
-	private ReentrantList<Consumer> consumers = new ReentrantList<Consumer>(new ArrayList<Consumer>());
-	
-	@Override
-	public int size(){
-		return consumers.size();
-	}
+public class P2PConsumerQueue implements ConsumerQueue {
 
-	@Override
-	public void offer(Consumer consumer) {
-		consumers.add(consumer);
-	}
+    private ReentrantList<Consumer> consumers = new ReentrantList<>(
+            new ArrayList<Consumer>());
 
-	@Override
-	public void remove(Consumer consumer) {
-		consumers.remove(consumer);
-	}
+    @Override
+    public int size() {
+        return consumers.size();
+    }
 
-	@Override
-	public List<Consumer> getSnapshot() {
-		return consumers.takeSnapshot();
-	}
-	
+    @Override
+    public void offer(Consumer consumer) {
+        consumers.add(consumer);
+    }
+
+    @Override
+    public void remove(Consumer consumer) {
+        consumers.remove(consumer);
+    }
+
+    @Override
+    public List<Consumer> getSnapshot() {
+        return consumers.takeSnapshot();
+    }
+
 }

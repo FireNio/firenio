@@ -19,16 +19,16 @@ import com.generallycloud.baseio.concurrent.Linkable;
 
 public abstract class AbstractLinkable implements Linkable {
 
-	private boolean isValidate = true;
+    private boolean isValidate = true;
 
-	@Override
-	public boolean isValidate() {
-		return isValidate;
-	}
+    @Override
+    public boolean isValidate() {
+        return isValidate;
+    }
 
-	@Override
-	public void setValidate(boolean validate) {
-		this.isValidate = validate;
-	}
+    @Override
+    public void setValidate(boolean validate) {
+        this.isValidate = validate;
+    }
 
 }

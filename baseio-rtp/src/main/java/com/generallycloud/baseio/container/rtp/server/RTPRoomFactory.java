@@ -19,17 +19,17 @@ import com.generallycloud.baseio.collection.IntObjectHashMap;
 
 public class RTPRoomFactory {
 
-	private IntObjectHashMap<RTPRoom> rooms = new IntObjectHashMap<RTPRoom>();
+    private IntObjectHashMap<RTPRoom> rooms = new IntObjectHashMap<>();
 
-	public synchronized RTPRoom getRTPRoom(int roomID) {
-		return rooms.get(roomID);
-	}
+    public synchronized RTPRoom getRTPRoom(int roomID) {
+        return rooms.get(roomID);
+    }
 
-	public synchronized void removeRTPRoom(int roomID) {
-		rooms.remove(roomID);
-	}
+    public synchronized void removeRTPRoom(int roomID) {
+        rooms.remove(roomID);
+    }
 
-	public synchronized void putRTPRoom(RTPRoom room) {
-		rooms.put(room.getRoomID(), room);
-	}
+    public synchronized void putRTPRoom(RTPRoom room) {
+        rooms.put(room.getRoomID(), room);
+    }
 }

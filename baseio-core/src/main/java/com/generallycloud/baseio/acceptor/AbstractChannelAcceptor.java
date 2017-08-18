@@ -25,38 +25,40 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public abstract class AbstractChannelAcceptor extends AbstractChannelService implements ChannelAcceptor{
+public abstract class AbstractChannelAcceptor extends AbstractChannelService
+        implements ChannelAcceptor {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Override
-	public synchronized void bind() throws IOException {
-		this.initialize();
-	}
+    @Override
+    public synchronized void bind() throws IOException {
+        this.initialize();
+    }
 
-	protected void initService(ServerConfiguration configuration) throws IOException {
-		this.serverAddress = new InetSocketAddress(configuration.getSERVER_PORT());
-		this.bind(getServerSocketAddress());
-		LoggerUtil.prettyLog(logger, "server listening @{}", getServerSocketAddress());
-	}
+    @Override
+    protected void initService(ServerConfiguration configuration) throws IOException {
+        this.serverAddress = new InetSocketAddress(configuration.getSERVER_PORT());
+        this.bind(getServerSocketAddress());
+        LoggerUtil.prettyLog(logger, "server listening @{}", getServerSocketAddress());
+    }
 
-	protected abstract void bind(InetSocketAddress socketAddress) throws IOException;
+    protected abstract void bind(InetSocketAddress socketAddress) throws IOException;
 
-	@Override
-	public boolean isActive() {
-		return active;
-	}
+    @Override
+    public boolean isActive() {
+        return active;
+    }
 
-	@Override
-	public void unbind() throws TimeoutException {
-		destroy();
-	}
-	
-	@Override
-	protected void setServerCoreSize(ServerConfiguration configuration) {
-		if (this instanceof DatagramChannelAcceptor) {
-			configuration.setSERVER_CORE_SIZE(1);
-		}
-	}
-	
+    @Override
+    public void unbind() throws TimeoutException {
+        destroy();
+    }
+
+    @Override
+    protected void setServerCoreSize(ServerConfiguration configuration) {
+        if (this instanceof DatagramChannelAcceptor) {
+            configuration.setSERVER_CORE_SIZE(1);
+        }
+    }
+
 }

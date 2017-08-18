@@ -33,57 +33,56 @@ import com.generallycloud.baseio.log.LoggerFactory;
  */
 public class AioSocketChannelConnector extends AbstractSocketChannelConnector {
 
-	private AioSocketChannelContext context;
+    private AioSocketChannelContext context;
 
-	public AioSocketChannelConnector(AioSocketChannelContext context) {
-		this.context = context;
-	}
+    public AioSocketChannelConnector(AioSocketChannelContext context) {
+        this.context = context;
+    }
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Override
-	protected void connect(InetSocketAddress socketAddress) throws IOException {
+    @Override
+    protected void connect(InetSocketAddress socketAddress) throws IOException {
 
-		AsynchronousChannelGroup group = context.getAsynchronousChannelGroup();
+        AsynchronousChannelGroup group = context.getAsynchronousChannelGroup();
 
-		final AsynchronousSocketChannel _channel = AsynchronousSocketChannel.open(group);
+        final AsynchronousSocketChannel _channel = AsynchronousSocketChannel.open(group);
 
-		_channel.connect(socketAddress, this,
-				new CompletionHandler<Void, AioSocketChannelConnector>() {
+        _channel.connect(socketAddress, this,
+                new CompletionHandler<Void, AioSocketChannelConnector>() {
 
-					@Override
-					public void completed(Void result, AioSocketChannelConnector connector) {
+                    @Override
+                    public void completed(Void result, AioSocketChannelConnector connector) {
 
-						CachedAioThread aioThread = (CachedAioThread) Thread.currentThread();
+                        CachedAioThread aioThread = (CachedAioThread) Thread.currentThread();
 
-						AioSocketChannel channel = new AioSocketChannel(aioThread, _channel,1);
+                        AioSocketChannel channel = new AioSocketChannel(aioThread, _channel, 1);
 
-						connector.finishConnect(channel.getSession(), null);
+                        connector.finishConnect(channel.getSession(), null);
 
-						aioThread.getReadCompletionHandler().completed(0, channel);
-					}
+                        aioThread.getReadCompletionHandler().completed(0, channel);
+                    }
 
-					@Override
-					public void failed(Throwable exc, AioSocketChannelConnector connector) {
-						connector.finishConnect(session, exc);
-					}
-				});
+                    @Override
+                    public void failed(Throwable exc, AioSocketChannelConnector connector) {
+                        connector.finishConnect(session, exc);
+                    }
+                });
 
-		wait4connect();
-	}
+        wait4connect();
+    }
 
-	@Override
-	public AioSocketChannelContext getContext() {
-		return context;
-	}
+    @Override
+    public AioSocketChannelContext getContext() {
+        return context;
+    }
 
-	@Override
-	protected void destroyService() {
-	}
-	
-	@Override
-	Logger getLogger() {
-		return logger;
-	}
+    @Override
+    protected void destroyService() {}
+
+    @Override
+    Logger getLogger() {
+        return logger;
+    }
 
 }

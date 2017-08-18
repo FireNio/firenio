@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
@@ -30,39 +30,39 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleTestProtobaseServer {
 
-	public static void main(String[] args) throws Exception {
-		
-		DebugUtil.setEnableDebug(true);
+    public static void main(String[] args) throws Exception {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        DebugUtil.setEnableDebug(true);
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				DebugUtil.debug("receive:"+future.getReadText());
-				future.write("yes server already accept your message:");
-				future.write(future.getReadText());
-				session.flush(future);
-			}
-		};
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
-		
-		context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-		
-		context.getServerConfiguration().setSERVER_SESSION_IDLE_TIME(60 * 60 * 1000);
-		
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		context.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
-		
-		context.addSessionIdleEventListener(new SocketSessionAliveSEListener());
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-		acceptor.bind();
-	}
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                DebugUtil.debug("receive:" + future.getReadText());
+                future.write("yes server already accept your message:");
+                future.write(future.getReadText());
+                session.flush(future);
+            }
+        };
+
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
+
+        context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
+
+        context.getServerConfiguration().setSERVER_SESSION_IDLE_TIME(60 * 60 * 1000);
+
+        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        context.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
+
+        context.addSessionIdleEventListener(new SocketSessionAliveSEListener());
+
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        acceptor.bind();
+    }
 }

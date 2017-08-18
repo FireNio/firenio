@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
 
 import java.io.File;
@@ -28,61 +28,62 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class FileReceiveUtil {
 
-	public static final String	FILE_NAME	= "file-name";
+    public static final String FILE_NAME   = "file-name";
 
-	public static final String	IS_END		= "isEnd";
+    public static final String IS_END      = "isEnd";
 
-	private Logger				logger		= LoggerFactory.getLogger(FileReceiveUtil.class);
+    private Logger             logger      = LoggerFactory.getLogger(FileReceiveUtil.class);
 
-	private int				num;
+    private int                num;
 
-	private String				prefix;
+    private String             prefix;
 
-	private String				ACCEPT_FILE	= "accept-file";
-	
-	public FileReceiveUtil(String prefix) {
-		this.prefix = prefix;
-	}
+    private String             ACCEPT_FILE = "accept-file";
 
-	public void accept(SocketSession session, ProtobaseFuture future,boolean callback) throws Exception {
+    public FileReceiveUtil(String prefix) {
+        this.prefix = prefix;
+    }
 
-		Parameters parameters = future.getParameters();
+    public void accept(SocketSession session, ProtobaseFuture future, boolean callback)
+            throws Exception {
 
-		OutputStream outputStream = (OutputStream) session.getAttribute(ACCEPT_FILE);
+        Parameters parameters = future.getParameters();
 
-		if (outputStream == null) {
+        OutputStream outputStream = (OutputStream) session.getAttribute(ACCEPT_FILE);
 
-			String fileName = prefix + parameters.getParameter(FILE_NAME);
+        if (outputStream == null) {
 
-			outputStream = new FileOutputStream(new File(fileName));
+            String fileName = prefix + parameters.getParameter(FILE_NAME);
 
-			session.setAttribute(ACCEPT_FILE, outputStream);
+            outputStream = new FileOutputStream(new File(fileName));
 
-			logger.info("accept...................open,file={}", fileName);
-		}
+            session.setAttribute(ACCEPT_FILE, outputStream);
 
-		byte[] data = future.getBinary();
+            logger.info("accept...................open,file={}", fileName);
+        }
 
-		outputStream.write(data, 0, future.getBinaryLength());
+        byte[] data = future.getBinary();
 
-		logger.info("accept...................{},{}", future.getBinaryLength(), (num++));
+        outputStream.write(data, 0, future.getBinaryLength());
 
-		boolean isEnd = parameters.getBooleanParameter(IS_END);
+        logger.info("accept...................{},{}", future.getBinaryLength(), (num++));
 
-		if (isEnd) {
+        boolean isEnd = parameters.getBooleanParameter(IS_END);
 
-			logger.info("accept...................close,stream={}", outputStream);
+        if (isEnd) {
 
-			CloseUtil.close(outputStream);
+            logger.info("accept...................close,stream={}", outputStream);
 
-			session.removeAttribute(ACCEPT_FILE);
-			
-			if (callback) {
+            CloseUtil.close(outputStream);
 
-				future.write("传输成功！");
+            session.removeAttribute(ACCEPT_FILE);
 
-				session.flush(future);
-			}
-		}
-	}
+            if (callback) {
+
+                future.write("传输成功！");
+
+                session.flush(future);
+            }
+        }
+    }
 }

@@ -17,8 +17,6 @@ package com.generallycloud.test.nio.others;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -34,57 +32,57 @@ import okhttp3.Response;
  */
 public class TestOkHttp {
 
-	private static Logger logger = LoggerFactory.getLogger(TestOkHttp.class);
+    private static Logger logger = LoggerFactory.getLogger(TestOkHttp.class);
 
-	public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
 
-		getAsynHttp();
-		
-	}
-	
-	static void test2() throws Exception{
-		
-		OkHttpClient client = new OkHttpClient();
+        getAsynHttp();
 
-		String url = "https://localhost:443/test";
-		url = "https://www.baidu.com";
+    }
 
-		Request request = new Request.Builder().url(url).get().build();
+    static void test2() throws Exception {
 
-		Call call = client.newCall(request);
+        OkHttpClient client = new OkHttpClient();
 
-		Response response = call.execute();
+        String url = "https://localhost:443/test";
+        url = "https://www.baidu.com";
 
-		if (response.isSuccessful()) {
-			String result = response.body().string();
-			System.out.println(result);
-		}
-	}
+        Request request = new Request.Builder().url(url).get().build();
 
-	static void getAsynHttp() {
-		OkHttpClient mOkHttpClient = new OkHttpClient();
-		Request.Builder requestBuilder = new Request.Builder().url("https://www.aliyun.com/");
-		//可以省略，默认是GET请求
-		requestBuilder.method("GET", null);
-		Request request = requestBuilder.build();
-		Call mcall = mOkHttpClient.newCall(request);
-		mcall.enqueue(new Callback() {
-			@Override
-			public void onFailure(Call call, IOException e) {
-				e.printStackTrace();
-			}
+        Call call = client.newCall(request);
 
-			@Override
-			public void onResponse(Call call, Response response) throws IOException {
-				if (null != response.cacheResponse()) {
-					String str = response.cacheResponse().toString();
-					logger.info("cache---{}" + str);
-				} else {
-					response.body().string();
-					String str = response.networkResponse().toString();
-					logger.info("network---{}" + str);
-				}
-			}
-		});
-	}
+        Response response = call.execute();
+
+        if (response.isSuccessful()) {
+            String result = response.body().string();
+            System.out.println(result);
+        }
+    }
+
+    static void getAsynHttp() {
+        OkHttpClient mOkHttpClient = new OkHttpClient();
+        Request.Builder requestBuilder = new Request.Builder().url("https://www.aliyun.com/");
+        //可以省略，默认是GET请求
+        requestBuilder.method("GET", null);
+        Request request = requestBuilder.build();
+        Call mcall = mOkHttpClient.newCall(request);
+        mcall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (null != response.cacheResponse()) {
+                    String str = response.cacheResponse().toString();
+                    logger.info("cache---{}" + str);
+                } else {
+                    response.body().string();
+                    String str = response.networkResponse().toString();
+                    logger.info("network---{}" + str);
+                }
+            }
+        });
+    }
 }

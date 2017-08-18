@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.protobase;
 
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
@@ -21,28 +21,28 @@ import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class SessionIdProtobaseProtocolFactory implements ProtocolFactory {
 
-	private int limit;
+    private int limit;
 
-	public SessionIdProtobaseProtocolFactory() {
-		this(1024 * 8);
-	}
+    public SessionIdProtobaseProtocolFactory() {
+        this(1024 * 8);
+    }
 
-	public SessionIdProtobaseProtocolFactory(int limit) {
-		this.limit = limit;
-	}
+    public SessionIdProtobaseProtocolFactory(int limit) {
+        this.limit = limit;
+    }
 
-	@Override
-	public ProtocolDecoder getProtocolDecoder() {
-		return new SessionIdProtobaseProtocolDecoder(limit);
-	}
+    @Override
+    public ProtocolDecoder getProtocolDecoder() {
+        return new SessionIdProtobaseProtocolDecoder(limit);
+    }
 
-	@Override
-	public ProtocolEncoder getProtocolEncoder() {
-		return new SessionIdProtobaseProtocolEncoder();
-	}
+    @Override
+    public ProtocolEncoder getProtocolEncoder() {
+        return new SessionIdProtobaseProtocolEncoder();
+    }
 
-	@Override
-	public String getProtocolId() {
-		return "SessionIdProtobase";
-	}
+    @Override
+    public String getProtocolId() {
+        return "SessionIdProtobase";
+    }
 }

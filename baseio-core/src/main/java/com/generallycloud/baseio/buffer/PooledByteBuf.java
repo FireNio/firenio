@@ -17,10 +17,10 @@ package com.generallycloud.baseio.buffer;
 
 public interface PooledByteBuf extends ByteBuf {
 
-	public abstract int getBeginUnit();
+    public abstract int getBeginUnit();
 
-	public abstract PooledByteBuf produce(int begin, int end, int newLimit);
+    public abstract PooledByteBuf produce(int begin, int end, int newLimit);
 
-	public abstract PooledByteBuf produce(PooledByteBuf buf);
+    public abstract PooledByteBuf produce(PooledByteBuf buf);
 
 }

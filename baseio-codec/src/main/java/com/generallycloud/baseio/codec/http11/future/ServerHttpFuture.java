@@ -26,66 +26,66 @@ import com.generallycloud.baseio.component.SocketSession;
 
 public class ServerHttpFuture extends AbstractHttpFuture {
 
-	public ServerHttpFuture(SocketSession session, ByteBuf buffer, int headerLimit, int bodyLimit) {
-		super(session, buffer, bodyLimit, bodyLimit);
-		this.params = new HashMap<String, String>();
-	}
+    public ServerHttpFuture(SocketSession session, ByteBuf buffer, int headerLimit, int bodyLimit) {
+        super(session, buffer, bodyLimit, bodyLimit);
+        this.params = new HashMap<>();
+    }
 
-	public ServerHttpFuture(SocketChannelContext context) {
-		super(context);
-	}
+    public ServerHttpFuture(SocketChannelContext context) {
+        super(context);
+    }
 
-	@Override
-	protected void setDefaultResponseHeaders(Map<String, String> headers) {
+    @Override
+    protected void setDefaultResponseHeaders(Map<String, String> headers) {
 
-		if (context.getEncoding() == Encoding.GBK) {
-			headers.put("Content-Type", "text/plain;charset=gbk");
-		} else {
-			headers.put("Content-Type", "text/plain;charset=utf-8");
-		}
-		headers.put("Connection", "keep-alive");
-//		headers.put("Connection", "close");
-	}
+        if (context.getEncoding() == Encoding.GBK) {
+            headers.put("Content-Type", "text/plain;charset=gbk");
+        } else {
+            headers.put("Content-Type", "text/plain;charset=utf-8");
+        }
+        headers.put("Connection", "keep-alive");
+        //		headers.put("Connection", "close");
+    }
 
-	@Override
-	protected void parseContentType(String contentType) {
+    @Override
+    protected void parseContentType(String contentType) {
 
-		if (StringUtil.isNullOrBlank(contentType)) {
+        if (StringUtil.isNullOrBlank(contentType)) {
 
-			this.contentType = CONTENT_APPLICATION_URLENCODED;
+            this.contentType = CONTENT_APPLICATION_URLENCODED;
 
-			return;
-		}
+            return;
+        }
 
-		if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
+        if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
 
-			this.contentType = CONTENT_APPLICATION_URLENCODED;
+            this.contentType = CONTENT_APPLICATION_URLENCODED;
 
-		} else if (CONTENT_TYPE_TEXT_PLAIN.equals(contentType)) {
+        } else if (CONTENT_TYPE_TEXT_PLAIN.equals(contentType)) {
 
-			this.contentType = CONTENT_TYPE_TEXT_PLAIN;
+            this.contentType = CONTENT_TYPE_TEXT_PLAIN;
 
-		} else if (contentType.startsWith("multipart/form-data;")) {
+        } else if (contentType.startsWith("multipart/form-data;")) {
 
-			int index = KMP_BOUNDARY.match(contentType);
+            int index = KMP_BOUNDARY.match(contentType);
 
-			if (index != -1) {
-				boundary = contentType.substring(index + 9);
-			}
+            if (index != -1) {
+                boundary = contentType.substring(index + 9);
+            }
 
-			this.contentType = CONTENT_TYPE_MULTIPART;
-		} else {
-			// FIXME other content-type
-		}
-	}
+            this.contentType = CONTENT_TYPE_MULTIPART;
+        } else {
+            // FIXME other content-type
+        }
+    }
 
-	@Override
-	protected void parseFirstLine(String line) {
-		int index1 = line.indexOf(' ');
-		this.method = line.substring(0, index1);
-		int index2 = line.indexOf(' ',index1+1);
-		this.setRequestURL(line.substring(index1 + 1, index2));
-		this.version = line.substring(index2+1);
-	}
-	
+    @Override
+    protected void parseFirstLine(String line) {
+        int index1 = line.indexOf(' ');
+        this.method = line.substring(0, index1);
+        int index2 = line.indexOf(' ', index1 + 1);
+        this.setRequestURL(line.substring(index1 + 1, index2));
+        this.version = line.substring(index2 + 1);
+    }
+
 }

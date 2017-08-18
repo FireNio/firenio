@@ -21,31 +21,31 @@ import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class ClientHTTPProtocolFactory implements ProtocolFactory {
 
-	private int	headerLimit;
+    private int headerLimit;
 
-	private int	bodyLimit;
+    private int bodyLimit;
 
-	public ClientHTTPProtocolFactory() {
-		this(1024 * 8, 1024 * 512);
-	}
+    public ClientHTTPProtocolFactory() {
+        this(1024 * 8, 1024 * 512);
+    }
 
-	public ClientHTTPProtocolFactory(int headerLimit, int bodyLimit) {
-		this.headerLimit = headerLimit;
-		this.bodyLimit = bodyLimit;
-	}
+    public ClientHTTPProtocolFactory(int headerLimit, int bodyLimit) {
+        this.headerLimit = headerLimit;
+        this.bodyLimit = bodyLimit;
+    }
 
-	@Override
-	public ProtocolDecoder getProtocolDecoder() {
-		return new ClientHTTPProtocolDecoder(headerLimit, bodyLimit);
-	}
+    @Override
+    public ProtocolDecoder getProtocolDecoder() {
+        return new ClientHTTPProtocolDecoder(headerLimit, bodyLimit);
+    }
 
-	@Override
-	public ProtocolEncoder getProtocolEncoder() {
-		return new ClientHTTPProtocolEncoder();
-	}
+    @Override
+    public ProtocolEncoder getProtocolEncoder() {
+        return new ClientHTTPProtocolEncoder();
+    }
 
-	@Override
-	public String getProtocolId() {
-		return "HTTP11";
-	}
+    @Override
+    public String getProtocolId() {
+        return "HTTP11";
+    }
 }

@@ -24,12 +24,12 @@ import java.io.IOException;
 @SuppressWarnings("serial")
 public class DuplicateClassException extends IOException {
 
-	public DuplicateClassException(String msg) {
-		super(msg);
-	}
+    public DuplicateClassException(String msg) {
+        super(msg);
+    }
 
-	public DuplicateClassException(String msg, Throwable throwable) {
-		super(msg, throwable);
-	}
+    public DuplicateClassException(String msg, Throwable throwable) {
+        super(msg, throwable);
+    }
 
 }

@@ -25,27 +25,24 @@ import java.util.List;
  */
 public class TestCollection {
 
-	private static List<String> test = new ArrayList<String>();
-	
-	public static void main(String[] args) {
-		
-		test.add("aaa");
-		test.add("bbb");
-		test.add("ccc");
-		
-		for(String t : getColls()){
-			
-			System.out.println(t);
-			
-		}
-		
-	}
-	
-	
-	
-	
-	static Collection<String> getColls(){
-		System.out.println("_______________GET");
-		return test;
-	}
+    private static List<String> test = new ArrayList<>();
+
+    public static void main(String[] args) {
+
+        test.add("aaa");
+        test.add("bbb");
+        test.add("ccc");
+
+        for (String t : getColls()) {
+
+            System.out.println(t);
+
+        }
+
+    }
+
+    static Collection<String> getColls() {
+        System.out.println("_______________GET");
+        return test;
+    }
 }

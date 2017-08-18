@@ -25,36 +25,36 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
  *
  */
 public class UnpooledByteBufAllocatorManager extends AbstractLifeCycle
-		implements ByteBufAllocatorManager {
+        implements ByteBufAllocatorManager {
 
-	private ChannelContext			context	= null;
+    private ChannelContext           context = null;
 
-	private UnpooledByteBufAllocator	unpooledByteBufAllocator;
+    private UnpooledByteBufAllocator unpooledByteBufAllocator;
 
-	public UnpooledByteBufAllocatorManager(ChannelContext context) {
-		this.context = context;
-	}
+    public UnpooledByteBufAllocatorManager(ChannelContext context) {
+        this.context = context;
+    }
 
-	@Override
-	public ByteBufAllocator getNextBufAllocator() {
-		return unpooledByteBufAllocator;
-	}
+    @Override
+    public ByteBufAllocator getNextBufAllocator() {
+        return unpooledByteBufAllocator;
+    }
 
-	@Override
-	protected void doStart() throws Exception {
+    @Override
+    protected void doStart() throws Exception {
 
-		ServerConfiguration c = context.getServerConfiguration();
+        ServerConfiguration c = context.getServerConfiguration();
 
-		boolean isDirect = c.isSERVER_ENABLE_MEMORY_POOL_DIRECT();
+        boolean isDirect = c.isSERVER_ENABLE_MEMORY_POOL_DIRECT();
 
-		unpooledByteBufAllocator = new UnpooledByteBufAllocator(isDirect);
+        unpooledByteBufAllocator = new UnpooledByteBufAllocator(isDirect);
 
-		LifeCycleUtil.start(unpooledByteBufAllocator);
-	}
+        LifeCycleUtil.start(unpooledByteBufAllocator);
+    }
 
-	@Override
-	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(unpooledByteBufAllocator);
-	}
+    @Override
+    protected void doStop() throws Exception {
+        LifeCycleUtil.stop(unpooledByteBufAllocator);
+    }
 
 }

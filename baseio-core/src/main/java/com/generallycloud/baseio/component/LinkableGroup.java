@@ -23,29 +23,29 @@ import com.generallycloud.baseio.concurrent.Linkable;
  */
 public class LinkableGroup<T extends Linkable> {
 
-	private T rootLink;
-	
-	private T tailLink;
+    private T rootLink;
 
-	public T getRootLink() {
-		return rootLink;
-	}
-	
-	public void addLink(T linkable){
-		
-		if (rootLink == null) {
-			rootLink = linkable;
-			tailLink = rootLink;
-			return;
-		}
-		
-		tailLink.setNext(linkable);
-		
-		tailLink = linkable;
-	}
-	
-	public void clear(){
-		rootLink = null;
-		tailLink = null;
-	}
+    private T tailLink;
+
+    public T getRootLink() {
+        return rootLink;
+    }
+
+    public void addLink(T linkable) {
+
+        if (rootLink == null) {
+            rootLink = linkable;
+            tailLink = rootLink;
+            return;
+        }
+
+        tailLink.setNext(linkable);
+
+        tailLink = linkable;
+    }
+
+    public void clear() {
+        rootLink = null;
+        tailLink = null;
+    }
 }

@@ -19,32 +19,33 @@ import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
 
 public class FacadeInterceptorImpl implements FacadeInterceptor {
 
-	private int	interceptorLimit;
+    private int interceptorLimit;
 
-	// 1CPU limit
-	private int	globalLimit;
+    // 1CPU limit
+    private int  globalLimit;
 
-	private int	check	= 0;
+    private int  check = 0;
 
-	private long	next_check_time;
+    private long next_check_time;
 
-	public FacadeInterceptorImpl(int interceptorLimit, int globalLimit) {
-		this.globalLimit = globalLimit;
-		this.interceptorLimit = interceptorLimit;
-	}
+    public FacadeInterceptorImpl(int interceptorLimit, int globalLimit) {
+        this.globalLimit = globalLimit;
+        this.interceptorLimit = interceptorLimit;
+    }
 
-	@Override
-	public boolean intercept(BalanceFacadeSocketSession session, BalanceFuture future) throws Exception {
+    @Override
+    public boolean intercept(BalanceFacadeSocketSession session, BalanceFuture future)
+            throws Exception {
 
-		long now = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
 
-		if (now > next_check_time) {
-			next_check_time = now + 1000;
-			check = 0;
-			return session.overfulfil(interceptorLimit);
-		}
+        if (now > next_check_time) {
+            next_check_time = now + 1000;
+            check = 0;
+            return session.overfulfil(interceptorLimit);
+        }
 
-		return ++check > globalLimit || session.overfulfil(interceptorLimit);
-	}
+        return ++check > globalLimit || session.overfulfil(interceptorLimit);
+    }
 
 }

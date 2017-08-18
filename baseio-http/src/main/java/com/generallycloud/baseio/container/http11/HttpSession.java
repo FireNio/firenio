@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.http11;
 
 import java.io.IOException;
@@ -22,20 +22,20 @@ import com.generallycloud.baseio.protocol.Future;
 
 public interface HttpSession {
 
-	public abstract void active(SocketSession ioSession);
+    public abstract void active(SocketSession ioSession);
 
-	public abstract void flush(Future future) throws IOException;
+    public abstract void flush(Future future) throws IOException;
 
-	public abstract long getCreateTime();
+    public abstract long getCreateTime();
 
-	public abstract SocketSession getIoSession();
+    public abstract SocketSession getIoSession();
 
-	public abstract long getLastAccessTime();
+    public abstract long getLastAccessTime();
 
-	public abstract String getSessionID();
-	
-	public abstract boolean isValidate();
-	
-	public abstract HttpContext getContext();
+    public abstract String getSessionID();
+
+    public abstract boolean isValidate();
+
+    public abstract HttpContext getContext();
 
 }

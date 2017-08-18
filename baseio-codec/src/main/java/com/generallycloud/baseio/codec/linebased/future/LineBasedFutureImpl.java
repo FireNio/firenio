@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.linebased.future;
 
 import java.io.IOException;
@@ -26,59 +26,59 @@ import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 public class LineBasedFutureImpl extends AbstractChannelFuture implements LineBasedFuture {
 
-	private boolean			complete;
+    private boolean         complete;
 
-	private int				limit;
+    private int             limit;
 
-	private ByteArrayBuffer		cache	= new ByteArrayBuffer();
+    private ByteArrayBuffer cache = new ByteArrayBuffer();
 
-	public LineBasedFutureImpl(SocketChannelContext context,int limit) {
-		super(context);
-		this.limit = limit;
-	}
-	
-	public LineBasedFutureImpl(SocketChannelContext context) {
-		super(context);
-	}
+    public LineBasedFutureImpl(SocketChannelContext context, int limit) {
+        super(context);
+        this.limit = limit;
+    }
 
-	private void doBodyComplete() {
-		
-		this.readText = cache.toString(context.getEncoding());		
+    public LineBasedFutureImpl(SocketChannelContext context) {
+        super(context);
+    }
 
-		this.complete = true;
-	}
+    private void doBodyComplete() {
 
-	@Override
-	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+        this.readText = cache.toString(context.getEncoding());
 
-		if (complete) {
-			return true;
-		}
+        this.complete = true;
+    }
 
-		ByteArrayBuffer cache = this.cache;
+    @Override
+    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
-		for (; buffer.hasRemaining();) {
+        if (complete) {
+            return true;
+        }
 
-			byte b = buffer.getByte();
+        ByteArrayBuffer cache = this.cache;
 
-			if (b == LineBasedProtocolDecoder.LINE_BASE) {
-				doBodyComplete();
-				return true;
-			}
+        for (; buffer.hasRemaining();) {
 
-			cache.write(b);
+            byte b = buffer.getByte();
 
-			if (cache.size() > limit) {
-				throw new IOException("max length " + limit);
-			}
-		}
+            if (b == LineBasedProtocolDecoder.LINE_BASE) {
+                doBodyComplete();
+                return true;
+            }
 
-		return false;
-	}
+            cache.write(b);
 
-	@Override
-	public ByteArrayBuffer getLineOutputStream() {
-		return cache;
-	}
-	
+            if (cache.size() > limit) {
+                throw new IOException("max length " + limit);
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public ByteArrayBuffer getLineOutputStream() {
+        return cache;
+    }
+
 }

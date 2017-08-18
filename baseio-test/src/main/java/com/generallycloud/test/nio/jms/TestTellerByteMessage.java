@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.jms;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
@@ -29,38 +29,39 @@ import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageProduce
 
 public class TestTellerByteMessage {
 
-	public static void main(String[] args) throws Exception {
-		
-		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+    public static void main(String[] args) throws Exception {
 
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandle);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		FixedSession session = new FixedSession(connector.connect());
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
 
-		session.login("admin", "admin100");
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		MessageProducer producer = new DefaultMessageProducer(session);
-		
-		TextByteMessage message = new TextByteMessage("msgID", "uuid", "============","你好！".getBytes(session.getContext().getEncoding()));
+        context.setIoEventHandleAdaptor(eventHandle);
 
-		long old = System.currentTimeMillis();
-		
-		for (int i = 0; i < 5; i++) {
-			producer.offer(message);
-		}
-		
-		System.out.println("Time:" + (System.currentTimeMillis() - old));
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
 
-		connector.close();
+        context.addSessionEventListener(new LoggerSocketSEListener());
 
-	}
+        FixedSession session = new FixedSession(connector.connect());
+
+        session.login("admin", "admin100");
+
+        MessageProducer producer = new DefaultMessageProducer(session);
+
+        TextByteMessage message = new TextByteMessage("msgID", "uuid", "============",
+                "你好！".getBytes(session.getContext().getEncoding()));
+
+        long old = System.currentTimeMillis();
+
+        for (int i = 0; i < 5; i++) {
+            producer.offer(message);
+        }
+
+        System.out.println("Time:" + (System.currentTimeMillis() - old));
+
+        connector.close();
+
+    }
 
 }

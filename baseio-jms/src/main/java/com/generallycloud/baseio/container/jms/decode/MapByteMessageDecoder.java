@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.decode;
 
 import com.alibaba.fastjson.JSONObject;
@@ -21,17 +21,17 @@ import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.container.jms.MapByteMessage;
 import com.generallycloud.baseio.container.jms.Message;
 
-public class MapByteMessageDecoder implements MessageDecoder{
+public class MapByteMessageDecoder implements MessageDecoder {
 
-	@Override
-	public Message decode(ProtobaseFuture future) {
-		Parameters param = future.getParameters();
-		String messageID = param.getParameter("msgID");
-		String queueName = param.getParameter("queueName");
-		JSONObject map = param.getJSONObject("map");
-		
-		byte[] array = future.getBinary();
-		
-		return new MapByteMessage(messageID,queueName,map,array);
-	}
+    @Override
+    public Message decode(ProtobaseFuture future) {
+        Parameters param = future.getParameters();
+        String messageID = param.getParameter("msgID");
+        String queueName = param.getParameter("queueName");
+        JSONObject map = param.getJSONObject("map");
+
+        byte[] array = future.getBinary();
+
+        return new MapByteMessage(messageID, queueName, map, array);
+    }
 }

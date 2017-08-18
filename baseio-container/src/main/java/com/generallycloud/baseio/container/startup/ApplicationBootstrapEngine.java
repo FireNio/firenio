@@ -42,119 +42,119 @@ import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class ApplicationBootstrapEngine implements Bootstrap{
+public class ApplicationBootstrapEngine implements Bootstrap {
 
-	public void bootstrap(String rootPath,boolean deployModel) throws Exception {
-		
-		FixedProperties serverProperties = FileUtil.readPropertiesByCls("server.properties");
+    @Override
+    public void bootstrap(String rootPath, boolean deployModel) throws Exception {
 
-		ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
+        FixedProperties serverProperties = FileUtil.readPropertiesByCls("server.properties");
 
-		ServerConfiguration sc = configurationLoader.loadConfiguration(serverProperties);
+        ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
 
-		ApplicationContext applicationContext = new ApplicationContext(rootPath);
-		
-		applicationContext.setDeployModel(deployModel);
+        ServerConfiguration sc = configurationLoader.loadConfiguration(serverProperties);
 
-		SocketChannelContext channelContext = new NioSocketChannelContext(sc);
-		//		SocketChannelContext channelContext = new AioSocketChannelContext(sc);
+        ApplicationContext applicationContext = new ApplicationContext(rootPath);
 
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(channelContext);
+        applicationContext.setDeployModel(deployModel);
 
-		try {
+        SocketChannelContext channelContext = new NioSocketChannelContext(sc);
+        //		SocketChannelContext channelContext = new AioSocketChannelContext(sc);
 
-			FixedProperties intfProperties = FileUtil.readPropertiesByCls("intf.properties");
+        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(channelContext);
 
-			applicationContext.setBlackIPs(loadBlackIPs());
+        try {
 
-			applicationContext.setChannelContext(channelContext);
+            FixedProperties intfProperties = FileUtil.readPropertiesByCls("intf.properties");
 
-			ApplicationConfigurationLoader acLoader = loadConfigurationLoader(
-					intfProperties.getProperty("intf.ApplicationConfigurationLoader"));
+            applicationContext.setBlackIPs(loadBlackIPs());
 
-			ApplicationExtLoader applicationExtLoader = loadApplicationExtLoader(
-					intfProperties.getProperty("intf.ApplicationExtLoader"));
+            applicationContext.setChannelContext(channelContext);
 
-			ApplicationContextEnricher enricher = loadApplicationContextEnricher(
-					intfProperties.getProperty("intf.ApplicationContextEnricher"));
+            ApplicationConfigurationLoader acLoader = loadConfigurationLoader(
+                    intfProperties.getProperty("intf.ApplicationConfigurationLoader"));
 
-			applicationContext.setApplicationExtLoader(applicationExtLoader);
+            ApplicationExtLoader applicationExtLoader = loadApplicationExtLoader(
+                    intfProperties.getProperty("intf.ApplicationExtLoader"));
 
-			applicationContext.setApplicationConfigurationLoader(acLoader);
+            ApplicationContextEnricher enricher = loadApplicationContextEnricher(
+                    intfProperties.getProperty("intf.ApplicationContextEnricher"));
 
-			enricher.enrich(applicationContext);
+            applicationContext.setApplicationExtLoader(applicationExtLoader);
 
-			channelContext
-					.setIoEventHandleAdaptor(new ApplicationIoEventHandle(applicationContext));
+            applicationContext.setApplicationConfigurationLoader(acLoader);
 
-			if (sc.isSERVER_ENABLE_SSL()) {
+            enricher.enrich(applicationContext);
 
-				File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
-				File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
+            channelContext
+                    .setIoEventHandleAdaptor(new ApplicationIoEventHandle(applicationContext));
 
-				SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
+            if (sc.isSERVER_ENABLE_SSL()) {
 
-				channelContext.setSslContext(sslContext);
-			}
+                File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
+                File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
 
-			sc.setSERVER_PORT(getServerPort(sc.getSERVER_PORT(), sc.isSERVER_ENABLE_SSL()));
+                SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
 
-			acceptor.bind();
+                channelContext.setSslContext(sslContext);
+            }
 
-		} catch (Throwable e) {
-			
-			Logger logger = LoggerFactory.getLogger(getClass());
+            sc.setSERVER_PORT(getServerPort(sc.getSERVER_PORT(), sc.isSERVER_ENABLE_SSL()));
 
-			logger.error(e.getMessage(), e);
+            acceptor.bind();
 
-			CloseUtil.unbind(acceptor);
-		}
-	}
+        } catch (Throwable e) {
 
-	private int getServerPort(int port, boolean enableSSL) {
-		if (port != 0) {
-			return port;
-		}
-		return enableSSL ? 443 : 80;
-	}
+            Logger logger = LoggerFactory.getLogger(getClass());
 
-	private ApplicationContextEnricher loadApplicationContextEnricher(String className)
-			throws Exception {
-		Class<?> clazz = ClassUtil.forName(className);
-		if (clazz == null) {
-			throw new Exception("intf.ApplicationContextEnricher is empty");
-		}
-		return (ApplicationContextEnricher) ClassUtil.newInstance(clazz);
-	}
+            logger.error(e.getMessage(), e);
 
-	private ApplicationExtLoader loadApplicationExtLoader(String className) throws Exception {
-		Class<?> clazz = ClassUtil.forName(className, DefaultExtLoader.class);
-		return (ApplicationExtLoader) ClassUtil.newInstance(clazz);
-	}
+            CloseUtil.unbind(acceptor);
+        }
+    }
 
-	private Set<String> loadBlackIPs() {
-		try {
-			String content = FileUtil.readStringByCls("black-ip.cfg");
-			if (StringUtil.isNullOrBlank(content)) {
-				return null;
-			}
-			String[] lines = content.split("\n");
-			Set<String> result = new HashSet<>();
-			for (String l : lines) {
-				if (StringUtil.isNullOrBlank(l)) {
-					continue;
-				}
-				result.add(l.trim().replace("\r", "").replace("\t", "\t"));
-			}
-			return result;
-		} catch (Exception e) {
-		}
-		return null;
-	}
+    private int getServerPort(int port, boolean enableSSL) {
+        if (port != 0) {
+            return port;
+        }
+        return enableSSL ? 443 : 80;
+    }
 
-	private ApplicationConfigurationLoader loadConfigurationLoader(String className) {
-		Class<?> clazz = ClassUtil.forName(className, FileSystemACLoader.class);
-		return (ApplicationConfigurationLoader) ClassUtil.newInstance(clazz);
-	}
-	
+    private ApplicationContextEnricher loadApplicationContextEnricher(String className)
+            throws Exception {
+        Class<?> clazz = ClassUtil.forName(className);
+        if (clazz == null) {
+            throw new Exception("intf.ApplicationContextEnricher is empty");
+        }
+        return (ApplicationContextEnricher) ClassUtil.newInstance(clazz);
+    }
+
+    private ApplicationExtLoader loadApplicationExtLoader(String className) throws Exception {
+        Class<?> clazz = ClassUtil.forName(className, DefaultExtLoader.class);
+        return (ApplicationExtLoader) ClassUtil.newInstance(clazz);
+    }
+
+    private Set<String> loadBlackIPs() {
+        try {
+            String content = FileUtil.readStringByCls("black-ip.cfg");
+            if (StringUtil.isNullOrBlank(content)) {
+                return null;
+            }
+            String[] lines = content.split("\n");
+            Set<String> result = new HashSet<>();
+            for (String l : lines) {
+                if (StringUtil.isNullOrBlank(l)) {
+                    continue;
+                }
+                result.add(l.trim().replace("\r", "").replace("\t", "\t"));
+            }
+            return result;
+        } catch (Exception e) {}
+        return null;
+    }
+
+    private ApplicationConfigurationLoader loadConfigurationLoader(String className) {
+        Class<?> clazz = ClassUtil.forName(className, FileSystemACLoader.class);
+        return (ApplicationConfigurationLoader) ClassUtil.newInstance(clazz);
+    }
+
 }

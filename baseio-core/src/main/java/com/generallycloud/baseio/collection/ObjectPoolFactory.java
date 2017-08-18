@@ -21,6 +21,6 @@ package com.generallycloud.baseio.collection;
  */
 public interface ObjectPoolFactory<V> {
 
-	V newInstance();
+    V newInstance();
 
 }

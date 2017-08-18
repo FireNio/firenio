@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.http11.service;
 
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
@@ -24,25 +24,27 @@ import com.generallycloud.baseio.container.service.FutureAcceptorService;
 import com.generallycloud.baseio.protocol.Future;
 
 public abstract class HttpFutureAcceptorService extends FutureAcceptorService {
-	
-	private HttpContext		context	= HttpContext.getInstance();
 
-	@Override
-	public void accept(SocketSession session, Future future) throws Exception {
+    private HttpContext context = HttpContext.getInstance();
 
-		HttpSessionManager manager = context.getHttpSessionManager();
+    @Override
+    public void accept(SocketSession session, Future future) throws Exception {
 
-		HttpFuture httpReadFuture = (HttpFuture) future;
+        HttpSessionManager manager = context.getHttpSessionManager();
 
-		HttpSession httpSession = manager.getHttpSession(context,session, httpReadFuture);
+        HttpFuture httpReadFuture = (HttpFuture) future;
 
-		doAccept(httpSession, httpReadFuture);
-	}
+        HttpSession httpSession = manager.getHttpSession(context, session, httpReadFuture);
 
-	protected abstract void doAccept(HttpSession session, HttpFuture future) throws Exception;
+        doAccept(httpSession, httpReadFuture);
+    }
 
-	@Override
-	public void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state) {
-		future.getContext().getIoEventHandleAdaptor().exceptionCaught(session, future, cause, state);
-	}
+    protected abstract void doAccept(HttpSession session, HttpFuture future) throws Exception;
+
+    @Override
+    public void exceptionCaught(SocketSession session, Future future, Exception cause,
+            IoEventState state) {
+        future.getContext().getIoEventHandleAdaptor().exceptionCaught(session, future, cause,
+                state);
+    }
 }

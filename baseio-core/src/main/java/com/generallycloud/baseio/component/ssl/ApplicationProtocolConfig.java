@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
 import static com.generallycloud.baseio.component.ssl.ApplicationProtocolUtil.toList;
@@ -32,9 +32,9 @@ public final class ApplicationProtocolConfig {
      */
     public static final ApplicationProtocolConfig DISABLED = new ApplicationProtocolConfig();
 
-    private final List<String> supportedProtocols;
-    private final Protocol protocol;
-    private final SelectorFailureBehavior selectorBehavior;
+    private final List<String>                    supportedProtocols;
+    private final Protocol                        protocol;
+    private final SelectorFailureBehavior         selectorBehavior;
     private final SelectedListenerFailureBehavior selectedBehavior;
 
     /**
@@ -68,8 +68,7 @@ public final class ApplicationProtocolConfig {
      * @param selectedBehavior How the peer being notified of the selected protocol should behave.
      * @param supportedProtocols The order of iteration determines the preference of support for protocols.
      */
-    private ApplicationProtocolConfig(
-            Protocol protocol, SelectorFailureBehavior selectorBehavior,
+    private ApplicationProtocolConfig(Protocol protocol, SelectorFailureBehavior selectorBehavior,
             SelectedListenerFailureBehavior selectedBehavior, List<String> supportedProtocols) {
         this.supportedProtocols = Collections.unmodifiableList(supportedProtocols);
         this.protocol = protocol;
@@ -77,7 +76,8 @@ public final class ApplicationProtocolConfig {
         this.selectedBehavior = selectedBehavior;
 
         if (protocol == Protocol.NONE) {
-            throw new IllegalArgumentException("protocol (" + Protocol.NONE + ") must not be " + Protocol.NONE + '.');
+            throw new IllegalArgumentException(
+                    "protocol (" + Protocol.NONE + ") must not be " + Protocol.NONE + '.');
         }
         if (supportedProtocols.isEmpty()) {
             throw new IllegalArgumentException("supportedProtocols must be not empty");

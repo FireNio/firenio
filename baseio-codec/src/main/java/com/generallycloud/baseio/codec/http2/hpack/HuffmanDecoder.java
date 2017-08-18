@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http2.hpack;
 
 import static com.generallycloud.baseio.codec.http2.hpack.HpackUtil.HUFFMAN_CODES;
@@ -28,14 +28,17 @@ import com.generallycloud.baseio.common.ThrowableUtil;
 
 final class HuffmanDecoder {
 
-    private static final Http2Exception EOS_DECODED = ThrowableUtil.unknownStackTrace(
-            connectionError(COMPRESSION_ERROR, "HPACK - EOS Decoded"), HuffmanDecoder.class, "decode(...)");
+    private static final Http2Exception EOS_DECODED     = ThrowableUtil.unknownStackTrace(
+            connectionError(COMPRESSION_ERROR, "HPACK - EOS Decoded"), HuffmanDecoder.class,
+            "decode(...)");
     private static final Http2Exception INVALID_PADDING = ThrowableUtil.unknownStackTrace(
-            connectionError(COMPRESSION_ERROR, "HPACK - Invalid Padding"), HuffmanDecoder.class, "decode(...)");
+            connectionError(COMPRESSION_ERROR, "HPACK - Invalid Padding"), HuffmanDecoder.class,
+            "decode(...)");
 
-    private static final Node ROOT = buildTree(HUFFMAN_CODES, HUFFMAN_CODE_LENGTHS);
+    private static final Node           ROOT            = buildTree(HUFFMAN_CODES,
+            HUFFMAN_CODE_LENGTHS);
 
-    private final DecoderProcessor processor;
+    private final DecoderProcessor      processor;
 
     HuffmanDecoder(int initialCapacity) {
         processor = new DecoderProcessor(initialCapacity);
@@ -58,8 +61,8 @@ final class HuffmanDecoder {
 
     private static final class Node {
 
-        private final int symbol;      // terminal nodes have a symbol
-        private final int bits;        // number of bits matched by the node
+        private final int    symbol;   // terminal nodes have a symbol
+        private final int    bits;     // number of bits matched by the node
         private final Node[] children; // internal nodes have children
 
         /**
@@ -123,12 +126,12 @@ final class HuffmanDecoder {
 
     private static final class DecoderProcessor implements ByteProcessor {
         private final int initialCapacity;
-        private byte[] bytes;
-        private int index;
-        private Node node;
-        private int current;
-        private int currentBits;
-        private int symbolBits;
+        private byte[]    bytes;
+        private int       index;
+        private Node      node;
+        private int       current;
+        private int       currentBits;
+        private int       symbolBits;
 
         DecoderProcessor(int initialCapacity) {
             this.initialCapacity = initialCapacity;
@@ -144,21 +147,33 @@ final class HuffmanDecoder {
         }
 
         /*
-         * The idea here is to consume whole bytes at a time rather than individual bits. node
-         * represents the Huffman tree, with all bit patterns denormalized as 256 children. Each
-         * child represents the last 8 bits of the huffman code. The parents of each child each
-         * represent the successive 8 bit chunks that lead up to the last most part. 8 bit bytes
-         * from buf are used to traverse these tree until a terminal node is found.
+         * The idea here is to consume whole bytes at a time rather than
+         * individual bits. node
+         * represents the Huffman tree, with all bit patterns denormalized as
+         * 256 children. Each
+         * child represents the last 8 bits of the huffman code. The parents of
+         * each child each
+         * represent the successive 8 bit chunks that lead up to the last most
+         * part. 8 bit bytes
+         * from buf are used to traverse these tree until a terminal node is
+         * found.
          *
-         * current is a bit buffer. The low order bits represent how much of the huffman code has
-         * not been used to traverse the tree. Thus, the high order bits are just garbage.
-         * currentBits represents how many of the low order bits of current are actually valid.
+         * current is a bit buffer. The low order bits represent how much of the
+         * huffman code has
+         * not been used to traverse the tree. Thus, the high order bits are
+         * just garbage.
+         * currentBits represents how many of the low order bits of current are
+         * actually valid.
          * currentBits will vary between 0 and 15.
          *
-         * symbolBits is the number of bits of the the symbol being decoded, *including* all those
-         * of the parent nodes. symbolBits tells how far down the tree we are. For example, when
-         * decoding the invalid sequence {0xff, 0xff}, currentBits will be 0, but symbolBits will be
-         * 16. This is used to know if buf ended early (before consuming a whole symbol) or if
+         * symbolBits is the number of bits of the the symbol being decoded,
+         * *including* all those
+         * of the parent nodes. symbolBits tells how far down the tree we are.
+         * For example, when
+         * decoding the invalid sequence {0xff, 0xff}, currentBits will be 0,
+         * but symbolBits will be
+         * 16. This is used to know if buf ended early (before consuming a whole
+         * symbol) or if
          * there is too much padding.
          */
         @Override
@@ -186,8 +201,10 @@ final class HuffmanDecoder {
 
         String end() throws Http2Exception {
             /*
-             * We have consumed all the bytes in buf, but haven't consumed all the symbols. We may be on
-             * a partial symbol, so consume until there is nothing left. This will loop at most 2 times.
+             * We have consumed all the bytes in buf, but haven't consumed all
+             * the symbols. We may be on
+             * a partial symbol, so consume until there is nothing left. This
+             * will loop at most 2 times.
              */
             while (currentBits > 0) {
                 node = node.children[(current << (8 - currentBits)) & 0xFF];
@@ -213,7 +230,7 @@ final class HuffmanDecoder {
                 throw INVALID_PADDING;
             }
 
-            return new String(bytes,0,index);
+            return new String(bytes, 0, index);
         }
 
         private void append(int i) {

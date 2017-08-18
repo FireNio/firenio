@@ -23,40 +23,41 @@ import com.generallycloud.baseio.component.SocketSession;
  *
  */
 public class HashedProtobaseFutureImpl extends SessionIdProtobaseFutureImpl
-		implements HashedProtobaseFuture {
+        implements HashedProtobaseFuture {
 
-	public HashedProtobaseFutureImpl(SocketChannelContext context) {
-		super(context);
-	}
-	
-	public HashedProtobaseFutureImpl(SocketChannelContext context, int futureID, String futureName) {
-		super(context, futureID, futureName);
-	}
+    public HashedProtobaseFutureImpl(SocketChannelContext context) {
+        super(context);
+    }
 
-	public HashedProtobaseFutureImpl(SocketChannelContext context, String futureName) {
-		this(context, 0, futureName);
-	}
+    public HashedProtobaseFutureImpl(SocketChannelContext context, int futureID,
+            String futureName) {
+        super(context, futureID, futureName);
+    }
 
-	public HashedProtobaseFutureImpl(SocketSession session, ByteBuf buf, boolean isBroadcast) {
-		super(session, buf, isBroadcast);
-	}
+    public HashedProtobaseFutureImpl(SocketChannelContext context, String futureName) {
+        this(context, 0, futureName);
+    }
 
-	private int		hashCode;
+    public HashedProtobaseFutureImpl(SocketSession session, ByteBuf buf, boolean isBroadcast) {
+        super(session, buf, isBroadcast);
+    }
 
-	@Override
-	public void setHashCode(int hashCode) {
-		this.hashCode = hashCode;
-	}
+    private int hashCode;
 
-	@Override
-	public int getHashCode() {
-		return hashCode;
-	}
+    @Override
+    public void setHashCode(int hashCode) {
+        this.hashCode = hashCode;
+    }
 
-	@Override
-	protected void generateHeaderExtend(ByteBuf buf) {
-		super.generateHeaderExtend(buf);
-		this.hashCode = buf.getInt();
-	}
+    @Override
+    public int getHashCode() {
+        return hashCode;
+    }
+
+    @Override
+    protected void generateHeaderExtend(ByteBuf buf) {
+        super.generateHeaderExtend(buf);
+        this.hashCode = buf.getInt();
+    }
 
 }

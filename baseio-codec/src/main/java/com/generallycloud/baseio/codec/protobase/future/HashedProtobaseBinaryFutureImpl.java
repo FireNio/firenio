@@ -23,33 +23,33 @@ import com.generallycloud.baseio.component.SocketSession;
  *
  */
 public class HashedProtobaseBinaryFutureImpl extends SessionIdProtobaseBinaryFutureImpl
-		implements HashedProtobaseFuture {
+        implements HashedProtobaseFuture {
 
-	public HashedProtobaseBinaryFutureImpl(SocketChannelContext context) {
-		super(context);
-	}
+    public HashedProtobaseBinaryFutureImpl(SocketChannelContext context) {
+        super(context);
+    }
 
-	public HashedProtobaseBinaryFutureImpl(SocketSession session, ByteBuf buf,
-			int binaryLimit, boolean isBroadcast) {
-		super(session, buf, binaryLimit, isBroadcast);
-	}
+    public HashedProtobaseBinaryFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit,
+            boolean isBroadcast) {
+        super(session, buf, binaryLimit, isBroadcast);
+    }
 
-	private int		hashCode;
+    private int hashCode;
 
-	@Override
-	public void setHashCode(int hashCode) {
-		this.hashCode = hashCode;
-	}
+    @Override
+    public void setHashCode(int hashCode) {
+        this.hashCode = hashCode;
+    }
 
-	@Override
-	public int getHashCode() {
-		return hashCode;
-	}
+    @Override
+    public int getHashCode() {
+        return hashCode;
+    }
 
-	@Override
-	protected void generateHeaderExtend(ByteBuf buf) {
-		super.generateHeaderExtend(buf);
-		this.hashCode = buf.getInt();
-	}
+    @Override
+    protected void generateHeaderExtend(ByteBuf buf) {
+        super.generateHeaderExtend(buf);
+        this.hashCode = buf.getInt();
+    }
 
 }

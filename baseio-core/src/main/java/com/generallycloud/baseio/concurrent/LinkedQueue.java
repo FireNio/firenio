@@ -21,10 +21,10 @@ package com.generallycloud.baseio.concurrent;
  */
 public interface LinkedQueue<T> {
 
-	void offer(Linkable linkable);
+    void offer(Linkable linkable);
 
-	T poll();
+    T poll();
 
-	int size();
+    int size();
 
 }

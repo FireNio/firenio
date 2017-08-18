@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.linebased;
 
 import java.io.File;
@@ -32,36 +32,36 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class TestLineBasedServer {
 
-	public static void main(String[] args) throws Exception {
-		
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+    public static void main(String[] args) throws Exception {
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				
-				String res = "yes server already accept your message:" + future.getReadText();
-				future.write(res);
-				session.flush(future);
-			}
-		};
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
 
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.setProtocolFactory(new LineBasedProtocolFactory(1024 * 1000));
-		
-		File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
-		File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
+                String res = "yes server already accept your message:" + future.getReadText();
+                future.write(res);
+                session.flush(future);
+            }
+        };
 
-		SslContext sslContext = SSLUtil.initServer(privateKey,certificate);
-		
-		context.setSslContext(sslContext);
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
 
-		acceptor.bind();
-	}
+        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+
+        context.setProtocolFactory(new LineBasedProtocolFactory(1024 * 1000));
+
+        File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
+        File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
+
+        SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
+
+        context.setSslContext(sslContext);
+
+        acceptor.bind();
+    }
 }

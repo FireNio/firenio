@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.cmd;
 
 import java.util.HashMap;
@@ -21,37 +21,36 @@ import com.alibaba.fastjson.JSON;
 
 public class CmdRequest {
 
-	private String cmd;
-	
-	private HashMap<String, String> params = new HashMap<String, String>();
+    private String                  cmd;
 
-	public String getCmd() {
-		return cmd;
-	}
+    private HashMap<String, String> params = new HashMap<>();
 
-	public void setCmd(String cmd) {
-		this.cmd = cmd;
-	}
-	
-	public String getParam(String key){
-		return params.get(key);
-	}
-	
-	
-	public void putParam(String key,String value){
-		this.params.put(key, value);
-	}
+    public String getCmd() {
+        return cmd;
+    }
 
-	public HashMap<String, String> getParams() {
-		return params;
-	}
+    public void setCmd(String cmd) {
+        this.cmd = cmd;
+    }
 
-	public void setParams(HashMap<String, String> params) {
-		this.params = params;
-	}
-	
-	@Override
-	public String toString() {
-		return JSON.toJSONString(this);
-	}
+    public String getParam(String key) {
+        return params.get(key);
+    }
+
+    public void putParam(String key, String value) {
+        this.params.put(key, value);
+    }
+
+    public HashMap<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(HashMap<String, String> params) {
+        this.params = params;
+    }
+
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
+    }
 }

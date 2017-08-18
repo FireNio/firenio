@@ -12,48 +12,41 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.others;
 
 import java.util.concurrent.locks.LockSupport;
 
 public class TestLockSupport {
-	
-	public static void main(String[] args) {
-		
-		
-		final Thread t1 = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				System.out.println("lock....");
-				
-				LockSupport.park();
-				
-			}
-		});
-		
-		final Thread t2 = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				System.out.println("unlock....");
-				
-				LockSupport.unpark(t1);
-			}
-		});
-		
-		t1.start();
-		t2.start();
-		
-		
-		
-	}
-	
-	
-	
-	
-	
+
+    public static void main(String[] args) {
+
+        final Thread t1 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                System.out.println("lock....");
+
+                LockSupport.park();
+
+            }
+        });
+
+        final Thread t2 = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                System.out.println("unlock....");
+
+                LockSupport.unpark(t1);
+            }
+        });
+
+        t1.start();
+        t2.start();
+
+    }
+
 }

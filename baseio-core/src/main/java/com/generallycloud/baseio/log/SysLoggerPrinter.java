@@ -21,30 +21,30 @@ package com.generallycloud.baseio.log;
  */
 public class SysLoggerPrinter implements LoggerPrinter {
 
-	private static SysLoggerPrinter printer = new SysLoggerPrinter();
+    private static SysLoggerPrinter printer = new SysLoggerPrinter();
 
-	public static SysLoggerPrinter get() {
-		return printer;
-	}
+    public static SysLoggerPrinter get() {
+        return printer;
+    }
 
-	@Override
-	public void println(String msg) {
-		System.out.println(msg);
-	}
+    @Override
+    public void println(String msg) {
+        System.out.println(msg);
+    }
 
-	@Override
-	public void printThrowable(Throwable t) {
-		t.printStackTrace(System.out);
-	}
+    @Override
+    public void printThrowable(Throwable t) {
+        t.printStackTrace(System.out);
+    }
 
-	@Override
-	public void errPrintln(String msg) {
-		System.err.println(msg);
-	}
+    @Override
+    public void errPrintln(String msg) {
+        System.err.println(msg);
+    }
 
-	@Override
-	public void errPrintThrowable(Throwable t) {
-		t.printStackTrace(System.err);
-	}
+    @Override
+    public void errPrintThrowable(Throwable t) {
+        t.printStackTrace(System.err);
+    }
 
 }

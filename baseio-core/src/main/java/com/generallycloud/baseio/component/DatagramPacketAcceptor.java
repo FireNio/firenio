@@ -21,5 +21,5 @@ import com.generallycloud.baseio.protocol.DatagramPacket;
 
 public interface DatagramPacketAcceptor {
 
-	public abstract void accept(DatagramSession session, DatagramPacket packet) throws IOException;
+    public abstract void accept(DatagramSession session, DatagramPacket packet) throws IOException;
 }

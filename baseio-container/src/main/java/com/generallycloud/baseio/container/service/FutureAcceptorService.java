@@ -24,61 +24,62 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
 
-public abstract class FutureAcceptorService extends AbstractInitializeable implements IoEventHandle {
+public abstract class FutureAcceptorService extends AbstractInitializeable
+        implements IoEventHandle {
 
-	private Logger		logger		= LoggerFactory.getLogger(getClass());
+    private Logger logger      = LoggerFactory.getLogger(getClass());
 
-	private String		serviceName	= null;
-	
-	public FutureAcceptorService() {
-	}
-	
-	public FutureAcceptorService(String serviceName) {
-		this.serviceName = serviceName;
-	}
+    private String serviceName = null;
 
-	@Override
-	public void futureSent(SocketSession session, Future future) {
+    public FutureAcceptorService() {}
 
-	}
+    public FutureAcceptorService(String serviceName) {
+        this.serviceName = serviceName;
+    }
 
-	@Override
-	public void exceptionCaught(SocketSession session, Future future, Exception e, IoEventState state) {
-		logger.error(e);
-	}
+    @Override
+    public void futureSent(SocketSession session, Future future) {
 
-	@Override
-	public String toString() {
+    }
 
-		String serviceName = this.serviceName;
+    @Override
+    public void exceptionCaught(SocketSession session, Future future, Exception e,
+            IoEventState state) {
+        logger.error(e);
+    }
 
-		if (serviceName == null) {
+    @Override
+    public String toString() {
 
-			Configuration configuration = this.getConfig();
+        String serviceName = this.serviceName;
 
-			if (configuration != null) {
-				serviceName = configuration.getParameter("service-name");
-			}
+        if (serviceName == null) {
 
-			if (serviceName == null) {
-				serviceName = "unknow";
-			}
-		}
+            Configuration configuration = this.getConfig();
 
-		return "(service-name:" + serviceName + "@class:" + this.getClass().getName() + ")";
-	}
-	
-	public String getServiceName() {
-		return serviceName;
-	}
-	
-	public void setServiceName(String serviceName) {
-		
-		if (StringUtil.isNullOrBlank(serviceName)) {
-			throw new IllegalArgumentException("null future name");
-		}
-		
-		this.serviceName = serviceName;
-	}
+            if (configuration != null) {
+                serviceName = configuration.getParameter("service-name");
+            }
+
+            if (serviceName == null) {
+                serviceName = "unknow";
+            }
+        }
+
+        return "(service-name:" + serviceName + "@class:" + this.getClass().getName() + ")";
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+
+        if (StringUtil.isNullOrBlank(serviceName)) {
+            throw new IllegalArgumentException("null future name");
+        }
+
+        this.serviceName = serviceName;
+    }
 
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.concurrent;
 
 import java.util.ArrayList;
@@ -29,88 +29,88 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ReentrantList<T> {
 
-	private List<T>		snapshot		;
-	private List<Event>		modifList		= new ArrayList<Event>();
-	private ReentrantLock	loack		= new ReentrantLock();
-	private boolean		modifid		= false;
+    private List<T>       snapshot;
+    private List<Event>   modifList = new ArrayList<>();
+    private ReentrantLock loack     = new ReentrantLock();
+    private boolean       modifid   = false;
 
-	public ReentrantList(List<T> snapshot) {
-		this.snapshot = snapshot;
-	}
+    public ReentrantList(List<T> snapshot) {
+        this.snapshot = snapshot;
+    }
 
-	public List<T> takeSnapshot() {
-		if (modifid) {
-			ReentrantLock lock = this.loack;
+    public List<T> takeSnapshot() {
+        if (modifid) {
+            ReentrantLock lock = this.loack;
 
-			lock.lock();
+            lock.lock();
 
-			List<T> snapshot = this.snapshot;
-			
-			List<Event> modifList = this.modifList;
+            List<T> snapshot = this.snapshot;
 
-			for (Event e : modifList) {
-				
-				if (e.isAdd) {
-					snapshot.add(e.value);
-				}else{
-					snapshot.remove(e.value);
-				}
-			}
-			
-			modifList.clear();
+            List<Event> modifList = this.modifList;
 
-			this.modifid = false;
+            for (Event e : modifList) {
 
-			lock.unlock();
-		}
-		
-		return snapshot;
-	}
+                if (e.isAdd) {
+                    snapshot.add(e.value);
+                } else {
+                    snapshot.remove(e.value);
+                }
+            }
 
-	public boolean add(T t) {
-		return modif(t, true);
-	}
-	
-	private boolean modif(T t,boolean isAdd){
-		ReentrantLock lock = this.loack;
-		lock.lock();
-		Event e = new Event();
-		e.isAdd = isAdd;
-		e.value = t;
-		this.modifList.add(e);
-		this.modifid = true;
-		lock.unlock();
-		return true;
-	}
+            modifList.clear();
 
-	public void remove(T t) {
-		modif(t, false);
-	}
-	
-	public void clear(){
-		ReentrantLock lock = this.loack;
-		lock.lock();
-		this.modifList.clear();
-		this.modifid = false;
-		this.snapshot.clear();
-		lock.unlock();
-	}
+            this.modifid = false;
 
-	public ReentrantLock getReentrantLock(){
-		return loack;
-	}
+            lock.unlock();
+        }
 
-	public int size() {
-		return takeSnapshot().size();
-	}
-	
-	public boolean isEmpty(){
-		return size() == 0;
-	}
-	
-	class Event {
-		T		value;
-		boolean	isAdd;
-	}
+        return snapshot;
+    }
+
+    public boolean add(T t) {
+        return modif(t, true);
+    }
+
+    private boolean modif(T t, boolean isAdd) {
+        ReentrantLock lock = this.loack;
+        lock.lock();
+        Event e = new Event();
+        e.isAdd = isAdd;
+        e.value = t;
+        this.modifList.add(e);
+        this.modifid = true;
+        lock.unlock();
+        return true;
+    }
+
+    public void remove(T t) {
+        modif(t, false);
+    }
+
+    public void clear() {
+        ReentrantLock lock = this.loack;
+        lock.lock();
+        this.modifList.clear();
+        this.modifid = false;
+        this.snapshot.clear();
+        lock.unlock();
+    }
+
+    public ReentrantLock getReentrantLock() {
+        return loack;
+    }
+
+    public int size() {
+        return takeSnapshot().size();
+    }
+
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    class Event {
+        T       value;
+        boolean isAdd;
+    }
 
 }

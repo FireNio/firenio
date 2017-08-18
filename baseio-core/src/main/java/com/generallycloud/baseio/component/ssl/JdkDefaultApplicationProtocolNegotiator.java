@@ -20,25 +20,25 @@ import java.util.List;
 
 final class JdkDefaultApplicationProtocolNegotiator implements JdkApplicationProtocolNegotiator {
 
-	private SslEngineWrapperFactory defaultSslEngineWrapperFactory = new DefaultSslEngineWrapperFactory();
+    private SslEngineWrapperFactory defaultSslEngineWrapperFactory = new DefaultSslEngineWrapperFactory();
 
-	@Override
-	public SslEngineWrapperFactory wrapperFactory() {
-		return defaultSslEngineWrapperFactory;
-	}
+    @Override
+    public SslEngineWrapperFactory wrapperFactory() {
+        return defaultSslEngineWrapperFactory;
+    }
 
-	@Override
-	public ProtocolSelectorFactory protocolSelectorFactory() {
-		throw new UnsupportedOperationException("Application protocol negotiation unsupported");
-	}
+    @Override
+    public ProtocolSelectorFactory protocolSelectorFactory() {
+        throw new UnsupportedOperationException("Application protocol negotiation unsupported");
+    }
 
-	@Override
-	public ProtocolSelectionListenerFactory protocolListenerFactory() {
-		throw new UnsupportedOperationException("Application protocol negotiation unsupported");
-	}
+    @Override
+    public ProtocolSelectionListenerFactory protocolListenerFactory() {
+        throw new UnsupportedOperationException("Application protocol negotiation unsupported");
+    }
 
-	@Override
-	public List<String> protocols() {
-		return Collections.emptyList();
-	}
+    @Override
+    public List<String> protocols() {
+        return Collections.emptyList();
+    }
 }

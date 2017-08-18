@@ -36,82 +36,82 @@ import com.generallycloud.baseio.log.LoggerFactory;
  *
  */
 public class NioSocketChannelConnector extends AbstractSocketChannelConnector
-		implements NioChannelService {
+        implements NioChannelService {
 
-	private NioSocketChannelContext		context;
-	private SelectableChannel			selectableChannel		= null;
-	private SocketSelectorBuilder			selectorBuilder		= null;
-	private SocketSelectorEventLoopGroup	selectorEventLoopGroup	= null;
-	private Logger						logger				= LoggerFactory
-			.getLogger(getClass());
+    private NioSocketChannelContext      context;
+    private SelectableChannel            selectableChannel      = null;
+    private SocketSelectorBuilder        selectorBuilder        = null;
+    private SocketSelectorEventLoopGroup selectorEventLoopGroup = null;
+    private Logger                       logger                 = LoggerFactory
+            .getLogger(getClass());
 
-	//FIXME 优化
-	protected NioSocketChannelConnector(NioSocketChannelContext context) {
-		this.selectorBuilder = new ClientNioSocketSelectorBuilder(this);
-		this.context = context;
-	}
+    //FIXME 优化
+    protected NioSocketChannelConnector(NioSocketChannelContext context) {
+        this.selectorBuilder = new ClientNioSocketSelectorBuilder(this);
+        this.context = context;
+    }
 
-	@Override
-	protected void destroyService() {
-		CloseUtil.close(selectableChannel);
-		LifeCycleUtil.stop(selectorEventLoopGroup);
-	}
+    @Override
+    protected void destroyService() {
+        CloseUtil.close(selectableChannel);
+        LifeCycleUtil.stop(selectorEventLoopGroup);
+    }
 
-	private void initSelectorLoops() {
-		//FIXME socket selector event loop ?
-		ServerConfiguration configuration = getContext().getServerConfiguration();
-		int core_size = configuration.getSERVER_CORE_SIZE();
-		this.selectorEventLoopGroup = new SocketSelectorEventLoopGroup(
-				(NioSocketChannelContext) getContext(), "io-process", core_size);
-		LifeCycleUtil.start(selectorEventLoopGroup);
-	}
+    private void initSelectorLoops() {
+        //FIXME socket selector event loop ?
+        ServerConfiguration configuration = getContext().getServerConfiguration();
+        int core_size = configuration.getSERVER_CORE_SIZE();
+        this.selectorEventLoopGroup = new SocketSelectorEventLoopGroup(getContext(), "io-process",
+                core_size);
+        LifeCycleUtil.start(selectorEventLoopGroup);
+    }
 
-	@Override
-	protected void connect(InetSocketAddress socketAddress) throws IOException {
-		LifeCycleUtil.stop(selectorEventLoopGroup);
-		initChannel();
-		initSelectorLoops();
-		initNioSessionMananger();
-		((SocketChannel) this.selectableChannel).connect(socketAddress);
-		wait4connect();
-	}
-	
-	private void initNioSessionMananger(){
-		NioGlobalSocketSessionManager manager = (NioGlobalSocketSessionManager) getContext().getSessionManager();
-		manager.init((NioSocketChannelContext) getContext());
-	}
+    @Override
+    protected void connect(InetSocketAddress socketAddress) throws IOException {
+        LifeCycleUtil.stop(selectorEventLoopGroup);
+        initChannel();
+        initSelectorLoops();
+        initNioSessionMananger();
+        ((SocketChannel) this.selectableChannel).connect(socketAddress);
+        wait4connect();
+    }
 
-	@Override
-	public NioSocketChannelContext getContext() {
-		return context;
-	}
+    private void initNioSessionMananger() {
+        NioGlobalSocketSessionManager manager = getContext().getSessionManager();
+        manager.init(getContext());
+    }
 
-	private void initChannel() throws IOException {
-		this.selectableChannel = SocketChannel.open();
-		this.selectableChannel.configureBlocking(false);
-	}
+    @Override
+    public NioSocketChannelContext getContext() {
+        return context;
+    }
 
-	@Override
-	public SocketSelectorBuilder getSelectorBuilder() {
-		return selectorBuilder;
-	}
+    private void initChannel() throws IOException {
+        this.selectableChannel = SocketChannel.open();
+        this.selectableChannel.configureBlocking(false);
+    }
 
-	@Override
-	public SelectableChannel getSelectableChannel() {
-		return selectableChannel;
-	}
+    @Override
+    public SocketSelectorBuilder getSelectorBuilder() {
+        return selectorBuilder;
+    }
 
-	@Override
-	Logger getLogger() {
-		return logger;
-	}
+    @Override
+    public SelectableChannel getSelectableChannel() {
+        return selectableChannel;
+    }
 
-	/**
-	 * @return the selectorEventLoopGroup
-	 */
-	@Override
-	public SocketSelectorEventLoopGroup getSelectorEventLoopGroup() {
-		return selectorEventLoopGroup;
-	}
+    @Override
+    Logger getLogger() {
+        return logger;
+    }
+
+    /**
+     * @return the selectorEventLoopGroup
+     */
+    @Override
+    public SocketSelectorEventLoopGroup getSelectorEventLoopGroup() {
+        return selectorEventLoopGroup;
+    }
 
 }

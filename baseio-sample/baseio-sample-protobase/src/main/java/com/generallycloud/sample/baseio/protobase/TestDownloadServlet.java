@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.sample.baseio.protobase;
 
 import java.io.File;
@@ -27,26 +27,27 @@ import com.generallycloud.baseio.container.protobase.service.ProtobaseFutureAcce
 
 public class TestDownloadServlet extends ProtobaseFutureAcceptorService {
 
-	public static final String SERVICE_NAME = TestDownloadServlet.class.getSimpleName();
+    public static final String SERVICE_NAME = TestDownloadServlet.class.getSimpleName();
 
-	@Override
-	protected void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
-		FileSendUtil fileSendUtil = new FileSendUtil();
+    @Override
+    protected void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
+        FileSendUtil fileSendUtil = new FileSendUtil();
 
-		File file = new File(future.getParameters().getParameter(FileReceiveUtil.FILE_NAME));
+        File file = new File(future.getParameters().getParameter(FileReceiveUtil.FILE_NAME));
 
-		if (!file.exists()) {
-			fileNotFound(session, future, "file not found");
-			return;
-		}
+        if (!file.exists()) {
+            fileNotFound(session, future, "file not found");
+            return;
+        }
 
-		fileSendUtil.sendFile(session, future.getFutureName(), file, 1024 * 800);
+        fileSendUtil.sendFile(session, future.getFutureName(), file, 1024 * 800);
 
-	}
+    }
 
-	private void fileNotFound(SocketSession session, ProtobaseFuture future, String msg) throws IOException {
-		RESMessage message = new RESMessage(404, msg);
-		future.write(message.toString());
-		session.flush(future);
-	}
+    private void fileNotFound(SocketSession session, ProtobaseFuture future, String msg)
+            throws IOException {
+        RESMessage message = new RESMessage(404, msg);
+        future.write(message.toString());
+        session.flush(future);
+    }
 }

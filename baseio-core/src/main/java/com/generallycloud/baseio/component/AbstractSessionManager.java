@@ -16,44 +16,44 @@
 package com.generallycloud.baseio.component;
 
 public abstract class AbstractSessionManager implements SessionManager {
-	
-	protected int			sessionSizeLimit	= 100 * 10000;
 
-	private long			current_idle_time	= 0;
-	private long			last_idle_time		= 0;
-	private long			session_idle_time	= 0;
-	private long			next_idle_time		= System.currentTimeMillis();
+    protected int sessionSizeLimit  = 100 * 10000;
 
-	public AbstractSessionManager(long session_idle_time) {
-		this.session_idle_time = session_idle_time;
-	}
+    private long  current_idle_time = 0;
+    private long  last_idle_time    = 0;
+    private long  session_idle_time = 0;
+    private long  next_idle_time    = System.currentTimeMillis();
 
-	@Override
-	public void loop() {
+    public AbstractSessionManager(long session_idle_time) {
+        this.session_idle_time = session_idle_time;
+    }
 
-		long current_time = System.currentTimeMillis();
+    @Override
+    public void loop() {
 
-		if (next_idle_time > current_time) {
-			return;
-		}
+        long current_time = System.currentTimeMillis();
 
-		this.last_idle_time = this.current_idle_time;
+        if (next_idle_time > current_time) {
+            return;
+        }
 
-		this.current_idle_time = current_time;
+        this.last_idle_time = this.current_idle_time;
 
-		this.next_idle_time = current_idle_time + session_idle_time;
+        this.current_idle_time = current_time;
 
-		sessionIdle(last_idle_time, current_time);
-	}
+        this.next_idle_time = current_idle_time + session_idle_time;
 
-	protected abstract void sessionIdle(long lastIdleTime, long currentTime);
+        sessionIdle(last_idle_time, current_time);
+    }
 
-	public int getSessionSizeLimit() {
-		return sessionSizeLimit;
-	}
+    protected abstract void sessionIdle(long lastIdleTime, long currentTime);
 
-	public void setSessionSizeLimit(int sessionSizeLimit) {
-		this.sessionSizeLimit = sessionSizeLimit;
-	}
-	
+    public int getSessionSizeLimit() {
+        return sessionSizeLimit;
+    }
+
+    public void setSessionSizeLimit(int sessionSizeLimit) {
+        this.sessionSizeLimit = sessionSizeLimit;
+    }
+
 }

@@ -12,15 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance;
 
 import com.generallycloud.baseio.component.SocketSession;
 
 public interface BalanceClientSocketSession extends SocketSession {
-	
-	public abstract Long getToken();
-	
-	public abstract void setToken(Long token);
+
+    public abstract Long getToken();
+
+    public abstract void setToken(Long token);
 
 }

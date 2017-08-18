@@ -12,19 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.jdkproxy;
 
 public class Test {
 
-	public static void main(String[] args) {
-		
-		FontProvider fontProvider = ProviderFactory.getFontProvider();
-		
-		String font = fontProvider.getFont("微软雅黑");
+    public static void main(String[] args) {
 
-		System.out.println(font);
+        FontProvider fontProvider = ProviderFactory.getFontProvider();
 
-	}
+        String font = fontProvider.getFont("微软雅黑");
+
+        System.out.println(font);
+
+    }
 
 }

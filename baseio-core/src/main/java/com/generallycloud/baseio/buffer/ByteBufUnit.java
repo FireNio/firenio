@@ -12,24 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.buffer;
 
 public class ByteBufUnit {
 
-	protected int		index		= 0;
-	protected int		blockEnd		= 0;
-	protected boolean	free			= true;
-	
-	@Override
-	public String toString() {
-		return new StringBuilder()
-			.append("index=")
-			.append(index)
-			.append(",free=")
-			.append(free)
-			.append(",end=")
-			.append(blockEnd)
-			.toString();
-	}
+    protected int     index    = 0;
+    protected int     blockEnd = 0;
+    protected boolean free     = true;
+
+    @Override
+    public String toString() {
+        return new StringBuilder().append("index=").append(index).append(",free=").append(free)
+                .append(",end=").append(blockEnd).toString();
+    }
 }

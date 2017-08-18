@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.rtp.server;
 
 import com.generallycloud.baseio.component.Session;
@@ -20,32 +20,32 @@ import com.generallycloud.baseio.container.rtp.RTPContext;
 
 public class RTPSessionAttachment {
 
-	private RTPContext	context	;
+    private RTPContext context;
 
-	private RTPRoom	rtpRoom	;
+    private RTPRoom    rtpRoom;
 
-	public RTPRoom getRtpRoom() {
-		return rtpRoom;
-	}
+    public RTPRoom getRtpRoom() {
+        return rtpRoom;
+    }
 
-	public RTPRoom createRTPRoom(Session session) {
-		if (rtpRoom == null) {
-			
-			rtpRoom = new RTPRoom(context,session);
-			
-			RTPRoomFactory factory = context.getRTPRoomFactory();
-			
-			factory.putRTPRoom(rtpRoom);
-		}
-		return rtpRoom;
-	}
+    public RTPRoom createRTPRoom(Session session) {
+        if (rtpRoom == null) {
 
-	protected RTPSessionAttachment(RTPContext context) {
-		this.context = context;
-	}
-	
-	protected void setRTPRoom(RTPRoom room){
-		this.rtpRoom = room;
-	}
+            rtpRoom = new RTPRoom(context, session);
+
+            RTPRoomFactory factory = context.getRTPRoomFactory();
+
+            factory.putRTPRoom(rtpRoom);
+        }
+        return rtpRoom;
+    }
+
+    protected RTPSessionAttachment(RTPContext context) {
+        this.context = context;
+    }
+
+    protected void setRTPRoom(RTPRoom room) {
+        this.rtpRoom = room;
+    }
 
 }

@@ -24,53 +24,52 @@ import com.generallycloud.baseio.component.SocketSession;
 
 public class EmptyFuture extends AbstractChannelFuture {
 
-	private static EmptyFuture EMPTY_FUTURE = null;
+    private static EmptyFuture EMPTY_FUTURE = null;
 
-	public static void initializeReadFuture(SocketChannelContext context) {
-		if (EMPTY_FUTURE != null) {
-			return;
-		}
-		EMPTY_FUTURE = new EmptyFuture(context);
-		EMPTY_FUTURE.setByteBuf(EmptyByteBuf.getInstance());
-	}
+    public static void initializeReadFuture(SocketChannelContext context) {
+        if (EMPTY_FUTURE != null) {
+            return;
+        }
+        EMPTY_FUTURE = new EmptyFuture(context);
+        EMPTY_FUTURE.setByteBuf(EmptyByteBuf.getInstance());
+    }
 
-	public static EmptyFuture get() {
-		return EMPTY_FUTURE;
-	}
+    public static EmptyFuture get() {
+        return EMPTY_FUTURE;
+    }
 
-	public EmptyFuture(SocketChannelContext context) {
-		super(context);
-	}
+    public EmptyFuture(SocketChannelContext context) {
+        super(context);
+    }
 
-	@Override
-	public void release() {
+    @Override
+    public void release() {
 
-	}
-	
-	@Override
-	public boolean isReleased() {
-		return true;
-	}
+    }
 
-	@Override
-	public void write(byte[] bytes, int off, int len) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean isReleased() {
+        return true;
+    }
 
-	@Override
-	public void write(byte b) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void write(byte[] bytes, int off, int len) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public boolean read(SocketSession session, ByteBuf src) throws IOException {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public ChannelFuture duplicate() {
-		return this;
-	}
-	
+    @Override
+    public void write(byte b) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean read(SocketSession session, ByteBuf src) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ChannelFuture duplicate() {
+        return this;
+    }
 
 }

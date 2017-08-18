@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http2.future;
 
 import com.generallycloud.baseio.codec.http2.Http2SocketSession;
@@ -20,16 +20,16 @@ import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 public abstract class AbstractHttp2Frame extends AbstractChannelFuture implements SocketHttp2Frame {
 
-	private Http2FrameHeader header;
-	
-	protected AbstractHttp2Frame(Http2SocketSession session,Http2FrameHeader header) {
-		super(session.getContext());
-		this.header = header;
-	}
+    private Http2FrameHeader header;
 
-	@Override
-	public Http2FrameHeader getHeader() {
-		return header;
-	}
+    protected AbstractHttp2Frame(Http2SocketSession session, Http2FrameHeader header) {
+        super(session.getContext());
+        this.header = header;
+    }
+
+    @Override
+    public Http2FrameHeader getHeader() {
+        return header;
+    }
 
 }

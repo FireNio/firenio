@@ -23,41 +23,41 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelService implements ChannelService {
 
-	protected boolean			active		= false;
-	protected InetSocketAddress	serverAddress	= null;
+    protected boolean           active        = false;
+    protected InetSocketAddress serverAddress = null;
 
-	@Override
-	public InetSocketAddress getServerSocketAddress() {
-		return serverAddress;
-	}
+    @Override
+    public InetSocketAddress getServerSocketAddress() {
+        return serverAddress;
+    }
 
-	protected void initialize() throws IOException {
-		if (isActive()) {
-			return;
-		}
-		if (getContext() == null) {
-			throw new IllegalArgumentException("null nio context");
-		}
-		ChannelContext context = getContext();
-		LifeCycleUtil.stop(context);
-		context.setChannelService(this);
-		setServerCoreSize(context.getServerConfiguration());
-		LifeCycleUtil.start(getContext());
-		initService(context.getServerConfiguration());
-		active = true;
-	}
+    protected void initialize() throws IOException {
+        if (isActive()) {
+            return;
+        }
+        if (getContext() == null) {
+            throw new IllegalArgumentException("null nio context");
+        }
+        ChannelContext context = getContext();
+        LifeCycleUtil.stop(context);
+        context.setChannelService(this);
+        setServerCoreSize(context.getServerConfiguration());
+        LifeCycleUtil.start(getContext());
+        initService(context.getServerConfiguration());
+        active = true;
+    }
 
-	protected abstract void initService(ServerConfiguration configuration) throws IOException;
+    protected abstract void initService(ServerConfiguration configuration) throws IOException;
 
-	protected abstract void destroyService();
+    protected abstract void destroyService();
 
-	protected synchronized void destroy() {
-		active = false;
-		destroyService();
-		LifeCycleUtil.stop(getContext());
-		notify();
-	}
+    protected synchronized void destroy() {
+        active = false;
+        destroyService();
+        LifeCycleUtil.stop(getContext());
+        notify();
+    }
 
-	protected abstract void setServerCoreSize(ServerConfiguration configuration);
+    protected abstract void setServerCoreSize(ServerConfiguration configuration);
 
 }

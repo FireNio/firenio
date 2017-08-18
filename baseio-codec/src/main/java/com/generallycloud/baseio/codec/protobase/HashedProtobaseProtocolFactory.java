@@ -21,28 +21,28 @@ import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class HashedProtobaseProtocolFactory implements ProtocolFactory {
 
-	private int limit;
+    private int limit;
 
-	public HashedProtobaseProtocolFactory() {
-		this(1024 * 8);
-	}
+    public HashedProtobaseProtocolFactory() {
+        this(1024 * 8);
+    }
 
-	public HashedProtobaseProtocolFactory(int limit) {
-		this.limit = limit;
-	}
+    public HashedProtobaseProtocolFactory(int limit) {
+        this.limit = limit;
+    }
 
-	@Override
-	public ProtocolDecoder getProtocolDecoder() {
-		return new HashedProtobaseProtocolDecoder(limit);
-	}
+    @Override
+    public ProtocolDecoder getProtocolDecoder() {
+        return new HashedProtobaseProtocolDecoder(limit);
+    }
 
-	@Override
-	public ProtocolEncoder getProtocolEncoder() {
-		return new HashedProtobaseProtocolEncoder();
-	}
+    @Override
+    public ProtocolEncoder getProtocolEncoder() {
+        return new HashedProtobaseProtocolEncoder();
+    }
 
-	@Override
-	public String getProtocolId() {
-		return "HashedProtobase";
-	}
+    @Override
+    public String getProtocolId() {
+        return "HashedProtobase";
+    }
 }

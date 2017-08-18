@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
 
 import java.io.IOException;
@@ -36,187 +36,189 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class FixedSession {
 
-	private Authority			authority		= null;
-	private SocketChannelContext	context		= null;
-	private boolean		logined			= false;
-	private SocketSession		session		= null;
-	private long				timeout		= 50000;
-	private SimpleIoEventHandle	eventHandle	= null;
+    private Authority            authority   = null;
+    private SocketChannelContext context     = null;
+    private boolean              logined     = false;
+    private SocketSession        session     = null;
+    private long                 timeout     = 50000;
+    private SimpleIoEventHandle  eventHandle = null;
 
-	public FixedSession(SocketSession session) {
-		update(session);
-	}
+    public FixedSession(SocketSession session) {
+        update(session);
+    }
 
-	public void setTimeout(long timeout) {
-		if (timeout < 0) {
-			throw new IllegalArgumentException("illegal argument timeout: " + timeout);
-		}
+    public void setTimeout(long timeout) {
+        if (timeout < 0) {
+            throw new IllegalArgumentException("illegal argument timeout: " + timeout);
+        }
 
-		this.timeout = timeout;
-	}
+        this.timeout = timeout;
+    }
 
-	public long getTimeout() {
-		return timeout;
-	}
+    public long getTimeout() {
+        return timeout;
+    }
 
-	public void accept(SocketSession session, Future future) throws Exception {
+    public void accept(SocketSession session, Future future) throws Exception {
 
-	}
+    }
 
-	public Authority getAuthority() {
-		return authority;
-	}
+    public Authority getAuthority() {
+        return authority;
+    }
 
-	public SocketChannelContext getContext() {
-		return context;
-	}
+    public SocketChannelContext getContext() {
+        return context;
+    }
 
-	public SocketSession getSession() {
-		return session;
-	}
+    public SocketSession getSession() {
+        return session;
+    }
 
-	public boolean isLogined() {
-		return logined;
-	}
+    public boolean isLogined() {
+        return logined;
+    }
 
-	public boolean login(String username, String password) {
+    public boolean login(String username, String password) {
 
-		RESMessage message = login4RES(username, password);
+        RESMessage message = login4RES(username, password);
 
-		return message.getCode() == 0;
-	}
+        return message.getCode() == 0;
+    }
 
-	public RESMessage login4RES(String username, String password) {
+    public RESMessage login4RES(String username, String password) {
 
-		try {
+        try {
 
-			Map<String, Object> param = new HashMap<String, Object>();
-			param.put("username", username);
-			param.put("password", MD5Token.getInstance().getLongToken(password, context.getEncoding()));
+            Map<String, Object> param = new HashMap<>();
+            param.put("username", username);
+            param.put("password",
+                    MD5Token.getInstance().getLongToken(password, context.getEncoding()));
 
-			String paramString = JSON.toJSONString(param);
+            String paramString = JSON.toJSONString(param);
 
-			ProtobaseFuture future = request(ContainerConsotant.ACTION_LOGIN, paramString);
+            ProtobaseFuture future = request(ContainerConsotant.ACTION_LOGIN, paramString);
 
-			RESMessage message = RESMessageDecoder.decode(future.getReadText());
+            RESMessage message = RESMessageDecoder.decode(future.getReadText());
 
-			if (message.getCode() == 0) {
+            if (message.getCode() == 0) {
 
-				JSONObject o = (JSONObject) message.getData();
+                JSONObject o = (JSONObject) message.getData();
 
-				String className = o.getString("className");
+                String className = o.getString("className");
 
-				Class<?> clazz = ClassUtil.forName(className);
+                Class<?> clazz = ClassUtil.forName(className);
 
-				Authority authority = (Authority) BeanUtil.map2Object(o, clazz);
+                Authority authority = (Authority) BeanUtil.map2Object(o, clazz);
 
-				setAuthority(authority);
+                setAuthority(authority);
 
-			}
+            }
 
-			return message;
-		} catch (Exception e) {
-			return new RESMessage(400, e.getMessage());
-		}
-	}
+            return message;
+        } catch (Exception e) {
+            return new RESMessage(400, e.getMessage());
+        }
+    }
 
-	public void logout() {
-		// TODO complete logout
-	}
+    public void logout() {
+        // TODO complete logout
+    }
 
-	public ProtobaseFuture request(String serviceName, String content) throws IOException {
-		return request(serviceName, content, null);
-	}
+    public ProtobaseFuture request(String serviceName, String content) throws IOException {
+        return request(serviceName, content, null);
+    }
 
-	public ProtobaseFuture request(String serviceName, String content, byte[] binary) throws IOException {
+    public ProtobaseFuture request(String serviceName, String content, byte[] binary)
+            throws IOException {
 
-		if (StringUtil.isNullOrBlank(serviceName)) {
-			throw new IOException("empty service name");
-		}
+        if (StringUtil.isNullOrBlank(serviceName)) {
+            throw new IOException("empty service name");
+        }
 
-		ProtobaseFuture readFuture = new ProtobaseFutureImpl(context, serviceName);
+        ProtobaseFuture readFuture = new ProtobaseFutureImpl(context, serviceName);
 
-		readFuture.setIoEventHandle(eventHandle);
+        readFuture.setIoEventHandle(eventHandle);
 
-		readFuture.write(content);
+        readFuture.write(content);
 
-		if (binary != null) {
-			readFuture.writeBinary(binary);
-		}
+        if (binary != null) {
+            readFuture.writeBinary(binary);
+        }
 
-		WaiterOnFuture onReadFuture = new WaiterOnFuture();
+        WaiterOnFuture onReadFuture = new WaiterOnFuture();
 
-		waiterListen(serviceName, onReadFuture);
+        waiterListen(serviceName, onReadFuture);
 
-		session.flush(readFuture);
+        session.flush(readFuture);
 
-		// FIXME 连接丢失时叫醒我
-		if (onReadFuture.await(timeout)) {
+        // FIXME 连接丢失时叫醒我
+        if (onReadFuture.await(timeout)) {
 
-			CloseUtil.close(session);
+            CloseUtil.close(session);
 
-			throw new TimeoutException("timeout");
-		}
+            throw new TimeoutException("timeout");
+        }
 
-		return (ProtobaseFuture) onReadFuture.getReadFuture();
-	}
+        return (ProtobaseFuture) onReadFuture.getReadFuture();
+    }
 
-	public void setAuthority(Authority authority) {
-		this.authority = authority;
-	}
+    public void setAuthority(Authority authority) {
+        this.authority = authority;
+    }
 
-	public void update(SocketSession session) {
-		this.session = session;
-		this.context = session.getContext();
-		this.eventHandle = (SimpleIoEventHandle) context.getIoEventHandleAdaptor();
-	}
+    public void update(SocketSession session) {
+        this.session = session;
+        this.context = session.getContext();
+        this.eventHandle = (SimpleIoEventHandle) context.getIoEventHandleAdaptor();
+    }
 
-	private void waiterListen(String serviceName, WaiterOnFuture onReadFuture) throws IOException {
+    private void waiterListen(String serviceName, WaiterOnFuture onReadFuture) throws IOException {
 
-		if (StringUtil.isNullOrBlank(serviceName)) {
-			throw new IOException("empty service name");
-		}
+        if (StringUtil.isNullOrBlank(serviceName)) {
+            throw new IOException("empty service name");
+        }
 
-		if (onReadFuture == null) {
-			throw new IOException("empty onReadFuture");
-		}
+        if (onReadFuture == null) {
+            throw new IOException("empty onReadFuture");
+        }
 
-		OnFutureWrapper wrapper = eventHandle.getOnReadFutureWrapper(serviceName);
+        OnFutureWrapper wrapper = eventHandle.getOnReadFutureWrapper(serviceName);
 
-		if (wrapper == null) {
+        if (wrapper == null) {
 
-			wrapper = new OnFutureWrapper();
+            wrapper = new OnFutureWrapper();
 
-			eventHandle.putOnReadFutureWrapper(serviceName, wrapper);
-		}
+            eventHandle.putOnReadFutureWrapper(serviceName, wrapper);
+        }
 
-		wrapper.listen(onReadFuture);
-	}
+        wrapper.listen(onReadFuture);
+    }
 
-	public void write(String serviceName, String content) throws IOException {
-		write(serviceName, content, null);
-	}
+    public void write(String serviceName, String content) throws IOException {
+        write(serviceName, content, null);
+    }
 
-	public void write(String serviceName, String content, byte[] binary) throws IOException {
-		if (StringUtil.isNullOrBlank(serviceName)) {
-			throw new IOException("empty service name");
-		}
+    public void write(String serviceName, String content, byte[] binary) throws IOException {
+        if (StringUtil.isNullOrBlank(serviceName)) {
+            throw new IOException("empty service name");
+        }
 
-		ProtobaseFuture readFuture = new ProtobaseFutureImpl(context, serviceName);
+        ProtobaseFuture readFuture = new ProtobaseFutureImpl(context, serviceName);
 
-		readFuture.setIoEventHandle(eventHandle);
+        readFuture.setIoEventHandle(eventHandle);
 
-		readFuture.write(content);
+        readFuture.write(content);
 
-		if (binary != null) {
-			readFuture.writeBinary(binary);
-		}
+        if (binary != null) {
+            readFuture.writeBinary(binary);
+        }
 
-		session.flush(readFuture);
-	}
+        session.flush(readFuture);
+    }
 
-	public void listen(String serviceName, OnFuture onReadFuture) throws IOException {
-		eventHandle.listen(serviceName, onReadFuture);
-	}
+    public void listen(String serviceName, OnFuture onReadFuture) throws IOException {
+        eventHandle.listen(serviceName, onReadFuture);
+    }
 
 }

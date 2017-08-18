@@ -24,29 +24,29 @@ import java.util.Map;
  */
 public class ThreadLocalCopy {
 
-	private static Map<Thread, ThreadLocalCopy> threadLocals = new HashMap<>();
-	
-	public static ThreadLocalCopy get() {
-		Thread thread = Thread.currentThread();
-		ThreadLocalCopy local = threadLocals.get(thread);
-		if (local == null) {
-			synchronized (threadLocals) {
-				local = threadLocals.get(thread);
-				if (local != null) {
-					return local;
-				}
-				local = new ThreadLocalCopy();
-				threadLocals.put(thread, local);
-				return local;
-			}
-		}
-		return local;
-	}
-	
-	public static ThreadLocalCopy remove(){
-		synchronized (threadLocals) {
-			return threadLocals.remove(Thread.currentThread());
-		}
-	}
+    private static Map<Thread, ThreadLocalCopy> threadLocals = new HashMap<>();
+
+    public static ThreadLocalCopy get() {
+        Thread thread = Thread.currentThread();
+        ThreadLocalCopy local = threadLocals.get(thread);
+        if (local == null) {
+            synchronized (threadLocals) {
+                local = threadLocals.get(thread);
+                if (local != null) {
+                    return local;
+                }
+                local = new ThreadLocalCopy();
+                threadLocals.put(thread, local);
+                return local;
+            }
+        }
+        return local;
+    }
+
+    public static ThreadLocalCopy remove() {
+        synchronized (threadLocals) {
+            return threadLocals.remove(Thread.currentThread());
+        }
+    }
 
 }

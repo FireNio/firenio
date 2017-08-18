@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.reconnect;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
@@ -29,34 +29,35 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class TestReconnectClient {
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
 
-			}
-		};
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
+            }
+        };
 
-		ReconnectableConnector connector = new ReconnectableConnector(context);
-		
-		connector.setRetryTime(5000);
+        SocketChannelContext context = new NioSocketChannelContext(
+                new ServerConfiguration("localhost", 18300));
 
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        ReconnectableConnector connector = new ReconnectableConnector(context);
 
-		context.setProtocolFactory(new FixedLengthProtocolFactory());
-		
-//		context.addSessionEventListener(new CloseConnectorSEListener(connector.getRealConnector()));
-		
-		connector.connect();
-		
-		ThreadUtil.sleep(Long.MAX_VALUE);
-		
-		CloseUtil.close(connector);
-	}
+        connector.setRetryTime(5000);
+
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        context.setProtocolFactory(new FixedLengthProtocolFactory());
+
+        //		context.addSessionEventListener(new CloseConnectorSEListener(connector.getRealConnector()));
+
+        connector.connect();
+
+        ThreadUtil.sleep(Long.MAX_VALUE);
+
+        CloseUtil.close(connector);
+    }
 }

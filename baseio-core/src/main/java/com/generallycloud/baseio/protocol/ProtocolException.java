@@ -12,17 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.protocol;
 
 @SuppressWarnings("serial")
-public class ProtocolException extends RuntimeException{
+public class ProtocolException extends RuntimeException {
 
-	public ProtocolException(String message, Exception cause) {
-		super(message, cause);
-	}
+    public ProtocolException(String message, Exception cause) {
+        super(message, cause);
+    }
 
-	public ProtocolException(String message) {
-		super(message);
-	}
+    public ProtocolException(String message) {
+        super(message);
+    }
 }

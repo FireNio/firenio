@@ -22,20 +22,21 @@ import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 
 public class SessionIdBalanceFacadeAcceptorHandler extends BalanceFacadeAcceptorHandler {
 
-	public SessionIdBalanceFacadeAcceptorHandler(BalanceContext context) {
-		super(context);
-	}
-	
-	protected void doAccept(BalanceFacadeSocketSession fs,BalanceReverseSocketSession rs
-			,BalanceFuture future){
-		
-		SessionIdBalanceFuture f = (SessionIdBalanceFuture) future;
-		
-		f.setSessionId(fs.getSessionId());
+    public SessionIdBalanceFacadeAcceptorHandler(BalanceContext context) {
+        super(context);
+    }
 
-		rs.flush(f.translate());
-		
-		logDispatchMsg(fs, rs, f);
-	}
+    @Override
+    protected void doAccept(BalanceFacadeSocketSession fs, BalanceReverseSocketSession rs,
+            BalanceFuture future) {
+
+        SessionIdBalanceFuture f = (SessionIdBalanceFuture) future;
+
+        f.setSessionId(fs.getSessionId());
+
+        rs.flush(f.translate());
+
+        logDispatchMsg(fs, rs, f);
+    }
 
 }

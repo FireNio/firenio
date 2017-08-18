@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
@@ -30,42 +30,41 @@ import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestSimple {
-	
-	
-	public static void main(String[] args) throws Exception {
 
-		String serviceKey = "/test-simple";
-		
-		String param = "ttt";
-		
-		IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
-			
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				System.out.println("________________________"+future.getReadText());
-			}
-		};
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
+    public static void main(String[] args) throws Exception {
 
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		context.setIoEventHandleAdaptor(eventHandle);
-		
-		SocketSession session = connector.connect();
+        String serviceKey = "/test-simple";
 
-		ProtobaseFuture f = new ProtobaseFutureImpl(connector.getContext(),serviceKey);
-		
-		f.write(param);
-		
-		session.flush(f);
-		
-		ThreadUtil.sleep(500);
-		
-		CloseUtil.close(connector);
-	}
+        String param = "ttt";
+
+        IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
+
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                System.out.println("________________________" + future.getReadText());
+            }
+        };
+
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
+
+        SocketChannelConnector connector = new SocketChannelConnector(context);
+
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        context.setIoEventHandleAdaptor(eventHandle);
+
+        SocketSession session = connector.connect();
+
+        ProtobaseFuture f = new ProtobaseFutureImpl(connector.getContext(), serviceKey);
+
+        f.write(param);
+
+        session.flush(f);
+
+        ThreadUtil.sleep(500);
+
+        CloseUtil.close(connector);
+    }
 }

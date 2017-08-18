@@ -21,38 +21,38 @@ package com.generallycloud.baseio.log;
  */
 public class CompoundLoggerPrinter implements LoggerPrinter {
 
-	private LoggerPrinter[] printers;
-	
-	public CompoundLoggerPrinter(LoggerPrinter[] printers) {
-		this.printers = printers;
-	}
+    private LoggerPrinter[] printers;
 
-	@Override
-	public void println(String msg) {
-		for (LoggerPrinter p : printers) {
-			p.println(msg);
-		}
-	}
+    public CompoundLoggerPrinter(LoggerPrinter[] printers) {
+        this.printers = printers;
+    }
 
-	@Override
-	public void printThrowable(Throwable t) {
-		for (LoggerPrinter p : printers) {
-			p.printThrowable(t);
-		}
-	}
+    @Override
+    public void println(String msg) {
+        for (LoggerPrinter p : printers) {
+            p.println(msg);
+        }
+    }
 
-	@Override
-	public void errPrintln(String msg) {
-		for (LoggerPrinter p : printers) {
-			p.errPrintln(msg);
-		}
-	}
+    @Override
+    public void printThrowable(Throwable t) {
+        for (LoggerPrinter p : printers) {
+            p.printThrowable(t);
+        }
+    }
 
-	@Override
-	public void errPrintThrowable(Throwable t) {
-		for (LoggerPrinter p : printers) {
-			p.errPrintThrowable(t);
-		}
-	}
+    @Override
+    public void errPrintln(String msg) {
+        for (LoggerPrinter p : printers) {
+            p.errPrintln(msg);
+        }
+    }
+
+    @Override
+    public void errPrintThrowable(Throwable t) {
+        for (LoggerPrinter p : printers) {
+            p.errPrintThrowable(t);
+        }
+    }
 
 }

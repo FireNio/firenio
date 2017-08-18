@@ -12,24 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.rtp;
 
 import java.io.IOException;
 
 @SuppressWarnings("serial")
-public class RTPException extends IOException{
-	
-	public RTPException(String reason){
-		super(reason);
-	}
-	
-	public RTPException(String reason,Throwable e){
-		super(reason, e);
-	}
-	
-	public RTPException(Throwable e){
-		super(e);
-	}
-	
+public class RTPException extends IOException {
+
+    public RTPException(String reason) {
+        super(reason);
+    }
+
+    public RTPException(String reason, Throwable e) {
+        super(reason, e);
+    }
+
+    public RTPException(Throwable e) {
+        super(e);
+    }
+
 }

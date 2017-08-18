@@ -30,177 +30,175 @@ import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public abstract class AbstractChannelFuture extends AbstractFuture
-		implements ChannelFuture {
+public abstract class AbstractChannelFuture extends AbstractFuture implements ChannelFuture {
 
-	private static final Logger	logger		= LoggerFactory
-			.getLogger(AbstractChannelFuture.class);
-	
-	protected ByteBuf			buf			= EmptyByteBuf.getInstance();
-	protected boolean			isHeartbeat;
-	protected boolean			isPING;
-	protected boolean			isSilent;
-	protected boolean			isValidate	= true;
-	protected boolean			needSSL;
-	protected Linkable			next;
+    private static final Logger logger     = LoggerFactory.getLogger(AbstractChannelFuture.class);
 
-	protected AbstractChannelFuture(SocketChannelContext context) {
-		super(context);
-		this.needSSL = context.isEnableSSL();
-	}
+    protected ByteBuf           buf        = EmptyByteBuf.getInstance();
+    protected boolean           isHeartbeat;
+    protected boolean           isPING;
+    protected boolean           isSilent;
+    protected boolean           isValidate = true;
+    protected boolean           needSSL;
+    protected Linkable          next;
 
-	protected ByteBuf allocate(Session session, int capacity) {
-		return session.getByteBufAllocator().allocate(capacity);
-	}
+    protected AbstractChannelFuture(SocketChannelContext context) {
+        super(context);
+        this.needSSL = context.isEnableSSL();
+    }
 
-	protected ByteBuf allocate(Session session, int capacity, int maxLimit) {
-		return session.getByteBufAllocator().allocate(capacity, maxLimit);
-	}
+    protected ByteBuf allocate(Session session, int capacity) {
+        return session.getByteBufAllocator().allocate(capacity);
+    }
 
-	@Override
-	public ChannelFuture duplicate() {
-		return new DefaultChannelFuture(context, buf.duplicate());
-	}
+    protected ByteBuf allocate(Session session, int capacity, int maxLimit) {
+        return session.getByteBufAllocator().allocate(capacity, maxLimit);
+    }
 
-	@Override
-	public ChannelFuture flush() {
-		flushed = true;
-		return this;
-	}
+    @Override
+    public ChannelFuture duplicate() {
+        return new DefaultChannelFuture(context, buf.duplicate());
+    }
 
-	@Override
-	public ByteBuf getByteBuf() {
-		return buf;
-	}
+    @Override
+    public ChannelFuture flush() {
+        flushed = true;
+        return this;
+    }
 
-	@Override
-	public int getByteBufLimit() {
-		return buf.limit();
-	}
+    @Override
+    public ByteBuf getByteBuf() {
+        return buf;
+    }
 
-	@Override
-	public Linkable getNext() {
-		return next;
-	}
+    @Override
+    public int getByteBufLimit() {
+        return buf.limit();
+    }
 
-	@Override
-	public boolean isHeartbeat() {
-		return isHeartbeat;
-	}
+    @Override
+    public Linkable getNext() {
+        return next;
+    }
 
-	@Override
-	public boolean isPING() {
-		return isHeartbeat && isPING;
-	}
+    @Override
+    public boolean isHeartbeat() {
+        return isHeartbeat;
+    }
 
-	@Override
-	public boolean isPONG() {
-		return isHeartbeat && !isPING;
-	}
+    @Override
+    public boolean isPING() {
+        return isHeartbeat && isPING;
+    }
 
-	@Override
-	public boolean isReleased() {
-		return buf.isReleased();
-	}
+    @Override
+    public boolean isPONG() {
+        return isHeartbeat && !isPING;
+    }
 
-	@Override
-	public boolean isSilent() {
-		return isSilent;
-	}
+    @Override
+    public boolean isReleased() {
+        return buf.isReleased();
+    }
 
-	@Override
-	public boolean isValidate() {
-		return isValidate;
-	}
+    @Override
+    public boolean isSilent() {
+        return isSilent;
+    }
 
-	@Override
-	public boolean isWriteCompleted() {
-		return !buf.hasRemaining();
-	}
+    @Override
+    public boolean isValidate() {
+        return isValidate;
+    }
 
-	@Override
-	public void onException(SocketSession session, Exception e) {
-		ReleaseUtil.release(this);
-		try {
-			getIoEventHandle().exceptionCaught(session, this, e, IoEventState.WRITE);
-		} catch (Throwable e1) {
-			logger.debug(e1.getMessage(), e1);
-		}
-	}
+    @Override
+    public boolean isWriteCompleted() {
+        return !buf.hasRemaining();
+    }
 
-	@Override
-	public void onSuccess(SocketSession session) {
-		ReleaseUtil.release(this);
-		try {
-			getIoEventHandle().futureSent(session, this);
-		} catch (Throwable e) {
-			logger.debug(e);
-		}
-	}
+    @Override
+    public void onException(SocketSession session, Exception e) {
+        ReleaseUtil.release(this);
+        try {
+            getIoEventHandle().exceptionCaught(session, this, e, IoEventState.WRITE);
+        } catch (Throwable e1) {
+            logger.debug(e1.getMessage(), e1);
+        }
+    }
 
-	@Override
-	public void release() {
-		ReleaseUtil.release(buf);
-	}
+    @Override
+    public void onSuccess(SocketSession session) {
+        ReleaseUtil.release(this);
+        try {
+            getIoEventHandle().futureSent(session, this);
+        } catch (Throwable e) {
+            logger.debug(e);
+        }
+    }
 
-	@Override
-	public void setByteBuf(ByteBuf buf) {
-		buf.nioBuffer();
-		this.buf = buf;
-	}
+    @Override
+    public void release() {
+        ReleaseUtil.release(buf);
+    }
 
-	@Override
-	public void setNext(Linkable next) {
-		this.next = next;
-	}
+    @Override
+    public void setByteBuf(ByteBuf buf) {
+        buf.nioBuffer();
+        this.buf = buf;
+    }
 
-	@Override
-	public ChannelFuture setPING() {
-		this.isPING = true;
-		this.isHeartbeat = true;
-		return this;
-	}
+    @Override
+    public void setNext(Linkable next) {
+        this.next = next;
+    }
 
-	@Override
-	public ChannelFuture setPONG() {
-		this.isPING = false;
-		this.isHeartbeat = true;
-		return this;
-	}
+    @Override
+    public ChannelFuture setPING() {
+        this.isPING = true;
+        this.isHeartbeat = true;
+        return this;
+    }
 
-	@Override
-	public void setSilent(boolean isSilent) {
-		this.isSilent = isSilent;
-	}
+    @Override
+    public ChannelFuture setPONG() {
+        this.isPING = false;
+        this.isHeartbeat = true;
+        return this;
+    }
 
-	@Override
-	public void setValidate(boolean validate) {
-		this.isValidate = validate;
-	}
+    @Override
+    public void setSilent(boolean isSilent) {
+        this.isSilent = isSilent;
+    }
 
-	private void wrapSSL(SocketChannel channel) throws IOException {
-		// FIXME 部分情况下可以不在业务线程做wrapssl
-		ByteBuf old = this.buf;
-		SslHandler handler = channel.getSslHandler();
-		try {
-			ByteBuf _buf = handler.wrap(channel, old);
-			if (_buf == null) {
-				throw new IOException("closed ssl");
-			}
-			this.buf = _buf;
-			this.buf.nioBuffer();
-		} finally {
-			ReleaseUtil.release(old);
-		}
-	}
+    @Override
+    public void setValidate(boolean validate) {
+        this.isValidate = validate;
+    }
 
-	@Override
-	public void write(SocketChannel channel) throws IOException {
-		if (needSSL) {
-			needSSL = false;
-			wrapSSL(channel);
-		}
-		channel.write(buf);
-	}
+    private void wrapSSL(SocketChannel channel) throws IOException {
+        // FIXME 部分情况下可以不在业务线程做wrapssl
+        ByteBuf old = this.buf;
+        SslHandler handler = channel.getSslHandler();
+        try {
+            ByteBuf _buf = handler.wrap(channel, old);
+            if (_buf == null) {
+                throw new IOException("closed ssl");
+            }
+            this.buf = _buf;
+            this.buf.nioBuffer();
+        } finally {
+            ReleaseUtil.release(old);
+        }
+    }
+
+    @Override
+    public void write(SocketChannel channel) throws IOException {
+        if (needSSL) {
+            needSSL = false;
+            wrapSSL(channel);
+        }
+        channel.write(buf);
+    }
 
 }

@@ -19,27 +19,28 @@ package com.generallycloud.baseio.concurrent;
  * @author wangkai
  *
  */
-public abstract class AbstractExecutorEventLoopGroup extends AbstractEventLoopGroup implements ExecutorEventLoopGroup {
+public abstract class AbstractExecutorEventLoopGroup extends AbstractEventLoopGroup
+        implements ExecutorEventLoopGroup {
 
-	private ExecutorEventLoop[] executorEventLoops;
-	
-	public AbstractExecutorEventLoopGroup(String eventLoopName, int eventLoopSize) {
-		super(eventLoopName, eventLoopSize);
-	}
+    private ExecutorEventLoop[] executorEventLoops;
 
-	@Override
-	public ExecutorEventLoop getNext() {
-		return executorEventLoops[getNextEventLoopIndex()];
-	}
+    public AbstractExecutorEventLoopGroup(String eventLoopName, int eventLoopSize) {
+        super(eventLoopName, eventLoopSize);
+    }
 
-	@Override
-	protected EventLoop[] initEventLoops() {
-		executorEventLoops = new ExecutorEventLoop[getEventLoopSize()];
-		return executorEventLoops;
-	}
+    @Override
+    public ExecutorEventLoop getNext() {
+        return executorEventLoops[getNextEventLoopIndex()];
+    }
 
-	@Override
-	protected EventLoop[] getEventLoops() {
-		return executorEventLoops;
-	}
+    @Override
+    protected EventLoop[] initEventLoops() {
+        executorEventLoops = new ExecutorEventLoop[getEventLoopSize()];
+        return executorEventLoops;
+    }
+
+    @Override
+    protected EventLoop[] getEventLoops() {
+        return executorEventLoops;
+    }
 }

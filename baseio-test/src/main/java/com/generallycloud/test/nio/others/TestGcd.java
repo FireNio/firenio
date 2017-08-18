@@ -21,32 +21,29 @@ package com.generallycloud.test.nio.others;
  */
 public class TestGcd {
 
-	
-	// before
-	public static int gcd(int a,int b){
-		int tmp;
-		if (a > b) {
-			tmp = a;
-			a = b;
-			b = tmp;
-		}
-		int i = a;
-		for(;;){
-			if (i == 1) {
-				return 1;
-			}
-			if(a % i == 0 && b % i == 0)
-				return i;
-			i--;
-		}
-	}
-	
-	//after
-	public static int gcd1(int a ,int b){
-		return b == 0 ? a : gcd1(b,a % b);
-	}
-	
-	
-	
-	
+    // before
+    public static int gcd(int a, int b) {
+        int tmp;
+        if (a > b) {
+            tmp = a;
+            a = b;
+            b = tmp;
+        }
+        int i = a;
+        for (;;) {
+            if (i == 1) {
+                return 1;
+            }
+            if (a % i == 0 && b % i == 0) {
+                return i;
+            }
+            i--;
+        }
+    }
+
+    //after
+    public static int gcd1(int a, int b) {
+        return b == 0 ? a : gcd1(b, a % b);
+    }
+
 }

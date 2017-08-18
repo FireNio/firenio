@@ -32,72 +32,71 @@ import com.generallycloud.baseio.protocol.Future;
 
 public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
 
-	private DatagramChannelContext		context				= null;
+    private DatagramChannelContext         context                = null;
 
-	private DatagramSocket				datagramSocket			= null;
+    private DatagramSocket                 datagramSocket         = null;
 
-	private SelectableChannel			selectableChannel		= null;
+    private SelectableChannel              selectableChannel      = null;
 
-	private DatagramSelectorEventLoopGroup	selectorEventLoopGroup	= null;
+    private DatagramSelectorEventLoopGroup selectorEventLoopGroup = null;
 
-	public DatagramChannelAcceptor(DatagramChannelContext context) {
-		this.context = context;
-	}
+    public DatagramChannelAcceptor(DatagramChannelContext context) {
+        this.context = context;
+    }
 
-	@Override
-	protected void bind(InetSocketAddress socketAddress) throws IOException {
-		initChannel();
-		try {
-			datagramSocket.bind(socketAddress);
-		} catch (BindException e) {
-			throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
-		}
-		initSelectorLoops();
-	}
+    @Override
+    protected void bind(InetSocketAddress socketAddress) throws IOException {
+        initChannel();
+        try {
+            datagramSocket.bind(socketAddress);
+        } catch (BindException e) {
+            throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
+        }
+        initSelectorLoops();
+    }
 
+    private void initSelectorLoops() {
+        //FIXME socket selector event loop ?
+        ServerConfiguration configuration = getContext().getServerConfiguration();
+        int core_size = configuration.getSERVER_CORE_SIZE();
+        this.selectorEventLoopGroup = new DatagramSelectorEventLoopGroup(getContext(), "io-process",
+                core_size, (java.nio.channels.DatagramChannel) selectableChannel);
+        LifeCycleUtil.start(selectorEventLoopGroup);
+    }
 
-	private void initSelectorLoops() {
-		//FIXME socket selector event loop ?
-		ServerConfiguration configuration = getContext().getServerConfiguration();
-		int core_size = configuration.getSERVER_CORE_SIZE();
-		this.selectorEventLoopGroup = new DatagramSelectorEventLoopGroup(getContext(),
-				"io-process", core_size,(java.nio.channels.DatagramChannel) selectableChannel);
-		LifeCycleUtil.start(selectorEventLoopGroup);
-	}
+    @Override
+    public void broadcast(final Future future) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public void broadcast(final Future future) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public void broadcastChannelFuture(ChannelFuture future) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void broadcastChannelFuture(ChannelFuture future) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public DatagramChannelContext getContext() {
-		return context;
-	}
+    @Override
+    public DatagramChannelContext getContext() {
+        return context;
+    }
 
-	@Override
-	protected void destroyService() {
-		CloseUtil.close(datagramSocket);
-		CloseUtil.close(selectableChannel);
-		LifeCycleUtil.stop(selectorEventLoopGroup);
-	}
+    @Override
+    protected void destroyService() {
+        CloseUtil.close(datagramSocket);
+        CloseUtil.close(selectableChannel);
+        LifeCycleUtil.stop(selectorEventLoopGroup);
+    }
 
-	private void initChannel() throws IOException {
-		// 打开服务器套接字通道
-		this.selectableChannel = DatagramChannel.open();
-		// 服务器配置为非阻塞
-		this.selectableChannel.configureBlocking(false);
-		this.datagramSocket = ((DatagramChannel) this.selectableChannel).socket();
-	}
+    private void initChannel() throws IOException {
+        // 打开服务器套接字通道
+        this.selectableChannel = DatagramChannel.open();
+        // 服务器配置为非阻塞
+        this.selectableChannel.configureBlocking(false);
+        this.datagramSocket = ((DatagramChannel) this.selectableChannel).socket();
+    }
 
-	@Override
-	public int getManagedSessionSize() {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public int getManagedSessionSize() {
+        throw new UnsupportedOperationException();
+    }
 
 }

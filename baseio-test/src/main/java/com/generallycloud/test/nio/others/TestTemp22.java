@@ -28,54 +28,50 @@ import com.generallycloud.baseio.log.DebugUtil;
  */
 public class TestTemp22 {
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		FileUtil.scanDirectory(
-				new File("D:/工作仓库/SVN/1_CODE/goldtrade-common/src/main/java/com/brilliance/goldtrade/common/stand/model"),
-				new OnDirectoryScan() {
+        FileUtil.scanDirectory(
+                new File(
+                        "D:/工作仓库/SVN/1_CODE/goldtrade-common/src/main/java/com/brilliance/goldtrade/common/stand/model"),
+                new OnDirectoryScan() {
 
-					@Override
-					public void onFile(File file) throws Exception {
+                    @Override
+                    public void onFile(File file) throws Exception {
 
-						String fname = file.getName();
+                        String fname = file.getName();
 
-						if (!fname.endsWith("Request.java") && !fname.endsWith("Response.java")) {
-							return;
-						}
+                        if (!fname.endsWith("Request.java") && !fname.endsWith("Response.java")) {
+                            return;
+                        }
 
-						String code = fname.substring(0, fname.length()-5);
+                        String code = fname.substring(0, fname.length() - 5);
 
-						String content = FileUtil.readStringByFile(file, Encoding.UTF8);
-						
-						int index = content.indexOf("{");
+                        String content = FileUtil.readStringByFile(file, Encoding.UTF8);
 
-						String append =""
+                        int index = content.indexOf("{");
 
-								+ "\n\n\tpublic "+code+"() {"
-								+ "\n\t\tthis(true);" 
-								+ "\n\t}"
-								+ "\n\n\tpublic "+code+"(boolean initialize) {"
-								+ "\n\t\tsuper(initialize);" 
-								+ "\n\t}"
-								+ "\n\n\tpublic "+code+"(StandModel model) {"
-								+ "\n\t\tsuper(model);" 
-								+ "\n\t}";
-						
-						String newContent = content.substring(0, index + 1)
-								+ append + content.substring(index + 1);
-						
-						FileUtil.writeByFile(file, newContent,Encoding.UTF8,false);
-						
-						DebugUtil.debug("file:"+file.getAbsolutePath());
+                        String append = ""
 
-					}
+                                + "\n\n\tpublic " + code + "() {" + "\n\t\tthis(true);" + "\n\t}"
+                                + "\n\n\tpublic " + code + "(boolean initialize) {"
+                                + "\n\t\tsuper(initialize);" + "\n\t}" + "\n\n\tpublic " + code
+                                + "(StandModel model) {" + "\n\t\tsuper(model);" + "\n\t}";
 
-					@Override
-					public void onDirectory(File directory) throws Exception {
-						// TODO Auto-generated method stub
+                        String newContent = content.substring(0, index + 1) + append
+                                + content.substring(index + 1);
 
-					}
-				});
+                        FileUtil.writeByFile(file, newContent, Encoding.UTF8, false);
 
-	}
+                        DebugUtil.debug("file:" + file.getAbsolutePath());
+
+                    }
+
+                    @Override
+                    public void onDirectory(File directory) throws Exception {
+                        // TODO Auto-generated method stub
+
+                    }
+                });
+
+    }
 }

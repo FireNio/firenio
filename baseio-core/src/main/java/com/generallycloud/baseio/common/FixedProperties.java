@@ -12,136 +12,134 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.common;
 
 import java.util.Properties;
 
-public class FixedProperties extends Properties{
-	
-	private static final long	serialVersionUID	= 1L;
+public class FixedProperties extends Properties {
 
-	public FixedProperties loadString(String content){
-		
-		if (StringUtil.isNullOrBlank(content)) {
-			return this;
-		}
-		
-		String [] lines = content.split("\n");
-		
-		for(String line :lines){
-			insertOneRow(line);
-		}
-		
-		return this;
-	}
-	
-	private void insertOneRow(String line){
-		
-		if (StringUtil.isNullOrBlank(line)) {
-			return;
-		}
-		
-		int index = line.indexOf("=");
-		
-		if (index == -1) {
-			return;
-		}
-		
-		String key = line.substring(0,index);
-		String value = line.substring(index+1,line.length());
-		
-		key = trim(key);
-		value = trim(value);
-		
-		put(key, value);
-	}
-	
-	private String trim(String value){
-		return value.trim().replace("\r", "").replace("\t", "");
-	}
-	
-	public boolean getBooleanProperty(String key) {
-		return getBooleanProperty(key, false);
-	}
+    private static final long serialVersionUID = 1L;
 
-	public boolean getBooleanProperty(String key, boolean defaultValue) {
-		String temp = getProperty(key);
-		if (StringUtil.isNullOrBlank(temp)) {
-			return defaultValue;
-		}
-		return Boolean.valueOf(temp);
-	}
+    public FixedProperties loadString(String content) {
 
-	public double getDoubleProperty(String key) {
-		return getDoubleProperty(key, 0);
-	}
+        if (StringUtil.isNullOrBlank(content)) {
+            return this;
+        }
 
-	public double getDoubleProperty(String key, double defaultValue) {
-		String temp = getProperty(key);
-		if (StringUtil.isNullOrBlank(temp)) {
-			return defaultValue;
-		}
-		return Double.valueOf(temp);
-	}
+        String[] lines = content.split("\n");
 
-	public int getIntegerProperty(String key) {
-		return getIntegerProperty(key, 0);
-	}
+        for (String line : lines) {
+            insertOneRow(line);
+        }
 
-	public int getIntegerProperty(String key, int defaultValue) {
-		String temp = getProperty(key);
-		if (StringUtil.isNullOrBlank(temp)) {
-			return defaultValue;
-		}
-		return Integer.parseInt(temp);
-	}
+        return this;
+    }
 
-	public long getLongProperty(String key) {
-		return getLongProperty(key, 0);
-	}
+    private void insertOneRow(String line) {
 
-	public long getLongProperty(String key, long defaultValue) {
-		String temp = getProperty(key);
-		if (StringUtil.isNullOrBlank(temp)) {
-			return defaultValue;
-		}
-		return Long.parseLong(temp);
-	}
+        if (StringUtil.isNullOrBlank(line)) {
+            return;
+        }
 
-	public String getPropertyNoBlank(String key) throws PropertiesException {
-		String value = getProperty(key);
-		if (StringUtil.isNullOrBlank(value)) {
-			throw new PropertiesException("property " + key + " is empty");
-		}
-		return value;
-	}
-	
-	class PropertiesException extends Exception {
+        int index = line.indexOf("=");
 
-		private static final long serialVersionUID = 1L;
+        if (index == -1) {
+            return;
+        }
 
-		public PropertiesException() {
-		}
+        String key = line.substring(0, index);
+        String value = line.substring(index + 1, line.length());
 
-		public PropertiesException(String message) {
-			super(message);
-		}
+        key = trim(key);
+        value = trim(value);
 
-		public PropertiesException(String message, Throwable cause) {
-			super(message, cause);
-		}
-	}
-	
-	
-	public static void main(String[] args) {
-		
-		FixedProperties p = new FixedProperties();
-		
-		p.insertOneRow("aaa=bbb");
-		
-		System.out.println(p.get("aaa"));
-		
-	}
-	
+        put(key, value);
+    }
+
+    private String trim(String value) {
+        return value.trim().replace("\r", "").replace("\t", "");
+    }
+
+    public boolean getBooleanProperty(String key) {
+        return getBooleanProperty(key, false);
+    }
+
+    public boolean getBooleanProperty(String key, boolean defaultValue) {
+        String temp = getProperty(key);
+        if (StringUtil.isNullOrBlank(temp)) {
+            return defaultValue;
+        }
+        return Boolean.valueOf(temp);
+    }
+
+    public double getDoubleProperty(String key) {
+        return getDoubleProperty(key, 0);
+    }
+
+    public double getDoubleProperty(String key, double defaultValue) {
+        String temp = getProperty(key);
+        if (StringUtil.isNullOrBlank(temp)) {
+            return defaultValue;
+        }
+        return Double.valueOf(temp);
+    }
+
+    public int getIntegerProperty(String key) {
+        return getIntegerProperty(key, 0);
+    }
+
+    public int getIntegerProperty(String key, int defaultValue) {
+        String temp = getProperty(key);
+        if (StringUtil.isNullOrBlank(temp)) {
+            return defaultValue;
+        }
+        return Integer.parseInt(temp);
+    }
+
+    public long getLongProperty(String key) {
+        return getLongProperty(key, 0);
+    }
+
+    public long getLongProperty(String key, long defaultValue) {
+        String temp = getProperty(key);
+        if (StringUtil.isNullOrBlank(temp)) {
+            return defaultValue;
+        }
+        return Long.parseLong(temp);
+    }
+
+    public String getPropertyNoBlank(String key) throws PropertiesException {
+        String value = getProperty(key);
+        if (StringUtil.isNullOrBlank(value)) {
+            throw new PropertiesException("property " + key + " is empty");
+        }
+        return value;
+    }
+
+    class PropertiesException extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+        public PropertiesException() {}
+
+        public PropertiesException(String message) {
+            super(message);
+        }
+
+        public PropertiesException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    public static void main(String[] args) {
+
+        FixedProperties p = new FixedProperties();
+
+        p.insertOneRow("aaa=bbb");
+
+        System.out.println(p.get("aaa"));
+
+    }
+
 }

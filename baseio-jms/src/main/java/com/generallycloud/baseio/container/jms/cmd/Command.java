@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.cmd;
 
 import java.util.HashMap;
@@ -23,71 +23,71 @@ import com.generallycloud.baseio.log.DebugUtil;
 
 public abstract class Command {
 
-	private boolean					CONTINUE	= true;
+    private boolean CONTINUE = true;
 
-	public abstract CmdResponse doHelp(CommandContext context,HashMap<String, String> params);
+    public abstract CmdResponse doHelp(CommandContext context, HashMap<String, String> params);
 
-	private CmdResponse exec(CommandContext context,CmdRequest request) {
-//		DebugUtil.debug(">>>> " + request);
+    private CmdResponse exec(CommandContext context, CmdRequest request) {
+        //		DebugUtil.debug(">>>> " + request);
 
-		String cmd = request.getCmd();
+        String cmd = request.getCmd();
 
-		HashMap<String, String> params = request.getParams();
+        HashMap<String, String> params = request.getParams();
 
-		Executable executable = context.getExecutable(cmd);
+        Executable executable = context.getExecutable(cmd);
 
-		if (executable == null) {
-			return doHelp(context,params);
-		}
+        if (executable == null) {
+            return doHelp(context, params);
+        }
 
-		return executable.exec(context,params);
-	}
+        return executable.exec(context, params);
+    }
 
-	public void execute(CommandContext context) {
+    public void execute(CommandContext context) {
 
-		printPrefix(context);
+        printPrefix(context);
 
-		while (CONTINUE) {
+        while (CONTINUE) {
 
-			Scanner scanner = new Scanner(System.in);
+            Scanner scanner = new Scanner(System.in);
 
-			String content = scanner.nextLine();
-			
-			CloseUtil.close(scanner);
+            String content = scanner.nextLine();
 
-			CmdRequest request = parse(context,content);
+            CloseUtil.close(scanner);
 
-			CmdResponse response = exec(context,request);
+            CmdRequest request = parse(context, content);
 
-			CONTINUE = response.isContinue();
+            CmdResponse response = exec(context, request);
 
-			DebugUtil.debug(response.getResponse());
+            CONTINUE = response.isContinue();
 
-			printPrefix(context);
+            DebugUtil.debug(response.getResponse());
 
-		}
-		return;
-	}
+            printPrefix(context);
 
-	private CmdRequest parse(CommandContext context,String content) {
-		CmdRequest request = new CmdRequest();
-		content = content.trim();
-		String[] contents = content.split(" ");
-		if (contents.length == 0) {
-			request.setCmd("none");
-		} else if (contents.length == 1) {
-			request.setCmd(contents[0].trim());
-		} else {
-			request.setCmd(contents[0].trim());
-			for (int i = 1; i < contents.length; i++) {
-				String[] arr = contents[i].split(":");
-				String value = arr.length == 2 ? arr[1] : null;
-				request.putParam(arr[0], value);
-			}
-		}
-		return request;
-	}
+        }
+        return;
+    }
 
-	public abstract void printPrefix(CommandContext context);
+    private CmdRequest parse(CommandContext context, String content) {
+        CmdRequest request = new CmdRequest();
+        content = content.trim();
+        String[] contents = content.split(" ");
+        if (contents.length == 0) {
+            request.setCmd("none");
+        } else if (contents.length == 1) {
+            request.setCmd(contents[0].trim());
+        } else {
+            request.setCmd(contents[0].trim());
+            for (int i = 1; i < contents.length; i++) {
+                String[] arr = contents[i].split(":");
+                String value = arr.length == 2 ? arr[1] : null;
+                request.putParam(arr[0], value);
+            }
+        }
+        return request;
+    }
+
+    public abstract void printPrefix(CommandContext context);
 
 }

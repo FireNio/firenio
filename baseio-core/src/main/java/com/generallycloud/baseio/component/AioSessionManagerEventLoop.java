@@ -24,26 +24,26 @@ import com.generallycloud.baseio.concurrent.ThreadEventLoop;
  */
 public class AioSessionManagerEventLoop extends ThreadEventLoop {
 
-	private SocketSessionManager sessionManager;
+    private SocketSessionManager sessionManager;
 
-	public AioSessionManagerEventLoop(ExecutorEventLoopGroup eventLoopGroup,
-			AioSocketChannelContext context) {
-		super(eventLoopGroup,context);
-		this.sessionManager = new AioSocketSessionManager(context, this);
-	}
+    public AioSessionManagerEventLoop(ExecutorEventLoopGroup eventLoopGroup,
+            AioSocketChannelContext context) {
+        super(eventLoopGroup, context);
+        this.sessionManager = new AioSocketSessionManager(context, this);
+    }
 
-	@Override
-	protected void doLoop() throws InterruptedException {
+    @Override
+    protected void doLoop() throws InterruptedException {
 
-		super.doLoop();
+        super.doLoop();
 
-		sessionManager.loop();
-	}
+        sessionManager.loop();
+    }
 
-	/**
-	 * @return the sessionManager
-	 */
-	public SocketSessionManager getSessionManager() {
-		return sessionManager;
-	}
+    /**
+     * @return the sessionManager
+     */
+    public SocketSessionManager getSessionManager() {
+        return sessionManager;
+    }
 }

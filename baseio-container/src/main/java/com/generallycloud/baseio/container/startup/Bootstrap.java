@@ -21,5 +21,5 @@ package com.generallycloud.baseio.container.startup;
  */
 public interface Bootstrap {
 
-	void bootstrap(String rootPath,boolean deployModel) throws Exception;
+    void bootstrap(String rootPath, boolean deployModel) throws Exception;
 }

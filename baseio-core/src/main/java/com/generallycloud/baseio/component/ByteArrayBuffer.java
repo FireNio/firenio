@@ -25,81 +25,81 @@ import com.generallycloud.baseio.common.Encoding;
 //FIXME 用到这里的检查是否需要实例化
 public class ByteArrayBuffer extends OutputStream {
 
-	private byte	cache[];
-	private int	count;
+    private byte cache[];
+    private int  count;
 
-	public ByteArrayBuffer() {
-		this(128);
-	}
+    public ByteArrayBuffer() {
+        this(128);
+    }
 
-	public ByteArrayBuffer(byte[] buffer) {
-		this(buffer, 0);
-	}
+    public ByteArrayBuffer(byte[] buffer) {
+        this(buffer, 0);
+    }
 
-	public ByteArrayBuffer(byte[] buffer, int count) {
-		this.cache = buffer;
-		this.count = count;
-	}
-	
-	public ByteArrayBuffer(int size) {
-		this(size,0);
-	}
+    public ByteArrayBuffer(byte[] buffer, int count) {
+        this.cache = buffer;
+        this.count = count;
+    }
 
-	public ByteArrayBuffer(int size,int count) {
-		this(new byte[size],count);
-	}
+    public ByteArrayBuffer(int size) {
+        this(size, 0);
+    }
 
-	public byte[] array() {
-		return cache;
-	}
+    public ByteArrayBuffer(int size, int count) {
+        this(new byte[size], count);
+    }
 
-	public void reset() {
-		count = 0;
-	}
+    public byte[] array() {
+        return cache;
+    }
 
-	public int size() {
-		return count;
-	}
+    public void reset() {
+        count = 0;
+    }
 
-	@Override
-	public String toString() {
-		return toString(Encoding.UTF8);
-	}
+    public int size() {
+        return count;
+    }
 
-	public String toString(Charset charset) {
-		if (count == 0) {
-			return null;
-		}
-		return new String(cache, 0, count);
-	}
+    @Override
+    public String toString() {
+        return toString(Encoding.UTF8);
+    }
 
-	@Override
-	public void write(byte bytes[], int offset, int length) {
-		int newcount = count + length;
-		if (newcount > cache.length) {
-			cache = Arrays.copyOf(cache, Math.max(cache.length << 1, newcount));
-		}
-		System.arraycopy(bytes, offset, cache, count, length);
-		count = newcount;
-	}
+    public String toString(Charset charset) {
+        if (count == 0) {
+            return null;
+        }
+        return new String(cache, 0, count);
+    }
 
-	@Override
-	public void write(byte[] bytes) {
-		write(bytes, 0, bytes.length);
-	}
+    @Override
+    public void write(byte bytes[], int offset, int length) {
+        int newcount = count + length;
+        if (newcount > cache.length) {
+            cache = Arrays.copyOf(cache, Math.max(cache.length << 1, newcount));
+        }
+        System.arraycopy(bytes, offset, cache, count, length);
+        count = newcount;
+    }
 
-	@Override
-	public void write(int b) {
-		int newcount = count + 1;
-		if (newcount > cache.length) {
-			cache = Arrays.copyOf(cache, cache.length << 1);
-		}
-		cache[count] = (byte) b;
-		count = newcount;
-	}
+    @Override
+    public void write(byte[] bytes) {
+        write(bytes, 0, bytes.length);
+    }
 
-	public void write2OutputStream(OutputStream out) throws IOException {
-		out.write(cache, 0, count);
-	}
-	
+    @Override
+    public void write(int b) {
+        int newcount = count + 1;
+        if (newcount > cache.length) {
+            cache = Arrays.copyOf(cache, cache.length << 1);
+        }
+        cache[count] = (byte) b;
+        count = newcount;
+    }
+
+    public void write2OutputStream(OutputStream out) throws IOException {
+        out.write(cache, 0, count);
+    }
+
 }

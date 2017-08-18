@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.redis.future;
 
 import java.io.IOException;
@@ -25,169 +25,169 @@ import com.generallycloud.baseio.component.SocketSession;
 //FIXME limit
 public class RedisFutureImpl extends AbstractRedisFuture {
 
-	private StringBuilder	currentLine	= new StringBuilder();
+    private StringBuilder currentLine = new StringBuilder();
 
-	private RedisNode		rootNode		= new RedisNode();
+    private RedisNode     rootNode    = new RedisNode();
 
-	private RedisNode		currentNode	= rootNode;
+    private RedisNode     currentNode = rootNode;
 
-	private boolean		complete		= false;
+    private boolean       complete    = false;
 
-	public RedisFutureImpl(SocketChannelContext context) {
-		super(context);
-//		this.currentLine 	= new StringBuilder();
-//		this.rootNode		= new RedisNode(0);
-//		this.currentNode	= rootNode;
-//		this.complete		= false;
-	}
+    public RedisFutureImpl(SocketChannelContext context) {
+        super(context);
+        //		this.currentLine 	= new StringBuilder();
+        //		this.rootNode		= new RedisNode(0);
+        //		this.currentNode	= rootNode;
+        //		this.complete		= false;
+    }
 
-	@Override
-	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    @Override
+    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
-		if (complete) {
-			return true;
-		}
+        if (complete) {
+            return true;
+        }
 
-		for (; buffer.hasRemaining();) {
+        for (; buffer.hasRemaining();) {
 
-			byte b = buffer.getByte();
+            byte b = buffer.getByte();
 
-			if (b == '\n') {
+            if (b == '\n') {
 
-				String line = currentLine.toString();
-				currentLine.setLength(0);
+                String line = currentLine.toString();
+                currentLine.setLength(0);
 
-				switch (line.charAt(0)) {
-				case TYPE_ARRAYS:
-					
-					int size = Integer.parseInt(line.substring(1));
-					
-					currentNode.createChildren(size);
-					
-					currentNode.setType(TYPE_ARRAYS);
-					
-					currentNode = currentNode.getChildren()[0];
-					
-					break;
-				case TYPE_BULK_STRINGS:
+                switch (line.charAt(0)) {
+                    case TYPE_ARRAYS:
 
-					currentNode.setType(TYPE_BULK_STRINGS);
-					
-					int length = Integer.parseInt(line.substring(1));
+                        int size = Integer.parseInt(line.substring(1));
 
-					if (length == -1) {
+                        currentNode.createChildren(size);
 
-						RedisNode n = currentNode.deepNext();
+                        currentNode.setType(TYPE_ARRAYS);
 
-						if (n == null) {
-							
-							doComplete();
-							
-							return true;
-						}
+                        currentNode = currentNode.getChildren()[0];
 
-						currentNode = n;
-					}
-					
-					break;
-				case TYPE_ERRORS:
-					
-					currentNode.setType(TYPE_ERRORS);
-					
-					currentNode.setValue(line.substring(1));
-					
-					doComplete();
-					
-					return true;
-				case TYPE_INTEGERS:
+                        break;
+                    case TYPE_BULK_STRINGS:
 
-					int intValue = Integer.parseInt(line.substring(1));
+                        currentNode.setType(TYPE_BULK_STRINGS);
 
-					currentNode.setValue(intValue);
-					
-					currentNode.setType(TYPE_INTEGERS);
+                        int length = Integer.parseInt(line.substring(1));
 
-					RedisNode n3 = currentNode.deepNext();
+                        if (length == -1) {
 
-					if (n3 == null) {
-						
-						doComplete();
-						
-						return true;
-					}
+                            RedisNode n = currentNode.deepNext();
 
-					currentNode = n3;
+                            if (n == null) {
 
-					break;
-				case TYPE_SIMPLE_STRINGS:
-					
-					currentNode.setType(TYPE_SIMPLE_STRINGS);
+                                doComplete();
 
-					String strValue = line.substring(1);
+                                return true;
+                            }
 
-					currentNode.setValue(strValue);
+                            currentNode = n;
+                        }
 
-					RedisNode n4 = currentNode.deepNext();
+                        break;
+                    case TYPE_ERRORS:
 
-					if (n4 == null) {
-						
-						doComplete();
-						
-						return true;
-					}
+                        currentNode.setType(TYPE_ERRORS);
 
-					currentNode = n4;
+                        currentNode.setValue(line.substring(1));
 
-					break;
-				default:
+                        doComplete();
 
-					currentNode.setValue(line);
+                        return true;
+                    case TYPE_INTEGERS:
 
-					RedisNode n5 = currentNode.deepNext();
+                        int intValue = Integer.parseInt(line.substring(1));
 
-					if (n5 == null) {
-						
-						doComplete();
-						
-						return true;
-					}
+                        currentNode.setValue(intValue);
 
-					currentNode = n5;
+                        currentNode.setType(TYPE_INTEGERS);
 
-					break;
-				}
+                        RedisNode n3 = currentNode.deepNext();
 
-			} else if (b == '\r') {
-				continue;
-			} else {
-				currentLine.append((char) b);
-			}
-		}
+                        if (n3 == null) {
 
-		return complete;
-	}
-	
-	private void doComplete(){
-		
-		complete = true;
-		
-		//FIXME redis的心跳有些特殊
-//		if (rootNode.getType() == TYPE_SIMPLE_STRINGS) {
-//			
-//			Object value = rootNode.getValue();
-//			
-//			if (CMD_PING.equals(value)) {
-//				setPING();
-//			}else if(CMD_PONG.equals(value)){
-//				setPONG();
-//			}
-//		}
-		
-	}
+                            doComplete();
 
-	@Override
-	public RedisNode getRedisNode() {
-		return rootNode;
-	}
-	
+                            return true;
+                        }
+
+                        currentNode = n3;
+
+                        break;
+                    case TYPE_SIMPLE_STRINGS:
+
+                        currentNode.setType(TYPE_SIMPLE_STRINGS);
+
+                        String strValue = line.substring(1);
+
+                        currentNode.setValue(strValue);
+
+                        RedisNode n4 = currentNode.deepNext();
+
+                        if (n4 == null) {
+
+                            doComplete();
+
+                            return true;
+                        }
+
+                        currentNode = n4;
+
+                        break;
+                    default:
+
+                        currentNode.setValue(line);
+
+                        RedisNode n5 = currentNode.deepNext();
+
+                        if (n5 == null) {
+
+                            doComplete();
+
+                            return true;
+                        }
+
+                        currentNode = n5;
+
+                        break;
+                }
+
+            } else if (b == '\r') {
+                continue;
+            } else {
+                currentLine.append((char) b);
+            }
+        }
+
+        return complete;
+    }
+
+    private void doComplete() {
+
+        complete = true;
+
+        //FIXME redis的心跳有些特殊
+        //		if (rootNode.getType() == TYPE_SIMPLE_STRINGS) {
+        //			
+        //			Object value = rootNode.getValue();
+        //			
+        //			if (CMD_PING.equals(value)) {
+        //				setPING();
+        //			}else if(CMD_PONG.equals(value)){
+        //				setPONG();
+        //			}
+        //		}
+
+    }
+
+    @Override
+    public RedisNode getRedisNode() {
+        return rootNode;
+    }
+
 }

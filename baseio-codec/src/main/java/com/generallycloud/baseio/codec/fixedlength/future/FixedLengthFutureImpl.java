@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.fixedlength.future;
 
 import java.io.IOException;
@@ -29,80 +29,80 @@ import com.generallycloud.baseio.protocol.ProtocolException;
 
 public class FixedLengthFutureImpl extends AbstractChannelFuture implements FixedLengthFuture {
 
-	private boolean	header_complete;
+    private boolean header_complete;
 
-	private boolean	body_complete;
+    private boolean body_complete;
 
-	private int		limit;
+    private int     limit;
 
-	public FixedLengthFutureImpl(SocketSession session, ByteBuf buf,int limit) {
-		super(session.getContext());
-		this.buf = buf;
-		this.limit = limit;
-	}
+    public FixedLengthFutureImpl(SocketSession session, ByteBuf buf, int limit) {
+        super(session.getContext());
+        this.buf = buf;
+        this.limit = limit;
+    }
 
-	public FixedLengthFutureImpl(SocketChannelContext context) {
-		super(context);
-	}
+    public FixedLengthFutureImpl(SocketChannelContext context) {
+        super(context);
+    }
 
-	private void doHeaderComplete(Session session, ByteBuf buf) {
+    private void doHeaderComplete(Session session, ByteBuf buf) {
 
-		int length = buf.getInt();
+        int length = buf.getInt();
 
-		if (length < 1) {
-			body_complete = true;
-			if (length == FixedLengthProtocolDecoder.PROTOCOL_PING) {
-				setPING();
-			} else if (length == FixedLengthProtocolDecoder.PROTOCOL_PONG) {
-				setPONG();
-			}else{
-				throw new ProtocolException("illegal length:" + length);
-			}
-			return;
-		} 
-		
-		buf.reallocate(length, limit);
-	}
+        if (length < 1) {
+            body_complete = true;
+            if (length == FixedLengthProtocolDecoder.PROTOCOL_PING) {
+                setPING();
+            } else if (length == FixedLengthProtocolDecoder.PROTOCOL_PONG) {
+                setPONG();
+            } else {
+                throw new ProtocolException("illegal length:" + length);
+            }
+            return;
+        }
 
-	@Override
-	public boolean read(SocketSession session, ByteBuf src) throws IOException {
+        buf.reallocate(length, limit);
+    }
 
-		ByteBuf buf = this.buf;
+    @Override
+    public boolean read(SocketSession session, ByteBuf src) throws IOException {
 
-		if (!header_complete) {
+        ByteBuf buf = this.buf;
 
-			buf.read(src);
+        if (!header_complete) {
 
-			if (buf.hasRemaining()) {
-				return false;
-			}
-			
-			header_complete = true;
-			
-			doHeaderComplete(session, buf.flip());
-		}
+            buf.read(src);
 
-		if (!body_complete) {
+            if (buf.hasRemaining()) {
+                return false;
+            }
 
-			buf.read(src);
+            header_complete = true;
 
-			if (buf.hasRemaining()) {
-				return false;
-			}
-			
-			body_complete = true;
-			
-			doBodyComplete(buf.flip());
-		}
+            doHeaderComplete(session, buf.flip());
+        }
 
-		return true;
-	}
+        if (!body_complete) {
 
-	private void doBodyComplete(ByteBuf buf) throws CharacterCodingException {
+            buf.read(src);
 
-		CharsetDecoder decoder = context.getEncoding().newDecoder();
-		
-		this.readText = decoder.decode(buf.nioBuffer()).toString();
-	}
+            if (buf.hasRemaining()) {
+                return false;
+            }
+
+            body_complete = true;
+
+            doBodyComplete(buf.flip());
+        }
+
+        return true;
+    }
+
+    private void doBodyComplete(ByteBuf buf) throws CharacterCodingException {
+
+        CharsetDecoder decoder = context.getEncoding().newDecoder();
+
+        this.readText = decoder.decode(buf.nioBuffer()).toString();
+    }
 
 }

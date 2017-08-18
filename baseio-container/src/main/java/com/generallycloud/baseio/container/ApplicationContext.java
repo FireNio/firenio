@@ -50,342 +50,346 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ApplicationContext extends AbstractLifeCycle {
 
-	private static ApplicationContext instance;
+    private static ApplicationContext instance;
 
-	public static ApplicationContext getInstance() {
-		return instance;
-	}
+    public static ApplicationContext getInstance() {
+        return instance;
+    }
 
-	private boolean						deployModel;
-	private boolean						redeploying;
-	private String							appLocalAddres;
-	private String							rootLocalAddress;
-	private URLDynamicClassLoader				classLoader	;
-	private ApplicationConfiguration			configuration;
-	private SocketChannelContext				channelContext;
-	private Charset						encoding;
-	private Set<String> 					blackIPs;
-	private FutureAcceptorService				appRedeployService;
-	private FutureAcceptorContainer					filterService	;
-	private ApplicationExtLoader				applicationExtLoader;
-	private ApplicationConfigurationLoader		acLoader;
-	private AtomicInteger					pluginIndex;
-	private ExceptionCaughtHandle				exceptionCaughtHandle;
-	private Logger							logger		= LoggerFactory.getLogger(getClass());
-	private List<FutureAcceptorFilter>			pluginFilters	= new ArrayList<FutureAcceptorFilter>();
-	private Map<String, FutureAcceptorService>	pluginServlets	= new HashMap<String, FutureAcceptorService>();
-	private FutureAcceptorServiceLoader		acceptorServiceLoader;
-	private FutureAcceptorServiceFilter		futureAcceptorServiceFilter;
-	private Map<String, FutureAcceptorService>	services		= new LinkedHashMap<String, FutureAcceptorService>();
+    private boolean                            deployModel;
+    private boolean                            redeploying;
+    private String                             appLocalAddres;
+    private String                             rootLocalAddress;
+    private URLDynamicClassLoader              classLoader;
+    private ApplicationConfiguration           configuration;
+    private SocketChannelContext               channelContext;
+    private Charset                            encoding;
+    private Set<String>                        blackIPs;
+    private FutureAcceptorService              appRedeployService;
+    private FutureAcceptorContainer            filterService;
+    private ApplicationExtLoader               applicationExtLoader;
+    private ApplicationConfigurationLoader     acLoader;
+    private AtomicInteger                      pluginIndex;
+    private ExceptionCaughtHandle              exceptionCaughtHandle;
+    private Logger                             logger         = LoggerFactory.getLogger(getClass());
+    private List<FutureAcceptorFilter>         pluginFilters  = new ArrayList<>();
+    private Map<String, FutureAcceptorService> pluginServlets = new HashMap<>();
+    private FutureAcceptorServiceLoader        acceptorServiceLoader;
+    private FutureAcceptorServiceFilter        futureAcceptorServiceFilter;
+    private Map<String, FutureAcceptorService> services       = new LinkedHashMap<>();
 
-	public ApplicationContext(String rootLocalAddress) {
-		this(rootLocalAddress,null);
-	}
-	
-	public ApplicationContext(ApplicationConfiguration configuration) {
-		this(FileUtil.getCurrentPath(),configuration);
-	}
-	
-	public ApplicationContext(String rootLocalAddress,ApplicationConfiguration configuration) {
-		this.rootLocalAddress = rootLocalAddress;
-		this.configuration = configuration;
-	}
+    public ApplicationContext(String rootLocalAddress) {
+        this(rootLocalAddress, null);
+    }
 
-	@Override
-	protected void doStart() throws Exception {
+    public ApplicationContext(ApplicationConfiguration configuration) {
+        this(FileUtil.getCurrentPath(), configuration);
+    }
 
-		if (channelContext == null) {
-			throw new IllegalArgumentException("null nio context");
-		}
-		
-		if (StringUtil.isNullOrBlank(rootLocalAddress)) {
-			throw new IllegalArgumentException("rootLocalAddress");
-		}
-		
-		if (futureAcceptorServiceFilter == null) {
-			this.futureAcceptorServiceFilter = new FutureAcceptorServiceFilter();
-		}
+    public ApplicationContext(String rootLocalAddress, ApplicationConfiguration configuration) {
+        this.rootLocalAddress = rootLocalAddress;
+        this.configuration = configuration;
+    }
 
-		if (appRedeployService == null) {
-			appRedeployService = new SystemRedeployServlet();
-		}
-		
-		if (acLoader == null) {
-			acLoader = new FileSystemACLoader();
-		}
-		
-		if (exceptionCaughtHandle == null) {
-			exceptionCaughtHandle = new LoggerExceptionCaughtHandle();
-		}
-		
-		instance = this;
-		
-		this.rootLocalAddress = FileUtil.getPrettyPath(rootLocalAddress);
+    @Override
+    protected void doStart() throws Exception {
 
-		this.encoding = channelContext.getEncoding();
+        if (channelContext == null) {
+            throw new IllegalArgumentException("null nio context");
+        }
 
-		this.clearPluginFilters();
+        if (StringUtil.isNullOrBlank(rootLocalAddress)) {
+            throw new IllegalArgumentException("rootLocalAddress");
+        }
 
-		this.clearPluginServlets();
+        if (futureAcceptorServiceFilter == null) {
+            this.futureAcceptorServiceFilter = new FutureAcceptorServiceFilter();
+        }
 
-		this.filterService = new FutureAcceptorContainer(this, futureAcceptorServiceFilter);
-		
-		this.appLocalAddres = FileUtil.getPrettyPath(getRootLocalAddress() + "app");
-		
-		LoggerUtil.prettyLog(logger, "application path      :{ {} }", appLocalAddres);
+        if (appRedeployService == null) {
+            appRedeployService = new SystemRedeployServlet();
+        }
 
-		this.initializeApplicationContext();
-		
-		this.channelContext.setSessionAttachmentSize(filterService.getPluginContexts().length);
-	}
-	
-	private URLDynamicClassLoader newClassLoader() throws IOException{
-		
-		ClassLoader parent = getClass().getClassLoader();
-		
-		URLDynamicClassLoader classLoader = new URLDynamicClassLoader(parent);
-		
-		if (deployModel) {
-			
-			classLoader.scan(new File(getRootLocalAddress()+"/lib"));
-			
-			classLoader.scan(new File(getRootLocalAddress()+"/conf"));
-		}else{
-			
-			classLoader.addExcludePath("/app");
-			
-			classLoader.scan(new File(getRootLocalAddress()));
-		}
-		
-		return classLoader;
-	}
-	
-	private void initializeApplicationContext() throws Exception{
-		
-		this.pluginIndex = new AtomicInteger();
-		
-		this.classLoader = newClassLoader();
-		
-		this.configuration = acLoader.loadConfiguration(classLoader);
+        if (acLoader == null) {
+            acLoader = new FileSystemACLoader();
+        }
 
-		LifeCycleUtil.start(filterService);
+        if (exceptionCaughtHandle == null) {
+            exceptionCaughtHandle = new LoggerExceptionCaughtHandle();
+        }
 
-		this.acceptorServiceLoader = filterService.getFutureAcceptorServiceLoader();
-		this.acceptorServiceLoader.listen(services);
-	}
-	
-	private void destroyApplicationContext(){
-		
-		LifeCycleUtil.stop(filterService);
-		
-		clearPluginFilters();
+        instance = this;
 
-		clearPluginServlets();
+        this.rootLocalAddress = FileUtil.getPrettyPath(rootLocalAddress);
 
-		classLoader.unloadClassLoader();
-	}
+        this.encoding = channelContext.getEncoding();
 
-	public void addSessionEventListener(SocketSessionEventListener listener) {
-		channelContext.addSessionEventListener(listener);
-	}
+        this.clearPluginFilters();
 
-	@Override
-	protected void doStop() throws Exception {
-		destroyApplicationContext();
-		instance = null;
-	}
+        this.clearPluginServlets();
 
-	public String getAppLocalAddress() {
-		return appLocalAddres;
-	}
+        this.filterService = new FutureAcceptorContainer(this, futureAcceptorServiceFilter);
 
-	public DynamicClassLoader getClassLoader() {
-		return classLoader;
-	}
+        this.appLocalAddres = FileUtil.getPrettyPath(getRootLocalAddress() + "app");
 
-	public ApplicationConfiguration getConfiguration() {
-		return configuration;
-	}
+        LoggerUtil.prettyLog(logger, "application path      :{ {} }", appLocalAddres);
 
-	public SocketChannelContext getChannelContext() {
-		return channelContext;
-	}
+        this.initializeApplicationContext();
 
-	public Charset getEncoding() {
-		return encoding;
-	}
+        this.channelContext.setSessionAttachmentSize(filterService.getPluginContexts().length);
+    }
 
-	protected FutureAcceptorContainer getFilterService() {
-		return filterService;
-	}
+    private URLDynamicClassLoader newClassLoader() throws IOException {
 
-	@SuppressWarnings("rawtypes")
-	public PluginContext getPluginContext(Class clazz) {
+        ClassLoader parent = getClass().getClassLoader();
 
-		PluginContext[] pluginContexts = filterService.getPluginContexts();
+        URLDynamicClassLoader classLoader = new URLDynamicClassLoader(parent);
 
-		for (PluginContext context : pluginContexts) {
+        if (deployModel) {
 
-			if (context == null) {
-				continue;
-			}
+            classLoader.scan(new File(getRootLocalAddress() + "/lib"));
 
-			if (context.getClass().isAssignableFrom(clazz)) {
-				return context;
-			}
-		}
-		return null;
-	}
+            classLoader.scan(new File(getRootLocalAddress() + "/conf"));
+        } else {
 
-	public List<FutureAcceptorFilter> getPluginFilters() {
-		return pluginFilters;
-	}
+            classLoader.addExcludePath("/app");
 
-	public Map<String, FutureAcceptorService> getPluginServlets() {
-		return pluginServlets;
-	}
+            classLoader.scan(new File(getRootLocalAddress()));
+        }
 
-	private void clearPluginServlets() {
-		pluginServlets.clear();
-		putPluginServices(getAppRedeployService());
-		putPluginServices(new SystemStopServerServlet());
+        return classLoader;
+    }
 
-	}
+    private void initializeApplicationContext() throws Exception {
 
-	private void putPluginServices(FutureAcceptorService service) {
-		pluginServlets.put(service.getServiceName(), service);
-	}
+        this.pluginIndex = new AtomicInteger();
 
-	private void clearPluginFilters() {
-		pluginFilters.clear();
-	}
+        this.classLoader = newClassLoader();
 
-	// FIXME 考虑部署失败后如何再次部署
-	// FIXME redeploy roleManager
-	// FIXME redeploy loginCenter
-	// FIXME keep http session
-	public synchronized boolean redeploy() {
+        this.configuration = acLoader.loadConfiguration(classLoader);
 
-		LoggerUtil.prettyLog(logger, "//**********************  开始卸载服务  **********************//");
+        LifeCycleUtil.start(filterService);
 
-		redeploying = true;
-		
-		destroyApplicationContext();
+        this.acceptorServiceLoader = filterService.getFutureAcceptorServiceLoader();
+        this.acceptorServiceLoader.listen(services);
+    }
 
-		LoggerUtil.prettyLog(logger, "//**********************  卸载服务完成  **********************//\n");
+    private void destroyApplicationContext() {
 
-		try {
+        LifeCycleUtil.stop(filterService);
 
-			// FIXME 重新加载configuration
-			LoggerUtil.prettyLog(logger, "//**********************  开始加载服务  **********************//");
+        clearPluginFilters();
 
-			initializeApplicationContext();
-			
-			redeploying = false;
-			
-			LoggerUtil.prettyLog(logger, "//**********************  加载服务完成  **********************//\n");
+        clearPluginServlets();
 
-			return true;
+        classLoader.unloadClassLoader();
+    }
 
-		} catch (Exception e) {
+    public void addSessionEventListener(SocketSessionEventListener listener) {
+        channelContext.addSessionEventListener(listener);
+    }
 
-			classLoader.unloadClassLoader();
-			
-			redeploying = false;
+    @Override
+    protected void doStop() throws Exception {
+        destroyApplicationContext();
+        instance = null;
+    }
 
-			LoggerUtil.prettyLog(logger, "//**********************  加载服务失败  **********************//\n");
+    public String getAppLocalAddress() {
+        return appLocalAddres;
+    }
 
-			logger.info(e.getMessage(), e);
+    public DynamicClassLoader getClassLoader() {
+        return classLoader;
+    }
 
-			return false;
-		}
-		
-	}
+    public ApplicationConfiguration getConfiguration() {
+        return configuration;
+    }
 
-	public void setChannelContext(SocketChannelContext context) {
-		this.channelContext = context;
-	}
+    public SocketChannelContext getChannelContext() {
+        return channelContext;
+    }
 
-	public void listen(String serviceName, FutureAcceptorService service) {
+    public Charset getEncoding() {
+        return encoding;
+    }
 
-		if (isRunning()) {
-			throw new IllegalStateException("listen before start");
-		}
+    protected FutureAcceptorContainer getFilterService() {
+        return filterService;
+    }
 
-		this.services.put(serviceName, service);
-	}
+    @SuppressWarnings("rawtypes")
+    public PluginContext getPluginContext(Class clazz) {
 
-	public FutureAcceptorService getAppRedeployService() {
-		return appRedeployService;
-	}
+        PluginContext[] pluginContexts = filterService.getPluginContexts();
 
-	public void setAppRedeployService(FutureAcceptorService appRedeployService) {
-		this.appRedeployService = appRedeployService;
-	}
+        for (PluginContext context : pluginContexts) {
 
-	public void setServiceFilter(FutureAcceptorServiceFilter serviceFilter) {
-		this.futureAcceptorServiceFilter = serviceFilter;
-	}
+            if (context == null) {
+                continue;
+            }
 
-	public ApplicationExtLoader getApplicationExtLoader() {
-		return applicationExtLoader;
-	}
+            if (context.getClass().isAssignableFrom(clazz)) {
+                return context;
+            }
+        }
+        return null;
+    }
 
-	public void setApplicationExtLoader(ApplicationExtLoader applicationExtLoader) {
-		this.applicationExtLoader = applicationExtLoader;
-	}
-	
-	public String getRootLocalAddress() {
-		return rootLocalAddress;
-	}
-	
-	public void setApplicationConfigurationLoader(ApplicationConfigurationLoader acLoader) {
-		this.acLoader = acLoader;
-	}
-	
-	/**
-	 * @return the pluginIndex
-	 */
-	public AtomicInteger getPluginIndex() {
-		return pluginIndex;
-	}
-	
-	/**
-	 * @return the redeploying
-	 */
-	public boolean isRedeploying() {
-		return redeploying;
-	}
+    public List<FutureAcceptorFilter> getPluginFilters() {
+        return pluginFilters;
+    }
 
-	public ExceptionCaughtHandle getExceptionCaughtHandle() {
-		return exceptionCaughtHandle;
-	}
+    public Map<String, FutureAcceptorService> getPluginServlets() {
+        return pluginServlets;
+    }
 
-	public void setExceptionCaughtHandle(ExceptionCaughtHandle exceptionCaughtHandle) {
-		this.exceptionCaughtHandle = exceptionCaughtHandle;
-	}
+    private void clearPluginServlets() {
+        pluginServlets.clear();
+        putPluginServices(getAppRedeployService());
+        putPluginServices(new SystemStopServerServlet());
 
-	public Set<String> getBlackIPs() {
-		return blackIPs;
-	}
+    }
 
-	public void setBlackIPs(Set<String> blackIPs) {
-		this.blackIPs = blackIPs;
-	}
-	
-	public void setDeployModel(boolean deployModel) {
-		this.deployModel = deployModel;
-	}
-	
-	public boolean isDeployModel() {
-		return deployModel;
-	}
-	
-	/**
-	 * @return the acLoader
-	 */
-	public ApplicationConfigurationLoader getAcLoader() {
-		return acLoader;
-	}
-	
+    private void putPluginServices(FutureAcceptorService service) {
+        pluginServlets.put(service.getServiceName(), service);
+    }
+
+    private void clearPluginFilters() {
+        pluginFilters.clear();
+    }
+
+    // FIXME 考虑部署失败后如何再次部署
+    // FIXME redeploy roleManager
+    // FIXME redeploy loginCenter
+    // FIXME keep http session
+    public synchronized boolean redeploy() {
+
+        LoggerUtil.prettyLog(logger, "//**********************  开始卸载服务  **********************//");
+
+        redeploying = true;
+
+        destroyApplicationContext();
+
+        LoggerUtil.prettyLog(logger,
+                "//**********************  卸载服务完成  **********************//\n");
+
+        try {
+
+            // FIXME 重新加载configuration
+            LoggerUtil.prettyLog(logger,
+                    "//**********************  开始加载服务  **********************//");
+
+            initializeApplicationContext();
+
+            redeploying = false;
+
+            LoggerUtil.prettyLog(logger,
+                    "//**********************  加载服务完成  **********************//\n");
+
+            return true;
+
+        } catch (Exception e) {
+
+            classLoader.unloadClassLoader();
+
+            redeploying = false;
+
+            LoggerUtil.prettyLog(logger,
+                    "//**********************  加载服务失败  **********************//\n");
+
+            logger.info(e.getMessage(), e);
+
+            return false;
+        }
+
+    }
+
+    public void setChannelContext(SocketChannelContext context) {
+        this.channelContext = context;
+    }
+
+    public void listen(String serviceName, FutureAcceptorService service) {
+
+        if (isRunning()) {
+            throw new IllegalStateException("listen before start");
+        }
+
+        this.services.put(serviceName, service);
+    }
+
+    public FutureAcceptorService getAppRedeployService() {
+        return appRedeployService;
+    }
+
+    public void setAppRedeployService(FutureAcceptorService appRedeployService) {
+        this.appRedeployService = appRedeployService;
+    }
+
+    public void setServiceFilter(FutureAcceptorServiceFilter serviceFilter) {
+        this.futureAcceptorServiceFilter = serviceFilter;
+    }
+
+    public ApplicationExtLoader getApplicationExtLoader() {
+        return applicationExtLoader;
+    }
+
+    public void setApplicationExtLoader(ApplicationExtLoader applicationExtLoader) {
+        this.applicationExtLoader = applicationExtLoader;
+    }
+
+    public String getRootLocalAddress() {
+        return rootLocalAddress;
+    }
+
+    public void setApplicationConfigurationLoader(ApplicationConfigurationLoader acLoader) {
+        this.acLoader = acLoader;
+    }
+
+    /**
+     * @return the pluginIndex
+     */
+    public AtomicInteger getPluginIndex() {
+        return pluginIndex;
+    }
+
+    /**
+     * @return the redeploying
+     */
+    public boolean isRedeploying() {
+        return redeploying;
+    }
+
+    public ExceptionCaughtHandle getExceptionCaughtHandle() {
+        return exceptionCaughtHandle;
+    }
+
+    public void setExceptionCaughtHandle(ExceptionCaughtHandle exceptionCaughtHandle) {
+        this.exceptionCaughtHandle = exceptionCaughtHandle;
+    }
+
+    public Set<String> getBlackIPs() {
+        return blackIPs;
+    }
+
+    public void setBlackIPs(Set<String> blackIPs) {
+        this.blackIPs = blackIPs;
+    }
+
+    public void setDeployModel(boolean deployModel) {
+        this.deployModel = deployModel;
+    }
+
+    public boolean isDeployModel() {
+        return deployModel;
+    }
+
+    /**
+     * @return the acLoader
+     */
+    public ApplicationConfigurationLoader getAcLoader() {
+        return acLoader;
+    }
+
 }

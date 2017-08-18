@@ -25,53 +25,53 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
-	private ApplicationContext	applicationContext;
-	private FutureAcceptorContainer		filterService;
+    private ApplicationContext      applicationContext;
+    private FutureAcceptorContainer filterService;
 
-	public ApplicationIoEventHandle(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
+    public ApplicationIoEventHandle(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
-	@Override
-	public void accept(SocketSession session, Future future) throws Exception {
-		filterService.accept(session, future);
-	}
+    @Override
+    public void accept(SocketSession session, Future future) throws Exception {
+        filterService.accept(session, future);
+    }
 
-	public ApplicationContext getApplicationContext() {
-		return applicationContext;
-	}
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 
-	@Override
-	protected void initialize(SocketChannelContext context) throws Exception {
+    @Override
+    protected void initialize(SocketChannelContext context) throws Exception {
 
-		ApplicationContext applicationContext = this.applicationContext;
+        ApplicationContext applicationContext = this.applicationContext;
 
-		LifeCycleUtil.start(applicationContext);
+        LifeCycleUtil.start(applicationContext);
 
-		this.filterService = applicationContext.getFilterService();
+        this.filterService = applicationContext.getFilterService();
 
-		super.initialize(context);
-	}
+        super.initialize(context);
+    }
 
-	@Override
-	protected void destroy(SocketChannelContext context) throws Exception {
+    @Override
+    protected void destroy(SocketChannelContext context) throws Exception {
 
-		LifeCycleUtil.stop(applicationContext);
+        LifeCycleUtil.stop(applicationContext);
 
-		super.destroy(context);
-	}
-	
-	@Override
-	public void exceptionCaught(SocketSession session, Future future, Exception cause,
-			IoEventState state) {
-		
-		ExceptionCaughtHandle exceptionCaughtHandle = applicationContext.getExceptionCaughtHandle();
-		
-		if (exceptionCaughtHandle == null) {
-			return;
-		}
-		
-		exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
-	}
+        super.destroy(context);
+    }
+
+    @Override
+    public void exceptionCaught(SocketSession session, Future future, Exception cause,
+            IoEventState state) {
+
+        ExceptionCaughtHandle exceptionCaughtHandle = applicationContext.getExceptionCaughtHandle();
+
+        if (exceptionCaughtHandle == null) {
+            return;
+        }
+
+        exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
+    }
 
 }

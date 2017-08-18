@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.fixedlength;
 
 import java.io.IOException;
@@ -44,22 +44,23 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
  */
 public class FixedLengthProtocolDecoder implements ProtocolDecoder {
 
-	public static final int	PROTOCOL_HEADER	= 4;
+    public static final int PROTOCOL_HEADER = 4;
 
-	public static final int	PROTOCOL_PING		= -1;
+    public static final int PROTOCOL_PING   = -1;
 
-	public static final int	PROTOCOL_PONG		= -2;
+    public static final int PROTOCOL_PONG   = -2;
 
-	private int			limit;
+    private int             limit;
 
-	public FixedLengthProtocolDecoder(int limit) {
-		this.limit = limit;
-	}
+    public FixedLengthProtocolDecoder(int limit) {
+        this.limit = limit;
+    }
 
-	@Override
-	public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+    @Override
+    public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		return new FixedLengthFutureImpl(session, session.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
-	}
+        return new FixedLengthFutureImpl(session,
+                session.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
+    }
 
 }

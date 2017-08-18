@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.linebased;
 
 import com.generallycloud.baseio.acceptor.ChannelAcceptor;
@@ -28,49 +28,51 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class TestLineBasedBroadcastServer {
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
-			
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				
-				long old = System.currentTimeMillis();
-				
-				String res = "hello world!";
-				
-				future.write(res);
-				
-				ChannelAcceptor acceptor = (ChannelAcceptor) session.getContext().getChannelService();
-				
-				acceptor.broadcast(future);
-				
-				long now = System.currentTimeMillis();
-				
-				System.out.println("广播花费时间："+(now - old)+",连接数："+session.getContext().getSessionManager().getManagedSessionSize());
-			}
-		};
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-		ServerConfiguration configuration = new ServerConfiguration();
-		
-		configuration.setSERVER_PORT(18300);
-		
-		configuration.setSERVER_SESSION_IDLE_TIME(180000);
-		
-		configuration.setSERVER_MEMORY_POOL_CAPACITY(1024 * 512);
-		
-		configuration.setSERVER_MEMORY_POOL_UNIT(64);
-		
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.setProtocolFactory(new LineBasedProtocolFactory());
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
 
-		acceptor.bind();
-	}
+                long old = System.currentTimeMillis();
+
+                String res = "hello world!";
+
+                future.write(res);
+
+                ChannelAcceptor acceptor = (ChannelAcceptor) session.getContext()
+                        .getChannelService();
+
+                acceptor.broadcast(future);
+
+                long now = System.currentTimeMillis();
+
+                System.out.println("广播花费时间：" + (now - old) + ",连接数："
+                        + session.getContext().getSessionManager().getManagedSessionSize());
+            }
+        };
+
+        ServerConfiguration configuration = new ServerConfiguration();
+
+        configuration.setSERVER_PORT(18300);
+
+        configuration.setSERVER_SESSION_IDLE_TIME(180000);
+
+        configuration.setSERVER_MEMORY_POOL_CAPACITY(1024 * 512);
+
+        configuration.setSERVER_MEMORY_POOL_UNIT(64);
+
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
+
+        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+
+        context.setProtocolFactory(new LineBasedProtocolFactory());
+
+        acceptor.bind();
+    }
 }

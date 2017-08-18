@@ -21,8 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
-import com.generallycloud.baseio.protocol.NamedFuture;
 import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.NamedFuture;
 
 /**
  * @author wangkai
@@ -30,38 +30,38 @@ import com.generallycloud.baseio.protocol.Future;
  */
 public class SystemRedeployServlet extends FutureAcceptorService {
 
-	public SystemRedeployServlet() {
-		this.setServiceName("/system-redeploy");
-	}
+    public SystemRedeployServlet() {
+        this.setServiceName("/system-redeploy");
+    }
 
-	private AtomicInteger redeployTime = new AtomicInteger();
+    private AtomicInteger redeployTime = new AtomicInteger();
 
-	@Override
-	public void accept(SocketSession session, Future future) throws IOException {
+    @Override
+    public void accept(SocketSession session, Future future) throws IOException {
 
-		NamedFuture f = (NamedFuture) future;
+        NamedFuture f = (NamedFuture) future;
 
-		if (getServiceName().equals(f.getFutureName())) {
+        if (getServiceName().equals(f.getFutureName())) {
 
-			ApplicationContext context = ApplicationContext.getInstance();
+            ApplicationContext context = ApplicationContext.getInstance();
 
-			int time = redeployTime.incrementAndGet();
+            int time = redeployTime.incrementAndGet();
 
-			if (context.redeploy()) {
-				future.write("redeploy successful_" + time);
-			} else {
-				future.write("redeploy failed_" + time);
-			}
+            if (context.redeploy()) {
+                future.write("redeploy successful_" + time);
+            } else {
+                future.write("redeploy failed_" + time);
+            }
 
-			session.flush(future);
+            session.flush(future);
 
-			return;
-		}
+            return;
+        }
 
-		future.write("server is upgrading ...");
+        future.write("server is upgrading ...");
 
-		session.flush(future);
+        session.flush(future);
 
-	}
+    }
 
 }

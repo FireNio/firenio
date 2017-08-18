@@ -28,50 +28,50 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class SystemStopServerServlet extends FutureAcceptorService {
 
-	private Logger logger = LoggerFactory.getLogger(SystemStopServerServlet.class);
+    private Logger logger = LoggerFactory.getLogger(SystemStopServerServlet.class);
 
-	public SystemStopServerServlet() {
-		this.setServiceName("/system-stop-server.auth");
-	}
+    public SystemStopServerServlet() {
+        this.setServiceName("/system-stop-server.auth");
+    }
 
-	@Override
-	public void accept(SocketSession session, Future future) throws Exception {
+    @Override
+    public void accept(SocketSession session, Future future) throws Exception {
 
-		SocketChannelContext context = session.getContext();
+        SocketChannelContext context = session.getContext();
 
-		future.write("server is stopping");
+        future.write("server is stopping");
 
-		session.flush(future);
+        session.flush(future);
 
-		new Thread(new StopServer(context)).start();
-	}
+        new Thread(new StopServer(context)).start();
+    }
 
-	private class StopServer implements Runnable {
+    private class StopServer implements Runnable {
 
-		private SocketChannelContext context = null;
+        private SocketChannelContext context = null;
 
-		public StopServer(SocketChannelContext context) {
-			this.context = context;
-		}
+        public StopServer(SocketChannelContext context) {
+            this.context = context;
+        }
 
-		@Override
-		public void run() {
+        @Override
+        public void run() {
 
-			ThreadUtil.sleep(500);
+            ThreadUtil.sleep(500);
 
-			LoggerUtil.prettyLog(logger, "execute stop service");
-			
-			String[] words = new String[] { "5", "4", "3", "2", "1" };
+            LoggerUtil.prettyLog(logger, "execute stop service");
 
-			for (int i = 0; i < 5; i++) {
+            String[] words = new String[] { "5", "4", "3", "2", "1" };
 
-				LoggerUtil.prettyLog(logger,"service will stop after {} seconds", words[i]);
+            for (int i = 0; i < 5; i++) {
 
-				ThreadUtil.sleep(1000);
-			}
-			
-			CloseUtil.unbind((ChannelAcceptor) context.getChannelService());
-			
-		}
-	}
+                LoggerUtil.prettyLog(logger, "service will stop after {} seconds", words[i]);
+
+                ThreadUtil.sleep(1000);
+            }
+
+            CloseUtil.unbind((ChannelAcceptor) context.getChannelService());
+
+        }
+    }
 }

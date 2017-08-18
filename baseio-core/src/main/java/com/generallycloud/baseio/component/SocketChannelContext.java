@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.component.ssl.SslContext;
@@ -22,53 +22,53 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public interface SocketChannelContext extends ChannelContext {
-	
-	public abstract SocketSessionManager getSessionManager();
 
-	public abstract IoEventHandleAdaptor getIoEventHandleAdaptor();
+    public abstract SocketSessionManager getSessionManager();
 
-	public abstract ExecutorEventLoopGroup getExecutorEventLoopGroup();
+    public abstract IoEventHandleAdaptor getIoEventHandleAdaptor();
 
-	public abstract int getSessionAttachmentSize();
-	
-	public abstract void setSessionAttachmentSize(int sessionAttachmentSize);
+    public abstract ExecutorEventLoopGroup getExecutorEventLoopGroup();
 
-	public abstract BeatFutureFactory getBeatFutureFactory();
+    public abstract int getSessionAttachmentSize();
 
-	public abstract void setBeatFutureFactory(BeatFutureFactory beatFutureFactory);
+    public abstract void setSessionAttachmentSize(int sessionAttachmentSize);
 
-	public abstract void setIoEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor);
+    public abstract BeatFutureFactory getBeatFutureFactory();
 
-	public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
-	
-	public abstract ProtocolFactory getProtocolFactory();
-	
-	public abstract ProtocolEncoder getProtocolEncoder();
-	
-	public abstract ProtocolDecoder getProtocolDecoder();
-	
-	public abstract SslContext getSslContext() ;
+    public abstract void setBeatFutureFactory(BeatFutureFactory beatFutureFactory);
 
-	public abstract void setSslContext(SslContext sslContext) ;
-	
-	public abstract ChannelByteBufReader getChannelByteBufReader();
+    public abstract void setIoEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor);
 
-	public abstract boolean isEnableSSL() ;
-	
-	public abstract SocketSessionFactory getSessionFactory() ;
+    public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
 
-	public abstract void setSocketSessionFactory(SocketSessionFactory sessionFactory) ;
-	
-	public abstract ForeFutureAcceptor getForeReadFutureAcceptor();
-	
-	public abstract SocketSessionEventListenerWrapper getSessionEventListenerLink();
-	
-	public abstract SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink();
-	
-	public abstract void addSessionEventListener(SocketSessionEventListener listener);
-	
-	public abstract void addSessionIdleEventListener(SocketSessionIdleEventListener listener);
-	
-	public abstract void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup);
+    public abstract ProtocolFactory getProtocolFactory();
+
+    public abstract ProtocolEncoder getProtocolEncoder();
+
+    public abstract ProtocolDecoder getProtocolDecoder();
+
+    public abstract SslContext getSslContext();
+
+    public abstract void setSslContext(SslContext sslContext);
+
+    public abstract ChannelByteBufReader getChannelByteBufReader();
+
+    public abstract boolean isEnableSSL();
+
+    public abstract SocketSessionFactory getSessionFactory();
+
+    public abstract void setSocketSessionFactory(SocketSessionFactory sessionFactory);
+
+    public abstract ForeFutureAcceptor getForeReadFutureAcceptor();
+
+    public abstract SocketSessionEventListenerWrapper getSessionEventListenerLink();
+
+    public abstract SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink();
+
+    public abstract void addSessionEventListener(SocketSessionEventListener listener);
+
+    public abstract void addSessionIdleEventListener(SocketSessionIdleEventListener listener);
+
+    public abstract void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup);
 
 }

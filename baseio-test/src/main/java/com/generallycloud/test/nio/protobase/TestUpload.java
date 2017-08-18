@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.protobase;
 
 import java.io.File;
@@ -33,58 +33,58 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class TestUpload {
 
-	static SocketChannelConnector connector = null;
-	
-	public static void main(String[] args) throws Exception {
+    static SocketChannelConnector connector = null;
 
-		String serviceName = "TestUploadServlet";
+    public static void main(String[] args) throws Exception {
 
-		IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
-			
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				ProtobaseFuture f = (ProtobaseFuture) future;
-				System.out.println();
-				System.out.println(f.getReadText());
-				System.out.println();
-				
-				CloseUtil.close(connector);
-				
-			}
+        String serviceName = "TestUploadServlet";
 
-			@Override
-			public void futureSent(SocketSession session, Future future) {
-				ProtobaseFuture f = (ProtobaseFuture) future;
-				System.out.println("报文已发送："+f.getReadText());
-			}
-		};
+        IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
 
-		LoggerFactory.configure();
-		
-		ServerConfiguration configuration = new ServerConfiguration(8800);
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                ProtobaseFuture f = (ProtobaseFuture) future;
+                System.out.println();
+                System.out.println(f.getReadText());
+                System.out.println();
 
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandle);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		SocketSession session = connector.connect();
-		
-		String fileName = "lantern-installer-beta.exe";
-		
-		fileName = "flashmail-2.4.exe";
-		
-//		fileName = "jdk-8u102-windows-x64.exe";
-		
-		File file = new File("D:/TEMP/"+fileName);
-		
-		FileSendUtil fileSendUtil = new FileSendUtil();
-		
-		fileSendUtil.sendFile(session, serviceName, file, 1024 * 800);
-		
-	}
+                CloseUtil.close(connector);
+
+            }
+
+            @Override
+            public void futureSent(SocketSession session, Future future) {
+                ProtobaseFuture f = (ProtobaseFuture) future;
+                System.out.println("报文已发送：" + f.getReadText());
+            }
+        };
+
+        LoggerFactory.configure();
+
+        ServerConfiguration configuration = new ServerConfiguration(8800);
+
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
+
+        connector = new SocketChannelConnector(context);
+
+        context.setIoEventHandleAdaptor(eventHandle);
+
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+        SocketSession session = connector.connect();
+
+        String fileName = "lantern-installer-beta.exe";
+
+        fileName = "flashmail-2.4.exe";
+
+        //		fileName = "jdk-8u102-windows-x64.exe";
+
+        File file = new File("D:/TEMP/" + fileName);
+
+        FileSendUtil fileSendUtil = new FileSendUtil();
+
+        fileSendUtil.sendFile(session, serviceName, file, 1024 * 800);
+
+    }
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http11.future;
 
 import com.generallycloud.baseio.codec.http11.WebSocketProtocolFactory;
@@ -22,20 +22,20 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class WebSocketBeatFutureFactory implements BeatFutureFactory {
 
-	@Override
-	public Future createPINGPacket(SocketSession session) {
-		if (WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolId())) {
-			return new WebSocketFutureImpl(session.getContext()).setPING();
-		}
-		return null;
-	}
+    @Override
+    public Future createPINGPacket(SocketSession session) {
+        if (WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolId())) {
+            return new WebSocketFutureImpl(session.getContext()).setPING();
+        }
+        return null;
+    }
 
-	@Override
-	public Future createPONGPacket(SocketSession session) {
-		if (WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolId())) {
-			return new WebSocketFutureImpl(session.getContext()).setPONG();
-		}
-		return null;
-	}
+    @Override
+    public Future createPONGPacket(SocketSession session) {
+        if (WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolId())) {
+            return new WebSocketFutureImpl(session.getContext()).setPONG();
+        }
+        return null;
+    }
 
 }

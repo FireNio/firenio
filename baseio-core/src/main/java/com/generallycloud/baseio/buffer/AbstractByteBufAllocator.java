@@ -18,42 +18,42 @@ package com.generallycloud.baseio.buffer;
 import com.generallycloud.baseio.AbstractLifeCycle;
 
 public abstract class AbstractByteBufAllocator extends AbstractLifeCycle
-		implements ByteBufAllocator {
+        implements ByteBufAllocator {
 
-	protected boolean isDirect;
+    protected boolean isDirect;
 
-	public AbstractByteBufAllocator(boolean isDirect) {
-		this.isDirect = isDirect;
-	}
+    public AbstractByteBufAllocator(boolean isDirect) {
+        this.isDirect = isDirect;
+    }
 
-	@Override
-	public ByteBuf allocate(int limit, int maxLimit) {
-		if (limit > maxLimit) {
-			throw new BufferException("limit:" + limit + ",maxLimit:" + maxLimit);
-		}
-		return allocate(limit);
-	}
+    @Override
+    public ByteBuf allocate(int limit, int maxLimit) {
+        if (limit > maxLimit) {
+            throw new BufferException("limit:" + limit + ",maxLimit:" + maxLimit);
+        }
+        return allocate(limit);
+    }
 
-	@Override
-	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
-		if (limit > maxLimit) {
-			throw new BufferException("limit:" + limit + ",maxLimit:" + maxLimit);
-		}
-		return reallocate(buf, limit, copyOld);
-	}
+    @Override
+    public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
+        if (limit > maxLimit) {
+            throw new BufferException("limit:" + limit + ",maxLimit:" + maxLimit);
+        }
+        return reallocate(buf, limit, copyOld);
+    }
 
-	@Override
-	public ByteBuf reallocate(ByteBuf buf, int limit) {
-		return reallocate(buf, limit, false);
-	}
+    @Override
+    public ByteBuf reallocate(ByteBuf buf, int limit) {
+        return reallocate(buf, limit, false);
+    }
 
-	@Override
-	public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit) {
-		return reallocate(buf, limit, maxLimit, false);
-	}
-	
-	@Override
-	public boolean isDirect() {
-		return isDirect;
-	}
+    @Override
+    public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit) {
+        return reallocate(buf, limit, maxLimit, false);
+    }
+
+    @Override
+    public boolean isDirect() {
+        return isDirect;
+    }
 }

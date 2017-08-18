@@ -12,31 +12,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.others;
 
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ReentrantLockUtil {
-	
-	private ReentrantLock lock = new ReentrantLock();
 
-	public static void main(String[] args) {
-		
-	}
-	
-	void test(){
-		
-		ReentrantLock lock = this.lock;
-		
-		lock.lock();
-		
-		try {
-			
-		} finally {
-			lock.unlock();
-		}
-		
-	}
-	
+    private ReentrantLock lock = new ReentrantLock();
+
+    public static void main(String[] args) {
+
+    }
+
+    void test() {
+
+        ReentrantLock lock = this.lock;
+
+        lock.lock();
+
+        try {
+
+        } finally {
+            lock.unlock();
+        }
+
+    }
+
 }

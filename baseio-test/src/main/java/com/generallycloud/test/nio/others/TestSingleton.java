@@ -23,31 +23,29 @@ import com.generallycloud.baseio.common.ThreadUtil;
  */
 public class TestSingleton {
 
-	
-	public static void main(String[] args) {
-		
-		
-		ThreadUtil.execute(() ->{
-			Singleton.getSingleton();
-		});
+    public static void main(String[] args) {
 
-		ThreadUtil.execute(() ->{
-			Singleton.getSingleton();
-		});
-		
-	}
-	
+        ThreadUtil.execute(() -> {
+            Singleton.getSingleton();
+        });
+
+        ThreadUtil.execute(() -> {
+            Singleton.getSingleton();
+        });
+
+    }
+
 }
 
-class Singleton{
-	
-	private static final Singleton instance = new Singleton();
-	
-	private Singleton(){
-		System.out.println("init singleton");
-	}
-	
-	public static Singleton getSingleton(){
-		return instance;
-	}
+class Singleton {
+
+    private static final Singleton instance = new Singleton();
+
+    private Singleton() {
+        System.out.println("init singleton");
+    }
+
+    public static Singleton getSingleton() {
+        return instance;
+    }
 }

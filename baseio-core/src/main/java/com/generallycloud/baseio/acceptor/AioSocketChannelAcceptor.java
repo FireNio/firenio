@@ -36,58 +36,56 @@ import com.generallycloud.baseio.log.LoggerFactory;
  */
 public class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
 
-	private AsynchronousServerSocketChannel serverSocketChannel;
+    private AsynchronousServerSocketChannel serverSocketChannel;
 
-	public AioSocketChannelAcceptor(AioSocketChannelContext context) {
-		super(context);
-	}
+    public AioSocketChannelAcceptor(AioSocketChannelContext context) {
+        super(context);
+    }
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Override
-	protected void bind(InetSocketAddress socketAddress) throws IOException {
+    @Override
+    protected void bind(InetSocketAddress socketAddress) throws IOException {
 
-		AioSocketChannelContext context = (AioSocketChannelContext) getContext();
+        AioSocketChannelContext context = (AioSocketChannelContext) getContext();
 
-		AsynchronousChannelGroup group = context.getAsynchronousChannelGroup();
-		
-		final FixedAtomicInteger channelIds = new FixedAtomicInteger(1);
+        AsynchronousChannelGroup group = context.getAsynchronousChannelGroup();
 
-		serverSocketChannel = AsynchronousServerSocketChannel.open(group);
+        final FixedAtomicInteger channelIds = new FixedAtomicInteger(1);
 
-		serverSocketChannel.bind(socketAddress);
+        serverSocketChannel = AsynchronousServerSocketChannel.open(group);
 
-		serverSocketChannel.accept(null,
-				new CompletionHandler<AsynchronousSocketChannel, Void>() {
+        serverSocketChannel.bind(socketAddress);
 
-					@Override
-					public void completed(AsynchronousSocketChannel _channel,
-							Void attachment) {
+        serverSocketChannel.accept(null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
 
-						serverSocketChannel.accept(null, this); // 接受下一个连接
-						
-						int channelId = channelIds.getAndIncrement();
+            @Override
+            public void completed(AsynchronousSocketChannel _channel, Void attachment) {
 
-						CachedAioThread aioThread = (CachedAioThread) Thread.currentThread();
+                serverSocketChannel.accept(null, this); // 接受下一个连接
 
-						AioSocketChannel channel = new AioSocketChannel(aioThread, _channel,channelId);
+                int channelId = channelIds.getAndIncrement();
 
-						channel.fireOpend();
+                CachedAioThread aioThread = (CachedAioThread) Thread.currentThread();
 
-						aioThread.getReadCompletionHandler().completed(0, channel);
-					}
+                AioSocketChannel channel = new AioSocketChannel(aioThread, _channel, channelId);
 
-					@Override
-					public void failed(Throwable exc, Void attachment) {
-						logger.error(exc.getMessage(), exc);
-					}
-				});
+                channel.fireOpend();
 
-		logger.info("22222222222222222");
-	}
+                aioThread.getReadCompletionHandler().completed(0, channel);
+            }
 
-	@Override
-	protected void destroyService() {
-		CloseUtil.close(serverSocketChannel);
-	}
+            @Override
+            public void failed(Throwable exc, Void attachment) {
+                logger.error(exc.getMessage(), exc);
+            }
+        });
+
+        logger.info("22222222222222222");
+    }
+
+    @Override
+    protected void destroyService() {
+        CloseUtil.close(serverSocketChannel);
+    }
 }

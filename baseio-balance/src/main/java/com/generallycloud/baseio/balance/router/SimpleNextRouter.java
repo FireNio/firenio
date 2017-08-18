@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance.router;
 
 import java.util.ArrayList;
@@ -25,102 +25,103 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleNextRouter extends AbstractBalanceRouter {
 
-	private int							index			= 0;
-	private ReentrantLock					lock				= new ReentrantLock();
-	private List<BalanceReverseSocketSession>	routerList		= new ArrayList<>();
+    private int                               index      = 0;
+    private ReentrantLock                     lock       = new ReentrantLock();
+    private List<BalanceReverseSocketSession> routerList = new ArrayList<>();
 
-	private BalanceReverseSocketSession getNextRouterSession() {
+    private BalanceReverseSocketSession getNextRouterSession() {
 
-		List<BalanceReverseSocketSession> list = this.routerList;
+        List<BalanceReverseSocketSession> list = this.routerList;
 
-		if (list.isEmpty()) {
-			return null;
-		}
+        if (list.isEmpty()) {
+            return null;
+        }
 
-		BalanceReverseSocketSession session;
+        BalanceReverseSocketSession session;
 
-		if (index < list.size()) {
+        if (index < list.size()) {
 
-			session = list.get(index++);
-		} else {
+            session = list.get(index++);
+        } else {
 
-			index = 1;
+            index = 1;
 
-			session = list.get(0);
-		}
+            session = list.get(0);
+        }
 
-		return session;
-	}
+        return session;
+    }
 
-	@Override
-	public void addRouterSession(BalanceReverseSocketSession session) {
+    @Override
+    public void addRouterSession(BalanceReverseSocketSession session) {
 
-		ReentrantLock lock = this.lock;
+        ReentrantLock lock = this.lock;
 
-		lock.lock();
+        lock.lock();
 
-		this.routerList.add(session);
+        this.routerList.add(session);
 
-		lock.unlock();
-	}
+        lock.unlock();
+    }
 
-	@Override
-	public void removeRouterSession(BalanceReverseSocketSession session) {
+    @Override
+    public void removeRouterSession(BalanceReverseSocketSession session) {
 
-		ReentrantLock lock = this.lock;
+        ReentrantLock lock = this.lock;
 
-		lock.lock();
+        lock.lock();
 
-		routerList.remove(session);
+        routerList.remove(session);
 
-		lock.unlock();
-	}
+        lock.unlock();
+    }
 
-	@Override
-	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session, Future future) {
+    @Override
+    public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session,
+            Future future) {
 
-		BalanceReverseSocketSession router_session = getRouterSession(session);
+        BalanceReverseSocketSession router_session = getRouterSession(session);
 
-		if (router_session == null) {
+        if (router_session == null) {
 
-			return getRouterSessionFresh(session);
-		}
+            return getRouterSessionFresh(session);
+        }
 
-		if (router_session.isClosed()) {
+        if (router_session.isClosed()) {
 
-			return getRouterSessionFresh(session);
-		}
+            return getRouterSessionFresh(session);
+        }
 
-		return router_session;
-	}
+        return router_session;
+    }
 
-	private BalanceReverseSocketSession getRouterSessionFresh(BalanceFacadeSocketSession session) {
+    private BalanceReverseSocketSession getRouterSessionFresh(BalanceFacadeSocketSession session) {
 
-		ReentrantLock lock = this.lock;
+        ReentrantLock lock = this.lock;
 
-		lock.lock();
+        lock.lock();
 
-		try {
+        try {
 
-			BalanceReverseSocketSession router_session = getRouterSession(session);
+            BalanceReverseSocketSession router_session = getRouterSession(session);
 
-			if (router_session == null || router_session.isClosed()) {
-				
-				router_session = getNextRouterSession();
-				
-				if (router_session == null) {
-					return null;
-				}
+            if (router_session == null || router_session.isClosed()) {
 
-				session.setReverseSocketSession(router_session);
-			}
+                router_session = getNextRouterSession();
 
-			return router_session;
+                if (router_session == null) {
+                    return null;
+                }
 
-		} finally {
+                session.setReverseSocketSession(router_session);
+            }
 
-			lock.unlock();
-		}
-	}
-	
+            return router_session;
+
+        } finally {
+
+            lock.unlock();
+        }
+    }
+
 }

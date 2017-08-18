@@ -12,20 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 import com.generallycloud.baseio.component.SocketSession;
 
 public interface BalanceFacadeSocketSession extends SocketSession {
-	
-	public abstract Object getSessionKey();
-	
-	public abstract boolean overfulfil(int size);
 
-	public abstract BalanceReverseSocketSession getReverseSocketSession();
+    public abstract Object getSessionKey();
 
-	public abstract void setReverseSocketSession(BalanceReverseSocketSession reverseSocketSession);
+    public abstract boolean overfulfil(int size);
+
+    public abstract BalanceReverseSocketSession getReverseSocketSession();
+
+    public abstract void setReverseSocketSession(BalanceReverseSocketSession reverseSocketSession);
 
 }

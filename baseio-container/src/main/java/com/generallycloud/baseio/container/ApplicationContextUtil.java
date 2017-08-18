@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
 
 import com.generallycloud.baseio.component.SocketSession;
@@ -23,28 +23,29 @@ import com.generallycloud.baseio.container.authority.AuthoritySessionAttachment;
 
 public class ApplicationContextUtil {
 
-	public static AuthorityManager getAuthorityManager(SocketSession session){
-		
-		AuthorityContext plugin = AuthorityContext.getInstance();
-		
-		AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session.getAttribute(plugin.getPluginKey());
-		
-		if (attachment == null) {
-			return null;
-		}
-		
-		return attachment.getAuthorityManager();
-	}
-	
-	public static Authority getAuthority(SocketSession session){
-		
-		AuthorityManager authorityManager = getAuthorityManager(session);
-		
-		if (authorityManager == null) {
-			return null;
-		}
-		
-		return authorityManager.getAuthority();
-	}
-	
+    public static AuthorityManager getAuthorityManager(SocketSession session) {
+
+        AuthorityContext plugin = AuthorityContext.getInstance();
+
+        AuthoritySessionAttachment attachment = (AuthoritySessionAttachment) session
+                .getAttribute(plugin.getPluginKey());
+
+        if (attachment == null) {
+            return null;
+        }
+
+        return attachment.getAuthorityManager();
+    }
+
+    public static Authority getAuthority(SocketSession session) {
+
+        AuthorityManager authorityManager = getAuthorityManager(session);
+
+        if (authorityManager == null) {
+            return null;
+        }
+
+        return authorityManager.getAuthority();
+    }
+
 }

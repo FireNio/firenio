@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
 
 import com.generallycloud.baseio.component.Parameters;
@@ -20,12 +20,12 @@ import com.generallycloud.baseio.component.SocketSession;
 
 public interface LoginCenter extends Initializeable {
 
-	public abstract boolean isLogined(SocketSession session);
+    public abstract boolean isLogined(SocketSession session);
 
-	public abstract void logout(SocketSession session);
+    public abstract void logout(SocketSession session);
 
-	public abstract boolean isValidate(Parameters future);
+    public abstract boolean isValidate(Parameters future);
 
-	public abstract boolean login(SocketSession session, Parameters future);
+    public abstract boolean login(SocketSession session, Parameters future);
 
 }

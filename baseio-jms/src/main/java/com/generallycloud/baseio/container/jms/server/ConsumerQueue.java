@@ -12,19 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.server;
 
 import java.util.List;
 
 public interface ConsumerQueue {
 
-	public abstract int size();
+    public abstract int size();
 
-	public abstract void offer(Consumer consumer);
+    public abstract void offer(Consumer consumer);
 
-	public abstract void remove(Consumer consumer);
-	
-	public abstract List<Consumer> getSnapshot();
-	
+    public abstract void remove(Consumer consumer);
+
+    public abstract List<Consumer> getSnapshot();
+
 }

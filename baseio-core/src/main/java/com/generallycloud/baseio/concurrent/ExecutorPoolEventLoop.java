@@ -21,86 +21,83 @@ import java.util.concurrent.TimeUnit;
 
 public class ExecutorPoolEventLoop implements ExecutorEventLoop {
 
-	private int				eventLoopSize;
-	private int				maxEventLoopSize;
-	private long				keepAliveTime;
-	private int				maxEventQueueSize;
-	private NamedThreadFactory	threadFactory;
-	private boolean			running	= false;
-	private ExecutorEventLoopGroup eventLoopGroup;
+    private int                    eventLoopSize;
+    private int                    maxEventLoopSize;
+    private long                   keepAliveTime;
+    private int                    maxEventQueueSize;
+    private NamedThreadFactory     threadFactory;
+    private boolean                running = false;
+    private ExecutorEventLoopGroup eventLoopGroup;
 
-	public ExecutorPoolEventLoop(
-			ExecutorEventLoopGroup eventLoopGroup,
-			int eventLoopSize, 
-			int maxEventLoopSize, 
-			int maxEventQueueSize, 
-			long keepAliveTime) {
-		this.eventLoopGroup = eventLoopGroup;
-		this.eventLoopSize = eventLoopSize;
-		this.maxEventLoopSize = maxEventLoopSize;
-		this.maxEventQueueSize = maxEventQueueSize;
-		this.keepAliveTime = keepAliveTime;
-	}
+    public ExecutorPoolEventLoop(ExecutorEventLoopGroup eventLoopGroup, int eventLoopSize,
+            int maxEventLoopSize, int maxEventQueueSize, long keepAliveTime) {
+        this.eventLoopGroup = eventLoopGroup;
+        this.eventLoopSize = eventLoopSize;
+        this.maxEventLoopSize = maxEventLoopSize;
+        this.maxEventQueueSize = maxEventQueueSize;
+        this.keepAliveTime = keepAliveTime;
+    }
 
-	private ThreadPoolExecutor poolExecutor;
+    private ThreadPoolExecutor poolExecutor;
 
-	@Override
-	public void dispatch(Runnable job) {
-		this.poolExecutor.execute(job);
-	}
+    @Override
+    public void dispatch(Runnable job) {
+        this.poolExecutor.execute(job);
+    }
 
-	@Override
-	public void startup(String threadName) throws Exception {
-		
-		threadFactory = new NamedThreadFactory(threadName);
+    @Override
+    public void startup(String threadName) throws Exception {
 
-		poolExecutor = new ThreadPoolExecutor(eventLoopSize, maxEventLoopSize, keepAliveTime, TimeUnit.MILLISECONDS,
-				new ArrayBlockingQueue<Runnable>(maxEventQueueSize), threadFactory);
-		
-		running = true;
-	}
+        threadFactory = new NamedThreadFactory(threadName);
 
-	@Override
-	public void stop() {
-		running = false;
-		if (poolExecutor != null) {
-			poolExecutor.shutdown();
-		}
-	}
+        poolExecutor = new ThreadPoolExecutor(eventLoopSize, maxEventLoopSize, keepAliveTime,
+                TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(maxEventQueueSize),
+                threadFactory);
 
-	@Override
-	public boolean inEventLoop() {
-		return threadFactory.inFactory(Thread.currentThread());
-	}
+        running = true;
+    }
 
-	@Override
-	public boolean inEventLoop(Thread thread) {
-		return false;
-	}
+    @Override
+    public void stop() {
+        running = false;
+        if (poolExecutor != null) {
+            poolExecutor.shutdown();
+        }
+    }
 
-	@Override
-	public Thread getMonitor() {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean inEventLoop() {
+        return threadFactory.inFactory(Thread.currentThread());
+    }
 
-	@Override
-	public boolean isRunning() {
-		return running;
-	}
+    @Override
+    public boolean inEventLoop(Thread thread) {
+        return false;
+    }
 
-	@Override
-	public void loop() {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public void wakeup() {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public Thread getMonitor() {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public ExecutorEventLoopGroup getEventLoopGroup() {
-		return eventLoopGroup;
-	}
+    @Override
+    public boolean isRunning() {
+        return running;
+    }
+
+    @Override
+    public void loop() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void wakeup() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ExecutorEventLoopGroup getEventLoopGroup() {
+        return eventLoopGroup;
+    }
 
 }

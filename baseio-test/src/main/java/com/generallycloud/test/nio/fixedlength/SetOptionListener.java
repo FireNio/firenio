@@ -24,24 +24,30 @@ import com.generallycloud.baseio.component.SocketSessionEventListener;
  * @author wangkai
  *
  */
-public class SetOptionListener implements SocketSessionEventListener{
+public class SetOptionListener implements SocketSessionEventListener {
 
-	/* (non-Javadoc)
-	 * @see com.generallycloud.baseio.component.SocketSessionEventListener#sessionOpened(com.generallycloud.baseio.component.SocketSession)
-	 */
-	@Override
-	public void sessionOpened(SocketSession session) throws Exception {
-		session.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-		session.setOption(StandardSocketOptions.TCP_NODELAY, true);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.generallycloud.baseio.component.SocketSessionEventListener#
+     * sessionOpened(com.generallycloud.baseio.component.SocketSession)
+     */
+    @Override
+    public void sessionOpened(SocketSession session) throws Exception {
+        session.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+        session.setOption(StandardSocketOptions.TCP_NODELAY, true);
+    }
 
-	/* (non-Javadoc)
-	 * @see com.generallycloud.baseio.component.SocketSessionEventListener#sessionClosed(com.generallycloud.baseio.component.SocketSession)
-	 */
-	@Override
-	public void sessionClosed(SocketSession session) {
-		// TODO Auto-generated method stub
-		
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.generallycloud.baseio.component.SocketSessionEventListener#
+     * sessionClosed(com.generallycloud.baseio.component.SocketSession)
+     */
+    @Override
+    public void sessionClosed(SocketSession session) {
+        // TODO Auto-generated method stub
+
+    }
 
 }

@@ -21,36 +21,36 @@ package com.generallycloud.baseio.collection;
  */
 public class ObjectPool<V> {
 
-	private ObjectPoolFactory<V>	factory;
+    private ObjectPoolFactory<V> factory;
 
-	private V[]				vs;
+    private V[]                  vs;
 
-	private int				capacity;
+    private int                  capacity;
 
-	private int				index;
+    private int                  index;
 
-	@SuppressWarnings("unchecked")
-	public void init(ObjectPoolFactory<V> factory, int capacity) {
-		this.capacity = capacity;
-		this.factory = factory;
-		this.vs = (V[]) new Object[capacity];
-		for (int i = 0; i < capacity; i++) {
-			vs[i] = factory.newInstance();
-		}
-	}
+    @SuppressWarnings("unchecked")
+    public void init(ObjectPoolFactory<V> factory, int capacity) {
+        this.capacity = capacity;
+        this.factory = factory;
+        this.vs = (V[]) new Object[capacity];
+        for (int i = 0; i < capacity; i++) {
+            vs[i] = factory.newInstance();
+        }
+    }
 
-	public V pop() {
-		if (index == 0) {
-			return factory.newInstance();
-		}
-		return vs[--index];
-	}
+    public V pop() {
+        if (index == 0) {
+            return factory.newInstance();
+        }
+        return vs[--index];
+    }
 
-	public void push(V v) {
-		if (index == capacity) {
-			return;
-		}
-		vs[index++] = v;
-	}
+    public void push(V v) {
+        if (index == capacity) {
+            return;
+        }
+        vs[index++] = v;
+    }
 
 }

@@ -12,11 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance.facade;
 
 public interface TokenBalanceFacadeSocketSession extends BalanceFacadeSocketSession {
-	
-	public abstract Long getToken();
-	
+
+    public abstract Long getToken();
+
 }

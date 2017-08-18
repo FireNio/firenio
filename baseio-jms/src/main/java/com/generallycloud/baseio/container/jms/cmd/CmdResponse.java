@@ -12,31 +12,29 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.cmd;
 
 public class CmdResponse {
 
-	private boolean _continue = true;
-	
-	private String response;
+    private boolean _continue = true;
 
-	public boolean isContinue() {
-		return _continue;
-	}
+    private String  response;
 
-	public void setContinue(boolean cont) {
-		this._continue = cont;
-	}
+    public boolean isContinue() {
+        return _continue;
+    }
 
-	public String getResponse() {
-		return response;
-	}
+    public void setContinue(boolean cont) {
+        this._continue = cont;
+    }
 
-	public void setResponse(String response) {
-		this.response = response;
-	}
-	
-	
-	
+    public String getResponse() {
+        return response;
+    }
+
+    public void setResponse(String response) {
+        this.response = response;
+    }
+
 }

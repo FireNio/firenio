@@ -22,38 +22,38 @@ import com.generallycloud.baseio.protocol.DatagramPacket;
 
 public class DatagramSession extends AbstractSession {
 
-	private DatagramChannel		channel;
-	
-	private SocketSession		socketSession;
+    private DatagramChannel channel;
 
-	public DatagramSession(DatagramChannel channel) {
-		this.channel = channel;
-	}
+    private SocketSession   socketSession;
 
-	public void sendPacket(DatagramPacket packet, SocketAddress socketAddress) throws IOException {
-		channel.sendPacket(packet, socketAddress);
-	}
+    public DatagramSession(DatagramChannel channel) {
+        this.channel = channel;
+    }
 
-	public void sendPacket(DatagramPacket packet) throws IOException {
-		channel.sendPacket(packet);
-	}
+    public void sendPacket(DatagramPacket packet, SocketAddress socketAddress) throws IOException {
+        channel.sendPacket(packet, socketAddress);
+    }
 
-	@Override
-	public DatagramChannelContext getContext() {
-		return channel.getContext();
-	}
+    public void sendPacket(DatagramPacket packet) throws IOException {
+        channel.sendPacket(packet);
+    }
 
-	@Override
-	public DatagramChannel getChannel() {
-		return channel;
-	}
+    @Override
+    public DatagramChannelContext getContext() {
+        return channel.getContext();
+    }
 
-	public SocketSession getSocketSession() {
-		return socketSession;
-	}
+    @Override
+    public DatagramChannel getChannel() {
+        return channel;
+    }
 
-	public void setSocketSession(SocketSession socketSession) {
-		this.socketSession = socketSession;
-	}
-	
+    public SocketSession getSocketSession() {
+        return socketSession;
+    }
+
+    public void setSocketSession(SocketSession socketSession) {
+        this.socketSession = socketSession;
+    }
+
 }

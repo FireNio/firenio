@@ -21,20 +21,20 @@ package com.generallycloud.baseio.component.ssl;
  */
 public interface ProtocolSelectionListener {
 
-	/**
+    /**
       * Callback invoked to let the application know that the peer does not support this
       * {@link ApplicationProtocolNegotiator}.
       */
-     void unsupported();
+    void unsupported();
 
-     /**
-      * Callback invoked to let this application know the protocol chosen by the peer.
-      *
-      * @param protocol the protocol selected by the peer. May be {@code null} or empty as supported by the
-      * application negotiation protocol.
-      * @throws Exception This may be thrown if the selected protocol is not acceptable and the desired behavior is
-      * to fail the handshake with a fatal alert.
-      */
-     void selected(String protocol) throws Exception;
-     
+    /**
+     * Callback invoked to let this application know the protocol chosen by the peer.
+     *
+     * @param protocol the protocol selected by the peer. May be {@code null} or empty as supported by the
+     * application negotiation protocol.
+     * @throws Exception This may be thrown if the selected protocol is not acceptable and the desired behavior is
+     * to fail the handshake with a fatal alert.
+     */
+    void selected(String protocol) throws Exception;
+
 }

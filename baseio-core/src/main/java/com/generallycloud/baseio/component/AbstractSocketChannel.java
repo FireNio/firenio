@@ -45,362 +45,356 @@ import com.generallycloud.baseio.protocol.SslFuture;
 
 public abstract class AbstractSocketChannel extends AbstractChannel implements SocketChannel {
 
-	protected ProtocolDecoder				protocolDecoder;
-	protected ProtocolEncoder				protocolEncoder;
-	protected ProtocolFactory				protocolFactory;
-	protected AtomicInteger					writeFutureLength;
-	protected ExecutorEventLoop				executorEventLoop;
-	protected SSLEngine					sslEngine;
-	protected SslHandler					sslHandler;
-	protected UnsafeSocketSession			session;
-	protected transient ChannelFuture		writeFuture;
-	protected transient ChannelFuture		readFuture;
-	protected transient SslFuture			sslReadFuture;
-	protected LinkedQueue<ChannelFuture>		writeFutures;
-	protected boolean						opened		= true;
-	protected SocketChannelThreadContext 		threadContext;
+    protected ProtocolDecoder            protocolDecoder;
+    protected ProtocolEncoder            protocolEncoder;
+    protected ProtocolFactory            protocolFactory;
+    protected AtomicInteger              writeFutureLength;
+    protected ExecutorEventLoop          executorEventLoop;
+    protected SSLEngine                  sslEngine;
+    protected SslHandler                 sslHandler;
+    protected UnsafeSocketSession        session;
+    protected transient ChannelFuture    writeFuture;
+    protected transient ChannelFuture    readFuture;
+    protected transient SslFuture        sslReadFuture;
+    protected LinkedQueue<ChannelFuture> writeFutures;
+    protected boolean                    opened = true;
+    protected SocketChannelThreadContext threadContext;
 
-	private static final Logger			logger		= LoggerFactory.getLogger(AbstractSocketChannel.class);
+    private static final Logger          logger = LoggerFactory
+            .getLogger(AbstractSocketChannel.class);
 
-	// FIXME 改进network wake 机制
-	// FIXME network weak check
-	public AbstractSocketChannel(SocketChannelThreadContext context,int channelId) {
-		super(context.getByteBufAllocator(), context.getChannelContext(),channelId);
-		SocketChannelContext socketChannelContext = context.getChannelContext();
-		DefaultChannelFuture f = new DefaultChannelFuture(
-				context.getChannelContext()
-				, EmptyByteBuf.getInstance());
-		this.protocolFactory = socketChannelContext.getProtocolFactory();
-		this.protocolDecoder = socketChannelContext.getProtocolDecoder();
-		this.protocolEncoder = socketChannelContext.getProtocolEncoder();
-		this.executorEventLoop = context.getExecutorEventLoop();
-		this.session = context.getChannelContext().getSessionFactory().newUnsafeSession(this);
-		this.writeFutures = new ScspLinkedQueue<>(f);
-		this.writeFutureLength = new AtomicInteger();
-		this.threadContext = context;
-	}
+    // FIXME 改进network wake 机制
+    // FIXME network weak check
+    public AbstractSocketChannel(SocketChannelThreadContext context, int channelId) {
+        super(context.getByteBufAllocator(), context.getChannelContext(), channelId);
+        SocketChannelContext socketChannelContext = context.getChannelContext();
+        DefaultChannelFuture f = new DefaultChannelFuture(context.getChannelContext(),
+                EmptyByteBuf.getInstance());
+        this.protocolFactory = socketChannelContext.getProtocolFactory();
+        this.protocolDecoder = socketChannelContext.getProtocolDecoder();
+        this.protocolEncoder = socketChannelContext.getProtocolEncoder();
+        this.executorEventLoop = context.getExecutorEventLoop();
+        this.session = context.getChannelContext().getSessionFactory().newUnsafeSession(this);
+        this.writeFutures = new ScspLinkedQueue<>(f);
+        this.writeFutureLength = new AtomicInteger();
+        this.threadContext = context;
+    }
 
-	@Override
-	public int getWriteFutureLength() {
-		return writeFutureLength.get();
-	}
+    @Override
+    public int getWriteFutureLength() {
+        return writeFutureLength.get();
+    }
 
-	@Override
-	public InetSocketAddress getLocalSocketAddress() {
-		if (local == null) {
-			try {
-				local = getLocalSocketAddress0();
-			} catch (IOException e) {
-				local = ERROR_SOCKET_ADDRESS;
-			}
-		}
-		return local;
-	}
+    @Override
+    public InetSocketAddress getLocalSocketAddress() {
+        if (local == null) {
+            try {
+                local = getLocalSocketAddress0();
+            } catch (IOException e) {
+                local = ERROR_SOCKET_ADDRESS;
+            }
+        }
+        return local;
+    }
 
-	@Override
-	public void finishHandshake(Exception e) {
-		if (getContext().getSslContext().isClient()) {
-			AbstractSocketChannelConnector connector = (AbstractSocketChannelConnector) 
-					getContext().getChannelService();
-			connector.finishConnect(getSession(), e);
-		}
-	}
+    @Override
+    public void finishHandshake(Exception e) {
+        if (getContext().getSslContext().isClient()) {
+            AbstractSocketChannelConnector connector = (AbstractSocketChannelConnector) getContext()
+                    .getChannelService();
+            connector.finishConnect(getSession(), e);
+        }
+    }
 
-	@Override
-	protected String getMarkPrefix() {
-		return "Tcp";
-	}
+    @Override
+    protected String getMarkPrefix() {
+        return "Tcp";
+    }
 
-	@Override
-	public ProtocolDecoder getProtocolDecoder() {
-		return protocolDecoder;
-	}
+    @Override
+    public ProtocolDecoder getProtocolDecoder() {
+        return protocolDecoder;
+    }
 
-	@Override
-	public ProtocolEncoder getProtocolEncoder() {
-		return protocolEncoder;
-	}
+    @Override
+    public ProtocolEncoder getProtocolEncoder() {
+        return protocolEncoder;
+    }
 
-	@Override
-	public ProtocolFactory getProtocolFactory() {
-		return protocolFactory;
-	}
+    @Override
+    public ProtocolFactory getProtocolFactory() {
+        return protocolFactory;
+    }
 
-	@Override
-	public ChannelFuture getReadFuture() {
-		return readFuture;
-	}
+    @Override
+    public ChannelFuture getReadFuture() {
+        return readFuture;
+    }
 
-	@Override
-	public InetSocketAddress getRemoteSocketAddress() {
-		if (remote == null) {
-			try {
-				remote = getRemoteSocketAddress0();
-			} catch (IOException e) {
-				remote = ERROR_SOCKET_ADDRESS;
-			}
-		}
-		return remote;
-	}
-	
-	protected abstract InetSocketAddress getRemoteSocketAddress0() throws IOException;
-	
-	protected abstract InetSocketAddress getLocalSocketAddress0() throws IOException;
+    @Override
+    public InetSocketAddress getRemoteSocketAddress() {
+        if (remote == null) {
+            try {
+                remote = getRemoteSocketAddress0();
+            } catch (IOException e) {
+                remote = ERROR_SOCKET_ADDRESS;
+            }
+        }
+        return remote;
+    }
 
-	@Override
-	public UnsafeSocketSession getSession() {
-		return session;
-	}
+    protected abstract InetSocketAddress getRemoteSocketAddress0() throws IOException;
 
-	@Override
-	public int getWriteFutureSize() {
-		return writeFutures.size();
-	}
+    protected abstract InetSocketAddress getLocalSocketAddress0() throws IOException;
 
-	// FIXME 是否使用channel.isOpen()
-	@Override
-	public boolean isOpened() {
-		return opened;
-	}
+    @Override
+    public UnsafeSocketSession getSession() {
+        return session;
+    }
 
-	@Override
-	public boolean isEnableSSL() {
-		return getContext().isEnableSSL();
-	}
+    @Override
+    public int getWriteFutureSize() {
+        return writeFutures.size();
+    }
 
-	@Override
-	public SSLEngine getSSLEngine() {
-		return sslEngine;
-	}
+    // FIXME 是否使用channel.isOpen()
+    @Override
+    public boolean isOpened() {
+        return opened;
+    }
 
-	@Override
-	public void flush(ChannelFuture future) {
-		if (future == null || future.flushed()) {
-			return;
-		}
-		if (!isOpened()) {
-			future.flush();
-			IoEventHandle handle = future.getIoEventHandle();
-			exceptionCaught(handle, future, new ClosedChannelException(toString()),
-					IoEventState.WRITE);
-			return;
-		}
-		try {
-			ProtocolEncoder encoder = getProtocolEncoder();
-			ByteBufAllocator allocator = getByteBufAllocator();
-			// 请勿将future.flush()移到getProtocolEncoder()之前，
-			// 有些情况下如协议切换的时候可能需要将此future使用
-			// 切换前的协议flush
-			encoder.encode(allocator, future.flush());
-			doFlush(future);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			IoEventHandle handle = future.getIoEventHandle();
-			exceptionCaught(handle, future, e, IoEventState.WRITE);
-		}
-	}
+    @Override
+    public boolean isEnableSSL() {
+        return getContext().isEnableSSL();
+    }
 
-	private void exceptionCaught(IoEventHandle handle, Future future, Exception cause,
-			IoEventState state) {
-		try {
-			handle.exceptionCaught(getSession(), future, cause, state);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-	}
+    @Override
+    public SSLEngine getSSLEngine() {
+        return sslEngine;
+    }
 
-	@Override
-	public void doFlush(ChannelFuture f) {
-		UnsafeSocketSession session = getSession();
-		//这里需要加锁，因为当多个线程同时flush时，判断(writeFutures.size() > 1)
-		//会产生误差，导致无法或者延迟触发doFlush操作
-		ReentrantLock lock = getCloseLock();
-		lock.lock();
-		try{
-			if (!isOpened()) {
-				f.onException(session, new ClosedChannelException(session.toString()));
-				return;
-			}
-			writeFutures.offer(f);
-			int length = writeFutureLength(f.getByteBufLimit());
-			if (length > 1024 * 1024 * 10) {
-				// FIXME 该连接写入过多啦
-			}
-			// 如果write futures > 1 说明在offer之后至少有一个write future
-			// event loop 在判断complete时返回false
-			if (writeFutures.size() > 1) {
-				return;
-			}
-			doFlush0(f);
-		}catch (Exception e) {
-			f.onException(session, e);
-		}finally{
-			lock.unlock();
-		}
-	}
-	
-	protected int writeFutureLength(int len){
-		return writeFutureLength.addAndGet(len);
-	}
+    @Override
+    public void flush(ChannelFuture future) {
+        if (future == null || future.flushed()) {
+            return;
+        }
+        if (!isOpened()) {
+            future.flush();
+            IoEventHandle handle = future.getIoEventHandle();
+            exceptionCaught(handle, future, new ClosedChannelException(toString()),
+                    IoEventState.WRITE);
+            return;
+        }
+        try {
+            ProtocolEncoder encoder = getProtocolEncoder();
+            ByteBufAllocator allocator = getByteBufAllocator();
+            // 请勿将future.flush()移到getProtocolEncoder()之前，
+            // 有些情况下如协议切换的时候可能需要将此future使用
+            // 切换前的协议flush
+            encoder.encode(allocator, future.flush());
+            doFlush(future);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            IoEventHandle handle = future.getIoEventHandle();
+            exceptionCaught(handle, future, e, IoEventState.WRITE);
+        }
+    }
 
-	protected abstract void doFlush0(ChannelFuture future);
+    private void exceptionCaught(IoEventHandle handle, Future future, Exception cause,
+            IoEventState state) {
+        try {
+            handle.exceptionCaught(getSession(), future, cause, state);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
 
-	protected void releaseFutures() {
+    @Override
+    public void doFlush(ChannelFuture f) {
+        UnsafeSocketSession session = getSession();
+        //这里需要加锁，因为当多个线程同时flush时，判断(writeFutures.size() > 1)
+        //会产生误差，导致无法或者延迟触发doFlush操作
+        ReentrantLock lock = getCloseLock();
+        lock.lock();
+        try {
+            if (!isOpened()) {
+                f.onException(session, new ClosedChannelException(session.toString()));
+                return;
+            }
+            writeFutures.offer(f);
+            int length = writeFutureLength(f.getByteBufLimit());
+            if (length > 1024 * 1024 * 10) {
+                // FIXME 该连接写入过多啦
+            }
+            // 如果write futures > 1 说明在offer之后至少有一个write future
+            // event loop 在判断complete时返回false
+            if (writeFutures.size() > 1) {
+                return;
+            }
+            doFlush0(f);
+        } catch (Exception e) {
+            f.onException(session, e);
+        } finally {
+            lock.unlock();
+        }
+    }
 
-		ReleaseUtil.release(readFuture);
-		ReleaseUtil.release(sslReadFuture);
+    protected int writeFutureLength(int len) {
+        return writeFutureLength.addAndGet(len);
+    }
 
-		ClosedChannelException e = null;
+    protected abstract void doFlush0(ChannelFuture future);
 
-		if (writeFuture != null && !writeFuture.isReleased()) {
+    protected void releaseFutures() {
 
-			e = new ClosedChannelException(session.toString());
+        ReleaseUtil.release(readFuture);
+        ReleaseUtil.release(sslReadFuture);
 
-			writeFuture.onException(session, e);
-		}
+        ClosedChannelException e = null;
 
-		LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
+        if (writeFuture != null && !writeFuture.isReleased()) {
 
-		if (writeFutures.size() == 0) {
-			return;
-		}
+            e = new ClosedChannelException(session.toString());
 
-		ChannelFuture f = writeFutures.poll();
+            writeFuture.onException(session, e);
+        }
 
-		UnsafeSocketSession session = this.session;
+        LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
 
-		if (e == null) {
-			e = new ClosedChannelException(session.toString());
-		}
+        if (writeFutures.size() == 0) {
+            return;
+        }
 
-		for (; f != null;) {
+        ChannelFuture f = writeFutures.poll();
 
-			f.onException(session, e);
+        UnsafeSocketSession session = this.session;
 
-			ReleaseUtil.release(f);
+        if (e == null) {
+            e = new ClosedChannelException(session.toString());
+        }
 
-			f = writeFutures.poll();
-		}
-	}
+        for (; f != null;) {
 
-	protected void closeSSL() {
+            f.onException(session, e);
 
-		if (isEnableSSL()) {
+            ReleaseUtil.release(f);
 
-			sslEngine.closeOutbound();
+            f = writeFutures.poll();
+        }
+    }
 
-			if (getContext().getSslContext().isClient()) {
-				doFlush(new DefaultChannelFuture(
-						getContext(),
-						EmptyByteBuf.getInstance()));
-			}
+    protected void closeSSL() {
 
-			try {
-				sslEngine.closeInbound();
-			} catch (SSLException e) {
-			}
-		}
-	}
-	
-	@Override
-	public SslHandler getSslHandler() {
-		return sslHandler;
-	}
+        if (isEnableSSL()) {
 
-	@Override
-	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
-		this.protocolDecoder = protocolDecoder;
-	}
+            sslEngine.closeOutbound();
 
-	@Override
-	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
-		this.protocolEncoder = protocolEncoder;
-	}
+            if (getContext().getSslContext().isClient()) {
+                doFlush(new DefaultChannelFuture(getContext(), EmptyByteBuf.getInstance()));
+            }
 
-	@Override
-	public void setProtocolFactory(ProtocolFactory protocolFactory) {
-		this.protocolFactory = protocolFactory;
-	}
+            try {
+                sslEngine.closeInbound();
+            } catch (SSLException e) {}
+        }
+    }
 
-	@Override
-	public void setReadFuture(ChannelFuture readFuture) {
-		this.readFuture = readFuture;
-	}
+    @Override
+    public SslHandler getSslHandler() {
+        return sslHandler;
+    }
 
-	@Override
-	public SslFuture getSslReadFuture() {
-		return sslReadFuture;
-	}
+    @Override
+    public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
+        this.protocolDecoder = protocolDecoder;
+    }
 
-	@Override
-	public void setSslReadFuture(SslFuture future) {
-		this.sslReadFuture = future;
-	}
+    @Override
+    public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
+        this.protocolEncoder = protocolEncoder;
+    }
 
-	@Override
-	public ExecutorEventLoop getExecutorEventLoop() {
-		return executorEventLoop;
-	}
-	
-	protected abstract SocketChannelThreadContext getSocketChannelThreadContext();
+    @Override
+    public void setProtocolFactory(ProtocolFactory protocolFactory) {
+        this.protocolFactory = protocolFactory;
+    }
 
-	@Override
-	public void fireOpend() {
+    @Override
+    public void setReadFuture(ChannelFuture readFuture) {
+        this.readFuture = readFuture;
+    }
 
-		SocketChannelContext context = getContext();
+    @Override
+    public SslFuture getSslReadFuture() {
+        return sslReadFuture;
+    }
 
-		if (context.isEnableSSL()) {
-			this.sslHandler = getSocketChannelThreadContext().getSslHandler();
-			this.sslEngine = context.getSslContext().newEngine();
-		}
+    @Override
+    public void setSslReadFuture(SslFuture future) {
+        this.sslReadFuture = future;
+    }
 
-		if (isEnableSSL() && context.getSslContext().isClient()) {
-			doFlush(new DefaultChannelFuture(
-					getContext(),
-					EmptyByteBuf.getInstance()));
-		}
+    @Override
+    public ExecutorEventLoop getExecutorEventLoop() {
+        return executorEventLoop;
+    }
 
-		SocketSessionEventListenerWrapper linkable = context.getSessionEventListenerLink();
+    protected abstract SocketChannelThreadContext getSocketChannelThreadContext();
 
-		UnsafeSocketSession session = getSession();
-		
-		if (!session.isClosed()) {
-			
-			threadContext.getSocketSessionManager().putSession(session);
-			
-			SocketSessionManager manager = context.getSessionManager();
+    @Override
+    public void fireOpend() {
 
-			manager.putSession(session);
-		}
+        SocketChannelContext context = getContext();
 
-		if (linkable != null) {
-			linkable.sessionOpened(session);
-		}
-	}
-	
-	protected void fireClosed() {
+        if (context.isEnableSSL()) {
+            this.sslHandler = getSocketChannelThreadContext().getSslHandler();
+            this.sslEngine = context.getSslContext().newEngine();
+        }
 
-		SocketSessionEventListenerWrapper linkable = getContext()
-				.getSessionEventListenerLink();
+        if (isEnableSSL() && context.getSslContext().isClient()) {
+            doFlush(new DefaultChannelFuture(getContext(), EmptyByteBuf.getInstance()));
+        }
 
-		UnsafeSocketSession session = getSession();
+        SocketSessionEventListenerWrapper linkable = context.getSessionEventListenerLink();
 
-		SocketChannelContext context = session.getContext();
-		
-		SocketSessionManager manager = context.getSessionManager();
+        UnsafeSocketSession session = getSession();
 
-		manager.removeSession(session);
-		
-		threadContext.getSocketSessionManager().removeSession(session);
-		
-		if (linkable != null) {
-			linkable.sessionClosed(session);
-		}
-	}
-	
-	@Override
-	public boolean inSelectorLoop() {
-		return getSocketChannelThreadContext().inEventLoop();
-	}
+        if (!session.isClosed()) {
+
+            threadContext.getSocketSessionManager().putSession(session);
+
+            SocketSessionManager manager = context.getSessionManager();
+
+            manager.putSession(session);
+        }
+
+        if (linkable != null) {
+            linkable.sessionOpened(session);
+        }
+    }
+
+    protected void fireClosed() {
+
+        SocketSessionEventListenerWrapper linkable = getContext().getSessionEventListenerLink();
+
+        UnsafeSocketSession session = getSession();
+
+        SocketChannelContext context = session.getContext();
+
+        SocketSessionManager manager = context.getSessionManager();
+
+        manager.removeSession(session);
+
+        threadContext.getSocketSessionManager().removeSession(session);
+
+        if (linkable != null) {
+            linkable.sessionClosed(session);
+        }
+    }
+
+    @Override
+    public boolean inSelectorLoop() {
+        return getSocketChannelThreadContext().inEventLoop();
+    }
 
 }

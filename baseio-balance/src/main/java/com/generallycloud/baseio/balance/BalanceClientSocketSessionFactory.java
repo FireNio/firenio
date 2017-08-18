@@ -12,18 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance;
 
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSessionFactoryImpl;
 import com.generallycloud.baseio.component.UnsafeSocketSession;
 
-public class BalanceClientSocketSessionFactory extends SocketSessionFactoryImpl{
+public class BalanceClientSocketSessionFactory extends SocketSessionFactoryImpl {
 
-	@Override
-	public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
-		return new BalanceClientSocketSessionImpl(channel);
-	}
-	
+    @Override
+    public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
+        return new BalanceClientSocketSessionImpl(channel);
+    }
+
 }

@@ -21,50 +21,50 @@ package com.generallycloud.test.nio.others.algorithm;
  */
 public class QuickSort2 {
 
-	private static int partition(ByteArray[] array, int low, int high) {
-		//三数取中
-		int mid = low + (high - low) / 2;
-		if (array[mid].greater(array[high])) {
-			swap(array[mid], array[high]);
-		}
-		if (array[low].greater(array[high])) {
-			swap(array[low], array[high]);
-		}
-		if (array[mid].greater(array[low])) {
-			swap(array[mid], array[low]);
-		}
-		ByteArray key = array[low];
+    private static int partition(ByteArray[] array, int low, int high) {
+        //三数取中
+        int mid = low + (high - low) / 2;
+        if (array[mid].greater(array[high])) {
+            swap(array[mid], array[high]);
+        }
+        if (array[low].greater(array[high])) {
+            swap(array[low], array[high]);
+        }
+        if (array[mid].greater(array[low])) {
+            swap(array[mid], array[low]);
+        }
+        ByteArray key = array[low];
 
-		while (low < high) {
-			while (array[high].greaterOrEquals(key) && high > low) {
-				high--;
-			}
-			array[low] = array[high];
-			while (array[low].lessOrEquals(key) && high > low) {
-				low++;
-			}
-			array[high] = array[low];
-		}
-		array[low] = key;//这里low
-		return high;
-	}
+        while (low < high) {
+            while (array[high].greaterOrEquals(key) && high > low) {
+                high--;
+            }
+            array[low] = array[high];
+            while (array[low].lessOrEquals(key) && high > low) {
+                low++;
+            }
+            array[high] = array[low];
+        }
+        array[low] = key;//这里low
+        return high;
+    }
 
-	private static void swap(ByteArray a, ByteArray b) {
-		int tmpOff = a.getOff();
-		int tmpLen = a.getLength();
-		a.setLength(b.getLength());
-		a.setOff(b.getOff());
-		b.setLength(tmpLen);
-		b.setOff(tmpOff);
-	}
+    private static void swap(ByteArray a, ByteArray b) {
+        int tmpOff = a.getOff();
+        int tmpLen = a.getLength();
+        a.setLength(b.getLength());
+        a.setOff(b.getOff());
+        b.setLength(tmpLen);
+        b.setOff(tmpOff);
+    }
 
-	public static void sort(ByteArray[] array, int low, int high) {
-		if (low >= high) {
-			return;
-		}
-		int index = partition(array, low, high);
-		sort(array, low, index - 1);
-		sort(array, index + 1, high);
-	}
+    public static void sort(ByteArray[] array, int low, int high) {
+        if (low >= high) {
+            return;
+        }
+        int index = partition(array, low, high);
+        sort(array, low, index - 1);
+        sort(array, index + 1, high);
+    }
 
 }

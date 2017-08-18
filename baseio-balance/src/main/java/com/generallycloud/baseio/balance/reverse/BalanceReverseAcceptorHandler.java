@@ -28,53 +28,53 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
 
-	private Logger				logger	= LoggerFactory.getLogger(getClass());
-	private BalanceRouter		balanceRouter;
-	private BalanceFacadeAcceptor	balanceFacadeAcceptor;
-	private ExceptionCaughtHandle	exceptionCaughtHandle;
-	private BalanceReverseLogger	balanceReverseLogger;
+    private Logger                logger = LoggerFactory.getLogger(getClass());
+    private BalanceRouter         balanceRouter;
+    private BalanceFacadeAcceptor balanceFacadeAcceptor;
+    private ExceptionCaughtHandle exceptionCaughtHandle;
+    private BalanceReverseLogger  balanceReverseLogger;
 
-	public BalanceReverseAcceptorHandler(BalanceContext context) {
-		this.balanceRouter = context.getBalanceRouter();
-		this.balanceReverseLogger = context.getBalanceReverseLogger();
-		this.balanceFacadeAcceptor = context.getBalanceFacadeAcceptor();
-		this.exceptionCaughtHandle = context.getReverseExceptionCaughtHandle();
-	}
+    public BalanceReverseAcceptorHandler(BalanceContext context) {
+        this.balanceRouter = context.getBalanceRouter();
+        this.balanceReverseLogger = context.getBalanceReverseLogger();
+        this.balanceFacadeAcceptor = context.getBalanceFacadeAcceptor();
+        this.exceptionCaughtHandle = context.getReverseExceptionCaughtHandle();
+    }
 
-	@Override
-	public void accept(SocketSession session, Future future) throws Exception {
+    @Override
+    public void accept(SocketSession session, Future future) throws Exception {
 
-		BalanceFuture f = (BalanceFuture) future;
+        BalanceFuture f = (BalanceFuture) future;
 
-		if (f.isBroadcast()) {
+        if (f.isBroadcast()) {
 
-			balanceFacadeAcceptor.getAcceptor().broadcast(f.translate());
+            balanceFacadeAcceptor.getAcceptor().broadcast(f.translate());
 
-			balanceReverseLogger.logBroadcast(session, future, logger);
+            balanceReverseLogger.logBroadcast(session, future, logger);
 
-			return;
-		}
+            return;
+        }
 
-		SocketSession response = balanceRouter.getClientSession(f.getSessionKey());
+        SocketSession response = balanceRouter.getClientSession(f.getSessionKey());
 
-		if (response == null || response.isClosed()) {
+        if (response == null || response.isClosed()) {
 
-			balanceReverseLogger.logPushLost(session, future, logger);
+            balanceReverseLogger.logPushLost(session, future, logger);
 
-			return;
-		}
+            return;
+        }
 
-		f.setIoEventHandle(response.getContext().getIoEventHandleAdaptor());
+        f.setIoEventHandle(response.getContext().getIoEventHandleAdaptor());
 
-		response.flush(f.translate());
+        response.flush(f.translate());
 
-		balanceReverseLogger.logPush(session, response, future, logger);
-	}
+        balanceReverseLogger.logPush(session, response, future, logger);
+    }
 
-	@Override
-	public void exceptionCaught(SocketSession session, Future future, Exception cause,
-			IoEventState state) {
-		exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
-	}
+    @Override
+    public void exceptionCaught(SocketSession session, Future future, Exception cause,
+            IoEventState state) {
+        exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
+    }
 
 }

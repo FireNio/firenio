@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.jms;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
@@ -30,40 +30,40 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestTellerPower {
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		LoggerFactory.configure();
-		
-		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+        LoggerFactory.configure();
 
-		ServerConfiguration configuration = new ServerConfiguration(8300);
+        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandle);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        ServerConfiguration configuration = new ServerConfiguration(8300);
 
-		FixedSession session = new FixedSession(connector.connect());
-		
-		session.login("admin", "admin100");
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
 
-		MessageProducer producer = new DefaultMessageProducer(session);
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		TextMessage message = new TextMessage("msgID", "qName", "你好！");
+        context.setIoEventHandleAdaptor(eventHandle);
 
-		long old = System.currentTimeMillis();
-		for (int i = 0; i < 10000; i++) {
-			producer.offer(message);
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
 
-		}
-		System.out.println("Time:" + (System.currentTimeMillis() - old));
+        context.addSessionEventListener(new LoggerSocketSEListener());
 
-		connector.close();
+        FixedSession session = new FixedSession(connector.connect());
 
-	}
+        session.login("admin", "admin100");
+
+        MessageProducer producer = new DefaultMessageProducer(session);
+
+        TextMessage message = new TextMessage("msgID", "qName", "你好！");
+
+        long old = System.currentTimeMillis();
+        for (int i = 0; i < 10000; i++) {
+            producer.offer(message);
+
+        }
+        System.out.println("Time:" + (System.currentTimeMillis() - old));
+
+        connector.close();
+
+    }
 }

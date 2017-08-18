@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
 
 import java.util.List;
@@ -23,47 +23,48 @@ import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 
-public abstract class AbstractPluginContext extends AbstractInitializeable implements PluginContext {
+public abstract class AbstractPluginContext extends AbstractInitializeable
+        implements PluginContext {
 
-	private String pluginKey;
+    private String pluginKey;
 
-	protected AbstractPluginContext() {
-	}
+    protected AbstractPluginContext() {}
 
-	@Override
-	public void configFutureAcceptorFilter(List<FutureAcceptorFilter> filters) {
+    @Override
+    public void configFutureAcceptorFilter(List<FutureAcceptorFilter> filters) {
 
-	}
+    }
 
-	@Override
-	public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
+    @Override
+    public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
 
-	}
-	
-	protected void putServlet(Map<String, FutureAcceptorService> acceptors,FutureAcceptorService service){
-		
-		String serviceName = service.getServiceName();
-		
-		if (StringUtil.isNullOrBlank(serviceName)) {
-			serviceName = service.getClass().getSimpleName();
-		}
-		
-		service.setServiceName(serviceName);
-		
-		acceptors.put(serviceName, service);
-	}
-	
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
-		
-		super.initialize(context, config);
-		
-		this.pluginKey = "PLUGIN_KEY_"+getClass().getName();
-	}
-	
-	@Override
-	public String getPluginKey() {
-		return pluginKey;
-	}
+    }
+
+    protected void putServlet(Map<String, FutureAcceptorService> acceptors,
+            FutureAcceptorService service) {
+
+        String serviceName = service.getServiceName();
+
+        if (StringUtil.isNullOrBlank(serviceName)) {
+            serviceName = service.getClass().getSimpleName();
+        }
+
+        service.setServiceName(serviceName);
+
+        acceptors.put(serviceName, service);
+    }
+
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
+
+        super.initialize(context, config);
+
+        this.pluginKey = "PLUGIN_KEY_" + getClass().getName();
+    }
+
+    @Override
+    public String getPluginKey() {
+        return pluginKey;
+    }
 
 }

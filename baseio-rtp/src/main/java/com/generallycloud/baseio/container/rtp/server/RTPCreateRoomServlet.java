@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.rtp.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
@@ -20,16 +20,17 @@ import com.generallycloud.baseio.component.SocketSession;
 
 public class RTPCreateRoomServlet extends RTPServlet {
 
-	public static final String	SERVICE_NAME	= RTPCreateRoomServlet.class.getSimpleName();
+    public static final String SERVICE_NAME = RTPCreateRoomServlet.class.getSimpleName();
 
-	@Override
-	public void doAccept(SocketSession session, ProtobaseFuture future, RTPSessionAttachment attachment) throws Exception {
+    @Override
+    public void doAccept(SocketSession session, ProtobaseFuture future,
+            RTPSessionAttachment attachment) throws Exception {
 
-		RTPRoom room = attachment.createRTPRoom(session);
+        RTPRoom room = attachment.createRTPRoom(session);
 
-		future.write(String.valueOf(room.getRoomID()));
+        future.write(String.valueOf(room.getRoomID()));
 
-		session.flush(future);
-	}
+        session.flush(future);
+    }
 
 }

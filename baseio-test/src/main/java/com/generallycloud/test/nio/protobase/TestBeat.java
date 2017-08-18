@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
@@ -32,58 +32,57 @@ import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestBeat {
-	
-	
-	public static void main(String[] args) throws Exception {
-		
-		DebugUtil.setEnableDebug(true);
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
-			
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				DebugUtil.debug("______________"+future.getReadText());
-			}
-		};
-		
-		String serviceKey = "TestSimpleServlet";
-		
-		ServerConfiguration configuration = new ServerConfiguration(18300);
+    public static void main(String[] args) throws Exception {
 
-		configuration.setSERVER_SESSION_IDLE_TIME(10);
-		
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.addSessionIdleEventListener(new SocketSessionActiveSEListener());
-		
-		context.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
-		
-		context.setIoEventHandleAdaptor(new SimpleIoEventHandle());
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
+        DebugUtil.setEnableDebug(true);
 
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		SocketSession session = connector.connect();
-		
-		String param = "tttt";
-		
-		long old = System.currentTimeMillis();
-		
-		for (int i = 0; i < 5; i++) {
-			Future future = new ProtobaseFutureImpl(context, serviceKey);
-			future.write(param);
-			session.flush(future);
-			ThreadUtil.sleep(300);
-		}
-		
-		System.out.println("Time:"+(System.currentTimeMillis() - old));
-		
-		Thread.sleep(1000);
-		
-		CloseUtil.close(connector);
-		
-	}
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                DebugUtil.debug("______________" + future.getReadText());
+            }
+        };
+
+        String serviceKey = "TestSimpleServlet";
+
+        ServerConfiguration configuration = new ServerConfiguration(18300);
+
+        configuration.setSERVER_SESSION_IDLE_TIME(10);
+
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
+
+        SocketChannelConnector connector = new SocketChannelConnector(context);
+
+        context.addSessionIdleEventListener(new SocketSessionActiveSEListener());
+
+        context.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
+
+        context.setIoEventHandleAdaptor(new SimpleIoEventHandle());
+
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+
+        SocketSession session = connector.connect();
+
+        String param = "tttt";
+
+        long old = System.currentTimeMillis();
+
+        for (int i = 0; i < 5; i++) {
+            Future future = new ProtobaseFutureImpl(context, serviceKey);
+            future.write(param);
+            session.flush(future);
+            ThreadUtil.sleep(300);
+        }
+
+        System.out.println("Time:" + (System.currentTimeMillis() - old));
+
+        Thread.sleep(1000);
+
+        CloseUtil.close(connector);
+
+    }
 }

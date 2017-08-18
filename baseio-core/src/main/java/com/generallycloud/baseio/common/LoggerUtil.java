@@ -12,81 +12,81 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.common;
 
 import com.generallycloud.baseio.log.Logger;
 
 public class LoggerUtil {
 
-	private static int	maxNameLength	= "AbstractSocketChannelContext".length();
-	
-	private static String prefix_log = "[baseio] ";
+    private static int    maxNameLength = "AbstractSocketChannelContext".length();
 
-	private static String getSpace(Logger logger) {
+    private static String prefix_log    = "[baseio] ";
 
-		Class<?> clazz = logger.getLoggerClass();
+    private static String getSpace(Logger logger) {
 
-		String name = clazz.getSimpleName();
+        Class<?> clazz = logger.getLoggerClass();
 
-		int length = name.length();
+        String name = clazz.getSimpleName();
 
-		int _length = maxNameLength - length;
+        int length = name.length();
 
-		if (_length == 0) {
-			return "";
-		}
+        int _length = maxNameLength - length;
 
-		StringBuilder builder = new StringBuilder();
+        if (_length == 0) {
+            return "";
+        }
 
-		for (; _length > 0; _length--) {
-			builder.append(" ");
-		}
+        StringBuilder builder = new StringBuilder();
 
-		return builder.toString();
-	}
+        for (; _length > 0; _length--) {
+            builder.append(" ");
+        }
 
-	public static void prettyLog(Logger logger, String msg) {
-		
-		if (logger == null) {
-			return;
-		}
+        return builder.toString();
+    }
 
-		msg = getSpace(logger) + prefix_log + msg;
+    public static void prettyLog(Logger logger, String msg) {
 
-		logger.info(msg);
-	}
+        if (logger == null) {
+            return;
+        }
 
-	public static void prettyLog(Logger logger, String msg, Object param1) {
-		
-		if (logger == null) {
-			return;
-		}
+        msg = getSpace(logger) + prefix_log + msg;
 
-		msg = getSpace(logger) + prefix_log + msg;
+        logger.info(msg);
+    }
 
-		logger.info(msg, param1);
-	}
+    public static void prettyLog(Logger logger, String msg, Object param1) {
 
-	public static void prettyLog(Logger logger, String msg, Object param1, Object param2) {
-		
-		if (logger == null) {
-			return;
-		}
-		
-		msg = getSpace(logger) + prefix_log + msg;
+        if (logger == null) {
+            return;
+        }
 
-		logger.info(msg, param1, param2);
-	}
+        msg = getSpace(logger) + prefix_log + msg;
 
-	public static void prettyLog(Logger logger, String msg, Object[] param) {
-		
-		if (logger == null) {
-			return;
-		}
-		
-		msg = getSpace(logger) + prefix_log + msg;
+        logger.info(msg, param1);
+    }
 
-		logger.info(msg, param);
-	}
+    public static void prettyLog(Logger logger, String msg, Object param1, Object param2) {
+
+        if (logger == null) {
+            return;
+        }
+
+        msg = getSpace(logger) + prefix_log + msg;
+
+        logger.info(msg, param1, param2);
+    }
+
+    public static void prettyLog(Logger logger, String msg, Object[] param) {
+
+        if (logger == null) {
+            return;
+        }
+
+        msg = getSpace(logger) + prefix_log + msg;
+
+        logger.info(msg, param);
+    }
 }

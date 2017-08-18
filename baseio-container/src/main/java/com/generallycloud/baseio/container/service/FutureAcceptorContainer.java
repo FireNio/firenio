@@ -31,85 +31,86 @@ import com.generallycloud.baseio.protocol.Future;
 
 //FIXME exception
 public final class FutureAcceptorContainer extends AbstractLifeCycle
-		implements LifeCycle, FutureAcceptor {
+        implements LifeCycle, FutureAcceptor {
 
-	private volatile boolean			deploying = true;
-	private ApplicationContext			context;
-	private FutureAcceptorFilterLoader		filterLoader;
-	private PluginLoader				pluginLoader;
-	private FutureAcceptorFilterWrapper	rootFilter;
-	private FutureAcceptorServiceFilter	serviceFilter;
-	private FutureAcceptorService			appRedeployService;
-	private Logger						logger	= LoggerFactory.getLogger(getClass());
+    private volatile boolean            deploying = true;
+    private ApplicationContext          context;
+    private FutureAcceptorFilterLoader  filterLoader;
+    private PluginLoader                pluginLoader;
+    private FutureAcceptorFilterWrapper rootFilter;
+    private FutureAcceptorServiceFilter serviceFilter;
+    private FutureAcceptorService       appRedeployService;
+    private Logger                      logger    = LoggerFactory.getLogger(getClass());
 
-	public FutureAcceptorContainer(ApplicationContext context, FutureAcceptorServiceFilter serviceFilter) {
-		this.context = context;
-		this.serviceFilter = serviceFilter;
-	}
+    public FutureAcceptorContainer(ApplicationContext context,
+            FutureAcceptorServiceFilter serviceFilter) {
+        this.context = context;
+        this.serviceFilter = serviceFilter;
+    }
 
-	@Override
-	public void accept(SocketSession session, Future future) throws Exception {
+    @Override
+    public void accept(SocketSession session, Future future) throws Exception {
 
-		if (deploying) {
+        if (deploying) {
 
-			appRedeployService.accept(session, future);
+            appRedeployService.accept(session, future);
 
-			return;
-		}
-		
-		try {
+            return;
+        }
 
-			rootFilter.accept(session, future);
+        try {
 
-		} catch (Exception e) {
+            rootFilter.accept(session, future);
 
-			logger.error(e);
+        } catch (Exception e) {
 
-			IoEventHandle eventHandle = future.getIoEventHandle();
+            logger.error(e);
 
-			eventHandle.exceptionCaught(session, future, e, IoEventState.HANDLE);
-		}
-	}
+            IoEventHandle eventHandle = future.getIoEventHandle();
 
-	@Override
-	protected void doStart() throws Exception {
+            eventHandle.exceptionCaught(session, future, e, IoEventState.HANDLE);
+        }
+    }
 
-		DynamicClassLoader classLoader = context.getClassLoader();
+    @Override
+    protected void doStart() throws Exception {
 
-		context.getApplicationExtLoader().loadExts(context, classLoader);
+        DynamicClassLoader classLoader = context.getClassLoader();
 
-		this.appRedeployService = context.getAppRedeployService();
+        context.getApplicationExtLoader().loadExts(context, classLoader);
 
-		if (pluginLoader == null) {
-			this.pluginLoader = new PluginLoader(context);
-		}
+        this.appRedeployService = context.getAppRedeployService();
 
-		if (filterLoader == null) {
-			this.filterLoader = new FutureAcceptorFilterLoader(context, serviceFilter);
-		}
+        if (pluginLoader == null) {
+            this.pluginLoader = new PluginLoader(context);
+        }
 
-		LifeCycleUtil.start(pluginLoader);
+        if (filterLoader == null) {
+            this.filterLoader = new FutureAcceptorFilterLoader(context, serviceFilter);
+        }
 
-		LifeCycleUtil.start(filterLoader);
+        LifeCycleUtil.start(pluginLoader);
 
-		this.rootFilter = filterLoader.getRootFilter();
+        LifeCycleUtil.start(filterLoader);
 
-		this.deploying = false;
-	}
+        this.rootFilter = filterLoader.getRootFilter();
 
-	@Override
-	protected void doStop() throws Exception {
-		this.deploying = true;
-		LifeCycleUtil.stop(filterLoader);
-		LifeCycleUtil.stop(pluginLoader);
-	}
+        this.deploying = false;
+    }
 
-	public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
-		return filterLoader.getFutureAcceptorServiceLoader();
-	}
+    @Override
+    protected void doStop() throws Exception {
+        this.deploying = true;
+        LifeCycleUtil.stop(filterLoader);
+        LifeCycleUtil.stop(pluginLoader);
+    }
 
-	public PluginContext[] getPluginContexts() {
-		return pluginLoader.getPluginContexts();
-	}
+    public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {
+        return filterLoader.getFutureAcceptorServiceLoader();
+    }
+
+    public PluginContext[] getPluginContexts() {
+        return pluginLoader.getPluginContexts();
+    }
 
 }

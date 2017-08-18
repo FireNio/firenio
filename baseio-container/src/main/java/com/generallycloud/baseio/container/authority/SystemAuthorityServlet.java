@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.authority;
 
 import com.generallycloud.baseio.component.SocketSession;
@@ -20,36 +20,36 @@ import com.generallycloud.baseio.container.ApplicationContextUtil;
 import com.generallycloud.baseio.container.LoginCenter;
 import com.generallycloud.baseio.container.RESMessage;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
-import com.generallycloud.baseio.protocol.ParametersFuture;
 import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.ParametersFuture;
 
 public class SystemAuthorityServlet extends FutureAcceptorService {
-	
-	public SystemAuthorityServlet(String serviceName){
-		super(serviceName);
-	}
-	
-	@Override
-	public void accept(SocketSession session, Future future) throws Exception {
 
-		LoginCenter loginCenter = AuthorityContext.getInstance().getLoginCenter();
-		
-		ParametersFuture f = (ParametersFuture) future;
+    public SystemAuthorityServlet(String serviceName) {
+        super(serviceName);
+    }
 
-		boolean login = loginCenter.login(session, f.getParameters());
+    @Override
+    public void accept(SocketSession session, Future future) throws Exception {
 
-		RESMessage message = RESMessage.UNAUTH;
+        LoginCenter loginCenter = AuthorityContext.getInstance().getLoginCenter();
 
-		if (login) {
+        ParametersFuture f = (ParametersFuture) future;
 
-			Authority authority = ApplicationContextUtil.getAuthority(session);
+        boolean login = loginCenter.login(session, f.getParameters());
 
-			message = new RESMessage(0, authority, null);
-		}
+        RESMessage message = RESMessage.UNAUTH;
 
-		future.write(message.toString());
+        if (login) {
 
-		session.flush(future);
-	}
+            Authority authority = ApplicationContextUtil.getAuthority(session);
+
+            message = new RESMessage(0, authority, null);
+        }
+
+        future.write(message.toString());
+
+        session.flush(future);
+    }
 
 }

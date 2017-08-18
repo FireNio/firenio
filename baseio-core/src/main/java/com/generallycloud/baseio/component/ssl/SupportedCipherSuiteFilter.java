@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import javax.net.ssl.SSLEngine;
 public final class SupportedCipherSuiteFilter implements CipherSuiteFilter {
     public static final SupportedCipherSuiteFilter INSTANCE = new SupportedCipherSuiteFilter();
 
-    private SupportedCipherSuiteFilter() { }
+    private SupportedCipherSuiteFilter() {}
 
     @Override
     public String[] filterCipherSuites(Iterable<String> ciphers, List<String> defaultCiphers,
@@ -39,13 +39,13 @@ public final class SupportedCipherSuiteFilter implements CipherSuiteFilter {
             throw new NullPointerException("supportedCiphers");
         }
 
-        final List<String> newCiphers = new ArrayList<String>();
-//        if (ciphers == null) {
-//            newCiphers = InternalThreadLocalMap.get().arrayList(defaultCiphers.size());
-//            ciphers = defaultCiphers;
-//        } else {
-//            newCiphers = InternalThreadLocalMap.get().arrayList(supportedCiphers.size());
-//        }
+        final List<String> newCiphers = new ArrayList<>();
+        //        if (ciphers == null) {
+        //            newCiphers = InternalThreadLocalMap.get().arrayList(defaultCiphers.size());
+        //            ciphers = defaultCiphers;
+        //        } else {
+        //            newCiphers = InternalThreadLocalMap.get().arrayList(supportedCiphers.size());
+        //        }
         for (String c : ciphers) {
             if (c == null) {
                 break;

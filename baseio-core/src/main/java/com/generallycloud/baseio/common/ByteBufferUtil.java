@@ -12,48 +12,48 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.common;
 
 import java.nio.ByteBuffer;
 
 public class ByteBufferUtil {
 
-	@Deprecated
-	public static void read(ByteBuffer dest, ByteBuffer src) {
+    @Deprecated
+    public static void read(ByteBuffer dest, ByteBuffer src) {
 
-		int srcRemaing = src.remaining();
+        int srcRemaing = src.remaining();
 
-		if (srcRemaing == 0) {
-			return;
-		}
+        if (srcRemaing == 0) {
+            return;
+        }
 
-		int remaining = dest.remaining();
+        int remaining = dest.remaining();
 
-		if (remaining == 0) {
-			return;
-		}
+        if (remaining == 0) {
+            return;
+        }
 
-		if (remaining <= srcRemaing) {
+        if (remaining <= srcRemaing) {
 
-			dest.put(src.array(), src.position(), remaining);
+            dest.put(src.array(), src.position(), remaining);
 
-			src.position(src.position() + remaining);
-			
-		} else {
+            src.position(src.position() + remaining);
 
-			dest.put(src.array(), src.position(), srcRemaing);
+        } else {
 
-			src.position(src.limit());
-		}
-	}
-	
-	@SuppressWarnings("restriction")
-	public static void release(ByteBuffer buffer){
-		if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
-			((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
-		}
-		
-	}
+            dest.put(src.array(), src.position(), srcRemaing);
+
+            src.position(src.limit());
+        }
+    }
+
+    @SuppressWarnings("restriction")
+    public static void release(ByteBuffer buffer) {
+        if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
+            ((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
+        }
+
+    }
 
 }

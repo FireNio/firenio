@@ -27,138 +27,136 @@ import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2FrameHeader {
 
-	private boolean		header_complete;
+    private boolean          header_complete;
 
-	private byte			flags;
+    private byte             flags;
 
-	private int			streamIdentifier;
+    private int              streamIdentifier;
 
-	private SocketHttp2Frame	frame;
+    private SocketHttp2Frame frame;
 
-	public Http2FrameHeaderImpl(SocketSession session, ByteBuf buf) {
-		super(session.getContext());
-		this.buf = buf;
-	}
+    public Http2FrameHeaderImpl(SocketSession session, ByteBuf buf) {
+        super(session.getContext());
+        this.buf = buf;
+    }
 
-	public Http2FrameHeaderImpl(SocketChannelContext context) {
-		super(context);
-	}
+    public Http2FrameHeaderImpl(SocketChannelContext context) {
+        super(context);
+    }
 
-	private void doHeaderComplete(Http2SocketSession session, ByteBuf buf) {
+    private void doHeaderComplete(Http2SocketSession session, ByteBuf buf) {
 
-		byte b0 = buf.getByte();
-		byte b1 = buf.getByte();
-		byte b2 = buf.getByte();
+        byte b0 = buf.getByte();
+        byte b1 = buf.getByte();
+        byte b2 = buf.getByte();
 
-		int length = ((b0 & 0xff) << 8 * 2)
-					| ((b1 & 0xff) << 8 * 1) 
-					| ((b2 & 0xff) << 8 * 0);
+        int length = ((b0 & 0xff) << 8 * 2) | ((b1 & 0xff) << 8 * 1) | ((b2 & 0xff) << 8 * 0);
 
-		int type = buf.getUnsignedByte();
+        int type = buf.getUnsignedByte();
 
-		this.flags = buf.getByte();
+        this.flags = buf.getByte();
 
-		this.streamIdentifier = MathUtil.int2int31(buf.getInt());
+        this.streamIdentifier = MathUtil.int2int31(buf.getInt());
 
-		this.frame = genFrame(session, type, length);
-	}
+        this.frame = genFrame(session, type, length);
+    }
 
-	@Override
-	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    @Override
+    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
-		ByteBuf buf = this.buf;
+        ByteBuf buf = this.buf;
 
-		if (!header_complete) {
+        if (!header_complete) {
 
-			buf.read(buffer);
+            buf.read(buffer);
 
-			if (buf.hasRemaining()) {
-				return false;
-			}
+            if (buf.hasRemaining()) {
+                return false;
+            }
 
-			header_complete = true;
+            header_complete = true;
 
-			doHeaderComplete((Http2SocketSession) session, buf.flip());
-		}
+            doHeaderComplete((Http2SocketSession) session, buf.flip());
+        }
 
-		return frame.read(session, buffer);
-	}
+        return frame.read(session, buffer);
+    }
 
-	@Override
-	public byte getFlags() {
-		return flags;
-	}
+    @Override
+    public byte getFlags() {
+        return flags;
+    }
 
-	@Override
-	public void release() {
-		super.release();
-		ReleaseUtil.release(frame);
-	}
+    @Override
+    public void release() {
+        super.release();
+        ReleaseUtil.release(frame);
+    }
 
-	@Override
-	public boolean isSilent() {
-		return frame.isSilent();
-	}
+    @Override
+    public boolean isSilent() {
+        return frame.isSilent();
+    }
 
-	@Override
-	public Http2FrameType getHttp2FrameType() {
-		return frame.getHttp2FrameType();
-	}
+    @Override
+    public Http2FrameType getHttp2FrameType() {
+        return frame.getHttp2FrameType();
+    }
 
-	@Override
-	public int getStreamIdentifier() {
-		return streamIdentifier;
-	}
+    @Override
+    public int getStreamIdentifier() {
+        return streamIdentifier;
+    }
 
-	@Override
-	public Http2Frame getFrame() {
-		return frame;
-	}
+    @Override
+    public Http2Frame getFrame() {
+        return frame;
+    }
 
-	private SocketHttp2Frame genFrame(Http2SocketSession session, Http2FrameType type, int length) {
+    private SocketHttp2Frame genFrame(Http2SocketSession session, Http2FrameType type, int length) {
 
-		switch (type) {
-		case FRAME_TYPE_CONTINUATION:
+        switch (type) {
+            case FRAME_TYPE_CONTINUATION:
 
-			break;
-		case FRAME_TYPE_DATA:
+                break;
+            case FRAME_TYPE_DATA:
 
-			break;
-		case FRAME_TYPE_GOAWAY:
+                break;
+            case FRAME_TYPE_GOAWAY:
 
-			break;
-		case FRAME_TYPE_HEADERS:
-			return new Http2HeadersFrameImpl(session, allocate(session, length), this);
-		case FRAME_TYPE_PING:
+                break;
+            case FRAME_TYPE_HEADERS:
+                return new Http2HeadersFrameImpl(session, allocate(session, length), this);
+            case FRAME_TYPE_PING:
 
-			break;
-		case FRAME_TYPE_PRIORITY:
+                break;
+            case FRAME_TYPE_PRIORITY:
 
-			break;
-		case FRAME_TYPE_PUSH_PROMISE:
+                break;
+            case FRAME_TYPE_PUSH_PROMISE:
 
-			break;
-		case FRAME_TYPE_RST_STREAM:
+                break;
+            case FRAME_TYPE_RST_STREAM:
 
-			break;
-		case FRAME_TYPE_SETTINGS:
-			return new Http2SettingsFrameImpl(session, allocate(session, length), this);
-		case FRAME_TYPE_WINDOW_UPDATE:
-			return new Http2WindowUpdateFrameImpl(session, allocate(session, length), this);
-		default:
+                break;
+            case FRAME_TYPE_SETTINGS:
+                return new Http2SettingsFrameImpl(session, allocate(session, length), this);
+            case FRAME_TYPE_WINDOW_UPDATE:
+                return new Http2WindowUpdateFrameImpl(session, allocate(session, length), this);
+            default:
 
-			break;
-		}
-		throw new IllegalArgumentException(type.toString());
-	}
+                break;
+        }
+        throw new IllegalArgumentException(type.toString());
+    }
 
-	private SocketHttp2Frame genFrame(Http2SocketSession session, int type, int length) {
-		return genFrame(session, Http2FrameType.getValue(type), length);
-	}
-	
-	@Override
-	public boolean isReleased() {
-		return frame.isReleased() && buf.isReleased();
-	}
-	
+    private SocketHttp2Frame genFrame(Http2SocketSession session, int type, int length) {
+        return genFrame(session, Http2FrameType.getValue(type), length);
+    }
+
+    @Override
+    public boolean isReleased() {
+        return frame.isReleased() && buf.isReleased();
+    }
+
 }

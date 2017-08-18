@@ -22,47 +22,47 @@ import com.generallycloud.baseio.concurrent.AbstractEventLoopGroup;
  *
  */
 public class SocketSelectorEventLoopGroup extends AbstractEventLoopGroup
-		implements SelectorEventLoopGroup {
+        implements SelectorEventLoopGroup {
 
-	private SocketSelectorEventLoop[]	selectorEventLoops	= null;
+    private SocketSelectorEventLoop[] selectorEventLoops = null;
 
-	private NioSocketChannelContext	channelContext;
+    private NioSocketChannelContext   channelContext;
 
-	public SocketSelectorEventLoopGroup(NioSocketChannelContext context, String eventLoopName,
-			int eventLoopSize) {
-		super(eventLoopName, eventLoopSize);
-		this.channelContext = context;
-	}
+    public SocketSelectorEventLoopGroup(NioSocketChannelContext context, String eventLoopName,
+            int eventLoopSize) {
+        super(eventLoopName, eventLoopSize);
+        this.channelContext = context;
+    }
 
-	@Override
-	public SocketSelectorEventLoop getNext() {
-		return selectorEventLoops[getNextEventLoopIndex()];
-	}
+    @Override
+    public SocketSelectorEventLoop getNext() {
+        return selectorEventLoops[getNextEventLoopIndex()];
+    }
 
-	@Override
-	public SocketSelectorEventLoop[] getSelectorEventLoops() {
-		return selectorEventLoops;
-	}
+    @Override
+    public SocketSelectorEventLoop[] getSelectorEventLoops() {
+        return selectorEventLoops;
+    }
 
-	@Override
-	protected SelectorEventLoop[] initEventLoops() {
-		selectorEventLoops = new SocketSelectorEventLoop[getEventLoopSize()];
-		return selectorEventLoops;
-	}
+    @Override
+    protected SelectorEventLoop[] initEventLoops() {
+        selectorEventLoops = new SocketSelectorEventLoop[getEventLoopSize()];
+        return selectorEventLoops;
+    }
 
-	@Override
-	protected SelectorEventLoop[] getEventLoops() {
-		return getSelectorEventLoops();
-	}
+    @Override
+    protected SelectorEventLoop[] getEventLoops() {
+        return getSelectorEventLoops();
+    }
 
-	@Override
-	protected SocketSelectorEventLoop newEventLoop(int coreIndex) {
-		return new SocketSelectorEventLoop(this, coreIndex);
-	}
+    @Override
+    protected SocketSelectorEventLoop newEventLoop(int coreIndex) {
+        return new SocketSelectorEventLoop(this, coreIndex);
+    }
 
-	@Override
-	public NioSocketChannelContext getChannelContext() {
-		return channelContext;
-	}
+    @Override
+    public NioSocketChannelContext getChannelContext() {
+        return channelContext;
+    }
 
 }

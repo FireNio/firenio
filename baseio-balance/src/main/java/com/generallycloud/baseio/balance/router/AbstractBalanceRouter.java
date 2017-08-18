@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance.router;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,27 +21,27 @@ import java.util.concurrent.ConcurrentMap;
 import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 
-public abstract class AbstractBalanceRouter implements BalanceRouter{
+public abstract class AbstractBalanceRouter implements BalanceRouter {
 
-	private ConcurrentMap<Object, BalanceFacadeSocketSession> clients = new ConcurrentHashMap<>();
+    private ConcurrentMap<Object, BalanceFacadeSocketSession> clients = new ConcurrentHashMap<>();
 
-	@Override
-	public void addClientSession(BalanceFacadeSocketSession session) {
-		this.clients.put(session.getSessionKey(), session);
-	}
+    @Override
+    public void addClientSession(BalanceFacadeSocketSession session) {
+        this.clients.put(session.getSessionKey(), session);
+    }
 
-	@Override
-	public BalanceFacadeSocketSession getClientSession(Object key) {
-		return clients.get(key);
-	}
+    @Override
+    public BalanceFacadeSocketSession getClientSession(Object key) {
+        return clients.get(key);
+    }
 
-	@Override
-	public void removeClientSession(BalanceFacadeSocketSession session) {
-		this.clients.remove(session.getSessionKey());
-	}
-	
-	@Override
-	public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session) {
-		return session.getReverseSocketSession();
-	}
+    @Override
+    public void removeClientSession(BalanceFacadeSocketSession session) {
+        this.clients.remove(session.getSessionKey());
+    }
+
+    @Override
+    public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session) {
+        return session.getReverseSocketSession();
+    }
 }

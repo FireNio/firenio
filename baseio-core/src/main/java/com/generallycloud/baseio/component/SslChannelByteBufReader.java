@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
@@ -24,66 +24,68 @@ import com.generallycloud.baseio.protocol.SslFutureImpl;
 
 public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
 
-	@Override
-	public void accept(SocketChannel channel, ByteBuf buffer) throws Exception {
-		
-		UnsafeSocketSession session = channel.getSession();
+    @Override
+    public void accept(SocketChannel channel, ByteBuf buffer) throws Exception {
 
-		for (;;) {
+        UnsafeSocketSession session = channel.getSession();
 
-			if (!buffer.hasRemaining()) {
-				return;
-			}
+        for (;;) {
 
-			SslFuture future = channel.getSslReadFuture();
+            if (!buffer.hasRemaining()) {
+                return;
+            }
 
-			if (future == null) {
+            SslFuture future = channel.getSslReadFuture();
 
-				ByteBuf buf = allocate(session,SslFuture.SSL_RECORD_HEADER_LENGTH);
+            if (future == null) {
 
-				future = new SslFutureImpl(channel, buf,1024 * 64);//FIXME param
+                ByteBuf buf = allocate(session, SslFuture.SSL_RECORD_HEADER_LENGTH);
 
-				channel.setSslReadFuture(future);
-			}
+                future = new SslFutureImpl(channel, buf, 1024 * 64);//FIXME param
 
-			try {
+                channel.setSslReadFuture(future);
+            }
 
-				if (!future.read(session, buffer)) {
+            try {
 
-					return;
-				}
+                if (!future.read(session, buffer)) {
 
-			} catch (Throwable e) {
-				
-				ReleaseUtil.release(future);
+                    return;
+                }
 
-				channel.setSslReadFuture(null);
+            } catch (Throwable e) {
 
-				if (e instanceof IOException) {
-					throw (IOException) e;
-				}
+                ReleaseUtil.release(future);
 
-				throw new IOException("exception occurred when read from channel,the nested exception is,"
-						+ e.getMessage(), e);
-			}
+                channel.setSslReadFuture(null);
 
-			channel.setSslReadFuture(null);
+                if (e instanceof IOException) {
+                    throw (IOException) e;
+                }
 
-			ByteBuf produce = future.getProduce();
+                throw new IOException(
+                        "exception occurred when read from channel,the nested exception is,"
+                                + e.getMessage(),
+                        e);
+            }
 
-			if (produce == null) {
-				continue;
-			}
+            channel.setSslReadFuture(null);
 
-			try {
+            ByteBuf produce = future.getProduce();
 
-				nextAccept(channel, produce);
+            if (produce == null) {
+                continue;
+            }
 
-			} finally {
+            try {
 
-				ReleaseUtil.release(future);
-			}
-		}
-	}
+                nextAccept(channel, produce);
+
+            } finally {
+
+                ReleaseUtil.release(future);
+            }
+        }
+    }
 
 }

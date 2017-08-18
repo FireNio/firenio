@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import java.io.Closeable;
@@ -22,56 +22,56 @@ import java.util.Map;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 
-public interface Session extends Closeable{
+public interface Session extends Closeable {
 
-	public abstract void active();
-	
-	public abstract void clearAttributes() ;
+    public abstract void active();
 
-	public abstract boolean isClosed();
+    public abstract void clearAttributes();
 
-	public abstract Object getAttachment();
+    public abstract boolean isClosed();
 
-	public abstract Object getAttribute(Object key) ;
-	
-	public abstract Map<Object, Object> getAttributes() ;
+    public abstract Object getAttachment();
 
-	public abstract ChannelContext getContext();
+    public abstract Object getAttribute(Object key);
 
-	public abstract long getCreationTime();
+    public abstract Map<Object, Object> getAttributes();
 
-	public abstract long getLastAccessTime();
+    public abstract ChannelContext getContext();
 
-	public abstract String getLocalAddr();
-	
-	public abstract String getLocalHost();
+    public abstract long getCreationTime();
 
-	public abstract int getLocalPort();
+    public abstract long getLastAccessTime();
 
-	public abstract InetSocketAddress getLocalSocketAddress();
+    public abstract String getLocalAddr();
 
-	public abstract String getRemoteAddr();
+    public abstract String getLocalHost();
 
-	public abstract String getRemoteHost();
+    public abstract int getLocalPort();
 
-	public abstract int getRemotePort();
+    public abstract InetSocketAddress getLocalSocketAddress();
 
-	public abstract InetSocketAddress getRemoteSocketAddress();
+    public abstract String getRemoteAddr();
 
-	public abstract int getSessionId();
+    public abstract String getRemoteHost();
 
-	public abstract Object removeAttribute(Object key) ;
-	
-	public abstract void setAttachment(Object attachment);
+    public abstract int getRemotePort();
 
-	public abstract void setAttribute(Object key, Object value) ;
+    public abstract InetSocketAddress getRemoteSocketAddress();
 
-	public abstract Charset getEncoding();
+    public abstract int getSessionId();
 
-	public abstract boolean isOpened();
-	
-	public abstract ByteBufAllocator getByteBufAllocator();
-	
-	public abstract boolean inSelectorLoop();
+    public abstract Object removeAttribute(Object key);
+
+    public abstract void setAttachment(Object attachment);
+
+    public abstract void setAttribute(Object key, Object value);
+
+    public abstract Charset getEncoding();
+
+    public abstract boolean isOpened();
+
+    public abstract ByteBufAllocator getByteBufAllocator();
+
+    public abstract boolean inSelectorLoop();
 
 }

@@ -12,13 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.buffer;
 
 @SuppressWarnings("serial")
-public class ReleasedException extends RuntimeException{
+public class ReleasedException extends RuntimeException {
 
-	public ReleasedException(String string) {
-		super(string);
-	}
+    public ReleasedException(String string) {
+        super(string);
+    }
 }

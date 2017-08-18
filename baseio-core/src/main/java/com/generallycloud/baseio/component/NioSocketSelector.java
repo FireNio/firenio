@@ -26,58 +26,58 @@ import java.util.Set;
  */
 public abstract class NioSocketSelector implements SocketSelector {
 
-	private Selector				selector	= null;
+    private Selector                  selector = null;
 
-	protected SocketSelectorEventLoop	selectorEventLoop;
+    protected SocketSelectorEventLoop selectorEventLoop;
 
-	public NioSocketSelector(SocketSelectorEventLoop selectorEventLoop, Selector selector) {
-		this.selectorEventLoop = selectorEventLoop;
-		this.selector = selector;
-	}
+    public NioSocketSelector(SocketSelectorEventLoop selectorEventLoop, Selector selector) {
+        this.selectorEventLoop = selectorEventLoop;
+        this.selector = selector;
+    }
 
-	@Override
-	public int selectNow() throws IOException {
-		return selector.selectNow();
-	}
+    @Override
+    public int selectNow() throws IOException {
+        return selector.selectNow();
+    }
 
-	@Override
-	public int select(long timeout) throws IOException {
-		return selector.select(timeout);
-	}
+    @Override
+    public int select(long timeout) throws IOException {
+        return selector.select(timeout);
+    }
 
-	@Override
-	public Set<SelectionKey> selectedKeys() throws IOException {
-		return selector.selectedKeys();
-	}
+    @Override
+    public Set<SelectionKey> selectedKeys() throws IOException {
+        return selector.selectedKeys();
+    }
 
-	public java.nio.channels.Selector getSelector() {
-		return selector;
-	}
+    public java.nio.channels.Selector getSelector() {
+        return selector;
+    }
 
-	@Override
-	public void close() throws IOException {
-		selector.close();
-	}
+    @Override
+    public void close() throws IOException {
+        selector.close();
+    }
 
-	@Override
-	public void wakeup() {
-		selector.wakeup();
-	}
+    @Override
+    public void wakeup() {
+        selector.wakeup();
+    }
 
-	protected NioSocketChannel regist(java.nio.channels.SocketChannel channel,
-			SocketSelectorEventLoop selectorLoop, int channelId) throws IOException {
-		NioSocketSelector nioSelector = (NioSocketSelector) selectorLoop.getSelector();
-		SelectionKey sk = channel.register(nioSelector.getSelector(), SelectionKey.OP_READ);
-		// 绑定SocketChannel到SelectionKey
-		NioSocketChannel socketChannel = (NioSocketChannel) sk.attachment();
-		if (socketChannel != null) {
-			return socketChannel;
-		}
-		socketChannel = new NioSocketChannel(selectorLoop, sk, channelId);
-		sk.attach(socketChannel);
-		// fire session open event
-		socketChannel.fireOpend();
-		return socketChannel;
-	}
+    protected NioSocketChannel regist(java.nio.channels.SocketChannel channel,
+            SocketSelectorEventLoop selectorLoop, int channelId) throws IOException {
+        NioSocketSelector nioSelector = (NioSocketSelector) selectorLoop.getSelector();
+        SelectionKey sk = channel.register(nioSelector.getSelector(), SelectionKey.OP_READ);
+        // 绑定SocketChannel到SelectionKey
+        NioSocketChannel socketChannel = (NioSocketChannel) sk.attachment();
+        if (socketChannel != null) {
+            return socketChannel;
+        }
+        socketChannel = new NioSocketChannel(selectorLoop, sk, channelId);
+        sk.attach(socketChannel);
+        // fire session open event
+        socketChannel.fireOpend();
+        return socketChannel;
+    }
 
 }

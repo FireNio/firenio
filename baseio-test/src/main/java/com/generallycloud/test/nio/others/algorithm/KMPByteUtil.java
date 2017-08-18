@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.others.algorithm;
 
 import com.generallycloud.baseio.collection.IntArray;
@@ -20,162 +20,162 @@ import com.generallycloud.baseio.collection.IntArray;
 //关键字：前缀，后缀，部分匹配表
 public class KMPByteUtil {
 
-	private byte[]	match_array;
+    private byte[] match_array;
 
-	private int[]		match_table;
+    private int[]  match_table;
 
-	public KMPByteUtil(byte[] match_array) {
-		this.initialize(match_array);
-	}
+    public KMPByteUtil(byte[] match_array) {
+        this.initialize(match_array);
+    }
 
-	private void initialize(byte[] match_array) {
-		this.match_array = match_array;
-		this.match_table = new int[match_array.length];
-		this.initialize_part_match_table();
-	}
+    private void initialize(byte[] match_array) {
+        this.match_array = match_array;
+        this.match_table = new int[match_array.length];
+        this.initialize_part_match_table();
+    }
 
-	private void initialize_part_match_table() {
+    private void initialize_part_match_table() {
 
-		int length = this.match_array.length;
+        int length = this.match_array.length;
 
-		// 直接从两位开始比较
-		for (int i = 2; i < length; i++) {
+        // 直接从两位开始比较
+        for (int i = 2; i < length; i++) {
 
-			match_table[i] = initialize_part_match_table0(match_array, i);
-		}
-	}
+            match_table[i] = initialize_part_match_table0(match_array, i);
+        }
+    }
 
-	private int initialize_part_match_table0(byte[] array, int length) {
+    private int initialize_part_match_table0(byte[] array, int length) {
 
-		int e = 0;
+        int e = 0;
 
-		WORD: for (int i = 1; i < length; i++) {
+        WORD: for (int i = 1; i < length; i++) {
 
-			int t = 0;
-			int p = 0;
-			int s = length - i;
+            int t = 0;
+            int p = 0;
+            int s = length - i;
 
-			for (int j = 0; j < i; j++) {
-				if (array[p++] != array[s++]) {
-					continue WORD;
-				}
-				t++;
-			}
-			e = t;
-		}
-		return e;
-	}
+            for (int j = 0; j < i; j++) {
+                if (array[p++] != array[s++]) {
+                    continue WORD;
+                }
+                t++;
+            }
+            e = t;
+        }
+        return e;
+    }
 
-	public int match(byte[] source_array) {
-		return match(source_array, 0,source_array.length);
-	}
+    public int match(byte[] source_array) {
+        return match(source_array, 0, source_array.length);
+    }
 
-	public int match(byte[] source_array, int begin,int end) {
+    public int match(byte[] source_array, int begin, int end) {
 
-		if (source_array == null || begin < 0 || end > source_array.length) {
-			return -1;
-		}
+        if (source_array == null || begin < 0 || end > source_array.length) {
+            return -1;
+        }
 
-		if (source_array.length - begin < this.match_array.length) {
-			return -1;
-		}
-		
-		if (begin + match_array.length > end) {
-			return -1;
-		}
+        if (source_array.length - begin < this.match_array.length) {
+            return -1;
+        }
 
-		int source_length = end;
+        if (begin + match_array.length > end) {
+            return -1;
+        }
 
-		int index = begin;
+        int source_length = end;
 
-		int match_length = this.match_array.length;
+        int index = begin;
 
-		byte[] match_array = this.match_array;
+        int match_length = this.match_array.length;
 
-		int[] match_table = this.match_table;
+        byte[] match_array = this.match_array;
 
-		LOOP: for (; index < source_length;) {
+        int[] match_table = this.match_table;
 
-			for (int i = 0; i < match_length; i++) {
+        LOOP: for (; index < source_length;) {
 
-				if (source_array[index + i] != match_array[i]) {
+            for (int i = 0; i < match_length; i++) {
 
-					if (i == 0) {
-						index++;
-					} else {
-						index += (i - match_table[i]);
-					}
-					continue LOOP;
-				}
-			}
+                if (source_array[index + i] != match_array[i]) {
 
-			return index;
-		}
+                    if (i == 0) {
+                        index++;
+                    } else {
+                        index += (i - match_table[i]);
+                    }
+                    continue LOOP;
+                }
+            }
 
-		return -1;
-	}
+            return index;
+        }
 
-	public IntArray match_all(byte[] source_array) {
+        return -1;
+    }
 
-		if (source_array == null) {
-			return null;
-		}
+    public IntArray match_all(byte[] source_array) {
 
-		if (source_array.length < match_array.length) {
-			return null;
-		}
+        if (source_array == null) {
+            return null;
+        }
 
-		IntArray matchs = new IntArray();
+        if (source_array.length < match_array.length) {
+            return null;
+        }
 
-		if (source_array.equals(match_array)) {
-			matchs.add(0);
-			return matchs;
-		}
+        IntArray matchs = new IntArray();
 
-		int source_length = source_array.length;
+        if (source_array.equals(match_array)) {
+            matchs.add(0);
+            return matchs;
+        }
 
-		int index = 0;
+        int source_length = source_array.length;
 
-		int match_length = this.match_array.length;
+        int index = 0;
 
-		byte[] match_array = this.match_array;
+        int match_length = this.match_array.length;
 
-		int[] match_table = this.match_table;
+        byte[] match_array = this.match_array;
 
-		LOOP: for (; index < source_length;) {
+        int[] match_table = this.match_table;
 
-			if (source_length - index < match_length) {
+        LOOP: for (; index < source_length;) {
 
-				break;
-			}
+            if (source_length - index < match_length) {
 
-			for (int i = 0; i < match_length; i++) {
+                break;
+            }
 
-				if (source_array[index + i] != match_array[i]) {
+            for (int i = 0; i < match_length; i++) {
 
-					if (i == 0) {
-						index++;
-					} else {
-						index += (i - match_table[i]);
-					}
-					continue LOOP;
-				}
-			}
+                if (source_array[index + i] != match_array[i]) {
 
-			matchs.add(index);
-			index += match_length;
-		}
-		return matchs;
-	}
+                    if (i == 0) {
+                        index++;
+                    } else {
+                        index += (i - match_table[i]);
+                    }
+                    continue LOOP;
+                }
+            }
 
-	public static void main(String[] args) {
+            matchs.add(index);
+            index += match_length;
+        }
+        return matchs;
+    }
 
-		String s1 = "1111111111111111111211111111112111121111211111111";
+    public static void main(String[] args) {
 
-		String match = "1112";
+        String s1 = "1111111111111111111211111111112111121111211111111";
 
-		KMPByteUtil kmp = new KMPByteUtil(match.getBytes());
+        String match = "1112";
 
-		System.out.println(kmp.match_all(s1.getBytes()));
-	}
+        KMPByteUtil kmp = new KMPByteUtil(match.getBytes());
+
+        System.out.println(kmp.match_all(s1.getBytes()));
+    }
 }

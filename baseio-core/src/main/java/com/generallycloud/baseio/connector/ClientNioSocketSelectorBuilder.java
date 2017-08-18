@@ -31,31 +31,31 @@ import com.generallycloud.baseio.component.SocketSelectorEventLoop;
  */
 public class ClientNioSocketSelectorBuilder implements SocketSelectorBuilder {
 
-	private NioSocketChannelConnector connector;
+    private NioSocketChannelConnector connector;
 
-	public ClientNioSocketSelectorBuilder(NioSocketChannelConnector connector) {
-		this.connector = connector;
-	}
+    public ClientNioSocketSelectorBuilder(NioSocketChannelConnector connector) {
+        this.connector = connector;
+    }
 
-	// FIXME open channel
-	@Override
-	public SocketSelector build(SocketSelectorEventLoop selectorLoop) throws IOException {
+    // FIXME open channel
+    @Override
+    public SocketSelector build(SocketSelectorEventLoop selectorLoop) throws IOException {
 
-		SocketChannelContext context = selectorLoop.getChannelContext();
+        SocketChannelContext context = selectorLoop.getChannelContext();
 
-		NioChannelService nioChannelService = (NioChannelService) context.getChannelService();
+        NioChannelService nioChannelService = (NioChannelService) context.getChannelService();
 
-		SocketChannel channel = (SocketChannel) nioChannelService.getSelectableChannel();
+        SocketChannel channel = (SocketChannel) nioChannelService.getSelectableChannel();
 
-		// 打开selector
-		java.nio.channels.Selector selector = java.nio.channels.Selector.open();
+        // 打开selector
+        java.nio.channels.Selector selector = java.nio.channels.Selector.open();
 
-		channel.register(selector, SelectionKey.OP_CONNECT);
+        channel.register(selector, SelectionKey.OP_CONNECT);
 
-		return new ClientNioSocketSelector(selectorLoop, selector, channel, connector);
-	}
+        return new ClientNioSocketSelector(selectorLoop, selector, channel, connector);
+    }
 
-	public void setConnector(NioSocketChannelConnector connector) {
-		this.connector = connector;
-	}
+    public void setConnector(NioSocketChannelConnector connector) {
+        this.connector = connector;
+    }
 }

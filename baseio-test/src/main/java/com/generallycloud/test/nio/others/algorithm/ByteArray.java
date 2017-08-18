@@ -19,122 +19,121 @@ package com.generallycloud.test.nio.others.algorithm;
  * @author wangkai
  *
  */
-public class ByteArray{
+public class ByteArray {
 
-	private byte[] data;
-	
-	private int off;
-	
-	private int length;
-	
-	public ByteArray() {
-	}
+    private byte[] data;
 
-	public ByteArray(byte[] data,int off,int length) {
-		this.data = data;
-		this.off = off;
-		this.length = length;
-	}
+    private int    off;
 
-	public byte[] getData() {
-		return data;
-	}
-	
-	public void setData(byte[] data) {
-		this.data = data;
-	}
+    private int    length;
 
-	public boolean greater(ByteArray o){
-		if (getLength() > o.getLength()) {
-			return true;
-		}
-		if (getLength() < o.getLength()) {
-			return false;
-		}
-		return greater(this,o);
-	}
-	
-	private static boolean greater(ByteArray b1,ByteArray b2){
-		int len = b1.getLength();
-		for (int i = 0; i < len; i++) {
-			byte b11 = b1.getByte(i);
-			byte b22 = b2.getByte(i);
-			if (b11 != b22) {
-				return b11 > b22;
-			}
-		}
-		return false;
-	}
-	
-	private static boolean greaterOrEquals(ByteArray b1,ByteArray b2){
-		int len = b1.getLength();
-		for (int i = 0; i < len; i++) {
-			byte b11 = b1.getByte(i);
-			byte b22 = b2.getByte(i);
-			if (b11 != b22) {
-				return b11 > b22;
-			}
-		}
-		return true;
-	}
-	
-	private static boolean lessOrEquals(ByteArray b1,ByteArray b2){
-		int len = b1.getLength();
-		for (int i = 0; i < len; i++) {
-			byte b11 = b1.getByte(i);
-			byte b22 = b2.getByte(i);
-			if (b11 != b22) {
-				return b11 < b22;
-			}
-		}
-		return true;
-	}
-	
-	public boolean greaterOrEquals(ByteArray o){
-		if (getLength() > o.getLength()) {
-			return true;
-		}
-		if (getLength() < o.getLength()) {
-			return false;
-		}
-		return greaterOrEquals(this,o);
-	}
-	
-	public boolean lessOrEquals(ByteArray o){
-		if (getLength() > o.getLength()) {
-			return false;
-		}
-		if (getLength() < o.getLength()) {
-			return true;
-		}
-		return lessOrEquals(this,o);
-	}
-	
-	public int getLength() {
-		return length;
-	}
-	
-	public byte getByte(int pos){
-		return data[ix(pos)];
-	}
-	
-	private int ix(int pos){
-		return off + pos;
-	}
+    public ByteArray() {}
 
-	public void setLength(int length) {
-		this.length = length;
-	}
+    public ByteArray(byte[] data, int off, int length) {
+        this.data = data;
+        this.off = off;
+        this.length = length;
+    }
 
-	public int getOff() {
-		return off;
-	}
+    public byte[] getData() {
+        return data;
+    }
 
-	public void setOff(int off) {
-		this.off = off;
-	}
-	
-	public String toString1() {
-		return new String(data,off,length);
-	}
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+
+    public boolean greater(ByteArray o) {
+        if (getLength() > o.getLength()) {
+            return true;
+        }
+        if (getLength() < o.getLength()) {
+            return false;
+        }
+        return greater(this, o);
+    }
+
+    private static boolean greater(ByteArray b1, ByteArray b2) {
+        int len = b1.getLength();
+        for (int i = 0; i < len; i++) {
+            byte b11 = b1.getByte(i);
+            byte b22 = b2.getByte(i);
+            if (b11 != b22) {
+                return b11 > b22;
+            }
+        }
+        return false;
+    }
+
+    private static boolean greaterOrEquals(ByteArray b1, ByteArray b2) {
+        int len = b1.getLength();
+        for (int i = 0; i < len; i++) {
+            byte b11 = b1.getByte(i);
+            byte b22 = b2.getByte(i);
+            if (b11 != b22) {
+                return b11 > b22;
+            }
+        }
+        return true;
+    }
+
+    private static boolean lessOrEquals(ByteArray b1, ByteArray b2) {
+        int len = b1.getLength();
+        for (int i = 0; i < len; i++) {
+            byte b11 = b1.getByte(i);
+            byte b22 = b2.getByte(i);
+            if (b11 != b22) {
+                return b11 < b22;
+            }
+        }
+        return true;
+    }
+
+    public boolean greaterOrEquals(ByteArray o) {
+        if (getLength() > o.getLength()) {
+            return true;
+        }
+        if (getLength() < o.getLength()) {
+            return false;
+        }
+        return greaterOrEquals(this, o);
+    }
+
+    public boolean lessOrEquals(ByteArray o) {
+        if (getLength() > o.getLength()) {
+            return false;
+        }
+        if (getLength() < o.getLength()) {
+            return true;
+        }
+        return lessOrEquals(this, o);
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public byte getByte(int pos) {
+        return data[ix(pos)];
+    }
+
+    private int ix(int pos) {
+        return off + pos;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public int getOff() {
+        return off;
+    }
+
+    public void setOff(int off) {
+        this.off = off;
+    }
+
+    public String toString1() {
+        return new String(data, off, length);
+    }
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.others;
 
 import java.io.IOException;
@@ -21,26 +21,25 @@ import com.generallycloud.baseio.common.MathUtil;
 
 public class Test {
 
-	
-	public static final byte	PROTOCOL_RESPONSE			= 1;
-	public static final byte	PROTOCOL_PUSH				= 2;
-	public static final byte	PROTOCOL_BRODCAST			= 3;
-	
-	public static void main(String[] args) throws IOException {
+    public static final byte PROTOCOL_RESPONSE = 1;
+    public static final byte PROTOCOL_PUSH     = 2;
+    public static final byte PROTOCOL_BRODCAST = 3;
 
-		byte b = 127;
-		
-		System.out.println(MathUtil.byte2BinaryString(b));
-		System.out.println(MathUtil.byte2BinaryString((byte)(b&0x3f)));
-		
-		System.out.println(MathUtil.byte2BinaryString((byte) -1));
-		System.out.println(MathUtil.byte2BinaryString((byte) -2));
-		
-		System.out.println(Integer.MAX_VALUE >> 3);
-		
-		System.out.println(MathUtil.binaryString2HexString("00100000"));
-		
-		//test branch   tes22222
-		
-	}
+    public static void main(String[] args) throws IOException {
+
+        byte b = 127;
+
+        System.out.println(MathUtil.byte2BinaryString(b));
+        System.out.println(MathUtil.byte2BinaryString((byte) (b & 0x3f)));
+
+        System.out.println(MathUtil.byte2BinaryString((byte) -1));
+        System.out.println(MathUtil.byte2BinaryString((byte) -2));
+
+        System.out.println(Integer.MAX_VALUE >> 3);
+
+        System.out.println(MathUtil.binaryString2HexString("00100000"));
+
+        //test branch   tes22222
+
+    }
 }

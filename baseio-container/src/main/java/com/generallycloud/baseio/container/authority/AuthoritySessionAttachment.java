@@ -12,23 +12,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.authority;
 
 public class AuthoritySessionAttachment {
 
-	private AuthorityManager authorityManager = null;
+    private AuthorityManager authorityManager = null;
 
-	public AuthorityManager getAuthorityManager() {
-		return authorityManager;
-	}
-	
-	public void setAuthorityManager(AuthorityManager authorityManager) {
-		this.authorityManager = authorityManager;
-		if (authorityManager.getAuthority().getRoleID() == Authority.GUEST.getRoleID()) {
-			return;
-		}
-	}
-	
+    public AuthorityManager getAuthorityManager() {
+        return authorityManager;
+    }
+
+    public void setAuthorityManager(AuthorityManager authorityManager) {
+        this.authorityManager = authorityManager;
+        if (authorityManager.getAuthority().getRoleID() == Authority.GUEST.getRoleID()) {
+            return;
+        }
+    }
 
 }

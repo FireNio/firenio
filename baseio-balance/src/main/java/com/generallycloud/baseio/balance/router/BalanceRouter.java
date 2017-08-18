@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance.router;
 
 import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
@@ -21,18 +21,20 @@ import com.generallycloud.baseio.protocol.Future;
 
 public interface BalanceRouter {
 
-	public abstract void addClientSession(BalanceFacadeSocketSession session);
+    public abstract void addClientSession(BalanceFacadeSocketSession session);
 
-	public abstract void addRouterSession(BalanceReverseSocketSession session);
-	
-	public abstract BalanceFacadeSocketSession getClientSession(Object key);
+    public abstract void addRouterSession(BalanceReverseSocketSession session);
 
-	public abstract BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session);
-	
-	public abstract BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session, Future future);
+    public abstract BalanceFacadeSocketSession getClientSession(Object key);
 
-	public abstract void removeClientSession(BalanceFacadeSocketSession session);
+    public abstract BalanceReverseSocketSession getRouterSession(
+            BalanceFacadeSocketSession session);
 
-	public abstract void removeRouterSession(BalanceReverseSocketSession session);
+    public abstract BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session,
+            Future future);
+
+    public abstract void removeClientSession(BalanceFacadeSocketSession session);
+
+    public abstract void removeRouterSession(BalanceReverseSocketSession session);
 
 }

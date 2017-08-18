@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
@@ -21,21 +21,21 @@ import com.generallycloud.baseio.container.protobase.service.ProtobaseFutureAcce
 
 public abstract class MQServlet extends ProtobaseFutureAcceptorService {
 
-	private MQContext	context	= MQContext.getInstance();
+    private MQContext context = MQContext.getInstance();
 
-	public MQContext getMQContext() {
-		return context;
-	}
+    public MQContext getMQContext() {
+        return context;
+    }
 
-	@Override
-	public void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
+    @Override
+    public void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
 
-		MQSessionAttachment attachment = context.getSessionAttachment(session);
+        MQSessionAttachment attachment = context.getSessionAttachment(session);
 
-		this.doAccept(session, future, attachment);
-	}
+        this.doAccept(session, future, attachment);
+    }
 
-	public abstract void doAccept(SocketSession session, ProtobaseFuture future, MQSessionAttachment attachment)
-			throws Exception;
+    public abstract void doAccept(SocketSession session, ProtobaseFuture future,
+            MQSessionAttachment attachment) throws Exception;
 
 }

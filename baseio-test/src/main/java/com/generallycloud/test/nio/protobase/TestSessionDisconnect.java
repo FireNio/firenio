@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
@@ -33,48 +33,48 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class TestSessionDisconnect {
 
-	public static void main(String[] args) throws Exception {
-		
-		String serviceName = "TestSessionDisconnectServlet";
-		
-		String param = "ttt";
+    public static void main(String[] args) throws Exception {
 
-		LoggerFactory.configure();
-		
-		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+        String serviceName = "TestSessionDisconnectServlet";
 
-		ServerConfiguration configuration = new ServerConfiguration(8300);
+        String param = "ttt";
 
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandle);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        LoggerFactory.configure();
 
-		FixedSession session = new FixedSession(connector.connect());
+        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		session.login("admin", "admin100");
+        ServerConfiguration configuration = new ServerConfiguration(8300);
 
-		ProtobaseFuture future = session.request(serviceName, param);
-		System.out.println(future.getReadText());
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
 
-		session.listen(serviceName, new OnFuture() {
-			@Override
-			public void onResponse(SocketSession session, Future future) {
-				
-				ProtobaseFuture f = (ProtobaseFuture) future;
-				System.out.println(f.getReadText());
-			}
-		});
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		session.write(serviceName, param);
+        context.setIoEventHandleAdaptor(eventHandle);
 
-		ThreadUtil.sleep(9999);
-		
-		CloseUtil.close(connector);
-	}
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        FixedSession session = new FixedSession(connector.connect());
+
+        session.login("admin", "admin100");
+
+        ProtobaseFuture future = session.request(serviceName, param);
+        System.out.println(future.getReadText());
+
+        session.listen(serviceName, new OnFuture() {
+            @Override
+            public void onResponse(SocketSession session, Future future) {
+
+                ProtobaseFuture f = (ProtobaseFuture) future;
+                System.out.println(f.getReadText());
+            }
+        });
+
+        session.write(serviceName, param);
+
+        ThreadUtil.sleep(9999);
+
+        CloseUtil.close(connector);
+    }
 }

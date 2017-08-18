@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.others;
 
 import java.io.File;
@@ -25,24 +25,23 @@ import com.generallycloud.test.test.ITestHandle;
 
 public class TestKMPHttpHeader {
 
-	
-	public static void main(String[] args) throws Exception {
-		
-		final KMPByteUtil	KMP_HEADER		= new KMPByteUtil("\r\n\r\n".getBytes());
-		
-		File file = new File("test.header");
-		
-		String content = FileUtil.readStringByFile(file, Encoding.UTF8);
-		
-		final byte [] array = content.getBytes();
-		
-		ITestHandle.doTest(new ITest() {
-			
-			@Override
-			public void test(int i) throws Exception {
-				
-				KMP_HEADER.match(array);
-			}
-		}, 1000000, "kmp-http-header");
-	}
+    public static void main(String[] args) throws Exception {
+
+        final KMPByteUtil KMP_HEADER = new KMPByteUtil("\r\n\r\n".getBytes());
+
+        File file = new File("test.header");
+
+        String content = FileUtil.readStringByFile(file, Encoding.UTF8);
+
+        final byte[] array = content.getBytes();
+
+        ITestHandle.doTest(new ITest() {
+
+            @Override
+            public void test(int i) throws Exception {
+
+                KMP_HEADER.match(array);
+            }
+        }, 1000000, "kmp-http-header");
+    }
 }

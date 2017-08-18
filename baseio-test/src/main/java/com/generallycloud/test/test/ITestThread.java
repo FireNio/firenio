@@ -21,51 +21,51 @@ import com.generallycloud.baseio.log.DebugUtil;
 
 public abstract class ITestThread implements Runnable {
 
-	private CountDownLatch	latch;
+    private CountDownLatch latch;
 
-	private int			time;
+    private int            time;
 
-	private long			last_time;
+    private long           last_time;
 
-	protected void setTime(int time) {
-		this.time = time;
-		this.latch = new CountDownLatch(time);
-	}
+    protected void setTime(int time) {
+        this.time = time;
+        this.latch = new CountDownLatch(time);
+    }
 
-	public int getTime() {
-		return time;
-	}
+    public int getTime() {
+        return time;
+    }
 
-	public void await() throws InterruptedException {
-		latch.await();
-	}
+    public void await() throws InterruptedException {
+        latch.await();
+    }
 
-	public abstract void prepare() throws Exception;
+    public abstract void prepare() throws Exception;
 
-	public abstract void stop();
+    public abstract void stop();
 
-	public void addCount(int passage) {
+    public void addCount(int passage) {
 
-		latch.countDown();
+        latch.countDown();
 
-		long c = latch.getCount();
+        long c = latch.getCount();
 
-		if (c % passage == 0) {
+        if (c % passage == 0) {
 
-			long now = System.currentTimeMillis();
+            long now = System.currentTimeMillis();
 
-			long passed = 0;
+            long passed = 0;
 
-			if (last_time == 0) {
-				last_time = now;
-			} else {
-				passed = now - last_time;
-				last_time = now;
-			}
+            if (last_time == 0) {
+                last_time = now;
+            } else {
+                passed = now - last_time;
+                last_time = now;
+            }
 
-			DebugUtil.info("__________________________" + c + "\t" + "___" + passed);
-		}
+            DebugUtil.info("__________________________" + c + "\t" + "___" + passed);
+        }
 
-	}
+    }
 
 }

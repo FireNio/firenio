@@ -12,23 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class SocketSessionAliveSEListener implements SocketSessionIdleEventListener{
-	
-	private Logger logger = LoggerFactory.getLogger(getClass());
+public class SocketSessionAliveSEListener implements SocketSessionIdleEventListener {
 
-	@Override
-	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
-		
-		if (session.getLastAccessTime() < lastIdleTime) {
-			logger.info("Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",session);
-			CloseUtil.close(session); 
-		}
-	}
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Override
+    public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
+
+        if (session.getLastAccessTime() < lastIdleTime) {
+            logger.info(
+                    "Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",
+                    session);
+            CloseUtil.close(session);
+        }
+    }
 }

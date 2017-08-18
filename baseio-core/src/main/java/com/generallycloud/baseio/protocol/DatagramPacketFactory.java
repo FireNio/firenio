@@ -17,23 +17,23 @@ package com.generallycloud.baseio.protocol;
 
 public class DatagramPacketFactory {
 
-	private Calculagraph calculagraph;
+    private Calculagraph calculagraph;
 
-	public DatagramPacketFactory(int markInterval, long currentMark) {
-		this.calculagraph = new Calculagraph(markInterval, currentMark);
-	}
+    public DatagramPacketFactory(int markInterval, long currentMark) {
+        this.calculagraph = new Calculagraph(markInterval, currentMark);
+    }
 
-	public DatagramPacketFactory(int markInterval) {
-		this.calculagraph = new Calculagraph(markInterval);
-	}
+    public DatagramPacketFactory(int markInterval) {
+        this.calculagraph = new Calculagraph(markInterval);
+    }
 
-	public DatagramPacket createDatagramPacket(byte[] data) {
-		return DatagramPacket.createSendPacket(DatagramPacket.TYPE_DATA,
-				calculagraph.getTimestamp(), calculagraph.getSequenceNO(), data);
-	}
+    public DatagramPacket createDatagramPacket(byte[] data) {
+        return DatagramPacket.createSendPacket(DatagramPacket.TYPE_DATA,
+                calculagraph.getTimestamp(), calculagraph.getSequenceNO(), data);
+    }
 
-	public Calculagraph getCalculagraph() {
-		return calculagraph;
-	}
+    public Calculagraph getCalculagraph() {
+        return calculagraph;
+    }
 
 }

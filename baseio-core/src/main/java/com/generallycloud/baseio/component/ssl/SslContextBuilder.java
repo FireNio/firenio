@@ -12,10 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component.ssl;
-
-
 
 import java.io.File;
 import java.io.InputStream;
@@ -56,7 +54,8 @@ public final class SslContextBuilder {
      * @param keyInputStream an input stream for a PKCS#8 private key in PEM format
      * @see #keyManager(InputStream, InputStream)
      */
-    public static SslContextBuilder forServer(InputStream keyCertChainInputStream, InputStream keyInputStream) {
+    public static SslContextBuilder forServer(InputStream keyCertChainInputStream,
+            InputStream keyInputStream) {
         return new SslContextBuilder(true).keyManager(keyCertChainInputStream, keyInputStream);
     }
 
@@ -80,8 +79,8 @@ public final class SslContextBuilder {
      *     password-protected
      * @see #keyManager(File, File, String)
      */
-    public static SslContextBuilder forServer(
-            File keyCertChainFile, File keyFile, String keyPassword) {
+    public static SslContextBuilder forServer(File keyCertChainFile, File keyFile,
+            String keyPassword) {
         return new SslContextBuilder(true).keyManager(keyCertChainFile, keyFile, keyPassword);
     }
 
@@ -94,9 +93,10 @@ public final class SslContextBuilder {
      *     password-protected
      * @see #keyManager(InputStream, InputStream, String)
      */
-    public static SslContextBuilder forServer(
-            InputStream keyCertChainInputStream, InputStream keyInputStream, String keyPassword) {
-        return new SslContextBuilder(true).keyManager(keyCertChainInputStream, keyInputStream, keyPassword);
+    public static SslContextBuilder forServer(InputStream keyCertChainInputStream,
+            InputStream keyInputStream, String keyPassword) {
+        return new SslContextBuilder(true).keyManager(keyCertChainInputStream, keyInputStream,
+                keyPassword);
     }
 
     /**
@@ -108,8 +108,8 @@ public final class SslContextBuilder {
      *     password-protected
      * @see #keyManager(File, File, String)
      */
-    public static SslContextBuilder forServer(
-            PrivateKey key, String keyPassword, X509Certificate... keyCertChain) {
+    public static SslContextBuilder forServer(PrivateKey key, String keyPassword,
+            X509Certificate... keyCertChain) {
         return new SslContextBuilder(true).keyManager(key, keyPassword, keyCertChain);
     }
 
@@ -123,21 +123,21 @@ public final class SslContextBuilder {
         return new SslContextBuilder(true).keyManager(keyManagerFactory);
     }
 
-    private final boolean forServer;
-    private SslProvider provider;
-    private X509Certificate[] trustCertCollection;
-    private TrustManagerFactory trustManagerFactory;
-    private X509Certificate[] keyCertChain;
-    private PrivateKey key;
-    private String keyPassword;
-    private KeyManagerFactory keyManagerFactory;
-    private Iterable<String> ciphers;
-    private CipherSuiteFilter cipherFilter = IdentityCipherSuiteFilter.INSTANCE;
+    private final boolean             forServer;
+    private SslProvider               provider;
+    private X509Certificate[]         trustCertCollection;
+    private TrustManagerFactory       trustManagerFactory;
+    private X509Certificate[]         keyCertChain;
+    private PrivateKey                key;
+    private String                    keyPassword;
+    private KeyManagerFactory         keyManagerFactory;
+    private Iterable<String>          ciphers;
+    private CipherSuiteFilter         cipherFilter = IdentityCipherSuiteFilter.INSTANCE;
     private ApplicationProtocolConfig apn;
-    private long sessionCacheSize;
-    private long sessionTimeout;
-    private ClientAuth clientAuth = ClientAuth.NONE;
-    private boolean startTls;
+    private long                      sessionCacheSize;
+    private long                      sessionTimeout;
+    private ClientAuth                clientAuth   = ClientAuth.NONE;
+    private boolean                   startTls;
 
     private SslContextBuilder(boolean forServer) {
         this.forServer = forServer;
@@ -159,8 +159,8 @@ public final class SslContextBuilder {
         try {
             return trustManager(SslContext.toX509Certificates(trustCertCollectionFile));
         } catch (Exception e) {
-            throw new IllegalArgumentException("File does not contain valid certificates: "
-                    + trustCertCollectionFile, e);
+            throw new IllegalArgumentException(
+                    "File does not contain valid certificates: " + trustCertCollectionFile, e);
         }
     }
 
@@ -172,7 +172,8 @@ public final class SslContextBuilder {
         try {
             return trustManager(SslContext.toX509Certificates(trustCertCollectionInputStream));
         } catch (Exception e) {
-            throw new IllegalArgumentException("Input stream does not contain valid certificates.", e);
+            throw new IllegalArgumentException("Input stream does not contain valid certificates.",
+                    e);
         }
     }
 
@@ -214,7 +215,8 @@ public final class SslContextBuilder {
      * @param keyCertChainInputStream an input stream for an X.509 certificate chain in PEM format
      * @param keyInputStream an input stream for a PKCS#8 private key in PEM format
      */
-    public SslContextBuilder keyManager(InputStream keyCertChainInputStream, InputStream keyInputStream) {
+    public SslContextBuilder keyManager(InputStream keyCertChainInputStream,
+            InputStream keyInputStream) {
         return keyManager(keyCertChainInputStream, keyInputStream, null);
     }
 
@@ -244,12 +246,14 @@ public final class SslContextBuilder {
         try {
             keyCertChain = SslContext.toX509Certificates(keyCertChainFile);
         } catch (Exception e) {
-            throw new IllegalArgumentException("File does not contain valid certificates: " + keyCertChainFile, e);
+            throw new IllegalArgumentException(
+                    "File does not contain valid certificates: " + keyCertChainFile, e);
         }
         try {
             key = SslContext.toPrivateKey(keyFile, keyPassword);
         } catch (Exception e) {
-            throw new IllegalArgumentException("File does not contain valid private key: " + keyFile, e);
+            throw new IllegalArgumentException(
+                    "File does not contain valid private key: " + keyFile, e);
         }
         return keyManager(key, keyPassword, keyCertChain);
     }
@@ -263,8 +267,8 @@ public final class SslContextBuilder {
      * @param keyPassword the password of the {@code keyInputStream}, or {@code null} if it's not
      *     password-protected
      */
-    public SslContextBuilder keyManager(InputStream keyCertChainInputStream, InputStream keyInputStream,
-            String keyPassword) {
+    public SslContextBuilder keyManager(InputStream keyCertChainInputStream,
+            InputStream keyInputStream, String keyPassword) {
         X509Certificate[] keyCertChain;
         PrivateKey key;
         try {
@@ -275,7 +279,8 @@ public final class SslContextBuilder {
         try {
             key = SslContext.toPrivateKey(keyInputStream, keyPassword);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Input stream does not contain valid private key.", e);
+            throw new IllegalArgumentException("Input stream does not contain valid private key.",
+                    e);
         }
         return keyManager(key, keyPassword, keyCertChain);
     }
@@ -289,18 +294,19 @@ public final class SslContextBuilder {
      *     password-protected
      * @param keyCertChain an X.509 certificate chain
      */
-    public SslContextBuilder keyManager(PrivateKey key, String keyPassword, X509Certificate... keyCertChain) {
+    public SslContextBuilder keyManager(PrivateKey key, String keyPassword,
+            X509Certificate... keyCertChain) {
         if (forServer) {
-//            checkNotNull(keyCertChain, "keyCertChain required for servers");
+            //            checkNotNull(keyCertChain, "keyCertChain required for servers");
             if (keyCertChain.length == 0) {
                 throw new IllegalArgumentException("keyCertChain must be non-empty");
             }
-//            checkNotNull(key, "key required for servers");
+            //            checkNotNull(key, "key required for servers");
         }
         if (keyCertChain == null || keyCertChain.length == 0) {
             this.keyCertChain = null;
         } else {
-            for (X509Certificate cert: keyCertChain) {
+            for (X509Certificate cert : keyCertChain) {
                 if (cert == null) {
                     throw new IllegalArgumentException("keyCertChain contains null entry");
                 }
@@ -321,7 +327,7 @@ public final class SslContextBuilder {
      */
     public SslContextBuilder keyManager(KeyManagerFactory keyManagerFactory) {
         if (forServer) {
-//            checkNotNull(keyManagerFactory, "keyManagerFactory required for servers");
+            //            checkNotNull(keyManagerFactory, "keyManagerFactory required for servers");
         }
         keyCertChain = null;
         key = null;
@@ -344,7 +350,7 @@ public final class SslContextBuilder {
      * ciphers} is {@code null}, then the default cipher suites will be used.
      */
     public SslContextBuilder ciphers(Iterable<String> ciphers, CipherSuiteFilter cipherFilter) {
-//        checkNotNull(cipherFilter, "cipherFilter");
+        //        checkNotNull(cipherFilter, "cipherFilter");
         this.ciphers = ciphers;
         this.cipherFilter = cipherFilter;
         return this;
@@ -380,7 +386,7 @@ public final class SslContextBuilder {
      * Sets the client authentication mode.
      */
     public SslContextBuilder clientAuth(ClientAuth clientAuth) {
-//        this.clientAuth = checkNotNull(clientAuth, "clientAuth");
+        //        this.clientAuth = checkNotNull(clientAuth, "clientAuth");
         this.clientAuth = clientAuth;
         return this;
     }
@@ -401,12 +407,12 @@ public final class SslContextBuilder {
     public SslContext build() throws SSLException {
         if (forServer) {
             return SslContext.newServerContextInternal(provider, trustCertCollection,
-                trustManagerFactory, keyCertChain, key, keyPassword, keyManagerFactory,
-                ciphers, cipherFilter, apn, sessionCacheSize, sessionTimeout, clientAuth, startTls);
+                    trustManagerFactory, keyCertChain, key, keyPassword, keyManagerFactory, ciphers,
+                    cipherFilter, apn, sessionCacheSize, sessionTimeout, clientAuth, startTls);
         } else {
             return SslContext.newClientContextInternal(provider, trustCertCollection,
-                trustManagerFactory, keyCertChain, key, keyPassword, keyManagerFactory,
-                ciphers, cipherFilter, apn, sessionCacheSize, sessionTimeout);
+                    trustManagerFactory, keyCertChain, key, keyPassword, keyManagerFactory, ciphers,
+                    cipherFilter, apn, sessionCacheSize, sessionTimeout);
         }
     }
 }

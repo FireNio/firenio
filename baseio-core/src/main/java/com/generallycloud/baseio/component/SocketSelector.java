@@ -24,16 +24,16 @@ import java.util.Set;
  * @author wangkai
  *
  */
-public interface SocketSelector extends Closeable{
+public interface SocketSelector extends Closeable {
 
-	int selectNow() throws IOException;
+    int selectNow() throws IOException;
 
-	int select(long timeout) throws IOException;
+    int select(long timeout) throws IOException;
 
-	Set<SelectionKey> selectedKeys() throws IOException;
-	
-	void buildChannel(SelectionKey k) throws IOException;
+    Set<SelectionKey> selectedKeys() throws IOException;
 
-	void wakeup();
+    void buildChannel(SelectionKey k) throws IOException;
+
+    void wakeup();
 
 }

@@ -12,13 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.buffer;
 
-public interface ByteBufFactory extends ByteBufNew{
+public interface ByteBufFactory extends ByteBufNew {
 
-	public abstract void freeMemory();
+    public abstract void freeMemory();
 
-	public abstract void initializeMemory(int capacity);
+    public abstract void initializeMemory(int capacity);
 
 }

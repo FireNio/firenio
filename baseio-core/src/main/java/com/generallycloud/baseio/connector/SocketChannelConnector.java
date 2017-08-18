@@ -29,83 +29,83 @@ import com.generallycloud.baseio.component.SocketSession;
  */
 public class SocketChannelConnector implements ChannelConnector {
 
-	private AbstractSocketChannelConnector	connector;
-	
-	private SocketChannelContext context;
+    private AbstractSocketChannelConnector connector;
 
-	public SocketChannelConnector(SocketChannelContext context) {
-		this.context = context;
-		this.connector = buildConnector(context);
-	}
-	
-	private AbstractSocketChannelConnector unwrap(){
-		return connector;
-	}
+    private SocketChannelContext           context;
 
-	@Override
-	public SocketSession getSession() {
-		return unwrap().getSession();
-	}
+    public SocketChannelConnector(SocketChannelContext context) {
+        this.context = context;
+        this.connector = buildConnector(context);
+    }
 
-	@Override
-	public SocketSession connect() throws IOException {
-		return unwrap().connect();
-	}
+    private AbstractSocketChannelConnector unwrap() {
+        return connector;
+    }
 
-	@Override
-	public SocketChannelContext getContext() {
-		return context;
-	}
-	
-	@Override
-	public void close() throws IOException {
-		unwrap().close();
-	}
+    @Override
+    public SocketSession getSession() {
+        return unwrap().getSession();
+    }
 
-	@Override
-	public InetSocketAddress getServerSocketAddress() {
-		return unwrap().getServerSocketAddress();
-	}
+    @Override
+    public SocketSession connect() throws IOException {
+        return unwrap().connect();
+    }
 
-	@Override
-	public boolean isActive() {
-		return unwrap().isActive();
-	}
+    @Override
+    public SocketChannelContext getContext() {
+        return context;
+    }
 
-	@Override
-	public boolean isConnected() {
-		return unwrap().isConnected();
-	}
+    @Override
+    public void close() throws IOException {
+        unwrap().close();
+    }
 
-	@Override
-	public long getTimeout() {
-		return unwrap().getTimeout();
-	}
+    @Override
+    public InetSocketAddress getServerSocketAddress() {
+        return unwrap().getServerSocketAddress();
+    }
 
-	@Override
-	public void setTimeout(long timeout) {
-		unwrap().setTimeout(timeout);
-	}
+    @Override
+    public boolean isActive() {
+        return unwrap().isActive();
+    }
 
-	private AbstractSocketChannelConnector buildConnector(SocketChannelContext context) {
-		context.addSessionEventListener(new CloseConnectorSEListener(this));
-		if (context instanceof NioSocketChannelContext) {
-			return new NioSocketChannelConnector((NioSocketChannelContext) context);
-		} else if (context instanceof AioSocketChannelContext) {
-			return new AioSocketChannelConnector((AioSocketChannelContext) context);
-		}
-		throw new IllegalArgumentException("context");
-	}
-	
-	/**
-	 * @return the _connector
-	 */
-	public AbstractSocketChannelConnector getConnector() {
-		return unwrap();
-	}
-	
-	protected void physicalClose(){
-		unwrap().physicalClose();
-	}
+    @Override
+    public boolean isConnected() {
+        return unwrap().isConnected();
+    }
+
+    @Override
+    public long getTimeout() {
+        return unwrap().getTimeout();
+    }
+
+    @Override
+    public void setTimeout(long timeout) {
+        unwrap().setTimeout(timeout);
+    }
+
+    private AbstractSocketChannelConnector buildConnector(SocketChannelContext context) {
+        context.addSessionEventListener(new CloseConnectorSEListener(this));
+        if (context instanceof NioSocketChannelContext) {
+            return new NioSocketChannelConnector((NioSocketChannelContext) context);
+        } else if (context instanceof AioSocketChannelContext) {
+            return new AioSocketChannelConnector((AioSocketChannelContext) context);
+        }
+        throw new IllegalArgumentException("context");
+    }
+
+    /**
+     * @return the _connector
+     */
+    public AbstractSocketChannelConnector getConnector() {
+        return unwrap();
+    }
+
+    protected void physicalClose() {
+        unwrap().physicalClose();
+    }
 
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.common;
 
 import java.io.Closeable;
@@ -22,36 +22,36 @@ import com.generallycloud.baseio.log.DebugUtil;
 
 public class CloseUtil {
 
-	public static void close(Closeable closeable){
-		if (closeable == null) {
-			return ;
-		}
-		try {
-			closeable.close();
-		} catch (Exception e) {
-			DebugUtil.debug(e);
-		}
-	}
-	
-	public static void close(Selector selector){
-		if (selector == null) {
-			return ;
-		}
-		try {
-			selector.close();
-		} catch (Exception e) {
-			DebugUtil.debug(e);
-		}
-	}
-	
-	public static void unbind(Unbindable unbindable){
-		if (unbindable == null) {
-			return ;
-		}
-		try {
-			unbindable.unbind();
-		} catch (Exception e) {
-			DebugUtil.debug(e);
-		}
-	}
+    public static void close(Closeable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (Exception e) {
+            DebugUtil.debug(e);
+        }
+    }
+
+    public static void close(Selector selector) {
+        if (selector == null) {
+            return;
+        }
+        try {
+            selector.close();
+        } catch (Exception e) {
+            DebugUtil.debug(e);
+        }
+    }
+
+    public static void unbind(Unbindable unbindable) {
+        if (unbindable == null) {
+            return;
+        }
+        try {
+            unbindable.unbind();
+        } catch (Exception e) {
+            DebugUtil.debug(e);
+        }
+    }
 }

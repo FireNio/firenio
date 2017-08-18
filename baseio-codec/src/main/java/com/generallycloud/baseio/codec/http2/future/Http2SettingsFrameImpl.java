@@ -23,66 +23,67 @@ import com.generallycloud.baseio.component.SocketSession;
 
 public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2SettingsFrame {
 
-	private boolean	isComplete;
+    private boolean isComplete;
 
-	private long[]		settings;//FIXME delete
+    private long[]  settings;  //FIXME delete
 
-	public Http2SettingsFrameImpl(Http2SocketSession session, ByteBuf buf, Http2FrameHeader header) {
-		super(session, header);
-		this.buf = buf;
-	}
+    public Http2SettingsFrameImpl(Http2SocketSession session, ByteBuf buf,
+            Http2FrameHeader header) {
+        super(session, header);
+        this.buf = buf;
+    }
 
-	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
+    private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
 
-		int settings = buf.limit() / 6;
+        int settings = buf.limit() / 6;
 
-		for (int i = 0; i < settings; i++) {
+        for (int i = 0; i < settings; i++) {
 
-			int key = buf.getShort();
-			int value = buf.getInt();
+            int key = buf.getShort();
+            int value = buf.getInt();
 
-			session.setSettings(key, value);
-		}
+            session.setSettings(key, value);
+        }
 
-		this.settings = session.getSettings();
+        this.settings = session.getSettings();
 
-		session.flush(this);
-	}
+        session.flush(this);
+    }
 
-	@Override
-	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    @Override
+    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
-		if (!isComplete) {
+        if (!isComplete) {
 
-			ByteBuf buf = this.buf;
+            ByteBuf buf = this.buf;
 
-			buf.read(buffer);
+            buf.read(buffer);
 
-			if (buf.hasRemaining()) {
-				return false;
-			}
+            if (buf.hasRemaining()) {
+                return false;
+            }
 
-			isComplete = true;
+            isComplete = true;
 
-			doComplete((Http2SocketSession) session, buf.flip());
-		}
+            doComplete((Http2SocketSession) session, buf.flip());
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public boolean isSilent() {
-		return true;
-	}
+    @Override
+    public boolean isSilent() {
+        return true;
+    }
 
-	@Override
-	public Http2FrameType getHttp2FrameType() {
-		return Http2FrameType.FRAME_TYPE_SETTINGS;
-	}
+    @Override
+    public Http2FrameType getHttp2FrameType() {
+        return Http2FrameType.FRAME_TYPE_SETTINGS;
+    }
 
-	@Override
-	public long[] getSettings() {
-		return settings;
-	}
-	
+    @Override
+    public long[] getSettings() {
+        return settings;
+    }
+
 }

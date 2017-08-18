@@ -36,105 +36,104 @@ import com.generallycloud.baseio.protocol.DatagramPacket;
  */
 public class DatagramSelectorEventLoop extends AbstractSelectorLoop {
 
-	private DatagramChannelContext		context;
-	private DatagramSelectorEventLoopGroup	eventLoopGroup;
-	private DatagramChannel				channel;
-	private Selector					selector;
-	private ByteBufAllocator				allocator;
-	private DatagramSessionManager		sessionManager;
-	private Logger						logger	= LoggerFactory.getLogger(getClass());
+    private DatagramChannelContext         context;
+    private DatagramSelectorEventLoopGroup eventLoopGroup;
+    private DatagramChannel                channel;
+    private Selector                       selector;
+    private ByteBufAllocator               allocator;
+    private DatagramSessionManager         sessionManager;
+    private Logger                         logger = LoggerFactory.getLogger(getClass());
 
-	public DatagramSelectorEventLoop(DatagramSelectorEventLoopGroup group, int coreIndex,
-			DatagramChannel channel) {
-		super(group.getChannelContext(), coreIndex);
-		this.eventLoopGroup = group;
-		this.context = group.getChannelContext();
-		this.channel = channel;
-		this.sessionManager = context.getSessionManager();
-		this.allocator = UnpooledByteBufAllocator.getHeapInstance();
-	}
-	
-	private void accept(SelectionKey selectionKey) {
+    public DatagramSelectorEventLoop(DatagramSelectorEventLoopGroup group, int coreIndex,
+            DatagramChannel channel) {
+        super(group.getChannelContext(), coreIndex);
+        this.eventLoopGroup = group;
+        this.context = group.getChannelContext();
+        this.channel = channel;
+        this.sessionManager = context.getSessionManager();
+        this.allocator = UnpooledByteBufAllocator.getHeapInstance();
+    }
 
-		try {
+    private void accept(SelectionKey selectionKey) {
 
-			DatagramChannelContext context = this.context;
+        try {
 
-			//FIXME 使用 ByteBuffer
-			ByteBuf buf = allocator.allocate(DatagramPacket.PACKET_MAX);
+            DatagramChannelContext context = this.context;
 
-			DatagramChannel channel = (DatagramChannel) selectionKey.channel();
+            //FIXME 使用 ByteBuffer
+            ByteBuf buf = allocator.allocate(DatagramPacket.PACKET_MAX);
 
-			InetSocketAddress remoteAddress = (InetSocketAddress) channel
-					.receive(buf.nioBuffer());
+            DatagramChannel channel = (DatagramChannel) selectionKey.channel();
 
-			DatagramPacketAcceptor acceptor = context.getDatagramPacketAcceptor();
+            InetSocketAddress remoteAddress = (InetSocketAddress) channel.receive(buf.nioBuffer());
 
-			DatagramPacket packet = DatagramPacket.createPacket(buf.reverse().flip());
-			
-			DatagramSession session = sessionManager.getSession(channel, remoteAddress,this);
+            DatagramPacketAcceptor acceptor = context.getDatagramPacketAcceptor();
 
-			acceptor.accept(session, packet);
+            DatagramPacket packet = DatagramPacket.createPacket(buf.reverse().flip());
 
-		} catch (Throwable e) {
+            DatagramSession session = sessionManager.getSession(channel, remoteAddress, this);
 
-			cancelSelectionKey(selectionKey, e);
-		}
-	}
+            acceptor.accept(session, packet);
 
-	private void cancelSelectionKey(SelectionKey selectionKey, Throwable e) {
+        } catch (Throwable e) {
 
-		Object attachment = selectionKey.attachment();
+            cancelSelectionKey(selectionKey, e);
+        }
+    }
 
-		if (attachment instanceof Channel) {
+    private void cancelSelectionKey(SelectionKey selectionKey, Throwable e) {
 
-			CloseUtil.close((Channel) attachment);
-		}
+        Object attachment = selectionKey.attachment();
 
-		logger.error(e.getMessage(), e);
-	}
+        if (attachment instanceof Channel) {
 
-	@Override
-	protected void doLoop() throws IOException {
+            CloseUtil.close((Channel) attachment);
+        }
 
-		Selector selector = this.selector;
+        logger.error(e.getMessage(), e);
+    }
 
-		int selected = selector.select(16);
+    @Override
+    protected void doLoop() throws IOException {
 
-		if (selected < 1) {
-			return;
-		}
+        Selector selector = this.selector;
 
-		Set<SelectionKey> sks = selector.selectedKeys();
+        int selected = selector.select(16);
 
-		for (SelectionKey key : sks) {
+        if (selected < 1) {
+            return;
+        }
 
-			if (!key.isValid()) {
-				continue;
-			}
+        Set<SelectionKey> sks = selector.selectedKeys();
 
-			accept(key);
-		}
+        for (SelectionKey key : sks) {
 
-		sks.clear();
-	}
+            if (!key.isValid()) {
+                continue;
+            }
 
-	@Override
-	public DatagramChannelContext getChannelContext() {
-		return context;
-	}
+            accept(key);
+        }
 
-	@Override
-	public DatagramSelectorEventLoopGroup getEventLoopGroup() {
-		return eventLoopGroup;
-	}
+        sks.clear();
+    }
 
-	@Override
-	public void rebuildSelector() throws IOException {
-		// 打开selector
-		this.selector = Selector.open();
-		// 注册监听事件到该selector
-		this.channel.register(selector, SelectionKey.OP_READ);
-	}
+    @Override
+    public DatagramChannelContext getChannelContext() {
+        return context;
+    }
+
+    @Override
+    public DatagramSelectorEventLoopGroup getEventLoopGroup() {
+        return eventLoopGroup;
+    }
+
+    @Override
+    public void rebuildSelector() throws IOException {
+        // 打开selector
+        this.selector = Selector.open();
+        // 注册监听事件到该selector
+        this.channel.register(selector, SelectionKey.OP_READ);
+    }
 
 }

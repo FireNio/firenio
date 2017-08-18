@@ -19,17 +19,17 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 
 public class ThreadEventLoopGroup extends AbstractExecutorEventLoopGroup {
 
-	private SocketChannelContext context;
-	
-	public ThreadEventLoopGroup(SocketChannelContext context,String eventLoopName,
-			int eventLoopSize) {
-		super(eventLoopName, eventLoopSize);
-		this.context = context;
-	}
+    private SocketChannelContext context;
 
-	@Override
-	protected ExecutorEventLoop newEventLoop(int coreIndex) {
-		return new ThreadEventLoop(this,context);
-	}
+    public ThreadEventLoopGroup(SocketChannelContext context, String eventLoopName,
+            int eventLoopSize) {
+        super(eventLoopName, eventLoopSize);
+        this.context = context;
+    }
+
+    @Override
+    protected ExecutorEventLoop newEventLoop(int coreIndex) {
+        return new ThreadEventLoop(this, context);
+    }
 
 }

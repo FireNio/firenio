@@ -19,9 +19,9 @@ import java.net.InetSocketAddress;
 
 public interface ChannelService {
 
-	public abstract ChannelContext getContext();
+    public abstract ChannelContext getContext();
 
-	public abstract InetSocketAddress getServerSocketAddress();
+    public abstract InetSocketAddress getServerSocketAddress();
 
-	public abstract boolean isActive();
+    public abstract boolean isActive();
 }

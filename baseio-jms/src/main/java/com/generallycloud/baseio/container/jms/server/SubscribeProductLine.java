@@ -24,47 +24,47 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class SubscribeProductLine extends AbstractProductLine {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public SubscribeProductLine(MQContext context) {
-		super(context);
-	}
+    public SubscribeProductLine(MQContext context) {
+        super(context);
+    }
 
-	@Override
-	protected ConsumerQueue createConsumerQueue() {
+    @Override
+    protected ConsumerQueue createConsumerQueue() {
 
-		return new SUBConsumerQueue();
-	}
+        return new SUBConsumerQueue();
+    }
 
-	// FIXME 完善消息匹配机制
-	@Override
-	public void doLoop() {
+    // FIXME 完善消息匹配机制
+    @Override
+    public void doLoop() {
 
-		Message message = storage.poll(16);
+        Message message = storage.poll(16);
 
-		if (message == null) {
-			return;
-		}
+        if (message == null) {
+            return;
+        }
 
-		String queueName = message.getQueueName();
+        String queueName = message.getQueueName();
 
-		ConsumerQueue consumerQueue = getConsumerQueue(queueName);
+        ConsumerQueue consumerQueue = getConsumerQueue(queueName);
 
-		List<Consumer> consumers = consumerQueue.getSnapshot();
+        List<Consumer> consumers = consumerQueue.getSnapshot();
 
-		if (consumers.size() == 0) {
+        if (consumers.size() == 0) {
 
-			return;
-		}
+            return;
+        }
 
-		for (Consumer consumer : consumers) {
-			try {
-				consumer.push(message);
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
+        for (Consumer consumer : consumers) {
+            try {
+                consumer.push(message);
+            } catch (IOException e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
 
-		context.consumerMessage(message);
-	}
+        context.consumerMessage(message);
+    }
 }

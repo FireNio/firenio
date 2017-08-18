@@ -12,41 +12,39 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio;
 
-public class AbstractLifeCycleListener implements LifeCycleListener{
+public class AbstractLifeCycleListener implements LifeCycleListener {
 
-	@Override
-	public int lifeCycleListenerSortIndex() {
-		return 0;
-	}
+    @Override
+    public int lifeCycleListenerSortIndex() {
+        return 0;
+    }
 
-	@Override
-	public void lifeCycleStarting(LifeCycle lifeCycle) {
-		
-	}
+    @Override
+    public void lifeCycleStarting(LifeCycle lifeCycle) {
 
-	@Override
-	public void lifeCycleStarted(LifeCycle lifeCycle) {
-		
-	}
+    }
 
-	@Override
-	public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
-		
-	}
+    @Override
+    public void lifeCycleStarted(LifeCycle lifeCycle) {
 
-	@Override
-	public void lifeCycleStopping(LifeCycle lifeCycle) {
-		
-	}
+    }
 
-	@Override
-	public void lifeCycleStopped(LifeCycle lifeCycle) {
-		
-	}
+    @Override
+    public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
 
-	
-	
+    }
+
+    @Override
+    public void lifeCycleStopping(LifeCycle lifeCycle) {
+
+    }
+
+    @Override
+    public void lifeCycleStopped(LifeCycle lifeCycle) {
+
+    }
+
 }

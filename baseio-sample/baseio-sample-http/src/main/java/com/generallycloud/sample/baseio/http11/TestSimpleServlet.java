@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.sample.baseio.http11;
 
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
@@ -20,19 +20,19 @@ import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
 
 public class TestSimpleServlet extends HttpFutureAcceptorService {
-	
-//	private Logger	logger	= LoggerFactory.getLogger(TestSimpleServlet.class);
 
-	@Override
-	protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
-//		System.out.println();
-//		logger.info(future.getHost());
-//		logger.info(future.getRequestURI());
-//		System.out.println();
-		String res = "yes server already accept your message :) " + future.getRequestParams();
+    //	private Logger	logger	= LoggerFactory.getLogger(TestSimpleServlet.class);
 
-		future.write(res);
-		
-		session.flush(future);
-	}
+    @Override
+    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
+        //		System.out.println();
+        //		logger.info(future.getHost());
+        //		logger.info(future.getRequestURI());
+        //		System.out.println();
+        String res = "yes server already accept your message :) " + future.getRequestParams();
+
+        future.write(res);
+
+        session.flush(future);
+    }
 }

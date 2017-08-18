@@ -19,7 +19,7 @@ package com.generallycloud.baseio.balance;
  * @author wangkai
  *
  */
-public interface TokenBalanceFuture extends BalanceFuture{
+public interface TokenBalanceFuture extends BalanceFuture {
 
-	public abstract long getToken();
+    public abstract long getToken();
 }

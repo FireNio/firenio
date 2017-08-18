@@ -12,12 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http2.future;
-
 
 public interface Http2WindowUpdateFrame extends Http2Frame {
 
-	public abstract int getUpdateValue();
-	
+    public abstract int getUpdateValue();
+
 }

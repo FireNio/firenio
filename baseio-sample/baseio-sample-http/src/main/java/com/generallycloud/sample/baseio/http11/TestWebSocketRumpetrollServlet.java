@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.sample.baseio.http11;
 
 import com.alibaba.fastjson.JSON;
@@ -34,112 +34,113 @@ import com.generallycloud.baseio.protocol.Future;
 // FIXME ________根据当前是否正在redeploy来保存和恢复client
 public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 
-	private Logger			logger		= LoggerFactory.getLogger(TestWebSocketRumpetrollServlet.class);
+    private Logger              logger     = LoggerFactory
+            .getLogger(TestWebSocketRumpetrollServlet.class);
 
-	private WebSocketMsgAdapter	msgAdapter	= new WebSocketMsgAdapter();
+    private WebSocketMsgAdapter msgAdapter = new WebSocketMsgAdapter();
 
-	@Override
-	protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
+    @Override
+    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
 
-		future.updateWebSocketProtocol();
-		
-		session.flush(future);
+        future.updateWebSocketProtocol();
 
-		msgAdapter.addClient(getAddress(session.getIoSession()),session.getIoSession());
+        session.flush(future);
 
-		SocketSession ioSession = session.getIoSession();
+        msgAdapter.addClient(getAddress(session.getIoSession()), session.getIoSession());
 
-		JSONObject o = new JSONObject();
-		o.put("type", "welcome");
-		o.put("id", ioSession.getSessionId());
+        SocketSession ioSession = session.getIoSession();
 
-		WebSocketFuture f = new WebSocketFutureImpl(ioSession.getContext());
+        JSONObject o = new JSONObject();
+        o.put("type", "welcome");
+        o.put("id", ioSession.getSessionId());
 
-		f.write(o.toJSONString());
+        WebSocketFuture f = new WebSocketFutureImpl(ioSession.getContext());
 
-		session.flush(f);
-	}
+        f.write(o.toJSONString());
 
-	@Override
-	public void accept(SocketSession session, Future future) throws Exception {
+        session.flush(f);
+    }
 
-		if (future instanceof HttpFuture) {
-			super.accept(session, future);
-			return;
-		}
+    @Override
+    public void accept(SocketSession session, Future future) throws Exception {
 
-		WebSocketFuture f = (WebSocketFuture) future;
+        if (future instanceof HttpFuture) {
+            super.accept(session, future);
+            return;
+        }
 
-		// CLOSE
-		if (f.getType() == 8) {
+        WebSocketFuture f = (WebSocketFuture) future;
 
-			msgAdapter.removeClient(session);
+        // CLOSE
+        if (f.getType() == 8) {
 
-			JSONObject o = new JSONObject();
-			o.put("type", "closed");
-			o.put("id", session.getSessionId());
+            msgAdapter.removeClient(session);
 
-			msgAdapter.sendMsg(o.toJSONString());
+            JSONObject o = new JSONObject();
+            o.put("type", "closed");
+            o.put("id", session.getSessionId());
 
-			logger.info("客户端主动关闭连接：{}", session);
-		} else {
+            msgAdapter.sendMsg(o.toJSONString());
 
-			String msg = f.getReadText();
+            logger.info("客户端主动关闭连接：{}", session);
+        } else {
 
-			JSONObject o = JSON.parseObject(msg);
+            String msg = f.getReadText();
 
-			String name = o.getString("name");
+            JSONObject o = JSON.parseObject(msg);
 
-			if (StringUtil.isNullOrBlank(name)) {
-				name = getAddress(session);
-			}
+            String name = o.getString("name");
 
-			o.put("name", name);
-			o.put("id", session.getSessionId());
+            if (StringUtil.isNullOrBlank(name)) {
+                name = getAddress(session);
+            }
 
-			String type = o.getString("type");
+            o.put("name", name);
+            o.put("id", session.getSessionId());
 
-			if ("update".equals(type)) {
-				o.put("life", "1");
-				o.put("authorized", "false");
-				o.put("x", Double.valueOf(o.getString("x")));
-				o.put("y", Double.valueOf(o.getString("x")));
-				o.put("momentum", Double.valueOf(o.getString("momentum")));
-				o.put("angle", Double.valueOf(o.getString("angle")));
-			} else if ("message".equals(type)) {
+            String type = o.getString("type");
 
-			}
+            if ("update".equals(type)) {
+                o.put("life", "1");
+                o.put("authorized", "false");
+                o.put("x", Double.valueOf(o.getString("x")));
+                o.put("y", Double.valueOf(o.getString("x")));
+                o.put("momentum", Double.valueOf(o.getString("momentum")));
+                o.put("angle", Double.valueOf(o.getString("angle")));
+            } else if ("message".equals(type)) {
 
-			msgAdapter.sendMsg(o.toJSONString());
-		}
-	}
+            }
 
-	private String getAddress(SocketSession session) {
+            msgAdapter.sendMsg(o.toJSONString());
+        }
+    }
 
-		String address = (String) session.getAttribute("_remote_address");
+    private String getAddress(SocketSession session) {
 
-		if (address == null) {
-			address = session.getRemoteSocketAddress().toString();
+        String address = (String) session.getAttribute("_remote_address");
 
-			session.setAttribute("_remote_address", address);
-		}
+        if (address == null) {
+            address = session.getRemoteSocketAddress().toString();
 
-		return address;
-	}
+            session.setAttribute("_remote_address", address);
+        }
 
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+        return address;
+    }
 
-		msgAdapter.startup("WebSocketRumpetroll");
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		super.initialize(context, config);
-	}
+        msgAdapter.startup("WebSocketRumpetroll");
 
-	@Override
-	public void destroy(ApplicationContext context, Configuration config) throws Exception {
+        super.initialize(context, config);
+    }
 
-		LifeCycleUtil.stop(msgAdapter);
+    @Override
+    public void destroy(ApplicationContext context, Configuration config) throws Exception {
 
-		super.destroy(context, config);
-	}
+        LifeCycleUtil.stop(msgAdapter);
+
+        super.destroy(context, config);
+    }
 }

@@ -28,71 +28,73 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class ServerHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
 
-	private static final byte[]	PROTOCOL		= "HTTP/1.1 ".getBytes();
-	private static final byte[]	SERVER_CL	= "\r\nServer:baseio/0.0.1\r\nContent-Length:".getBytes();
-	private static final byte[]	SET_COOKIE	= "Set-Cookie:".getBytes();
+    private static final byte[] PROTOCOL   = "HTTP/1.1 ".getBytes();
+    private static final byte[] SERVER_CL  = "\r\nServer:baseio/0.0.1\r\nContent-Length:"
+            .getBytes();
+    private static final byte[] SET_COOKIE = "Set-Cookie:".getBytes();
 
-	@Override
-	public void encode(ByteBufAllocator allocator, ChannelFuture readFuture) throws IOException {
+    @Override
+    public void encode(ByteBufAllocator allocator, ChannelFuture readFuture) throws IOException {
 
-		ServerHttpFuture f = (ServerHttpFuture) readFuture;
-		
-		f.setResponseHeader("Date", HttpHeaderDateFormat.getFormat().format(System.currentTimeMillis()));
+        ServerHttpFuture f = (ServerHttpFuture) readFuture;
 
-		ByteArrayBuffer os = f.getBinaryBuffer();
+        f.setResponseHeader("Date",
+                HttpHeaderDateFormat.getFormat().format(System.currentTimeMillis()));
 
-		if (os != null) {
-			encode(allocator, f, os.size(), os.array());
-			return;
-		}
+        ByteArrayBuffer os = f.getBinaryBuffer();
 
-		ByteArrayBuffer buffer = f.getWriteBuffer();
+        if (os != null) {
+            encode(allocator, f, os.size(), os.array());
+            return;
+        }
 
-		if (buffer == null) {
-			encode(allocator, f, 0, null);
-			return;
-		}
+        ByteArrayBuffer buffer = f.getWriteBuffer();
 
-		encode(allocator, f, buffer.size(), buffer.array());
-	}
+        if (buffer == null) {
+            encode(allocator, f, 0, null);
+            return;
+        }
 
-	private void encode(ByteBufAllocator allocator, ServerHttpFuture f, int length, byte[] array)
-			throws IOException {
+        encode(allocator, f, buffer.size(), buffer.array());
+    }
 
-		ByteBuf buf = allocator.allocate(256);
+    private void encode(ByteBufAllocator allocator, ServerHttpFuture f, int length, byte[] array)
+            throws IOException {
 
-		try {
-			
-			buf.put(PROTOCOL);
-			buf.put(f.getStatus().getHeaderBinary());
-			buf.put(SERVER_CL);
-			buf.put(String.valueOf(length).getBytes());
-			buf.put(RN);
+        ByteBuf buf = allocator.allocate(256);
 
-			writeHeaders(f, buf);
-			
-			List<Cookie> cookieList = f.getCookieList();
+        try {
 
-			if (cookieList != null) {
-				for (Cookie c : cookieList) {
-					writeBuf(buf, SET_COOKIE);
-					writeBuf(buf, c.toString().getBytes());
-					writeBuf(buf, RN);
-				}
-			}
+            buf.put(PROTOCOL);
+            buf.put(f.getStatus().getHeaderBinary());
+            buf.put(SERVER_CL);
+            buf.put(String.valueOf(length).getBytes());
+            buf.put(RN);
 
-			writeBuf(buf, RN);
+            writeHeaders(f, buf);
 
-			if (length != 0) {
-				writeBuf(buf, array, 0, length);
-			}
-			
-		} catch (Exception e) {
-			ReleaseUtil.release(buf);
-			throw e;
-		}
+            List<Cookie> cookieList = f.getCookieList();
 
-		f.setByteBuf(buf.flip());
-	}
+            if (cookieList != null) {
+                for (Cookie c : cookieList) {
+                    writeBuf(buf, SET_COOKIE);
+                    writeBuf(buf, c.toString().getBytes());
+                    writeBuf(buf, RN);
+                }
+            }
+
+            writeBuf(buf, RN);
+
+            if (length != 0) {
+                writeBuf(buf, array, 0, length);
+            }
+
+        } catch (Exception e) {
+            ReleaseUtil.release(buf);
+            throw e;
+        }
+
+        f.setByteBuf(buf.flip());
+    }
 
 }

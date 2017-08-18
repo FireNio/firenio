@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.fixedlength;
 
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
@@ -21,29 +21,29 @@ import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class FixedLengthProtocolFactory implements ProtocolFactory {
 
-	private int limit;
+    private int limit;
 
-	public FixedLengthProtocolFactory() {
-		this(1024 * 8);
-	}
+    public FixedLengthProtocolFactory() {
+        this(1024 * 8);
+    }
 
-	public FixedLengthProtocolFactory(int limit) {
-		this.limit = limit;
-	}
+    public FixedLengthProtocolFactory(int limit) {
+        this.limit = limit;
+    }
 
-	@Override
-	public ProtocolDecoder getProtocolDecoder() {
-		return new FixedLengthProtocolDecoder(limit);
-	}
+    @Override
+    public ProtocolDecoder getProtocolDecoder() {
+        return new FixedLengthProtocolDecoder(limit);
+    }
 
-	@Override
-	public ProtocolEncoder getProtocolEncoder() {
-		return new FixedLengthProtocolEncoder();
-	}
+    @Override
+    public ProtocolEncoder getProtocolEncoder() {
+        return new FixedLengthProtocolEncoder();
+    }
 
-	@Override
-	public String getProtocolId() {
-		return "FixedLength";
-	}
+    @Override
+    public String getProtocolId() {
+        return "FixedLength";
+    }
 
 }

@@ -21,21 +21,19 @@ import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 
 public class SessionIdProtobaseProtocolEncoder extends ProtobaseProtocolEncoder {
 
-	@Override
-	protected void putHeaderExtend(ProtobaseFuture future, ByteBuf buf) {
-		buf.putInt(((HashedProtobaseFuture) future).getSessionId());
-	}
+    @Override
+    protected void putHeaderExtend(ProtobaseFuture future, ByteBuf buf) {
+        buf.putInt(((HashedProtobaseFuture) future).getSessionId());
+    }
 
-	@Override
-	protected int getHeaderLengthNoBinary() {
-		return SessionIdProtobaseProtocolDecoder.PROTOCOL_HEADER_NO_BINARY;
-	}
+    @Override
+    protected int getHeaderLengthNoBinary() {
+        return SessionIdProtobaseProtocolDecoder.PROTOCOL_HEADER_NO_BINARY;
+    }
 
-	@Override
-	protected int getHeaderLengthWithBinary() {
-		return SessionIdProtobaseProtocolDecoder.PROTOCOL_HEADER_WITH_BINARY;
-	}
-
-	
+    @Override
+    protected int getHeaderLengthWithBinary() {
+        return SessionIdProtobaseProtocolDecoder.PROTOCOL_HEADER_WITH_BINARY;
+    }
 
 }

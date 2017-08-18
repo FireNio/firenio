@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
 
 import com.generallycloud.baseio.component.SocketSession;
@@ -21,23 +21,22 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class WaiterOnFuture implements OnFuture {
 
-	private Waiter<Future>	waiter	= new Waiter<Future>();
+    private Waiter<Future> waiter = new Waiter<>();
 
-	
-	/**
-	 * @param timeout
-	 * @return timeouted
-	 */
-	public boolean await(long timeout) {
-		return waiter.await(timeout);
-	}
+    /**
+     * @param timeout
+     * @return timeouted
+     */
+    public boolean await(long timeout) {
+        return waiter.await(timeout);
+    }
 
-	public Future getReadFuture() {
-		return waiter.getPayload();
-	}
+    public Future getReadFuture() {
+        return waiter.getPayload();
+    }
 
-	@Override
-	public void onResponse(SocketSession session, Future future) {
-		this.waiter.setPayload(future);
-	}
+    @Override
+    public void onResponse(SocketSession session, Future future) {
+        this.waiter.setPayload(future);
+    }
 }

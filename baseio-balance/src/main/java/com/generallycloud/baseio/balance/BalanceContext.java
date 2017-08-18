@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance;
 
 import com.generallycloud.baseio.balance.facade.BalanceFacadeAcceptor;
@@ -29,117 +29,117 @@ import com.generallycloud.baseio.component.SilentExceptionCaughtHandle;
 //FIXME 增加熔断机制
 public class BalanceContext {
 
-	public static final String				BALANCE_CHANNEL_LOST		= "BALANCE_CHANNEL_LOST";
-	public static final String				BALANCE_RECEIVE_BROADCAST	= "BALANCE_RECEIVE_BROADCAST";
+    public static final String               BALANCE_CHANNEL_LOST         = "BALANCE_CHANNEL_LOST";
+    public static final String               BALANCE_RECEIVE_BROADCAST    = "BALANCE_RECEIVE_BROADCAST";
 
-	private BalanceFacadeAcceptor				balanceFacadeAcceptor		= new BalanceFacadeAcceptor();
-	private BalanceReverseAcceptor			balanceReverseAcceptor		= new BalanceReverseAcceptor();
-	private BalanceFacadeAcceptorSEListener		balanceFacadeAcceptorSEListener;
-	private BalanceReverseAcceptorSEListener	balanceReverseAcceptorSEListener;
-	private BalanceRouter					balanceRouter;
-	private BalanceReverseAcceptorHandler		balanceReverseAcceptorHandler;
-	private BalanceFacadeAcceptorHandler		balanceFacadeAcceptorHandler;
-	private ChannelLostFutureFactory		channelLostReadFutureFactory;
-	private NoneLoadFutureAcceptor			noneLoadReadFutureAcceptor;
-	private FacadeInterceptor				facadeInterceptor;
-	private BalanceReverseLogger				balanceReverseLogger;
-	private ExceptionCaughtHandle				facadeExceptionCaughtHandle = new SilentExceptionCaughtHandle();
-	private ExceptionCaughtHandle				reverseExceptionCaughtHandle = facadeExceptionCaughtHandle;
+    private BalanceFacadeAcceptor            balanceFacadeAcceptor        = new BalanceFacadeAcceptor();
+    private BalanceReverseAcceptor           balanceReverseAcceptor       = new BalanceReverseAcceptor();
+    private BalanceFacadeAcceptorSEListener  balanceFacadeAcceptorSEListener;
+    private BalanceReverseAcceptorSEListener balanceReverseAcceptorSEListener;
+    private BalanceRouter                    balanceRouter;
+    private BalanceReverseAcceptorHandler    balanceReverseAcceptorHandler;
+    private BalanceFacadeAcceptorHandler     balanceFacadeAcceptorHandler;
+    private ChannelLostFutureFactory         channelLostReadFutureFactory;
+    private NoneLoadFutureAcceptor           noneLoadReadFutureAcceptor;
+    private FacadeInterceptor                facadeInterceptor;
+    private BalanceReverseLogger             balanceReverseLogger;
+    private ExceptionCaughtHandle            facadeExceptionCaughtHandle  = new SilentExceptionCaughtHandle();
+    private ExceptionCaughtHandle            reverseExceptionCaughtHandle = facadeExceptionCaughtHandle;
 
-	public void initialize() {
-		this.balanceFacadeAcceptorSEListener = new BalanceFacadeAcceptorSEListener(this);
-		this.balanceReverseAcceptorSEListener = new BalanceReverseAcceptorSEListener(this);
-		this.balanceReverseAcceptorHandler = new BalanceReverseAcceptorHandler(this);
-	}
+    public void initialize() {
+        this.balanceFacadeAcceptorSEListener = new BalanceFacadeAcceptorSEListener(this);
+        this.balanceReverseAcceptorSEListener = new BalanceReverseAcceptorSEListener(this);
+        this.balanceReverseAcceptorHandler = new BalanceReverseAcceptorHandler(this);
+    }
 
-	public BalanceFacadeAcceptor getBalanceFacadeAcceptor() {
-		return balanceFacadeAcceptor;
-	}
+    public BalanceFacadeAcceptor getBalanceFacadeAcceptor() {
+        return balanceFacadeAcceptor;
+    }
 
-	public BalanceFacadeAcceptorHandler getBalanceFacadeAcceptorHandler() {
-		return balanceFacadeAcceptorHandler;
-	}
+    public BalanceFacadeAcceptorHandler getBalanceFacadeAcceptorHandler() {
+        return balanceFacadeAcceptorHandler;
+    }
 
-	public BalanceFacadeAcceptorSEListener getBalanceFacadeAcceptorSEListener() {
-		return balanceFacadeAcceptorSEListener;
-	}
+    public BalanceFacadeAcceptorSEListener getBalanceFacadeAcceptorSEListener() {
+        return balanceFacadeAcceptorSEListener;
+    }
 
-	public BalanceReverseAcceptor getBalanceReverseAcceptor() {
-		return balanceReverseAcceptor;
-	}
+    public BalanceReverseAcceptor getBalanceReverseAcceptor() {
+        return balanceReverseAcceptor;
+    }
 
-	public BalanceReverseAcceptorHandler getBalanceReverseAcceptorHandler() {
-		return balanceReverseAcceptorHandler;
-	}
+    public BalanceReverseAcceptorHandler getBalanceReverseAcceptorHandler() {
+        return balanceReverseAcceptorHandler;
+    }
 
-	public BalanceReverseAcceptorSEListener getBalanceReverseAcceptorSEListener() {
-		return balanceReverseAcceptorSEListener;
-	}
+    public BalanceReverseAcceptorSEListener getBalanceReverseAcceptorSEListener() {
+        return balanceReverseAcceptorSEListener;
+    }
 
-	public BalanceRouter getBalanceRouter() {
-		return balanceRouter;
-	}
+    public BalanceRouter getBalanceRouter() {
+        return balanceRouter;
+    }
 
-	public ChannelLostFutureFactory getChannelLostReadFutureFactory() {
-		return channelLostReadFutureFactory;
-	}
+    public ChannelLostFutureFactory getChannelLostReadFutureFactory() {
+        return channelLostReadFutureFactory;
+    }
 
-	public void setChannelLostReadFutureFactory(
-			ChannelLostFutureFactory channelLostReadFutureFactory) {
-		this.channelLostReadFutureFactory = channelLostReadFutureFactory;
-	}
-	
-	public NoneLoadFutureAcceptor getNoneLoadReadFutureAcceptor() {
-		return noneLoadReadFutureAcceptor;
-	}
+    public void setChannelLostReadFutureFactory(
+            ChannelLostFutureFactory channelLostReadFutureFactory) {
+        this.channelLostReadFutureFactory = channelLostReadFutureFactory;
+    }
 
-	public void setNoneLoadReadFutureAcceptor(
-			NoneLoadFutureAcceptor noneLoadReadFutureAcceptor) {
-		this.noneLoadReadFutureAcceptor = noneLoadReadFutureAcceptor;
-	}
+    public NoneLoadFutureAcceptor getNoneLoadReadFutureAcceptor() {
+        return noneLoadReadFutureAcceptor;
+    }
 
-	public FacadeInterceptor getFacadeInterceptor() {
-		return facadeInterceptor;
-	}
+    public void setNoneLoadReadFutureAcceptor(NoneLoadFutureAcceptor noneLoadReadFutureAcceptor) {
+        this.noneLoadReadFutureAcceptor = noneLoadReadFutureAcceptor;
+    }
 
-	public void setBalanceRouter(BalanceRouter balanceRouter) {
-		this.balanceRouter = balanceRouter;
-	}
+    public FacadeInterceptor getFacadeInterceptor() {
+        return facadeInterceptor;
+    }
 
-	public void setFacadeInterceptor(FacadeInterceptor facadeInterceptor) {
-		if (facadeInterceptor == null) {
-			throw new IllegalArgumentException("null facadeInterceptor");
-		}
-		this.facadeInterceptor = facadeInterceptor;
-	}
+    public void setBalanceRouter(BalanceRouter balanceRouter) {
+        this.balanceRouter = balanceRouter;
+    }
 
-	public ExceptionCaughtHandle getFacadeExceptionCaughtHandle() {
-		return facadeExceptionCaughtHandle;
-	}
+    public void setFacadeInterceptor(FacadeInterceptor facadeInterceptor) {
+        if (facadeInterceptor == null) {
+            throw new IllegalArgumentException("null facadeInterceptor");
+        }
+        this.facadeInterceptor = facadeInterceptor;
+    }
 
-	public void setFacadeExceptionCaughtHandle(ExceptionCaughtHandle facadeExceptionCaughtHandle) {
-		this.facadeExceptionCaughtHandle = facadeExceptionCaughtHandle;
-	}
+    public ExceptionCaughtHandle getFacadeExceptionCaughtHandle() {
+        return facadeExceptionCaughtHandle;
+    }
 
-	public ExceptionCaughtHandle getReverseExceptionCaughtHandle() {
-		return reverseExceptionCaughtHandle;
-	}
+    public void setFacadeExceptionCaughtHandle(ExceptionCaughtHandle facadeExceptionCaughtHandle) {
+        this.facadeExceptionCaughtHandle = facadeExceptionCaughtHandle;
+    }
 
-	public void setReverseExceptionCaughtHandle(ExceptionCaughtHandle reverseExceptionCaughtHandle) {
-		this.reverseExceptionCaughtHandle = reverseExceptionCaughtHandle;
-	}
+    public ExceptionCaughtHandle getReverseExceptionCaughtHandle() {
+        return reverseExceptionCaughtHandle;
+    }
 
-	public BalanceReverseLogger getBalanceReverseLogger() {
-		return balanceReverseLogger;
-	}
+    public void setReverseExceptionCaughtHandle(
+            ExceptionCaughtHandle reverseExceptionCaughtHandle) {
+        this.reverseExceptionCaughtHandle = reverseExceptionCaughtHandle;
+    }
 
-	public void setBalanceReverseLogger(BalanceReverseLogger balanceReverseLogger) {
-		this.balanceReverseLogger = balanceReverseLogger;
-	}
-	
-	public void setBalanceFacadeAcceptorHandler(
-			BalanceFacadeAcceptorHandler balanceFacadeAcceptorHandler) {
-		this.balanceFacadeAcceptorHandler = balanceFacadeAcceptorHandler;
-	}
-	
+    public BalanceReverseLogger getBalanceReverseLogger() {
+        return balanceReverseLogger;
+    }
+
+    public void setBalanceReverseLogger(BalanceReverseLogger balanceReverseLogger) {
+        this.balanceReverseLogger = balanceReverseLogger;
+    }
+
+    public void setBalanceFacadeAcceptorHandler(
+            BalanceFacadeAcceptorHandler balanceFacadeAcceptorHandler) {
+        this.balanceFacadeAcceptorHandler = balanceFacadeAcceptorHandler;
+    }
+
 }

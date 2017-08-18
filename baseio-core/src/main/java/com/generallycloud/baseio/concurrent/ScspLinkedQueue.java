@@ -12,57 +12,60 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.concurrent;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScspLinkedQueue<T> implements LinkedQueue<T> {
 
-	protected AtomicInteger	size	= new AtomicInteger();
-	protected Linkable	head	= null;				// volatile ?
-	protected Linkable	tail	= null;				// volatile ?
+    protected AtomicInteger size = new AtomicInteger();
+    protected Linkable      head = null;               // volatile ?
+    protected Linkable      tail = null;               // volatile ?
 
-	public ScspLinkedQueue(Linkable linkable) {
-		linkable.setValidate(false);
-		this.head = linkable;
-		this.tail = linkable;
-	}
+    public ScspLinkedQueue(Linkable linkable) {
+        linkable.setValidate(false);
+        this.head = linkable;
+        this.tail = linkable;
+    }
 
-	public void offer(Linkable linkable) {
-		tail.setNext(linkable);
-		tail = linkable;
-		size.incrementAndGet();
-	}
+    @Override
+    public void offer(Linkable linkable) {
+        tail.setNext(linkable);
+        tail = linkable;
+        size.incrementAndGet();
+    }
 
-	public T poll() {
-		int size = size();
-		if (size == 0) {
-			return null;
-		}
-		return get(head);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private T get(Linkable h){
-		if (h.isValidate()) {
-			Linkable next = h.getNext();
-			if (next == null) {
-				h.setValidate(false);
-			} else {
-				head = next;
-			}
-			this.size.decrementAndGet();
-			return (T) h;
-		} else {
-			Linkable next = h.getNext();
-			head = next;
-			return get(next);
-		}
-	}
+    @Override
+    public T poll() {
+        int size = size();
+        if (size == 0) {
+            return null;
+        }
+        return get(head);
+    }
 
-	public int size() {
-		return size.get();
-	}
+    @SuppressWarnings("unchecked")
+    private T get(Linkable h) {
+        if (h.isValidate()) {
+            Linkable next = h.getNext();
+            if (next == null) {
+                h.setValidate(false);
+            } else {
+                head = next;
+            }
+            this.size.decrementAndGet();
+            return (T) h;
+        } else {
+            Linkable next = h.getNext();
+            head = next;
+            return get(next);
+        }
+    }
+
+    @Override
+    public int size() {
+        return size.get();
+    }
 
 }

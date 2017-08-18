@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.balance;
 
 import java.util.Random;
@@ -37,67 +37,67 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class TestBalanceClient {
 
-	public static void main(String[] args) throws Exception {
-		
-		final AtomicInteger res = new AtomicInteger();
-		
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+    public static void main(String[] args) throws Exception {
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				
-				ProtobaseFuture f = (ProtobaseFuture)future;
-				
-//				if ("getToken".equals(f.getFutureName())) {
-//					synchronized (lock) {
-//						((BalanceClientSocketSession) session).setToken(f.getToken());
-//						lock.notify();
-//					}
-//					return;
-//				}
-				
-				System.out.println(f.getReadText()+"______R:"+System.currentTimeMillis());
-				
-				res.incrementAndGet();
-			}
-		};
+        final AtomicInteger res = new AtomicInteger();
 
-		ServerConfiguration configuration = new ServerConfiguration(8600);
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
 
-		context.setProtocolFactory(new HashedProtobaseProtocolFactory());
-		
-		context.setSocketSessionFactory(new BalanceClientSocketSessionFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		BalanceClientSocketSession session = (BalanceClientSocketSession) connector.connect();
-		
-		for (int i = 0; i < 100; i++) {
+                ProtobaseFuture f = (ProtobaseFuture) future;
 
-			int fid = Math.abs(new Random().nextInt());
-			
-			HashedProtobaseFuture future = new HashedProtobaseFutureImpl(context,"future-name");
-			
-			future.write("你好！");
-			
-			future.setHashCode(fid);
+                //				if ("getToken".equals(f.getFutureName())) {
+                //					synchronized (lock) {
+                //						((BalanceClientSocketSession) session).setToken(f.getToken());
+                //						lock.notify();
+                //					}
+                //					return;
+                //				}
 
-			session.flush(future);
-		}
-		
-		ThreadUtil.sleep(300);
-		
-		System.out.println("=========="+res.get());
-		
-		ThreadUtil.sleep(500000000);
+                System.out.println(f.getReadText() + "______R:" + System.currentTimeMillis());
 
-		CloseUtil.close(connector);
-	}
+                res.incrementAndGet();
+            }
+        };
+
+        ServerConfiguration configuration = new ServerConfiguration(8600);
+
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
+
+        SocketChannelConnector connector = new SocketChannelConnector(context);
+
+        context.setProtocolFactory(new HashedProtobaseProtocolFactory());
+
+        context.setSocketSessionFactory(new BalanceClientSocketSessionFactory());
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+
+        BalanceClientSocketSession session = (BalanceClientSocketSession) connector.connect();
+
+        for (int i = 0; i < 100; i++) {
+
+            int fid = Math.abs(new Random().nextInt());
+
+            HashedProtobaseFuture future = new HashedProtobaseFutureImpl(context, "future-name");
+
+            future.write("你好！");
+
+            future.setHashCode(fid);
+
+            session.flush(future);
+        }
+
+        ThreadUtil.sleep(300);
+
+        System.out.println("==========" + res.get());
+
+        ThreadUtil.sleep(500000000);
+
+        CloseUtil.close(connector);
+    }
 
 }

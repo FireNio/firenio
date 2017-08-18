@@ -19,12 +19,12 @@ import java.util.List;
 
 public interface JdkApplicationProtocolNegotiator {
 
-	List<String> protocols();
+    List<String> protocols();
 
-	SslEngineWrapperFactory wrapperFactory();
+    SslEngineWrapperFactory wrapperFactory();
 
-	ProtocolSelectorFactory protocolSelectorFactory();
+    ProtocolSelectorFactory protocolSelectorFactory();
 
-	ProtocolSelectionListenerFactory protocolListenerFactory();
+    ProtocolSelectionListenerFactory protocolListenerFactory();
 
 }

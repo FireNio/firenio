@@ -12,9 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.buffer;
-
 
 /**
  * Provides a mechanism to iterate over a collection of bytes.
@@ -55,77 +54,77 @@ public interface ByteProcessor {
     /**
      * Aborts on a {@code NUL (0x00)}.
      */
-    ByteProcessor FIND_NUL = new IndexOfProcessor((byte) 0);
+    ByteProcessor FIND_NUL                   = new IndexOfProcessor((byte) 0);
 
     /**
      * Aborts on a non-{@code NUL (0x00)}.
      */
-    ByteProcessor FIND_NON_NUL = new IndexNotOfProcessor((byte) 0);
+    ByteProcessor FIND_NON_NUL               = new IndexNotOfProcessor((byte) 0);
 
     /**
      * Aborts on a {@code CR ('\r')}.
      */
-    ByteProcessor FIND_CR = new IndexOfProcessor((byte) '\r');
+    ByteProcessor FIND_CR                    = new IndexOfProcessor((byte) '\r');
 
     /**
      * Aborts on a non-{@code CR ('\r')}.
      */
-    ByteProcessor FIND_NON_CR = new IndexNotOfProcessor((byte) '\r');
+    ByteProcessor FIND_NON_CR                = new IndexNotOfProcessor((byte) '\r');
 
     /**
      * Aborts on a {@code LF ('\n')}.
      */
-    ByteProcessor FIND_LF = new IndexOfProcessor((byte) '\n');
+    ByteProcessor FIND_LF                    = new IndexOfProcessor((byte) '\n');
 
     /**
      * Aborts on a non-{@code LF ('\n')}.
      */
-    ByteProcessor FIND_NON_LF = new IndexNotOfProcessor((byte) '\n');
+    ByteProcessor FIND_NON_LF                = new IndexNotOfProcessor((byte) '\n');
 
     /**
      * Aborts on a {@code CR (';')}.
      */
-    ByteProcessor FIND_SEMI_COLON = new IndexOfProcessor((byte) ';');
+    ByteProcessor FIND_SEMI_COLON            = new IndexOfProcessor((byte) ';');
 
     /**
      * Aborts on a {@code CR ('\r')} or a {@code LF ('\n')}.
      */
-    ByteProcessor FIND_CRLF = new ByteProcessor() {
-        @Override
-        public boolean process(byte value) {
-            return value != '\r' && value != '\n';
-        }
-    };
+    ByteProcessor FIND_CRLF                  = new ByteProcessor() {
+                                                 @Override
+                                                 public boolean process(byte value) {
+                                                     return value != '\r' && value != '\n';
+                                                 }
+                                             };
 
     /**
      * Aborts on a byte which is neither a {@code CR ('\r')} nor a {@code LF ('\n')}.
      */
-    ByteProcessor FIND_NON_CRLF = new ByteProcessor() {
-        @Override
-        public boolean process(byte value) {
-            return value == '\r' || value == '\n';
-        }
-    };
+    ByteProcessor FIND_NON_CRLF              = new ByteProcessor() {
+                                                 @Override
+                                                 public boolean process(byte value) {
+                                                     return value == '\r' || value == '\n';
+                                                 }
+                                             };
 
     /**
      * Aborts on a linear whitespace (a ({@code ' '} or a {@code '\t'}).
      */
-    ByteProcessor FIND_LINEAR_WHITESPACE = new ByteProcessor() {
-        @Override
-        public boolean process(byte value) {
-            return value != ' ' && value != '\t';
-        }
-    };
+    ByteProcessor FIND_LINEAR_WHITESPACE     = new ByteProcessor() {
+                                                 @Override
+                                                 public boolean process(byte value) {
+                                                     return value != ' ' && value != '\t';
+                                                 }
+                                             };
 
     /**
      * Aborts on a byte which is not a linear whitespace (neither {@code ' '} nor {@code '\t'}).
      */
     ByteProcessor FIND_NON_LINEAR_WHITESPACE = new ByteProcessor() {
-        @Override
-        public boolean process(byte value) {
-            return value == ' ' || value == '\t';
-        }
-    };
+                                                 @Override
+                                                 public boolean process(byte value) {
+                                                     return value == ' ' || value == '\t';
+                                                 }
+                                             };
 
     /**
      * @return {@code true} if the processor wants to continue the loop and handle the next byte in the buffer.

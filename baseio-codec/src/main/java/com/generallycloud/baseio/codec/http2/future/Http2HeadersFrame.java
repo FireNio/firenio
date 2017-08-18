@@ -12,21 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http2.future;
 
 public interface Http2HeadersFrame extends Http2Frame {
 
-	public static final int	FLAG_END_STREAM	= 0x1;
-	public static final int	FLAG_END_HEADERS	= 0x4;
-	public static final int	FLAG_PADDED		= 0x8;
-	public static final int	FLAG_PRIORITY		= 0x20;
+    public static final int FLAG_END_STREAM  = 0x1;
+    public static final int FLAG_END_HEADERS = 0x4;
+    public static final int FLAG_PADDED      = 0x8;
+    public static final int FLAG_PRIORITY    = 0x20;
 
-	public abstract boolean isE();
+    public abstract boolean isE();
 
-	public abstract int getStreamDependency();
+    public abstract int getStreamDependency();
 
-	public abstract short getWeight();
-	
-	public byte getPadLength();
+    public abstract short getWeight();
+
+    public byte getPadLength();
 }

@@ -26,145 +26,144 @@ import com.generallycloud.baseio.common.MessageFormatter;
  */
 public class InternalLogger implements Logger {
 
-	private Class<?>		loggerClass;
+    private Class<?>      loggerClass;
 
-	private String			debugClassName;
+    private String        debugClassName;
 
-	private String			errorClassName;
+    private String        errorClassName;
 
-	private String			infoClassName;
-	
-	private LoggerPrinter	printer;
+    private String        infoClassName;
 
-	public InternalLogger(LoggerPrinter printer, Class<?> clazz) {
-		String className = clazz.getSimpleName() + " -";
-		this.printer = printer;
-		this.debugClassName = " [DEBUG] " + className;
-		this.infoClassName = " [INFO] " + className;
-		this.errorClassName = " [ERROR] " + className;
-		this.loggerClass = clazz;
-	}
+    private LoggerPrinter printer;
 
-	@Override
-	public void debug(String message) {
-		if (isEnableDebug()) {
-			info0(debugClassName, message);
-		}
-	}
+    public InternalLogger(LoggerPrinter printer, Class<?> clazz) {
+        String className = clazz.getSimpleName() + " -";
+        this.printer = printer;
+        this.debugClassName = " [DEBUG] " + className;
+        this.infoClassName = " [INFO] " + className;
+        this.errorClassName = " [ERROR] " + className;
+        this.loggerClass = clazz;
+    }
 
-	@Override
-	public void debug(String message, Object param) {
-		if (isEnableDebug()) {
-			info0(debugClassName, message, param);
-		}
-	}
+    @Override
+    public void debug(String message) {
+        if (isEnableDebug()) {
+            info0(debugClassName, message);
+        }
+    }
 
-	@Override
-	public void debug(String message, Object param, Object param1) {
-		if (isEnableDebug()) {
-			info0(debugClassName, message, param, param1);
-		}
-	}
+    @Override
+    public void debug(String message, Object param) {
+        if (isEnableDebug()) {
+            info0(debugClassName, message, param);
+        }
+    }
 
-	@Override
-	public void debug(String message, Object[] param) {
-		if (isEnableDebug()) {
-			info0(debugClassName, message, param);
-		}
-	}
+    @Override
+    public void debug(String message, Object param, Object param1) {
+        if (isEnableDebug()) {
+            info0(debugClassName, message, param, param1);
+        }
+    }
 
-	@Override
-	public void debug(Throwable e) {
-		if (isEnableDebug()) {
-			printStackTrace(e);
-		}
-	}
+    @Override
+    public void debug(String message, Object[] param) {
+        if (isEnableDebug()) {
+            info0(debugClassName, message, param);
+        }
+    }
 
-	@Override
-	public void error(String message) {
-		printer.errPrintln(getTimeFormat() + errorClassName + message);
-	}
+    @Override
+    public void debug(Throwable e) {
+        if (isEnableDebug()) {
+            printStackTrace(e);
+        }
+    }
 
-	@Override
-	public void error(String message, Throwable e) {
-		error(message);
-		printStackTrace(e);
-	}
+    @Override
+    public void error(String message) {
+        printer.errPrintln(getTimeFormat() + errorClassName + message);
+    }
 
-	@Override
-	public void error(Throwable e) {
-		printStackTrace(e);
-	}
+    @Override
+    public void error(String message, Throwable e) {
+        error(message);
+        printStackTrace(e);
+    }
 
-	public String exception2string(Throwable exception) {
-		StackTraceElement[] es = exception.getStackTrace();
-		StringBuilder builder = new StringBuilder();
-		builder.append(exception.toString());
-		for (StackTraceElement e : es) {
-			builder.append("\n\tat ");
-			builder.append(e.toString());
-		}
-		return builder.toString();
-	}
+    @Override
+    public void error(Throwable e) {
+        printStackTrace(e);
+    }
 
-	private String getTimeFormat() {
-		return DateUtil.formatYyyy_MM_dd_HH_mm_ss_SSS(new Date());
-	}
+    public String exception2string(Throwable exception) {
+        StackTraceElement[] es = exception.getStackTrace();
+        StringBuilder builder = new StringBuilder();
+        builder.append(exception.toString());
+        for (StackTraceElement e : es) {
+            builder.append("\n\tat ");
+            builder.append(e.toString());
+        }
+        return builder.toString();
+    }
 
-	private void info0(String className, String message) {
-		printer.println(getTimeFormat() + className + message);
-	}
+    private String getTimeFormat() {
+        return DateUtil.formatYyyy_MM_dd_HH_mm_ss_SSS(new Date());
+    }
 
-	private void info0(String className, String message, Object param) {
-		printer.println(getTimeFormat() + className + MessageFormatter.format(message, param));
-	}
+    private void info0(String className, String message) {
+        printer.println(getTimeFormat() + className + message);
+    }
 
-	private void info0(String className, String message, Object param, Object param1) {
-		printer.println(
-				getTimeFormat() + className + MessageFormatter.format(message, param, param1));
-	}
+    private void info0(String className, String message, Object param) {
+        printer.println(getTimeFormat() + className + MessageFormatter.format(message, param));
+    }
 
-	private void info0(String className, String message, Object[] param) {
-		printer.println(
-				getTimeFormat() + className + MessageFormatter.arrayFormat(message, param));
-	}
+    private void info0(String className, String message, Object param, Object param1) {
+        printer.println(
+                getTimeFormat() + className + MessageFormatter.format(message, param, param1));
+    }
 
-	@Override
-	public void info(String message) {
-		info0(infoClassName, message);
-	}
+    private void info0(String className, String message, Object[] param) {
+        printer.println(getTimeFormat() + className + MessageFormatter.arrayFormat(message, param));
+    }
 
-	@Override
-	public void info(String message, Object param) {
-		info0(infoClassName, message, param);
-	}
+    @Override
+    public void info(String message) {
+        info0(infoClassName, message);
+    }
 
-	@Override
-	public void info(String message, Object param, Object param1) {
-		info0(infoClassName, message, param, param1);
-	}
+    @Override
+    public void info(String message, Object param) {
+        info0(infoClassName, message, param);
+    }
 
-	@Override
-	public void info(String message, Object[] param) {
-		info0(infoClassName, message, param);
-	}
+    @Override
+    public void info(String message, Object param, Object param1) {
+        info0(infoClassName, message, param, param1);
+    }
 
-	public void printStackTrace(Throwable t) {
-		printer.errPrintThrowable(t);
-	}
+    @Override
+    public void info(String message, Object[] param) {
+        info0(infoClassName, message, param);
+    }
 
-	public void setEnableDebug(boolean enable) {
-		LoggerFactory.setEnableDebug(enable);
-	}
+    public void printStackTrace(Throwable t) {
+        printer.errPrintThrowable(t);
+    }
 
-	@Override
-	public boolean isEnableDebug() {
-		return LoggerFactory.isEnableDebug();
-	}
+    public void setEnableDebug(boolean enable) {
+        LoggerFactory.setEnableDebug(enable);
+    }
 
-	@Override
-	public Class<?> getLoggerClass() {
-		return loggerClass;
-	}
+    @Override
+    public boolean isEnableDebug() {
+        return LoggerFactory.isEnableDebug();
+    }
+
+    @Override
+    public Class<?> getLoggerClass() {
+        return loggerClass;
+    }
 
 }

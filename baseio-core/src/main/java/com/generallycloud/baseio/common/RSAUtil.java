@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.common;
 
 import java.io.File;
@@ -36,291 +36,292 @@ import javax.crypto.Cipher;
 
 public class RSAUtil {
 
-	private static KeyFactory	keyFactory;
+    private static KeyFactory keyFactory;
 
-	static {
-		try {
-			keyFactory = KeyFactory.getInstance("RSA");
-		} catch (NoSuchAlgorithmException e) {
-		}
-	}
+    static {
+        try {
+            keyFactory = KeyFactory.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {}
+    }
 
-	/**
-	 * 生成公钥和私钥
-	 * 
-	 * @param length
-	 *             1024 ...
-	 * @throws NoSuchAlgorithmException
-	 *
-	 */
-	public static RSAKeys getKeys(int length) throws NoSuchAlgorithmException {
+    /**
+     * 生成公钥和私钥
+     * 
+     * @param length
+     *             1024 ...
+     * @throws NoSuchAlgorithmException
+     *
+     */
+    public static RSAKeys getKeys(int length) throws NoSuchAlgorithmException {
 
-		KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
 
-		keyPairGen.initialize(length);
+        keyPairGen.initialize(length);
 
-		KeyPair keyPair = keyPairGen.generateKeyPair();
+        KeyPair keyPair = keyPairGen.generateKeyPair();
 
-		RSAKeys keys = new RSAKeys();
+        RSAKeys keys = new RSAKeys();
 
-		keys.publicKey = (RSAPublicKey) keyPair.getPublic();
-		keys.privateKey = (RSAPrivateKey) keyPair.getPrivate();
-		return keys;
-	}
+        keys.publicKey = (RSAPublicKey) keyPair.getPublic();
+        keys.privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        return keys;
+    }
 
-	/**
-	 * 使用模和指数生成RSA公钥
-	 * 注意：【此代码用了默认补位方式，为RSA/None/PKCS1Padding，不同JDK默认的补位方式可能不同，如Android默认是RSA
-	 * /None/NoPadding】
-	 * 
-	 * @param modulus
-	 *             模
-	 * @param exponent
-	 *             指数
-	 * @return
-	 */
-	public static RSAPublicKey getPublicKey(String modulus, String exponent) {
-		try {
-			BigInteger b1 = new BigInteger(modulus);
-			BigInteger b2 = new BigInteger(exponent);
-			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-			RSAPublicKeySpec keySpec = new RSAPublicKeySpec(b1, b2);
-			return (RSAPublicKey) keyFactory.generatePublic(keySpec);
-		} catch (Exception e) {
-			throw new RuntimeException(e.getMessage(), e);
-		}
-	}
+    /**
+     * 使用模和指数生成RSA公钥
+     * 注意：【此代码用了默认补位方式，为RSA/None/PKCS1Padding，不同JDK默认的补位方式可能不同，如Android默认是RSA
+     * /None/NoPadding】
+     * 
+     * @param modulus
+     *             模
+     * @param exponent
+     *             指数
+     * @return
+     */
+    public static RSAPublicKey getPublicKey(String modulus, String exponent) {
+        try {
+            BigInteger b1 = new BigInteger(modulus);
+            BigInteger b2 = new BigInteger(exponent);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            RSAPublicKeySpec keySpec = new RSAPublicKeySpec(b1, b2);
+            return (RSAPublicKey) keyFactory.generatePublic(keySpec);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
 
-	/**
-	 * 使用模和指数生成RSA私钥
-	 * 注意：【此代码用了默认补位方式，为RSA/None/PKCS1Padding，不同JDK默认的补位方式可能不同，如Android默认是RSA
-	 * /None/NoPadding】
-	 * 
-	 * @param modulus
-	 *             模
-	 * @param exponent
-	 *             指数
-	 * @return
-	 */
-	public static RSAPrivateKey getPrivateKey(String modulus, String exponent) {
-		try {
-			BigInteger b1 = new BigInteger(modulus);
-			BigInteger b2 = new BigInteger(exponent);
-			RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(b1, b2);
-			return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
-		} catch (Exception e) {
-			throw new RuntimeException(e.getMessage(), e);
-		}
-	}
+    /**
+     * 使用模和指数生成RSA私钥
+     * 注意：【此代码用了默认补位方式，为RSA/None/PKCS1Padding，不同JDK默认的补位方式可能不同，如Android默认是RSA
+     * /None/NoPadding】
+     * 
+     * @param modulus
+     *             模
+     * @param exponent
+     *             指数
+     * @return
+     */
+    public static RSAPrivateKey getPrivateKey(String modulus, String exponent) {
+        try {
+            BigInteger b1 = new BigInteger(modulus);
+            BigInteger b2 = new BigInteger(exponent);
+            RSAPrivateKeySpec keySpec = new RSAPrivateKeySpec(b1, b2);
+            return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
 
-	/**
-	 * 公钥加密
-	 * 
-	 * @param data
-	 * @param publicKey
-	 * @return
-	 * @throws Exception
-	 */
-	public static byte[] encryptByPublicKey(byte[] data, RSAPublicKey publicKey) throws Exception {
-		Cipher cipher = Cipher.getInstance("RSA");
-		cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-		// 模长
-		int key_len = publicKey.getModulus().bitLength() / 8;
-		// 加密数据长度 <= 模长-11
+    /**
+     * 公钥加密
+     * 
+     * @param data
+     * @param publicKey
+     * @return
+     * @throws Exception
+     */
+    public static byte[] encryptByPublicKey(byte[] data, RSAPublicKey publicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        // 模长
+        int key_len = publicKey.getModulus().bitLength() / 8;
+        // 加密数据长度 <= 模长-11
 
-		List<byte[]> datas = splitArray(data, key_len - 11);
+        List<byte[]> datas = splitArray(data, key_len - 11);
 
-		ByteBuffer buffer = ByteBuffer.allocate(key_len * datas.size());
+        ByteBuffer buffer = ByteBuffer.allocate(key_len * datas.size());
 
-		// 如果明文长度大于模长-11则要分组加密
-		for (byte[] s : datas) {
+        // 如果明文长度大于模长-11则要分组加密
+        for (byte[] s : datas) {
 
-			byte[] array = cipher.doFinal(s);
+            byte[] array = cipher.doFinal(s);
 
-			buffer.put(array);
+            buffer.put(array);
 
-		}
-		return buffer.array();
-	}
+        }
+        return buffer.array();
+    }
 
-	/**
-	 * 私钥解密
-	 * 
-	 * @param data
-	 * @param privateKey
-	 * @return
-	 * @throws Exception
-	 */
-	public static byte[] decryptByPrivateKey(byte[] bytes, RSAPrivateKey privateKey) throws Exception {
-		Cipher cipher = Cipher.getInstance("RSA");
-		cipher.init(Cipher.DECRYPT_MODE, privateKey);
-		// 模长
-		int key_len = privateKey.getModulus().bitLength() / 8;
-		// 如果密文长度大于模长则要分组解密
+    /**
+     * 私钥解密
+     * 
+     * @param data
+     * @param privateKey
+     * @return
+     * @throws Exception
+     */
+    public static byte[] decryptByPrivateKey(byte[] bytes, RSAPrivateKey privateKey)
+            throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        // 模长
+        int key_len = privateKey.getModulus().bitLength() / 8;
+        // 如果密文长度大于模长则要分组解密
 
-		List<byte[]> arrays = splitArray(bytes, key_len);
+        List<byte[]> arrays = splitArray(bytes, key_len);
 
-		ByteBuffer buffer = ByteBuffer.allocate(arrays.size() * (key_len - 11));
+        ByteBuffer buffer = ByteBuffer.allocate(arrays.size() * (key_len - 11));
 
-		for (byte[] arr : arrays) {
-			byte[] marr = cipher.doFinal(arr);
-			buffer.put(marr);
-		}
+        for (byte[] arr : arrays) {
+            byte[] marr = cipher.doFinal(arr);
+            buffer.put(marr);
+        }
 
-		byte[] r = new byte[buffer.position()];
-		
-		buffer.flip();
+        byte[] r = new byte[buffer.position()];
 
-		buffer.get(r);
+        buffer.flip();
 
-		return r;
-	}
+        buffer.get(r);
 
-	/**
-	 * 拆分字符串
-	 */
-	private static List<byte[]> splitArray(byte[] array, int len) {
+        return r;
+    }
 
-		int length = array.length;
+    /**
+     * 拆分字符串
+     */
+    private static List<byte[]> splitArray(byte[] array, int len) {
 
-		List<byte[]> list = new ArrayList<byte[]>();
+        int length = array.length;
 
-		if (length <= len) {
+        List<byte[]> list = new ArrayList<>();
 
-			list.add(array);
+        if (length <= len) {
 
-			return list;
-		}
+            list.add(array);
 
-		int size = length / len;
+            return list;
+        }
 
-		for (int i = 0; i < size; i++) {
-			byte[] a = new byte[len];
-			System.arraycopy(array, i * len, a, 0, len);
-			list.add(a);
-		}
+        int size = length / len;
 
-		int yu = array.length % len;
+        for (int i = 0; i < size; i++) {
+            byte[] a = new byte[len];
+            System.arraycopy(array, i * len, a, 0, len);
+            list.add(a);
+        }
 
-		if (yu > 0) {
-			byte[] a = new byte[yu];
-			System.arraycopy(array, length - yu, a, 0, yu);
-			list.add(a);
-		}
+        int yu = array.length % len;
 
-		return list;
-	}
+        if (yu > 0) {
+            byte[] a = new byte[yu];
+            System.arraycopy(array, length - yu, a, 0, yu);
+            list.add(a);
+        }
 
-	public static class RSAKeys {
+        return list;
+    }
 
-		private RSAPublicKey	publicKey;
-		private RSAPrivateKey	privateKey;
+    public static class RSAKeys {
 
-		public RSAPublicKey getPublicKey() {
-			return publicKey;
-		}
+        private RSAPublicKey  publicKey;
+        private RSAPrivateKey privateKey;
 
-		public RSAPrivateKey getPrivateKey() {
-			return privateKey;
-		}
+        public RSAPublicKey getPublicKey() {
+            return publicKey;
+        }
 
-		public void setPublicKey(RSAPublicKey publicKey) {
-			this.publicKey = publicKey;
-		}
+        public RSAPrivateKey getPrivateKey() {
+            return privateKey;
+        }
 
-		public void setPrivateKey(RSAPrivateKey privateKey) {
-			this.privateKey = privateKey;
-		}
-	}
+        public void setPublicKey(RSAPublicKey publicKey) {
+            this.publicKey = publicKey;
+        }
 
-	public static void generateKeys(String file, int length) throws NoSuchAlgorithmException, IOException {
-		RSAKeys keys = RSAUtil.getKeys(length);
-		// 生成公钥和私钥
-		RSAPublicKey publicKey = keys.getPublicKey();
-		RSAPrivateKey privateKey = keys.getPrivateKey();
+        public void setPrivateKey(RSAPrivateKey privateKey) {
+            this.privateKey = privateKey;
+        }
+    }
 
-		File publicKeyFile = new File(file + "/public.rsa");
-		String publicKeyString = publicKey.toString();
+    public static void generateKeys(String file, int length)
+            throws NoSuchAlgorithmException, IOException {
+        RSAKeys keys = RSAUtil.getKeys(length);
+        // 生成公钥和私钥
+        RSAPublicKey publicKey = keys.getPublicKey();
+        RSAPrivateKey privateKey = keys.getPrivateKey();
 
-		File privateKeyFile = new File(file + "/private.rsa");
-		String privateKeyString = privateKey.toString();
+        File publicKeyFile = new File(file + "/public.rsa");
+        String publicKeyString = publicKey.toString();
 
-		FileUtil.writeByFile(publicKeyFile, publicKeyString);
-		FileUtil.writeByFile(privateKeyFile, privateKeyString);
+        File privateKeyFile = new File(file + "/private.rsa");
+        String privateKeyString = privateKey.toString();
 
-		System.out.println("Public RSA File:" + publicKeyFile.getCanonicalPath());
-		System.out.println(publicKeyString);
-		System.out.println();
-		System.out.println("Private RSA File:" + privateKeyFile.getCanonicalPath());
-		System.out.println(privateKeyString);
-	}
+        FileUtil.writeByFile(publicKeyFile, publicKeyString);
+        FileUtil.writeByFile(privateKeyFile, privateKeyString);
 
-	private static Map<String, String> parseRSAFromContent(String content) {
-		String[] lines = content.split("\n");
-		Map<String, String> map = new HashMap<String, String>();
-		for (int i = 1; i < lines.length; i++) {
-			String[] array = lines[i].split(":");
-			if (array.length != 2) {
-				continue;
-			}
-			String name = array[0].trim().replace("\r", "");
-			String value = array[1].trim().replace("\r", "");
-			map.put(name, value);
-		}
-		return map;
-	}
+        System.out.println("Public RSA File:" + publicKeyFile.getCanonicalPath());
+        System.out.println(publicKeyString);
+        System.out.println();
+        System.out.println("Private RSA File:" + privateKeyFile.getCanonicalPath());
+        System.out.println(privateKeyString);
+    }
 
-	public static RSAPublicKey getRsaPublicKey(String content) {
+    private static Map<String, String> parseRSAFromContent(String content) {
+        String[] lines = content.split("\n");
+        Map<String, String> map = new HashMap<>();
+        for (int i = 1; i < lines.length; i++) {
+            String[] array = lines[i].split(":");
+            if (array.length != 2) {
+                continue;
+            }
+            String name = array[0].trim().replace("\r", "");
+            String value = array[1].trim().replace("\r", "");
+            map.put(name, value);
+        }
+        return map;
+    }
 
-		if (StringUtil.isNullOrBlank(content)) {
-			throw new IllegalArgumentException("null content");
-		}
+    public static RSAPublicKey getRsaPublicKey(String content) {
 
-		Map<String, String> map = parseRSAFromContent(content);
+        if (StringUtil.isNullOrBlank(content)) {
+            throw new IllegalArgumentException("null content");
+        }
 
-		String modulus = map.get("modulus");
-		String exponent = map.get("public exponent");
+        Map<String, String> map = parseRSAFromContent(content);
 
-		return getPublicKey(modulus, exponent);
-	}
+        String modulus = map.get("modulus");
+        String exponent = map.get("public exponent");
 
-	public static RSAPrivateKey getRsaPrivateKey(String content) {
+        return getPublicKey(modulus, exponent);
+    }
 
-		if (StringUtil.isNullOrBlank(content)) {
-			throw new IllegalArgumentException("null content");
-		}
+    public static RSAPrivateKey getRsaPrivateKey(String content) {
 
-		Map<String, String> map = parseRSAFromContent(content);
+        if (StringUtil.isNullOrBlank(content)) {
+            throw new IllegalArgumentException("null content");
+        }
 
-		String modulus = map.get("modulus");
-		String exponent = map.get("private exponent");
+        Map<String, String> map = parseRSAFromContent(content);
 
-		return getPrivateKey(modulus, exponent);
-	}
+        String modulus = map.get("modulus");
+        String exponent = map.get("private exponent");
 
-	public static void main(String[] args) throws Exception {
-		RSAKeys keys = RSAUtil.getKeys(1024);
-		// 生成公钥和私钥
-		RSAPublicKey publicKey = keys.getPublicKey();
-		RSAPrivateKey privateKey = keys.getPrivateKey();
+        return getPrivateKey(modulus, exponent);
+    }
 
-		// 模
-		String modulus = publicKey.getModulus().toString();
-		// 公钥指数
-		String public_exponent = publicKey.getPublicExponent().toString();
-		// 私钥指数
-		String private_exponent = privateKey.getPrivateExponent().toString();
-		// 明文
-		String ming = "你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好";
-		// ming = "22ttt2aasdaaaaaasdasddw";
-		// 使用模和指数生成公钥和私钥
-		RSAPublicKey pubKey = RSAUtil.getPublicKey(modulus, public_exponent);
-		RSAPrivateKey priKey = RSAUtil.getPrivateKey(modulus, private_exponent);
-		// 加密后的密文
-		byte[] mi = RSAUtil.encryptByPublicKey(ming.getBytes(Encoding.GBK), pubKey);
-		System.out.println("mi.length:" + mi.length);
-		// 解密后的明文
-		ming = new String(RSAUtil.decryptByPrivateKey(mi, priKey),Encoding.GBK);
-		System.err.println("明文：" + ming);
-	}
+    public static void main(String[] args) throws Exception {
+        RSAKeys keys = RSAUtil.getKeys(1024);
+        // 生成公钥和私钥
+        RSAPublicKey publicKey = keys.getPublicKey();
+        RSAPrivateKey privateKey = keys.getPrivateKey();
+
+        // 模
+        String modulus = publicKey.getModulus().toString();
+        // 公钥指数
+        String public_exponent = publicKey.getPublicExponent().toString();
+        // 私钥指数
+        String private_exponent = privateKey.getPrivateExponent().toString();
+        // 明文
+        String ming = "你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好";
+        // ming = "22ttt2aasdaaaaaasdasddw";
+        // 使用模和指数生成公钥和私钥
+        RSAPublicKey pubKey = RSAUtil.getPublicKey(modulus, public_exponent);
+        RSAPrivateKey priKey = RSAUtil.getPrivateKey(modulus, private_exponent);
+        // 加密后的密文
+        byte[] mi = RSAUtil.encryptByPublicKey(ming.getBytes(Encoding.GBK), pubKey);
+        System.out.println("mi.length:" + mi.length);
+        // 解密后的明文
+        ming = new String(RSAUtil.decryptByPrivateKey(mi, priKey), Encoding.GBK);
+        System.err.println("明文：" + ming);
+    }
 }

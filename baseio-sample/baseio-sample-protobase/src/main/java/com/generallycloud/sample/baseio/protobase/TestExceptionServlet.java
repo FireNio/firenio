@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.sample.baseio.protobase;
 
 import java.io.IOException;
@@ -21,13 +21,13 @@ import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.protobase.service.ProtobaseFutureAcceptorService;
 
-public class TestExceptionServlet extends ProtobaseFutureAcceptorService{
-	
-	public static final String SERVICE_NAME = TestExceptionServlet.class.getSimpleName();
+public class TestExceptionServlet extends ProtobaseFutureAcceptorService {
 
-	@Override
-	protected void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
-		throw new IOException("测试啊");
-	}
-	
+    public static final String SERVICE_NAME = TestExceptionServlet.class.getSimpleName();
+
+    @Override
+    protected void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
+        throw new IOException("测试啊");
+    }
+
 }

@@ -25,12 +25,12 @@ import com.generallycloud.baseio.component.AbstractSocketSessionManager.SocketSe
  */
 public interface SocketSessionManager extends SessionManager {
 
-	public abstract SocketSession getSession(int sessionId);
+    public abstract SocketSession getSession(int sessionId);
 
-	public abstract void offerSessionMEvent(SocketSessionManagerEvent event);
-	
-	public abstract void putSession(SocketSession session) throws RejectedExecutionException;
+    public abstract void offerSessionMEvent(SocketSessionManagerEvent event);
 
-	public abstract void removeSession(SocketSession session);
+    public abstract void putSession(SocketSession session) throws RejectedExecutionException;
+
+    public abstract void removeSession(SocketSession session);
 
 }

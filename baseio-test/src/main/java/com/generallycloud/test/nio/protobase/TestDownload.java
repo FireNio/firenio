@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.protobase;
 
 import com.alibaba.fastjson.JSONObject;
@@ -35,60 +35,60 @@ import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestDownload {
-	
-	public static void main(String[] args) throws Exception {
 
-		String serviceName = "TestDownloadServlet";
-		
-		String fileName = "upload-flashmail-2.4.exe";
-		
-		JSONObject j = new JSONObject();
-		j.put(FileReceiveUtil.FILE_NAME, fileName);
-		
-		LoggerFactory.configure();
-		
-		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+    public static void main(String[] args) throws Exception {
 
-		ServerConfiguration configuration = new ServerConfiguration(8300);
+        String serviceName = "TestDownloadServlet";
 
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandle);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
+        String fileName = "upload-flashmail-2.4.exe";
 
-		FixedSession session = new FixedSession(connector.connect());
-		
-		final FileReceiveUtil fileReceiveUtil = new FileReceiveUtil("download-");
-		
-		session.listen(serviceName, new OnFuture() {
-			
-			@Override
-			public void onResponse(SocketSession session, Future future) {
-				
-				try {
-					fileReceiveUtil.accept(session, (ProtobaseFuture) future,false);
-				} catch (Exception e) {
-					DebugUtil.debug(e);
-				}
-			}
-		});
+        JSONObject j = new JSONObject();
+        j.put(FileReceiveUtil.FILE_NAME, fileName);
 
-		long old = System.currentTimeMillis();
-		
-		session.write(serviceName, j.toJSONString());
-		
-		System.out.println("Time:"+(System.currentTimeMillis() - old));
-		
-		ThreadUtil.sleep(5000);
-		
-		CloseUtil.close(connector);
-		
-	}
+        LoggerFactory.configure();
+
+        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+
+        ServerConfiguration configuration = new ServerConfiguration(8300);
+
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
+
+        SocketChannelConnector connector = new SocketChannelConnector(context);
+
+        context.setIoEventHandleAdaptor(eventHandle);
+
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
+
+        FixedSession session = new FixedSession(connector.connect());
+
+        final FileReceiveUtil fileReceiveUtil = new FileReceiveUtil("download-");
+
+        session.listen(serviceName, new OnFuture() {
+
+            @Override
+            public void onResponse(SocketSession session, Future future) {
+
+                try {
+                    fileReceiveUtil.accept(session, (ProtobaseFuture) future, false);
+                } catch (Exception e) {
+                    DebugUtil.debug(e);
+                }
+            }
+        });
+
+        long old = System.currentTimeMillis();
+
+        session.write(serviceName, j.toJSONString());
+
+        System.out.println("Time:" + (System.currentTimeMillis() - old));
+
+        ThreadUtil.sleep(5000);
+
+        CloseUtil.close(connector);
+
+    }
 }

@@ -24,5 +24,6 @@ import com.generallycloud.baseio.protocol.Future;
  */
 public interface ExceptionCaughtHandle {
 
-	public abstract void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state);
+    public abstract void exceptionCaught(SocketSession session, Future future, Exception cause,
+            IoEventState state);
 }

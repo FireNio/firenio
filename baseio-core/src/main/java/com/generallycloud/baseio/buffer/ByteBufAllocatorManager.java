@@ -21,8 +21,8 @@ import com.generallycloud.baseio.LifeCycle;
  * @author wangkai
  *
  */
-public interface ByteBufAllocatorManager extends LifeCycle{
+public interface ByteBufAllocatorManager extends LifeCycle {
 
-	ByteBufAllocator getNextBufAllocator();
+    ByteBufAllocator getNextBufAllocator();
 
 }

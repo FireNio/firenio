@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.authority;
 
 import java.util.ArrayList;
@@ -28,167 +28,169 @@ import com.generallycloud.baseio.container.configuration.PermissionConfiguration
 
 public class RoleManager extends AbstractInitializeable {
 
-	private IntObjectHashMap<AuthorityManager>	authorityManagers		= new IntObjectHashMap<>();
+    private IntObjectHashMap<AuthorityManager> authorityManagers = new IntObjectHashMap<>();
 
-	private AuthorityManager				guestAuthorityManager	;
+    private AuthorityManager                   guestAuthorityManager;
 
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		ApplicationConfigurationLoader acLoader = context.getAcLoader();
-		
-		PermissionConfiguration permissionConfiguration = acLoader.loadPermissionConfiguration(getClass().getClassLoader());
+        ApplicationConfigurationLoader acLoader = context.getAcLoader();
 
-		List<Configuration> permissionConfigurations = permissionConfiguration.getPermissions();
+        PermissionConfiguration permissionConfiguration = acLoader
+                .loadPermissionConfiguration(getClass().getClassLoader());
 
-		List<Configuration> roleConfigurations = permissionConfiguration.getRoles();
+        List<Configuration> permissionConfigurations = permissionConfiguration.getPermissions();
 
-		if (permissionConfigurations == null || permissionConfigurations.size() == 0 || roleConfigurations == null
-				|| roleConfigurations.size() == 0) {
-			throw new Error("没有加载到角色配置");
-		}
+        List<Configuration> roleConfigurations = permissionConfiguration.getRoles();
 
-		IntObjectHashMap<Permission> permissions = new IntObjectHashMap<>();
+        if (permissionConfigurations == null || permissionConfigurations.size() == 0
+                || roleConfigurations == null || roleConfigurations.size() == 0) {
+            throw new Error("没有加载到角色配置");
+        }
 
-		for (Configuration c : permissionConfigurations) {
+        IntObjectHashMap<Permission> permissions = new IntObjectHashMap<>();
 
-			Permission p = new Permission();
-			p.setDescription(c.getParameter("description"));
-			p.setFrequency(c.getIntegerParameter("frequency"));
-			p.setPermissionAPI(c.getParameter("permissionAPI"));
-			p.setPermissionID(c.getIntegerParameter("permissionID"));
+        for (Configuration c : permissionConfigurations) {
 
-			permissions.put(p.getPermissionID(), p);
-		}
+            Permission p = new Permission();
+            p.setDescription(c.getParameter("description"));
+            p.setFrequency(c.getIntegerParameter("frequency"));
+            p.setPermissionAPI(c.getParameter("permissionAPI"));
+            p.setPermissionID(c.getIntegerParameter("permissionID"));
 
-		IntObjectHashMap<Role> roles = new IntObjectHashMap<>();
-		List<Role> roleList = new ArrayList<Role>();
+            permissions.put(p.getPermissionID(), p);
+        }
 
-		for (Configuration c : roleConfigurations) {
+        IntObjectHashMap<Role> roles = new IntObjectHashMap<>();
+        List<Role> roleList = new ArrayList<>();
 
-			Role r = new Role();
-			r.setDescription(c.getParameter("description"));
-			r.setRoleID(c.getIntegerParameter("roleID"));
-			r.setRoleName(c.getParameter("roleName"));
+        for (Configuration c : roleConfigurations) {
 
-			JSONArray array = c.getJSONArray("children");
+            Role r = new Role();
+            r.setDescription(c.getParameter("description"));
+            r.setRoleID(c.getIntegerParameter("roleID"));
+            r.setRoleName(c.getParameter("roleName"));
 
-			if (array != null && !array.isEmpty()) {
+            JSONArray array = c.getJSONArray("children");
 
-				List<Integer> _children = new ArrayList<Integer>();
+            if (array != null && !array.isEmpty()) {
 
-				for (int i = 0; i < array.size(); i++) {
+                List<Integer> _children = new ArrayList<>();
 
-					_children.add(array.getInteger(i));
-				}
+                for (int i = 0; i < array.size(); i++) {
 
-				r.setChildren(_children);
-			}
+                    _children.add(array.getInteger(i));
+                }
 
-			array = c.getJSONArray("permissions");
+                r.setChildren(_children);
+            }
 
-			if (array != null && !array.isEmpty()) {
+            array = c.getJSONArray("permissions");
 
-				List<Integer> _permissions = new ArrayList<Integer>();
+            if (array != null && !array.isEmpty()) {
 
-				for (int i = 0; i < array.size(); i++) {
+                List<Integer> _permissions = new ArrayList<>();
 
-					_permissions.add(array.getInteger(i));
-				}
+                for (int i = 0; i < array.size(); i++) {
 
-				r.setPermissions(_permissions);
-			}
+                    _permissions.add(array.getInteger(i));
+                }
 
-			roles.put(r.getRoleID(), r);
-			roleList.add(r);
-		}
+                r.setPermissions(_permissions);
+            }
 
-		reflectPermission(roleList, roles, permissions);
-	}
+            roles.put(r.getRoleID(), r);
+            roleList.add(r);
+        }
 
-	private void reflectPermission(List<Role> roleList, IntObjectHashMap<Role> roles, IntObjectHashMap<Permission> permissions) {
+        reflectPermission(roleList, roles, permissions);
+    }
 
-		for (Role r : roleList) {
+    private void reflectPermission(List<Role> roleList, IntObjectHashMap<Role> roles,
+            IntObjectHashMap<Permission> permissions) {
 
-			AuthorityManager authorityManager = new AuthorityManager();
+        for (Role r : roleList) {
 
-			authorityManager.setRoleID(r.getRoleID());
+            AuthorityManager authorityManager = new AuthorityManager();
 
-			reflectPermission(r, roles, permissions, authorityManager);
+            authorityManager.setRoleID(r.getRoleID());
 
-			authorityManagers.put(authorityManager.getRoleID(), authorityManager);
-		}
-		
-		guestAuthorityManager = new AuthorityManager();
-		
-		guestAuthorityManager.setRoleID(Authority.GUEST.getRoleID());
-		
-		guestAuthorityManager.setAuthority(Authority.GUEST);
-		
-		authorityManagers.put(guestAuthorityManager.getRoleID(), guestAuthorityManager);
-		
-	}
+            reflectPermission(r, roles, permissions, authorityManager);
 
-	private void reflectPermission(Role role, IntObjectHashMap<Role> roles, IntObjectHashMap<Permission> permissions,
-			AuthorityManager authorityManager) {
+            authorityManagers.put(authorityManager.getRoleID(), authorityManager);
+        }
 
-		List<Integer> children = role.getChildren();
+        guestAuthorityManager = new AuthorityManager();
 
-		if (children != null) {
-			for (Integer rID : children) {
+        guestAuthorityManager.setRoleID(Authority.GUEST.getRoleID());
 
-				Role r = roles.get(rID);
+        guestAuthorityManager.setAuthority(Authority.GUEST);
 
-				if (r != null) {
-					reflectPermission(r, roles, permissions, authorityManager);
-				}
-			}
-		}
+        authorityManagers.put(guestAuthorityManager.getRoleID(), guestAuthorityManager);
 
-		List<Integer> _permissions = role.getPermissions();
+    }
 
-		if (_permissions != null) {
+    private void reflectPermission(Role role, IntObjectHashMap<Role> roles,
+            IntObjectHashMap<Permission> permissions, AuthorityManager authorityManager) {
 
-			for (Integer pID : _permissions) {
+        List<Integer> children = role.getChildren();
 
-				Permission p = permissions.get(pID);
+        if (children != null) {
+            for (Integer rID : children) {
 
-				if (p != null) {
-					authorityManager.addPermission(p);
-				}
-			}
-		}
-	}
+                Role r = roles.get(rID);
 
-	public AuthorityManager getAuthorityManager(Authority authority) {
-		
-		int roleID = authority.getRoleID();
-		
-		AuthorityManager authorityManager = authorityManagers.get(roleID);
+                if (r != null) {
+                    reflectPermission(r, roles, permissions, authorityManager);
+                }
+            }
+        }
 
-		if (authorityManager == null) {
-			authorityManager = guestAuthorityManager;
-		}
+        List<Integer> _permissions = role.getPermissions();
 
-		authorityManager = authorityManager.clone();
-		
-		authorityManager.setAuthority(authority);
-		
-		return authorityManager;
-	}
+        if (_permissions != null) {
 
-	public static void main(String[] args) {
+            for (Integer pID : _permissions) {
 
-		System.out.println("[");
-		for (int j = 0; j < 100; j++) {
+                Permission p = permissions.get(pID);
 
-			System.out.println("\t{");
-			System.out.println("\t\t\"permissionID\": " + j + ",");
-			System.out.println("\t\t\"permissionAPI\": \"\"");
-			System.out.println("\t},");
-		}
-		System.out.println("]");
+                if (p != null) {
+                    authorityManager.addPermission(p);
+                }
+            }
+        }
+    }
 
-	}
+    public AuthorityManager getAuthorityManager(Authority authority) {
+
+        int roleID = authority.getRoleID();
+
+        AuthorityManager authorityManager = authorityManagers.get(roleID);
+
+        if (authorityManager == null) {
+            authorityManager = guestAuthorityManager;
+        }
+
+        authorityManager = authorityManager.clone();
+
+        authorityManager.setAuthority(authority);
+
+        return authorityManager;
+    }
+
+    public static void main(String[] args) {
+
+        System.out.println("[");
+        for (int j = 0; j < 100; j++) {
+
+            System.out.println("\t{");
+            System.out.println("\t\t\"permissionID\": " + j + ",");
+            System.out.println("\t\t\"permissionAPI\": \"\"");
+            System.out.println("\t},");
+        }
+        System.out.println("]");
+
+    }
 
 }

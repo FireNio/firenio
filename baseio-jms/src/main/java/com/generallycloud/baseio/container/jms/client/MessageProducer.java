@@ -12,16 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.client;
 
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.Message;
 
-public interface MessageProducer{
+public interface MessageProducer {
 
-	public boolean offer(Message message) throws MQException;
-	
-	public boolean publish(Message message) throws MQException;
-	
+    public boolean offer(Message message) throws MQException;
+
+    public boolean publish(Message message) throws MQException;
+
 }

@@ -25,6 +25,6 @@ import javax.net.ssl.SSLEngine;
  */
 public interface ProtocolSelectorFactory {
 
-     ProtocolSelector newSelector(SSLEngine engine, Set<String> supportedProtocols);
-	
+    ProtocolSelector newSelector(SSLEngine engine, Set<String> supportedProtocols);
+
 }

@@ -22,154 +22,153 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractEventLoop implements EventLoop {
 
-	private class SingleEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
+    private class SingleEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
 
-		private EventLoop eventLoop;
+        private EventLoop eventLoop;
 
-		public SingleEventLoopGroup(EventLoop eventLoop) {
-			this.eventLoop = eventLoop;
-		}
+        public SingleEventLoopGroup(EventLoop eventLoop) {
+            this.eventLoop = eventLoop;
+        }
 
-		@Override
-		protected void doStart() throws Exception {
+        @Override
+        protected void doStart() throws Exception {
 
-		}
+        }
 
-		@Override
-		protected void doStop() throws Exception {
+        @Override
+        protected void doStop() throws Exception {
 
-		}
+        }
 
-		@Override
-		public EventLoop getNext() {
-			return eventLoop;
-		}
-	}
+        @Override
+        public EventLoop getNext() {
+            return eventLoop;
+        }
+    }
 
-	private static final Logger	logger				= LoggerFactory.getLogger(AbstractEventLoop.class);
+    private static final Logger logger               = LoggerFactory
+            .getLogger(AbstractEventLoop.class);
 
-	private Thread				monitor				= null;
+    private Thread              monitor              = null;
 
-	private volatile boolean	running				= false;
-	
-	private volatile boolean	stopped				= false;
-	
-	private Object				runLock				= new Object();
+    private volatile boolean    running              = false;
 
-	private EventLoopGroup		singleEventLoopGroup	= new SingleEventLoopGroup(this);
+    private volatile boolean    stopped              = false;
 
-	protected abstract void doLoop() throws Exception;
+    private Object              runLock              = new Object();
 
-	protected void doStartup() throws Exception {
-	}
+    private EventLoopGroup      singleEventLoopGroup = new SingleEventLoopGroup(this);
 
-	protected void doStop() {
-	}
+    protected abstract void doLoop() throws Exception;
 
-	@Override
-	public EventLoopGroup getEventLoopGroup() {
-		return singleEventLoopGroup;
-	}
+    protected void doStartup() throws Exception {}
 
-	@Override
-	public Thread getMonitor() {
-		return monitor;
-	}
+    protected void doStop() {}
 
-	@Override
-	public boolean inEventLoop() {
-		return inEventLoop(Thread.currentThread());
-	}
+    @Override
+    public EventLoopGroup getEventLoopGroup() {
+        return singleEventLoopGroup;
+    }
 
-	@Override
-	public boolean inEventLoop(Thread thread) {
-		return getMonitor() == thread;
-	}
+    @Override
+    public Thread getMonitor() {
+        return monitor;
+    }
 
-	@Override
-	public boolean isRunning() {
-		return running;
-	}
+    @Override
+    public boolean inEventLoop() {
+        return inEventLoop(Thread.currentThread());
+    }
 
-	@Override
-	public void loop() {
+    @Override
+    public boolean inEventLoop(Thread thread) {
+        return getMonitor() == thread;
+    }
 
-		for (;;) {
+    @Override
+    public boolean isRunning() {
+        return running;
+    }
 
-			if (!running) {
-				stopped = true;
-				return;
-			}
+    @Override
+    public void loop() {
 
-			try {
-				doLoop();
-			} catch (Throwable e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
+        for (;;) {
 
-	@Override
-	public void startup(String threadName) throws Exception {
+            if (!running) {
+                stopped = true;
+                return;
+            }
 
-		synchronized (runLock) {
+            try {
+                doLoop();
+            } catch (Throwable e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
 
-			if (running) {
-				return;
-			}
+    @Override
+    public void startup(String threadName) throws Exception {
 
-			running = true;
-			
-			stopped = false;
+        synchronized (runLock) {
 
-			this.monitor = new Thread(new Runnable() {
+            if (running) {
+                return;
+            }
 
-				@Override
-				public void run() {
-					loop();
-				}
-			}, threadName);
+            running = true;
 
-			this.doStartup();
+            stopped = false;
 
-			this.monitor.start();
-		}
-	}
+            this.monitor = new Thread(new Runnable() {
 
-	@Override
-	public void stop() {
+                @Override
+                public void run() {
+                    loop();
+                }
+            }, threadName);
 
-		synchronized (runLock) {
+            this.doStartup();
 
-			if (!running) {
-				return;
-			}
+            this.monitor.start();
+        }
+    }
 
-			running = false;
-			
-			try {
-				wakeup();
-			} catch (Throwable e) {
-				logger.error(e.getMessage(), e);
-			}
-			
-			for(;!isStopped();){
-				ThreadUtil.sleep(4);
-			}
+    @Override
+    public void stop() {
 
-			try {
-				doStop();
-			} catch (Throwable e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
-	private boolean isStopped(){
-		return stopped;
-	}
+        synchronized (runLock) {
 
-	public void wakeup() {
-	}
-	
+            if (!running) {
+                return;
+            }
+
+            running = false;
+
+            try {
+                wakeup();
+            } catch (Throwable e) {
+                logger.error(e.getMessage(), e);
+            }
+
+            for (; !isStopped();) {
+                ThreadUtil.sleep(4);
+            }
+
+            try {
+                doStop();
+            } catch (Throwable e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    private boolean isStopped() {
+        return stopped;
+    }
+
+    @Override
+    public void wakeup() {}
+
 }

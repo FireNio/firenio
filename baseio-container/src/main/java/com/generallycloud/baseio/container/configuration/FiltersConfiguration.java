@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.configuration;
 
 import java.util.ArrayList;
@@ -20,15 +20,14 @@ import java.util.List;
 
 public class FiltersConfiguration {
 
-	private List<Configuration> filters = new ArrayList<Configuration>();
+    private List<Configuration> filters = new ArrayList<>();
 
-	public List<Configuration> getFilters() {
-		return filters;
-	}
+    public List<Configuration> getFilters() {
+        return filters;
+    }
 
-	protected void addFilters(Configuration filter) {
-		this.filters.add(filter);
-	}
-	
-	
+    protected void addFilters(Configuration filter) {
+        this.filters.add(filter);
+    }
+
 }

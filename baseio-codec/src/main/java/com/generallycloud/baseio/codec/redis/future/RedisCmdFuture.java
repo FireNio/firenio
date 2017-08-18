@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.redis.future;
 
 import java.io.IOException;
@@ -23,18 +23,18 @@ import com.generallycloud.baseio.component.SocketSession;
 
 public class RedisCmdFuture extends AbstractRedisFuture {
 
-	protected RedisCmdFuture(SocketChannelContext context) {
-		super(context);
-	}
+    protected RedisCmdFuture(SocketChannelContext context) {
+        super(context);
+    }
 
-	@Override
-	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
-		return true;
-	}
+    @Override
+    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+        return true;
+    }
 
-	@Override
-	public RedisNode getRedisNode() {
-		return null;
-	}
-	
+    @Override
+    public RedisNode getRedisNode() {
+        return null;
+    }
+
 }

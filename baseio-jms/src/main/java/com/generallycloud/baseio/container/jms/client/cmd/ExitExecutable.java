@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.client.cmd;
 
 import java.util.HashMap;
@@ -25,29 +25,29 @@ import com.generallycloud.baseio.container.jms.cmd.CommandContext;
 @Deprecated
 public class ExitExecutable extends MQCommandExecutor {
 
-	@Override
-	public CmdResponse exec(CommandContext context, HashMap<String, String> params) {
+    @Override
+    public CmdResponse exec(CommandContext context, HashMap<String, String> params) {
 
-		CmdResponse response = new CmdResponse();
+        CmdResponse response = new CmdResponse();
 
-		ChannelConnector connector = getClientConnector(context);
-		
-		if (connector == null) {
-			response.setResponse("请先登录！");
-			return response;
-		}
-		
-		//FIXME logout
-//		connector.logout();
-		
-		CloseUtil.close(connector);
-		
-		setMessageBrowser(context, null);
-		setClientConnector(context, null);
-		
-		response.setContinue(false);
-		response.setResponse("系统退出！");
-		
-		return response;
-	}
+        ChannelConnector connector = getClientConnector(context);
+
+        if (connector == null) {
+            response.setResponse("请先登录！");
+            return response;
+        }
+
+        //FIXME logout
+        //		connector.logout();
+
+        CloseUtil.close(connector);
+
+        setMessageBrowser(context, null);
+        setClientConnector(context, null);
+
+        response.setContinue(false);
+        response.setResponse("系统退出！");
+
+        return response;
+    }
 }

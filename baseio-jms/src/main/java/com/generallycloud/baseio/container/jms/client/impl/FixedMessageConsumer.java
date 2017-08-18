@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.client.impl;
 
 import java.util.HashMap;
@@ -32,150 +32,150 @@ import com.generallycloud.baseio.container.jms.client.OnMessage;
 
 public class FixedMessageConsumer implements OnMessage, MessageConsumer {
 
-	private Map<String, OnMappedMessage>	onMappedMessages	= new HashMap<String, OnMappedMessage>();
+    private Map<String, OnMappedMessage> onMappedMessages = new HashMap<>();
 
-	private OnNullMessage				onNullMessage		;
+    private OnNullMessage                onNullMessage;
 
-	private OnErrorMessage				onErrorMessage		;
+    private OnErrorMessage               onErrorMessage;
 
-	private OnTextByteMessage			onTextByteMessage	;
+    private OnTextByteMessage            onTextByteMessage;
 
-	private OnTextMessage				onTextMessage		;
+    private OnTextMessage                onTextMessage;
 
-	private MessageConsumer				messageConsumer	;
+    private MessageConsumer              messageConsumer;
 
-	public FixedMessageConsumer(FixedSession session) {
-		this.messageConsumer = new DefaultMessageConsumer(session);
-	}
+    public FixedMessageConsumer(FixedSession session) {
+        this.messageConsumer = new DefaultMessageConsumer(session);
+    }
 
-	@Override
-	public void onReceive(Message message) {
+    @Override
+    public void onReceive(Message message) {
 
-		int msgType = message.getMsgType();
+        int msgType = message.getMsgType();
 
-		if (Message.TYPE_MAP == msgType) {
+        if (Message.TYPE_MAP == msgType) {
 
-			MapMessage m = (MapMessage) message;
+            MapMessage m = (MapMessage) message;
 
-			String eventName = m.getParameter("eventName");
+            String eventName = m.getParameter("eventName");
 
-			OnMappedMessage onMessage = onMappedMessages.get(eventName);
+            OnMappedMessage onMessage = onMappedMessages.get(eventName);
 
-			if (onMessage == null) {
-				return;
-			}
+            if (onMessage == null) {
+                return;
+            }
 
-			onMessage.onReceive(m);
+            onMessage.onReceive(m);
 
-		} else if (Message.TYPE_MAP_BYTE == msgType) {
+        } else if (Message.TYPE_MAP_BYTE == msgType) {
 
-			MapByteMessage m = (MapByteMessage) message;
+            MapByteMessage m = (MapByteMessage) message;
 
-			String eventName = m.getParameter("eventName");
+            String eventName = m.getParameter("eventName");
 
-			OnMappedMessage onMessage = onMappedMessages.get(eventName);
+            OnMappedMessage onMessage = onMappedMessages.get(eventName);
 
-			if (onMessage == null) {
-				return;
-			}
+            if (onMessage == null) {
+                return;
+            }
 
-			onMessage.onReceive(m);
+            onMessage.onReceive(m);
 
-		} else if (Message.TYPE_TEXT == msgType) {
+        } else if (Message.TYPE_TEXT == msgType) {
 
-			if (onTextMessage != null) {
-				onTextMessage.onReceive((TextMessage) message);
-			}
+            if (onTextMessage != null) {
+                onTextMessage.onReceive((TextMessage) message);
+            }
 
-		} else if (Message.TYPE_TEXT_BYTE == msgType) {
+        } else if (Message.TYPE_TEXT_BYTE == msgType) {
 
-			if (onTextByteMessage != null) {
-				onTextByteMessage.onReceive((TextByteMessage) message);
-			}
+            if (onTextByteMessage != null) {
+                onTextByteMessage.onReceive((TextByteMessage) message);
+            }
 
-		} else if (Message.TYPE_ERROR == msgType) {
+        } else if (Message.TYPE_ERROR == msgType) {
 
-			if (onErrorMessage != null) {
-				onErrorMessage.onReceive((ErrorMessage) message);
-			}
+            if (onErrorMessage != null) {
+                onErrorMessage.onReceive((ErrorMessage) message);
+            }
 
-		} else if (Message.TYPE_NULL == msgType) {
+        } else if (Message.TYPE_NULL == msgType) {
 
-			if (onNullMessage != null) {
-				onNullMessage.onReceive((NullMessage) message);
-			}
+            if (onNullMessage != null) {
+                onNullMessage.onReceive((NullMessage) message);
+            }
 
-		}
-	}
+        }
+    }
 
-	public void listenTextMessage(OnTextMessage onTextMessage) {
-		this.onTextMessage = onTextMessage;
-	}
+    public void listenTextMessage(OnTextMessage onTextMessage) {
+        this.onTextMessage = onTextMessage;
+    }
 
-	public void listenTextByteMessage(OnTextByteMessage onTextByteMessage) {
-		this.onTextByteMessage = onTextByteMessage;
-	}
+    public void listenTextByteMessage(OnTextByteMessage onTextByteMessage) {
+        this.onTextByteMessage = onTextByteMessage;
+    }
 
-	public void listenErrorMessage(OnErrorMessage onErrorMessage) {
-		this.onErrorMessage = onErrorMessage;
-	}
+    public void listenErrorMessage(OnErrorMessage onErrorMessage) {
+        this.onErrorMessage = onErrorMessage;
+    }
 
-	public void listenNullMessage(OnNullMessage onNullMessage) {
-		this.onNullMessage = onNullMessage;
-	}
+    public void listenNullMessage(OnNullMessage onNullMessage) {
+        this.onNullMessage = onNullMessage;
+    }
 
-	public void listen(String eventName, OnMappedMessage onMapByteMessage) {
-		this.onMappedMessages.put(eventName, onMapByteMessage);
-	}
+    public void listen(String eventName, OnMappedMessage onMapByteMessage) {
+        this.onMappedMessages.put(eventName, onMapByteMessage);
+    }
 
-	@Override
-	public boolean beginTransaction() throws MQException {
-		return messageConsumer.beginTransaction();
-	}
+    @Override
+    public boolean beginTransaction() throws MQException {
+        return messageConsumer.beginTransaction();
+    }
 
-	@Override
-	public boolean commit() throws MQException {
-		return messageConsumer.commit();
-	}
+    @Override
+    public boolean commit() throws MQException {
+        return messageConsumer.commit();
+    }
 
-	@Override
-	public boolean rollback() throws MQException {
-		return messageConsumer.rollback();
-	}
+    @Override
+    public boolean rollback() throws MQException {
+        return messageConsumer.rollback();
+    }
 
-	@Override
-	public void receive(OnMessage onMessage) throws MQException {
+    @Override
+    public void receive(OnMessage onMessage) throws MQException {
 
-		if (onMessage != null) {
-			throw new MQException("");
-		}
+        if (onMessage != null) {
+            throw new MQException("");
+        }
 
-		messageConsumer.receive(this);
-	}
+        messageConsumer.receive(this);
+    }
 
-	@Override
-	public void subscribe(OnMessage onMessage) throws MQException {
+    @Override
+    public void subscribe(OnMessage onMessage) throws MQException {
 
-		if (onMessage != null) {
-			throw new MQException("");
-		}
+        if (onMessage != null) {
+            throw new MQException("");
+        }
 
-		messageConsumer.subscribe(this);
-	}
+        messageConsumer.subscribe(this);
+    }
 
-	public interface OnTextMessage {
-		public abstract void onReceive(TextMessage message);
-	}
+    public interface OnTextMessage {
+        public abstract void onReceive(TextMessage message);
+    }
 
-	public interface OnTextByteMessage {
-		public abstract void onReceive(TextByteMessage message);
-	}
+    public interface OnTextByteMessage {
+        public abstract void onReceive(TextByteMessage message);
+    }
 
-	public interface OnErrorMessage {
-		public abstract void onReceive(ErrorMessage message);
-	}
+    public interface OnErrorMessage {
+        public abstract void onReceive(ErrorMessage message);
+    }
 
-	public interface OnNullMessage {
-		public abstract void onReceive(NullMessage message);
-	}
+    public interface OnNullMessage {
+        public abstract void onReceive(NullMessage message);
+    }
 }

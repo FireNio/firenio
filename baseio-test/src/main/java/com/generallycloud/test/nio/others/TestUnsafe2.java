@@ -25,44 +25,43 @@ import com.generallycloud.baseio.common.UnsafeUtil;
  */
 public class TestUnsafe2 {
 
-	public static void main(String[] args) {
-		int capacity = 1024 * 1024 * 1;
-		ByteBuffer buffer = ByteBuffer.allocateDirect(capacity);
-		ByteBuffer heapBuffer = ByteBuffer.allocate(capacity);
-		byte[] bb = new byte[capacity];
-		long startTime = System.currentTimeMillis();
-		int time = 1024 * 16;
+    public static void main(String[] args) {
+        int capacity = 1024 * 1024 * 1;
+        ByteBuffer buffer = ByteBuffer.allocateDirect(capacity);
+        ByteBuffer heapBuffer = ByteBuffer.allocate(capacity);
+        byte[] bb = new byte[capacity];
+        long startTime = System.currentTimeMillis();
+        int time = 1024 * 16;
 
-//		testRadByteUnsafeDirectByteBuffer(time, buffer);
-		testReadByteDirectByteBuffer(time, buffer);
+        //		testRadByteUnsafeDirectByteBuffer(time, buffer);
+        testReadByteDirectByteBuffer(time, buffer);
 
-		System.out.println("Time:"+( System.currentTimeMillis() - startTime));
-	}
+        System.out.println("Time:" + (System.currentTimeMillis() - startTime));
+    }
 
+    static void testRadByteUnsafeDirectByteBuffer(int time, ByteBuffer array) {
+        long e = 0;
+        long address = UnsafeUtil.addressOffset(array);
+        long end = address + array.capacity();
+        for (int i = 0; i < time; i++) {
+            for (long j = address; j < end; j++) {
+                byte b = UnsafeUtil.getByte(j);
+                e++;
+            }
+        }
+        System.out.println("e=" + e);
+    }
 
-	static void testRadByteUnsafeDirectByteBuffer(int time, ByteBuffer array) {
-		long e = 0;
-		long address = UnsafeUtil.addressOffset(array);
-		long end = address + array.capacity();
-		for (int i = 0; i < time; i++) {
-			for (long j = address; j < end; j++) {
-				byte b = UnsafeUtil.getByte(j);
-				e++;
-			}
-		}
-		System.out.println("e="+ e);
-	}
-
-	static void testReadByteDirectByteBuffer(int time, ByteBuffer array) {
-		long e = 0;
-		int len = array.capacity();
-		for (int i = 0; i < time; i++) {
-			for (int j = 0; j < len; j++) {
-				byte b = array.get(j);
-				e++;
-			}
-		}
-		System.out.println("e="+ e);
-	}
+    static void testReadByteDirectByteBuffer(int time, ByteBuffer array) {
+        long e = 0;
+        int len = array.capacity();
+        for (int i = 0; i < time; i++) {
+            for (int j = 0; j < len; j++) {
+                byte b = array.get(j);
+                e++;
+            }
+        }
+        System.out.println("e=" + e);
+    }
 
 }

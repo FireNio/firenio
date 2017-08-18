@@ -24,100 +24,100 @@ import com.generallycloud.baseio.component.SocketSession;
 
 public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2HeadersFrame {
 
-	private boolean		isComplete;
+    private boolean        isComplete;
 
-	private byte			padLength;
+    private byte           padLength;
 
-	private boolean		e;
+    private boolean        e;
 
-	private int			streamDependency;
+    private int            streamDependency;
 
-	private short			weight;
+    private short          weight;
 
-	private boolean		endStream;
+    private boolean        endStream;
 
-	private static Decoder	decoder	= new Decoder();
+    private static Decoder decoder = new Decoder();
 
-	public Http2HeadersFrameImpl(Http2SocketSession session, ByteBuf buf, Http2FrameHeader header) {
-		super(session, header);
-		this.buf = buf;
-	}
+    public Http2HeadersFrameImpl(Http2SocketSession session, ByteBuf buf, Http2FrameHeader header) {
+        super(session, header);
+        this.buf = buf;
+    }
 
-	private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
+    private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
 
-		byte flags = getHeader().getFlags();
+        byte flags = getHeader().getFlags();
 
-		this.endStream = (flags & FLAG_END_STREAM) > 0;
+        this.endStream = (flags & FLAG_END_STREAM) > 0;
 
-		if ((flags & FLAG_PADDED) > 0) {
-			padLength = buf.getByte();
-		}
+        if ((flags & FLAG_PADDED) > 0) {
+            padLength = buf.getByte();
+        }
 
-		if ((flags & FLAG_PRIORITY) > 0) {
+        if ((flags & FLAG_PRIORITY) > 0) {
 
-			streamDependency = buf.getInt();
+            streamDependency = buf.getInt();
 
-			e = streamDependency < 0;
+            e = streamDependency < 0;
 
-			if (e) {
-				streamDependency = streamDependency & 0x7FFFFFFF;
-			}
+            if (e) {
+                streamDependency = streamDependency & 0x7FFFFFFF;
+            }
 
-			weight = buf.getUnsignedByte();
-		}
+            weight = buf.getUnsignedByte();
+        }
 
-		decoder.decode(streamDependency, buf, session.getHttp2Headers());
-	}
+        decoder.decode(streamDependency, buf, session.getHttp2Headers());
+    }
 
-	@Override
-	public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    @Override
+    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
 
-		if (!isComplete) {
+        if (!isComplete) {
 
-			ByteBuf buf = this.buf;
+            ByteBuf buf = this.buf;
 
-			buf.read(buffer);
+            buf.read(buffer);
 
-			if (buf.hasRemaining()) {
-				return false;
-			}
+            if (buf.hasRemaining()) {
+                return false;
+            }
 
-			this.isComplete = true;
+            this.isComplete = true;
 
-			doComplete((Http2SocketSession) session, buf.flip());
-		}
+            doComplete((Http2SocketSession) session, buf.flip());
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public boolean isSilent() {
-		return !endStream;
-	}
+    @Override
+    public boolean isSilent() {
+        return !endStream;
+    }
 
-	@Override
-	public Http2FrameType getHttp2FrameType() {
-		return Http2FrameType.FRAME_TYPE_HEADERS;
-	}
+    @Override
+    public Http2FrameType getHttp2FrameType() {
+        return Http2FrameType.FRAME_TYPE_HEADERS;
+    }
 
-	@Override
-	public boolean isE() {
-		return e;
-	}
+    @Override
+    public boolean isE() {
+        return e;
+    }
 
-	@Override
-	public int getStreamDependency() {
-		return streamDependency;
-	}
+    @Override
+    public int getStreamDependency() {
+        return streamDependency;
+    }
 
-	@Override
-	public short getWeight() {
-		return weight;
-	}
+    @Override
+    public short getWeight() {
+        return weight;
+    }
 
-	@Override
-	public byte getPadLength() {
-		return padLength;
-	}
-	
+    @Override
+    public byte getPadLength() {
+        return padLength;
+    }
+
 }

@@ -23,47 +23,47 @@ import com.generallycloud.baseio.container.configuration.Configuration;
 
 public class HttpContext extends AbstractPluginContext {
 
-	private static HttpContext	instance			= null;
+    private static HttpContext instance           = null;
 
-	private HttpSessionManager	httpSessionManager	= null;
+    private HttpSessionManager httpSessionManager = null;
 
-	public static HttpContext getInstance() {
-		return instance;
-	}
+    public static HttpContext getInstance() {
+        return instance;
+    }
 
-	@Override
-	public void destroy(ApplicationContext context, Configuration config) throws Exception {
+    @Override
+    public void destroy(ApplicationContext context, Configuration config) throws Exception {
 
-		if (enableHttpSession(config)) {
-			LifeCycleUtil.stop(httpSessionManager);
-		}
+        if (enableHttpSession(config)) {
+            LifeCycleUtil.stop(httpSessionManager);
+        }
 
-		super.destroy(context, config);
-	}
+        super.destroy(context, config);
+    }
 
-	public HttpSessionManager getHttpSessionManager() {
-		return httpSessionManager;
-	}
+    public HttpSessionManager getHttpSessionManager() {
+        return httpSessionManager;
+    }
 
-	@Override
-	public void initialize(ApplicationContext context, Configuration config) throws Exception {
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-		super.initialize(context, config);
+        super.initialize(context, config);
 
-		instance = this;
+        instance = this;
 
-		if (enableHttpSession(config)) {
-			httpSessionManager = new DefaultHttpSessionManager();
-			httpSessionManager.startup("HTTPSession-Manager");
-		}else{
-			httpSessionManager = new FakeHttpSessionManager();
-		}
+        if (enableHttpSession(config)) {
+            httpSessionManager = new DefaultHttpSessionManager();
+            httpSessionManager.startup("HTTPSession-Manager");
+        } else {
+            httpSessionManager = new FakeHttpSessionManager();
+        }
 
-		context.getChannelContext().addSessionEventListener(new WebSocketSEListener());
-	}
+        context.getChannelContext().addSessionEventListener(new WebSocketSEListener());
+    }
 
-	private boolean enableHttpSession(Configuration config) {
-		return config.getBooleanParameter("enable-http-session");
-	}
+    private boolean enableHttpSession(Configuration config) {
+        return config.getBooleanParameter("enable-http-session");
+    }
 
 }

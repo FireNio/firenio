@@ -51,55 +51,55 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
  */
 public class ProtobaseProtocolDecoder implements ProtocolDecoder {
 
-	public static final int	PROTOCOL_HEADER_WITH_BINARY	= 12;
-	public static final int	PROTOCOL_HEADER_NO_BINARY		= 8;
+    public static final int  PROTOCOL_HEADER_WITH_BINARY = 12;
+    public static final int  PROTOCOL_HEADER_NO_BINARY   = 8;
 
-	public static final byte	PROTOCOL_PACKET				= (byte) 0b01000000;
-	public static final byte	PROTOCOL_PING					= (byte) 0b10000000;
-	public static final byte	PROTOCOL_PONG					= (byte) 0b11000000;
-	public static final byte	PROTOCOL_HAS_BINARY			= (byte) 0b00100000;
-	public static final byte	PROTOCOL_IS_BROADCAST			= (byte) 0b00010000;
+    public static final byte PROTOCOL_PACKET             = (byte) 0b01000000;
+    public static final byte PROTOCOL_PING               = (byte) 0b10000000;
+    public static final byte PROTOCOL_PONG               = (byte) 0b11000000;
+    public static final byte PROTOCOL_HAS_BINARY         = (byte) 0b00100000;
+    public static final byte PROTOCOL_IS_BROADCAST       = (byte) 0b00010000;
 
-	protected int			limit;
+    protected int            limit;
 
-	public ProtobaseProtocolDecoder(int limit) {
-		this.limit = limit;
-	}
+    public ProtobaseProtocolDecoder(int limit) {
+        this.limit = limit;
+    }
 
-	@Override
-	public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+    @Override
+    public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-		byte byte0 = buffer.getByte();
+        byte byte0 = buffer.getByte();
 
-		if (byte0 == PROTOCOL_PING) {
-			return new ProtobaseFutureImpl(session.getContext()).setPING();
-		} else if (byte0 == PROTOCOL_PONG) {
-			return new ProtobaseFutureImpl(session.getContext()).setPONG();
-		}
+        if (byte0 == PROTOCOL_PING) {
+            return new ProtobaseFutureImpl(session.getContext()).setPING();
+        } else if (byte0 == PROTOCOL_PONG) {
+            return new ProtobaseFutureImpl(session.getContext()).setPONG();
+        }
 
-		ByteBufAllocator allocator = session.getByteBufAllocator();
+        ByteBufAllocator allocator = session.getByteBufAllocator();
 
-		if ((byte0 & PROTOCOL_HAS_BINARY) > 0) {
-			return newChannelReadFutureWithBinary(session, allocator, byte0);
-		}
+        if ((byte0 & PROTOCOL_HAS_BINARY) > 0) {
+            return newChannelReadFutureWithBinary(session, allocator, byte0);
+        }
 
-		return newChannelReadFutureNoBinary(session, allocator, byte0);
-	}
+        return newChannelReadFutureNoBinary(session, allocator, byte0);
+    }
 
-	protected boolean isBroadcast(byte b) {
-		return (b & PROTOCOL_IS_BROADCAST) > 0;
-	}
+    protected boolean isBroadcast(byte b) {
+        return (b & PROTOCOL_IS_BROADCAST) > 0;
+    }
 
-	protected ChannelFuture newChannelReadFutureNoBinary(SocketSession session,
-			ByteBufAllocator allocator, byte b) throws IOException {
-		ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_NO_BINARY - 1);
-		return new ProtobaseFutureImpl(session, buf);
-	}
+    protected ChannelFuture newChannelReadFutureNoBinary(SocketSession session,
+            ByteBufAllocator allocator, byte b) throws IOException {
+        ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_NO_BINARY - 1);
+        return new ProtobaseFutureImpl(session, buf);
+    }
 
-	protected ChannelFuture newChannelReadFutureWithBinary(SocketSession session,
-			ByteBufAllocator allocator, byte b) throws IOException {
-		ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_WITH_BINARY - 1);
-		return new ProtobaseBinaryFutureImpl(session, buf, limit);
-	}
+    protected ChannelFuture newChannelReadFutureWithBinary(SocketSession session,
+            ByteBufAllocator allocator, byte b) throws IOException {
+        ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_WITH_BINARY - 1);
+        return new ProtobaseBinaryFutureImpl(session, buf, limit);
+    }
 
 }

@@ -26,75 +26,71 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class DatagramChannelContext extends AbstractChannelContext {
 
-	private DatagramSessionManager				sessionManager;
-	private DatagramPacketAcceptor				datagramPacketAcceptor;
-	private Logger								logger		= LoggerFactory
-			.getLogger(getClass());
+    private DatagramSessionManager sessionManager;
+    private DatagramPacketAcceptor datagramPacketAcceptor;
+    private Logger                 logger = LoggerFactory.getLogger(getClass());
 
-	public DatagramChannelContext(ServerConfiguration configuration) {
-		super(configuration);
-		this.sessionManager = new DatagramSessionManager(this);
-	}
+    public DatagramChannelContext(ServerConfiguration configuration) {
+        super(configuration);
+        this.sessionManager = new DatagramSessionManager(this);
+    }
 
-	@Override
-	protected void doStart() throws Exception {
+    @Override
+    protected void doStart() throws Exception {
 
-		this.clearContext();
+        this.clearContext();
 
-		this.serverConfiguration.initializeDefault(this);
+        this.serverConfiguration.initializeDefault(this);
 
-		int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
-		int server_port = serverConfiguration.getSERVER_PORT();
-		long session_idle = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
+        int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
+        int server_port = serverConfiguration.getSERVER_PORT();
+        long session_idle = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 
-		long SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY()
-				* SERVER_CORE_SIZE;
-		long SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
+        long SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY()
+                * SERVER_CORE_SIZE;
+        long SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
 
-		double MEMORY_POOL_SIZE = new BigDecimal(
-				SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
-						.divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
-						.doubleValue();
+        double MEMORY_POOL_SIZE = new BigDecimal(
+                SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
+                        .divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
+                        .doubleValue();
 
-		this.encoding = serverConfiguration.getSERVER_ENCODING();
-		this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
+        this.encoding = serverConfiguration.getSERVER_ENCODING();
+        this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
 
-		if (getByteBufAllocatorManager() == null) {
+        if (getByteBufAllocatorManager() == null) {
 
-			this.byteBufAllocatorManager = new PooledByteBufAllocatorManager(this);
-		}
-		
-		LoggerUtil.prettyLog(logger,
-				"======================================= service begin to start =======================================");
-		LoggerUtil.prettyLog(logger, "encoding              ：{ {} }", encoding);
-		LoggerUtil.prettyLog(logger, "cpu size              ：{ cpu * {} }",
-				SERVER_CORE_SIZE);
-		LoggerUtil.prettyLog(logger, "session idle          ：{ {} }", session_idle);
-		LoggerUtil.prettyLog(logger, "listen port(udp)      ：{ {} }", server_port);
-		LoggerUtil.prettyLog(logger, "memory pool cap       ：{ {} * {} ≈ {} M }",
-				new Object[] { SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY,
-						MEMORY_POOL_SIZE });
+            this.byteBufAllocatorManager = new PooledByteBufAllocatorManager(this);
+        }
 
-		
-		LifeCycleUtil.start(byteBufAllocatorManager);
-	}
+        LoggerUtil.prettyLog(logger,
+                "======================================= service begin to start =======================================");
+        LoggerUtil.prettyLog(logger, "encoding              ：{ {} }", encoding);
+        LoggerUtil.prettyLog(logger, "cpu size              ：{ cpu * {} }", SERVER_CORE_SIZE);
+        LoggerUtil.prettyLog(logger, "session idle          ：{ {} }", session_idle);
+        LoggerUtil.prettyLog(logger, "listen port(udp)      ：{ {} }", server_port);
+        LoggerUtil.prettyLog(logger, "memory pool cap       ：{ {} * {} ≈ {} M }", new Object[] {
+                SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
 
-	@Override
-	protected void doStop() throws Exception {
-		LifeCycleUtil.stop(byteBufAllocatorManager);
-		sessionManager.stop();
-	}
+        LifeCycleUtil.start(byteBufAllocatorManager);
+    }
 
-	public DatagramPacketAcceptor getDatagramPacketAcceptor() {
-		return datagramPacketAcceptor;
-	}
+    @Override
+    protected void doStop() throws Exception {
+        LifeCycleUtil.stop(byteBufAllocatorManager);
+        sessionManager.stop();
+    }
 
-	public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
-		this.datagramPacketAcceptor = datagramPacketAcceptor;
-	}
+    public DatagramPacketAcceptor getDatagramPacketAcceptor() {
+        return datagramPacketAcceptor;
+    }
 
-	public DatagramSessionManager getSessionManager() {
-		return sessionManager;
-	}
-	
+    public void setDatagramPacketAcceptor(DatagramPacketAcceptor datagramPacketAcceptor) {
+        this.datagramPacketAcceptor = datagramPacketAcceptor;
+    }
+
+    public DatagramSessionManager getSessionManager() {
+        return sessionManager;
+    }
+
 }

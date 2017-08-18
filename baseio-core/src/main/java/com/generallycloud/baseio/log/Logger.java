@@ -17,32 +17,32 @@ package com.generallycloud.baseio.log;
 
 public interface Logger {
 
-	void info(String message);
+    void info(String message);
 
-	void info(String message, Object param);
+    void info(String message, Object param);
 
-	void info(String message, Object param, Object param1);
+    void info(String message, Object param, Object param1);
 
-	void info(String message, Object[] param);
+    void info(String message, Object[] param);
 
-	void debug(String message);
+    void debug(String message);
 
-	void debug(Throwable throwable);
+    void debug(Throwable throwable);
 
-	void debug(String message, Object param);
+    void debug(String message, Object param);
 
-	void debug(String message, Object param, Object param1);
+    void debug(String message, Object param, Object param1);
 
-	void debug(String message, Object[] param);
+    void debug(String message, Object[] param);
 
-	void error(String message);
+    void error(String message);
 
-	void error(String message, Throwable throwable);
+    void error(String message, Throwable throwable);
 
-	Class<?> getLoggerClass();
+    Class<?> getLoggerClass();
 
-	boolean isEnableDebug();
+    boolean isEnableDebug();
 
-	void error(Throwable e);
+    void error(Throwable e);
 
 }

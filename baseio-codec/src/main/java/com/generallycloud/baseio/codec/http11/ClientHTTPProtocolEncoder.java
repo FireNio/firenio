@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http11;
 
 import java.io.IOException;
@@ -29,67 +29,67 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
 
 //FIXME post
 public class ClientHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
-	
-	private static final byte [] PROTOCOL = " HTTP/1.1\r\n".getBytes();
-	private static final byte [] COOKIE = "Cookie:".getBytes();
-	private static final byte SEMICOLON = ';';
 
-	@Override
-	public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
+    private static final byte[] PROTOCOL  = " HTTP/1.1\r\n".getBytes();
+    private static final byte[] COOKIE    = "Cookie:".getBytes();
+    private static final byte   SEMICOLON = ';';
 
-		HttpFuture f = (HttpFuture) future;
+    @Override
+    public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
 
-		ByteBuf buf = allocator.allocate(256);
-		buf.put(f.getMethod().getBytes());
-		buf.putByte(SPACE);
-		buf.put(getRequestURI(f).getBytes());
-		buf.put(PROTOCOL);
-		
-		writeHeaders(f, buf);
+        HttpFuture f = (HttpFuture) future;
 
-		List<Cookie> cookieList = f.getCookieList();
+        ByteBuf buf = allocator.allocate(256);
+        buf.put(f.getMethod().getBytes());
+        buf.putByte(SPACE);
+        buf.put(getRequestURI(f).getBytes());
+        buf.put(PROTOCOL);
 
-		if (cookieList != null && cookieList.size() > 0) {
-			
-			buf.put(COOKIE);
-			for (Cookie c : cookieList) {
-				writeBuf(buf, c.getName().getBytes());
-				writeBuf(buf, COLON);
-				writeBuf(buf, c.getValue().getBytes());
-				writeBuf(buf, SEMICOLON);
-			}
-			
-			buf.position(buf.position() - 1);
-		}
+        writeHeaders(f, buf);
 
-		buf.put(RN);
+        List<Cookie> cookieList = f.getCookieList();
 
-		future.setByteBuf(buf.flip());
-	}
+        if (cookieList != null && cookieList.size() > 0) {
 
-	private String getRequestURI(HttpFuture future) {
-		
-		Map<String, String> params = future.getRequestParams();
-		
-		if (params == null) {
-			return future.getRequestURL();
-		}
+            buf.put(COOKIE);
+            for (Cookie c : cookieList) {
+                writeBuf(buf, c.getName().getBytes());
+                writeBuf(buf, COLON);
+                writeBuf(buf, c.getValue().getBytes());
+                writeBuf(buf, SEMICOLON);
+            }
 
-		String url = future.getRequestURI();
+            buf.position(buf.position() - 1);
+        }
 
-		StringBuilder u = new StringBuilder(url);
+        buf.put(RN);
 
-		u.append("?");
+        future.setByteBuf(buf.flip());
+    }
 
-		Set<Entry<String, String>> ps = params.entrySet();
-		
-		for (Entry<String, String> p : ps) {
-			u.append(p.getKey());
-			u.append("=");
-			u.append(p.getValue());
-			u.append("&");
-		}
+    private String getRequestURI(HttpFuture future) {
 
-		return u.toString();
-	}
+        Map<String, String> params = future.getRequestParams();
+
+        if (params == null) {
+            return future.getRequestURL();
+        }
+
+        String url = future.getRequestURI();
+
+        StringBuilder u = new StringBuilder(url);
+
+        u.append("?");
+
+        Set<Entry<String, String>> ps = params.entrySet();
+
+        for (Entry<String, String> p : ps) {
+            u.append(p.getKey());
+            u.append("=");
+            u.append(p.getValue());
+            u.append("&");
+        }
+
+        return u.toString();
+    }
 }

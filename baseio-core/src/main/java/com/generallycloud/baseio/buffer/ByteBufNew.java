@@ -12,10 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.buffer;
 
 public interface ByteBufNew {
 
-	public abstract PooledByteBuf newByteBuf(ByteBufAllocator allocator);
+    public abstract PooledByteBuf newByteBuf(ByteBufAllocator allocator);
 }

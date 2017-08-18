@@ -29,46 +29,46 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
  */
 public abstract class AbstractHttpProtocolEncoder implements ProtocolEncoder {
 
-	protected static final byte[]	RN		= "\r\n".getBytes();
-	protected static final byte	COLON	= ':';
-	protected static final byte	SPACE	= ' ';
+    protected static final byte[] RN    = "\r\n".getBytes();
+    protected static final byte   COLON = ':';
+    protected static final byte   SPACE = ' ';
 
-	protected void writeBuf(ByteBuf buf, byte[] array) {
-		writeBuf(buf, array, 0, array.length);
-	}
+    protected void writeBuf(ByteBuf buf, byte[] array) {
+        writeBuf(buf, array, 0, array.length);
+    }
 
-	protected void writeBuf(ByteBuf buf, byte[] array, int offset, int len) {
-		if (buf.remaining() < len) {
-			buf.reallocate(buf.position() + len, true);
-			buf.limit(buf.capacity());
-		}
-		buf.put(array);
-	}
+    protected void writeBuf(ByteBuf buf, byte[] array, int offset, int len) {
+        if (buf.remaining() < len) {
+            buf.reallocate(buf.position() + len, true);
+            buf.limit(buf.capacity());
+        }
+        buf.put(array);
+    }
 
-	protected void writeBuf(ByteBuf buf, byte b) {
-		if (!buf.hasRemaining()) {
-			buf.reallocate(buf.capacity() + 1, true);
-			buf.limit(buf.capacity());
-		}
-		buf.putByte(b);
-	}
+    protected void writeBuf(ByteBuf buf, byte b) {
+        if (!buf.hasRemaining()) {
+            buf.reallocate(buf.capacity() + 1, true);
+            buf.limit(buf.capacity());
+        }
+        buf.putByte(b);
+    }
 
-	protected void writeHeaders(HttpFuture f, ByteBuf buf) {
+    protected void writeHeaders(HttpFuture f, ByteBuf buf) {
 
-		Map<String, String> headers = f.getResponseHeaders();
+        Map<String, String> headers = f.getResponseHeaders();
 
-		if (headers == null) {
-			return;
-		}
-		
-		Set<Entry<String, String>> hs = headers.entrySet();
-		
-		for (Entry<String, String> header : hs) {
-			writeBuf(buf, header.getKey().getBytes());
-			writeBuf(buf, COLON);
-			writeBuf(buf, header.getValue().getBytes());
-			writeBuf(buf, RN);
-		}
-	}
+        if (headers == null) {
+            return;
+        }
+
+        Set<Entry<String, String>> hs = headers.entrySet();
+
+        for (Entry<String, String> header : hs) {
+            writeBuf(buf, header.getKey().getBytes());
+            writeBuf(buf, COLON);
+            writeBuf(buf, header.getValue().getBytes());
+            writeBuf(buf, RN);
+        }
+    }
 
 }

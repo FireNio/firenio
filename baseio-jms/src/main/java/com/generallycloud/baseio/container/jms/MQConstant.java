@@ -20,5 +20,5 @@ package com.generallycloud.baseio.container.jms;
  *
  */
 public class MQConstant {
-	
+
 }

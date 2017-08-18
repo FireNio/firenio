@@ -23,11 +23,11 @@ import com.generallycloud.baseio.concurrent.EventLoopGroup;
  */
 public interface SelectorEventLoopGroup extends EventLoopGroup {
 
-	@Override
-	public abstract SelectorEventLoop getNext();
+    @Override
+    public abstract SelectorEventLoop getNext();
 
-	public abstract SelectorEventLoop[] getSelectorEventLoops();
+    public abstract SelectorEventLoop[] getSelectorEventLoops();
 
-	public abstract ChannelContext getChannelContext();
+    public abstract ChannelContext getChannelContext();
 
 }

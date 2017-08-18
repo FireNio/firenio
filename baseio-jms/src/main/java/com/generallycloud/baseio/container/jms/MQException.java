@@ -12,26 +12,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms;
 
 import java.io.IOException;
 
 @SuppressWarnings("serial")
-public class MQException extends IOException{
-	
-	public static final MQException TIME_OUT = new MQException("timeout");
-	
-	public MQException(String reason){
-		super(reason);
-	}
-	
-	public MQException(String reason,Throwable e){
-		super(reason, e);
-	}
-	
-	public MQException(Throwable e){
-		super(e);
-	}
-	
+public class MQException extends IOException {
+
+    public static final MQException TIME_OUT = new MQException("timeout");
+
+    public MQException(String reason) {
+        super(reason);
+    }
+
+    public MQException(String reason, Throwable e) {
+        super(reason, e);
+    }
+
+    public MQException(Throwable e) {
+        super(e);
+    }
+
 }

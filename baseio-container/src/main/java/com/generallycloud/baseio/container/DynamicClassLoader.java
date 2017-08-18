@@ -26,34 +26,34 @@ import java.util.Enumeration;
  * @author wangkai
  *
  */
-public interface DynamicClassLoader extends Closeable{
+public interface DynamicClassLoader extends Closeable {
 
-	public abstract URL getResource(String name);
+    public abstract URL getResource(String name);
 
-	public abstract Enumeration<URL> getResources(String name) throws IOException;
+    public abstract Enumeration<URL> getResources(String name) throws IOException;
 
-	public abstract InputStream getResourceAsStream(String name);
+    public abstract InputStream getResourceAsStream(String name);
 
-	public abstract ClassLoader getParent();
+    public abstract ClassLoader getParent();
 
-	public abstract void setDefaultAssertionStatus(boolean enabled);
+    public abstract void setDefaultAssertionStatus(boolean enabled);
 
-	public abstract void setPackageAssertionStatus(String packageName, boolean enabled);
+    public abstract void setPackageAssertionStatus(String packageName, boolean enabled);
 
-	public abstract void setClassAssertionStatus(String className, boolean enabled);
+    public abstract void setClassAssertionStatus(String className, boolean enabled);
 
-	public abstract void clearAssertionStatus();
-	
-	public abstract Class<?> loadClass(String name) throws ClassNotFoundException;
+    public abstract void clearAssertionStatus();
 
-	public abstract void scan(File file) throws IOException;
-	
-	public abstract void scan(File[] files) throws IOException;
+    public abstract Class<?> loadClass(String name) throws ClassNotFoundException;
 
-	public abstract void unloadClassLoader();
-	
-	public abstract void addExcludePath(String path);
-	
-	public abstract void removeExcludePath(String path);
+    public abstract void scan(File file) throws IOException;
+
+    public abstract void scan(File[] files) throws IOException;
+
+    public abstract void unloadClassLoader();
+
+    public abstract void addExcludePath(String path);
+
+    public abstract void removeExcludePath(String path);
 
 }

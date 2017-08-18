@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.client.impl;
 
 import java.io.IOException;
@@ -28,59 +28,59 @@ import com.generallycloud.baseio.container.jms.server.MQPublishServlet;
 
 public class DefaultMessageProducer implements MessageProducer {
 
-	private FixedSession session = null;
-	
-	public DefaultMessageProducer(FixedSession session) {
-		this.session = session;
-	}
+    private FixedSession session = null;
 
-	@Override
-	public boolean offer(Message message) throws MQException {
-		return offer(message, MQProducerServlet.SERVICE_NAME);
-	}
-	
-	private boolean offer(Message message,String serviceName) throws MQException {
-		
-		String param = message.toString();
+    public DefaultMessageProducer(FixedSession session) {
+        this.session = session;
+    }
 
-		ProtobaseFuture future = null;
+    @Override
+    public boolean offer(Message message) throws MQException {
+        return offer(message, MQProducerServlet.SERVICE_NAME);
+    }
 
-		int msgType = message.getMsgType();
+    private boolean offer(Message message, String serviceName) throws MQException {
 
-		try {
+        String param = message.toString();
 
-			if (msgType == Message.TYPE_TEXT || msgType == Message.TYPE_MAP) {
+        ProtobaseFuture future = null;
 
-				future = session.request(serviceName, param);
+        int msgType = message.getMsgType();
 
-			} else if (msgType == Message.TYPE_TEXT_BYTE || msgType == Message.TYPE_MAP_BYTE) {
-				
-				BytedMessage _message = (BytedMessage) message;
-				
-				future = session.request(serviceName, param, _message.getByteArray());
-				
-			} else {
-				
-				throw new MQException("msgType:" + msgType);
-			}
-		} catch (IOException e) {
-			
-			throw new MQException(e.getMessage(), e);
-		}
-		
-		String result = future.getReadText();
+        try {
 
-		if (result.length() == 1) {
-			return "T".equals(result);
-		}
-		throw new MQException(result);
+            if (msgType == Message.TYPE_TEXT || msgType == Message.TYPE_MAP) {
 
-	}
+                future = session.request(serviceName, param);
 
-	@Override
-	public boolean publish(Message message) throws MQException {
+            } else if (msgType == Message.TYPE_TEXT_BYTE || msgType == Message.TYPE_MAP_BYTE) {
 
-		return offer(message, MQPublishServlet.SERVICE_NAME);
-	}
+                BytedMessage _message = (BytedMessage) message;
+
+                future = session.request(serviceName, param, _message.getByteArray());
+
+            } else {
+
+                throw new MQException("msgType:" + msgType);
+            }
+        } catch (IOException e) {
+
+            throw new MQException(e.getMessage(), e);
+        }
+
+        String result = future.getReadText();
+
+        if (result.length() == 1) {
+            return "T".equals(result);
+        }
+        throw new MQException(result);
+
+    }
+
+    @Override
+    public boolean publish(Message message) throws MQException {
+
+        return offer(message, MQPublishServlet.SERVICE_NAME);
+    }
 
 }

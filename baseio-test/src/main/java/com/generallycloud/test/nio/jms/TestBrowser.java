@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.jms;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
@@ -30,45 +30,45 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestBrowser {
 
-	public static void main(String[] args) throws Exception {
-		
-		String queueName = "qName";
+    public static void main(String[] args) throws Exception {
 
-		LoggerFactory.configure();
-		
-		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+        String queueName = "qName";
 
-		ServerConfiguration configuration = new ServerConfiguration(8300);
+        LoggerFactory.configure();
 
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandle);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
+        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-		FixedSession session = new FixedSession(connector.connect());
+        ServerConfiguration configuration = new ServerConfiguration(8300);
 
-		session.login("admin", "admin100");
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
 
-		MessageBrowser browser = new DefaultMessageBrowser(session);
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		Message message = browser.browser(queueName);
-		
-		System.out.println("message:"+message);
-		
-		int size = browser.size();
-		
-		System.out.println("size:"+size);
-		
-		boolean isOnline = browser.isOnline(queueName);
-		
-		System.out.println("isOnline:"+isOnline);
+        context.setIoEventHandleAdaptor(eventHandle);
 
-		connector.close();
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
 
-	}
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        FixedSession session = new FixedSession(connector.connect());
+
+        session.login("admin", "admin100");
+
+        MessageBrowser browser = new DefaultMessageBrowser(session);
+
+        Message message = browser.browser(queueName);
+
+        System.out.println("message:" + message);
+
+        int size = browser.size();
+
+        System.out.println("size:" + size);
+
+        boolean isOnline = browser.isOnline(queueName);
+
+        System.out.println("isOnline:" + isOnline);
+
+        connector.close();
+
+    }
 }

@@ -12,12 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.configuration;
 
 import com.generallycloud.baseio.common.FixedProperties;
 
 public interface ServerConfigurationLoader {
-	
-	public ServerConfiguration loadConfiguration(FixedProperties properties) throws Exception;
+
+    public ServerConfiguration loadConfiguration(FixedProperties properties) throws Exception;
 }

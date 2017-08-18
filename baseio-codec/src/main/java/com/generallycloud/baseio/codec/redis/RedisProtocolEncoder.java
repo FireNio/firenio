@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.redis;
 
 import java.io.IOException;
@@ -27,20 +27,21 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 public class RedisProtocolEncoder implements ProtocolEncoder {
 
-	@Override
-	public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
-		
-		RedisFuture f = (RedisFuture) future;
+    @Override
+    public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
 
-		ByteArrayBuffer buffer = f.getWriteBuffer();
-		
-		if (buffer == null) {
-			throw new IOException("null write text");
-		}
+        RedisFuture f = (RedisFuture) future;
 
-		ByteBuf buf = UnpooledByteBufAllocator.getHeapInstance().wrap(buffer.array(), 0, buffer.size());
+        ByteArrayBuffer buffer = f.getWriteBuffer();
 
-		future.setByteBuf(buf);
-	}
-	
+        if (buffer == null) {
+            throw new IOException("null write text");
+        }
+
+        ByteBuf buf = UnpooledByteBufAllocator.getHeapInstance().wrap(buffer.array(), 0,
+                buffer.size());
+
+        future.setByteBuf(buf);
+    }
+
 }

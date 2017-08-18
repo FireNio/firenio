@@ -24,8 +24,8 @@ import org.springframework.stereotype.Service;
 @Service("log")
 public class TestLog {
 
-	public void log(){
-		System.out.println("log......");
-	}
-	
+    public void log() {
+        System.out.println("log......");
+    }
+
 }

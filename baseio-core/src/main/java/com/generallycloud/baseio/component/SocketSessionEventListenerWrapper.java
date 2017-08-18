@@ -20,63 +20,63 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class SocketSessionEventListenerWrapper extends AbstractLinkable
-		implements SocketSessionEventListener {
+        implements SocketSessionEventListener {
 
-	private SocketSessionEventListenerWrapper	next;
+    private SocketSessionEventListenerWrapper next;
 
-	private Logger							logger;
+    private Logger                            logger;
 
-	private SocketSessionEventListener			value;
+    private SocketSessionEventListener        value;
 
-	public SocketSessionEventListenerWrapper(SocketSessionEventListener value) {
-		this.value = value;
-		this.logger = LoggerFactory.getLogger(value.getClass());
-	}
+    public SocketSessionEventListenerWrapper(SocketSessionEventListener value) {
+        this.value = value;
+        this.logger = LoggerFactory.getLogger(value.getClass());
+    }
 
-	@Override
-	public void sessionOpened(SocketSession session) {
+    @Override
+    public void sessionOpened(SocketSession session) {
 
-		try {
-			value.sessionOpened(session);
-		} catch (Exception e) {
-			logger.error(e.getMessage(),e);
-		}
+        try {
+            value.sessionOpened(session);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
 
-		SocketSessionEventListenerWrapper listener = getNext();
+        SocketSessionEventListenerWrapper listener = getNext();
 
-		if (listener == null) {
-			return;
-		}
+        if (listener == null) {
+            return;
+        }
 
-		listener.sessionOpened(session);
-	}
+        listener.sessionOpened(session);
+    }
 
-	@Override
-	public void sessionClosed(SocketSession session) {
+    @Override
+    public void sessionClosed(SocketSession session) {
 
-		try {
-			value.sessionClosed(session);
-		} catch (Exception e) {
-			logger.error(e.getMessage(),e);
-		}
+        try {
+            value.sessionClosed(session);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
 
-		SocketSessionEventListenerWrapper listener = getNext();
+        SocketSessionEventListenerWrapper listener = getNext();
 
-		if (listener == null) {
-			return;
-		}
+        if (listener == null) {
+            return;
+        }
 
-		listener.sessionClosed(session);
-	}
+        listener.sessionClosed(session);
+    }
 
-	@Override
-	public SocketSessionEventListenerWrapper getNext() {
-		return next;
-	}
+    @Override
+    public SocketSessionEventListenerWrapper getNext() {
+        return next;
+    }
 
-	@Override
-	public void setNext(Linkable next) {
-		this.next = (SocketSessionEventListenerWrapper) next;
-	}
+    @Override
+    public void setNext(Linkable next) {
+        this.next = (SocketSessionEventListenerWrapper) next;
+    }
 
 }

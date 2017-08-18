@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.sample.baseio.http11;
 
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
@@ -23,21 +23,21 @@ import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorServ
 
 public class TestPrintBusyServlet extends HttpFutureAcceptorService {
 
-	@Override
-	protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
+    @Override
+    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
 
-		SocketChannelContext context = session.getIoSession().getContext();
+        SocketChannelContext context = session.getIoSession().getContext();
 
-		PooledByteBufAllocatorManager allocator = 
-				(PooledByteBufAllocatorManager) context.getByteBufAllocatorManager();
-		
-		allocator.printBusy();
-		
-		future.write("true");
+        PooledByteBufAllocatorManager allocator = (PooledByteBufAllocatorManager) context
+                .getByteBufAllocatorManager();
 
-		future.setResponseHeader("Content-Type", "text/html");
+        allocator.printBusy();
 
-		session.flush(future);
-	}
+        future.write("true");
+
+        future.setResponseHeader("Content-Type", "text/html");
+
+        session.flush(future);
+    }
 
 }

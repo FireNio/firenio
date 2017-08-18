@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.load.fixedlength;
 
 import java.math.BigDecimal;
@@ -37,85 +37,85 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class TestLoadClient {
 
-	final static int	time	= 400000;
+    final static int time = 400000;
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		final Logger logger = LoggerFactory.getLogger(TestLoadClient.class);
+        final Logger logger = LoggerFactory.getLogger(TestLoadClient.class);
 
-		final CountDownLatch latch = new CountDownLatch(time);
-		
-		final AtomicInteger res = new AtomicInteger();
-		final AtomicInteger req = new AtomicInteger();
+        final CountDownLatch latch = new CountDownLatch(time);
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        final AtomicInteger res = new AtomicInteger();
+        final AtomicInteger req = new AtomicInteger();
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-//				latch.countDown();
-//				long count = latch.getCount();
-//				if (count % 10 == 0) {
-//					if (count < 50) {
-//						logger.info("************************================" + count);
-//					}
-//				}
-//				logger.info("res==========={}",res.getAndIncrement());
-			}
-			
-			@Override
-			public void futureSent(SocketSession session, Future future) {
-//				NIOReadFuture f = (NIOReadFuture) future;
-//				System.out.println(f.getWriteBuffer());
-//				System.out.println("req======================"+req.getAndIncrement());
-				
-				latch.countDown();
-				long count = latch.getCount();
-				if (count % 10 == 0) {
-					if (count < 50) {
-						logger.info("************************================" + count);
-					}
-				}
-			}
-		};
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		connector.getContext().setProtocolFactory(new FixedLengthProtocolFactory());
-		
-		connector.getContext().getServerConfiguration().setSERVER_CORE_SIZE(1);
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                //				latch.countDown();
+                //				long count = latch.getCount();
+                //				if (count % 10 == 0) {
+                //					if (count < 50) {
+                //						logger.info("************************================" + count);
+                //					}
+                //				}
+                //				logger.info("res==========={}",res.getAndIncrement());
+            }
 
-		SocketSession session = connector.connect();
+            @Override
+            public void futureSent(SocketSession session, Future future) {
+                //				NIOReadFuture f = (NIOReadFuture) future;
+                //				System.out.println(f.getWriteBuffer());
+                //				System.out.println("req======================"+req.getAndIncrement());
 
-		System.out.println("################## Test start ####################");
+                latch.countDown();
+                long count = latch.getCount();
+                if (count % 10 == 0) {
+                    if (count < 50) {
+                        logger.info("************************================" + count);
+                    }
+                }
+            }
+        };
 
-		long old = System.currentTimeMillis();
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
 
-		for (int i = 0; i < time; i++) {
-			
-			FixedLengthFuture future = new FixedLengthFutureImpl(session.getContext());
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-			future.write("hello server!");
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-			session.flush(future);
-		}
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
 
-		latch.await();
+        context.addSessionEventListener(new LoggerSocketSEListener());
 
-		long spend = (System.currentTimeMillis() - old);
-		System.out.println("## Execute Time:" + time);
-		System.out.println("## OP/S:"
-				+ new BigDecimal(time * 1000).divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP));
-		System.out.println("## Expend Time:" + spend);
+        connector.getContext().setProtocolFactory(new FixedLengthProtocolFactory());
 
-		CloseUtil.close(connector);
+        connector.getContext().getServerConfiguration().setSERVER_CORE_SIZE(1);
 
-	}
+        SocketSession session = connector.connect();
+
+        System.out.println("################## Test start ####################");
+
+        long old = System.currentTimeMillis();
+
+        for (int i = 0; i < time; i++) {
+
+            FixedLengthFuture future = new FixedLengthFutureImpl(session.getContext());
+
+            future.write("hello server!");
+
+            session.flush(future);
+        }
+
+        latch.await();
+
+        long spend = (System.currentTimeMillis() - old);
+        System.out.println("## Execute Time:" + time);
+        System.out.println("## OP/S:" + new BigDecimal(time * 1000).divide(new BigDecimal(spend), 2,
+                BigDecimal.ROUND_HALF_UP));
+        System.out.println("## Expend Time:" + spend);
+
+        CloseUtil.close(connector);
+
+    }
 }

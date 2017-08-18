@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.common.CloseUtil;
@@ -22,46 +22,48 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class SocketSessionActiveSEListener implements SocketSessionIdleEventListener {
 
-	private Logger		logger	= LoggerFactory.getLogger(SocketSessionActiveSEListener.class);
+    private Logger logger = LoggerFactory.getLogger(SocketSessionActiveSEListener.class);
 
-	@Override
-	public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
+    @Override
+    public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
 
-		if (session.isClosed()) {
-			logger.info("closed session");
-			return;
-		}
-		
-		if (session.getLastAccessTime() < lastIdleTime) {
+        if (session.isClosed()) {
+            logger.info("closed session");
+            return;
+        }
 
-			logger.info("Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",session);
-			CloseUtil.close(session); 
+        if (session.getLastAccessTime() < lastIdleTime) {
 
-		} else {
+            logger.info(
+                    "Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",
+                    session);
+            CloseUtil.close(session);
 
-			SocketChannelContext context = session.getContext();
+        } else {
 
-			BeatFutureFactory factory = context.getBeatFutureFactory();
+            SocketChannelContext context = session.getContext();
 
-			if (factory == null) {
+            BeatFutureFactory factory = context.getBeatFutureFactory();
 
-				RuntimeException e = new RuntimeException("none factory of BeatFuture");
+            if (factory == null) {
 
-				CloseUtil.close(session);
+                RuntimeException e = new RuntimeException("none factory of BeatFuture");
 
-				logger.error(e.getMessage(), e);
+                CloseUtil.close(session);
 
-				return;
-			}
+                logger.error(e.getMessage(), e);
 
-			Future future = factory.createPINGPacket(session);
-			
-			if (future == null) {
-				// 该session无需心跳,比如HTTP协议
-				return;
-			}
+                return;
+            }
 
-			session.flush(future);
-		}
-	}
+            Future future = factory.createPINGPacket(session);
+
+            if (future == null) {
+                // 该session无需心跳,比如HTTP协议
+                return;
+            }
+
+            session.flush(future);
+        }
+    }
 }

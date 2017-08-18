@@ -20,56 +20,55 @@ import java.io.IOException;
 
 public class LoggerFactory {
 
-	private static boolean enableSLF4JLogger = false;
-	private static boolean enableDebug = false;
-	private static File	internalLogFile;
-	private static LoggerPrinter printer = SysLoggerPrinter.get();
-	
-	static{
-		configure();
-	}
+    private static boolean       enableSLF4JLogger = false;
+    private static boolean       enableDebug       = false;
+    private static File          internalLogFile;
+    private static LoggerPrinter printer           = SysLoggerPrinter.get();
 
-	public static void setEnableSLF4JLogger(boolean enable) {
-		enableSLF4JLogger = enable;
-	}
+    static {
+        configure();
+    }
 
-	public static Logger getLogger(Class<?> clazz) {
-		if (!enableSLF4JLogger) {
-			return new InternalLogger(printer, clazz);
-		}
-		return new SLF4JLogger(clazz);
-	}
+    public static void setEnableSLF4JLogger(boolean enable) {
+        enableSLF4JLogger = enable;
+    }
 
-	public static void configure() {
-		try {
-			Class.forName("org.slf4j.LoggerFactory");
-			enableSLF4JLogger = true;
-		} catch (ClassNotFoundException e) {
-		}
-	}
-	
-	public static boolean isEnableSLF4JLogger(){
-		return enableSLF4JLogger;
-	}
+    public static Logger getLogger(Class<?> clazz) {
+        if (!enableSLF4JLogger) {
+            return new InternalLogger(printer, clazz);
+        }
+        return new SLF4JLogger(clazz);
+    }
 
-	public static boolean isEnableDebug() {
-		return enableDebug;
-	}
+    public static void configure() {
+        try {
+            Class.forName("org.slf4j.LoggerFactory");
+            enableSLF4JLogger = true;
+        } catch (ClassNotFoundException e) {}
+    }
 
-	public static void setEnableDebug(boolean enableDebug) {
-		LoggerFactory.enableDebug = enableDebug;
-	}
+    public static boolean isEnableSLF4JLogger() {
+        return enableSLF4JLogger;
+    }
 
-	public static File getInternalLogFile() {
-		return internalLogFile;
-	}
+    public static boolean isEnableDebug() {
+        return enableDebug;
+    }
 
-	public static void setInternalLogFile(File internalLogFile) throws IOException {
-		LoggerFactory.internalLogFile = internalLogFile;
-		LoggerPrinter [] printers = new LoggerPrinter[2];
-		printers[0] = SysLoggerPrinter.get();
-		printers[1] = new FileLoggerPrinter(internalLogFile);
-		printer = new CompoundLoggerPrinter(printers);
-	}
-	
+    public static void setEnableDebug(boolean enableDebug) {
+        LoggerFactory.enableDebug = enableDebug;
+    }
+
+    public static File getInternalLogFile() {
+        return internalLogFile;
+    }
+
+    public static void setInternalLogFile(File internalLogFile) throws IOException {
+        LoggerFactory.internalLogFile = internalLogFile;
+        LoggerPrinter[] printers = new LoggerPrinter[2];
+        printers[0] = SysLoggerPrinter.get();
+        printers[1] = new FileLoggerPrinter(internalLogFile);
+        printer = new CompoundLoggerPrinter(printers);
+    }
+
 }

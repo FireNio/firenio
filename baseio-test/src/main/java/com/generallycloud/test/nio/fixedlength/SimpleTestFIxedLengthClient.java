@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.fixedlength;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
@@ -26,46 +26,46 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.connector.CloseConnectorSEListener;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleTestFIxedLengthClient {
 
-	public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				System.out.println();
-				System.out.println("____________________"+future.getReadText());
-				System.out.println();
-			}
-		};
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
-		//use java aio
-//		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
-				
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		context.setProtocolFactory(new FixedLengthProtocolFactory());
-		
-		SocketSession session = connector.connect();
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                System.out.println();
+                System.out.println("____________________" + future.getReadText());
+                System.out.println();
+            }
+        };
 
-		FixedLengthFuture future = new FixedLengthFutureImpl(context);
+        SocketChannelContext context = new NioSocketChannelContext(
+                new ServerConfiguration("localhost", 18300));
+        //use java aio
+        //		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
 
-		future.write("hello server!");
+        SocketChannelConnector connector = new SocketChannelConnector(context);
 
-		session.flush(future);
-		
-		ThreadUtil.sleep(100);
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-		CloseUtil.close(connector);
-	}
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        context.setProtocolFactory(new FixedLengthProtocolFactory());
+
+        SocketSession session = connector.connect();
+
+        FixedLengthFuture future = new FixedLengthFutureImpl(context);
+
+        future.write("hello server!");
+
+        session.flush(future);
+
+        ThreadUtil.sleep(100);
+
+        CloseUtil.close(connector);
+    }
 }

@@ -28,24 +28,24 @@ import com.generallycloud.baseio.log.DebugUtil;
  *
  */
 public class AioServerAccept {
-	
-	private static Charset		charset	= Charset.forName("UTF-8");
 
-	public static void main(String[] args) throws Exception {
-//		AsynchronousChannelGroup group = AsynchronousChannelGroup.withThreadPool(Executors.newFixedThreadPool(4));
-		AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open()
-				.bind(new InetSocketAddress("0.0.0.0", 8013));
-		
-		for(;;){
-			
-			Future<AsynchronousSocketChannel> f = server.accept();
-			
-			AsynchronousSocketChannel channel = f.get();
-			
-			DebugUtil.debug("client:"+channel.toString());
-			
-		}
-//		group.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-	}
+    private static Charset charset = Charset.forName("UTF-8");
+
+    public static void main(String[] args) throws Exception {
+        //		AsynchronousChannelGroup group = AsynchronousChannelGroup.withThreadPool(Executors.newFixedThreadPool(4));
+        AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open()
+                .bind(new InetSocketAddress("0.0.0.0", 8013));
+
+        for (;;) {
+
+            Future<AsynchronousSocketChannel> f = server.accept();
+
+            AsynchronousSocketChannel channel = f.get();
+
+            DebugUtil.debug("client:" + channel.toString());
+
+        }
+        //		group.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+    }
 
 }

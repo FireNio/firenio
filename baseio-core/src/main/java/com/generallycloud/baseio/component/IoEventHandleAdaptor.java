@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.log.Logger;
@@ -21,24 +21,25 @@ import com.generallycloud.baseio.protocol.Future;
 
 public abstract class IoEventHandleAdaptor implements IoEventHandle {
 
-	private Logger		logger	= LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Override
-	public void exceptionCaught(SocketSession session, Future future, Exception cause, IoEventState state) {
-		logger.error(cause);
-	}
+    @Override
+    public void exceptionCaught(SocketSession session, Future future, Exception cause,
+            IoEventState state) {
+        logger.error(cause);
+    }
 
-	@Override
-	public void futureSent(SocketSession session, Future future) {
-		
-	}
+    @Override
+    public void futureSent(SocketSession session, Future future) {
 
-	protected void initialize(SocketChannelContext context) throws Exception {
+    }
 
-	}
+    protected void initialize(SocketChannelContext context) throws Exception {
 
-	protected void destroy(SocketChannelContext context) throws Exception {
+    }
 
-	}
+    protected void destroy(SocketChannelContext context) throws Exception {
+
+    }
 
 }

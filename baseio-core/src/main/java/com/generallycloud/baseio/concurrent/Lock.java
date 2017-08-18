@@ -21,15 +21,14 @@ package com.generallycloud.baseio.concurrent;
  */
 public interface Lock {
 
-	public void lock();
-	
-	public void unlock();
-	
-	public boolean tryLock();
-	
-	enum Locker{
-		AtomicLock,
-		ReentrantLock
-	}
-	
+    public void lock();
+
+    public void unlock();
+
+    public boolean tryLock();
+
+    enum Locker {
+        AtomicLock, ReentrantLock
+    }
+
 }

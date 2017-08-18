@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
@@ -21,8 +21,9 @@ import com.generallycloud.baseio.container.jms.Message;
 
 public interface MessageQueue {
 
-	public abstract void pollMessage(SocketSession session,ProtobaseFuture future,MQSessionAttachment attachment) ;
-	
-	public abstract void offerMessage(Message message);
-	
+    public abstract void pollMessage(SocketSession session, ProtobaseFuture future,
+            MQSessionAttachment attachment);
+
+    public abstract void offerMessage(Message message);
+
 }

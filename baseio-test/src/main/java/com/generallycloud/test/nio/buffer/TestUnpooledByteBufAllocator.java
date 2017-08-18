@@ -25,38 +25,34 @@ import com.generallycloud.baseio.common.ReleaseUtil;
  */
 public class TestUnpooledByteBufAllocator {
 
-	
-	
-	public static void main(String[] args) {
-		test();
-	}
-	
-	
-	static void test(){
-		
-		UnpooledByteBufAllocator allocator = UnpooledByteBufAllocator.getDirectInstance();
-		
-		byte [] data = "你好啊，world".getBytes();
-		
-		ByteBuf buf = allocator.allocate(data.length);
-		
-		buf.put(data);
-		
-		buf.flip();
-		
-		ReleaseUtil.release(buf);
-		
-		for (;;) {
-			
-			ByteBuf buf2 = buf.duplicate();
-			
-			byte []bb = buf2.getBytes();
-			
-			String s = new String(bb);
-			
-			System.out.println(s);
-		}
-		
-		
-	}
+    public static void main(String[] args) {
+        test();
+    }
+
+    static void test() {
+
+        UnpooledByteBufAllocator allocator = UnpooledByteBufAllocator.getDirectInstance();
+
+        byte[] data = "你好啊，world".getBytes();
+
+        ByteBuf buf = allocator.allocate(data.length);
+
+        buf.put(data);
+
+        buf.flip();
+
+        ReleaseUtil.release(buf);
+
+        for (;;) {
+
+            ByteBuf buf2 = buf.duplicate();
+
+            byte[] bb = buf2.getBytes();
+
+            String s = new String(bb);
+
+            System.out.println(s);
+        }
+
+    }
 }

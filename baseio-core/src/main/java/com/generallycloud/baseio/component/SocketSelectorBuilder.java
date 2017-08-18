@@ -23,6 +23,6 @@ import java.io.IOException;
  */
 public interface SocketSelectorBuilder {
 
-	public abstract SocketSelector build(SocketSelectorEventLoop selectorLoop) throws IOException;
+    public abstract SocketSelector build(SocketSelectorEventLoop selectorLoop) throws IOException;
 
 }

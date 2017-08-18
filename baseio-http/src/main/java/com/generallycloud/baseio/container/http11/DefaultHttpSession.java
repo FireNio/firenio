@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.http11;
 
 import java.io.IOException;
@@ -24,66 +24,66 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
-	private long			createTime	= System.currentTimeMillis();
+    private long          createTime     = System.currentTimeMillis();
 
-	private SocketSession	ioSession;
+    private SocketSession ioSession;
 
-	private long			lastAccessTime = createTime;
+    private long          lastAccessTime = createTime;
 
-	private String			sessionID;
+    private String        sessionID;
 
-	private HttpContext		context;
+    private HttpContext   context;
 
-	protected DefaultHttpSession(HttpContext context, SocketSession ioSession) {
-		this.context = context;
-		this.ioSession = ioSession;
-		this.sessionID = UUIDGenerator.random();
-	}
+    protected DefaultHttpSession(HttpContext context, SocketSession ioSession) {
+        this.context = context;
+        this.ioSession = ioSession;
+        this.sessionID = UUIDGenerator.random();
+    }
 
-	protected DefaultHttpSession(HttpContext context, SocketSession ioSession, String sessionID) {
-		this.context = context;
-		this.ioSession = ioSession;
-		this.sessionID = sessionID;
-	}
+    protected DefaultHttpSession(HttpContext context, SocketSession ioSession, String sessionID) {
+        this.context = context;
+        this.ioSession = ioSession;
+        this.sessionID = sessionID;
+    }
 
-	@Override
-	public void active(SocketSession ioSession) {
-		this.ioSession = ioSession;
-		this.lastAccessTime = System.currentTimeMillis();
-	}
+    @Override
+    public void active(SocketSession ioSession) {
+        this.ioSession = ioSession;
+        this.lastAccessTime = System.currentTimeMillis();
+    }
 
-	@Override
-	public void flush(Future future) throws IOException {
-		ioSession.flush(future);
-	}
+    @Override
+    public void flush(Future future) throws IOException {
+        ioSession.flush(future);
+    }
 
-	@Override
-	public long getCreateTime() {
-		return createTime;
-	}
+    @Override
+    public long getCreateTime() {
+        return createTime;
+    }
 
-	@Override
-	public SocketSession getIoSession() {
-		return ioSession;
-	}
+    @Override
+    public SocketSession getIoSession() {
+        return ioSession;
+    }
 
-	@Override
-	public long getLastAccessTime() {
-		return lastAccessTime;
-	}
+    @Override
+    public long getLastAccessTime() {
+        return lastAccessTime;
+    }
 
-	@Override
-	public String getSessionID() {
-		return sessionID;
-	}
+    @Override
+    public String getSessionID() {
+        return sessionID;
+    }
 
-	@Override
-	public boolean isValidate() {
-		return System.currentTimeMillis() - lastAccessTime < 1000 * 60 * 30;
-	}
+    @Override
+    public boolean isValidate() {
+        return System.currentTimeMillis() - lastAccessTime < 1000 * 60 * 30;
+    }
 
-	@Override
-	public HttpContext getContext() {
-		return context;
-	}
+    @Override
+    public HttpContext getContext() {
+        return context;
+    }
 }

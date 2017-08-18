@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.load.fixedlength;
 
 import java.io.IOException;
@@ -27,7 +27,6 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.connector.CloseConnectorSEListener;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.test.test.ITestThread;
@@ -35,66 +34,66 @@ import com.generallycloud.test.test.ITestThreadHandle;
 
 public class TestLoadClient1 extends ITestThread {
 
-	private SocketChannelConnector	connector			= null;
-	
-	@Override
-	public void run() {
+    private SocketChannelConnector connector = null;
 
-		int time1 = getTime();
+    @Override
+    public void run() {
 
-		SocketSession session = connector.getSession();
+        int time1 = getTime();
 
-		for (int i = 0; i < time1; i++) {
-			
-			FixedLengthFuture future = new FixedLengthFutureImpl(session.getContext());
-			
-			future.write("hello server!");
-			
-			session.flush(future);
-		}
-	}
+        SocketSession session = connector.getSession();
 
-	@Override
-	public void prepare() throws Exception {
+        for (int i = 0; i < time1; i++) {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				
-				addCount(10000);
-			}
-		};
-		
-		ServerConfiguration configuration = new ServerConfiguration(8300);
-		
-		configuration.setSERVER_MEMORY_POOL_CAPACITY(1280000);
-		configuration.setSERVER_MEMORY_POOL_UNIT(128);
-		configuration.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-		configuration.setSERVER_ENABLE_MEMORY_POOL(true);
-//		c.setSERVER_HOST("192.168.0.180");
+            FixedLengthFuture future = new FixedLengthFutureImpl(session.getContext());
 
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		context.setProtocolFactory(new FixedLengthProtocolFactory());
+            future.write("hello server!");
 
-		connector.connect();
-	}
+            session.flush(future);
+        }
+    }
 
-	@Override
-	public void stop() {
-		CloseUtil.close(connector);
-	}
+    @Override
+    public void prepare() throws Exception {
 
-	public static void main(String[] args) throws IOException {
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
 
-		int time = 128 * 10000;
+                addCount(10000);
+            }
+        };
 
-		int core_size = 4;
+        ServerConfiguration configuration = new ServerConfiguration(8300);
 
-		ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
-	}
+        configuration.setSERVER_MEMORY_POOL_CAPACITY(1280000);
+        configuration.setSERVER_MEMORY_POOL_UNIT(128);
+        configuration.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
+        configuration.setSERVER_ENABLE_MEMORY_POOL(true);
+        //		c.setSERVER_HOST("192.168.0.180");
+
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
+
+        connector = new SocketChannelConnector(context);
+
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.setProtocolFactory(new FixedLengthProtocolFactory());
+
+        connector.connect();
+    }
+
+    @Override
+    public void stop() {
+        CloseUtil.close(connector);
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        int time = 128 * 10000;
+
+        int core_size = 4;
+
+        ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
+    }
 }

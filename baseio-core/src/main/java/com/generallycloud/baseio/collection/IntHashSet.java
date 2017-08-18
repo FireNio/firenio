@@ -21,7 +21,4 @@ package com.generallycloud.baseio.collection;
  */
 public class IntHashSet {
 
-	
-	
-	
 }

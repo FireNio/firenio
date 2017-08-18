@@ -12,25 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
-public class IoProcessFutureAcceptor extends AbstractFutureAcceptor{
-	
-	@Override
-	protected void accept(IoEventHandle eventHandle, SocketSession session, ChannelFuture future) {
-		
-		try {
-			
-			eventHandle.accept(session, future);
+public class IoProcessFutureAcceptor extends AbstractFutureAcceptor {
 
-		} catch (Exception e) {
+    @Override
+    protected void accept(IoEventHandle eventHandle, SocketSession session, ChannelFuture future) {
 
-			future.getIoEventHandle().exceptionCaught(session, future, e, IoEventState.HANDLE);
-		}
-	}
-	
+        try {
+
+            eventHandle.accept(session, future);
+
+        } catch (Exception e) {
+
+            future.getIoEventHandle().exceptionCaught(session, future, e, IoEventState.HANDLE);
+        }
+    }
+
 }

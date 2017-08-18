@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.load.http11;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,43 +29,43 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class TestHttpLoadServer {
 
-	public static void main(String[] args) throws Exception {
-		
-		final AtomicInteger res = new AtomicInteger();
-		final AtomicInteger req = new AtomicInteger();
+    public static void main(String[] args) throws Exception {
 
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        final AtomicInteger res = new AtomicInteger();
+        final AtomicInteger req = new AtomicInteger();
 
-			@Override
-			public void accept(SocketSession session, Future future) throws Exception {
-				future.write("hello world!");
-				session.flush(future);
-//				System.out.println("req======================"+req.getAndIncrement());
-			}
-			
-			@Override
-			public void futureSent(SocketSession session, Future future) {
-//				System.out.println("res==========="+res.getAndIncrement());
-			}
-		};
-		
-		ServerConfiguration c = new ServerConfiguration(8080);
-		
-//		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
-		c.setSERVER_MEMORY_POOL_UNIT(256);
-		c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-//		c.setSERVER_CORE_SIZE(2);
-		c.setSERVER_ENABLE_MEMORY_POOL(true);
-		c.setSERVER_MEMORY_POOL_CAPACITY_RATE(4);
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-		SocketChannelContext context = new NioSocketChannelContext(c);
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                future.write("hello world!");
+                session.flush(future);
+                //				System.out.println("req======================"+req.getAndIncrement());
+            }
 
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-		
-		context.setProtocolFactory(new ServerHTTPProtocolFactory());
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		acceptor.bind();
-	}
+            @Override
+            public void futureSent(SocketSession session, Future future) {
+                //				System.out.println("res==========="+res.getAndIncrement());
+            }
+        };
+
+        ServerConfiguration c = new ServerConfiguration(8080);
+
+        //		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
+        c.setSERVER_MEMORY_POOL_UNIT(256);
+        c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
+        //		c.setSERVER_CORE_SIZE(2);
+        c.setSERVER_ENABLE_MEMORY_POOL(true);
+        c.setSERVER_MEMORY_POOL_CAPACITY_RATE(4);
+
+        SocketChannelContext context = new NioSocketChannelContext(c);
+
+        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+
+        context.setProtocolFactory(new ServerHTTPProtocolFactory());
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        acceptor.bind();
+    }
 }

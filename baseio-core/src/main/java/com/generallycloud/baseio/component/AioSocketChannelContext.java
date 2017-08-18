@@ -26,77 +26,79 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class AioSocketChannelContext extends AbstractSocketChannelContext {
 
-	private AsynchronousChannelGroup			asynchronousChannelGroup;
+    private AsynchronousChannelGroup         asynchronousChannelGroup;
 
-	private ReadCompletionHandler				readCompletionHandler;
+    private ReadCompletionHandler            readCompletionHandler;
 
-	private WriteCompletionHandler			writeCompletionHandler;
+    private WriteCompletionHandler           writeCompletionHandler;
 
-	private AioSessionManangerEventLoopGroup	sessionManangerEventLoopGroup;
-	
-	private AioGlobalSocketSessionManager		sessionManager;
+    private AioSessionManangerEventLoopGroup sessionManangerEventLoopGroup;
 
-	private Logger							logger	= LoggerFactory.getLogger(getClass());
+    private AioGlobalSocketSessionManager    sessionManager;
 
-	public AioSocketChannelContext(ServerConfiguration configuration) {
-		super(configuration);
-	}
+    private Logger                           logger = LoggerFactory.getLogger(getClass());
 
-	@Override
-	protected void doStartModule() throws Exception {
-		
-		sessionManangerEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 1, this);
-		
-		LifeCycleUtil.start(sessionManangerEventLoopGroup);
-		
-		AioSessionManagerEventLoop loop = (AioSessionManagerEventLoop) sessionManangerEventLoopGroup.getNext();
-		
-		sessionManager = new AioGlobalSocketSessionManager(loop.getSessionManager());
-		
-		initializeChannelGroup(serverConfiguration.getSERVER_CORE_SIZE());
+    public AioSocketChannelContext(ServerConfiguration configuration) {
+        super(configuration);
+    }
 
-		super.doStartModule();
-	}
+    @Override
+    protected void doStartModule() throws Exception {
 
-	@Override
-	protected void doStopModule() {
+        sessionManangerEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 1,
+                this);
 
-		try {
-			this.asynchronousChannelGroup.shutdownNow();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
-		
-		LifeCycleUtil.stop(sessionManangerEventLoopGroup);
+        LifeCycleUtil.start(sessionManangerEventLoopGroup);
 
-		super.doStopModule();
-	}
-	
-	private void initializeChannelGroup(int SERVER_CORE_SIZE) throws IOException {
+        AioSessionManagerEventLoop loop = (AioSessionManagerEventLoop) sessionManangerEventLoopGroup
+                .getNext();
 
-		AsynchronousChannelProvider provider = AsynchronousChannelProvider.provider();
+        sessionManager = new AioGlobalSocketSessionManager(loop.getSessionManager());
 
-		CachedAioThreadFactory cachedAioThreadFactory = new CachedAioThreadFactory(this, "tcp");
+        initializeChannelGroup(serverConfiguration.getSERVER_CORE_SIZE());
 
-		this.asynchronousChannelGroup = provider.openAsynchronousChannelGroup(SERVER_CORE_SIZE,
-				cachedAioThreadFactory);
-	}
+        super.doStartModule();
+    }
 
-	public AsynchronousChannelGroup getAsynchronousChannelGroup() {
-		return asynchronousChannelGroup;
-	}
+    @Override
+    protected void doStopModule() {
 
-	public ReadCompletionHandler getReadCompletionHandler() {
-		return readCompletionHandler;
-	}
+        try {
+            this.asynchronousChannelGroup.shutdownNow();
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
 
-	public WriteCompletionHandler getWriteCompletionHandler() {
-		return writeCompletionHandler;
-	}
+        LifeCycleUtil.stop(sessionManangerEventLoopGroup);
 
-	@Override
-	public AioGlobalSocketSessionManager getSessionManager() {
-		return sessionManager;
-	}
-	
+        super.doStopModule();
+    }
+
+    private void initializeChannelGroup(int SERVER_CORE_SIZE) throws IOException {
+
+        AsynchronousChannelProvider provider = AsynchronousChannelProvider.provider();
+
+        CachedAioThreadFactory cachedAioThreadFactory = new CachedAioThreadFactory(this, "tcp");
+
+        this.asynchronousChannelGroup = provider.openAsynchronousChannelGroup(SERVER_CORE_SIZE,
+                cachedAioThreadFactory);
+    }
+
+    public AsynchronousChannelGroup getAsynchronousChannelGroup() {
+        return asynchronousChannelGroup;
+    }
+
+    public ReadCompletionHandler getReadCompletionHandler() {
+        return readCompletionHandler;
+    }
+
+    public WriteCompletionHandler getWriteCompletionHandler() {
+        return writeCompletionHandler;
+    }
+
+    @Override
+    public AioGlobalSocketSessionManager getSessionManager() {
+        return sessionManager;
+    }
+
 }

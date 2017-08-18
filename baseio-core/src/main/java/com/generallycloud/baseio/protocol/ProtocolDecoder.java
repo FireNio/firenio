@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.protocol;
 
 import java.io.IOException;
@@ -22,8 +22,8 @@ import com.generallycloud.baseio.component.SocketSession;
 
 public interface ProtocolDecoder {
 
-	// 可能会遭受一种攻击，比如最大可接收数据为100，客户端传输到99后暂停，
-	// 这样多次以后可能会导致内存溢出
-	public abstract ChannelFuture decode(SocketSession session, ByteBuf buf) throws IOException;
+    // 可能会遭受一种攻击，比如最大可接收数据为100，客户端传输到99后暂停，
+    // 这样多次以后可能会导致内存溢出
+    public abstract ChannelFuture decode(SocketSession session, ByteBuf buf) throws IOException;
 
 }

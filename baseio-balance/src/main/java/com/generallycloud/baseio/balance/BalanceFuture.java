@@ -12,19 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance;
 
 import com.generallycloud.baseio.protocol.Future;
 
 public interface BalanceFuture extends Future {
 
-	public abstract Object getSessionKey();
+    public abstract Object getSessionKey();
 
-	public abstract boolean isBroadcast();
+    public abstract boolean isBroadcast();
 
-	public abstract void setBroadcast(boolean broadcast);
+    public abstract void setBroadcast(boolean broadcast);
 
-	public abstract BalanceFuture translate();
+    public abstract BalanceFuture translate();
 
 }

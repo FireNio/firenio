@@ -23,19 +23,18 @@ import javax.net.ssl.SSLEngine;
  */
 public class ALPNSslEngineWrapperFactory implements SslEngineWrapperFactory {
 
-	public ALPNSslEngineWrapperFactory() {
-		if (!JdkAlpnSslEngine.isAvailable()) {
-			throw new RuntimeException(
-					"ALPN unsupported. Is your classpatch configured correctly?"
-							+ "\n See http://www.eclipse.org/jetty/documentation/current/alpn-chapter.html#alpn-starting；"
-							+ "\n http://www.cnblogs.com/gifisan/p/6245207.html");
-		}
-	}
+    public ALPNSslEngineWrapperFactory() {
+        if (!JdkAlpnSslEngine.isAvailable()) {
+            throw new RuntimeException("ALPN unsupported. Is your classpatch configured correctly?"
+                    + "\n See http://www.eclipse.org/jetty/documentation/current/alpn-chapter.html#alpn-starting；"
+                    + "\n http://www.cnblogs.com/gifisan/p/6245207.html");
+        }
+    }
 
-	@Override
-	public SSLEngine wrapSslEngine(SSLEngine engine,
-			JdkApplicationProtocolNegotiator applicationNegotiator, boolean isServer) {
-		return new JdkAlpnSslEngine(engine, applicationNegotiator, isServer);
-	}
+    @Override
+    public SSLEngine wrapSslEngine(SSLEngine engine,
+            JdkApplicationProtocolNegotiator applicationNegotiator, boolean isServer) {
+        return new JdkAlpnSslEngine(engine, applicationNegotiator, isServer);
+    }
 
 }

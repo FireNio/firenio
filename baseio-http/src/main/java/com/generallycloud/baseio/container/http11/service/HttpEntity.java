@@ -25,53 +25,53 @@ import com.generallycloud.baseio.codec.http11.HttpHeaderDateFormat;
  */
 public class HttpEntity {
 
-	private String			contentType;
-	private File			file;
-	private long			lastModify;
-	private long			lastModifyGTMTime;
-	private byte[]		binary;
-	private String			lastModifyGTM;
+    private String contentType;
+    private File   file;
+    private long   lastModify;
+    private long   lastModifyGTMTime;
+    private byte[] binary;
+    private String lastModifyGTM;
 
-	public String getContentType() {
-		return contentType;
-	}
+    public String getContentType() {
+        return contentType;
+    }
 
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
-	}
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
 
-	public File getFile() {
-		return file;
-	}
+    public File getFile() {
+        return file;
+    }
 
-	public void setFile(File file) {
-		this.file = file;
-	}
+    public void setFile(File file) {
+        this.file = file;
+    }
 
-	public long getLastModify() {
-		return lastModify;
-	}
+    public long getLastModify() {
+        return lastModify;
+    }
 
-	public void setLastModify(long lastModify) {
-		HttpHeaderDateFormat format = HttpHeaderDateFormat.getFormat();
-		this.lastModify = lastModify;
-		this.lastModifyGTM = format.format(lastModify);
-		this.lastModifyGTMTime = format.parse(lastModifyGTM).getTime();
-	}
+    public void setLastModify(long lastModify) {
+        HttpHeaderDateFormat format = HttpHeaderDateFormat.getFormat();
+        this.lastModify = lastModify;
+        this.lastModifyGTM = format.format(lastModify);
+        this.lastModifyGTMTime = format.parse(lastModifyGTM).getTime();
+    }
 
-	public byte[] getBinary() {
-		return binary;
-	}
+    public byte[] getBinary() {
+        return binary;
+    }
 
-	public void setBinary(byte[] binary) {
-		this.binary = binary;
-	}
+    public void setBinary(byte[] binary) {
+        this.binary = binary;
+    }
 
-	public String getLastModifyGTM() {
-		return lastModifyGTM;
-	}
+    public String getLastModifyGTM() {
+        return lastModifyGTM;
+    }
 
-	public long getLastModifyGTMTime() {
-		return lastModifyGTMTime;
-	}
+    public long getLastModifyGTMTime() {
+        return lastModifyGTMTime;
+    }
 }

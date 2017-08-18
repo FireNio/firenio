@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.fixedlength;
 
 import java.io.IOException;
@@ -26,34 +26,34 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 public class FixedLengthProtocolEncoder implements ProtocolEncoder {
 
-	@Override
-	public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
-		
-		if (future.isHeartbeat()) {
-			int value = future.isPING() ? FixedLengthProtocolDecoder.PROTOCOL_PING
-					: FixedLengthProtocolDecoder.PROTOCOL_PONG;
-			ByteBuf buf = allocator.allocate(4);
-			buf.putInt(value);
-			future.setByteBuf(buf.flip());
-			return;
-		}
-		
-		FixedLengthFuture f = (FixedLengthFuture) future;
+    @Override
+    public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
 
-		ByteArrayBuffer buffer = f.getWriteBuffer();
-		
-		if (buffer == null) {
-			throw new IOException("null write buffer");
-		}
-		
-		int size = buffer.size();
+        if (future.isHeartbeat()) {
+            int value = future.isPING() ? FixedLengthProtocolDecoder.PROTOCOL_PING
+                    : FixedLengthProtocolDecoder.PROTOCOL_PONG;
+            ByteBuf buf = allocator.allocate(4);
+            buf.putInt(value);
+            future.setByteBuf(buf.flip());
+            return;
+        }
 
-		ByteBuf buf = allocator.allocate(size + 4);
+        FixedLengthFuture f = (FixedLengthFuture) future;
 
-		buf.putInt(size);
+        ByteArrayBuffer buffer = f.getWriteBuffer();
 
-		buf.put(buffer.array(), 0, size);
+        if (buffer == null) {
+            throw new IOException("null write buffer");
+        }
 
-		future.setByteBuf(buf.flip());
-	}
+        int size = buffer.size();
+
+        ByteBuf buf = allocator.allocate(size + 4);
+
+        buf.putInt(size);
+
+        buf.put(buffer.array(), 0, size);
+
+        future.setByteBuf(buf.flip());
+    }
 }

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.rtp.server;
 
 import com.generallycloud.baseio.component.SocketSession;
@@ -20,40 +20,40 @@ import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.baseio.container.rtp.RTPContext;
 
 public class RTPSessionEventListener extends SocketSessionEventListenerAdapter {
-	
-	@Override
-	public void sessionOpened(SocketSession session) {
-		
-		RTPContext context = RTPContext.getInstance();
-		
-		RTPSessionAttachment attachment = context.getSessionAttachment(session);
 
-		if (attachment == null) {
+    @Override
+    public void sessionOpened(SocketSession session) {
 
-			attachment = new RTPSessionAttachment(context);
+        RTPContext context = RTPContext.getInstance();
 
-			session.setAttribute(context.getPluginKey(), attachment);
-		}
-	}
+        RTPSessionAttachment attachment = context.getSessionAttachment(session);
 
-	@Override
-	public void sessionClosed(SocketSession session) {
-		
-		RTPContext context = RTPContext.getInstance();
-		
-		RTPSessionAttachment attachment = context.getSessionAttachment(session);
-		
-		if (attachment == null) {
-			return;
-		}
-		
-		RTPRoom room = attachment.getRtpRoom();
-		
-		if (room == null) {
-			return;
-		}
+        if (attachment == null) {
 
-//		room.leave(session.getDatagramChannel()); //FIXME udp 
-	}
-	
+            attachment = new RTPSessionAttachment(context);
+
+            session.setAttribute(context.getPluginKey(), attachment);
+        }
+    }
+
+    @Override
+    public void sessionClosed(SocketSession session) {
+
+        RTPContext context = RTPContext.getInstance();
+
+        RTPSessionAttachment attachment = context.getSessionAttachment(session);
+
+        if (attachment == null) {
+            return;
+        }
+
+        RTPRoom room = attachment.getRtpRoom();
+
+        if (room == null) {
+            return;
+        }
+
+        //		room.leave(session.getDatagramChannel()); //FIXME udp 
+    }
+
 }

@@ -9,58 +9,58 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ReadCompletionHandler implements CompletionHandler<Integer, AioSocketChannel> {
-	
-	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	private ChannelByteBufReader	byteBufReader		= null;
-	
-	public ReadCompletionHandler(ChannelByteBufReader byteBufReader) {
-		this.byteBufReader = byteBufReader;
-	}
+    private Logger               logger        = LoggerFactory.getLogger(getClass());
 
-	@Override
-	public void completed(Integer result, AioSocketChannel channel) {
+    private ChannelByteBufReader byteBufReader = null;
 
-		try {
-			
-			if (result < 1) {
-				if (result == 0) {
-					channel.read(channel.getReadCache());
-					return;
-				}
-				CloseUtil.close(channel);
-				return;
-			}
+    public ReadCompletionHandler(ChannelByteBufReader byteBufReader) {
+        this.byteBufReader = byteBufReader;
+    }
 
-			channel.active();
-			
-			ByteBuf buf = channel.getReadCache();
-			
-			buf.reverse();
-			
-			buf.flip();
-			
-			byteBufReader.accept(channel, buf);
+    @Override
+    public void completed(Integer result, AioSocketChannel channel) {
 
-		} catch (Exception e) {
+        try {
 
-			failed(e, channel);
-		}
+            if (result < 1) {
+                if (result == 0) {
+                    channel.read(channel.getReadCache());
+                    return;
+                }
+                CloseUtil.close(channel);
+                return;
+            }
 
-		channel.read(channel.getReadCache());
-	}
-	
-	@Override
-	public void failed(Throwable exc, AioSocketChannel channel) {
-		
-		if (exc instanceof AsynchronousCloseException) {
-			//FIXME 产生该异常的原因是shutdownOutput后对方收到 read(-1)然后调用shutdownOutput,本地在收到read(-1)之前关闭了连接
-			return;
-		}
-		
-		logger.error(exc.getMessage() + ", channel:" + channel, exc);
+            channel.active();
 
-		CloseUtil.close(channel);
-	}
+            ByteBuf buf = channel.getReadCache();
+
+            buf.reverse();
+
+            buf.flip();
+
+            byteBufReader.accept(channel, buf);
+
+        } catch (Exception e) {
+
+            failed(e, channel);
+        }
+
+        channel.read(channel.getReadCache());
+    }
+
+    @Override
+    public void failed(Throwable exc, AioSocketChannel channel) {
+
+        if (exc instanceof AsynchronousCloseException) {
+            //FIXME 产生该异常的原因是shutdownOutput后对方收到 read(-1)然后调用shutdownOutput,本地在收到read(-1)之前关闭了连接
+            return;
+        }
+
+        logger.error(exc.getMessage() + ", channel:" + channel, exc);
+
+        CloseUtil.close(channel);
+    }
 
 }

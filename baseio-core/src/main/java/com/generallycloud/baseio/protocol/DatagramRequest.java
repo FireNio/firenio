@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.protocol;
 
 import com.generallycloud.baseio.component.DatagramChannelContext;
@@ -21,30 +21,30 @@ import com.generallycloud.baseio.component.Parameters;
 
 public class DatagramRequest {
 
-	private String serviceName;
-	
-	private Parameters parameters;
+    private String     serviceName;
 
-	public DatagramRequest(String content) {
-		this.parameters = new JsonParameters(content);
-		this.serviceName = parameters.getParameter("serviceName");
-	}
+    private Parameters parameters;
 
-	public String getFutureName() {
-		return serviceName;
-	}
+    public DatagramRequest(String content) {
+        this.parameters = new JsonParameters(content);
+        this.serviceName = parameters.getParameter("serviceName");
+    }
 
-	public Parameters getParameters() {
-		return parameters;
-	}
-	
-	public static DatagramRequest create(DatagramPacket packet,DatagramChannelContext context){
-		if (packet.getTimestamp() == 0) {
-			String param = new String(packet.getData(),context.getEncoding());
-			
-			return new DatagramRequest(param);
-		}
-		return null;
-	}
-	
+    public String getFutureName() {
+        return serviceName;
+    }
+
+    public Parameters getParameters() {
+        return parameters;
+    }
+
+    public static DatagramRequest create(DatagramPacket packet, DatagramChannelContext context) {
+        if (packet.getTimestamp() == 0) {
+            String param = new String(packet.getData(), context.getEncoding());
+
+            return new DatagramRequest(param);
+        }
+        return null;
+    }
+
 }

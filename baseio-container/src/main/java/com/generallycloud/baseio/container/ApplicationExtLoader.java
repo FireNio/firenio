@@ -21,7 +21,7 @@ package com.generallycloud.baseio.container;
  */
 public interface ApplicationExtLoader {
 
-	public abstract void loadExts(ApplicationContext context, DynamicClassLoader classLoader)
-			throws Exception;
+    public abstract void loadExts(ApplicationContext context, DynamicClassLoader classLoader)
+            throws Exception;
 
 }

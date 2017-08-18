@@ -30,29 +30,30 @@ import com.generallycloud.baseio.component.SocketSelectorEventLoop;
  */
 public class ClientNioSocketSelector extends NioSocketSelector {
 
-	private NioSocketChannelConnector		connector;
-	private java.nio.channels.SocketChannel	jdkChannel;
+    private NioSocketChannelConnector       connector;
+    private java.nio.channels.SocketChannel jdkChannel;
 
-	public ClientNioSocketSelector(SocketSelectorEventLoop selectorEventLoop, Selector selector,
-			SelectableChannel selectableChannel, NioSocketChannelConnector connector) {
-		super(selectorEventLoop, selector);
-		this.connector = connector;
-		this.jdkChannel = (java.nio.channels.SocketChannel) selectableChannel;
-	}
+    public ClientNioSocketSelector(SocketSelectorEventLoop selectorEventLoop, Selector selector,
+            SelectableChannel selectableChannel, NioSocketChannelConnector connector) {
+        super(selectorEventLoop, selector);
+        this.connector = connector;
+        this.jdkChannel = (java.nio.channels.SocketChannel) selectableChannel;
+    }
 
-	public void buildChannel(SelectionKey selectionKey) throws IOException {
-		try {
-			if (!jdkChannel.finishConnect()) {
-				throw new IOException("connect failed");
-			}
-			SocketChannel channel = regist(jdkChannel, selectorEventLoop, 1);
-			if (channel.isEnableSSL()) {
-				return;
-			}
-			connector.finishConnect(channel.getSession(), null);
-		} catch (IOException e) {
-			connector.finishConnect(null, e);
-		}
-	}
+    @Override
+    public void buildChannel(SelectionKey selectionKey) throws IOException {
+        try {
+            if (!jdkChannel.finishConnect()) {
+                throw new IOException("connect failed");
+            }
+            SocketChannel channel = regist(jdkChannel, selectorEventLoop, 1);
+            if (channel.isEnableSSL()) {
+                return;
+            }
+            connector.finishConnect(channel.getSession(), null);
+        } catch (IOException e) {
+            connector.finishConnect(null, e);
+        }
+    }
 
 }

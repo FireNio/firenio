@@ -12,90 +12,90 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.authority;
 
 import com.generallycloud.baseio.common.MessageFormatter;
 
 public class Permission {
 
-	private int	permissionID;
+    private int    permissionID;
 
-	private String		permissionAPI;
+    private String permissionAPI;
 
-	private String		description;
+    private String description;
 
-	private int		invoked		;
+    private int    invoked;
 
-	// 按分钟计算
-	private int		frequency		= 60;
+    // 按分钟计算
+    private int frequency = 60;
 
-	protected void setFrequency(int frequency) {
-		if (frequency < 1) {
-			return;
-		}
-		this.frequency = frequency;
-	}
+    protected void setFrequency(int frequency) {
+        if (frequency < 1) {
+            return;
+        }
+        this.frequency = frequency;
+    }
 
-	private long		nextSection	;
+    private long nextSection;
 
-	public int getPermissionID() {
-		return permissionID;
-	}
+    public int getPermissionID() {
+        return permissionID;
+    }
 
-	public String getPermissionAPI() {
-		return permissionAPI;
-	}
+    public String getPermissionAPI() {
+        return permissionAPI;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	protected void setPermissionID(int permissionID) {
-		this.permissionID = permissionID;
-	}
+    protected void setPermissionID(int permissionID) {
+        this.permissionID = permissionID;
+    }
 
-	protected void setPermissionAPI(String permissionAPI) {
-		this.permissionAPI = permissionAPI;
-	}
+    protected void setPermissionAPI(String permissionAPI) {
+        this.permissionAPI = permissionAPI;
+    }
 
-	protected void setDescription(String description) {
-		this.description = description;
-	}
+    protected void setDescription(String description) {
+        this.description = description;
+    }
 
-	public boolean invoke() {
+    public boolean invoke() {
 
-		long currentTimeMillis = System.currentTimeMillis();
+        long currentTimeMillis = System.currentTimeMillis();
 
-		if (currentTimeMillis < nextSection) {
+        if (currentTimeMillis < nextSection) {
 
-			return invoked++ < frequency;
+            return invoked++ < frequency;
 
-		} else {
+        } else {
 
-			nextSection = currentTimeMillis + 60 * 1000;
+            nextSection = currentTimeMillis + 60 * 1000;
 
-			invoked++;
+            invoked++;
 
-			return true;
-		}
-	}
+            return true;
+        }
+    }
 
-	@Override
-	public Permission clone() {
-		Permission p = new Permission();
+    @Override
+    public Permission clone() {
+        Permission p = new Permission();
 
-		p.description = description;
-		p.frequency = frequency;
-		p.permissionAPI = permissionAPI;
-		p.permissionID = permissionID;
+        p.description = description;
+        p.frequency = frequency;
+        p.permissionAPI = permissionAPI;
+        p.permissionID = permissionID;
 
-		return p;
-	}
-	
-	@Override
-	public String toString() {
-		return MessageFormatter.format("[id:{},api:{}]", permissionID,permissionAPI);
-	}
+        return p;
+    }
+
+    @Override
+    public String toString() {
+        return MessageFormatter.format("[id:{},api:{}]", permissionID, permissionAPI);
+    }
 
 }

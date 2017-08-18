@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
@@ -28,37 +28,36 @@ import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestGetPhoneNO {
-	
-	
-	public static void main(String[] args) throws Exception {
-		
-		String serviceKey = "TestGetPhoneNOServlet";
 
-		LoggerFactory.configure();
-		
-		SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+    public static void main(String[] args) throws Exception {
 
-		ServerConfiguration configuration = new ServerConfiguration(8300);
+        String serviceKey = "TestGetPhoneNOServlet";
 
-		SocketChannelContext context = new NioSocketChannelContext(configuration);
-		
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandle);
-		
-		context.setProtocolFactory(new ProtobaseProtocolFactory());
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
+        LoggerFactory.configure();
 
-		FixedSession session = new FixedSession(connector.connect());
-		
-		ProtobaseFuture future = session.request(serviceKey, null);
-		
-		System.out.println(future.getReadText());
-		
-		CloseUtil.close(connector);
-		
-	}
+        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+
+        ServerConfiguration configuration = new ServerConfiguration(8300);
+
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
+
+        SocketChannelConnector connector = new SocketChannelConnector(context);
+
+        context.setIoEventHandleAdaptor(eventHandle);
+
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        context.addSessionEventListener(new LoggerSocketSEListener());
+
+        connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
+
+        FixedSession session = new FixedSession(connector.connect());
+
+        ProtobaseFuture future = session.request(serviceKey, null);
+
+        System.out.println(future.getReadText());
+
+        CloseUtil.close(connector);
+
+    }
 }

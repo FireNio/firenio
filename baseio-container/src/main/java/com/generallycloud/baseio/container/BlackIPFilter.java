@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
 
 import java.util.Set;
@@ -21,19 +21,19 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
 
-public class BlackIPFilter extends SocketSessionEventListenerAdapter{
+public class BlackIPFilter extends SocketSessionEventListenerAdapter {
 
-	private Set<String> blackIPs;
-	
-	public BlackIPFilter(Set<String> blackIPs) {
-		this.blackIPs = blackIPs;
-	}
+    private Set<String> blackIPs;
 
-	@Override
-	public void sessionOpened(SocketSession session) {
-		if (blackIPs.contains(session.getRemoteAddr())) {
-			CloseUtil.close(session);
-		}
-	}
-	
+    public BlackIPFilter(Set<String> blackIPs) {
+        this.blackIPs = blackIPs;
+    }
+
+    @Override
+    public void sessionOpened(SocketSession session) {
+        if (blackIPs.contains(session.getRemoteAddr())) {
+            CloseUtil.close(session);
+        }
+    }
+
 }

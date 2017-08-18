@@ -22,97 +22,97 @@ import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
-import com.generallycloud.baseio.protocol.Future;
 
 public abstract class SocketChannelSessionImpl extends AbstractSession implements SocketSession {
 
-	protected SocketChannel channel;
+    protected SocketChannel channel;
 
-	public SocketChannelSessionImpl(SocketChannel channel) {
-		this.channel = channel;
-	}
+    public SocketChannelSessionImpl(SocketChannel channel) {
+        this.channel = channel;
+    }
 
-	@Override
-	public SocketChannelContext getContext() {
-		return getChannel().getContext();
-	}
+    @Override
+    public SocketChannelContext getContext() {
+        return getChannel().getContext();
+    }
 
-	@Override
-	protected SocketChannel getChannel() {
-		return channel;
-	}
+    @Override
+    protected SocketChannel getChannel() {
+        return channel;
+    }
 
-	@Override
-	public ProtocolEncoder getProtocolEncoder() {
-		return getChannel().getProtocolEncoder();
-	}
+    @Override
+    public ProtocolEncoder getProtocolEncoder() {
+        return getChannel().getProtocolEncoder();
+    }
 
-	@Override
-	public String getProtocolId() {
-		return getChannel().getProtocolFactory().getProtocolId();
-	}
+    @Override
+    public String getProtocolId() {
+        return getChannel().getProtocolFactory().getProtocolId();
+    }
 
-	@Override
-	public boolean isEnableSSL() {
-		return getChannel().isEnableSSL();
-	}
+    @Override
+    public boolean isEnableSSL() {
+        return getChannel().isEnableSSL();
+    }
 
-	@Override
-	public void flush(Future future) {
-		getChannel().flush((ChannelFuture) future);
-	}
+    @Override
+    public void flush(Future future) {
+        getChannel().flush((ChannelFuture) future);
+    }
 
-	@Override
-	public void doFlush(ChannelFuture future) {
-		getChannel().doFlush(future);
-	}
+    @Override
+    public void doFlush(ChannelFuture future) {
+        getChannel().doFlush(future);
+    }
 
-	@Override
-	public ProtocolDecoder getProtocolDecoder() {
-		return getChannel().getProtocolDecoder();
-	}
+    @Override
+    public ProtocolDecoder getProtocolDecoder() {
+        return getChannel().getProtocolDecoder();
+    }
 
-	@Override
-	public ProtocolFactory getProtocolFactory() {
-		return getChannel().getProtocolFactory();
-	}
+    @Override
+    public ProtocolFactory getProtocolFactory() {
+        return getChannel().getProtocolFactory();
+    }
 
-	@Override
-	public SSLEngine getSSLEngine() {
-		return getChannel().getSSLEngine();
-	}
+    @Override
+    public SSLEngine getSSLEngine() {
+        return getChannel().getSSLEngine();
+    }
 
-	@Override
-	public ExecutorEventLoop getExecutorEventLoop() {
-		return getChannel().getExecutorEventLoop();
-	}
+    @Override
+    public ExecutorEventLoop getExecutorEventLoop() {
+        return getChannel().getExecutorEventLoop();
+    }
 
-	@Override
-	public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
-		getChannel().setProtocolDecoder(protocolDecoder);
-	}
+    @Override
+    public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
+        getChannel().setProtocolDecoder(protocolDecoder);
+    }
 
-	@Override
-	public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
-		getChannel().setProtocolEncoder(protocolEncoder);
-	}
+    @Override
+    public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
+        getChannel().setProtocolEncoder(protocolEncoder);
+    }
 
-	@Override
-	public void setProtocolFactory(ProtocolFactory protocolFactory) {
-		getChannel().setProtocolFactory(protocolFactory);
-	}
+    @Override
+    public void setProtocolFactory(ProtocolFactory protocolFactory) {
+        getChannel().setProtocolFactory(protocolFactory);
+    }
 
-	@Override
-	public <T> T getOption(SocketOption<T> name) throws IOException {
-		return getChannel().getOption(name);
-	}
+    @Override
+    public <T> T getOption(SocketOption<T> name) throws IOException {
+        return getChannel().getOption(name);
+    }
 
-	@Override
-	public <T> void setOption(SocketOption<T> name, T value) throws IOException {
-		getChannel().setOption(name, value);
-	}
+    @Override
+    public <T> void setOption(SocketOption<T> name, T value) throws IOException {
+        getChannel().setOption(name, value);
+    }
 
 }

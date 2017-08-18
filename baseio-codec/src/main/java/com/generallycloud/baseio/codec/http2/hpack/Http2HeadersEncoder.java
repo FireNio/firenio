@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.codec.http2.hpack;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
@@ -65,20 +65,22 @@ public interface Http2HeadersEncoder {
     /**
      * Always return {@code false} for {@link SensitivityDetector#isSensitive(CharSequence, CharSequence)}.
      */
-    SensitivityDetector NEVER_SENSITIVE = new SensitivityDetector() {
-        @Override
-        public boolean isSensitive(CharSequence name, CharSequence value) {
-            return false;
-        }
-    };
+    SensitivityDetector NEVER_SENSITIVE  = new SensitivityDetector() {
+                                             @Override
+                                             public boolean isSensitive(CharSequence name,
+                                                     CharSequence value) {
+                                                 return false;
+                                             }
+                                         };
 
     /**
      * Always return {@code true} for {@link SensitivityDetector#isSensitive(CharSequence, CharSequence)}.
      */
     SensitivityDetector ALWAYS_SENSITIVE = new SensitivityDetector() {
-        @Override
-        public boolean isSensitive(CharSequence name, CharSequence value) {
-            return true;
-        }
-    };
+                                             @Override
+                                             public boolean isSensitive(CharSequence name,
+                                                     CharSequence value) {
+                                                 return true;
+                                             }
+                                         };
 }

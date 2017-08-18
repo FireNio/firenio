@@ -20,116 +20,119 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
-public class PooledByteBufAllocatorManager extends AbstractLifeCycle implements ByteBufAllocatorManager {
+public class PooledByteBufAllocatorManager extends AbstractLifeCycle
+        implements ByteBufAllocatorManager {
 
-	private LinkAbleByteBufAllocator[]	allocators	= null;
+    private LinkAbleByteBufAllocator[] allocators = null;
 
-	private LinkAbleByteBufAllocator	allocator		= null;
+    private LinkAbleByteBufAllocator   allocator  = null;
 
-	private ChannelContext			context		= null;
+    private ChannelContext             context    = null;
 
-	public PooledByteBufAllocatorManager(ChannelContext context) {
-		this.context = context;
-	}
+    public PooledByteBufAllocatorManager(ChannelContext context) {
+        this.context = context;
+    }
 
-	private void createByteBufAllocator(ChannelContext context) {
-		
-		if (allocators != null) {
-			return;
-		}
+    private void createByteBufAllocator(ChannelContext context) {
 
-		ServerConfiguration c = context.getServerConfiguration();
+        if (allocators != null) {
+            return;
+        }
 
-		int core = c.getSERVER_CORE_SIZE();
+        ServerConfiguration c = context.getServerConfiguration();
 
-		int capacity = c.getSERVER_MEMORY_POOL_CAPACITY();
+        int core = c.getSERVER_CORE_SIZE();
 
-		int unitMemorySize = c.getSERVER_MEMORY_POOL_UNIT();
+        int capacity = c.getSERVER_MEMORY_POOL_CAPACITY();
 
-		boolean direct = c.isSERVER_ENABLE_MEMORY_POOL_DIRECT();
+        int unitMemorySize = c.getSERVER_MEMORY_POOL_UNIT();
 
-		this.allocators = new LinkAbleByteBufAllocator[core];
+        boolean direct = c.isSERVER_ENABLE_MEMORY_POOL_DIRECT();
 
-		for (int i = 0; i < allocators.length; i++) {
+        this.allocators = new LinkAbleByteBufAllocator[core];
 
-			//			ByteBufAllocator allocator = new SimplyByteBufAllocator(capacity, unitMemorySize, direct);
+        for (int i = 0; i < allocators.length; i++) {
 
-			ByteBufAllocator allocator = new SimpleByteBufAllocator(capacity, unitMemorySize,direct);
-			
-//			ByteBufAllocator allocator = new UnpooledByteBufAllocator();
+            //			ByteBufAllocator allocator = new SimplyByteBufAllocator(capacity, unitMemorySize, direct);
 
-			allocators[i] = new LinkableByteBufAllocatorImpl(allocator, i);
-		}
-	}
+            ByteBufAllocator allocator = new SimpleByteBufAllocator(capacity, unitMemorySize,
+                    direct);
 
-	@Override
-	protected void doStart() throws Exception {
+            //			ByteBufAllocator allocator = new UnpooledByteBufAllocator();
 
-		createByteBufAllocator(context);
+            allocators[i] = new LinkableByteBufAllocatorImpl(allocator, i);
+        }
+    }
 
-		LinkAbleByteBufAllocator first = null;
-		LinkAbleByteBufAllocator last = null;
+    @Override
+    protected void doStart() throws Exception {
 
-		for (int i = 0; i < allocators.length; i++) {
+        createByteBufAllocator(context);
 
-			LinkAbleByteBufAllocator allocator = allocators[i];
+        LinkAbleByteBufAllocator first = null;
+        LinkAbleByteBufAllocator last = null;
 
-			allocator.start();
+        for (int i = 0; i < allocators.length; i++) {
 
-			if (first == null) {
-				first = allocator;
-				last = allocator;
-				continue;
-			}
+            LinkAbleByteBufAllocator allocator = allocators[i];
 
-			last.setNext(allocator);
+            allocator.start();
 
-			last = allocator;
-		}
+            if (first == null) {
+                first = allocator;
+                last = allocator;
+                continue;
+            }
 
-		last.setNext(first);
+            last.setNext(allocator);
 
-		this.allocator = first;
-	}
+            last = allocator;
+        }
 
-	@Override
-	protected void doStop() throws Exception {
+        last.setNext(first);
 
-		for (LinkAbleByteBufAllocator allocator : allocators) {
+        this.allocator = first;
+    }
 
-			if (allocator == null) {
-				continue;
-			}
+    @Override
+    protected void doStop() throws Exception {
 
-			LifeCycleUtil.stop(allocator);
-		}
+        for (LinkAbleByteBufAllocator allocator : allocators) {
 
-		this.allocator = null;
-	}
+            if (allocator == null) {
+                continue;
+            }
 
-	public ByteBufAllocator getNextBufAllocator() {
+            LifeCycleUtil.stop(allocator);
+        }
 
-		LinkAbleByteBufAllocator next = allocator.getNext();
+        this.allocator = null;
+    }
 
-		this.allocator = next;
+    @Override
+    public ByteBufAllocator getNextBufAllocator() {
 
-		return next;
-	}
-	
-	public void printBusy(){
-		for (LinkAbleByteBufAllocator allocator : allocators) {
-			SimpleByteBufAllocator a = (SimpleByteBufAllocator) allocator.unwrap();
-			a.printBusy();
-		}
-	}
+        LinkAbleByteBufAllocator next = allocator.getNext();
 
-	public String toDebugString() {
-		StringBuilder builder = new StringBuilder();
-		for (ByteBufAllocator allocator : allocators) {
-			builder.append("\n</BR>");
-			builder.append(allocator.toString());
-		}
-		return builder.toString();
-	}
+        this.allocator = next;
+
+        return next;
+    }
+
+    public void printBusy() {
+        for (LinkAbleByteBufAllocator allocator : allocators) {
+            SimpleByteBufAllocator a = (SimpleByteBufAllocator) allocator.unwrap();
+            a.printBusy();
+        }
+    }
+
+    public String toDebugString() {
+        StringBuilder builder = new StringBuilder();
+        for (ByteBufAllocator allocator : allocators) {
+            builder.append("\n</BR>");
+            builder.append(allocator.toString());
+        }
+        return builder.toString();
+    }
 
 }

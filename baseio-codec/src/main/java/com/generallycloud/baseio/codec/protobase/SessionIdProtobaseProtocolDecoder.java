@@ -51,25 +51,25 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
  */
 public class SessionIdProtobaseProtocolDecoder extends ProtobaseProtocolDecoder {
 
-	public static final int	PROTOCOL_HEADER_WITH_BINARY	= 16;
-	public static final int	PROTOCOL_HEADER_NO_BINARY		= 12;
+    public static final int PROTOCOL_HEADER_WITH_BINARY = 16;
+    public static final int PROTOCOL_HEADER_NO_BINARY   = 12;
 
-	public SessionIdProtobaseProtocolDecoder(int limit) {
-		super(limit);
-	}
+    public SessionIdProtobaseProtocolDecoder(int limit) {
+        super(limit);
+    }
 
-	@Override
-	protected ChannelFuture newChannelReadFutureNoBinary(SocketSession session,
-			ByteBufAllocator allocator, byte b) throws IOException {
-		ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_NO_BINARY - 1);
-		return new SessionIdProtobaseFutureImpl(session, buf, isBroadcast(b));
-	}
+    @Override
+    protected ChannelFuture newChannelReadFutureNoBinary(SocketSession session,
+            ByteBufAllocator allocator, byte b) throws IOException {
+        ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_NO_BINARY - 1);
+        return new SessionIdProtobaseFutureImpl(session, buf, isBroadcast(b));
+    }
 
-	@Override
-	protected ChannelFuture newChannelReadFutureWithBinary(SocketSession session,
-			ByteBufAllocator allocator, byte b) throws IOException {
-		ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_WITH_BINARY - 1);
-		return new SessionIdProtobaseBinaryFutureImpl(session, buf, limit, isBroadcast(b));
-	}
+    @Override
+    protected ChannelFuture newChannelReadFutureWithBinary(SocketSession session,
+            ByteBufAllocator allocator, byte b) throws IOException {
+        ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_WITH_BINARY - 1);
+        return new SessionIdProtobaseBinaryFutureImpl(session, buf, limit, isBroadcast(b));
+    }
 
 }

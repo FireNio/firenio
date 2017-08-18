@@ -20,55 +20,55 @@ import com.generallycloud.baseio.LifeCycleUtil;
 
 public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
 
-	private String				eventLoopName;
+    private String             eventLoopName;
 
-	private int				eventLoopSize;
+    private int                eventLoopSize;
 
-	private FixedAtomicInteger	eventLoopIndex;
+    private FixedAtomicInteger eventLoopIndex;
 
-	public AbstractEventLoopGroup(String eventLoopName, int eventLoopSize) {
-		this.eventLoopName = eventLoopName;
-		this.eventLoopSize = eventLoopSize;
-		this.eventLoopIndex = new FixedAtomicInteger(0, eventLoopSize - 1);
-	}
+    public AbstractEventLoopGroup(String eventLoopName, int eventLoopSize) {
+        this.eventLoopName = eventLoopName;
+        this.eventLoopSize = eventLoopSize;
+        this.eventLoopIndex = new FixedAtomicInteger(0, eventLoopSize - 1);
+    }
 
-	@Override
-	protected void doStart() throws Exception {
+    @Override
+    protected void doStart() throws Exception {
 
-		EventLoop[] eventLoopArray = initEventLoops();
+        EventLoop[] eventLoopArray = initEventLoops();
 
-		for (int i = 0; i < eventLoopArray.length; i++) {
+        for (int i = 0; i < eventLoopArray.length; i++) {
 
-			eventLoopArray[i] = newEventLoop(i);
-		}
+            eventLoopArray[i] = newEventLoop(i);
+        }
 
-		for (int i = 0; i < eventLoopArray.length; i++) {
+        for (int i = 0; i < eventLoopArray.length; i++) {
 
-			eventLoopArray[i].startup(eventLoopName + "-" + i);
-		}
-	}
+            eventLoopArray[i].startup(eventLoopName + "-" + i);
+        }
+    }
 
-	protected abstract EventLoop[] initEventLoops();
+    protected abstract EventLoop[] initEventLoops();
 
-	protected abstract EventLoop[] getEventLoops();
+    protected abstract EventLoop[] getEventLoops();
 
-	protected int getNextEventLoopIndex() {
-		return eventLoopIndex.getAndIncrement();
-	}
+    protected int getNextEventLoopIndex() {
+        return eventLoopIndex.getAndIncrement();
+    }
 
-	protected int getEventLoopSize() {
-		return eventLoopSize;
-	}
+    protected int getEventLoopSize() {
+        return eventLoopSize;
+    }
 
-	protected abstract EventLoop newEventLoop(int coreIndex);
+    protected abstract EventLoop newEventLoop(int coreIndex);
 
-	@Override
-	protected void doStop() throws Exception {
+    @Override
+    protected void doStop() throws Exception {
 
-		EventLoop[] eventLoopArray = getEventLoops();
+        EventLoop[] eventLoopArray = getEventLoops();
 
-		for (EventLoop el : eventLoopArray) {
-			LifeCycleUtil.stop(el);
-		}
-	}
+        for (EventLoop el : eventLoopArray) {
+            LifeCycleUtil.stop(el);
+        }
+    }
 }

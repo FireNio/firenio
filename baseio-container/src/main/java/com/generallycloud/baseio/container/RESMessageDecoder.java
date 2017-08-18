@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container;
 
 import com.alibaba.fastjson.JSON;
@@ -21,14 +21,14 @@ import com.generallycloud.baseio.common.StringUtil;
 
 public class RESMessageDecoder {
 
-	public static RESMessage decode(String content){
-		if (StringUtil.isNullOrBlank(content)) {
-			return null;
-		}
-		JSONObject object = JSON.parseObject(content);
-		int code = object.getIntValue("code");
-		Object data = object.get("data");
-		String description = object.getString("description");
-		return new RESMessage(code,data, description);
-	}
+    public static RESMessage decode(String content) {
+        if (StringUtil.isNullOrBlank(content)) {
+            return null;
+        }
+        JSONObject object = JSON.parseObject(content);
+        int code = object.getIntValue("code");
+        Object data = object.get("data");
+        String description = object.getString("description");
+        return new RESMessage(code, data, description);
+    }
 }

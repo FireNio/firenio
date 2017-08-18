@@ -12,24 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio;
 
 import java.util.EventListener;
 
 public interface LifeCycleListener extends EventListener {
-	
-	public abstract int  lifeCycleListenerSortIndex();
-	
-	public abstract void lifeCycleStarting(LifeCycle lifeCycle);
 
-	public abstract void lifeCycleStarted(LifeCycle lifeCycle);
+    public abstract int lifeCycleListenerSortIndex();
 
-	public abstract void lifeCycleFailure(LifeCycle lifeCycle, Exception exception);
+    public abstract void lifeCycleStarting(LifeCycle lifeCycle);
 
-	public abstract void lifeCycleStopping(LifeCycle lifeCycle);
+    public abstract void lifeCycleStarted(LifeCycle lifeCycle);
 
-	public abstract void lifeCycleStopped(LifeCycle lifeCycle);
-	
-	
+    public abstract void lifeCycleFailure(LifeCycle lifeCycle, Exception exception);
+
+    public abstract void lifeCycleStopping(LifeCycle lifeCycle);
+
+    public abstract void lifeCycleStopped(LifeCycle lifeCycle);
+
 }

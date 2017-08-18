@@ -12,16 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.balance.reverse;
 
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.UnsafeSocketSessionImpl;
 
-public class BalanceReverseSocketSessionImpl extends UnsafeSocketSessionImpl implements BalanceReverseSocketSession{
+public class BalanceReverseSocketSessionImpl extends UnsafeSocketSessionImpl
+        implements BalanceReverseSocketSession {
 
-	public BalanceReverseSocketSessionImpl(SocketChannel channel) {
-		super(channel);
-	}
+    public BalanceReverseSocketSessionImpl(SocketChannel channel) {
+        super(channel);
+    }
 
 }

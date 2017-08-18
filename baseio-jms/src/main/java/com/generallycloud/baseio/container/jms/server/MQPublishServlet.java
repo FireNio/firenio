@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.baseio.container.jms.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
@@ -22,19 +22,20 @@ import com.generallycloud.baseio.container.jms.Message;
 
 public class MQPublishServlet extends MQServlet {
 
-	public static final String	SERVICE_NAME	= MQPublishServlet.class.getSimpleName();
+    public static final String SERVICE_NAME = MQPublishServlet.class.getSimpleName();
 
-	@Override
-	public void doAccept(SocketSession session, ProtobaseFuture future, MQSessionAttachment attachment) throws Exception {
+    @Override
+    public void doAccept(SocketSession session, ProtobaseFuture future,
+            MQSessionAttachment attachment) throws Exception {
 
-		MQContext context = getMQContext();
+        MQContext context = getMQContext();
 
-		Message message = context.parse(future);
+        Message message = context.parse(future);
 
-		context.publishMessage(message);
+        context.publishMessage(message);
 
-		future.write(ByteUtil.TRUE);
+        future.write(ByteUtil.TRUE);
 
-		session.flush(future);
-	}
+        session.flush(future);
+    }
 }

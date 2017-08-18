@@ -32,110 +32,109 @@ import com.generallycloud.baseio.log.DebugUtil;
 //FIXME 根据当前是否正在redeploy来保存和恢复session
 public class DefaultHttpSessionManager extends AbstractEventLoop implements HttpSessionManager {
 
-	private String					COOKIE_NAME_SESSIONID	= "BSESSIONID";
+    private String                   COOKIE_NAME_SESSIONID = "BSESSIONID";
 
-	private Object					sleepLock				= new Object();
+    private Object                   sleepLock             = new Object();
 
-	private Map<String, HttpSession>	sessions				= new ConcurrentHashMap<>();
+    private Map<String, HttpSession> sessions              = new ConcurrentHashMap<>();
 
-	private Map<String, HttpSession>	readOnlySessions		= Collections
-			.unmodifiableMap(sessions);
+    private Map<String, HttpSession> readOnlySessions      = Collections.unmodifiableMap(sessions);
 
-	@Override
-	public void putSession(String sessionID, HttpSession session) {
-		sessions.put(sessionID, session);
-	}
+    @Override
+    public void putSession(String sessionID, HttpSession session) {
+        sessions.put(sessionID, session);
+    }
 
-	@Override
-	public void removeSession(String sessionID) {
-		sessions.remove(sessionID);
-	}
+    @Override
+    public void removeSession(String sessionID) {
+        sessions.remove(sessionID);
+    }
 
-	@Override
-	public HttpSession getHttpSession(HttpContext context, SocketSession ioSession,
-			HttpFuture future) {
+    @Override
+    public HttpSession getHttpSession(HttpContext context, SocketSession ioSession,
+            HttpFuture future) {
 
-		String sessionId = future.getCookie(COOKIE_NAME_SESSIONID);
+        String sessionId = future.getCookie(COOKIE_NAME_SESSIONID);
 
-		if (StringUtil.isNullOrBlank(sessionId)) {
+        if (StringUtil.isNullOrBlank(sessionId)) {
 
-			DefaultHttpSession session = new DefaultHttpSession(context, ioSession);
+            DefaultHttpSession session = new DefaultHttpSession(context, ioSession);
 
-			sessionId = session.getSessionID();
+            sessionId = session.getSessionID();
 
-			Cookie cookie = new Cookie(COOKIE_NAME_SESSIONID, sessionId);
+            Cookie cookie = new Cookie(COOKIE_NAME_SESSIONID, sessionId);
 
-			future.addCookie(cookie);
+            future.addCookie(cookie);
 
-			this.sessions.put(sessionId, session);
+            this.sessions.put(sessionId, session);
 
-			return session;
-		}
+            return session;
+        }
 
-		HttpSession session = sessions.get(sessionId);
+        HttpSession session = sessions.get(sessionId);
 
-		if (session == null) {
+        if (session == null) {
 
-			session = new DefaultHttpSession(context, ioSession, sessionId);
+            session = new DefaultHttpSession(context, ioSession, sessionId);
 
-			this.sessions.put(sessionId, session);
-			
-			return session;
-		}
+            this.sessions.put(sessionId, session);
 
-		if (!session.isValidate()) {
-			sessions.remove(sessionId);
-			CloseUtil.close(session.getIoSession());
-			return getHttpSession(context, ioSession, future);
-		}
-		
-		session.active(ioSession);
+            return session;
+        }
 
-		return session;
-	}
+        if (!session.isValidate()) {
+            sessions.remove(sessionId);
+            CloseUtil.close(session.getIoSession());
+            return getHttpSession(context, ioSession, future);
+        }
 
-	@Override
-	public void doLoop() {
+        session.active(ioSession);
 
-		Collection<HttpSession> es = sessions.values();
+        return session;
+    }
 
-		for (HttpSession session : es) {
+    @Override
+    public void doLoop() {
 
-			if (!session.isValidate()) {
-				sessions.remove(session.getSessionID());
-				CloseUtil.close(session.getIoSession());
-			}
-		}
+        Collection<HttpSession> es = sessions.values();
 
-		sleep(30 * 60 * 1000);
-	}
+        for (HttpSession session : es) {
 
-	private void sleep(long time) {
-		synchronized (sleepLock) {
-			try {
-				sleepLock.wait(time);
-			} catch (InterruptedException e) {
-				DebugUtil.debug(e);
-			}
-		}
-	}
+            if (!session.isValidate()) {
+                sessions.remove(session.getSessionID());
+                CloseUtil.close(session.getIoSession());
+            }
+        }
 
-	@Override
-	public Map<String, HttpSession> getManagedSessions() {
-		return readOnlySessions;
-	}
+        sleep(30 * 60 * 1000);
+    }
 
-	@Override
-	public void wakeup() {
-		synchronized (sleepLock) {
-			sleepLock.notify();
-		}
-		super.wakeup();
-	}
+    private void sleep(long time) {
+        synchronized (sleepLock) {
+            try {
+                sleepLock.wait(time);
+            } catch (InterruptedException e) {
+                DebugUtil.debug(e);
+            }
+        }
+    }
 
-	@Override
-	public int getManagedSessionSize() {
-		return sessions.size();
-	}
+    @Override
+    public Map<String, HttpSession> getManagedSessions() {
+        return readOnlySessions;
+    }
+
+    @Override
+    public void wakeup() {
+        synchronized (sleepLock) {
+            sleepLock.notify();
+        }
+        super.wakeup();
+    }
+
+    @Override
+    public int getManagedSessionSize() {
+        return sessions.size();
+    }
 
 }

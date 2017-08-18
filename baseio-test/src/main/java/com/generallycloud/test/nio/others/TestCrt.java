@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 package com.generallycloud.test.nio.others;
 
 import java.security.cert.CertificateException;
@@ -21,11 +21,11 @@ import com.generallycloud.baseio.component.ssl.SelfSignedCertificate;
 
 public class TestCrt {
 
-	public static void main(String[] args) throws CertificateException {
+    public static void main(String[] args) throws CertificateException {
 
-		SelfSignedCertificate ssc = new SelfSignedCertificate("127.0.0.1");
+        SelfSignedCertificate ssc = new SelfSignedCertificate("127.0.0.1");
 
-		ssc.generate("D://TEMP/",2048);
+        ssc.generate("D://TEMP/", 2048);
 
-	}
+    }
 }

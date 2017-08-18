@@ -21,10 +21,10 @@ import com.generallycloud.baseio.concurrent.Linkable;
  * @author wangkai
  *
  */
-public interface DoubleLinkable extends Linkable{
+public interface DoubleLinkable extends Linkable {
 
-	public abstract Linkable getLast();
-	
-	public abstract void setLast(Linkable last);
-	
+    public abstract Linkable getLast();
+
+    public abstract void setLast(Linkable last);
+
 }
