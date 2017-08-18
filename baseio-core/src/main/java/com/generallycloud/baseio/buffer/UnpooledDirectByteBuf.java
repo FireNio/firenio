@@ -59,6 +59,9 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
 	@Override
 	public ByteBuf duplicate() {
 		synchronized (this) {
+		    if (released) {
+                throw new ReleasedException("released");
+            }
 			//请勿移除此行，DirectByteBuffer需要手动回收，doRelease要确保被执行
 			this.referenceCount++;
 			return new DuplicateByteBuf(
