@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.linebased;
+package com.generallycloud.baseio.codec.charbased;
 
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.linebased.future.LineBasedFutureImpl;
+import com.generallycloud.baseio.codec.charbased.future.CharBasedFutureImpl;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
@@ -26,20 +26,21 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
 /**
  * 基于换行符\n的消息分割
  */
-public class LineBasedProtocolDecoder implements ProtocolDecoder {
+public class CharBasedProtocolDecoder implements ProtocolDecoder {
 
-    public static final byte LINE_BASE = '\n';
+    private byte splitor;
 
-    private int              limit;
+    private int  limit;
 
-    public LineBasedProtocolDecoder(int limit) {
+    public CharBasedProtocolDecoder(int limit, byte splitor) {
         this.limit = limit;
+        this.splitor = splitor;
     }
 
     @Override
     public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
 
-        return new LineBasedFutureImpl(session.getContext(), limit);
+        return new CharBasedFutureImpl(session.getContext(), limit, splitor);
     }
 
 }

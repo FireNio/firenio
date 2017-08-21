@@ -13,23 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.linebased;
+package com.generallycloud.baseio.codec.charbased;
 
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.codec.linebased.future.LineBasedFuture;
+import com.generallycloud.baseio.codec.charbased.future.CharBasedFuture;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
-public class LineBasedProtocolEncoder implements ProtocolEncoder {
+public class CharBasedProtocolEncoder implements ProtocolEncoder {
+
+    private byte splitor;
+
+    public CharBasedProtocolEncoder(byte splitor) {
+        this.splitor = splitor;
+    }
 
     @Override
     public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
 
-        LineBasedFuture f = (LineBasedFuture) future;
+        CharBasedFuture f = (CharBasedFuture) future;
 
         ByteArrayBuffer buffer = f.getWriteBuffer();
 
@@ -41,7 +47,7 @@ public class LineBasedProtocolEncoder implements ProtocolEncoder {
 
         buf.put(buffer.array(), 0, buffer.size());
 
-        buf.putByte(LineBasedProtocolDecoder.LINE_BASE);
+        buf.putByte(splitor);
 
         future.setByteBuf(buf.flip());
     }

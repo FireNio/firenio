@@ -57,7 +57,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
 
     @Override
     public ChannelFuture duplicate() {
-        return new DefaultChannelFuture(context, buf.duplicate());
+        return new DuplicateChannelFuture(context, buf.duplicate(),this);
     }
 
     @Override

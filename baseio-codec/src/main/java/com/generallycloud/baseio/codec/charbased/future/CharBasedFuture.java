@@ -13,22 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.linebased.future;
+package com.generallycloud.baseio.codec.charbased.future;
 
-import com.generallycloud.baseio.component.BeatFutureFactory;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.Future;
 
-public class LineBasedBeatFutureFactory implements BeatFutureFactory {
+public interface CharBasedFuture extends Future {
 
-    @Override
-    public Future createPINGPacket(SocketSession session) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Future createPONGPacket(SocketSession session) {
-        throw new UnsupportedOperationException();
-    }
+    public abstract ByteArrayBuffer getLineOutputStream();
 
 }

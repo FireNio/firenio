@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.test.nio.linebased;
+package com.generallycloud.test.nio.charbased;
 
-import com.generallycloud.baseio.codec.linebased.LineBasedProtocolFactory;
-import com.generallycloud.baseio.codec.linebased.future.LineBasedFuture;
-import com.generallycloud.baseio.codec.linebased.future.LineBasedFutureImpl;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import java.io.File;
+
+import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
+import com.generallycloud.baseio.codec.charbased.CharBasedProtocolFactory;
+import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.ssl.SSLUtil;
+import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
-public class TestLineBasedClient {
+public class TestLineBasedServer {
 
     public static void main(String[] args) throws Exception {
 
@@ -38,33 +39,29 @@ public class TestLineBasedClient {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
 
-                System.out.println();
-                System.out.println("____________________" + future.getReadText());
-                System.out.println();
+                String res = "yes server already accept your message:" + future.getReadText();
+                future.write(res);
+                session.flush(future);
             }
         };
 
         SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
 
-        SocketChannelConnector connector = new SocketChannelConnector(context);
-
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 
-        context.setProtocolFactory(new LineBasedProtocolFactory());
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-        SocketSession session = connector.connect();
+        context.setProtocolFactory(new CharBasedProtocolFactory());
 
-        LineBasedFuture future = new LineBasedFutureImpl(context);
+        File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
+        File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
 
-        future.write("hello server!");
+        SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
 
-        session.flush(future);
+        context.setSslContext(sslContext);
 
-        ThreadUtil.sleep(100);
-
-        CloseUtil.close(connector);
-
+        acceptor.bind();
     }
 }

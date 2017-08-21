@@ -13,32 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.linebased;
+package com.generallycloud.baseio.codec.charbased;
 
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
-public class LineBasedProtocolFactory implements ProtocolFactory {
+public class CharBasedProtocolFactory implements ProtocolFactory {
 
     private int limit;
+    
+    private byte splitor;
 
-    public LineBasedProtocolFactory() {
-        this(1024 * 8);
+    public CharBasedProtocolFactory() {
+        this(1024 * 8,(byte) '\n');
+    }
+    
+    public CharBasedProtocolFactory(byte splitor) {
+        this(1024 * 8,splitor);
     }
 
-    public LineBasedProtocolFactory(int limit) {
+    public CharBasedProtocolFactory(int limit,byte splitor) {
         this.limit = limit;
+        this.splitor = splitor;
     }
 
     @Override
     public ProtocolDecoder getProtocolDecoder() {
-        return new LineBasedProtocolDecoder(limit);
+        return new CharBasedProtocolDecoder(limit,splitor);
     }
 
     @Override
     public ProtocolEncoder getProtocolEncoder() {
-        return new LineBasedProtocolEncoder();
+        return new CharBasedProtocolEncoder(splitor);
     }
 
     @Override

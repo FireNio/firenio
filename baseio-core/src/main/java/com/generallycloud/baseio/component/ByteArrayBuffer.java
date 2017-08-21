@@ -70,7 +70,7 @@ public class ByteArrayBuffer extends OutputStream {
         if (count == 0) {
             return null;
         }
-        return new String(cache, 0, count);
+        return new String(cache, 0, count,charset);
     }
 
     @Override
