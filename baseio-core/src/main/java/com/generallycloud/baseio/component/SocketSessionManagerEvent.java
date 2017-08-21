@@ -15,24 +15,16 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.util.concurrent.RejectedExecutionException;
+import com.generallycloud.baseio.collection.IntObjectHashMap;
 
 /**
  * @author wangkai
  *
  */
-public interface SocketSessionManager extends SessionManager {
+public interface SocketSessionManagerEvent {
+    
+    void fire(SocketChannelContext context, IntObjectHashMap<SocketSession> sessions);
 
-    public abstract SocketSession getSession(int sessionId);
-
-    /**
-     * NOTICE 该event将被dispatch到多个eventLoop，注意event共享问题
-     * @param event
-     */
-    public abstract void offerSessionMEvent(SocketSessionManagerEvent event);
-
-    public abstract void putSession(SocketSession session) throws RejectedExecutionException;
-
-    public abstract void removeSession(SocketSession session);
+    void complated(SocketChannelContext context, IntObjectHashMap<SocketSession> sessions);
 
 }

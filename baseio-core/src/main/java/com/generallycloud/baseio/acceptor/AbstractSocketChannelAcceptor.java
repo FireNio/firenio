@@ -21,10 +21,10 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.collection.IntObjectHashMap;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.component.AbstractSocketSessionManager.SocketSessionManagerEvent;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionManager;
+import com.generallycloud.baseio.component.SocketSessionManagerEvent;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
@@ -74,13 +74,17 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
             public void fire(SocketChannelContext context,
                     IntObjectHashMap<SocketSession> sessions) {
                 if (sessions.isEmpty()) {
-                    ReleaseUtil.release(future);
                     return;
                 }
                 Collection<SocketSession> ss = sessions.values();
                 for (SocketSession s : ss) {
                     s.doFlush(future.duplicate());
                 }
+            }
+            
+            @Override
+            public void complated(SocketChannelContext context,
+                    IntObjectHashMap<SocketSession> sessions) {
                 ReleaseUtil.release(future);
             }
         });

@@ -15,8 +15,6 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.AbstractSocketSessionManager.SocketSessionManagerEvent;
-
 /**
  * @author wangkai
  *
@@ -39,19 +37,20 @@ public class AioGlobalSocketSessionManager implements SocketSessionManager {
         return sessionManager.getSession(sessionId);
     }
 
+    //FIXME youhua
     @Override
     public void offerSessionMEvent(SocketSessionManagerEvent event) {
-        sessionManager.offerSessionMEvent(event);
+        sessionManager.offerSessionMEvent(new SocketSessionManagerEventWrapper(1, event));
     }
 
     @Override
     public void loop() {
-
+        sessionManager.loop();
     }
 
     @Override
     public void stop() {
-
+        sessionManager.stop();
     }
 
     @Override

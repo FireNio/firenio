@@ -15,9 +15,6 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.io.IOException;
-
-import com.generallycloud.baseio.collection.IntObjectHashMap;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -35,29 +32,19 @@ public class NioSocketSessionManager extends AbstractSocketSessionManager {
 
     @Override
     public void offerSessionMEvent(SocketSessionManagerEvent event) {
-        this.selectorEventLoop.dispatch(new SsmSelectorLoopEvent(context, event));
+        this.selectorEventLoop.dispatch(new SsmSelectorLoopEvent(event));
     }
 
     class SsmSelectorLoopEvent extends SelectorLoopEventAdapter {
 
-        private SocketChannelContext      context;
-
         private SocketSessionManagerEvent event;
 
-        public SsmSelectorLoopEvent(SocketChannelContext context, SocketSessionManagerEvent event) {
-            this.context = context;
+        public SsmSelectorLoopEvent(SocketSessionManagerEvent event) {
             this.event = event;
         }
 
         @Override
-        public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
-
-            IntObjectHashMap<SocketSession> sessions = NioSocketSessionManager.this.sessions;
-
-            if (sessions.size() == 0) {
-                return;
-            }
-
+        public void fireEvent(SocketSelectorEventLoop selectLoop) {
             try {
                 event.fire(context, sessions);
             } catch (Throwable e) {

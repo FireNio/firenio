@@ -111,8 +111,4 @@ public abstract class AbstractSocketSessionManager extends AbstractSessionManage
         return sessions.get(sessionID);
     }
 
-    public interface SocketSessionManagerEvent {
-        public abstract void fire(SocketChannelContext context,
-                IntObjectHashMap<SocketSession> sessions);
-    }
 }

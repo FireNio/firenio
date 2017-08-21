@@ -17,8 +17,6 @@ package com.generallycloud.baseio.component;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.generallycloud.baseio.component.AbstractSocketSessionManager.SocketSessionManagerEvent;
-
 /**
  * @author wangkai
  *
@@ -54,19 +52,25 @@ public class NioGlobalSocketSessionManager implements SocketSessionManager {
 
     @Override
     public void offerSessionMEvent(SocketSessionManagerEvent event) {
+        SocketSessionManagerEventWrapper wrapper = 
+                new SocketSessionManagerEventWrapper(managerLen, event);
         for (SocketSessionManager m : socketSessionManagers) {
-            m.offerSessionMEvent(event);
+            m.offerSessionMEvent(wrapper);
         }
     }
 
     @Override
     public void loop() {
-
+        for (SocketSessionManager m : socketSessionManagers) {
+            m.loop();
+        }
     }
 
     @Override
     public void stop() {
-
+        for (SocketSessionManager m : socketSessionManagers) {
+            m.stop();
+        }
     }
 
     @Override
