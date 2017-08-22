@@ -15,42 +15,100 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
+import java.util.Map;
+import java.util.concurrent.RejectedExecutionException;
 
-public class NioSocketSessionManager extends AbstractSocketSessionManager {
+import com.generallycloud.baseio.collection.IntObjectHashMap;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 
-    private Logger logger = LoggerFactory.getLogger(getClass());
+public class NioSocketSessionManager extends AbstractSessionManager
+        implements SocketSessionManager {
 
-    public NioSocketSessionManager(SocketChannelContext context,
-            SocketSelectorEventLoop selectorEventLoop) {
-        super(context);
-        this.selectorEventLoop = selectorEventLoop;
+    private SocketChannelContext            context  = null;
+    private SocketSessionManager            parent   = null;
+    private IntObjectHashMap<SocketSession> sessions = new IntObjectHashMap<>();
+
+    public NioSocketSessionManager(SocketChannelContext context) {
+        super(context.getSessionIdleTime());
+        this.context = context;
+        this.parent = context.getSessionManager();
     }
-
-    private SocketSelectorEventLoop selectorEventLoop;
 
     @Override
-    public void offerSessionMEvent(SocketSessionManagerEvent event) {
-        this.selectorEventLoop.dispatch(new SsmSelectorLoopEvent(event));
+    protected void sessionIdle(long lastIdleTime, long currentTime) {
+        IntObjectHashMap<SocketSession> sessions = this.sessions;
+        if (sessions.size() == 0) {
+            return;
+        }
+        SocketChannelContext context = this.context;
+        SocketSessionIdleEventListenerWrapper linkable = context.getSessionIdleEventListenerLink();
+        if (linkable == null) {
+            return;
+        }
+        for (SocketSession session : sessions.values()) {
+            linkable.sessionIdled(session, lastIdleTime, currentTime);
+        }
     }
 
-    class SsmSelectorLoopEvent extends SelectorLoopEventAdapter {
-
-        private SocketSessionManagerEvent event;
-
-        public SsmSelectorLoopEvent(SocketSessionManagerEvent event) {
-            this.event = event;
+    @Override
+    public void stop() {
+        IntObjectHashMap<SocketSession> sessions = this.sessions;
+        if (sessions.size() == 0) {
+            return;
         }
-
-        @Override
-        public void fireEvent(SocketSelectorEventLoop selectLoop) {
-            try {
-                event.fire(context, sessions);
-            } catch (Throwable e) {
-                logger.error(e.getMessage(), e);
-            }
+        for (SocketSession session : sessions.values()) {
+            CloseUtil.close(session);
         }
+    }
+
+    @Override
+    public void putSession(SocketSession session) throws RejectedExecutionException {
+        IntObjectHashMap<SocketSession> sessions = this.sessions;
+        int sessionId = session.getSessionId();
+        SocketSession old = sessions.get(sessionId);
+        if (old != null) {
+            CloseUtil.close(old);
+            removeSession(old);
+        }
+        if (sessions.size() >= getSessionSizeLimit()) {
+            throw new RejectedExecutionException(
+                    "session size limit:" + getSessionSizeLimit() + ",current:" + sessions.size());
+        }
+        sessions.put(sessionId, session);
+        parent.putSession(session);
+    }
+
+    @Override
+    public void removeSession(SocketSession session) {
+        sessions.remove(session.getSessionId());
+        parent.removeSession(session);
+    }
+
+    @Override
+    public int getManagedSessionSize() {
+        return sessions.size();
+    }
+
+    @Override
+    public SocketSession getSession(int sessionId) {
+        return sessions.get(sessionId);
+    }
+
+    @Override
+    public void broadcast(Future future) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void broadcastChannelFuture(ChannelFuture future) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<Integer, SocketSession> getManagedSessions() {
+        throw new UnsupportedOperationException();
     }
 
 }

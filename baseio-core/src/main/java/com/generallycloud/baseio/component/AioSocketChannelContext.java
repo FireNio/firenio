@@ -34,7 +34,7 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 
     private AioSessionManangerEventLoopGroup sessionManangerEventLoopGroup;
 
-    private AioGlobalSocketSessionManager    sessionManager;
+    private AioSocketSessionManager          sessionManager;
 
     private Logger                           logger = LoggerFactory.getLogger(getClass());
 
@@ -50,10 +50,7 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 
         LifeCycleUtil.start(sessionManangerEventLoopGroup);
 
-        AioSessionManagerEventLoop loop = (AioSessionManagerEventLoop) sessionManangerEventLoopGroup
-                .getNext();
-
-        sessionManager = new AioGlobalSocketSessionManager(loop.getSessionManager());
+        sessionManager = new AioSocketSessionManager(this);
 
         initializeChannelGroup(serverConfiguration.getSERVER_CORE_SIZE());
 
@@ -97,7 +94,7 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
     }
 
     @Override
-    public AioGlobalSocketSessionManager getSessionManager() {
+    public AioSocketSessionManager getSessionManager() {
         return sessionManager;
     }
 

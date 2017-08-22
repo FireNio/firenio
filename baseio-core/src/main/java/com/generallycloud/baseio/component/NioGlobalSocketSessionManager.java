@@ -15,7 +15,16 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 /**
  * @author wangkai
@@ -23,11 +32,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class NioGlobalSocketSessionManager implements SocketSessionManager {
 
-    private SocketSessionManager[] socketSessionManagers;
+    private Map<Integer, SocketSession> sessions = new ConcurrentHashMap<>();
 
-    private int                    managerLen;
+    private SocketSessionManager[]      socketSessionManagers;
+
+    private int                         managerLen;
+
+    private NioSocketChannelContext     context;
 
     public void init(NioSocketChannelContext context) {
+        this.context = context;
         NioChannelService service = (NioChannelService) context.getChannelService();
         SocketSelectorEventLoopGroup group = service.getSelectorEventLoopGroup();
         SocketSelectorEventLoop[] loops = group.getSelectorEventLoops();
@@ -51,15 +65,6 @@ public class NioGlobalSocketSessionManager implements SocketSessionManager {
     }
 
     @Override
-    public void offerSessionMEvent(SocketSessionManagerEvent event) {
-        SocketSessionManagerEventWrapper wrapper = 
-                new SocketSessionManagerEventWrapper(managerLen, event);
-        for (SocketSessionManager m : socketSessionManagers) {
-            m.offerSessionMEvent(wrapper);
-        }
-    }
-
-    @Override
     public void loop() {
         for (SocketSessionManager m : socketSessionManagers) {
             m.loop();
@@ -75,12 +80,42 @@ public class NioGlobalSocketSessionManager implements SocketSessionManager {
 
     @Override
     public void putSession(SocketSession session) {
+        sessions.put(session.getSessionId(), session);
         managedSessionSize.incrementAndGet();
     }
 
     @Override
     public void removeSession(SocketSession session) {
-        managedSessionSize.decrementAndGet();
+        if (sessions.remove(session.getSessionId()) != null) {
+            managedSessionSize.decrementAndGet();
+        }
+    }
+
+    @Override
+    public void broadcast(Future future) throws IOException {
+        if (getManagedSessionSize() == 0) {
+            return;
+        }
+        ChannelFuture f = (ChannelFuture) future;
+        ProtocolEncoder encoder = context.getProtocolEncoder();
+        ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeapInstance();
+        encoder.encode(allocator, f);
+        broadcastChannelFuture(f);
+    }
+
+    @Override
+    public void broadcastChannelFuture(ChannelFuture future) {
+        if (getManagedSessionSize() == 0) {
+            return;
+        }
+        for (SocketSession s : sessions.values()) {
+            s.doFlush(future.duplicate());
+        }
+    }
+    
+    @Override
+    public Map<Integer, SocketSession> getManagedSessions() {
+        return sessions;
     }
 
 }

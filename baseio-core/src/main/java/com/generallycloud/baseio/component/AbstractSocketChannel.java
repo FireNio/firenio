@@ -343,33 +343,21 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
 
     @Override
     public void fireOpend() {
-
         SocketChannelContext context = getContext();
-
         if (context.isEnableSSL()) {
             this.sslHandler = getSocketChannelThreadContext().getSslHandler();
             this.sslEngine = context.getSslContext().newEngine();
         }
-
         if (isEnableSSL() && context.getSslContext().isClient()) {
             doFlush(new DefaultChannelFuture(getContext(), EmptyByteBuf.getInstance()));
         }
-
-        SocketSessionEventListenerWrapper linkable = context.getSessionEventListenerLink();
-
         UnsafeSocketSession session = getSession();
-
         if (!session.isClosed()) {
-
             threadContext.getSocketSessionManager().putSession(session);
-
-            SocketSessionManager manager = context.getSessionManager();
-
-            manager.putSession(session);
-        }
-
-        if (linkable != null) {
-            linkable.sessionOpened(session);
+            SocketSessionEventListenerWrapper linkable = context.getSessionEventListenerLink();
+            if (linkable != null) {
+                linkable.sessionOpened(session);
+            }
         }
     }
 
@@ -378,12 +366,6 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
         SocketSessionEventListenerWrapper linkable = getContext().getSessionEventListenerLink();
 
         UnsafeSocketSession session = getSession();
-
-        SocketChannelContext context = session.getContext();
-
-        SocketSessionManager manager = context.getSessionManager();
-
-        manager.removeSession(session);
 
         threadContext.getSocketSessionManager().removeSession(session);
 

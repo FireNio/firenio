@@ -15,28 +15,17 @@
  */
 package com.generallycloud.baseio.acceptor;
 
-import java.util.Collection;
+import java.io.IOException;
 
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
-import com.generallycloud.baseio.collection.IntObjectHashMap;
-import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionManager;
-import com.generallycloud.baseio.component.SocketSessionManagerEvent;
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 /**
  * @author wangkai
  */
 public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAcceptor {
-
-    private Logger               logger = LoggerFactory.getLogger(getClass());
 
     private SocketChannelContext context;
 
@@ -53,41 +42,13 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelAccep
     }
 
     @Override
-    public void broadcast(Future future) {
-        ChannelFuture f = (ChannelFuture) future;
-        ProtocolEncoder encoder = context.getProtocolEncoder();
-        ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeapInstance();
-        try {
-            encoder.encode(allocator, f);
-        } catch (Throwable e) {
-            ReleaseUtil.release(future);
-            logger.error(e.getMessage(), e);
-            return;
-        }
-        broadcastChannelFuture(f);
+    public void broadcast(Future future) throws IOException {
+        context.getSessionManager().broadcast(future);
     }
 
     @Override
-    public void broadcastChannelFuture(final ChannelFuture future) {
-        socketSessionManager.offerSessionMEvent(new SocketSessionManagerEvent() {
-            @Override
-            public void fire(SocketChannelContext context,
-                    IntObjectHashMap<SocketSession> sessions) {
-                if (sessions.isEmpty()) {
-                    return;
-                }
-                Collection<SocketSession> ss = sessions.values();
-                for (SocketSession s : ss) {
-                    s.doFlush(future.duplicate());
-                }
-            }
-            
-            @Override
-            public void complated(SocketChannelContext context,
-                    IntObjectHashMap<SocketSession> sessions) {
-                ReleaseUtil.release(future);
-            }
-        });
+    public void broadcastChannelFuture(ChannelFuture future) throws IOException {
+        context.getSessionManager().broadcastChannelFuture(future);
     }
 
     @Override

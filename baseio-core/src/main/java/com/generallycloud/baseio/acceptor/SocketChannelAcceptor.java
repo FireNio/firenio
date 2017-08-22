@@ -66,7 +66,7 @@ public class SocketChannelAcceptor implements ChannelAcceptor {
     }
 
     @Override
-    public void broadcast(Future future) {
+    public void broadcast(Future future) throws IOException {
         unwrap().broadcast(future);
     }
 
@@ -85,7 +85,7 @@ public class SocketChannelAcceptor implements ChannelAcceptor {
     }
 
     @Override
-    public void broadcastChannelFuture(ChannelFuture future) {
+    public void broadcastChannelFuture(ChannelFuture future) throws IOException {
         unwrap().broadcastChannelFuture(future);
     }
 

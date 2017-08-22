@@ -15,7 +15,12 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
+
+import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
@@ -23,16 +28,16 @@ import java.util.concurrent.RejectedExecutionException;
  */
 public interface SocketSessionManager extends SessionManager {
 
-    public abstract SocketSession getSession(int sessionId);
+    void broadcast(Future future) throws IOException;
 
-    /**
-     * NOTICE 该event将被dispatch到多个eventLoop，注意event共享问题
-     * @param event
-     */
-    public abstract void offerSessionMEvent(SocketSessionManagerEvent event);
+    void broadcastChannelFuture(ChannelFuture future) throws IOException;
 
-    public abstract void putSession(SocketSession session) throws RejectedExecutionException;
+    SocketSession getSession(int sessionId);
 
-    public abstract void removeSession(SocketSession session);
+    void putSession(SocketSession session) throws RejectedExecutionException;
+
+    void removeSession(SocketSession session);
+
+    Map<Integer, SocketSession> getManagedSessions();
 
 }

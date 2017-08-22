@@ -66,7 +66,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
         this.byteBufReader = context.getChannelByteBufReader();
         this.sessionManager = context.getSessionManager();
-        this.sessionManager = new NioSocketSessionManager(context, this);
+        this.sessionManager = new NioSocketSessionManager(context);
         // FIXME 使用direct
         this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(true);
         if (context.isEnableSSL()) {

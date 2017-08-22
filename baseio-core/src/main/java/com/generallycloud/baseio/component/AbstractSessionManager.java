@@ -17,6 +17,7 @@ package com.generallycloud.baseio.component;
 
 public abstract class AbstractSessionManager implements SessionManager {
 
+    //FIXME chuan can
     protected int sessionSizeLimit  = 100 * 10000;
 
     private long  current_idle_time = 0;
@@ -50,10 +51,6 @@ public abstract class AbstractSessionManager implements SessionManager {
 
     public int getSessionSizeLimit() {
         return sessionSizeLimit;
-    }
-
-    public void setSessionSizeLimit(int sessionSizeLimit) {
-        this.sessionSizeLimit = sessionSizeLimit;
     }
 
 }
