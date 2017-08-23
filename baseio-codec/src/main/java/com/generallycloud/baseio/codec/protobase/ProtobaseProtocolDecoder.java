@@ -40,7 +40,7 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
  *  
  *  B0:0-1	: 报文类型 [0=UNKONW,1=PACKET,2=BEAT.PING,3=BEAT.PONG]
  *  B0:2  	: 推送类型 [0=PUSH,1=BRODCAST]
- *  B0:3		: 是否带有二进制数据[1=true,0=false]
+ *  B0:3	: 是否带有二进制数据[1=true,0=false]
  *  B0:4-7	: 预留
  *  B1		: future   name  length
  *  B4	 	: future   id
