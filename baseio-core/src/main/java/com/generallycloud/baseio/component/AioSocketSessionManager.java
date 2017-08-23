@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
@@ -30,8 +31,9 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
 public class AioSocketSessionManager extends AbstractSessionManager
         implements SocketSessionManager {
 
-    private SocketChannelContext            context  = null;
-    private Map<Integer, SocketSession>     sessions = new ConcurrentHashMap<>();
+    private SocketChannelContext        context          = null;
+    private Map<Integer, SocketSession> sessions         = new ConcurrentHashMap<>();
+    private Map<Integer, SocketSession> readOnlySessions = Collections.unmodifiableMap(sessions);
 
     public AioSocketSessionManager(SocketChannelContext context) {
         super(context.getSessionIdleTime());
@@ -120,7 +122,7 @@ public class AioSocketSessionManager extends AbstractSessionManager
 
     @Override
     public Map<Integer, SocketSession> getManagedSessions() {
-        return sessions;
+        return readOnlySessions;
     }
-    
+
 }

@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,7 +33,9 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
  */
 public class NioGlobalSocketSessionManager implements SocketSessionManager {
 
-    private Map<Integer, SocketSession> sessions = new ConcurrentHashMap<>();
+    private Map<Integer, SocketSession> sessions         = new ConcurrentHashMap<>();
+
+    private Map<Integer, SocketSession> readOnlySessions = Collections.unmodifiableMap(sessions);
 
     private SocketSessionManager[]      socketSessionManagers;
 
@@ -112,10 +115,10 @@ public class NioGlobalSocketSessionManager implements SocketSessionManager {
             s.doFlush(future.duplicate());
         }
     }
-    
+
     @Override
     public Map<Integer, SocketSession> getManagedSessions() {
-        return sessions;
+        return readOnlySessions;
     }
 
 }
