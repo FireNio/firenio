@@ -65,12 +65,20 @@ public class UnsafeUtil {
         return UNSAFE.getShort(target, offset);
     }
 
+    public static short getShort(long address) {
+        return UNSAFE.getShort(address);
+    }
+
     public static int getInt(Object target, long offset) {
         return UNSAFE.getInt(target, offset);
     }
 
     public static void putShort(Object target, long offset, short value) {
         UNSAFE.putShort(target, offset, value);
+    }
+
+    public static void putShort(long address, short value) {
+        UNSAFE.putShort(address, value);
     }
 
     public static void putInt(Object target, long offset, int value) {
@@ -154,10 +162,6 @@ public class UnsafeUtil {
         UNSAFE.setMemory(address, numBytes, value);
     }
 
-    /**
-     * Gets the offset of the {@code address} field of the given direct
-     * {@link ByteBuffer}.
-     */
     public static long addressOffset(ByteBuffer buffer) {
         return UNSAFE.getLong(buffer, BUFFER_ADDRESS_OFFSET);
     }
@@ -175,10 +179,6 @@ public class UnsafeUtil {
         return UNSAFE.compareAndSwapObject(o, offset, expected, val);
     }
 
-    /**
-     * Gets the {@code sun.misc.Unsafe} instance, or {@code null} if not
-     * available on this platform.
-     */
     private static sun.misc.Unsafe getUnsafe() {
         sun.misc.Unsafe unsafe = null;
         try {
@@ -199,17 +199,10 @@ public class UnsafeUtil {
                             return null;
                         }
                     });
-        } catch (Throwable e) {
-            // Catching Throwable here due to the fact that Google AppEngine raises NoClassDefFoundError
-            // for Unsafe.
-        }
+        } catch (Throwable e) {}
         return unsafe;
     }
 
-    /**
-     * Indicates whether or not unsafe array operations are supported on this
-     * platform.
-     */
     private static boolean supportsUnsafeArrayOperations() {
         boolean supported = false;
         if (UNSAFE != null) {
@@ -267,26 +260,14 @@ public class UnsafeUtil {
         return supported;
     }
 
-    /**
-     * Get the base offset for byte arrays, or {@code -1} if
-     * {@code sun.misc.Unsafe} is not available.
-     */
     private static int byteArrayBaseOffset() {
         return HAS_UNSAFE_ARRAY_OPERATIONS ? UNSAFE.arrayBaseOffset(byte[].class) : -1;
     }
 
-    /**
-     * Returns the offset of the provided field, or {@code -1} if
-     * {@code sun.misc.Unsafe} is not available.
-     */
     private static long fieldOffset(Field field) {
         return field == null || UNSAFE == null ? -1 : UNSAFE.objectFieldOffset(field);
     }
 
-    /**
-     * Gets the field with the given name within the class, or {@code null} if
-     * not found. If found, the field is made accessible.
-     */
     private static Field field(Class<?> clazz, String fieldName) {
         Field field;
         try {

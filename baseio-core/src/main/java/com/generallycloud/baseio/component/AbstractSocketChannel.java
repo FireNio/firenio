@@ -217,6 +217,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
         ReentrantLock lock = getCloseLock();
         lock.lock();
         try {
+            // 这里最好使用isClosing()判断更合适，但是使用isOpened()判断也没问题
+            // 因为doFlush与Close互斥
             if (!isOpened()) {
                 f.onException(session, new ClosedChannelException(session.toString()));
                 return;
