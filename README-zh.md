@@ -16,10 +16,6 @@ BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的�
 * 轻松实现简易负载均衡(可定制)，已知策略:
   * 基于hash的虚拟节点策略
   * 轮询负载节点策略
-* 支持组件扩展，已知的扩展插件有：
-  * 简易MQ，offer msg，poll msg
-  * 简易实时rtp(udp)，用作音/视频实时交互
-  * 简易权限认证系统，用于限制单位时间内API调用次数
 * 支持协议扩展，已知的扩展协议有：
   * Redis协议，示例：详见 {baseio-test}
   * Protobuf协议，示例：详见 {baseio-test}
@@ -39,85 +35,62 @@ BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的�
 	<dependency>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.1.10-RELEASE</version>
+		<version>3.2.2-RELEASE</version>
 	</dependency>  
   ```
   
-* 服务端：
+* A simple server:
 
   ```Java
 
-	public static void main(String[] args) throws Exception {
-
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
-
-			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				future.write("yes server already accept your message:");
-				future.write(future.getReadText());
-				session.flush(future);
-			}
-		};
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
-		
-		// use java aio
-		// SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
-		
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.setProtocolFactory(new FixedLengthProtocolFactory());
-
-		acceptor.bind();
-	}
+    public static void main(String[] args) throws Exception {
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                future.write("yes server already accept your message:");
+                future.write(future.getReadText());
+                session.flush(future);
+            }
+        };
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
+        //use java aio
+        //		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
+        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setProtocolFactory(new FixedLengthProtocolFactory());
+        acceptor.bind();
+    }
 
   ```
 
-* 客户端：
+* A simple client:
 
   ```Java
 
-	public static void main(String[] args) throws Exception {
-
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
-
-			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				System.out.println();
-				System.out.println("____________________"+future.getReadText());
-				System.out.println();
-			}
-		};
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
-		
-		// use java aio
-		// SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
-				
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-
-		context.setProtocolFactory(new FixedLengthProtocolFactory());
-		
-		SocketSession session = connector.connect();
-
-		FixedLengthReadFuture future = new FixedLengthReadFutureImpl(context);
-
-		future.write("hello server!");
-
-		session.flush(future);
-		
-		ThreadUtil.sleep(100);
-
-		CloseUtil.close(connector);
-	}
+    public static void main(String[] args) throws Exception {
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                System.out.println();
+                System.out.println("____________________" + future.getReadText());
+                System.out.println();
+            }
+        };
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
+        //use java aio
+        //		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
+        SocketChannelConnector connector = new SocketChannelConnector(context);
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.setProtocolFactory(new FixedLengthProtocolFactory());
+        SocketSession session = connector.connect();
+        FixedLengthFuture future = new FixedLengthFutureImpl(context);
+        future.write("hello server!");
+        session.flush(future);
+        ThreadUtil.sleep(100);
+        CloseUtil.close(connector);
+    }
 
   ```
 

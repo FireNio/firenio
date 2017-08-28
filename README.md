@@ -16,10 +16,6 @@ BaseIO is an io framework which can build network project fast, it based on java
 * easy to supprot load balance, known:
   * virtual node based on hash
   * loop balance node 
-* support component extend, known:
-  * simple mq service, offer msg, poll msg
-  * simple rtp service, for real time voice/video 
-  * simple invoke limit, for limit inovke times in unit time
 * support protocol extend, known:
   * Redis protocol, for detail {baseio-test}
   * Protobuf protocol, for detail {baseio-test}
@@ -39,7 +35,7 @@ BaseIO is an io framework which can build network project fast, it based on java
 	<dependency>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.1.10-RELEASE</version>
+		<version>3.2.2-RELEASE</version>
 	</dependency>  
   ```
   
@@ -47,33 +43,24 @@ BaseIO is an io framework which can build network project fast, it based on java
 
   ```Java
 
-	public static void main(String[] args) throws Exception {
-
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
-
-			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				future.write("yes server already accept your message:");
-				future.write(future.getReadText());
-				session.flush(future);
-			}
-		};
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
-		
-		// use java aio
-		// SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
-		
-		SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.setProtocolFactory(new FixedLengthProtocolFactory());
-
-		acceptor.bind();
-	}
+    public static void main(String[] args) throws Exception {
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                future.write("yes server already accept your message:");
+                future.write(future.getReadText());
+                session.flush(future);
+            }
+        };
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
+        //use java aio
+        //		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
+        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setProtocolFactory(new FixedLengthProtocolFactory());
+        acceptor.bind();
+    }
 
   ```
 
@@ -81,43 +68,29 @@ BaseIO is an io framework which can build network project fast, it based on java
 
   ```Java
 
-	public static void main(String[] args) throws Exception {
-
-		IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
-
-			@Override
-			public void accept(SocketSession session, ReadFuture future) throws Exception {
-				System.out.println();
-				System.out.println("____________________"+future.getReadText());
-				System.out.println();
-			}
-		};
-		
-		SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
-		
-		// use java aio
-		// SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
-				
-		SocketChannelConnector connector = new SocketChannelConnector(context);
-		
-		context.setIoEventHandleAdaptor(eventHandleAdaptor);
-		
-		context.addSessionEventListener(new LoggerSocketSEListener());
-
-		context.setProtocolFactory(new FixedLengthProtocolFactory());
-		
-		SocketSession session = connector.connect();
-
-		FixedLengthReadFuture future = new FixedLengthReadFutureImpl(context);
-
-		future.write("hello server!");
-
-		session.flush(future);
-		
-		ThreadUtil.sleep(100);
-
-		CloseUtil.close(connector);
-	}
+    public static void main(String[] args) throws Exception {
+        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+            @Override
+            public void accept(SocketSession session, Future future) throws Exception {
+                System.out.println();
+                System.out.println("____________________" + future.getReadText());
+                System.out.println();
+            }
+        };
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
+        //use java aio
+        //		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
+        SocketChannelConnector connector = new SocketChannelConnector(context);
+        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.setProtocolFactory(new FixedLengthProtocolFactory());
+        SocketSession session = connector.connect();
+        FixedLengthFuture future = new FixedLengthFutureImpl(context);
+        future.write("hello server!");
+        session.flush(future);
+        ThreadUtil.sleep(100);
+        CloseUtil.close(connector);
+    }
 
   ```
 
