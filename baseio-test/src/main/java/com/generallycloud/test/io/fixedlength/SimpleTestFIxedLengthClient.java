@@ -32,9 +32,7 @@ import com.generallycloud.baseio.protocol.Future;
 public class SimpleTestFIxedLengthClient {
 
     public static void main(String[] args) throws Exception {
-
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
-
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 System.out.println();
@@ -42,30 +40,19 @@ public class SimpleTestFIxedLengthClient {
                 System.out.println();
             }
         };
-
-        SocketChannelContext context = new NioSocketChannelContext(
-                new ServerConfiguration("localhost", 18300));
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
         //use java aio
         //		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         context.setProtocolFactory(new FixedLengthProtocolFactory());
-
         SocketSession session = connector.connect();
-
         FixedLengthFuture future = new FixedLengthFutureImpl(context);
-
         future.write("hello server!");
-
         session.flush(future);
-
         ThreadUtil.sleep(100);
-
         CloseUtil.close(connector);
     }
+    
 }

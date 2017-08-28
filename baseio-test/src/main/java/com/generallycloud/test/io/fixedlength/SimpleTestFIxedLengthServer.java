@@ -28,9 +28,7 @@ import com.generallycloud.baseio.protocol.Future;
 public class SimpleTestFIxedLengthServer {
 
     public static void main(String[] args) throws Exception {
-
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
-
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 future.write("yes server already accept your message:");
@@ -38,21 +36,14 @@ public class SimpleTestFIxedLengthServer {
                 session.flush(future);
             }
         };
-
         SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
         //use java aio
         //		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
-
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
-        context.addSessionEventListener(new SetOptionListener());
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         context.setProtocolFactory(new FixedLengthProtocolFactory());
-
         acceptor.bind();
     }
+    
 }
