@@ -9,23 +9,23 @@ BaseIO is an io framework which can build network project fast, it based on java
 
 ## Features
 
-* easy to support reconnect (easy to support heart beat)
-* simple application container
-  * simple hot deploy , eg: https://www.generallycloud.com/system-redeploy
-  * support deploy http , micro service (depend on your protocol)
-* easy to supprot load balance, known:
-  * virtual node based on hash
-  * loop balance node 
-* support protocol extend, known:
-  * Redis protocol, for detail {baseio-test}
-  * Protobuf protocol, for detail {baseio-test}
-  * LineBased protocol, for detail {baseio-test}
-  * FixedLength protocol, for detail {baseio-test}
-  * HTTP1.1 protocol, for detail: https://www.generallycloud.com/
-  * WebSocket protocol, for detail: https://www.generallycloud.com/web-socket/chat/index.html 
-  * Protobase(custom) support text and binay and text binay mixed transfer, for detail {baseio-test}
-* load test
-  * over 200W QPS (Http1.1,I7-4790,16.04.1-Ubuntu)  [wrk load test](/baseio-documents/load-test/load-test-http.txt)
+ * easy to support reconnect (easy to support heart beat)
+ * simple application container
+   * simple hot deploy , eg: https://www.generallycloud.com/system-redeploy
+   * support deploy http , micro service (depend on your protocol)
+ * easy to supprot load balance, known:
+   * virtual node based on hash
+   * loop balance node 
+ * support protocol extend, known:
+   * Redis protocol, for detail {baseio-test}
+   * Protobuf protocol, for detail {baseio-test}
+   * LineBased protocol, for detail {baseio-test}
+   * FixedLength protocol, for detail {baseio-test}
+   * HTTP1.1 protocol, for detail: https://www.generallycloud.com/
+   * WebSocket protocol, for detail: https://www.generallycloud.com/web-socket/chat/index.html 
+   * Protobase(custom) support text and binay and text binay mixed transfer, for detail {baseio-test}
+ * load test
+   * over 200W QPS (Http1.1,I7-4790,16.04.1-Ubuntu)  [wrk load test](/baseio-documents/load-test/load-test-http.txt)
  
 ## Quick Start
 
@@ -39,7 +39,7 @@ BaseIO is an io framework which can build network project fast, it based on java
 	</dependency>  
   ```
   
-* A simple server:
+ * A simple server:
 
   ```Java
 
@@ -64,7 +64,7 @@ BaseIO is an io framework which can build network project fast, it based on java
 
   ```
 
-* A simple client:
+ * A simple client:
 
   ```Java
 
@@ -97,11 +97,11 @@ BaseIO is an io framework which can build network project fast, it based on java
 ###	more samples {baseio-test}
 
 ## Sample at website:
-* HTTP Demo:https://www.generallycloud.com/index.html
-* WebSocket Chat Demo:https://www.generallycloud.com/web-socket/chat/index.html                                
- (server based on baseio,client based on: https://github.com/socketio/socket.io/ )
-* WebSocket Rumpetroll Demo:https://www.generallycloud.com/web-socket/rumpetroll/index.html                                
- (server based on baseio,client based on:https://github.com/danielmahal/Rumpetroll )
+ * HTTP Demo:https://www.generallycloud.com/index.html
+ * WebSocket Chat Demo:https://www.generallycloud.com/web-socket/chat/index.html                                
+  (server based on baseio,client based on: https://github.com/socketio/socket.io/ )
+ * WebSocket Rumpetroll Demo:https://www.generallycloud.com/web-socket/rumpetroll/index.html                                
+  (server based on baseio,client based on:https://github.com/danielmahal/Rumpetroll )
 
 ## License
 
