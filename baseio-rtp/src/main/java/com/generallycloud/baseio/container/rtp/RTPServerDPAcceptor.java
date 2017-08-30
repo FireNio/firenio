@@ -118,8 +118,6 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
             ProtobaseFuture future = new ProtobaseFutureImpl(session.getContext(),
                     BIND_SESSION_CALLBACK);
 
-            future.setIoEventHandle(session.getContext().getIoEventHandleAdaptor());
-
             logger.debug("___________________bind___session___{}", session);
 
             future.write(ByteUtil.TRUE);
