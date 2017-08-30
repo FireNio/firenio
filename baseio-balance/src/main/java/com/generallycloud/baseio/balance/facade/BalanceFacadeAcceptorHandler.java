@@ -79,9 +79,8 @@ public abstract class BalanceFacadeAcceptorHandler extends IoEventHandleAdaptor 
     }
 
     @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception cause,
-            IoEventState state) {
-        exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
+    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
+        exceptionCaughtHandle.exceptionCaught(session, future, ex);
     }
 
 }

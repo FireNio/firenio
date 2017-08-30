@@ -64,17 +64,14 @@ public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
             return;
         }
 
-        f.setIoEventHandle(response.getContext().getIoEventHandleAdaptor());
-
         response.flush(f.translate());
 
         balanceReverseLogger.logPush(session, response, future, logger);
     }
 
     @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception cause,
-            IoEventState state) {
-        exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
+    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
+        exceptionCaughtHandle.exceptionCaught(session, future, ex);
     }
 
 }
