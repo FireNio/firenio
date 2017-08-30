@@ -17,7 +17,6 @@ package com.generallycloud.baseio.protocol;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.SocketChannelContext;
 
 /**
@@ -52,11 +51,6 @@ public class DuplicateChannelFuture extends DefaultChannelFuture {
     @Override
     public String getReadText() {
         return unwrap().getReadText();
-    }
-
-    @Override
-    public IoEventHandle getIoEventHandle() {
-        return unwrap().getIoEventHandle();
     }
 
 }

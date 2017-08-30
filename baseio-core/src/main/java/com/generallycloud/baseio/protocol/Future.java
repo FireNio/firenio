@@ -19,14 +19,9 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.common.Releasable;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.SocketChannelContext;
 
 public interface Future extends Releasable {
-
-    public abstract IoEventHandle getIoEventHandle();
-
-    public abstract void setIoEventHandle(IoEventHandle ioEventHandle);
 
     public abstract SocketChannelContext getContext();
 

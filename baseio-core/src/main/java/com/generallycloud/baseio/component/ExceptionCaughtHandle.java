@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.protocol.Future;
 
 /**
@@ -24,6 +23,6 @@ import com.generallycloud.baseio.protocol.Future;
  */
 public interface ExceptionCaughtHandle {
 
-    public abstract void exceptionCaught(SocketSession session, Future future, Exception cause,
-            IoEventState state);
+    void exceptionCaught(SocketSession session, Future future, Exception ex);
+    
 }

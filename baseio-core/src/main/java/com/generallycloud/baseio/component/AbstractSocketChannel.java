@@ -27,7 +27,6 @@ import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.LinkedQueue;
@@ -180,9 +179,8 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
         }
         if (!isOpened()) {
             future.flush();
-            IoEventHandle handle = future.getIoEventHandle();
-            exceptionCaught(handle, future, new ClosedChannelException(toString()),
-                    IoEventState.WRITE);
+            exceptionCaught(getContext().getIoEventHandleAdaptor(), future, 
+                    new ClosedChannelException(toString()));
             return;
         }
         try {
@@ -195,15 +193,13 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
             doFlush(future);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            IoEventHandle handle = future.getIoEventHandle();
-            exceptionCaught(handle, future, e, IoEventState.WRITE);
+            exceptionCaught(getContext().getIoEventHandleAdaptor(), future, e);
         }
     }
 
-    private void exceptionCaught(IoEventHandle handle, Future future, Exception cause,
-            IoEventState state) {
+    private void exceptionCaught(IoEventHandle handle, Future future, Exception ex) {
         try {
-            handle.exceptionCaught(getSession(), future, cause, state);
+            handle.exceptionCaught(getSession(), future, ex);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

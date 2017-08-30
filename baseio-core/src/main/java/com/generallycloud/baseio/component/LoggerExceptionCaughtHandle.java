@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -29,9 +28,8 @@ public class LoggerExceptionCaughtHandle implements ExceptionCaughtHandle {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception cause,
-            IoEventState state) {
-        logger.error(cause);
+    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
+        logger.error(ex.getMessage(),ex);
     }
 
 }

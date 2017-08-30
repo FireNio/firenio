@@ -38,7 +38,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
     private IoEventHandleAdaptor                                 ioEventHandleAdaptor;
     private ProtocolFactory                                      protocolFactory;
     private BeatFutureFactory                                    beatFutureFactory;
-    private int                                                  sessionAttachmentSize;
     private ExecutorEventLoopGroup                               executorEventLoopGroup;
     private ProtocolEncoder                                      protocolEncoder;
     private ProtocolDecoder                                      protocolDecoder;
@@ -53,11 +52,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
     private Logger                                               logger                        = LoggerFactory
             .getLogger(getClass());
     private FixedAtomicInteger                                   CHANNEL_IDS;
-
-    @Override
-    public int getSessionAttachmentSize() {
-        return sessionAttachmentSize;
-    }
 
     @Override
     public void addSessionEventListener(SocketSessionEventListener listener) {
@@ -77,11 +71,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
     @Override
     public SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink() {
         return sessionIdleEventListenerGroup.getRootLink();
-    }
-
-    @Override
-    public void setSessionAttachmentSize(int sessionAttachmentSize) {
-        this.sessionAttachmentSize = sessionAttachmentSize;
     }
 
     @Override

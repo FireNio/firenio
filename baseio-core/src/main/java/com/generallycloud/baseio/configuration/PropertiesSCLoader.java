@@ -22,11 +22,21 @@ import com.generallycloud.baseio.common.FixedProperties;
 
 public class PropertiesSCLoader implements ServerConfigurationLoader {
 
+    private String prefix;
+    
+    public PropertiesSCLoader(String prefix) {
+        this.prefix = prefix;
+    }
+
     @Override
-    public ServerConfiguration loadConfiguration(FixedProperties properties) throws Exception {
+    public void loadConfiguration(Object cfg,FixedProperties properties) throws Exception {
 
-        ServerConfiguration cfg = new ServerConfiguration();
-
+        String setENCODING = "set"+prefix+"_ENCODING"; 
+        String pEncoding = prefix + ".ENCODING";
+        String set_CORE_SIZE = "set"+prefix+"_CORE_SIZE";
+        String setPrefix = "set"+prefix+"_";
+        String prefixDot = prefix + ".";
+        
         Method[] methods = cfg.getClass().getDeclaredMethods();
 
         for (Method method : methods) {
@@ -37,7 +47,16 @@ public class PropertiesSCLoader implements ServerConfigurationLoader {
                 continue;
             }
 
-            if ("setSERVER_ENCODING".equals(name) || "setSERVER_CORE_SIZE".equals(name)) {
+            if (setENCODING.equals(name)) {
+                String encoding = properties.getProperty(pEncoding, "GBK");
+                if (!method.isAccessible()) {
+                    method.setAccessible(true);
+                }
+                method.invoke(cfg, Charset.forName(encoding));
+                continue;
+            }
+            
+            if (set_CORE_SIZE.equals(name)) {
                 continue;
             }
 
@@ -47,7 +66,7 @@ public class PropertiesSCLoader implements ServerConfigurationLoader {
 
             Class<?> type = method.getParameterTypes()[0];
 
-            String temp = name.replace("setSERVER_", "SERVER.");
+            String temp = name.replace(setPrefix, prefixDot);
 
             if (type == String.class) {
                 method.invoke(cfg, properties.getProperty(temp));
@@ -60,15 +79,11 @@ public class PropertiesSCLoader implements ServerConfigurationLoader {
             } else if (type == long.class) {
                 method.invoke(cfg, properties.getLongProperty(temp));
             } else {
-                throw new Exception("unknow type " + type);
+//                throw new Exception("unknow type " + type);
+                // do nothing
             }
         }
 
-        String encoding = properties.getProperty("SERVER.ENCODING", "GBK");
-
-        cfg.setSERVER_ENCODING(Charset.forName(encoding));
-
-        return cfg;
     }
 
 }

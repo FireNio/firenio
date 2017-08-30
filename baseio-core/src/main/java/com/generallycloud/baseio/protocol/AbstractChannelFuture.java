@@ -20,7 +20,6 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.component.Session;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
@@ -32,15 +31,16 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractChannelFuture extends AbstractFuture implements ChannelFuture {
 
-    private static final Logger logger     = LoggerFactory.getLogger(AbstractChannelFuture.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractChannelFuture.class);
 
-    protected ByteBuf           buf        = EmptyByteBuf.getInstance();
-    protected boolean           isHeartbeat;
-    protected boolean           isPING;
-    protected boolean           isSilent;
-    protected boolean           isValidate = true;
-    protected boolean           needSSL;
-    protected Linkable          next;
+    //FIXME isX 使用 byte & x ?
+    protected ByteBuf  buf        = EmptyByteBuf.getInstance();
+    protected boolean  isHeartbeat;
+    protected boolean  isPING;
+    protected boolean  isSilent;
+    protected boolean  isValidate = true;
+    protected boolean  needSSL;
+    protected Linkable next;
 
     protected AbstractChannelFuture(SocketChannelContext context) {
         super(context);
@@ -57,7 +57,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
 
     @Override
     public ChannelFuture duplicate() {
-        return new DuplicateChannelFuture(context, buf.duplicate(),this);
+        return new DuplicateChannelFuture(context, buf.duplicate(), this);
     }
 
     @Override
@@ -117,12 +117,12 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     }
 
     @Override
-    public void onException(SocketSession session, Exception e) {
+    public void onException(SocketSession session, Exception ex) {
         ReleaseUtil.release(this);
         try {
-            getIoEventHandle().exceptionCaught(session, this, e, IoEventState.WRITE);
-        } catch (Throwable e1) {
-            logger.debug(e1.getMessage(), e1);
+            context.getIoEventHandleAdaptor().exceptionCaught(session, this, ex);
+        } catch (Throwable e) {
+            logger.debug(e.getMessage(), e);
         }
     }
 
@@ -130,7 +130,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     public void onSuccess(SocketSession session) {
         ReleaseUtil.release(this);
         try {
-            getIoEventHandle().futureSent(session, this);
+            context.getIoEventHandleAdaptor().futureSent(session, this);
         } catch (Throwable e) {
             logger.debug(e);
         }

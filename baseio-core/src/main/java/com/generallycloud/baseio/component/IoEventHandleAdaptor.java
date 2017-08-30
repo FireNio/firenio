@@ -24,9 +24,8 @@ public abstract class IoEventHandleAdaptor implements IoEventHandle {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception cause,
-            IoEventState state) {
-        logger.error(cause);
+    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
+        logger.error(ex.getMessage(),ex);
     }
 
     @Override

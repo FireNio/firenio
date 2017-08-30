@@ -19,5 +19,5 @@ import com.generallycloud.baseio.common.FixedProperties;
 
 public interface ServerConfigurationLoader {
 
-    public ServerConfiguration loadConfiguration(FixedProperties properties) throws Exception;
+    public void loadConfiguration(Object cfg, FixedProperties properties) throws Exception;
 }

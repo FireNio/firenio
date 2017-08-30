@@ -29,10 +29,6 @@ public interface SocketChannelContext extends ChannelContext {
 
     public abstract ExecutorEventLoopGroup getExecutorEventLoopGroup();
 
-    public abstract int getSessionAttachmentSize();
-
-    public abstract void setSessionAttachmentSize(int sessionAttachmentSize);
-
     public abstract BeatFutureFactory getBeatFutureFactory();
 
     public abstract void setBeatFutureFactory(BeatFutureFactory beatFutureFactory);

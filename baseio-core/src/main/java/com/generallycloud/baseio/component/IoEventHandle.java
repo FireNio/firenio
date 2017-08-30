@@ -19,9 +19,6 @@ import com.generallycloud.baseio.protocol.Future;
 
 public interface IoEventHandle extends FutureAcceptor, ExceptionCaughtHandle {
 
-    enum IoEventState {
-        READ, HANDLE, WRITE
-    }
+    void futureSent(SocketSession session, Future future);
 
-    public abstract void futureSent(SocketSession session, Future future);
 }

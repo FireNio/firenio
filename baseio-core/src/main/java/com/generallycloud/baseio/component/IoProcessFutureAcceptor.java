@@ -15,21 +15,16 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class IoProcessFutureAcceptor extends AbstractFutureAcceptor {
 
     @Override
     protected void accept(IoEventHandle eventHandle, SocketSession session, ChannelFuture future) {
-
         try {
-
             eventHandle.accept(session, future);
-
         } catch (Exception e) {
-
-            future.getIoEventHandle().exceptionCaught(session, future, e, IoEventState.HANDLE);
+            eventHandle.exceptionCaught(session, future, e);
         }
     }
 

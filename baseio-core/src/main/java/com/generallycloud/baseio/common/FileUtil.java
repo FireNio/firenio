@@ -443,6 +443,15 @@ public class FileUtil {
         }
         return readProperties(inputStream, charset);
     }
+    
+    public static FixedProperties readPropertiesByCls(String file, Charset charset,ClassLoader classLoader)
+            throws IOException {
+        InputStream inputStream = readInputStreamByCls(file,classLoader);
+        if (inputStream == null) {
+            throw new FileNotFoundException(file);
+        }
+        return readProperties(inputStream, charset);
+    }
 
     public static FixedProperties readPropertiesByFile(File file, Charset charset)
             throws IOException {

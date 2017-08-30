@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
@@ -31,16 +30,13 @@ public class EventLoopFutureAcceptor extends AbstractFutureAcceptor {
 
             @Override
             public void run() {
-
                 try {
-
                     eventHandle.accept(session, future);
-
                 } catch (Exception e) {
-
-                    eventHandle.exceptionCaught(session, future, e, IoEventState.HANDLE);
+                    eventHandle.exceptionCaught(session, future, e);
                 }
             }
+            
         });
     }
 

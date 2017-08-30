@@ -18,7 +18,6 @@ package com.generallycloud.baseio.protocol;
 import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.SocketChannelContext;
 
 public abstract class AbstractFuture implements Future {
@@ -26,7 +25,6 @@ public abstract class AbstractFuture implements Future {
     protected boolean              flushed;
     protected String               readText;
     protected SocketChannelContext context;
-    protected IoEventHandle        ioEventHandle;
     protected ByteArrayBuffer      writeBuffer;
 
     protected AbstractFuture(SocketChannelContext context) {
@@ -44,21 +42,8 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public IoEventHandle getIoEventHandle() {
-        if (ioEventHandle == null) {
-            this.ioEventHandle = context.getIoEventHandleAdaptor();
-        }
-        return ioEventHandle;
-    }
-
-    @Override
     public String getReadText() {
         return readText;
-    }
-
-    @Override
-    public void setIoEventHandle(IoEventHandle ioEventHandle) {
-        this.ioEventHandle = ioEventHandle;
     }
 
     @Override
