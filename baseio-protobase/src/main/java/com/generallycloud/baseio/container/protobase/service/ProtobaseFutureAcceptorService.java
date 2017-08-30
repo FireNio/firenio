@@ -30,17 +30,4 @@ public abstract class ProtobaseFutureAcceptorService extends FutureAcceptorServi
     protected abstract void doAccept(SocketSession session, ProtobaseFuture future)
             throws Exception;
 
-    @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception cause,
-            IoEventState state) {
-
-        if (state == IoEventState.HANDLE) {
-
-            future.write(cause.getClass().getName() + ":" + cause.getMessage());
-
-            session.flush(future);
-        }
-
-        super.exceptionCaught(session, future, cause, state);
-    }
 }
