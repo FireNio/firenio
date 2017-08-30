@@ -69,8 +69,6 @@ public class Consumer {
         ProtobaseFuture f = new ProtobaseFutureImpl(session.getContext(), future.getFutureId(),
                 future.getFutureName());
 
-        f.setIoEventHandle(this.future.getIoEventHandle());
-
         f.write(content);
 
         if (msgType == Message.TYPE_TEXT || msgType == Message.TYPE_MAP) {
