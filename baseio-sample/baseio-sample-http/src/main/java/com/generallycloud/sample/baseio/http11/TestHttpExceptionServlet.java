@@ -17,19 +17,15 @@ package com.generallycloud.sample.baseio.http11;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.service.FutureAcceptorFilter;
-import com.generallycloud.baseio.protocol.NamedFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
+import com.generallycloud.baseio.container.http11.HttpSession;
+import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
 
-public class TestHttpExceptionFilter extends FutureAcceptorFilter {
+public class TestHttpExceptionServlet extends HttpFutureAcceptorService {
 
     @Override
-    protected void accept(SocketSession session, NamedFuture future) throws Exception {
-
-        if ("/test-error-filter".equals(future.getFutureName())) {
-            throw new IOException("test-error-filter222");
-        }
-
+    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
+        throw new IOException("test http error");
     }
 
 }
