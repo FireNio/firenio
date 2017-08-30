@@ -19,46 +19,24 @@ import com.generallycloud.baseio.codec.http11.future.ClientHttpFuture;
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
-import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.SocketSession;
 
 public class FutureFactory {
 
     public static ProtobaseFuture create(SocketSession session, ProtobaseFuture future) {
-        ProtobaseFuture readFuture = future;
-        return create(session, readFuture.getFutureId(), readFuture.getFutureName(),
-                readFuture.getIoEventHandle());
-    }
-
-    public static ProtobaseFuture create(SocketSession session, int futureID, String serviceName,
-            IoEventHandle ioEventHandle) {
-
-        ProtobaseFutureImpl textReadFuture = new ProtobaseFutureImpl(session.getContext(), futureID,
-                serviceName);
-
-        textReadFuture.setIoEventHandle(ioEventHandle);
-
-        return textReadFuture;
+        return create(session, future.getFutureId(), future.getFutureName());
     }
 
     public static ProtobaseFuture create(SocketSession session, int futureID, String serviceName) {
-
-        return create(session, futureID, serviceName,
-                session.getContext().getIoEventHandleAdaptor());
+        return new ProtobaseFutureImpl(session.getContext(), futureID,serviceName);
     }
 
-    public static ProtobaseFuture create(SocketSession session, String serviceName,
-            IoEventHandle ioEventHandle) {
-
-        return create(session, 0, serviceName, ioEventHandle);
+    public static ProtobaseFuture create(SocketSession session, String serviceName) {
+        return create(session, 0, serviceName);
     }
 
     public static HttpFuture createHttpReadFuture(SocketSession session, String url) {
         return new ClientHttpFuture(session.getContext(), url, "GET");
     }
 
-    public static ProtobaseFuture create(SocketSession session, String serviceName) {
-
-        return create(session, 0, serviceName, session.getContext().getIoEventHandleAdaptor());
-    }
 }
