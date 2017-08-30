@@ -17,6 +17,10 @@ package com.generallycloud.baseio.container.configuration;
 
 public class ApplicationConfiguration {
 
+    private boolean               APP_ENABLE_REDEPLOY   = true;
+    
+    private boolean               APP_ENABLE_STOPSERVER = true;
+
     private FiltersConfiguration  filtersConfiguration;
 
     private PluginsConfiguration  pluginsConfiguration;
@@ -46,5 +50,23 @@ public class ApplicationConfiguration {
     protected void setServletsConfiguration(ServicesConfiguration servletsConfiguration) {
         this.servletsConfiguration = servletsConfiguration;
     }
+
+    public boolean isAPP_ENABLE_REDEPLOY() {
+        return APP_ENABLE_REDEPLOY;
+    }
+
+    public void setAPP_ENABLE_REDEPLOY(boolean APP_ENABLE_REDEPLOY) {
+        this.APP_ENABLE_REDEPLOY = APP_ENABLE_REDEPLOY;
+    }
+
+    public boolean isAPP_ENABLE_STOPSERVER() {
+        return APP_ENABLE_STOPSERVER;
+    }
+
+    public void setAPP_ENABLE_STOPSERVER(boolean APP_ENABLE_STOPSERVER) {
+        this.APP_ENABLE_STOPSERVER = APP_ENABLE_STOPSERVER;
+    }
+
+    
 
 }

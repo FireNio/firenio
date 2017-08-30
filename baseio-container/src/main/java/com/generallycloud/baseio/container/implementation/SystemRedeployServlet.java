@@ -19,10 +19,9 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.ApplicationContext;
+import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.baseio.protocol.NamedFuture;
 
 /**
  * @author wangkai
@@ -34,31 +33,22 @@ public class SystemRedeployServlet extends FutureAcceptorService {
         this.setServiceName("/system-redeploy");
     }
 
-    private AtomicInteger redeployTime = new AtomicInteger();
-
     @Override
     public void accept(SocketSession session, Future future) throws IOException {
 
-        NamedFuture f = (NamedFuture) future;
+        ApplicationIoEventHandle applicationIoEventHandle =  
+                (ApplicationIoEventHandle) session.getContext().getIoEventHandleAdaptor();
 
-        if (getServiceName().equals(f.getFutureName())) {
+        AtomicInteger redeployTime = applicationIoEventHandle
+                .getApplicationContext().getRedeployTime();
+        
+        int time = redeployTime.incrementAndGet();
 
-            ApplicationContext context = ApplicationContext.getInstance();
-
-            int time = redeployTime.incrementAndGet();
-
-            if (context.redeploy()) {
-                future.write("redeploy successful_" + time);
-            } else {
-                future.write("redeploy failed_" + time);
-            }
-
-            session.flush(future);
-
-            return;
+        if (applicationIoEventHandle.redeploy()) {
+            future.write("redeploy successful_" + time);
+        } else {
+            future.write("redeploy failed_" + time);
         }
-
-        future.write("server is upgrading ...");
 
         session.flush(future);
 

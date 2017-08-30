@@ -19,7 +19,11 @@ import java.io.IOException;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.generallycloud.baseio.common.Encoding;
+import com.generallycloud.baseio.common.FileUtil;
+import com.generallycloud.baseio.common.FixedProperties;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.configuration.PropertiesSCLoader;
 
 public abstract class AbstractACLoader implements ApplicationConfigurationLoader {
 
@@ -27,6 +31,10 @@ public abstract class AbstractACLoader implements ApplicationConfigurationLoader
     public ApplicationConfiguration loadConfiguration(ClassLoader classLoader) throws Exception {
 
         ApplicationConfiguration configuration = new ApplicationConfiguration();
+        
+        FixedProperties properties = FileUtil.readPropertiesByCls("app.properties", Encoding.UTF8, classLoader);
+        
+        new PropertiesSCLoader("APP").loadConfiguration(configuration, properties);
 
         configuration.setFiltersConfiguration(loadFiltersConfiguration(classLoader));
         configuration.setPluginsConfiguration(loadPluginsConfiguration(classLoader));
@@ -66,44 +74,27 @@ public abstract class AbstractACLoader implements ApplicationConfigurationLoader
     }
 
     protected PluginsConfiguration loadPluginsConfiguration(String json) {
-
         if (StringUtil.isNullOrBlank(json)) {
             return null;
         }
-
         JSONArray array = JSON.parseArray(json);
-
         PluginsConfiguration configuration = new PluginsConfiguration();
-
         for (int i = 0; i < array.size(); i++) {
-
             Configuration c = new Configuration(array.getJSONObject(i));
-
-            configuration.addPlugins(c);
-
+            configuration.addPlugin(c);
         }
-
         return configuration;
     }
 
     protected ServicesConfiguration loadServletsConfiguration(String json) {
-
         if (StringUtil.isNullOrBlank(json)) {
             return null;
         }
-
         JSONArray array = JSON.parseArray(json);
-
         ServicesConfiguration configuration = new ServicesConfiguration();
-
         for (int i = 0; i < array.size(); i++) {
-
-            Configuration c = new Configuration(array.getJSONObject(i));
-
-            configuration.addServlets(c);
-
+            configuration.addService(new Configuration(array.getJSONObject(i)));
         }
-
         return configuration;
     }
 }

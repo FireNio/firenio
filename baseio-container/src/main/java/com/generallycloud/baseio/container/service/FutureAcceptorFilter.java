@@ -15,13 +15,14 @@
  */
 package com.generallycloud.baseio.container.service;
 
-import com.generallycloud.baseio.component.IoEventHandle;
+import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.AbstractInitializeable;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.NamedFuture;
 
-public abstract class FutureAcceptorFilter extends AbstractInitializeable implements IoEventHandle {
+public abstract class FutureAcceptorFilter extends AbstractInitializeable
+        implements FutureAcceptor {
 
     private int sortIndex;
 
@@ -31,18 +32,6 @@ public abstract class FutureAcceptorFilter extends AbstractInitializeable implem
     }
 
     protected abstract void accept(SocketSession session, NamedFuture future) throws Exception;
-
-    @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception cause,
-            IoEventState state) {
-        session.getContext().getIoEventHandleAdaptor().exceptionCaught(session, future, cause,
-                state);
-    }
-
-    @Override
-    public void futureSent(SocketSession session, Future future) {
-
-    }
 
     public int getSortIndex() {
         return sortIndex;

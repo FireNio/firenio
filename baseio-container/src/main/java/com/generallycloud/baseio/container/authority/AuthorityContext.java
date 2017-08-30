@@ -86,8 +86,8 @@ public class AuthorityContext extends AbstractPluginContext {
     @Override
     public void destroy(ApplicationContext context, Configuration config) throws Exception {
         super.destroy(context, config);
-        InitializeUtil.destroy(loginCenter, context, config);
-        InitializeUtil.destroy(roleManager, context, config);
+        InitializeUtil.destroy(loginCenter, context);
+        InitializeUtil.destroy(roleManager, context);
     }
 
     /**

@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.container;
 
-import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -23,15 +22,14 @@ public class InitializeUtil {
 
     private static Logger logger = LoggerFactory.getLogger(InitializeUtil.class);
 
-    public static void destroy(Initializeable initializeable, ApplicationContext context,
-            Configuration config) {
+    public static void destroy(Initializeable initializeable, ApplicationContext context) {
 
         if (initializeable == null) {
             return;
         }
 
         try {
-            initializeable.destroy(context, config);
+            initializeable.destroy(context, initializeable.getConfig());
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }

@@ -26,7 +26,7 @@ public class PluginsConfiguration {
         return plugins;
     }
 
-    protected void addPlugins(Configuration plugin) {
+    protected void addPlugin(Configuration plugin) {
         this.plugins.add(plugin);
     }
 

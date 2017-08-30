@@ -17,55 +17,44 @@ package com.generallycloud.baseio.container.service;
 
 import java.util.List;
 
-import com.generallycloud.baseio.AbstractLifeCycle;
-import com.generallycloud.baseio.LifeCycle;
 import com.generallycloud.baseio.common.LoggerUtil;
+import com.generallycloud.baseio.container.AbstractInitializeable;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.DynamicClassLoader;
+import com.generallycloud.baseio.container.InitializeUtil;
 import com.generallycloud.baseio.container.PluginContext;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.configuration.PluginsConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class PluginLoader extends AbstractLifeCycle implements LifeCycle {
+public class PluginLoader extends AbstractInitializeable {
 
     private ApplicationContext   context;
-    private Logger               logger = LoggerFactory.getLogger(PluginLoader.class);
+    private Logger               logger = LoggerFactory.getLogger(getClass());
     private PluginContext[]      pluginContexts;
     private PluginsConfiguration configuration;
 
-    public PluginLoader(ApplicationContext context) {
-        this.configuration = context.getConfiguration().getPluginsConfiguration();
-        this.context = context;
-    }
-
     @Override
-    protected void doStart() throws Exception {
-
-        loadPlugins(context, context.getClassLoader(), this.configuration);
-
-        this.initializePlugins(pluginContexts);
-
-        this.configPluginFilterAndServlet(context);
-    }
-
-    @Override
-    protected void doStop() throws Exception {
-
+    public void destroy(ApplicationContext context, Configuration config) throws Exception {
         for (PluginContext plugin : pluginContexts) {
-
             if (plugin == null) {
                 continue;
             }
-
-            try {
-                plugin.destroy(context, plugin.getConfig());
-                LoggerUtil.prettyLog(logger, "unloaded [ {} ]", plugin);
-            } catch (Throwable e) {
-                logger.error(e.getMessage(), e);
-            }
+            InitializeUtil.destroy(plugin, context);
+            LoggerUtil.prettyLog(logger, "unloaded [ {} ]", plugin);
         }
+        super.destroy(context, config);
+    }
+
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
+        this.context = context;
+        this.configuration = context.getConfiguration().getPluginsConfiguration();
+        this.loadPlugins(context, context.getClassLoader(), this.configuration);
+        this.initializePlugins(pluginContexts);
+        this.configPluginFilterAndServlet(context);
+        super.initialize(context, config);
     }
 
     public PluginContext[] getPluginContexts() {
@@ -73,28 +62,20 @@ public class PluginLoader extends AbstractLifeCycle implements LifeCycle {
     }
 
     private void initializePlugins(PluginContext[] plugins) throws Exception {
-
         for (PluginContext plugin : plugins) {
-
             if (plugin == null) {
                 continue;
             }
-
             plugin.initialize(context, plugin.getConfig());
-
             LoggerUtil.prettyLog(logger, "loaded [ {} ]", plugin);
         }
     }
 
     private void loadPlugins(ApplicationContext context, DynamicClassLoader classLoader,
             PluginsConfiguration configuration) throws Exception {
-
         List<Configuration> plugins = configuration.getPlugins();
-
         pluginContexts = new PluginContext[plugins.size()];
-
         for (int i = 0; i < plugins.size(); i++) {
-
             try {
                 pluginContexts[i] = loadPlugin(plugins.get(i), classLoader);
             } catch (Exception e) {
@@ -105,28 +86,22 @@ public class PluginLoader extends AbstractLifeCycle implements LifeCycle {
 
     private PluginContext loadPlugin(Configuration config, DynamicClassLoader classLoader)
             throws Exception {
-
         String className = config.getParameter("class", "empty");
-
         Class<?> clazz = classLoader.loadClass(className);
-
         PluginContext plugin = (PluginContext) clazz.newInstance();
-
         plugin.setConfig(config);
-
         return plugin;
     }
 
     private void configPluginFilterAndServlet(ApplicationContext context) {
-
         for (PluginContext pluginContext : pluginContexts) {
-
             if (pluginContext == null) {
                 continue;
             }
-
-            pluginContext.configFutureAcceptorFilter(context.getPluginFilters());
-            pluginContext.configFutureAcceptor(context.getPluginServlets());
+            pluginContext.configFutureAcceptorFilter(context.getFilterLoader()
+                    .getAcceptorFilters());
+            pluginContext.configFutureAcceptor(context.getFutureAcceptorServiceLoader()
+                    .getServices());
         }
     }
 

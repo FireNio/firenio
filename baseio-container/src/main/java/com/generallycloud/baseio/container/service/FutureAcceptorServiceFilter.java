@@ -17,10 +17,10 @@ package com.generallycloud.baseio.container.service;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationContext;
+import com.generallycloud.baseio.container.InitializeUtil;
 import com.generallycloud.baseio.container.RESMessage;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
@@ -30,9 +30,8 @@ import com.generallycloud.baseio.protocol.NamedFuture;
 
 public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
-    private Logger                      logger = LoggerFactory
-            .getLogger(FutureAcceptorServiceFilter.class);
-    private FutureAcceptorServiceLoader acceptorServiceLoader;
+    private Logger                      logger                = LoggerFactory.getLogger(getClass());
+    private FutureAcceptorServiceLoader acceptorServiceLoader = new FutureAcceptorServiceLoader();
 
     public FutureAcceptorServiceFilter() {
         this.setSortIndex(Integer.MAX_VALUE);
@@ -40,69 +39,45 @@ public class FutureAcceptorServiceFilter extends FutureAcceptorFilter {
 
     @Override
     protected void accept(SocketSession session, NamedFuture future) throws Exception {
-
         String serviceName = future.getFutureName();
-
         if (StringUtil.isNullOrBlank(serviceName)) {
-
-            this.accept404(session, future, serviceName);
-
+            accept404(session, future, serviceName);
         } else {
-
-            this.accept(serviceName, session, future);
+            accept(serviceName, session, future);
         }
     }
 
     private void accept(String serviceName, SocketSession session, NamedFuture future)
             throws Exception {
-
         FutureAcceptorService acceptor = acceptorServiceLoader.getFutureAcceptor(serviceName);
-
         if (acceptor == null) {
-
-            future.setIoEventHandle(this);
-
             accept404(session, future, serviceName);
-
         } else {
-
-            future.setIoEventHandle(acceptor);
-
             acceptor.accept(session, future);
         }
     }
 
     protected void accept404(SocketSession session, NamedFuture future, String serviceName)
             throws IOException {
-
         logger.info("service name [{}] not found", serviceName);
-
         RESMessage message = new RESMessage(404, "service name not found :" + serviceName);
-
         flush(session, future, message);
     }
 
     private void flush(SocketSession session, Future future, RESMessage message)
             throws IOException {
-
-        future.setIoEventHandle(this);
-
         future.write(message.toString());
-
         session.flush(future);
     }
 
     @Override
     public void destroy(ApplicationContext context, Configuration config) throws Exception {
-        LifeCycleUtil.stop(acceptorServiceLoader);
+        InitializeUtil.destroy(acceptorServiceLoader, context);
     }
 
     @Override
     public void initialize(ApplicationContext context, Configuration config) throws Exception {
-
-        this.acceptorServiceLoader = new FutureAcceptorServiceLoader(context);
-
-        LifeCycleUtil.start(acceptorServiceLoader);
+        acceptorServiceLoader.initialize(context, config);
     }
 
     public FutureAcceptorServiceLoader getFutureAcceptorServiceLoader() {

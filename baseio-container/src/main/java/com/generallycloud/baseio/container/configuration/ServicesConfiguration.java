@@ -20,14 +20,14 @@ import java.util.List;
 
 public class ServicesConfiguration {
 
-    private List<Configuration> servlets = new ArrayList<>();
+    private List<Configuration> services = new ArrayList<>();
 
-    public List<Configuration> getServlets() {
-        return servlets;
+    public List<Configuration> getServices() {
+        return services;
     }
 
-    protected void addServlets(Configuration servlet) {
-        this.servlets.add(servlet);
+    protected void addService(Configuration service) {
+        this.services.add(service);
     }
 
 }

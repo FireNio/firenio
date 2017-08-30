@@ -31,7 +31,6 @@ import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.PropertiesSCLoader;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.configuration.ServerConfigurationLoader;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.ApplicationContextEnricher;
 import com.generallycloud.baseio.container.ApplicationExtLoader;
@@ -49,9 +48,9 @@ public class ApplicationBootstrapEngine implements Bootstrap {
 
         FixedProperties serverProperties = FileUtil.readPropertiesByCls("server.properties");
 
-        ServerConfigurationLoader configurationLoader = new PropertiesSCLoader();
-
-        ServerConfiguration sc = configurationLoader.loadConfiguration(serverProperties);
+        ServerConfiguration sc = new ServerConfiguration();
+                
+        new PropertiesSCLoader("SERVER").loadConfiguration(sc,serverProperties);
 
         ApplicationContext applicationContext = new ApplicationContext(rootPath);
 

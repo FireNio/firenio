@@ -136,21 +136,19 @@ public class FixedSession {
             throw new IOException("empty service name");
         }
 
-        ProtobaseFuture readFuture = new ProtobaseFutureImpl(context, serviceName);
+        ProtobaseFuture future = new ProtobaseFutureImpl(context, serviceName);
 
-        readFuture.setIoEventHandle(eventHandle);
-
-        readFuture.write(content);
+        future.write(content);
 
         if (binary != null) {
-            readFuture.writeBinary(binary);
+            future.writeBinary(binary);
         }
 
         WaiterOnFuture onReadFuture = new WaiterOnFuture();
 
         waiterListen(serviceName, onReadFuture);
 
-        session.flush(readFuture);
+        session.flush(future);
 
         // FIXME 连接丢失时叫醒我
         if (onReadFuture.await(timeout)) {
@@ -204,17 +202,15 @@ public class FixedSession {
             throw new IOException("empty service name");
         }
 
-        ProtobaseFuture readFuture = new ProtobaseFutureImpl(context, serviceName);
+        ProtobaseFuture future = new ProtobaseFutureImpl(context, serviceName);
 
-        readFuture.setIoEventHandle(eventHandle);
-
-        readFuture.write(content);
+        future.write(content);
 
         if (binary != null) {
-            readFuture.writeBinary(binary);
+            future.writeBinary(binary);
         }
 
-        session.flush(readFuture);
+        session.flush(future);
     }
 
     public void listen(String serviceName, OnFuture onReadFuture) throws IOException {

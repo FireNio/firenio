@@ -42,11 +42,7 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
 
-        FutureAcceptorFilter filter = unwrap();
-
-        future.setIoEventHandle(filter);
-
-        filter.accept(session, future);
+        unwrap().accept(session, future);
 
         if (future.flushed()) {
             return;
@@ -58,17 +54,6 @@ public class FutureAcceptorFilterWrapper extends FutureAcceptorFilter implements
     @Override
     public void destroy(ApplicationContext context, Configuration config) throws Exception {
         unwrap().destroy(context, config);
-    }
-
-    @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception cause,
-            IoEventState state) {
-        unwrap().exceptionCaught(session, future, cause, state);
-    }
-
-    @Override
-    public void futureSent(SocketSession session, Future future) {
-        unwrap().futureSent(session, future);
     }
 
     @Override

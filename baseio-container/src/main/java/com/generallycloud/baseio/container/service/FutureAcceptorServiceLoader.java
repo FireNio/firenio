@@ -17,21 +17,20 @@ package com.generallycloud.baseio.container.service;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.generallycloud.baseio.AbstractLifeCycle;
-import com.generallycloud.baseio.LifeCycle;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.container.AbstractInitializeable;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.DynamicClassLoader;
+import com.generallycloud.baseio.container.InitializeUtil;
 import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.configuration.ServicesConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements LifeCycle {
+public class FutureAcceptorServiceLoader extends AbstractInitializeable {
 
     private ApplicationContext                 context;
     private DynamicClassLoader                 classLoader;
@@ -39,113 +38,73 @@ public class FutureAcceptorServiceLoader extends AbstractLifeCycle implements Li
     private Logger                             logger   = LoggerFactory.getLogger(getClass());
     private Map<String, FutureAcceptorService> services = new HashMap<>();
 
-    public FutureAcceptorServiceLoader(ApplicationContext context) {
+    @Override
+    public void destroy(ApplicationContext context, Configuration config) throws Exception {
+        for (FutureAcceptorService entry : services.values()) {
+            InitializeUtil.destroy(entry, context);
+            LoggerUtil.prettyLog(logger, "unloaded [ {} ]", entry);
+        }
+        services.clear();
+        super.destroy(context, config);
+    }
+
+    @Override
+    public void initialize(ApplicationContext context, Configuration config) throws Exception {
         this.context = context;
         this.classLoader = context.getClassLoader();
         this.configuration = context.getConfiguration().getServletsConfiguration();
-    }
-
-    @Override
-    protected void doStart() throws Exception {
-
-        this.services = loadServices(configuration, classLoader);
-
+        this.loadServices(configuration, classLoader);
         this.initializeServices(services);
-    }
-
-    @Override
-    protected void doStop() throws Exception {
-
-        Collection<FutureAcceptorService> entries = services.values();
-
-        for (FutureAcceptorService entry : entries) {
-
-            try {
-
-                entry.destroy(context, entry.getConfig());
-
-                LoggerUtil.prettyLog(logger, "unloaded [ {} ]", entry);
-
-            } catch (Throwable e) {
-
-                logger.error(e.getMessage(), e);
-            }
-        }
+        super.initialize(context, config);
     }
 
     public FutureAcceptorService getFutureAcceptor(String serviceName) {
         return services.get(serviceName);
     }
 
-    public void listen(String serviceName, FutureAcceptorService service) {
-        this.services.put(serviceName, service);
-    }
-
-    public void listen(Map<String, FutureAcceptorService> services) {
-        this.services.putAll(services);
-    }
-
     private void initializeServices(Map<String, FutureAcceptorService> services) throws Exception {
-
         Collection<FutureAcceptorService> es = services.values();
-
         for (FutureAcceptorService e : es) {
-
             e.initialize(context, e.getConfig());
-
             LoggerUtil.prettyLog(logger, "loaded [ {} ]", e);
         }
     }
 
-    private Map<String, FutureAcceptorService> loadServices(ServicesConfiguration configuration,
+    private void loadServices(ServicesConfiguration configuration,
             DynamicClassLoader classLoader) throws Exception {
-
-        List<Configuration> servletConfigurations = configuration.getServlets();
-
-        if (servletConfigurations.size() == 0) {
-            logger.info("no servlet configed");
+        if (configuration.getServices().size() == 0) {
+            logger.info("no services configed");
         }
-
-        Map<String, FutureAcceptorService> servlets = new HashMap<>();
-
-        for (int i = 0; i < servletConfigurations.size(); i++) {
+        for (Configuration c : configuration.getServices()) {
             try {
-                loadService(servlets, servletConfigurations.get(i));
+                loadService(c);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }
-
-        servlets.putAll(context.getPluginServlets());
-
-        return servlets;
+    }
+    
+    public Map<String, FutureAcceptorService> getServices() {
+        return services;
     }
 
-    private void loadService(Map<String, FutureAcceptorService> servlets, Configuration config)
+    private void loadService(Configuration config)
             throws Exception {
-
+        Map<String, FutureAcceptorService> services = this.services;
         String className = config.getParameter("class", "empty");
-
         Class<?> clazz = classLoader.loadClass(className);
-
         String serviceName = config.getParameter("service-name");
-
         if (StringUtil.isNullOrBlank(serviceName)) {
             throw new IllegalArgumentException("null service name,class :" + className);
         }
-
-        if (servlets.containsKey(serviceName)) {
+        if (services.containsKey(serviceName)) {
             throw new IllegalArgumentException(
                     "repeat servlet[ " + serviceName + "@" + className + " ]");
         }
-
-        FutureAcceptorService servlet = (FutureAcceptorService) clazz.newInstance();
-
-        servlet.setServiceName(serviceName);
-
-        servlets.put(serviceName, servlet);
-
-        servlet.setConfig(config);
+        FutureAcceptorService service = (FutureAcceptorService) clazz.newInstance();
+        service.setServiceName(serviceName);
+        services.put(serviceName, service);
+        service.setConfig(config);
     }
 
 }

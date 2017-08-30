@@ -20,13 +20,23 @@ import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.service.FutureAcceptorContainer;
+import com.generallycloud.baseio.container.service.FutureAcceptorFilterWrapper;
+import com.generallycloud.baseio.container.service.FutureAcceptorService;
 import com.generallycloud.baseio.protocol.Future;
 
 public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
-    private ApplicationContext      applicationContext;
-    private FutureAcceptorContainer filterService;
+    private ApplicationContext          applicationContext;
+
+    private FutureAcceptorService       appRedeployService;
+
+    private volatile boolean            deploying = true;
+
+    private ExceptionCaughtHandle       exceptionCaughtHandle;
+
+    private ExceptionCaughtHandle       ioExceptionCaughtHandle;
+
+    private FutureAcceptorFilterWrapper rootFilter;
 
     public ApplicationIoEventHandle(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -34,11 +44,38 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
-        filterService.accept(session, future);
+
+        if (deploying) {
+            appRedeployService.accept(session, future);
+            return;
+        }
+
+        try {
+            rootFilter.accept(session, future);
+        } catch (Exception e) {
+            exceptionCaughtHandle.exceptionCaught(session, future, e);
+        }
+
+    }
+
+    @Override
+    protected void destroy(SocketChannelContext context) throws Exception {
+        LifeCycleUtil.stop(applicationContext);
+        this.deploying = true;
+        super.destroy(context);
+    }
+
+    @Override
+    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
+        ioExceptionCaughtHandle.exceptionCaught(session, future, ex);
     }
 
     public ApplicationContext getApplicationContext() {
         return applicationContext;
+    }
+    
+    public boolean redeploy(){
+        return applicationContext.redeploy();
     }
 
     @Override
@@ -48,30 +85,17 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
         LifeCycleUtil.start(applicationContext);
 
-        this.filterService = applicationContext.getFilterService();
+        this.appRedeployService = applicationContext.getAppRedeployService();
+
+        this.exceptionCaughtHandle = applicationContext.getExceptionCaughtHandle();
+
+        this.ioExceptionCaughtHandle = applicationContext.getIoExceptionCaughtHandle();
+
+        this.rootFilter = applicationContext.getRootFutureAcceptorFilter();
+
+        this.deploying = false;
 
         super.initialize(context);
-    }
-
-    @Override
-    protected void destroy(SocketChannelContext context) throws Exception {
-
-        LifeCycleUtil.stop(applicationContext);
-
-        super.destroy(context);
-    }
-
-    @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception cause,
-            IoEventState state) {
-
-        ExceptionCaughtHandle exceptionCaughtHandle = applicationContext.getExceptionCaughtHandle();
-
-        if (exceptionCaughtHandle == null) {
-            return;
-        }
-
-        exceptionCaughtHandle.exceptionCaught(session, future, cause, state);
     }
 
 }
