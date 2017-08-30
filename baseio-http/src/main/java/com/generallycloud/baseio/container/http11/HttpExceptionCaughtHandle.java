@@ -18,8 +18,8 @@ package com.generallycloud.baseio.container.http11;
 import com.generallycloud.baseio.codec.http11.future.HttpStatus;
 import com.generallycloud.baseio.codec.http11.future.ServerHttpFuture;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
-import com.generallycloud.baseio.component.IoEventHandle.IoEventState;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -33,20 +33,13 @@ public class HttpExceptionCaughtHandle implements ExceptionCaughtHandle {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception cause,
-            IoEventState state) {
-
-        if (state != IoEventState.HANDLE) {
-            logger.error(cause);
-            return;
-        }
-
+    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
+        logger.error(ex.getMessage(), ex);
         ServerHttpFuture f = new ServerHttpFuture(session.getContext());
-
-        f.write(String.valueOf(cause.getMessage()));
-
+        f.write("oops, server threw an inner exception, the stack trace is :\n");
+        f.write("-------------------------------------------------------\n");
+        f.write(DebugUtil.exception2string(ex));
         f.setStatus(HttpStatus.C500);
-
         session.flush(f);
     }
 

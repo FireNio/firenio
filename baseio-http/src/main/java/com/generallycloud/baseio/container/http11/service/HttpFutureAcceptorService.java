@@ -41,10 +41,4 @@ public abstract class HttpFutureAcceptorService extends FutureAcceptorService {
 
     protected abstract void doAccept(HttpSession session, HttpFuture future) throws Exception;
 
-    @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception cause,
-            IoEventState state) {
-        future.getContext().getIoEventHandleAdaptor().exceptionCaught(session, future, cause,
-                state);
-    }
 }

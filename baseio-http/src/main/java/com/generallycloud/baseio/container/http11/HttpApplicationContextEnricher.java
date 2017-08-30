@@ -39,7 +39,7 @@ public class HttpApplicationContextEnricher implements ApplicationContextEnriche
         SocketChannelContext channelContext = context.getChannelContext();
 
         context.setServiceFilter(new FutureAcceptorHttpFilter());
-
+        
         context.setExceptionCaughtHandle(new HttpExceptionCaughtHandle());
 
         //FIXME 重复的
