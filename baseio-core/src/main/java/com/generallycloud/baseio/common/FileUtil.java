@@ -343,7 +343,11 @@ public class FileUtil {
         if (inputStream == null) {
             return null;
         }
-        return inputStream2ByteArray(inputStream);
+        try {
+            return inputStream2ByteArray(inputStream);
+        } finally{
+            CloseUtil.close(inputStream);
+        }
     }
 
     public static byte[] readBytesByFile(File file) throws IOException {
