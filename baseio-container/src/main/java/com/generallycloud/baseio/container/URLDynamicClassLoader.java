@@ -246,7 +246,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
             clazz = findClass(name);
 
-            if (clazz == null) {
+            if (clazz != null) {
                 return clazz;
             }
 
@@ -270,7 +270,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
         clazz = super.loadClass(name, resolve);
 
-        if (clazz == null) {
+        if (clazz != null) {
             return clazz;
         }
 
