@@ -18,11 +18,10 @@ package com.generallycloud.baseio.codec.http2.future;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http2.Http2SocketSession;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2FrameHeader {
@@ -35,8 +34,8 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
 
     private SocketHttp2Frame frame;
 
-    public Http2FrameHeaderImpl(SocketSession session, ByteBuf buf) {
-        super(session.getContext());
+    public Http2FrameHeaderImpl(SocketChannel channel, ByteBuf buf) {
+        super(channel.getContext());
         this.buf = buf;
     }
 
@@ -44,7 +43,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
         super(context);
     }
 
-    private void doHeaderComplete(Http2SocketSession session, ByteBuf buf) {
+    private void doHeaderComplete(SocketChannel channel, ByteBuf buf) {
 
         byte b0 = buf.getByte();
         byte b1 = buf.getByte();
@@ -58,11 +57,11 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
 
         this.streamIdentifier = MathUtil.int2int31(buf.getInt());
 
-        this.frame = genFrame(session, type, length);
+        this.frame = genFrame(channel, type, length);
     }
 
     @Override
-    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
 
         ByteBuf buf = this.buf;
 
@@ -76,10 +75,10 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
 
             header_complete = true;
 
-            doHeaderComplete((Http2SocketSession) session, buf.flip());
+            doHeaderComplete(channel, buf.flip());
         }
 
-        return frame.read(session, buffer);
+        return frame.read(channel, buffer);
     }
 
     @Override
@@ -113,7 +112,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
         return frame;
     }
 
-    private SocketHttp2Frame genFrame(Http2SocketSession session, Http2FrameType type, int length) {
+    private SocketHttp2Frame genFrame(SocketChannel channel, Http2FrameType type, int length) {
 
         switch (type) {
             case FRAME_TYPE_CONTINUATION:
@@ -126,7 +125,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
 
                 break;
             case FRAME_TYPE_HEADERS:
-                return new Http2HeadersFrameImpl(session, allocate(session, length), this);
+                return new Http2HeadersFrameImpl(channel, allocate(channel, length), this);
             case FRAME_TYPE_PING:
 
                 break;
@@ -140,9 +139,9 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
 
                 break;
             case FRAME_TYPE_SETTINGS:
-                return new Http2SettingsFrameImpl(session, allocate(session, length), this);
+                return new Http2SettingsFrameImpl(channel, allocate(channel, length), this);
             case FRAME_TYPE_WINDOW_UPDATE:
-                return new Http2WindowUpdateFrameImpl(session, allocate(session, length), this);
+                return new Http2WindowUpdateFrameImpl(channel, allocate(channel, length), this);
             default:
 
                 break;
@@ -150,8 +149,8 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
         throw new IllegalArgumentException(type.toString());
     }
 
-    private SocketHttp2Frame genFrame(Http2SocketSession session, int type, int length) {
-        return genFrame(session, Http2FrameType.getValue(type), length);
+    private SocketHttp2Frame genFrame(SocketChannel channel, int type, int length) {
+        return genFrame(channel, Http2FrameType.getValue(type), length);
     }
 
     @Override

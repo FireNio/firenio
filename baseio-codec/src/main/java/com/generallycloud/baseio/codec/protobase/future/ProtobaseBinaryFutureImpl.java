@@ -17,7 +17,7 @@ package com.generallycloud.baseio.codec.protobase.future;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 
 /**
  *
@@ -32,8 +32,8 @@ public class ProtobaseBinaryFutureImpl extends ProtobaseFutureImpl {
         super(context);
     }
 
-    public ProtobaseBinaryFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit) {
-        super(session, buf);
+    public ProtobaseBinaryFutureImpl(SocketChannel channel, ByteBuf buf, int binaryLimit) {
+        super(channel, buf);
         this.binaryLimit = binaryLimit;
     }
 

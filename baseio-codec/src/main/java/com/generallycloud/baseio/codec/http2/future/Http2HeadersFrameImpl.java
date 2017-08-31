@@ -20,7 +20,7 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.http2.Http2SocketSession;
 import com.generallycloud.baseio.codec.http2.hpack.Decoder;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 
 public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2HeadersFrame {
 
@@ -38,13 +38,15 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 
     private static Decoder decoder = new Decoder();
 
-    public Http2HeadersFrameImpl(Http2SocketSession session, ByteBuf buf, Http2FrameHeader header) {
-        super(session, header);
+    public Http2HeadersFrameImpl(SocketChannel channel, ByteBuf buf, Http2FrameHeader header) {
+        super(channel, header);
         this.buf = buf;
     }
 
-    private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
+    private void doComplete(SocketChannel channel, ByteBuf buf) throws IOException {
 
+        Http2SocketSession session = (Http2SocketSession) channel.getSession();
+        
         byte flags = getHeader().getFlags();
 
         this.endStream = (flags & FLAG_END_STREAM) > 0;
@@ -70,7 +72,7 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
     }
 
     @Override
-    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
 
         if (!isComplete) {
 
@@ -84,7 +86,7 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 
             this.isComplete = true;
 
-            doComplete((Http2SocketSession) session, buf.flip());
+            doComplete(channel, buf.flip());
         }
 
         return true;

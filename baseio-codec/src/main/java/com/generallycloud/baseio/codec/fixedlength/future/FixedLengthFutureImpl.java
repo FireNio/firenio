@@ -21,9 +21,8 @@ import java.nio.charset.CharsetDecoder;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolDecoder;
-import com.generallycloud.baseio.component.Session;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolException;
 
@@ -35,8 +34,8 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
 
     private int     limit;
 
-    public FixedLengthFutureImpl(SocketSession session, ByteBuf buf, int limit) {
-        super(session.getContext());
+    public FixedLengthFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
+        super(channel.getContext());
         this.buf = buf;
         this.limit = limit;
     }
@@ -45,7 +44,7 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
         super(context);
     }
 
-    private void doHeaderComplete(Session session, ByteBuf buf) {
+    private void doHeaderComplete(SocketChannel channel, ByteBuf buf) {
 
         int length = buf.getInt();
 
@@ -65,7 +64,7 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
     }
 
     @Override
-    public boolean read(SocketSession session, ByteBuf src) throws IOException {
+    public boolean read(SocketChannel channel, ByteBuf src) throws IOException {
 
         ByteBuf buf = this.buf;
 
@@ -79,7 +78,7 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
 
             header_complete = true;
 
-            doHeaderComplete(session, buf.flip());
+            doHeaderComplete(channel, buf.flip());
         }
 
         if (!body_complete) {

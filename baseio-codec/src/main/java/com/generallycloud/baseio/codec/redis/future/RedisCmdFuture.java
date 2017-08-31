@@ -18,8 +18,8 @@ package com.generallycloud.baseio.codec.redis.future;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
 
 public class RedisCmdFuture extends AbstractRedisFuture {
 
@@ -28,7 +28,7 @@ public class RedisCmdFuture extends AbstractRedisFuture {
     }
 
     @Override
-    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
         return true;
     }
 

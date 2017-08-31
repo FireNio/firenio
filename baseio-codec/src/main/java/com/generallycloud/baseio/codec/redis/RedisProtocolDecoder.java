@@ -19,15 +19,15 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.redis.future.RedisFutureImpl;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
 public class RedisProtocolDecoder implements ProtocolDecoder {
 
     @Override
-    public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
-        return new RedisFutureImpl(session.getContext());
+    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
+        return new RedisFutureImpl(channel.getContext());
     }
 
 }

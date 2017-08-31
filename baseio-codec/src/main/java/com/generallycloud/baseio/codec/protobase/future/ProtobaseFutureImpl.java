@@ -24,9 +24,8 @@ import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.JsonParameters;
 import com.generallycloud.baseio.component.Parameters;
-import com.generallycloud.baseio.component.Session;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 /**
@@ -61,14 +60,14 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
         this(context, 0, futureName);
     }
 
-    public ProtobaseFutureImpl(SocketSession session, ByteBuf buf) {
-        super(session.getContext());
+    public ProtobaseFutureImpl(SocketChannel channel, ByteBuf buf) {
+        super(channel.getContext());
         this.buf = buf;
     }
 
-    private void doBodyComplete(Session session, ByteBuf buf) {
+    private void doBodyComplete(SocketChannel channel, ByteBuf buf) {
 
-        Charset charset = session.getEncoding();
+        Charset charset = context.getEncoding();
 
         int offset = buf.offset();
 
@@ -85,7 +84,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
         gainBinary(buf, offset);
     }
 
-    private void doHeaderComplete(Session session, ByteBuf buf) throws IOException {
+    private void doHeaderComplete(SocketChannel channel, ByteBuf buf) throws IOException {
 
         this.future_name_length = buf.getUnsignedByte();
 
@@ -158,7 +157,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     }
 
     @Override
-    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
 
         ByteBuf buf = this.buf;
 
@@ -172,7 +171,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
 
             header_complete = true;
 
-            doHeaderComplete(session, buf.flip());
+            doHeaderComplete(channel, buf.flip());
         }
 
         if (!body_complete) {
@@ -185,7 +184,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
 
             body_complete = true;
 
-            doBodyComplete(session, buf.flip());
+            doBodyComplete(channel, buf.flip());
         }
 
         return true;

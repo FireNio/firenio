@@ -33,7 +33,7 @@ import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.MapParameters;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
@@ -80,7 +80,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     protected String                                requestURI;
     protected String                                requestURL;
     protected Map<String, String>                   response_headers;
-    protected SocketSession                         session;
+    protected SocketChannel                         channel;
     protected HttpStatus                            status              = HttpStatus.C200;
     protected String                                version;
 
@@ -91,10 +91,10 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         super(context);
     }
 
-    public AbstractHttpFuture(SocketSession session, ByteBuf readBuffer, int headerLimit,
+    public AbstractHttpFuture(SocketChannel channel, ByteBuf readBuffer, int headerLimit,
             int bodyLimit) {
-        super(session.getContext());
-        this.session = session;
+        super(channel.getContext());
+        this.channel = channel;
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
         this.cookies = new HashMap<>();
@@ -124,7 +124,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
             // FIXME encoding
 
-            String paramString = new String(bodyArray, session.getEncoding());
+            String paramString = new String(bodyArray, context.getEncoding());
 
             parseParamString(paramString);
 
@@ -134,7 +134,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         }
     }
 
-    public void doHeaderComplete(SocketSession session, List<String> headerLines) {
+    public void doHeaderComplete(SocketChannel channel, List<String> headerLines) {
 
         parseFirstLine(headerLines.get(0));
 
@@ -185,7 +185,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         hasBodyContent = true;
 
         // FIXME 写入临时文件
-        buf = allocate(session, contentLength, bodyLimit);
+        buf = allocate(channel, contentLength, bodyLimit);
     }
 
     @Override
@@ -193,11 +193,11 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
 
         if (updateWebSocketProtocol) {
 
-            session.setProtocolDecoder(WS_PROTOCOL_DECODER);
-            session.setProtocolEncoder(WS_PROTOCOL_ENCODER);
-            session.setProtocolFactory(WS_PROTOCOL_FACTORY);
+            channel.setProtocolDecoder(WS_PROTOCOL_DECODER);
+            channel.setProtocolEncoder(WS_PROTOCOL_ENCODER);
+            channel.setProtocolFactory(WS_PROTOCOL_FACTORY);
 
-            session.setAttribute(WebSocketFuture.SESSION_KEY_SERVICE_NAME, getFutureName());
+            channel.getSession().setAttribute(WebSocketFuture.SESSION_KEY_SERVICE_NAME, getFutureName());
         }
 
         return super.flush();
@@ -415,7 +415,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     }
 
     @Override
-    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
 
         if (!header_complete) {
 
@@ -425,7 +425,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
                 return false;
             }
 
-            doHeaderComplete(session, headerLines);
+            doHeaderComplete(channel, headerLines);
         }
 
         if (!body_complete) {

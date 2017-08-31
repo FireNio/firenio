@@ -20,7 +20,7 @@ import java.util.Map;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 
 public class ClientHttpFuture extends AbstractHttpFuture {
 
@@ -30,8 +30,8 @@ public class ClientHttpFuture extends AbstractHttpFuture {
         this.setRequestURL(url);
     }
 
-    public ClientHttpFuture(SocketSession session, ByteBuf buffer, int headerLimit, int bodyLimit) {
-        super(session, buffer, headerLimit, bodyLimit);
+    public ClientHttpFuture(SocketChannel channel, ByteBuf buffer, int headerLimit, int bodyLimit) {
+        super(channel, buffer, headerLimit, bodyLimit);
     }
 
     @Override
@@ -41,9 +41,9 @@ public class ClientHttpFuture extends AbstractHttpFuture {
 
     @Override
     public void updateWebSocketProtocol() {
-        session.setProtocolFactory(WS_PROTOCOL_FACTORY);
-        session.setProtocolDecoder(WS_PROTOCOL_DECODER);
-        session.setProtocolEncoder(WS_PROTOCOL_ENCODER);
+        channel.setProtocolFactory(WS_PROTOCOL_FACTORY);
+        channel.setProtocolDecoder(WS_PROTOCOL_DECODER);
+        channel.setProtocolEncoder(WS_PROTOCOL_ENCODER);
     }
 
     @Override

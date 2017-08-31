@@ -19,7 +19,7 @@ import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 
 /**
  *
@@ -31,9 +31,9 @@ public class SessionIdProtobaseBinaryFutureImpl extends ProtobaseBinaryFutureImp
         super(context);
     }
 
-    public SessionIdProtobaseBinaryFutureImpl(SocketSession session, ByteBuf buf, int binaryLimit,
+    public SessionIdProtobaseBinaryFutureImpl(SocketChannel channel, ByteBuf buf, int binaryLimit,
             boolean isBroadcast) {
-        super(session, buf, binaryLimit);
+        super(channel, buf, binaryLimit);
         this.isBroadcast = isBroadcast;
     }
 

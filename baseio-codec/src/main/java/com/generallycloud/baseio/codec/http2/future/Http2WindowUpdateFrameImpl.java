@@ -18,9 +18,8 @@ package com.generallycloud.baseio.codec.http2.future;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http2.Http2SocketSession;
 import com.generallycloud.baseio.common.MathUtil;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 
 public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame
         implements Http2WindowUpdateFrame {
@@ -29,19 +28,19 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame
 
     private int     updateValue;
 
-    public Http2WindowUpdateFrameImpl(Http2SocketSession session, ByteBuf buf,
+    public Http2WindowUpdateFrameImpl(SocketChannel channel, ByteBuf buf,
             Http2FrameHeader header) {
-        super(session, header);
+        super(channel, header);
         this.buf = buf;
     }
 
-    private void doComplete(Http2SocketSession session, ByteBuf buf) throws IOException {
+    private void doComplete(SocketChannel channel, ByteBuf buf) throws IOException {
 
         this.updateValue = MathUtil.int2int31(buf.getInt());
     }
 
     @Override
-    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
 
         if (!isComplete) {
 
@@ -55,7 +54,7 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame
 
             isComplete = true;
 
-            doComplete((Http2SocketSession) session, buf.flip());
+            doComplete((SocketChannel) channel, buf.flip());
         }
 
         return true;

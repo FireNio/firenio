@@ -20,9 +20,8 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.http2.future.Http2FrameHeaderImpl;
 import com.generallycloud.baseio.codec.http2.future.Http2PrefaceFuture;
-import com.generallycloud.baseio.component.Session;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
@@ -101,20 +100,20 @@ public class Http2ProtocolDecoder implements ProtocolDecoder {
     public static final int PROTOCOL_PONG           = -2;
 
     @Override
-    public ChannelFuture decode(SocketSession session, ByteBuf buffer) throws IOException {
+    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
 
-        Http2SocketSession http2UnsafeSession = (Http2SocketSession) session;
+        Http2SocketSession http2UnsafeSession = (Http2SocketSession) channel.getSession();
 
-        SocketChannelContext context = session.getContext();
+        SocketChannelContext context = channel.getContext();
 
         if (http2UnsafeSession.isPrefaceRead()) {
-            return new Http2PrefaceFuture(context, allocate(session, PROTOCOL_PREFACE_HEADER));
+            return new Http2PrefaceFuture(context, allocate(channel, PROTOCOL_PREFACE_HEADER));
         }
-        return new Http2FrameHeaderImpl(session, allocate(session, PROTOCOL_HEADER));
+        return new Http2FrameHeaderImpl(channel, allocate(channel, PROTOCOL_HEADER));
     }
 
-    private ByteBuf allocate(Session session, int capacity) {
-        return session.getByteBufAllocator().allocate(capacity);
+    private ByteBuf allocate(SocketChannel channel, int capacity) {
+        return channel.getByteBufAllocator().allocate(capacity);
     }
 
 }

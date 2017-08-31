@@ -21,6 +21,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.http11.WebSocketProtocolDecoder;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
@@ -38,14 +39,14 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     private byte[]  mask;
     private byte[]  byteArray;
 
-    public WebSocketFutureImpl(SocketSession session, ByteBuf buf, int limit) {
-        super(session.getContext());
+    public WebSocketFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
+        super(channel.getContext());
 
         this.limit = limit;
 
         this.buf = buf;
 
-        this.setServiceName(session);
+        this.setServiceName(channel.getSession());
     }
 
     public WebSocketFutureImpl(SocketChannelContext context) {
@@ -120,7 +121,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
         buf.reallocate(remain_header_size);
     }
 
-    private void doRemainHeaderComplete(SocketSession session, ByteBuf buf) throws IOException {
+    private void doRemainHeaderComplete(SocketChannel channel, ByteBuf buf) throws IOException {
 
         remain_header_complete = true;
 
@@ -171,7 +172,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     }
 
     @Override
-    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
 
         ByteBuf buf = this.buf;
 
@@ -198,7 +199,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
 
             remain_header_complete = true;
 
-            doRemainHeaderComplete(session, buf.flip());
+            doRemainHeaderComplete(channel, buf.flip());
         }
 
         if (!data_complete) {

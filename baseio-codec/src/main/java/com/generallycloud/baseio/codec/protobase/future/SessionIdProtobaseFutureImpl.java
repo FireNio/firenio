@@ -19,7 +19,7 @@ import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 
 /**
  *
@@ -40,8 +40,8 @@ public class SessionIdProtobaseFutureImpl extends ProtobaseFutureImpl
         this(context, 0, futureName);
     }
 
-    public SessionIdProtobaseFutureImpl(SocketSession session, ByteBuf buf, boolean isBroadcast) {
-        super(session, buf);
+    public SessionIdProtobaseFutureImpl(SocketChannel channel, ByteBuf buf, boolean isBroadcast) {
+        super(channel, buf);
         this.isBroadcast = isBroadcast;
     }
 

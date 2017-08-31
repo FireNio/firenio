@@ -21,7 +21,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.codec.protobase.future.SessionIdProtobaseBinaryFutureImpl;
 import com.generallycloud.baseio.codec.protobase.future.SessionIdProtobaseFutureImpl;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
 /**
@@ -59,17 +59,17 @@ public class SessionIdProtobaseProtocolDecoder extends ProtobaseProtocolDecoder 
     }
 
     @Override
-    protected ChannelFuture newChannelReadFutureNoBinary(SocketSession session,
+    protected ChannelFuture newChannelReadFutureNoBinary(SocketChannel channel,
             ByteBufAllocator allocator, byte b) throws IOException {
         ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_NO_BINARY - 1);
-        return new SessionIdProtobaseFutureImpl(session, buf, isBroadcast(b));
+        return new SessionIdProtobaseFutureImpl(channel, buf, isBroadcast(b));
     }
 
     @Override
-    protected ChannelFuture newChannelReadFutureWithBinary(SocketSession session,
+    protected ChannelFuture newChannelReadFutureWithBinary(SocketChannel channel,
             ByteBufAllocator allocator, byte b) throws IOException {
         ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_WITH_BINARY - 1);
-        return new SessionIdProtobaseBinaryFutureImpl(session, buf, limit, isBroadcast(b));
+        return new SessionIdProtobaseBinaryFutureImpl(channel, buf, limit, isBroadcast(b));
     }
 
 }

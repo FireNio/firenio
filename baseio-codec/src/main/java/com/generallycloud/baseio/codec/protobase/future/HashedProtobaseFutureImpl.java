@@ -17,7 +17,7 @@ package com.generallycloud.baseio.codec.protobase.future;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 
 /**
  *
@@ -38,8 +38,8 @@ public class HashedProtobaseFutureImpl extends SessionIdProtobaseFutureImpl
         this(context, 0, futureName);
     }
 
-    public HashedProtobaseFutureImpl(SocketSession session, ByteBuf buf, boolean isBroadcast) {
-        super(session, buf, isBroadcast);
+    public HashedProtobaseFutureImpl(SocketChannel channel, ByteBuf buf, boolean isBroadcast) {
+        super(channel, buf, isBroadcast);
     }
 
     private int hashCode;
