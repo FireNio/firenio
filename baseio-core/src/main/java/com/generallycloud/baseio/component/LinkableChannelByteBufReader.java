@@ -31,8 +31,8 @@ public abstract class LinkableChannelByteBufReader implements ChannelByteBufRead
         this.next = channelByteBufReader;
     }
 
-    protected ByteBuf allocate(Session session, int capacity) {
-        return session.getByteBufAllocator().allocate(capacity);
+    protected ByteBuf allocate(SocketChannel channel, int capacity) {
+        return channel.getByteBufAllocator().allocate(capacity);
     }
 
     protected void nextAccept(SocketChannel channel, ByteBuf buffer) throws Exception {

@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 
 /**
  * @author wangkai
@@ -34,7 +34,7 @@ public class DefaultChannelFuture extends AbstractChannelFuture {
     }
 
     @Override
-    public boolean read(SocketSession session, ByteBuf src) throws IOException {
+    public boolean read(SocketChannel channel, ByteBuf src) throws IOException {
         throw new UnsupportedOperationException();
     }
 

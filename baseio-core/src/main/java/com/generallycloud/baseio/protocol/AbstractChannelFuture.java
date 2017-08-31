@@ -20,7 +20,6 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.component.Session;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
@@ -47,12 +46,12 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
         this.needSSL = context.isEnableSSL();
     }
 
-    protected ByteBuf allocate(Session session, int capacity) {
-        return session.getByteBufAllocator().allocate(capacity);
+    protected ByteBuf allocate(SocketChannel channel, int capacity) {
+        return channel.getByteBufAllocator().allocate(capacity);
     }
 
-    protected ByteBuf allocate(Session session, int capacity, int maxLimit) {
-        return session.getByteBufAllocator().allocate(capacity, maxLimit);
+    protected ByteBuf allocate(SocketChannel channel, int capacity, int maxLimit) {
+        return channel.getByteBufAllocator().allocate(capacity, maxLimit);
     }
 
     @Override

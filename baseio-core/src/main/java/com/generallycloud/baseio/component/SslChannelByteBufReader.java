@@ -27,8 +27,6 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
     @Override
     public void accept(SocketChannel channel, ByteBuf buffer) throws Exception {
 
-        UnsafeSocketSession session = channel.getSession();
-
         for (;;) {
 
             if (!buffer.hasRemaining()) {
@@ -39,7 +37,7 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
 
             if (future == null) {
 
-                ByteBuf buf = allocate(session, SslFuture.SSL_RECORD_HEADER_LENGTH);
+                ByteBuf buf = allocate(channel, SslFuture.SSL_RECORD_HEADER_LENGTH);
 
                 future = new SslFutureImpl(channel, buf, 1024 * 64);//FIXME param
 
@@ -48,7 +46,7 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
 
             try {
 
-                if (!future.read(session, buffer)) {
+                if (!future.read(channel, buffer)) {
 
                     return;
                 }

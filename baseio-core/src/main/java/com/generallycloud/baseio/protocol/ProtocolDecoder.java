@@ -18,12 +18,12 @@ package com.generallycloud.baseio.protocol;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
 
 public interface ProtocolDecoder {
 
     // 可能会遭受一种攻击，比如最大可接收数据为100，客户端传输到99后暂停，
     // 这样多次以后可能会导致内存溢出
-    public abstract ChannelFuture decode(SocketSession session, ByteBuf buf) throws IOException;
+    public abstract ChannelFuture decode(SocketChannel channel, ByteBuf buf) throws IOException;
 
 }

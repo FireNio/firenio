@@ -34,8 +34,6 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
     @Override
     public void accept(SocketChannel channel, ByteBuf buf) throws Exception {
 
-        UnsafeSocketSession session = channel.getSession();
-
         for (;;) {
 
             if (!buf.hasRemaining()) {
@@ -48,7 +46,7 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 
                 ProtocolDecoder decoder = channel.getProtocolDecoder();
 
-                future = decoder.decode(session, buf);
+                future = decoder.decode(channel, buf);
 
                 if (future == null) {
                     CloseUtil.close(channel);
@@ -60,7 +58,7 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 
             try {
 
-                if (!future.read(session, buf)) {
+                if (!future.read(channel, buf)) {
                     return;
                 }
 
@@ -82,7 +80,7 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 
             channel.setReadFuture(null);
 
-            foreReadFutureAcceptor.accept(session, future);
+            foreReadFutureAcceptor.accept(channel.getSession(), future);
         }
     }
 }

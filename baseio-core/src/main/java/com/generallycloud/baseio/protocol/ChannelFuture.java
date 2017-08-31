@@ -32,7 +32,7 @@ public interface ChannelFuture extends Future, Linkable {
 
     boolean isPONG();
 
-    boolean read(SocketSession session, ByteBuf src) throws IOException;
+    boolean read(SocketChannel channel, ByteBuf src) throws IOException;
 
     ChannelFuture setPING();
 

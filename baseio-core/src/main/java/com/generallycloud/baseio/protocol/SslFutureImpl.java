@@ -19,9 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.component.Session;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 
 public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
@@ -58,16 +56,13 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
         }
     }
 
-    private void doHeaderComplete(Session session, ByteBuf buf) throws IOException {
+    private void doHeaderComplete(SocketChannel channel, ByteBuf buf) throws IOException {
 
         header_complete = true;
 
-        int re = getEncryptedPacketLength(buf);
-        if (re < 256) {
-            //			System.out.println();
-        }
+        int packetLength = getEncryptedPacketLength(buf);
 
-        buf.reallocate(re, limit, true);
+        buf.reallocate(packetLength, limit, true);
     }
 
     private int getEncryptedPacketLength(ByteBuf buffer) {
@@ -132,7 +127,7 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
     }
 
     @Override
-    public boolean read(SocketSession session, ByteBuf buffer) throws IOException {
+    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
 
         if (!header_complete) {
 
@@ -144,7 +139,7 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
                 return false;
             }
 
-            doHeaderComplete(session, buf);
+            doHeaderComplete(channel, buf);
         }
 
         if (!body_complete) {
