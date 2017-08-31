@@ -35,7 +35,7 @@ BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的�
 	<dependency>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.2.2-RELEASE</version>
+		<version>3.2.2.RELEASE</version>
 	</dependency>  
   ```
   
