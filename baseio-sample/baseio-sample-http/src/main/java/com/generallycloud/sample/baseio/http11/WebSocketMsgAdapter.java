@@ -33,8 +33,7 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class WebSocketMsgAdapter extends AbstractEventLoop {
 
-    private Logger                     logger     = LoggerFactory
-            .getLogger(WebSocketMsgAdapter.class);
+    private Logger                     logger     = LoggerFactory.getLogger(getClass());
 
     private List<SocketSession>        clients    = new ArrayList<>();
 
