@@ -77,5 +77,18 @@ public class StringUtil {
         }
         return args[index];
     }
+    
+    public static int lastIndexOf(String str,char ch,int length){
+        int end = -1;
+        if (str.length() > length) {
+            end = str.length() - length - 1;
+        }
+        for (int i = str.length() - 1; i > end; i--) {
+            if (str.charAt(i) == ch) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
 }
