@@ -34,17 +34,16 @@ public class LoggerFilter extends FutureAcceptorFilter {
 
     private Logger      logger     = LoggerFactory.getLogger(getClass());
 
-    private Set<String> noneLogger = new HashSet<>();
+    private Set<String> noneLoggerUrlSet = new HashSet<>();
+    
+    private Set<String> noneLoggerSuffixSet = new HashSet<>();
 
     @Override
     protected void accept(SocketSession session, NamedFuture future) throws Exception {
 
         String futureName = future.getFutureName();
 
-        if (noneLogger.contains(futureName) || futureName.endsWith(".html")
-                || futureName.endsWith(".css") || futureName.endsWith(".js")
-                || futureName.endsWith(".jpg") || futureName.endsWith(".png")
-                || futureName.endsWith(".ico")) {
+        if (noneLoggerUrlSet.contains(futureName) || endContains(futureName)) {
             return;
         }
 
@@ -70,6 +69,15 @@ public class LoggerFilter extends FutureAcceptorFilter {
         }
         logger.info("request ip:{}, service name:{}", remoteAddr, futureName);
     }
+    
+    private boolean endContains(String futureName){
+        int idx = StringUtil.lastIndexOf(futureName, '.', 5);
+        if (idx == -1) {
+            return false;
+        }
+        String suffix = futureName.substring(idx);
+        return noneLoggerSuffixSet.contains(suffix);
+    }
 
     @Override
     public void initialize(ApplicationContext context, Configuration config) throws Exception {
@@ -83,8 +91,18 @@ public class LoggerFilter extends FutureAcceptorFilter {
         }
 
         for (int i = 0; i < array.size(); i++) {
-            noneLogger.add(array.getString(i));
+            noneLoggerUrlSet.add(array.getString(i));
         }
+        
+        noneLoggerSuffixSet.add(".html");
+        noneLoggerSuffixSet.add(".css");
+        noneLoggerSuffixSet.add(".js");
+        noneLoggerSuffixSet.add(".jpg");
+        noneLoggerSuffixSet.add(".png");
+        noneLoggerSuffixSet.add(".ico");
+        noneLoggerSuffixSet.add(".jpeg");
+        noneLoggerSuffixSet.add(".gif");
+        noneLoggerSuffixSet.add(".scss");
     }
 
 }
