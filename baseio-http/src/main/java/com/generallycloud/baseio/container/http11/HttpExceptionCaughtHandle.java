@@ -19,7 +19,6 @@ import com.generallycloud.baseio.codec.http11.future.HttpStatus;
 import com.generallycloud.baseio.codec.http11.future.ServerHttpFuture;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -36,10 +35,27 @@ public class HttpExceptionCaughtHandle implements ExceptionCaughtHandle {
     public void exceptionCaught(SocketSession session, Future future, Exception ex) {
         logger.error(ex.getMessage(), ex);
         ServerHttpFuture f = new ServerHttpFuture(session.getContext());
-        f.write("oops, server threw an inner exception, the stack trace is :\n");
-        f.write("-------------------------------------------------------\n");
-        f.write(DebugUtil.exception2string(ex));
+        StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
+        builder.append("        <div style=\"margin-left:20px;\">\n");
+        builder.append("            <div>oops, server threw an inner exception, the stack trace is :</div>\n");
+        builder.append("            <div style=\"font-family:serif;color:#5c5c5c;\">\n");
+        builder.append("            -------------------------------------------------------</BR>\n");
+        builder.append("            ");
+        builder.append(ex.toString());
+        builder.append("</BR>\n");
+        StackTraceElement[] es = ex.getStackTrace();
+        for (StackTraceElement e : es) {
+            builder.append("                &emsp;at ");
+            builder.append(e.toString());
+            builder.append("</BR>\n");
+        }
+        builder.append("            </div>\n");
+        builder.append("        </div>\n");
+        builder.append(HtmlUtil.HTML_POWER_BY);
+        builder.append(HtmlUtil.HTML_BOTTOM);
+        f.write(builder.toString());
         f.setStatus(HttpStatus.C500);
+        f.setResponseHeader("Content-Type", "text/html");
         session.flush(f);
     }
 
