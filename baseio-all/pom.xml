@@ -35,9 +35,7 @@
 									<source>../baseio-container/src/main/java</source>
 									<source>../baseio-core/src/main/java</source>
 									<source>../baseio-http/src/main/java</source>
-									<source>../baseio-jms/src/main/java</source>
 									<source>../baseio-protobase/src/main/java</source>
-									<source>../baseio-rtp/src/main/java</source>
 								</sources>
 							</configuration>
 						</execution>

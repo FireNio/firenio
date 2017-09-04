@@ -10,6 +10,20 @@
 	<description>The sample of baseio-http</description>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/**.*</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/test/resources</directory>
+				<excludes>
+					<exclude>**/**.*</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -24,35 +38,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<profiles>
-		<profile>
-			<id>test-release</id>
-			<build>
-				<resources>
-					<resource>
-						<directory>src/main/resources</directory>
-						<excludes>
-							<exclude>**/**.*</exclude>
-						</excludes>
-					</resource>
-				</resources>
-			</build>
-		</profile>
-		<profile>
-			<id>run</id>
-			<build>
-				<resources>
-					<resource>
-						<directory>src/main/resources</directory>
-						<includes>
-							<include>**/**.*</include>
-						</includes>
-					</resource>
-				</resources>
-			</build>
-		</profile>
-	</profiles>
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

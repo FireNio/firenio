@@ -1,13 +1,13 @@
-﻿<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.generallycloud</groupId>
-	<artifactId>baseio-sample-protobase</artifactId>
+	<artifactId>baseio-sample-jms</artifactId>
 	<name>${project.artifactId}</name>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<description>The sample of baseio-protobase</description>
+	<description>The sample of baseio-jms</description>
 
 	<build>
 		<resources>
@@ -38,7 +38,7 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.JdkVersion>1.7</project.JdkVersion>
@@ -67,18 +67,6 @@
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-protobase</artifactId>
-			<version>3.2.3-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-jms</artifactId>
-			<version>3.2.3-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-rtp</artifactId>
 			<version>3.2.3-SNAPSHOT</version>
 		</dependency>
 
