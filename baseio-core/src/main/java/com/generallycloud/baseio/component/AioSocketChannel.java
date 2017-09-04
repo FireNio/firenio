@@ -137,7 +137,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
         fireClosed();
     }
 
-    public void read(ByteBuf cache) {
+    protected void read(ByteBuf cache) {
         channel.read(cache.clear().nioBuffer(), this, readCompletionHandler);
     }
 
@@ -162,7 +162,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
     }
 
     // FIXME __hebing
-    public void writeCallback(int length) {
+    protected void writeCallback(int length) {
         ReentrantLock lock = getCloseLock();
         lock.lock();
         try {
@@ -183,8 +183,13 @@ public class AioSocketChannel extends AbstractSocketChannel {
             lock.unlock();
         }
     }
+    
+    @Override
+    public boolean isBlocking() {
+        return false;
+    }
 
-    public ByteBuf getReadCache() {
+    protected ByteBuf getReadCache() {
         return readCache;
     }
 

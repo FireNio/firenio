@@ -104,7 +104,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         }
     }
 
-    public void flush(SocketSelectorEventLoop selectorLoop) throws IOException {
+    protected void flush(SocketSelectorEventLoop selectorLoop) throws IOException {
         ChannelFuture f = writeFuture;
         if (f == null) {
             f = writeFutures.poll();
@@ -167,6 +167,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         }
     }
 
+    @Override
     public boolean isBlocking() {
         return channel.isBlocking();
     }
@@ -193,7 +194,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         return channel.read(buffer);
     }
 
-    public int read(ByteBuf buf) throws IOException {
+    protected int read(ByteBuf buf) throws IOException {
         int length = read(buf.getNioBuffer());
         if (length > 0) {
             buf.reverse();
@@ -210,7 +211,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         buf.reverse();
     }
 
-    public void dispatchEvent(SelectorLoopEvent event) {
+    protected void dispatchEvent(SelectorLoopEvent event) {
         this.selectorEventLoop.dispatch(event);
     }
 

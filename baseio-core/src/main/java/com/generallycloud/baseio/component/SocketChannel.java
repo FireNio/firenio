@@ -31,56 +31,58 @@ import com.generallycloud.baseio.protocol.SslFuture;
 
 public interface SocketChannel extends DuplexChannel {
 
-    public abstract ChannelFuture getReadFuture();
+    void doFlush(ChannelFuture future);
 
-    public abstract SslFuture getSslReadFuture();
+    void finishHandshake(Exception e);
 
-    public abstract void setReadFuture(ChannelFuture future);
+    void fireOpend();
 
-    public abstract void setSslReadFuture(SslFuture future);
-
-    public abstract void flush(ChannelFuture future);
-
-    public abstract void doFlush(ChannelFuture future);
+    void flush(ChannelFuture future);
 
     @Override
-    public abstract SocketChannelContext getContext();
+    SocketChannelContext getContext();
 
-    public abstract ProtocolEncoder getProtocolEncoder();
+    ExecutorEventLoop getExecutorEventLoop();
 
-    public abstract void setProtocolEncoder(ProtocolEncoder protocolEncoder);
+    <T> T getOption(SocketOption<T> name) throws IOException;
 
-    public abstract ProtocolDecoder getProtocolDecoder();
+    ProtocolDecoder getProtocolDecoder();
 
-    public abstract void setProtocolDecoder(ProtocolDecoder protocolDecoder);
+    ProtocolEncoder getProtocolEncoder();
 
-    public abstract ProtocolFactory getProtocolFactory();
+    ProtocolFactory getProtocolFactory();
 
-    public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
-
-    public abstract int getWriteFutureSize();
-
-    public abstract int getWriteFutureLength();
+    ChannelFuture getReadFuture();
 
     @Override
-    public abstract UnsafeSocketSession getSession();
+    UnsafeSocketSession getSession();
 
-    public abstract ExecutorEventLoop getExecutorEventLoop();
+    SSLEngine getSSLEngine();
 
-    public abstract <T> T getOption(SocketOption<T> name) throws IOException;
+    SslHandler getSslHandler();
 
-    public abstract <T> void setOption(SocketOption<T> name, T value) throws IOException;
+    SslFuture getSslReadFuture();
 
-    public abstract boolean isEnableSSL();
+    int getWriteFutureLength();
 
-    public abstract SSLEngine getSSLEngine();
+    int getWriteFutureSize();
 
-    public abstract SslHandler getSslHandler();
+    boolean isBlocking();
 
-    public abstract void finishHandshake(Exception e);
+    boolean isEnableSSL();
 
-    public abstract void fireOpend();
+    <T> void setOption(SocketOption<T> name, T value) throws IOException;
 
-    public abstract void write(ByteBuf buf) throws IOException;
+    void setProtocolDecoder(ProtocolDecoder protocolDecoder);
+
+    void setProtocolEncoder(ProtocolEncoder protocolEncoder);
+
+    void setProtocolFactory(ProtocolFactory protocolFactory);
+
+    void setReadFuture(ChannelFuture future);
+
+    void setSslReadFuture(SslFuture future);
+
+    void write(ByteBuf buf) throws IOException;
 
 }
