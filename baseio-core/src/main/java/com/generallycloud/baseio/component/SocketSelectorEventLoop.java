@@ -74,7 +74,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
         }
     }
 
-    public SocketSelector getSelector() {
+    protected SocketSelector getSelector() {
         return selector;
     }
 
@@ -83,7 +83,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
         this.selector = rebuildSelector0();
     }
 
-    public void accept(NioSocketChannel channel) {
+    private void accept(NioSocketChannel channel) {
         try {
             ByteBuf buf = this.buf;
             buf.clear();
@@ -116,6 +116,7 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
     @Override
     protected void doStop() {
         ThreadUtil.sleep(8);
+        closeEvents(selectorLoopEvents);
         closeEvents(selectorLoopEvents);
         LifeCycleUtil.stop(sessionManager);
         CloseUtil.close(selector);
@@ -267,35 +268,41 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
                 CloseUtil.close(event);
                 return;
             }
-            try {
-                event.fireEvent(this);
-            } catch (Exception e) {
-                CloseUtil.close(event);
-            }
+            handleEvent(event);
             return;
         }
         if (!isRunning()) {
             CloseUtil.close(event);
             return;
         }
-        //FIXME 这里是否可以优化一下
         selectorLoopEvents.offer(event);
+        
         // 这里再次判断一下，防止判断isRunning为true后的线程切换停顿
         // 如果切换停顿，这里判断可以确保event要么被close了，要么被执行了
-        if (!isRunning()) {
-            CloseUtil.close(event);
-            return;
-        }
+        
+        /* ----------------------------------------------------------------- */
+        // 这里不需要再次判断了，因为close方法会延迟执行，
+        // 可以确保event要么被执行，要么被close
+        //        if (!isRunning()) {
+        //            CloseUtil.close(event);
+        //            return;
+        //        }
+        /* ----------------------------------------------------------------- */
+        
         wakeup();
     }
 
     private void handleEvents(List<SelectorLoopEvent> eventBuffer) {
         for (SelectorLoopEvent event : eventBuffer) {
-            try {
-                event.fireEvent(this);
-            } catch (Exception e) {
-                CloseUtil.close(event);
-            }
+            handleEvent(event);
+        }
+    }
+    
+    private void handleEvent(SelectorLoopEvent event) {
+        try {
+            event.fireEvent(this);
+        } catch (Throwable e) {
+            CloseUtil.close(event);
         }
     }
 
