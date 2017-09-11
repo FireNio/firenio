@@ -45,6 +45,8 @@ public class ApplicationBootstrapEngine implements Bootstrap {
 
     @Override
     public void bootstrap(String rootPath, boolean deployModel) throws Exception {
+        
+        ClassLoader classLoader = getClass().getClassLoader();
 
         FixedProperties serverProperties = FileUtil.readPropertiesByCls("server.properties");
 
@@ -89,8 +91,8 @@ public class ApplicationBootstrapEngine implements Bootstrap {
 
             if (sc.isSERVER_ENABLE_SSL()) {
 
-                File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
-                File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
+                File certificate = FileUtil.readFileByCls(sc.getSERVER_CERT_CRT(),classLoader);
+                File privateKey = FileUtil.readFileByCls(sc.getSERVER_CERT_KEY(),classLoader);
 
                 SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
 
