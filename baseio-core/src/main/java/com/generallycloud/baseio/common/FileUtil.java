@@ -35,11 +35,13 @@ import java.util.List;
 
 public class FileUtil {
 
-    private static final Charset ENCODING         = Encoding.UTF8;
+    private static final ClassLoader CLASS_LOADER     = FileUtil.class.getClassLoader();
 
-    private static final byte[]  SKIP_BYTE_BUFFER = new byte[2048];
+    private static final Charset     ENCODING         = Encoding.UTF8;
 
-    private static final char    SYSTEM_SEPARATOR = File.separatorChar;
+    private static final byte[]      SKIP_BYTE_BUFFER = new byte[2048];
+
+    private static final char        SYSTEM_SEPARATOR = File.separatorChar;
 
     public static void cleanDirectory(File directory) throws IOException {
         if (!directory.exists()) {
@@ -150,8 +152,9 @@ public class FileUtil {
         }
     }
 
-    public static void deleteDirectoryOrFileByCls(String file) throws IOException {
-        File realFile = readFileByCls(file);
+    public static void deleteDirectoryOrFileByCls(String file, ClassLoader classLoader)
+            throws IOException {
+        File realFile = readFileByCls(file, classLoader);
         deleteDirectoryOrFile(realFile);
     }
 
@@ -345,7 +348,7 @@ public class FileUtil {
         }
         try {
             return inputStream2ByteArray(inputStream);
-        } finally{
+        } finally {
             CloseUtil.close(inputStream);
         }
     }
@@ -360,9 +363,16 @@ public class FileUtil {
         }
     }
 
-    public static File readFileByCls(String file) throws UnsupportedEncodingException {
-        ClassLoader classLoader = FileUtil.class.getClassLoader();
-        String path = classLoader.getResource(file).getFile();
+    public static File readFileByCls(String file) throws IOException {
+        return readFileByCls(file, CLASS_LOADER);
+    }
+
+    public static File readFileByCls(String file, ClassLoader classLoader) throws IOException {
+        URL url = classLoader.getResource(file);
+        if (url == null) {
+            throw new FileNotFoundException(file);
+        }
+        String path = url.getFile();
         return new File(URLDecoder.decode(path, ENCODING.name()));
     }
 
@@ -447,10 +457,10 @@ public class FileUtil {
         }
         return readProperties(inputStream, charset);
     }
-    
-    public static FixedProperties readPropertiesByCls(String file, Charset charset,ClassLoader classLoader)
-            throws IOException {
-        InputStream inputStream = readInputStreamByCls(file,classLoader);
+
+    public static FixedProperties readPropertiesByCls(String file, Charset charset,
+            ClassLoader classLoader) throws IOException {
+        InputStream inputStream = readInputStreamByCls(file, classLoader);
         if (inputStream == null) {
             throw new FileNotFoundException(file);
         }
@@ -553,21 +563,32 @@ public class FileUtil {
     }
 
     public static void writeByCls(String file, String content) throws IOException {
-        writeByCls(file, content, false);
+        writeByCls(file, content, CLASS_LOADER);
+    }
+
+    public static void writeByCls(String file, String content, ClassLoader classLoader)
+            throws IOException {
+        writeByCls(file, content, false, classLoader);
     }
 
     public static void writeByCls(String file, String content, boolean append) throws IOException {
-        writeByCls(file, content, ENCODING, append);
+        writeByCls(file, content, append, CLASS_LOADER);
     }
 
-    public static void writeByCls(String file, byte[] bytes, boolean append) throws IOException {
-        File realFile = readFileByCls(file);
+    public static void writeByCls(String file, String content, boolean append,
+            ClassLoader classLoader) throws IOException {
+        writeByCls(file, content, ENCODING, append, classLoader);
+    }
+
+    public static void writeByCls(String file, byte[] bytes, boolean append,
+            ClassLoader classLoader) throws IOException {
+        File realFile = readFileByCls(file, classLoader);
         writeByFile(realFile, bytes, append);
     }
 
-    public static void writeByCls(String file, String content, Charset encoding, boolean append)
-            throws IOException {
-        File realFile = readFileByCls(file);
+    public static void writeByCls(String file, String content, Charset encoding, boolean append,
+            ClassLoader classLoader) throws IOException {
+        File realFile = readFileByCls(file, classLoader);
         writeByFile(realFile, content, encoding, append);
     }
 
@@ -603,9 +624,9 @@ public class FileUtil {
         write(content.getBytes(encoding), openOutputStream(file, append));
     }
 
-    public static void writePropertiesByCls(FixedProperties properties, String file)
-            throws IOException {
-        File realFile = readFileByCls(file);
+    public static void writePropertiesByCls(FixedProperties properties, String file,
+            ClassLoader classLoader) throws IOException {
+        File realFile = readFileByCls(file, classLoader);
         FileOutputStream fos = new FileOutputStream(realFile);
         properties.store(fos, "");
         CloseUtil.close(fos);

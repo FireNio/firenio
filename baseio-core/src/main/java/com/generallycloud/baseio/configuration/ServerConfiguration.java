@@ -44,6 +44,9 @@ public class ServerConfiguration {
     //内存池内存单元数量百分比（单核），该配置影响"SERVER_MEMORY_POOL_CAPACITY"属性
     private double  SERVER_MEMORY_POOL_CAPACITY_RATE = 1d;
 
+    private String  SERVER_CERT_CRT                  = "localhost";
+    private String  SERVER_CERT_KEY                  = "localhost";
+
     public ServerConfiguration() {}
 
     public ServerConfiguration(int SERVER_PORT) {
@@ -217,4 +220,22 @@ public class ServerConfiguration {
         this.SERVER_WORK_EVENT_QUEUE_SIZE = SERVER_WORK_EVENT_QUEUE_SIZE;
     }
 
+    public String getSERVER_CERT_CRT() {
+        return SERVER_CERT_CRT;
+    }
+
+    public void setSERVER_CERT_CRT(String SERVER_CERT_CRT) {
+        this.SERVER_CERT_CRT = SERVER_CERT_CRT;
+    }
+
+    public String getSERVER_CERT_KEY() {
+        return SERVER_CERT_KEY;
+    }
+
+    public void setSERVER_CERT_KEY(String SERVER_CERT_KEY) {
+        this.SERVER_CERT_KEY = SERVER_CERT_KEY;
+    }
+
+    
+    
 }
