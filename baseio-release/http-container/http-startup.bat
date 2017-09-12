@@ -11,4 +11,6 @@ xcopy ..\..\baseio-all\target\baseio-all-*-SNAPSHOT.jar ..\..\baseio-release\htt
 cd ..\..\baseio-release\http-container
 
 rem java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=6666,suspend=n -cp ./lib/*;  com.generallycloud.baseio.container.startup.ApplicationBootstrap %cd% true
-java -cp ./lib/*;  com.generallycloud.baseio.container.startup.ApplicationBootstrap %cd% true
+rem java -cp ./lib/*;  com.generallycloud.baseio.container.startup.ApplicationBootstrap %cd% true
+
+java -cp ./lib/*;  com.generallycloud.baseio.container.startup.ApplicationBootstrap true
