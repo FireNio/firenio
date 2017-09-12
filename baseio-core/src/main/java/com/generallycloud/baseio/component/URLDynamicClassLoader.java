@@ -52,10 +52,11 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     private Set<String>             matchExtend    = new HashSet<>();
     private List<String>            matchStartWith = new ArrayList<>();
     private Set<String>             systemMatch    = new HashSet<>();
-    private boolean                 entrustFirst   = true;
+    private boolean                entrustFirst   = true;
 
     // entrustFirst 是否优先委托父类加载class
     // 最外层classloader（PCL）一般设置优先委托自己加载class，因为到后面对象需要用PCL去加载resources
+    // 如果PCL委托父类加载，则后面的class拿到的CL为AppCL，因为"-cp"参数指定了jar目录，
     // 热加载部分的classloader（HCL）设置优先委托父类加载class，因为一般情况下父类不会去加载HCL
     // 加载的class，HCL依然能够每次加载最新的class，而已加载的则使用PCL加载的class，因为原则上
     // HCL不允许覆盖PCL定义的class
