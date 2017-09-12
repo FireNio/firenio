@@ -188,7 +188,7 @@ public class FileUtil {
     }
 
     public static String getCurrentPath() {
-        return getCurrentPath(FileUtil.class.getClassLoader());
+        return getCurrentPath(CLASS_LOADER);
     }
 
     public static String getCurrentPath(ClassLoader classLoader) {
@@ -338,7 +338,7 @@ public class FileUtil {
     }
 
     public static byte[] readBytesByCls(String file) throws IOException {
-        return readBytesByCls(file, FileUtil.class.getClassLoader());
+        return readBytesByCls(file, CLASS_LOADER);
     }
 
     public static byte[] readBytesByCls(String file, ClassLoader classLoader) throws IOException {
@@ -390,7 +390,7 @@ public class FileUtil {
     }
 
     public static InputStream readInputStreamByCls(String file) {
-        return readInputStreamByCls(file, FileUtil.class.getClassLoader());
+        return readInputStreamByCls(file, CLASS_LOADER);
     }
 
     public static InputStream readInputStreamByCls(String file, ClassLoader classLoader) {

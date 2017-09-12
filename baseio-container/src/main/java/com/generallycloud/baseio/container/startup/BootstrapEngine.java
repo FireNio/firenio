@@ -19,7 +19,7 @@ package com.generallycloud.baseio.container.startup;
  * @author wangkai
  *
  */
-public interface Bootstrap {
+public interface BootstrapEngine {
 
     void bootstrap(String rootPath, boolean deployModel) throws Exception;
 }
