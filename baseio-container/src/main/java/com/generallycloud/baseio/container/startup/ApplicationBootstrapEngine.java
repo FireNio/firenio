@@ -41,7 +41,7 @@ import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class ApplicationBootstrapEngine implements Bootstrap {
+public class ApplicationBootstrapEngine implements BootstrapEngine {
 
     @Override
     public void bootstrap(String rootPath, boolean deployModel) throws Exception {
