@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.container.startup;
 
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.Bootstrap;
 
 public class ApplicationBootstrap {
 

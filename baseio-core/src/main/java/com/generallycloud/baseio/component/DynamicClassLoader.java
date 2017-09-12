@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.container;
+package com.generallycloud.baseio.component;
 
 import java.io.Closeable;
 import java.io.File;
@@ -55,5 +55,18 @@ public interface DynamicClassLoader extends Closeable {
     public abstract void addExcludePath(String path);
 
     public abstract void removeExcludePath(String path);
+    
+    class DuplicateClassException extends IOException {
+
+        private static final long serialVersionUID = 1L;
+
+        public DuplicateClassException(String msg) {
+            super(msg);
+        }
+
+        public DuplicateClassException(String msg, Throwable throwable) {
+            super(msg, throwable);
+        }
+    }
 
 }

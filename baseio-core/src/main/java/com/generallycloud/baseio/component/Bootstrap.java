@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.container.startup;
+package com.generallycloud.baseio.component;
 
 import java.io.File;
 import java.io.IOException;
 
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.container.URLDynamicClassLoader;
 import com.generallycloud.baseio.log.DebugUtil;
 
 /**
@@ -46,9 +45,9 @@ public class Bootstrap {
 
         Thread.currentThread().setContextClassLoader(classLoader);
 
-        BootstrapEngine startup = (BootstrapEngine) bootClass.newInstance();
+        BootstrapEngine engine = (BootstrapEngine) bootClass.newInstance();
 
-        startup.bootstrap(rootPath, deployModel);
+        engine.bootstrap(rootPath, deployModel);
     }
 
     private static URLDynamicClassLoader newClassLoader(boolean deployModel,

@@ -17,6 +17,8 @@ package com.generallycloud.baseio.container;
 
 import java.io.File;
 
+import com.generallycloud.baseio.component.DynamicClassLoader;
+
 /**
  * @author wangkai
  *

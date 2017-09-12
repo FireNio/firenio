@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.container;
+package com.generallycloud.baseio.component;
 
 import java.io.File;
 import java.io.IOException;
