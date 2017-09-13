@@ -23,7 +23,7 @@ public class TestCrt {
 
     public static void main(String[] args) throws CertificateException {
 
-        SelfSignedCertificate ssc = new SelfSignedCertificate("127.0.0.1");
+        SelfSignedCertificate ssc = new SelfSignedCertificate("localhost");
 
         ssc.generate("D://TEMP/", 2048);
 
