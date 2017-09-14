@@ -23,16 +23,26 @@ import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.http11.HtmlUtil;
 import com.generallycloud.baseio.container.http11.HttpContext;
 import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
+import com.generallycloud.baseio.container.service.FutureAcceptorServiceLoader;
 
 public class TestShowMemoryServlet extends HttpFutureAcceptorService {
 
     @Override
     protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
 
+        ApplicationContext appContext = ApplicationContext.getInstance();
+        FutureAcceptorServiceLoader fasLoader =  appContext.getFutureAcceptorServiceLoader();
+        TestWebSocketChatServlet chatServlet = (TestWebSocketChatServlet) fasLoader.getFutureAcceptor("/web-socket-chat");
+        TestWebSocketRumpetrollServlet rumpetrollServlet = (TestWebSocketRumpetrollServlet) fasLoader.getFutureAcceptor("/web-socket-rumpetroll");
+        
+        WebSocketMsgAdapter chatMsgAdapter = chatServlet.getMsgAdapter();
+        WebSocketMsgAdapter rumpetrollMsgAdapter = rumpetrollServlet.getMsgAdapter();
+        
         SocketChannelContext context = session.getIoSession().getContext();
         HttpContext httpContext = session.getContext();
 
@@ -76,6 +86,10 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
         builder.append(MEMORY_POOL_SIZE);
         builder.append("M;\n</BR>内存池状态（Heap）：");
         builder.append(allocatorDes);
+        builder.append("\n</BR>聊天室（WebSocket）客户端数量：");
+        builder.append(chatMsgAdapter.getClientSize());
+        builder.append("\n</BR>小蝌蚪（WebSocket）客户端数量：");
+        builder.append(rumpetrollMsgAdapter.getClientSize());
         builder.append("\n</BR>服务器当前连接数（io-session）：");
         builder.append(context.getSessionManager().getManagedSessionSize());
         builder.append(";\n</BR>服务器当前会话数（http-session）：");

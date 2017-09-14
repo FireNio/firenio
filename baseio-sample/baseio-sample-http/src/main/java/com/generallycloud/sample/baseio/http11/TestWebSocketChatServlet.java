@@ -204,4 +204,11 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 
         super.destroy(context, config);
     }
+    
+    /**
+     * @return the msgAdapter
+     */
+    public WebSocketMsgAdapter getMsgAdapter() {
+        return msgAdapter;
+    }
 }

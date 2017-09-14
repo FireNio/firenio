@@ -34,8 +34,7 @@ import com.generallycloud.baseio.protocol.Future;
 // FIXME ________根据当前是否正在redeploy来保存和恢复client
 public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 
-    private Logger              logger     = LoggerFactory
-            .getLogger(TestWebSocketRumpetrollServlet.class);
+    private Logger              logger     = LoggerFactory.getLogger(getClass());
 
     private WebSocketMsgAdapter msgAdapter = new WebSocketMsgAdapter();
 
@@ -143,4 +142,12 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 
         super.destroy(context, config);
     }
+    
+    /**
+     * @return the msgAdapter
+     */
+    public WebSocketMsgAdapter getMsgAdapter() {
+        return msgAdapter;
+    }
+    
 }
