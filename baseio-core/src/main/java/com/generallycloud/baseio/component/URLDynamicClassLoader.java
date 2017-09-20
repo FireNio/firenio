@@ -44,6 +44,8 @@ import com.generallycloud.baseio.log.Logger;
 
 public class URLDynamicClassLoader extends URLClassLoader implements DynamicClassLoader {
 
+    private static final ClassLoader PARENT_CLASSLOADER = URLDynamicClassLoader.class.getClassLoader();
+    
     private Map<String, ClassEntry> clazzEntries   = new HashMap<>();
     private Logger                  logger;
     private Map<String, URL>        resourceMap    = new HashMap<>();
@@ -60,20 +62,12 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     // 热加载部分的classloader（HCL）设置优先委托父类加载class，因为一般情况下父类不会去加载HCL
     // 加载的class，HCL依然能够每次加载最新的class，而已加载的则使用PCL加载的class，因为原则上
     // HCL不允许覆盖PCL定义的class
-    public URLDynamicClassLoader() {
-        this(true);
-    }
-
-    public URLDynamicClassLoader(boolean entrustFirst) {
-        this(null, entrustFirst);
-    }
-
     public URLDynamicClassLoader(ClassLoader parent) {
         this(parent, true);
     }
 
     public URLDynamicClassLoader(ClassLoader parent, boolean entrustFirst) {
-        super(new URL[] {}, parent == null ? getSystemClassLoader() : parent);
+        super(new URL[] {}, parent == null ? PARENT_CLASSLOADER : parent);
         this.entrustFirst = entrustFirst;
         this.initialize();
     }

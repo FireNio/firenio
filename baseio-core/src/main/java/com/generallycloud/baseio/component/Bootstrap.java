@@ -53,7 +53,8 @@ public class Bootstrap {
     private static URLDynamicClassLoader newClassLoader(boolean deployModel,
             String rootLocalAddress) throws IOException {
         //这里需要设置优先委托自己加载class，因为到后面对象需要用该classloader去加载resources
-        URLDynamicClassLoader classLoader = new URLDynamicClassLoader(false);
+        ClassLoader parent = Bootstrap.class.getClassLoader();
+        URLDynamicClassLoader classLoader = new URLDynamicClassLoader(parent,false);
         classLoader.addMatchExtend(BootstrapEngine.class.getName());
         if (deployModel) {
             classLoader.scan(new File(rootLocalAddress + "/lib"));
