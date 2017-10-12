@@ -30,19 +30,19 @@ public class MD5Token {
         return instance;
     }
 
-    public String getShortToken(String value, Charset encoding) {
-        return getLongToken(value.getBytes()).substring(8, 24);
+    public String get16(String value, Charset encoding) {
+        return get32(value.getBytes()).substring(8, 24);
     }
 
-    public String getLongToken(String value, Charset encoding) {
-        return getLongToken(value.getBytes()).toString();
+    public String get32(String value, Charset encoding) {
+        return get32(value.getBytes()).toString();
     }
 
-    public String getLongToken(byte[] array) {
-        return getLongToken(array, 0, array.length);
+    public String get32(byte[] array) {
+        return get32(array, 0, array.length);
     }
 
-    public String getLongToken(byte[] array, int off, int len) {
+    public String get32(byte[] array, int off, int len) {
         try {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(array, off, len);

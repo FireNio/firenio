@@ -92,8 +92,7 @@ public class FixedSession {
 
             Map<String, Object> param = new HashMap<>();
             param.put("username", username);
-            param.put("password",
-                    MD5Token.get().getLongToken(password, context.getEncoding()));
+            param.put("password",MD5Token.get().get32(password, context.getEncoding()));
 
             String paramString = JSON.toJSONString(param);
 

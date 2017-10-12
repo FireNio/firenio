@@ -131,7 +131,7 @@ public class AuthorityLoginCenter extends AbstractInitializeable implements Logi
         authority = new Authority();
 
         authority.setUsername("udp1");
-        authority.setPassword(MD5Token.get().getLongToken("udp1", context.getEncoding()));
+        authority.setPassword(MD5Token.get().get32("udp1", context.getEncoding()));
         authority.setRoleID(0);
         authority.setUuid("udp1");
 
@@ -140,7 +140,7 @@ public class AuthorityLoginCenter extends AbstractInitializeable implements Logi
         authority = new Authority();
 
         authority.setUsername("udp2");
-        authority.setPassword(MD5Token.get().getLongToken("udp2", context.getEncoding()));
+        authority.setPassword(MD5Token.get().get32("udp2", context.getEncoding()));
         authority.setRoleID(0);
         authority.setUuid("udp2");
 
