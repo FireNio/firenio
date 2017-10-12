@@ -26,7 +26,7 @@ public class MD5Token {
 
     private MD5Token() {}
 
-    public static MD5Token getInstance() {
+    public static MD5Token get() {
         return instance;
     }
 
