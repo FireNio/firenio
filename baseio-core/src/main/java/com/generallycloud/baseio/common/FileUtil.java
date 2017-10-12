@@ -431,12 +431,12 @@ public class FileUtil {
         return list;
     }
 
-    public static FixedProperties readProperties(InputStream inputStream, Charset charset)
+    public static Properties readProperties(InputStream inputStream, Charset charset)
             throws IOException {
         if (inputStream == null) {
             throw new IOException("null inputstream!");
         }
-        FixedProperties properties = new FixedProperties();
+        Properties properties = new Properties();
         try {
             properties.load(new InputStreamReader(inputStream, charset));
         } finally {
@@ -445,11 +445,11 @@ public class FileUtil {
         return properties;
     }
 
-    public static FixedProperties readPropertiesByCls(String file) throws IOException {
+    public static Properties readPropertiesByCls(String file) throws IOException {
         return readPropertiesByCls(file, ENCODING);
     }
 
-    public static FixedProperties readPropertiesByCls(String file, Charset charset)
+    public static Properties readPropertiesByCls(String file, Charset charset)
             throws IOException {
         InputStream inputStream = readInputStreamByCls(file);
         if (inputStream == null) {
@@ -458,7 +458,7 @@ public class FileUtil {
         return readProperties(inputStream, charset);
     }
 
-    public static FixedProperties readPropertiesByCls(String file, Charset charset,
+    public static Properties readPropertiesByCls(String file, Charset charset,
             ClassLoader classLoader) throws IOException {
         InputStream inputStream = readInputStreamByCls(file, classLoader);
         if (inputStream == null) {
@@ -467,12 +467,12 @@ public class FileUtil {
         return readProperties(inputStream, charset);
     }
 
-    public static FixedProperties readPropertiesByFile(File file, Charset charset)
+    public static Properties readPropertiesByFile(File file, Charset charset)
             throws IOException {
         return readProperties(new FileInputStream(file), charset);
     }
 
-    public static FixedProperties readPropertiesByFile(String file, Charset charset)
+    public static Properties readPropertiesByFile(String file, Charset charset)
             throws IOException {
         return readPropertiesByFile(new File(file), charset);
     }
@@ -624,7 +624,7 @@ public class FileUtil {
         write(content.getBytes(encoding), openOutputStream(file, append));
     }
 
-    public static void writePropertiesByCls(FixedProperties properties, String file,
+    public static void writePropertiesByCls(Properties properties, String file,
             ClassLoader classLoader) throws IOException {
         File realFile = readFileByCls(file, classLoader);
         FileOutputStream fos = new FileOutputStream(realFile);

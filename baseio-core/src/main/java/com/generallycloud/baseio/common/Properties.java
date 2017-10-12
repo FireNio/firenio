@@ -15,13 +15,11 @@
  */
 package com.generallycloud.baseio.common;
 
-import java.util.Properties;
-
-public class FixedProperties extends Properties {
+public class Properties extends java.util.Properties {
 
     private static final long serialVersionUID = 1L;
 
-    public FixedProperties loadString(String content) {
+    public Properties loadString(String content) {
 
         if (StringUtil.isNullOrBlank(content)) {
             return this;
@@ -134,7 +132,7 @@ public class FixedProperties extends Properties {
 
     public static void main(String[] args) {
 
-        FixedProperties p = new FixedProperties();
+        Properties p = new Properties();
 
         p.insertOneRow("aaa=bbb");
 

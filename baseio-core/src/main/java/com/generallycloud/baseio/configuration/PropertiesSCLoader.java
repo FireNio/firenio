@@ -18,7 +18,7 @@ package com.generallycloud.baseio.configuration;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
-import com.generallycloud.baseio.common.FixedProperties;
+import com.generallycloud.baseio.common.Properties;
 
 public class PropertiesSCLoader implements ServerConfigurationLoader {
 
@@ -29,7 +29,7 @@ public class PropertiesSCLoader implements ServerConfigurationLoader {
     }
 
     @Override
-    public void loadConfiguration(Object cfg,FixedProperties properties) throws Exception {
+    public void loadConfiguration(Object cfg,Properties properties) throws Exception {
 
         String setENCODING = "set"+prefix+"_ENCODING"; 
         String pEncoding = prefix + ".ENCODING";

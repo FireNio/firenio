@@ -15,9 +15,9 @@
  */
 package com.generallycloud.baseio.configuration;
 
-import com.generallycloud.baseio.common.FixedProperties;
+import com.generallycloud.baseio.common.Properties;
 
 public interface ServerConfigurationLoader {
 
-    public void loadConfiguration(Object cfg, FixedProperties properties) throws Exception;
+    public void loadConfiguration(Object cfg, Properties properties) throws Exception;
 }
