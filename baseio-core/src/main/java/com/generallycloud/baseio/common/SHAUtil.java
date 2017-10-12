@@ -15,28 +15,17 @@
  */
 package com.generallycloud.baseio.common;
 
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class SHAUtil {
 
-    public static String SHA(String decript) {
+    public static byte[] doSHA(byte[] decript, String digestType) {
         try {
-            MessageDigest digest = java.security.MessageDigest.getInstance("SHA");
-            digest.update(decript.getBytes());
-            byte messageDigest[] = digest.digest();
-            // Create Hex String
-            StringBuffer hexString = new StringBuffer();
-            // 字节数组转换为 十六进制 数
-            for (int i = 0; i < messageDigest.length; i++) {
-                String shaHex = Integer.toHexString(messageDigest[i] & 0xFF);
-                if (shaHex.length() < 2) {
-                    hexString.append(0);
-                }
-                hexString.append(shaHex);
-            }
-            return hexString.toString();
-
+            MessageDigest digest = java.security.MessageDigest.getInstance(digestType);
+            digest.update(decript);
+            return digest.digest();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -46,9 +35,33 @@ public class SHAUtil {
 
         String ss = "test2";
 
-        String s = SHA(ss);
+        System.out.println(BASE64Util.byteArrayToBase64(SHA(ss)));
 
-        System.out.println(s);
+        System.out.println(BASE64Util.byteArrayToBase64(SHA1(ss)));
+    }
+
+    public static byte[] SHA(byte[] decript) {
+        return doSHA(decript, "SHA");
+    }
+
+    public static byte[] SHA(String decript) {
+        return SHA(decript, Encoding.UTF8);
+    }
+
+    public static byte[] SHA(String decript, Charset encoding) {
+        return doSHA(decript.getBytes(encoding), "SHA");
+    }
+
+    public static byte[] SHA1(byte[] decript) {
+        return doSHA(decript, "SHA-1");
+    }
+
+    public static byte[] SHA1(String decript) {
+        return SHA1(decript, Encoding.UTF8);
+    }
+
+    public static byte[] SHA1(String decript, Charset encoding) {
+        return doSHA(decript.getBytes(encoding), "SHA-1");
     }
 
 }
