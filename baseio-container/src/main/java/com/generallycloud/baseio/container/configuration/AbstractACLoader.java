@@ -21,7 +21,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.FixedProperties;
+import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.configuration.PropertiesSCLoader;
 
@@ -32,7 +32,7 @@ public abstract class AbstractACLoader implements ApplicationConfigurationLoader
 
         ApplicationConfiguration configuration = new ApplicationConfiguration();
         
-        FixedProperties properties = FileUtil.readPropertiesByCls("app.properties", Encoding.UTF8, classLoader);
+        Properties properties = FileUtil.readPropertiesByCls("app.properties", Encoding.UTF8, classLoader);
         
         new PropertiesSCLoader("APP").loadConfiguration(configuration, properties);
 

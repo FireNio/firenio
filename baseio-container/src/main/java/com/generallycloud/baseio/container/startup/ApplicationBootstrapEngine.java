@@ -23,7 +23,7 @@ import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.FixedProperties;
+import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.BootstrapEngine;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -49,7 +49,7 @@ public class ApplicationBootstrapEngine implements BootstrapEngine {
         
         ClassLoader classLoader = getClass().getClassLoader();
 
-        FixedProperties serverProperties = FileUtil.readPropertiesByCls("server.properties");
+        Properties serverProperties = FileUtil.readPropertiesByCls("server.properties");
 
         ServerConfiguration sc = new ServerConfiguration();
                 
@@ -66,7 +66,7 @@ public class ApplicationBootstrapEngine implements BootstrapEngine {
 
         try {
 
-            FixedProperties intfProperties = FileUtil.readPropertiesByCls("intf.properties");
+            Properties intfProperties = FileUtil.readPropertiesByCls("intf.properties");
 
             applicationContext.setBlackIPs(loadBlackIPs());
 

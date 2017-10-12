@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.FixedProperties;
+import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.common.MD5Token;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketSession;
@@ -110,7 +110,7 @@ public class AuthorityLoginCenter extends AbstractInitializeable implements Logi
     @Override
     public void initialize(ApplicationContext context, Configuration config) throws Exception {
 
-        FixedProperties fixedProperties = FileUtil.readPropertiesByCls("server.properties");
+        Properties fixedProperties = FileUtil.readPropertiesByCls("server.properties");
 
         String username = fixedProperties.getProperty("SERVER.USERNAME", "admin");
         String password = fixedProperties.getProperty("SERVER.PASSWORD", "admin100");
