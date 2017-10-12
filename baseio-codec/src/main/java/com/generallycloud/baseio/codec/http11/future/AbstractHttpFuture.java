@@ -26,14 +26,14 @@ import com.generallycloud.baseio.codec.http11.WebSocketProtocolFactory;
 import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.KMPByteUtil;
 import com.generallycloud.baseio.common.KMPUtil;
-import com.generallycloud.baseio.common.SHA1Util;
+import com.generallycloud.baseio.common.SHAUtil;
 import com.generallycloud.baseio.common.StringLexer;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.MapParameters;
 import com.generallycloud.baseio.component.Parameters;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
@@ -529,7 +529,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
             String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key
                     + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
-            byte[] key_array = SHA1Util.SHA1(Sec_WebSocket_Key_Magic);
+            byte[] key_array = SHAUtil.SHA1(Sec_WebSocket_Key_Magic);
 
             String acceptKey = BASE64Util.byteArrayToBase64(key_array);
 
