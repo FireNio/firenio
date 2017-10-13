@@ -27,7 +27,7 @@ import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.BeanUtil;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.MD5Token;
+import com.generallycloud.baseio.common.MD5Util;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
@@ -92,7 +92,7 @@ public class FixedSession {
 
             Map<String, Object> param = new HashMap<>();
             param.put("username", username);
-            param.put("password",MD5Token.get().get32(password, context.getEncoding()));
+            param.put("password",MD5Util.get().get32(password, context.getEncoding()));
 
             String paramString = JSON.toJSONString(param);
 

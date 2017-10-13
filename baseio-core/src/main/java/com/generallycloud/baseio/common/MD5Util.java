@@ -18,20 +18,26 @@ package com.generallycloud.baseio.common;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 
-public class MD5Token {
+public class MD5Util {
 
-    private static char     hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
-            'b', 'c', 'd', 'e', 'f' };
-    private static MD5Token instance    = new MD5Token();
+    private static MD5Util instance    = new MD5Util();
 
-    private MD5Token() {}
+    private MD5Util() {}
 
-    public static MD5Token get() {
+    public static MD5Util get() {
         return instance;
+    }
+
+    public String get16(String value) {
+        return get16(value, Encoding.UTF8);
     }
 
     public String get16(String value, Charset encoding) {
         return get32(value.getBytes()).substring(8, 24);
+    }
+
+    public String get32(String value) {
+        return get32(value, Encoding.UTF8);
     }
 
     public String get32(String value, Charset encoding) {
@@ -46,19 +52,10 @@ public class MD5Token {
         try {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(array, off, len);
-            return toHex(md5.digest());
+            return MathUtil.bytes2HexString(md5.digest());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    private String toHex(byte[] bytes) {
-        StringBuilder s = new StringBuilder(32);
-        int length = bytes.length;
-        for (int i = 0; i < length; i++) {
-            s.append(hexDigits[(bytes[i] & 0xf0) >> 4]);
-            s.append(hexDigits[bytes[i] & 0x0f]);
-        }
-        return s.toString();
-    }
 }

@@ -209,43 +209,29 @@ public class MathUtil {
     }
 
     public static String bytes2HexString(byte[] array) {
-
         if (array == null || array.length == 0) {
             return null;
         }
-
-        StringBuilder builder = new StringBuilder(8);
-
+        StringBuilder builder = new StringBuilder(array.length * 2);
         for (int i = 0; i < array.length; i++) {
             builder.append(byte2HexString(array[i]));
         }
-
         return builder.toString();
     }
 
     public static String bytes2HexString0X(byte[] array) {
-
         if (array == null || array.length == 0) {
             return null;
         }
-
-        StringBuilder builder = new StringBuilder();
-
+        StringBuilder builder = new StringBuilder(array.length * 5 + 1);
         builder.append("[");
-
         for (int i = 0; i < array.length; i++) {
-
             builder.append("0x");
-
             builder.append(byte2HexString(array[i]));
-
             builder.append(",");
         }
-
         builder.deleteCharAt(builder.length() - 1);
-
         builder.append("]");
-
         return builder.toString();
     }
 
@@ -418,6 +404,8 @@ public class MathUtil {
         byte[] bytes = new byte[4];
         int2Byte(bytes, v, 0);
 
+        System.out.println(bytes2HexString0X(bytes));
+        System.out.println(bytes2HexString(bytes));
         int v1 = byte2Int(bytes, 0);
 
         System.out.println(v1);
