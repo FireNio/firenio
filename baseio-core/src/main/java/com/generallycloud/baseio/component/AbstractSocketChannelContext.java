@@ -51,7 +51,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
     private LinkableGroup<SocketSessionIdleEventListenerWrapper> sessionIdleEventListenerGroup = new LinkableGroup<>();
     private Logger                                               logger                        = LoggerFactory
             .getLogger(getClass());
-    private FixedAtomicInteger                                   CHANNEL_IDS;
+    private FixedAtomicInteger                                   CHANNEL_ID;
 
     @Override
     public void addSessionEventListener(SocketSessionEventListener listener) {
@@ -106,7 +106,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
     private void createChannelIdsSequence() {
         int core_size = serverConfiguration.getSERVER_CORE_SIZE();
         int max = (Integer.MAX_VALUE / core_size) * core_size - 1;
-        this.CHANNEL_IDS = new FixedAtomicInteger(0, max);
+        this.CHANNEL_ID = new FixedAtomicInteger(0, max);
     }
 
     @Override
@@ -311,10 +311,10 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
     }
 
     /**
-     * @return the cHANNEL_IDS
+     * @return the CHANNEL_ID
      */
-    public FixedAtomicInteger getCHANNEL_IDS() {
-        return CHANNEL_IDS;
+    public FixedAtomicInteger getCHANNEL_ID() {
+        return CHANNEL_ID;
     }
 
 }

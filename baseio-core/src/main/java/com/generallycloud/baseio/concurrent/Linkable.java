@@ -15,6 +15,7 @@
  */
 package com.generallycloud.baseio.concurrent;
 
+//高速读写队列时该对象尽量大于64byte ?
 public interface Linkable {
 
     Linkable getNext();

@@ -37,20 +37,20 @@ public class ServerNioSocketSelector extends NioSocketSelector {
 
     private ServerSocketChannel          serverSocketChannel;
 
-    private FixedAtomicInteger           channelIds;
+    private FixedAtomicInteger           channelIdGenerator;
 
     public ServerNioSocketSelector(SocketSelectorEventLoop loop, Selector selector,
             SelectableChannel channel) {
         super(loop, selector);
         this.selectorEventLoopGroup = loop.getEventLoopGroup();
         this.serverSocketChannel = (ServerSocketChannel) channel;
-        this.channelIds = loop.getChannelContext().getCHANNEL_IDS();
+        this.channelIdGenerator = loop.getChannelContext().getCHANNEL_ID();
     }
 
     @Override
     public void buildChannel(SelectionKey k) throws IOException {
 
-        final int channelId = channelIds.getAndIncrement();
+        final int channelId = channelIdGenerator.getAndIncrement();
 
         final java.nio.channels.SocketChannel channel = serverSocketChannel.accept();
 

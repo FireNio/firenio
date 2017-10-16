@@ -21,6 +21,23 @@ public class ScspLinkedQueue<T> implements LinkedQueue<T> {
 
     protected AtomicInteger size = new AtomicInteger();
     protected Linkable      head = null;               // volatile ?
+    // head与tail的padding，64位模式运行不需要这么多 ，不确定伪共享是不是这么用的
+    protected Linkable      headPadding0 = null;       
+    protected Linkable      headPadding1 = null;       
+    protected Linkable      headPadding2 = null;       
+    protected Linkable      headPadding3 = null;
+    protected Linkable      headPadding4 = null;
+    protected Linkable      headPadding5 = null;
+    protected Linkable      headPadding6 = null;
+    protected Linkable      headPadding7 = null;
+    protected Linkable      headPadding8 = null;
+    protected Linkable      headPadding9 = null;       
+    protected Linkable      headPadding10 = null;
+    protected Linkable      headPadding11 = null;       
+    protected Linkable      headPadding12 = null;       
+    protected Linkable      headPadding13 = null;
+    protected Linkable      headPadding14 = null;
+    protected Linkable      headPadding15 = null;
     protected Linkable      tail = null;               // volatile ?
 
     public ScspLinkedQueue(Linkable linkable) {
