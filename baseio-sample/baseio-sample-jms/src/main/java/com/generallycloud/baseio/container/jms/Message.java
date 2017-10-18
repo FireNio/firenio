@@ -27,7 +27,7 @@ public interface Message {
 
     public abstract String getQueueName();
 
-    public abstract String getMsgID();
+    public abstract String getMsgId();
 
     public abstract int getMsgType();
 

@@ -25,9 +25,9 @@ public class TextMessageDecoder implements MessageDecoder {
     @Override
     public Message decode(ProtobaseFuture future) {
         Parameters param = future.getParameters();
-        String messageID = param.getParameter("msgID");
+        String messageId = param.getParameter("msgId");
         String queueName = param.getParameter("queueName");
         String text = param.getParameter("text");
-        return new TextMessage(messageID, queueName, text);
+        return new TextMessage(messageId, queueName, text);
     }
 }

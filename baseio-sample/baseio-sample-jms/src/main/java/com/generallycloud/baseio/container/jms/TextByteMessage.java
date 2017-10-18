@@ -21,8 +21,8 @@ public class TextByteMessage extends TextMessage implements BytedMessage {
 
     private byte[] array;
 
-    public TextByteMessage(String messageID, String queueName, String text, byte[] array) {
-        super(messageID, queueName, text);
+    public TextByteMessage(String messageId, String queueName, String text, byte[] array) {
+        super(messageId, queueName, text);
         this.array = array;
     }
 
@@ -33,7 +33,7 @@ public class TextByteMessage extends TextMessage implements BytedMessage {
 
     @Override
     public String toString() {
-        return new StringBuilder(24).append("{\"msgType\":3,\"msgID\":\"").append(getMsgID())
+        return new StringBuilder(24).append("{\"msgType\":3,\"msgId\":\"").append(getMsgId())
                 .append("\",\"queueName\":\"").append(getQueueName()).append("\",\"timestamp\":")
                 .append(getTimestamp()).append(",\"text\":\"").append(getText0()).append("\"}")
                 .toString();

@@ -55,7 +55,7 @@ public class RTPClient {
     private DatagramChannelContext   context;
     private String                   inviteUsername;
     private MessageProducer          producer;
-    private String                   roomID;
+    private String                   roomId;
     private FixedSession             session;
     private RTPHandle                handle;
 
@@ -128,13 +128,13 @@ public class RTPClient {
             throw new RTPException(e.getMessage(), e);
         }
 
-        String roomID = future.getReadText();
+        String roomId = future.getReadText();
 
-        if ("-1".equals(roomID)) {
+        if ("-1".equals(roomId)) {
             throw new RTPException("create room failed");
         }
 
-        this.roomID = roomID;
+        this.roomId = roomId;
 
         this.inviteCustomer(inviteUsername);
 
@@ -151,8 +151,8 @@ public class RTPClient {
 
     public void inviteCustomer(String inviteUsername) throws RTPException {
 
-        if (roomID == null) {
-            throw new RTPException("none roomID,create room first");
+        if (roomId == null) {
+            throw new RTPException("none roomId,create room first");
         }
 
         Authority authority = session.getAuthority();
@@ -161,10 +161,10 @@ public class RTPClient {
             throw new RTPException("not login");
         }
 
-        MapMessage message = new MapMessage("msgID", inviteUsername);
+        MapMessage message = new MapMessage("msgId", inviteUsername);
 
         message.put("eventName", "invite");
-        message.put("roomID", roomID);
+        message.put("roomId", roomId);
         message.put("inviteUsername", authority.getUsername());
 
         try {
@@ -180,7 +180,7 @@ public class RTPClient {
     public void inviteReply(String inviteUsername, int markinterval, long currentMark,
             int groupSize) throws RTPException {
 
-        MapMessage message = new MapMessage("msgID", inviteUsername);
+        MapMessage message = new MapMessage("msgId", inviteUsername);
 
         message.put("eventName", "invite-reply");
         message.put(MARK_INTERVAL, markinterval);
@@ -196,10 +196,10 @@ public class RTPClient {
         this.inviteUsername = inviteUsername;
     }
 
-    public boolean joinRoom(String roomID) throws RTPException {
+    public boolean joinRoom(String roomId) throws RTPException {
         try {
 
-            ProtobaseFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
+            ProtobaseFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomId);
 
             return ByteUtil.isTrue(future.getReadText());
         } catch (IOException e) {
@@ -216,7 +216,7 @@ public class RTPClient {
                 throw new RTPException("not login");
             }
 
-            ProtobaseFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomID);
+            ProtobaseFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomId);
 
             this.handle.onBreak(this, new MapMessage("", authority.getUuid()));
 
@@ -228,8 +228,8 @@ public class RTPClient {
 
     public void sendDatagramPacket(DatagramPacket packet) throws RTPException {
 
-        if (roomID == null) {
-            throw new RTPException("none roomID,create room first");
+        if (roomId == null) {
+            throw new RTPException("none roomId,create room first");
         }
 
         try {
@@ -239,12 +239,12 @@ public class RTPClient {
         }
     }
 
-    public void setRoomID(String roomID) {
-        this.roomID = roomID;
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
     }
 
-    public String getRoomID() {
-        return roomID;
+    public String getRoomId() {
+        return roomId;
     }
 
     public void setRTPClientDPAcceptor(RTPClientDPAcceptor acceptor) {

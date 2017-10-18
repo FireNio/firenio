@@ -21,8 +21,8 @@ public class TextMessage extends BasicMessage {
 
     private String text = null;
 
-    public TextMessage(String messageID, String queueName, String text) {
-        super(messageID, queueName);
+    public TextMessage(String messageId, String queueName, String text) {
+        super(messageId, queueName);
         this.text = text;
     }
 
@@ -37,7 +37,7 @@ public class TextMessage extends BasicMessage {
 
     @Override
     public String toString() {
-        return new StringBuilder(24).append("{\"msgType\":2,\"msgID\":\"").append(getMsgID())
+        return new StringBuilder(24).append("{\"msgType\":2,\"msgId\":\"").append(getMsgId())
                 .append("\",\"queueName\":\"").append(getQueueName()).append("\",\"timestamp\":")
                 .append(getTimestamp()).append(",\"text\":\"").append(getText0()).append("\"}")
                 .toString();

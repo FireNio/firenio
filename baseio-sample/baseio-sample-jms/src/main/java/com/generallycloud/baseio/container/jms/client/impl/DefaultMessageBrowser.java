@@ -41,9 +41,9 @@ public class DefaultMessageBrowser implements MessageBrowser {
     }
 
     @Override
-    public Message browser(String messageID) throws MQException {
+    public Message browser(String messageId) throws MQException {
         JSONObject param = new JSONObject();
-        param.put("messageID", messageID);
+        param.put("messageId", messageId);
         param.put("cmd", MQBrowserServlet.BROWSER);
 
         ProtobaseFuture future;

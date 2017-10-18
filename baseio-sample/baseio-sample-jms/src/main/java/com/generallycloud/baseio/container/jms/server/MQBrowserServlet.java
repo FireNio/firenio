@@ -40,7 +40,7 @@ public class MQBrowserServlet extends MQServlet {
 
         Parameters param = future.getParameters();
 
-        String messageID = param.getParameter("messageID");
+        String messageId = param.getParameter("messageId");
 
         Message message = NullMessage.NULL_MESSAGE;
 
@@ -57,9 +57,9 @@ public class MQBrowserServlet extends MQServlet {
 
             } else if (BROWSER.equals(cmd)) {
 
-                if (!StringUtil.isNullOrBlank(messageID)) {
+                if (!StringUtil.isNullOrBlank(messageId)) {
 
-                    message = context.browser(messageID);
+                    message = context.browser(messageId);
 
                     if (message == null) {
 

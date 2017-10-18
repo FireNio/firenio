@@ -21,15 +21,15 @@ public class RTPRoomFactory {
 
     private IntObjectHashMap<RTPRoom> rooms = new IntObjectHashMap<>();
 
-    public synchronized RTPRoom getRTPRoom(int roomID) {
-        return rooms.get(roomID);
+    public synchronized RTPRoom getRTPRoom(int roomId) {
+        return rooms.get(roomId);
     }
 
-    public synchronized void removeRTPRoom(int roomID) {
-        rooms.remove(roomID);
+    public synchronized void removeRTPRoom(int roomId) {
+        rooms.remove(roomId);
     }
 
     public synchronized void putRTPRoom(RTPRoom room) {
-        rooms.put(room.getRoomID(), room);
+        rooms.put(room.getRoomId(), room);
     }
 }

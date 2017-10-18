@@ -26,12 +26,12 @@ public class MapByteMessageDecoder implements MessageDecoder {
     @Override
     public Message decode(ProtobaseFuture future) {
         Parameters param = future.getParameters();
-        String messageID = param.getParameter("msgID");
+        String messageId = param.getParameter("msgId");
         String queueName = param.getParameter("queueName");
         JSONObject map = param.getJSONObject("map");
 
         byte[] array = future.getBinary();
 
-        return new MapByteMessage(messageID, queueName, map, array);
+        return new MapByteMessage(messageId, queueName, map, array);
     }
 }

@@ -28,7 +28,7 @@ public class RTPCreateRoomServlet extends RTPServlet {
 
         RTPRoom room = attachment.createRTPRoom(session);
 
-        future.write(String.valueOf(room.getRoomID()));
+        future.write(String.valueOf(room.getRoomId()));
 
         session.flush(future);
     }

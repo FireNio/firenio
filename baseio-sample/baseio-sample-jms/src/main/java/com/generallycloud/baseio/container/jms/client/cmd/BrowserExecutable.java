@@ -41,15 +41,15 @@ public class BrowserExecutable extends MQCommandExecutor {
             response.setResponse("请先登录！");
             return response;
         }
-        String messageID = params.get("-mid");
-        if (StringUtil.isNullOrBlank(messageID)) {
+        String messageId = params.get("-mid");
+        if (StringUtil.isNullOrBlank(messageId)) {
             response.setResponse("参数不正确！\n" + "example:\n" + "browser -mid:mid");
             return response;
         }
         try {
-            Message message = browser.browser(messageID);
+            Message message = browser.browser(messageId);
             if (message == null) {
-                response.setResponse("没有此ID的消息！");
+                response.setResponse("没有此id的消息！");
             } else {
                 response.setResponse(message.toString());
             }

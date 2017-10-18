@@ -25,12 +25,12 @@ public class TextByteMessageDecoder implements MessageDecoder {
     @Override
     public Message decode(ProtobaseFuture future) {
         Parameters param = future.getParameters();
-        String messageID = param.getParameter("msgID");
+        String messageId = param.getParameter("msgId");
         String queueName = param.getParameter("queueName");
         String text = param.getParameter("text");
 
         byte[] array = future.getBinary();
 
-        return new TextByteMessage(messageID, queueName, text, array);
+        return new TextByteMessage(messageId, queueName, text, array);
     }
 }

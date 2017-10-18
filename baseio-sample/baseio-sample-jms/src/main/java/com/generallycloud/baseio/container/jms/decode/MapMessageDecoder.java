@@ -26,9 +26,9 @@ public class MapMessageDecoder implements MessageDecoder {
     @Override
     public Message decode(ProtobaseFuture future) {
         Parameters param = future.getParameters();
-        String messageID = param.getParameter("msgID");
+        String messageId = param.getParameter("msgId");
         String queueName = param.getParameter("queueName");
         JSONObject map = param.getJSONObject("map");
-        return new MapMessage(messageID, queueName, map);
+        return new MapMessage(messageId, queueName, map);
     }
 }

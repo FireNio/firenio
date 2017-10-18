@@ -26,13 +26,13 @@ public class MapMessage extends BasicMessage implements MappedMessage {
 
     private JSONObject map = null;
 
-    public MapMessage(String messageID, String queueName) {
-        super(messageID, queueName);
+    public MapMessage(String messageId, String queueName) {
+        super(messageId, queueName);
         this.map = new JSONObject();
     }
 
-    public MapMessage(String messageID, String queueName, JSONObject map) {
-        super(messageID, queueName);
+    public MapMessage(String messageId, String queueName, JSONObject map) {
+        super(messageId, queueName);
         this.map = map;
     }
 
@@ -133,7 +133,7 @@ public class MapMessage extends BasicMessage implements MappedMessage {
 
     @Override
     public String toString() {
-        return new StringBuilder(24).append("{\"msgType\":4,\"msgID\":\"").append(getMsgID())
+        return new StringBuilder(24).append("{\"msgType\":4,\"msgId\":\"").append(getMsgId())
                 .append("\",\"queueName\":\"").append(getQueueName()).append("\",\"timestamp\":")
                 .append(getTimestamp()).append(",\"map\":").append(getText0()).append("}")
                 .toString();

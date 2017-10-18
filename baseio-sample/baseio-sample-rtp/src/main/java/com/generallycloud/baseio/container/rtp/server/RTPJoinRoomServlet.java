@@ -30,11 +30,11 @@ public class RTPJoinRoomServlet extends RTPServlet {
 
         RTPContext context = getRTPContext();
 
-        int roomID = Integer.parseInt(future.getReadText());
+        int roomId = Integer.parseInt(future.getReadText());
 
         RTPRoomFactory roomFactory = context.getRTPRoomFactory();
 
-        RTPRoom room = roomFactory.getRTPRoom(roomID);
+        RTPRoom room = roomFactory.getRTPRoom(roomId);
 
         if (room == null) {
 

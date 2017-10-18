@@ -19,11 +19,11 @@ public abstract class BasicMessage implements Message {
 
     private long   timestamp = System.currentTimeMillis();
     private String queueName;
-    private String msgID;
+    private String msgId;
 
     @Override
-    public String getMsgID() {
-        return msgID;
+    public String getMsgId() {
+        return msgId;
     }
 
     @Override
@@ -31,8 +31,8 @@ public abstract class BasicMessage implements Message {
         return queueName;
     }
 
-    public BasicMessage(String msgID, String queueName) {
-        this.msgID = msgID;
+    public BasicMessage(String msgId, String queueName) {
+        this.msgId = msgId;
         this.queueName = queueName;
     }
 

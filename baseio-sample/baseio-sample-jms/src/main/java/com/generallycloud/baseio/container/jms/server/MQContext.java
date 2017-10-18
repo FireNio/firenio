@@ -35,7 +35,7 @@ import com.generallycloud.baseio.container.service.FutureAcceptorService;
 public class MQContext extends AbstractPluginContext implements MessageQueue {
 
     private long                           dueTime;
-    private ConcurrentMap<String, Message> messageIDs     = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, Message> messageIds     = new ConcurrentHashMap<>();
     private P2PProductLine                 p2pProductLine = new P2PProductLine(this);
     private SubscribeProductLine           subProductLine = new SubscribeProductLine(this);
     private ConcurrentSet<String>          receivers      = new ConcurrentSet<>();
@@ -46,8 +46,8 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
         return instance;
     }
 
-    public Message browser(String messageID) {
-        return messageIDs.get(messageID);
+    public Message browser(String messageId) {
+        return messageIds.get(messageId);
     }
 
     public MQSessionAttachment getSessionAttachment(SocketSession session) {
@@ -90,7 +90,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
     @Override
     public void offerMessage(Message message) {
 
-        messageIDs.put(message.getMsgID(), message);
+        messageIds.put(message.getMsgId(), message);
 
         p2pProductLine.offerMessage(message);
     }
@@ -102,7 +102,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
     public void consumerMessage(Message message) {
 
-        messageIDs.remove(message.getMsgID());
+        messageIds.remove(message.getMsgId());
     }
 
     public Message parse(ProtobaseFuture future) throws MQException {

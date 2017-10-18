@@ -22,13 +22,13 @@ public class MapByteMessage extends MapMessage implements MappedMessage, BytedMe
 
     private byte[] array;
 
-    public MapByteMessage(String messageID, String queueName, JSONObject map, byte[] array) {
-        super(messageID, queueName, map);
+    public MapByteMessage(String messageId, String queueName, JSONObject map, byte[] array) {
+        super(messageId, queueName, map);
         this.array = array;
     }
 
-    public MapByteMessage(String messageID, String queueName, byte[] array) {
-        super(messageID, queueName);
+    public MapByteMessage(String messageId, String queueName, byte[] array) {
+        super(messageId, queueName);
         this.array = array;
     }
 
@@ -39,7 +39,7 @@ public class MapByteMessage extends MapMessage implements MappedMessage, BytedMe
 
     @Override
     public String toString() {
-        return new StringBuilder(24).append("{\"msgType\":5,\"msgID\":\"").append(getMsgID())
+        return new StringBuilder(24).append("{\"msgType\":5,\"msgId\":\"").append(getMsgId())
                 .append("\",\"queueName\":\"").append(getQueueName()).append("\",\"timestamp\":")
                 .append(getTimestamp()).append(",\"map\":").append(getText0()).append("}")
                 .toString();

@@ -31,7 +31,7 @@ import com.generallycloud.baseio.protocol.DatagramPacket;
 //FIXME 是不是要限制最多room数
 public class RTPRoom {
 
-    private static final FixedAtomicInteger ROOM_ID             = new FixedAtomicInteger();
+    private static final FixedAtomicInteger ROOM_Id             = new FixedAtomicInteger();
     private static final Logger             logger              = LoggerFactory
             .getLogger(RTPRoom.class);
 
@@ -39,11 +39,11 @@ public class RTPRoom {
     private ReentrantList<DatagramSession>  datagramChannelList = new ReentrantList<>(
             new ArrayList<DatagramSession>());
     private RTPRoomFactory                  roomFactory;
-    private int                             roomID;
+    private int                             roomId;
     private boolean                         closed              = false;
 
     public RTPRoom(RTPContext context, Session session) {
-        this.roomID = genRoomID();
+        this.roomId = genRoomId();
         this.roomFactory = context.getRTPRoomFactory();
         this.context = context;
         //		this.join(session.getDatagramChannel()); //FIXME udp 
@@ -67,12 +67,12 @@ public class RTPRoom {
         }
     }
 
-    private int genRoomID() {
-        return ROOM_ID.getAndIncrement();
+    private int genRoomId() {
+        return ROOM_Id.getAndIncrement();
     }
 
-    public int getRoomID() {
-        return roomID;
+    public int getRoomId() {
+        return roomId;
     }
 
     public boolean join(DatagramSession session) {
@@ -136,7 +136,7 @@ public class RTPRoom {
             //
             //			message.setEventName("break");
             //
-            //			message.put("userID", authority.getUserID());
+            //			message.put("userId", authority.getUserId());
             //
             //			MQContext mqContext = MQContext.getInstance();
             //
@@ -147,7 +147,7 @@ public class RTPRoom {
 
             this.closed = true;
 
-            roomFactory.removeRTPRoom(roomID);
+            roomFactory.removeRTPRoom(roomId);
         }
 
         lock.unlock();
