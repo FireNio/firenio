@@ -26,9 +26,13 @@ public class UUIDGenerator {
         long mostSigBits = uuid.getMostSignificantBits();
         long leastSigBits = uuid.getLeastSignificantBits();
 
-        return new StringBuilder().append(digits(mostSigBits >> 32, 8))
-                .append(digits(mostSigBits >> 16, 4)).append(digits(mostSigBits, 4))
-                .append(digits(leastSigBits >> 48, 4)).append(digits(leastSigBits, 12)).toString();
+        return new StringBuilder(32)
+                .append(digits(mostSigBits >> 32, 8))
+                .append(digits(mostSigBits >> 16, 4))
+                .append(digits(mostSigBits, 4))
+                .append(digits(leastSigBits >> 48, 4))
+                .append(digits(leastSigBits, 12))
+                .toString();
     }
 
     private static String digits(long val, int digits) {
