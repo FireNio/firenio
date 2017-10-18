@@ -25,7 +25,7 @@ public class AuthoritySessionAttachment {
 
     public void setAuthorityManager(AuthorityManager authorityManager) {
         this.authorityManager = authorityManager;
-        if (authorityManager.getAuthority().getRoleID() == Authority.GUEST.getRoleID()) {
+        if (authorityManager.getAuthority().getRoleId() == Authority.GUEST.getRoleId()) {
             return;
         }
     }

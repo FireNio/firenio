@@ -32,7 +32,7 @@ public interface HttpSession {
 
     public abstract long getLastAccessTime();
 
-    public abstract String getSessionID();
+    public abstract String getSessionId();
 
     public abstract boolean isValidate();
 

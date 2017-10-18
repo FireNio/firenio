@@ -40,10 +40,10 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
         this.sessionId = UUIDGenerator.random();
     }
 
-    protected DefaultHttpSession(HttpContext context, SocketSession ioSession, String sessionID) {
+    protected DefaultHttpSession(HttpContext context, SocketSession ioSession, String sessionId) {
         this.context = context;
         this.ioSession = ioSession;
-        this.sessionId = sessionID;
+        this.sessionId = sessionId;
     }
 
     @Override
@@ -73,7 +73,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
     }
 
     @Override
-    public String getSessionID() {
+    public String getSessionId() {
         return sessionId;
     }
 

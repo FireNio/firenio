@@ -104,8 +104,8 @@ public class DatagramSessionManager extends AbstractSessionManager {
         return sessions.size();
     }
 
-    public DatagramSession getSession(InetSocketAddress sessionID) {
-        return sessions.get(sessionID);
+    public DatagramSession getSession(InetSocketAddress sessionId) {
+        return sessions.get(sessionId);
     }
 
     public DatagramSession getSession(java.nio.channels.DatagramChannel nioChannel,

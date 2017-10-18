@@ -31,9 +31,9 @@ public class SessionIdProtobaseFutureImpl extends ProtobaseFutureImpl
         super(context);
     }
 
-    public SessionIdProtobaseFutureImpl(SocketChannelContext context, int futureID,
+    public SessionIdProtobaseFutureImpl(SocketChannelContext context, int futureId,
             String futureName) {
-        super(context, futureID, futureName);
+        super(context, futureId, futureName);
     }
 
     public SessionIdProtobaseFutureImpl(SocketChannelContext context, String futureName) {

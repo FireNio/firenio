@@ -19,7 +19,7 @@ public class Authority {
 
     public static final Authority GUEST = new Authority() {
                                             {
-                                                setRoleID(-1);
+                                                setRoleId(-1);
                                             }
                                         };
 
@@ -27,9 +27,9 @@ public class Authority {
 
     private String                password;
 
-    private int                   roleID;
+    private int                   roleId;
 
-    private int                   userID;
+    private int                   userId;
 
     private String                username;
 
@@ -52,12 +52,12 @@ public class Authority {
         return password;
     }
 
-    public int getRoleID() {
-        return roleID;
+    public int getRoleId() {
+        return roleId;
     }
 
-    public int getUserID() {
-        return userID;
+    public int getUserId() {
+        return userId;
     }
 
     public String getUsername() {
@@ -72,12 +72,12 @@ public class Authority {
         this.password = password;
     }
 
-    public void setRoleID(int roleID) {
-        this.roleID = roleID;
+    public void setRoleId(int roleId) {
+        this.roleId = roleId;
     }
 
-    public void setUserID(int userID) {
-        this.userID = userID;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public void setUsername(String username) {

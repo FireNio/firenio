@@ -29,9 +29,9 @@ public class HashedProtobaseFutureImpl extends SessionIdProtobaseFutureImpl
         super(context);
     }
 
-    public HashedProtobaseFutureImpl(SocketChannelContext context, int futureID,
+    public HashedProtobaseFutureImpl(SocketChannelContext context, int futureId,
             String futureName) {
-        super(context, futureID, futureName);
+        super(context, futureId, futureName);
     }
 
     public HashedProtobaseFutureImpl(SocketChannelContext context, String futureName) {

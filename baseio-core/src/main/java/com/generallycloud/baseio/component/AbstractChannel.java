@@ -138,9 +138,9 @@ public abstract class AbstractChannel implements Channel {
         return edp_description;
     }
 
-    private String getIdHexString(int channelID) {
+    private String getIdHexString(int channelId) {
 
-        String id = Long.toHexString(channelID);
+        String id = Long.toHexString(channelId);
 
         return "0x" + StringUtil.getZeroString(8 - id.length()) + id;
     }

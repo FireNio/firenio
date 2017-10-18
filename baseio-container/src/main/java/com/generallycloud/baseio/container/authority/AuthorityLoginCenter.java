@@ -115,13 +115,13 @@ public class AuthorityLoginCenter extends AbstractInitializeable implements Logi
         String username = fixedProperties.getProperty("SERVER.USERNAME", "admin");
         String password = fixedProperties.getProperty("SERVER.PASSWORD", "admin100");
         String UUID = fixedProperties.getProperty("SERVER.UUID", "uuid");
-        int roleID = fixedProperties.getIntegerProperty("SERVER.ROLEID");
+        int roleId = fixedProperties.getIntegerProperty("SERVER.ROLEID");
 
         Authority authority = new Authority();
 
         authority.setUsername(username);
         authority.setPassword(password);
-        authority.setRoleID(roleID);
+        authority.setRoleId(roleId);
         authority.setUuid(UUID);
 
         /* ------------------------------------------------------------- */
@@ -132,7 +132,7 @@ public class AuthorityLoginCenter extends AbstractInitializeable implements Logi
 
         authority.setUsername("udp1");
         authority.setPassword(MD5Util.get().get32("udp1", context.getEncoding()));
-        authority.setRoleID(0);
+        authority.setRoleId(0);
         authority.setUuid("udp1");
 
         this.authorities.put(authority.getUsername(), authority);
@@ -141,7 +141,7 @@ public class AuthorityLoginCenter extends AbstractInitializeable implements Logi
 
         authority.setUsername("udp2");
         authority.setPassword(MD5Util.get().get32("udp2", context.getEncoding()));
-        authority.setRoleID(0);
+        authority.setRoleId(0);
         authority.setUuid("udp2");
 
         this.authorities.put(authority.getUsername(), authority);

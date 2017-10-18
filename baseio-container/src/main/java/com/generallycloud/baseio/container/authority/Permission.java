@@ -19,7 +19,7 @@ import com.generallycloud.baseio.common.MessageFormatter;
 
 public class Permission {
 
-    private int    permissionID;
+    private int    permissionId;
 
     private String permissionAPI;
 
@@ -39,8 +39,8 @@ public class Permission {
 
     private long nextSection;
 
-    public int getPermissionID() {
-        return permissionID;
+    public int getPermissionId() {
+        return permissionId;
     }
 
     public String getPermissionAPI() {
@@ -51,8 +51,8 @@ public class Permission {
         return description;
     }
 
-    protected void setPermissionID(int permissionID) {
-        this.permissionID = permissionID;
+    protected void setPermissionId(int permissionId) {
+        this.permissionId = permissionId;
     }
 
     protected void setPermissionAPI(String permissionAPI) {
@@ -88,14 +88,14 @@ public class Permission {
         p.description = description;
         p.frequency = frequency;
         p.permissionAPI = permissionAPI;
-        p.permissionID = permissionID;
+        p.permissionId = permissionId;
 
         return p;
     }
 
     @Override
     public String toString() {
-        return MessageFormatter.format("[id:{},api:{}]", permissionID, permissionAPI);
+        return MessageFormatter.format("[id:{},api:{}]", permissionId, permissionAPI);
     }
 
 }

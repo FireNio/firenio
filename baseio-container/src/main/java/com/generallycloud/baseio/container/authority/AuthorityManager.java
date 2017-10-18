@@ -24,7 +24,7 @@ import com.generallycloud.baseio.common.StringUtil;
 
 public class AuthorityManager {
 
-    private int                     roleID;
+    private int                     roleId;
 
     private Authority               authority;
 
@@ -42,8 +42,8 @@ public class AuthorityManager {
         permissionsList.add(permission);
     }
 
-    protected int getRoleID() {
-        return roleID;
+    protected int getRoleId() {
+        return roleId;
     }
 
     public boolean isInvokeApproved(String permissionAPI) {
@@ -57,15 +57,15 @@ public class AuthorityManager {
         return permission != null && permission.invoke();
     }
 
-    protected void setRoleID(int roleID) {
-        this.roleID = roleID;
+    protected void setRoleId(int roleId) {
+        this.roleId = roleId;
     }
 
     @Override
     protected AuthorityManager clone() {
         AuthorityManager manager = new AuthorityManager();
 
-        manager.setRoleID(roleID);
+        manager.setRoleId(roleId);
 
         for (Permission p : permissionsList) {
             manager.addPermission(p.clone());

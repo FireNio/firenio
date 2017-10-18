@@ -50,10 +50,10 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
         this.body_complete = true;
     }
 
-    public ProtobaseFutureImpl(SocketChannelContext context, int futureID, String futureName) {
+    public ProtobaseFutureImpl(SocketChannelContext context, int futureId, String futureName) {
         super(context);
         this.futureName = futureName;
-        this.futureId = futureID;
+        this.futureId = futureId;
     }
 
     public ProtobaseFutureImpl(SocketChannelContext context, String futureName) {

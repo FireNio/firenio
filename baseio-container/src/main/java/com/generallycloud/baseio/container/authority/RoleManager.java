@@ -57,9 +57,9 @@ public class RoleManager extends AbstractInitializeable {
             p.setDescription(c.getParameter("description"));
             p.setFrequency(c.getIntegerParameter("frequency"));
             p.setPermissionAPI(c.getParameter("permissionAPI"));
-            p.setPermissionID(c.getIntegerParameter("permissionID"));
+            p.setPermissionId(c.getIntegerParameter("permissionId"));
 
-            permissions.put(p.getPermissionID(), p);
+            permissions.put(p.getPermissionId(), p);
         }
 
         IntObjectHashMap<Role> roles = new IntObjectHashMap<>();
@@ -69,7 +69,7 @@ public class RoleManager extends AbstractInitializeable {
 
             Role r = new Role();
             r.setDescription(c.getParameter("description"));
-            r.setRoleID(c.getIntegerParameter("roleID"));
+            r.setRoleId(c.getIntegerParameter("roleId"));
             r.setRoleName(c.getParameter("roleName"));
 
             JSONArray array = c.getJSONArray("children");
@@ -100,7 +100,7 @@ public class RoleManager extends AbstractInitializeable {
                 r.setPermissions(_permissions);
             }
 
-            roles.put(r.getRoleID(), r);
+            roles.put(r.getRoleId(), r);
             roleList.add(r);
         }
 
@@ -114,20 +114,20 @@ public class RoleManager extends AbstractInitializeable {
 
             AuthorityManager authorityManager = new AuthorityManager();
 
-            authorityManager.setRoleID(r.getRoleID());
+            authorityManager.setRoleId(r.getRoleId());
 
             reflectPermission(r, roles, permissions, authorityManager);
 
-            authorityManagers.put(authorityManager.getRoleID(), authorityManager);
+            authorityManagers.put(authorityManager.getRoleId(), authorityManager);
         }
 
         guestAuthorityManager = new AuthorityManager();
 
-        guestAuthorityManager.setRoleID(Authority.GUEST.getRoleID());
+        guestAuthorityManager.setRoleId(Authority.GUEST.getRoleId());
 
         guestAuthorityManager.setAuthority(Authority.GUEST);
 
-        authorityManagers.put(guestAuthorityManager.getRoleID(), guestAuthorityManager);
+        authorityManagers.put(guestAuthorityManager.getRoleId(), guestAuthorityManager);
 
     }
 
@@ -137,9 +137,9 @@ public class RoleManager extends AbstractInitializeable {
         List<Integer> children = role.getChildren();
 
         if (children != null) {
-            for (Integer rID : children) {
+            for (Integer rId : children) {
 
-                Role r = roles.get(rID);
+                Role r = roles.get(rId);
 
                 if (r != null) {
                     reflectPermission(r, roles, permissions, authorityManager);
@@ -151,9 +151,9 @@ public class RoleManager extends AbstractInitializeable {
 
         if (_permissions != null) {
 
-            for (Integer pID : _permissions) {
+            for (Integer pId : _permissions) {
 
-                Permission p = permissions.get(pID);
+                Permission p = permissions.get(pId);
 
                 if (p != null) {
                     authorityManager.addPermission(p);
@@ -164,9 +164,9 @@ public class RoleManager extends AbstractInitializeable {
 
     public AuthorityManager getAuthorityManager(Authority authority) {
 
-        int roleID = authority.getRoleID();
+        int roleId = authority.getRoleId();
 
-        AuthorityManager authorityManager = authorityManagers.get(roleID);
+        AuthorityManager authorityManager = authorityManagers.get(roleId);
 
         if (authorityManager == null) {
             authorityManager = guestAuthorityManager;
@@ -185,7 +185,7 @@ public class RoleManager extends AbstractInitializeable {
         for (int j = 0; j < 100; j++) {
 
             System.out.println("\t{");
-            System.out.println("\t\t\"permissionID\": " + j + ",");
+            System.out.println("\t\t\"permissionId\": " + j + ",");
             System.out.println("\t\t\"permissionAPI\": \"\"");
             System.out.println("\t},");
         }
