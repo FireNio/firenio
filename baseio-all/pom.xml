@@ -95,23 +95,7 @@
 
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>baseio-jms</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-protobase</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>baseio-rtp</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 			<optional>true</optional>
