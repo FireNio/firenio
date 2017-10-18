@@ -52,9 +52,9 @@ public class TestTeller {
 
         MessageProducer producer = new DefaultMessageProducer(session);
 
-        TextMessage message = new TextMessage("msgID", "uuid", "你好！");
+        TextMessage message = new TextMessage("msgId", "uuid", "你好！");
 
-        MapMessage mapMessage = new MapMessage("msgID", "uuid");
+        MapMessage mapMessage = new MapMessage("msgId", "uuid");
 
         mapMessage.put("test", "test111111111111111111111");
 

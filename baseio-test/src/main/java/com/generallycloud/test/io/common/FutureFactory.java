@@ -27,8 +27,8 @@ public class FutureFactory {
         return create(session, future.getFutureId(), future.getFutureName());
     }
 
-    public static ProtobaseFuture create(SocketSession session, int futureID, String serviceName) {
-        return new ProtobaseFutureImpl(session.getContext(), futureID,serviceName);
+    public static ProtobaseFuture create(SocketSession session, int futureId, String serviceName) {
+        return new ProtobaseFutureImpl(session.getContext(), futureId,serviceName);
     }
 
     public static ProtobaseFuture create(SocketSession session, String serviceName) {

@@ -54,7 +54,7 @@ public class TestTellerPower {
 
         MessageProducer producer = new DefaultMessageProducer(session);
 
-        TextMessage message = new TextMessage("msgID", "qName", "你好！");
+        TextMessage message = new TextMessage("msgId", "qName", "你好！");
 
         long old = System.currentTimeMillis();
         for (int i = 0; i < 10000; i++) {

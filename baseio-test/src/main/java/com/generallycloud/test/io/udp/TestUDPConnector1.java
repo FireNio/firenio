@@ -33,7 +33,7 @@ public class TestUDPConnector1 {
         //		
         //		udpConnector.connect();
         //		
-        //		String otherCustomerID = "udp2";
+        //		String otherCustomerId = "udp2";
         //		
         //		RTPClient client = new RTPClient(session,udpConnector);
         //		
@@ -41,7 +41,7 @@ public class TestUDPConnector1 {
         //		
         //		client.setRTPHandle(new TestUDPReceiveHandle());
         //
-        //		client.createRoom(otherCustomerID);
+        //		client.createRoom(otherCustomerId);
         //
         //		ThreadUtil.sleep(99999500);
         //		CloseUtil.close(connector);

@@ -49,7 +49,7 @@ public class TestTellerByteMessage {
 
         MessageProducer producer = new DefaultMessageProducer(session);
 
-        TextByteMessage message = new TextByteMessage("msgID", "uuid", "============",
+        TextByteMessage message = new TextByteMessage("msgId", "uuid", "============",
                 "你好！".getBytes(session.getContext().getEncoding()));
 
         long old = System.currentTimeMillis();

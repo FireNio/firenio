@@ -54,7 +54,7 @@ public class TestUDPReceiveHandle extends RTPHandle {
 
         int markInterval = 5;
 
-        String roomID = message.getParameter("roomID");
+        String roomId = message.getParameter("roomId");
 
         String inviteUsername = message.getParameter("inviteUsername");
 
@@ -65,7 +65,7 @@ public class TestUDPReceiveHandle extends RTPHandle {
         int groupSize = 102400;
 
         try {
-            client.joinRoom(roomID);
+            client.joinRoom(roomId);
 
             client.inviteReply(inviteUsername, markInterval, currentMark, groupSize);
         } catch (RTPException e) {
@@ -77,7 +77,7 @@ public class TestUDPReceiveHandle extends RTPHandle {
 
         client.setRTPClientDPAcceptor(acceptor);
 
-        client.setRoomID(roomID);
+        client.setRoomId(roomId);
 
         for (int i = 0; i < 10000000; i++) {
 

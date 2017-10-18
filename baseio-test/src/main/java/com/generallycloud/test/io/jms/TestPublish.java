@@ -54,7 +54,7 @@ public class TestPublish {
 
         MessageProducer producer = new DefaultMessageProducer(session);
 
-        TextMessage message = new TextMessage("msgID", "qName", "你好！");
+        TextMessage message = new TextMessage("msgId", "qName", "你好！");
 
         producer.publish(message);
 
