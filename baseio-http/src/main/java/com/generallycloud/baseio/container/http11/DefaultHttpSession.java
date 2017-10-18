@@ -30,20 +30,20 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
     private long          lastAccessTime = createTime;
 
-    private String        sessionID;
+    private String        sessionId;
 
     private HttpContext   context;
 
     protected DefaultHttpSession(HttpContext context, SocketSession ioSession) {
         this.context = context;
         this.ioSession = ioSession;
-        this.sessionID = UUIDGenerator.random();
+        this.sessionId = UUIDGenerator.random();
     }
 
     protected DefaultHttpSession(HttpContext context, SocketSession ioSession, String sessionID) {
         this.context = context;
         this.ioSession = ioSession;
-        this.sessionID = sessionID;
+        this.sessionId = sessionID;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
     @Override
     public String getSessionID() {
-        return sessionID;
+        return sessionId;
     }
 
     @Override
