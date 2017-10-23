@@ -15,17 +15,14 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public final class ConcurrentSet<E> extends AbstractSet<E> implements Serializable {
+public final class ConcurrentSet<E> extends AbstractSet<E> {
 
-    private static final long         serialVersionUID = 1L;
-
-    private ConcurrentMap<E, Boolean> map              = new ConcurrentHashMap<>();
+    private ConcurrentMap<E, Boolean> map = new ConcurrentHashMap<>();
 
     @Override
     public int size() {
