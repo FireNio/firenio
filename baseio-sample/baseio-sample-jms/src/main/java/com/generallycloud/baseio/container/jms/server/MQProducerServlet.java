@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.container.jms.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.common.ByteUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.jms.Message;
 
@@ -34,7 +33,7 @@ public class MQProducerServlet extends MQServlet {
 
         context.offerMessage(message);
 
-        future.write(ByteUtil.TRUE);
+        future.write("1");
 
         session.flush(future);
 

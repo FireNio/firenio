@@ -19,8 +19,8 @@ import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.common.ByteUtil;
 import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.jms.JmsUtil;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.Message;
 import com.generallycloud.baseio.container.jms.client.MessageBrowser;
@@ -83,6 +83,6 @@ public class DefaultMessageBrowser implements MessageBrowser {
             throw new MQException(e.getMessage(), e);
         }
 
-        return ByteUtil.isTrue(future.getReadText());
+        return JmsUtil.isTrue(future);
     }
 }

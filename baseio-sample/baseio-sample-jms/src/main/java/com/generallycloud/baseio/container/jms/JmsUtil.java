@@ -13,38 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.common;
+package com.generallycloud.baseio.container.jms;
 
-import java.util.Random;
+import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
  *
  */
-public class MyUUID {
+public class JmsUtil {
 
-    private static Random seed = new Random();
-
-    public static String random32() {
-        return random16() + random16();
+    public static boolean isTrue(String text) {
+        return "1".equals(text);
     }
 
-    public static String random16() {
-        long L1 = seed.nextLong();
-        return MathUtil.long2HexString(L1);
-    }
-
-    public static void main(String[] args) {
-
-        for (int i = 0; i < 10; i++) {
-            String s = random32();
-            System.out.println(s);
-        }
-
-        random32();
-
-        System.out.println(random16());
-
+    public static boolean isTrue(Future future) {
+        return isTrue(future.getReadText());
     }
 
 }

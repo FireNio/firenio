@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.container.rtp.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.common.ByteUtil;
 import com.generallycloud.baseio.component.SocketSession;
 
 public class RTPLeaveRoomServlet extends RTPServlet {
@@ -33,7 +32,7 @@ public class RTPLeaveRoomServlet extends RTPServlet {
             //			room.leave(session.getDatagramChannel()); //FIXME udp 
         }
 
-        future.write(ByteUtil.TRUE);
+        future.write("1");
 
         session.flush(future);
     }

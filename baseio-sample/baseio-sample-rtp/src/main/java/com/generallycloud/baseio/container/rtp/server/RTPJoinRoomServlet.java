@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.container.rtp.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.common.ByteUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.rtp.RTPContext;
 
@@ -38,7 +37,7 @@ public class RTPJoinRoomServlet extends RTPServlet {
 
         if (room == null) {
 
-            future.write(ByteUtil.FALSE);
+            future.write("0");
 
             session.flush(future);
 
@@ -47,11 +46,11 @@ public class RTPJoinRoomServlet extends RTPServlet {
 
         if (room.join(null)) {
 
-            future.write(ByteUtil.TRUE);
+            future.write("1");
 
         } else {
 
-            future.write(ByteUtil.FALSE);
+            future.write("0");
         }
 
         session.flush(future);

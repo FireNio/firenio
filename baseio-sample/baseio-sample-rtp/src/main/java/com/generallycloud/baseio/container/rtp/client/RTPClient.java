@@ -20,7 +20,6 @@ import java.io.IOException;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.common.ByteUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.DatagramChannelContext;
@@ -30,6 +29,7 @@ import com.generallycloud.baseio.connector.DatagramChannelConnector;
 import com.generallycloud.baseio.container.FixedSession;
 import com.generallycloud.baseio.container.OnFuture;
 import com.generallycloud.baseio.container.authority.Authority;
+import com.generallycloud.baseio.container.jms.JmsUtil;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.MapMessage;
 import com.generallycloud.baseio.container.jms.client.MessageProducer;
@@ -198,10 +198,8 @@ public class RTPClient {
 
     public boolean joinRoom(String roomId) throws RTPException {
         try {
-
             ProtobaseFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomId);
-
-            return ByteUtil.isTrue(future.getReadText());
+            return JmsUtil.isTrue(future);
         } catch (IOException e) {
             throw new RTPException(e.getMessage(), e);
         }
@@ -220,7 +218,7 @@ public class RTPClient {
 
             this.handle.onBreak(this, new MapMessage("", authority.getUuid()));
 
-            return ByteUtil.isTrue(future.getReadText());
+            return JmsUtil.isTrue(future);
         } catch (IOException e) {
             throw new RTPException(e.getMessage(), e);
         }

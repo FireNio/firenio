@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
-import com.generallycloud.baseio.common.ByteUtil;
 import com.generallycloud.baseio.component.DatagramSession;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketChannelContext;
@@ -120,7 +119,7 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 
             logger.debug("___________________bind___session___{}", session);
 
-            future.write(ByteUtil.TRUE);
+            future.write("1");
 
             session.flush(future);
 
