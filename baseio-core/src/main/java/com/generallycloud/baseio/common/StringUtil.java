@@ -34,12 +34,10 @@ public class StringUtil {
     }
 
     public static boolean isNullOrBlank(String value) {
-
         return value == null || value.length() == 0;
     }
 
     public static boolean hasLength(String text) {
-
         return text != null && text.length() > 0;
     }
 
@@ -58,9 +56,7 @@ public class StringUtil {
     //FIXME 尽量使用decode取代new String()
     //see  java.lang.StringCoding.decode(Charset cs, byte[] ba, int off, int len)
     public static String decode(Charset charset, ByteBuffer buffer) {
-
         CharBuffer cb = charset.decode(buffer);
-
         return cb.toString();
     }
 

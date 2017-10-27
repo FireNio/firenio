@@ -53,15 +53,10 @@ public class RSAUtil {
      *
      */
     public static RSAKeys getKeys(int length) throws NoSuchAlgorithmException {
-
         KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
-
         keyPairGen.initialize(length);
-
         KeyPair keyPair = keyPairGen.generateKeyPair();
-
         RSAKeys keys = new RSAKeys();
-
         keys.publicKey = (RSAPublicKey) keyPair.getPublic();
         keys.privateKey = (RSAPrivateKey) keyPair.getPrivate();
         return keys;
@@ -126,18 +121,12 @@ public class RSAUtil {
         // 模长
         int key_len = publicKey.getModulus().bitLength() / 8;
         // 加密数据长度 <= 模长-11
-
         List<byte[]> datas = splitArray(data, key_len - 11);
-
         ByteBuffer buffer = ByteBuffer.allocate(key_len * datas.size());
-
         // 如果明文长度大于模长-11则要分组加密
         for (byte[] s : datas) {
-
             byte[] array = cipher.doFinal(s);
-
             buffer.put(array);
-
         }
         return buffer.array();
     }
@@ -157,22 +146,15 @@ public class RSAUtil {
         // 模长
         int key_len = privateKey.getModulus().bitLength() / 8;
         // 如果密文长度大于模长则要分组解密
-
         List<byte[]> arrays = splitArray(bytes, key_len);
-
         ByteBuffer buffer = ByteBuffer.allocate(arrays.size() * (key_len - 11));
-
         for (byte[] arr : arrays) {
             byte[] marr = cipher.doFinal(arr);
             buffer.put(marr);
         }
-
         byte[] r = new byte[buffer.position()];
-
         buffer.flip();
-
         buffer.get(r);
-
         return r;
     }
 
@@ -180,54 +162,39 @@ public class RSAUtil {
      * 拆分字符串
      */
     private static List<byte[]> splitArray(byte[] array, int len) {
-
         int length = array.length;
-
         List<byte[]> list = new ArrayList<>();
-
         if (length <= len) {
-
             list.add(array);
-
             return list;
         }
-
         int size = length / len;
-
         for (int i = 0; i < size; i++) {
             byte[] a = new byte[len];
             System.arraycopy(array, i * len, a, 0, len);
             list.add(a);
         }
-
         int yu = array.length % len;
-
         if (yu > 0) {
             byte[] a = new byte[yu];
             System.arraycopy(array, length - yu, a, 0, yu);
             list.add(a);
         }
-
         return list;
     }
 
     public static class RSAKeys {
-
         private RSAPublicKey  publicKey;
         private RSAPrivateKey privateKey;
-
         public RSAPublicKey getPublicKey() {
             return publicKey;
         }
-
         public RSAPrivateKey getPrivateKey() {
             return privateKey;
         }
-
         public void setPublicKey(RSAPublicKey publicKey) {
             this.publicKey = publicKey;
         }
-
         public void setPrivateKey(RSAPrivateKey privateKey) {
             this.privateKey = privateKey;
         }
@@ -239,16 +206,12 @@ public class RSAUtil {
         // 生成公钥和私钥
         RSAPublicKey publicKey = keys.getPublicKey();
         RSAPrivateKey privateKey = keys.getPrivateKey();
-
         File publicKeyFile = new File(file + "/public.rsa");
         String publicKeyString = publicKey.toString();
-
         File privateKeyFile = new File(file + "/private.rsa");
         String privateKeyString = privateKey.toString();
-
         FileUtil.writeByFile(publicKeyFile, publicKeyString);
         FileUtil.writeByFile(privateKeyFile, privateKeyString);
-
         System.out.println("Public RSA File:" + publicKeyFile.getCanonicalPath());
         System.out.println(publicKeyString);
         System.out.println();
@@ -272,30 +235,22 @@ public class RSAUtil {
     }
 
     public static RSAPublicKey getRsaPublicKey(String content) {
-
         if (StringUtil.isNullOrBlank(content)) {
             throw new IllegalArgumentException("null content");
         }
-
         Map<String, String> map = parseRSAFromContent(content);
-
         String modulus = map.get("modulus");
         String exponent = map.get("public exponent");
-
         return getPublicKey(modulus, exponent);
     }
 
     public static RSAPrivateKey getRsaPrivateKey(String content) {
-
         if (StringUtil.isNullOrBlank(content)) {
             throw new IllegalArgumentException("null content");
         }
-
         Map<String, String> map = parseRSAFromContent(content);
-
         String modulus = map.get("modulus");
         String exponent = map.get("private exponent");
-
         return getPrivateKey(modulus, exponent);
     }
 
@@ -304,7 +259,6 @@ public class RSAUtil {
         // 生成公钥和私钥
         RSAPublicKey publicKey = keys.getPublicKey();
         RSAPrivateKey privateKey = keys.getPrivateKey();
-
         // 模
         String modulus = publicKey.getModulus().toString();
         // 公钥指数

@@ -34,24 +34,18 @@ final public class MessageFormatter {
     }
 
     final public static String arrayFormat(final String messagePattern, final Object[] argArray) {
-
         if (messagePattern == null) {
             return null;
         }
-
         if (argArray == null) {
             return messagePattern;
         }
-
         int i = 0;
         int j;
         StringBuilder builder = new StringBuilder(messagePattern.length() + 50);
-
         int L;
         for (L = 0; L < argArray.length; L++) {
-
             j = messagePattern.indexOf(DELIM_STR, i);
-
             if (j == -1) {
                 // no more variables
                 if (i == 0) { // this is a simple string
@@ -98,7 +92,6 @@ final public class MessageFormatter {
 
     private final static boolean isEscapedDelimeter(String messagePattern,
             int delimeterStartIndex) {
-
         if (delimeterStartIndex == 0) {
             return false;
         }

@@ -31,50 +31,33 @@ public class BeanUtil {
         if (map == null || clazz == null) {
             return null;
         }
-
         Object object = ClassUtil.newInstance(clazz);
-
         FieldMapping mapping = fieldMapping.get(object.getClass());
-
         if (mapping == null) {
-
             ReentrantLock lock = BeanUtil.lock;
-
             lock.lock();
-
             mapping = fieldMapping.get(object.getClass());
-
             if (mapping == null) {
-
                 mapping = new FieldMapping(object.getClass());
-
                 fieldMapping.put(object.getClass(), mapping);
             }
-
             lock.unlock();
         }
-
         List<Field> fieldList = mapping.getFieldList();
-
         for (Field f : fieldList) {
-
             Object v = map.get(f.getName());
-
             if (v == null) {
                 continue;
             }
-
             if (!f.isAccessible()) {
                 f.setAccessible(true);
             }
-
             try {
                 f.set(object, v);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
-
         return object;
     }
 
@@ -92,16 +75,12 @@ public class BeanUtil {
         }
 
         private void analyse(Class<?> clazz) {
-
             Field[] fields = clazz.getDeclaredFields();
-
             for (Field f : fields) {
                 this.fieldMapping.put(f.getName(), f);
                 this.fieldList.add(f);
             }
-
             Class<?> c = clazz.getSuperclass();
-
             if (c != Object.class) {
                 analyse(c);
             }

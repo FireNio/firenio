@@ -24,69 +24,48 @@ public class LoggerUtil {
     private static String prefix_log    = "[baseio] ";
 
     private static String getSpace(Logger logger) {
-
         Class<?> clazz = logger.getLoggerClass();
-
         String name = clazz.getSimpleName();
-
-        int length = name.length();
-
-        int _length = maxNameLength - length;
-
-        if (_length == 0) {
+        int length = maxNameLength - name.length();
+        if (length == 0) {
             return "";
         }
-
-        StringBuilder builder = new StringBuilder();
-
-        for (; _length > 0; _length--) {
+        StringBuilder builder = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
             builder.append(" ");
         }
-
         return builder.toString();
     }
 
     public static void prettyLog(Logger logger, String msg) {
-
         if (logger == null) {
             return;
         }
-
         msg = getSpace(logger) + prefix_log + msg;
-
         logger.info(msg);
     }
 
     public static void prettyLog(Logger logger, String msg, Object param1) {
-
         if (logger == null) {
             return;
         }
-
         msg = getSpace(logger) + prefix_log + msg;
-
         logger.info(msg, param1);
     }
 
     public static void prettyLog(Logger logger, String msg, Object param1, Object param2) {
-
         if (logger == null) {
             return;
         }
-
         msg = getSpace(logger) + prefix_log + msg;
-
         logger.info(msg, param1, param2);
     }
 
     public static void prettyLog(Logger logger, String msg, Object[] param) {
-
         if (logger == null) {
             return;
         }
-
         msg = getSpace(logger) + prefix_log + msg;
-
         logger.info(msg, param);
     }
 }
