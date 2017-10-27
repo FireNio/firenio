@@ -80,7 +80,7 @@
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-protobase</artifactId>
-			<version>3.2.3-SNAPSHOT</version>
+			<version>3.2.4-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>
