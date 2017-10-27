@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.generallycloud</groupId>
 	<artifactId>baseio</artifactId>
-	<version>3.2.3-SNAPSHOT</version>
+	<version>3.2.3.RELEASE</version>
 	<name>${project.artifactId}</name>
 	<description>An io framework project based on java nio</description>
 	<url>https://github.com/generallycloud/baseio</url>
