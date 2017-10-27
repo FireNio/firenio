@@ -2,7 +2,7 @@
 # BaseIO Project
 
 [![Website](https://img.shields.io/badge/website-generallycloud-green.svg)](https://www.generallycloud.com)
-[![Maven central](https://img.shields.io/badge/maven%20central-3.2.2.RELEASE-green.svg)](http://mvnrepository.com/artifact/com.generallycloud/baseio-all)
+[![Maven central](https://img.shields.io/badge/maven%20central-3.2.3.Release-green.svg)](http://mvnrepository.com/artifact/com.generallycloud/baseio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/generallycloud/baseio/blob/master/LICENSE.txt)
 
 BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的异步IO框架，其以简单易用的API和优良的性能深受开发者喜爱。
@@ -35,7 +35,7 @@ BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的�
 	<dependency>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.2.2.RELEASE</version>
+		<version>3.2.3.Release</version>
 	</dependency>  
   ```
   
@@ -53,8 +53,8 @@ BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的�
             }
         };
         SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
-        //use java aio
-        //		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
+        //use java aio 
+		//SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
@@ -79,7 +79,7 @@ BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的�
         };
         SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
         //use java aio
-        //		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
+        //SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
         SocketChannelConnector connector = new SocketChannelConnector(context);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
