@@ -244,53 +244,36 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
     protected abstract void doFlush0(ChannelFuture future);
 
     protected void releaseFutures() {
-
         ReleaseUtil.release(readFuture);
         ReleaseUtil.release(sslReadFuture);
-
         ClosedChannelException e = null;
-
         if (writeFuture != null && !writeFuture.isReleased()) {
-
             e = new ClosedChannelException(session.toString());
-
             writeFuture.onException(session, e);
         }
-
         LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
-
         if (writeFutures.size() == 0) {
             return;
         }
-
         ChannelFuture f = writeFutures.poll();
-
         UnsafeSocketSession session = this.session;
-
         if (e == null) {
             e = new ClosedChannelException(session.toString());
         }
-
         for (; f != null;) {
-
             f.onException(session, e);
-
             ReleaseUtil.release(f);
-
             f = writeFutures.poll();
         }
     }
 
     protected void closeSSL() {
-
         if (isEnableSSL()) {
-
             sslEngine.closeOutbound();
-
             if (getContext().getSslContext().isClient()) {
-                doFlush(new DefaultChannelFuture(getContext(), EmptyByteBuf.getInstance()));
+                writeFutures.offer(new DefaultChannelFuture(getContext()
+                        , EmptyByteBuf.getInstance()));
             }
-
             try {
                 sslEngine.closeInbound();
             } catch (SSLException e) {}
@@ -360,13 +343,9 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
     }
 
     protected void fireClosed() {
-
         SocketSessionEventListenerWrapper linkable = getContext().getSessionEventListenerLink();
-
         UnsafeSocketSession session = getSession();
-
         threadContext.getSocketSessionManager().removeSession(session);
-
         if (linkable != null) {
             linkable.sessionClosed(session);
         }
