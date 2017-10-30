@@ -20,10 +20,13 @@ import com.generallycloud.baseio.codec.http11.HttpClient;
 import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.ssl.SSLUtil;
+import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.test.io.common.FutureFactory;
@@ -37,25 +40,29 @@ public class TestSimpleHttpClient {
         //		ServerConfiguration c = new ServerConfiguration("localhost",80);
 
         ServerConfiguration c = new ServerConfiguration("generallycloud.com", 443);
-
+        
         SocketChannelContext context = new NioSocketChannelContext(c);
 
         SocketChannelConnector connector = new SocketChannelConnector(context);
+        
+        SslContext sslContext = SSLUtil.initClient();
 
         context.setProtocolFactory(new ClientHTTPProtocolFactory());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
+        context.setSslContext(sslContext);
 
         SocketSession session = connector.connect();
 
         HttpClient client = new HttpClient(session);
 
-        HttpFuture future = FutureFactory.createHttpReadFuture(session, "/test");
+        HttpFuture future = FutureFactory.createHttpReadFuture(session, "/test-show-memory");
 
-        HttpFuture res = client.request(future);
+        HttpFuture res = client.request(future,10000);
         System.out.println();
         System.out.println(new String(res.getBodyContent()));
         System.out.println();
+        
         CloseUtil.close(connector);
 
     }
