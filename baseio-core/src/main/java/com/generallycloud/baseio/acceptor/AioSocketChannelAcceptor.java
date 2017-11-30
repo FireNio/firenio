@@ -51,7 +51,7 @@ public class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
 
         AsynchronousChannelGroup group = context.getAsynchronousChannelGroup();
 
-        final FixedAtomicInteger channelIds = new FixedAtomicInteger(1);
+        final FixedAtomicInteger channelIds = new FixedAtomicInteger(1,Integer.MAX_VALUE);
 
         serverSocketChannel = AsynchronousServerSocketChannel.open(group);
 
@@ -80,8 +80,6 @@ public class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
                 logger.error(exc.getMessage(), exc);
             }
         });
-
-        logger.info("22222222222222222");
     }
 
     @Override

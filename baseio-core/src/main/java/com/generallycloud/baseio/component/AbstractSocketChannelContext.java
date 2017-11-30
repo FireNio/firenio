@@ -22,8 +22,6 @@ import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
-import com.generallycloud.baseio.concurrent.LineEventLoopGroup;
-import com.generallycloud.baseio.concurrent.ThreadEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -175,16 +173,7 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
         ioEventHandleAdaptor.initialize(this);
 
         if (executorEventLoopGroup == null) {
-
-            int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
-
-            if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
-                this.executorEventLoopGroup = new ThreadEventLoopGroup(this, "event-process",
-                        eventLoopSize);
-            } else {
-                this.executorEventLoopGroup = new LineEventLoopGroup("event-process",
-                        eventLoopSize);
-            }
+            this.executorEventLoopGroup = createExecutorEventLoopGroup();
         }
 
         if (foreReadFutureAcceptor == null) {
@@ -211,9 +200,11 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
         LifeCycleUtil.start(byteBufAllocatorManager);
 
         LifeCycleUtil.start(executorEventLoopGroup);
-
+        
         doStartModule();
     }
+    
+    protected abstract ExecutorEventLoopGroup createExecutorEventLoopGroup();
 
     protected void doStartModule() throws Exception {
 

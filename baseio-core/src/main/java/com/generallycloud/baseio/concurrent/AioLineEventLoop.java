@@ -17,13 +17,11 @@ package com.generallycloud.baseio.concurrent;
 
 import java.util.concurrent.RejectedExecutionException;
 
-public class LineEventLoop implements ExecutorEventLoop {
+public class AioLineEventLoop implements ExecutorEventLoop {
 
     private ExecutorEventLoopGroup eventLoopGroup;
 
-    private EventLoop              eventLoop;
-    
-    public LineEventLoop(ExecutorEventLoopGroup eventLoopGroup) {
+    public AioLineEventLoop(ExecutorEventLoopGroup eventLoopGroup) {
         this.eventLoopGroup = eventLoopGroup;
     }
 
@@ -39,16 +37,12 @@ public class LineEventLoop implements ExecutorEventLoop {
 
     @Override
     public Thread getMonitor() {
-        return unwrap().getMonitor();
-    }
-
-    public void setMonitor(EventLoop eventLoop) {
-        this.eventLoop = eventLoop;
+        return Thread.currentThread();
     }
 
     @Override
     public boolean inEventLoop() {
-        return inEventLoop(Thread.currentThread());
+        return false;
     }
 
     @Override
@@ -58,7 +52,7 @@ public class LineEventLoop implements ExecutorEventLoop {
 
     @Override
     public boolean isRunning() {
-        return unwrap().isRunning();
+        return false;
     }
 
     @Override
@@ -72,13 +66,8 @@ public class LineEventLoop implements ExecutorEventLoop {
     @Override
     public void stop() {}
 
-    private EventLoop unwrap() {
-        return eventLoop;
-    }
-
     @Override
     public void wakeup() {
-        unwrap().wakeup();
     }
 
     @Override

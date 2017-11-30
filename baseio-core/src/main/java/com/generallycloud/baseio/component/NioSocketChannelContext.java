@@ -15,6 +15,9 @@
  */
 package com.generallycloud.baseio.component;
 
+import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
+import com.generallycloud.baseio.concurrent.LineEventLoopGroup;
+import com.generallycloud.baseio.concurrent.ThreadEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public class NioSocketChannelContext extends AbstractSocketChannelContext {
@@ -29,6 +32,16 @@ public class NioSocketChannelContext extends AbstractSocketChannelContext {
     @Override
     public NioGlobalSocketSessionManager getSessionManager() {
         return sessionManager;
+    }
+
+    @Override
+    protected ExecutorEventLoopGroup createExecutorEventLoopGroup() {
+        int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
+        if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
+            return new ThreadEventLoopGroup(this, "event-process", eventLoopSize);
+        } else {
+            return new LineEventLoopGroup("event-process", eventLoopSize);
+        }
     }
 
 }

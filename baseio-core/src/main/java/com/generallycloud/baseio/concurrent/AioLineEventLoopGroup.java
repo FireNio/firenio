@@ -15,15 +15,15 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-public class LineEventLoopGroup extends AbstractExecutorEventLoopGroup {
+public class AioLineEventLoopGroup extends AbstractExecutorEventLoopGroup {
 
-    public LineEventLoopGroup(String eventLoopName, int eventLoopSize) {
+    public AioLineEventLoopGroup(String eventLoopName, int eventLoopSize) {
         super(eventLoopName, eventLoopSize);
     }
 
     @Override
     protected ExecutorEventLoop newEventLoop(int coreIndex) {
-        return new LineEventLoop(this);
+        return new AioLineEventLoop(this);
     }
 
 }

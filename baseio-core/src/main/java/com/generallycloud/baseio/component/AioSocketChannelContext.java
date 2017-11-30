@@ -20,6 +20,9 @@ import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.spi.AsynchronousChannelProvider;
 
 import com.generallycloud.baseio.LifeCycleUtil;
+import com.generallycloud.baseio.concurrent.AioLineEventLoopGroup;
+import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
+import com.generallycloud.baseio.concurrent.ThreadEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -41,16 +44,26 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
     public AioSocketChannelContext(ServerConfiguration configuration) {
         super(configuration);
     }
+    
+    @Override
+    protected ExecutorEventLoopGroup createExecutorEventLoopGroup() {
+        int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
+        if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
+            return new ThreadEventLoopGroup(this, "event-process", eventLoopSize);
+        } else {
+            return new AioLineEventLoopGroup("event-process", eventLoopSize);
+        }
+    }
 
     @Override
     protected void doStartModule() throws Exception {
 
         sessionManangerEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 1,
                 this);
+        
+        sessionManager = new AioSocketSessionManager(this);
 
         LifeCycleUtil.start(sessionManangerEventLoopGroup);
-
-        sessionManager = new AioSocketSessionManager(this);
 
         initializeChannelGroup(serverConfiguration.getSERVER_CORE_SIZE());
 
