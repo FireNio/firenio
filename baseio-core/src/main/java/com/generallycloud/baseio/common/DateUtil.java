@@ -132,5 +132,39 @@ public class DateUtil {
     public synchronized static String formatYyyy_MM_dd_HH_mm_ss_SSS(Date date) {
         return yyyy_MM_dd_HH_mm_ss_SSS.format(date);
     }
+    
+    //  --------------------------------------------------------------------------------
 
+    public synchronized static String formatHH_mm_ss() {
+        return formatHH_mm_ss(new Date());
+    }
+
+    public synchronized static String formatYyyy_MM_dd() {
+        return formatYyyy_MM_dd(new Date());
+    }
+
+    public synchronized static String formatYyyy_MM_dd_HH_mm_ss() {
+        return formatYyyy_MM_dd_HH_mm_ss(new Date());
+    }
+
+    public synchronized static String formatYyyyMMdd_HH_mm_ss() {
+        return formatYyyyMMdd_HH_mm_ss(new Date());
+    }
+
+    public synchronized static String formatYyyyMMdd() {
+        return formatYyyyMMdd(new Date());
+    }
+
+    public synchronized static String formatYyMMdd() {
+        return formatYyMMdd(new Date());
+    }
+
+    public synchronized static String formatYyyyMMddHHmmss() {
+        return formatYyyyMMddHHmmss(new Date());
+    }
+
+    public synchronized static String formatYyyy_MM_dd_HH_mm_ss_SSS() {
+        return formatYyyy_MM_dd_HH_mm_ss_SSS(new Date());
+    }
+    
 }
