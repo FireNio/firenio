@@ -18,6 +18,7 @@ package com.generallycloud.baseio.codec.http11.future;
 import java.util.Map;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.codec.http11.WebSocketProtocolFactory;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
@@ -41,9 +42,9 @@ public class ClientHttpFuture extends AbstractHttpFuture {
 
     @Override
     public void updateWebSocketProtocol() {
-        channel.setProtocolFactory(WS_PROTOCOL_FACTORY);
-        channel.setProtocolDecoder(WS_PROTOCOL_DECODER);
-        channel.setProtocolEncoder(WS_PROTOCOL_ENCODER);
+        channel.setProtocolFactory(WebSocketProtocolFactory.WS_PROTOCOL_FACTORY);
+        channel.setProtocolDecoder(WebSocketProtocolFactory.WS_PROTOCOL_DECODER);
+        channel.setProtocolEncoder(WebSocketProtocolFactory.WS_PROTOCOL_ENCODER);
     }
 
     @Override

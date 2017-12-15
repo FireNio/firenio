@@ -15,12 +15,17 @@
  */
 package com.generallycloud.baseio.codec.protobase;
 
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class SessionIdProtobaseProtocolFactory implements ProtocolFactory {
-
+    
+    @Override
+    public void initialize(SocketChannelContext context) {
+    }
+    
     private int limit;
 
     public SessionIdProtobaseProtocolFactory() {
@@ -32,12 +37,12 @@ public class SessionIdProtobaseProtocolFactory implements ProtocolFactory {
     }
 
     @Override
-    public ProtocolDecoder getProtocolDecoder() {
+    public ProtocolDecoder getProtocolDecoder(SocketChannelContext context) {
         return new SessionIdProtobaseProtocolDecoder(limit);
     }
 
     @Override
-    public ProtocolEncoder getProtocolEncoder() {
+    public ProtocolEncoder getProtocolEncoder(SocketChannelContext context) {
         return new SessionIdProtobaseProtocolEncoder();
     }
 

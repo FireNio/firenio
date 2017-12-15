@@ -15,12 +15,16 @@
  */
 package com.generallycloud.baseio.codec.charbased;
 
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class CharBasedProtocolFactory implements ProtocolFactory {
-
+    
+    @Override
+    public void initialize(SocketChannelContext context) { }
+    
     private int limit;
     
     private byte splitor;
@@ -39,12 +43,12 @@ public class CharBasedProtocolFactory implements ProtocolFactory {
     }
 
     @Override
-    public ProtocolDecoder getProtocolDecoder() {
+    public ProtocolDecoder getProtocolDecoder(SocketChannelContext context) {
         return new CharBasedProtocolDecoder(limit,splitor);
     }
 
     @Override
-    public ProtocolEncoder getProtocolEncoder() {
+    public ProtocolEncoder getProtocolEncoder(SocketChannelContext context) {
         return new CharBasedProtocolEncoder(splitor);
     }
 

@@ -15,11 +15,16 @@
  */
 package com.generallycloud.baseio.codec.fixedlength;
 
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class FixedLengthProtocolFactory implements ProtocolFactory {
+    
+    @Override
+    public void initialize(SocketChannelContext context) {
+    }
 
     private int limit;
 
@@ -32,12 +37,12 @@ public class FixedLengthProtocolFactory implements ProtocolFactory {
     }
 
     @Override
-    public ProtocolDecoder getProtocolDecoder() {
+    public ProtocolDecoder getProtocolDecoder(SocketChannelContext context) {
         return new FixedLengthProtocolDecoder(limit);
     }
 
     @Override
-    public ProtocolEncoder getProtocolEncoder() {
+    public ProtocolEncoder getProtocolEncoder(SocketChannelContext context) {
         return new FixedLengthProtocolEncoder();
     }
 

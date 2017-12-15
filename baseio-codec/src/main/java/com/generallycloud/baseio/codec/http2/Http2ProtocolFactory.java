@@ -15,25 +15,31 @@
  */
 package com.generallycloud.baseio.codec.http2;
 
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class Http2ProtocolFactory implements ProtocolFactory {
+    
+    @Override
+    public void initialize(SocketChannelContext context) {
+        
+    }
 
     @Override
-    public ProtocolDecoder getProtocolDecoder() {
+    public ProtocolDecoder getProtocolDecoder(SocketChannelContext context) {
         return new Http2ProtocolDecoder();
     }
 
     @Override
-    public ProtocolEncoder getProtocolEncoder() {
+    public ProtocolEncoder getProtocolEncoder(SocketChannelContext context) {
         return new Http2ProtocolEncoder();
     }
 
     @Override
     public String getProtocolId() {
-        return "FixedLength";
+        return "Http2";
     }
 
 }

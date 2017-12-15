@@ -15,18 +15,30 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class ServerHTTPProtocolFactory implements ProtocolFactory {
 
-    private int headerLimit;
+    @Override
+    public void initialize(SocketChannelContext context) {
+        if (initWebSocket) {
+            WebSocketProtocolFactory.init(context, websocketLimit);
+        }
+    }
 
-    private int bodyLimit;
+    private boolean initWebSocket  = true;
+
+    private int     headerLimit    = 1024 * 8;
+
+    private int     bodyLimit      = 1024 * 512;
+
+    private int     websocketLimit = 1024 * 8;
 
     public ServerHTTPProtocolFactory() {
-        this(1024 * 8, 1024 * 512);
+        this(1024 * 8, 1024 * 512, 1024 * 8);
     }
 
     public ServerHTTPProtocolFactory(int headerLimit, int bodyLimit) {
@@ -34,13 +46,25 @@ public class ServerHTTPProtocolFactory implements ProtocolFactory {
         this.bodyLimit = bodyLimit;
     }
 
+    public ServerHTTPProtocolFactory(int headerLimit, int bodyLimit, boolean initWebSocket) {
+        this.headerLimit = headerLimit;
+        this.bodyLimit = bodyLimit;
+        this.initWebSocket = initWebSocket;
+    }
+
+    public ServerHTTPProtocolFactory(int headerLimit, int bodyLimit, int websocketLimit) {
+        this.headerLimit = headerLimit;
+        this.bodyLimit = bodyLimit;
+        this.websocketLimit = websocketLimit;
+    }
+
     @Override
-    public ProtocolDecoder getProtocolDecoder() {
+    public ProtocolDecoder getProtocolDecoder(SocketChannelContext context) {
         return new ServerHTTPProtocolDecoder(headerLimit, bodyLimit);
     }
 
     @Override
-    public ProtocolEncoder getProtocolEncoder() {
+    public ProtocolEncoder getProtocolEncoder(SocketChannelContext context) {
         return new ServerHTTPProtocolEncoder();
     }
 

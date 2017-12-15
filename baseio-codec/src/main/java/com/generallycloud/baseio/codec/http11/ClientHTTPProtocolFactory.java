@@ -15,12 +15,17 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class ClientHTTPProtocolFactory implements ProtocolFactory {
-
+    
+    @Override
+    public void initialize(SocketChannelContext context) {
+    }
+    
     private int headerLimit;
 
     private int bodyLimit;
@@ -35,12 +40,12 @@ public class ClientHTTPProtocolFactory implements ProtocolFactory {
     }
 
     @Override
-    public ProtocolDecoder getProtocolDecoder() {
+    public ProtocolDecoder getProtocolDecoder(SocketChannelContext context) {
         return new ClientHTTPProtocolDecoder(headerLimit, bodyLimit);
     }
 
     @Override
-    public ProtocolEncoder getProtocolEncoder() {
+    public ProtocolEncoder getProtocolEncoder(SocketChannelContext context) {
         return new ClientHTTPProtocolEncoder();
     }
 

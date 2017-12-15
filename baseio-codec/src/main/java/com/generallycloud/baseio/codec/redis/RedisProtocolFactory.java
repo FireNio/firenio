@@ -15,19 +15,25 @@
  */
 package com.generallycloud.baseio.codec.redis;
 
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class RedisProtocolFactory implements ProtocolFactory {
+    
+    @Override
+    public void initialize(SocketChannelContext context) {
+        
+    }
 
     @Override
-    public ProtocolDecoder getProtocolDecoder() {
+    public ProtocolDecoder getProtocolDecoder(SocketChannelContext context) {
         return new RedisProtocolDecoder();
     }
 
     @Override
-    public ProtocolEncoder getProtocolEncoder() {
+    public ProtocolEncoder getProtocolEncoder(SocketChannelContext context) {
         return new RedisProtocolEncoder();
     }
 

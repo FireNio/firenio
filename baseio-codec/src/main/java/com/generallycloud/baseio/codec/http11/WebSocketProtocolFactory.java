@@ -15,11 +15,23 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class WebSocketProtocolFactory implements ProtocolFactory {
+
+    public static WebSocketProtocolFactory WS_PROTOCOL_FACTORY;
+    public static ProtocolDecoder          WS_PROTOCOL_DECODER;
+    public static ProtocolEncoder          WS_PROTOCOL_ENCODER;
+
+    @Override
+    public void initialize(SocketChannelContext context) {
+        WS_PROTOCOL_FACTORY = this;
+        WS_PROTOCOL_ENCODER = getProtocolEncoder(context);
+        WS_PROTOCOL_DECODER = getProtocolDecoder(context);
+    }
 
     public static final String PROTOCOL_ID = "WebSocket";
 
@@ -34,12 +46,12 @@ public class WebSocketProtocolFactory implements ProtocolFactory {
     }
 
     @Override
-    public ProtocolDecoder getProtocolDecoder() {
+    public ProtocolDecoder getProtocolDecoder(SocketChannelContext context) {
         return new WebSocketProtocolDecoder(limit);
     }
 
     @Override
-    public ProtocolEncoder getProtocolEncoder() {
+    public ProtocolEncoder getProtocolEncoder(SocketChannelContext context) {
         return new WebSocketProtocolEncoder();
     }
 
@@ -47,4 +59,9 @@ public class WebSocketProtocolFactory implements ProtocolFactory {
     public String getProtocolId() {
         return PROTOCOL_ID;
     }
+    
+    public static void init(SocketChannelContext context,int limit){
+        new WebSocketProtocolFactory(limit).initialize(context);
+    }
+    
 }

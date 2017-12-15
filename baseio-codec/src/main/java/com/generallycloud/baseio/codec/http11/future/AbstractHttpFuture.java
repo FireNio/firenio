@@ -36,8 +36,6 @@ import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.ChannelFuture;
-import com.generallycloud.baseio.protocol.ProtocolDecoder;
-import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 //FIXME 改进header parser
 /**
@@ -51,12 +49,6 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     protected static final KMPUtil                  KMP_BOUNDARY        = new KMPUtil("boundary=");
     protected static final KMPByteUtil              KMP_HEADER          = new KMPByteUtil(
             "\r\n\r\n".getBytes());
-
-    protected static final WebSocketProtocolFactory WS_PROTOCOL_FACTORY = new WebSocketProtocolFactory();
-    protected static final ProtocolDecoder          WS_PROTOCOL_DECODER = WS_PROTOCOL_FACTORY
-            .getProtocolDecoder();
-    protected static final ProtocolEncoder          WS_PROTOCOL_ENCODER = WS_PROTOCOL_FACTORY
-            .getProtocolEncoder();
 
     protected ByteArrayBuffer                       binaryBuffer;
     protected boolean                               body_complete;
@@ -193,9 +185,9 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
 
         if (updateWebSocketProtocol) {
 
-            channel.setProtocolDecoder(WS_PROTOCOL_DECODER);
-            channel.setProtocolEncoder(WS_PROTOCOL_ENCODER);
-            channel.setProtocolFactory(WS_PROTOCOL_FACTORY);
+            channel.setProtocolDecoder(WebSocketProtocolFactory.WS_PROTOCOL_DECODER);
+            channel.setProtocolEncoder(WebSocketProtocolFactory.WS_PROTOCOL_ENCODER);
+            channel.setProtocolFactory(WebSocketProtocolFactory.WS_PROTOCOL_FACTORY);
 
             channel.getSession().setAttribute(WebSocketFuture.SESSION_KEY_SERVICE_NAME, getFutureName());
         }
