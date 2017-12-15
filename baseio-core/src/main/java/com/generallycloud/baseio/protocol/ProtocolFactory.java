@@ -15,11 +15,15 @@
  */
 package com.generallycloud.baseio.protocol;
 
+import com.generallycloud.baseio.component.SocketChannelContext;
+
 public interface ProtocolFactory {
+    
+    void initialize(SocketChannelContext context);
 
-    public abstract ProtocolDecoder getProtocolDecoder();
+    ProtocolDecoder getProtocolDecoder(SocketChannelContext context);
 
-    public abstract ProtocolEncoder getProtocolEncoder();
+    ProtocolEncoder getProtocolEncoder(SocketChannelContext context);
 
-    public abstract String getProtocolId();
+    String getProtocolId();
 }

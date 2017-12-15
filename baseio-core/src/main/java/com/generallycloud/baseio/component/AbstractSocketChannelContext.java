@@ -127,10 +127,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
         EmptyFuture.initializeReadFuture(this);
 
-        if (isEnableSSL()) {
-            //			this.sslContext.initialize(this);
-        }
-
         int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
         int server_port = serverConfiguration.getSERVER_PORT();
         long session_idle = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
@@ -138,11 +134,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
         this.encoding = serverConfiguration.getSERVER_ENCODING();
         this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
-
-        if (protocolEncoder == null) {
-            this.protocolEncoder = protocolFactory.getProtocolEncoder();
-            this.protocolDecoder = protocolFactory.getProtocolDecoder();
-        }
 
         this.initializeByteBufAllocator();
 
@@ -170,6 +161,13 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
                     SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
         }
 
+        
+        if (protocolEncoder == null) {
+            this.protocolFactory.initialize(this);
+            this.protocolEncoder = protocolFactory.getProtocolEncoder(this);
+            this.protocolDecoder = protocolFactory.getProtocolDecoder(this);
+        }
+        
         ioEventHandleAdaptor.initialize(this);
 
         if (executorEventLoopGroup == null) {
