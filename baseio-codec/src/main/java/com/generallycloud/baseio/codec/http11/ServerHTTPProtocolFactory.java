@@ -22,34 +22,18 @@ import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public class ServerHTTPProtocolFactory implements ProtocolFactory {
 
-    @Override
-    public void initialize(SocketChannelContext context) {
-        if (initWebSocket) {
-            WebSocketProtocolFactory.init(context, websocketLimit);
-        }
-    }
+    private int bodyLimit      = 1024 * 512;
 
-    private boolean initWebSocket  = true;
+    private int headerLimit    = 1024 * 8;
 
-    private int     headerLimit    = 1024 * 8;
-
-    private int     bodyLimit      = 1024 * 512;
-
-    private int     websocketLimit = 1024 * 8;
+    private int websocketLimit = 1024 * 8;
 
     public ServerHTTPProtocolFactory() {
-        this(1024 * 8, 1024 * 512, 1024 * 8);
     }
 
     public ServerHTTPProtocolFactory(int headerLimit, int bodyLimit) {
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
-    }
-
-    public ServerHTTPProtocolFactory(int headerLimit, int bodyLimit, boolean initWebSocket) {
-        this.headerLimit = headerLimit;
-        this.bodyLimit = bodyLimit;
-        this.initWebSocket = initWebSocket;
     }
 
     public ServerHTTPProtocolFactory(int headerLimit, int bodyLimit, int websocketLimit) {
@@ -71,5 +55,10 @@ public class ServerHTTPProtocolFactory implements ProtocolFactory {
     @Override
     public String getProtocolId() {
         return "HTTP1.1";
+    }
+
+    @Override
+    public void initialize(SocketChannelContext context) {
+        WebSocketProtocolFactory.init(context, websocketLimit);
     }
 }
