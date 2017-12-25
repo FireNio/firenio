@@ -45,6 +45,8 @@ public interface DynamicClassLoader extends Closeable {
     public abstract void clearAssertionStatus();
 
     public abstract Class<?> loadClass(String name) throws ClassNotFoundException;
+    
+    public abstract void scan(String file) throws IOException;
 
     public abstract void scan(File file) throws IOException;
 

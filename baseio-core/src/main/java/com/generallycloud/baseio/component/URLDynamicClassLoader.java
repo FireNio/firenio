@@ -276,6 +276,14 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
         throw new ClassNotFoundException(name);
     }
+    
+    @Override
+    public synchronized void scan(String file) throws IOException {
+        if (file == null) {
+            throw new IllegalArgumentException("null file");
+        }
+        scan0(new File(file));
+    }
 
     @Override
     public synchronized void scan(File file) throws IOException {
@@ -285,7 +293,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         scan0(file);
     }
 
-    public void scan0(File file) throws IOException {
+    private void scan0(File file) throws IOException {
         if (!file.exists()) {
             return;
         }

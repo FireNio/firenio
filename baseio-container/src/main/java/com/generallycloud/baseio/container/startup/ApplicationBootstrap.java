@@ -15,24 +15,30 @@
  */
 package com.generallycloud.baseio.container.startup;
 
+import java.io.IOException;
+
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.Bootstrap;
+import com.generallycloud.baseio.component.URLDynamicClassLoader;
 
-public class ApplicationBootstrap {
+public class ApplicationBootstrap extends Bootstrap{
 
     public static void main(String[] args) throws Exception {
-        
         if (args != null && args.length > 1) {
             throw new Exception("args must be one , true or flase");
         }
-        
         boolean deployModel = Boolean.parseBoolean(StringUtil.getValueFromArray(args, 0, "false"));
-
         String className = "com.generallycloud.baseio.container.startup.ApplicationBootstrapEngine";
-
-        Bootstrap.startup(className, deployModel);
+        new ApplicationBootstrap().startup(className, deployModel);
     }
     
-    
+    @Override
+    protected URLDynamicClassLoader scanClassPaths(URLDynamicClassLoader classLoader,
+            boolean deployModel, String rootLocalAddress) throws IOException {
+        if (deployModel) {
+            classLoader.scan(rootLocalAddress+"/lib");
+        }
+        return super.scanClassPaths(classLoader, deployModel, rootLocalAddress);
+    }
 
 }

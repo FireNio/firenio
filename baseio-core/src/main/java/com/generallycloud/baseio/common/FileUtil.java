@@ -484,6 +484,10 @@ public class FileUtil {
     public static String readStringByCls(String file, Charset encoding) throws IOException {
         return createString(readBytesByCls(file), encoding);
     }
+    
+    public static String readStringByCls(String file, Charset encoding,ClassLoader cl) throws IOException {
+        return createString(readBytesByCls(file,cl), encoding);
+    }
 
     private static String createString(byte[] data, Charset encoding) {
         if (data == null) {
