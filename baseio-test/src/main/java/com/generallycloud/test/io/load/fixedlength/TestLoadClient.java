@@ -24,9 +24,9 @@ import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFutureImpl;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
@@ -78,7 +78,10 @@ public class TestLoadClient {
             }
         };
 
-        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
+        ServerConfiguration configuration = new ServerConfiguration(8300);
+        
+//        SocketChannelContext context = new NioSocketChannelContext(configuration);
+        SocketChannelContext context = new AioSocketChannelContext(configuration);
 
         SocketChannelConnector connector = new SocketChannelConnector(context);
 

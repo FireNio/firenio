@@ -20,9 +20,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
+import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
@@ -65,7 +65,8 @@ public class TestLoadServer {
         c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
         c.setSERVER_CORE_SIZE(4);
 
-        SocketChannelContext context = new NioSocketChannelContext(c);
+//        SocketChannelContext context = new NioSocketChannelContext(c);
+        SocketChannelContext context = new AioSocketChannelContext(c);
 
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
