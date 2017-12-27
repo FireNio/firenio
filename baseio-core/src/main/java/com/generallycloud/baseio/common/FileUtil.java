@@ -451,11 +451,7 @@ public class FileUtil {
 
     public static Properties readPropertiesByCls(String file, Charset charset)
             throws IOException {
-        InputStream inputStream = readInputStreamByCls(file);
-        if (inputStream == null) {
-            throw new FileNotFoundException(file);
-        }
-        return readProperties(inputStream, charset);
+        return readPropertiesByCls(file, charset, CLASS_LOADER);
     }
 
     public static Properties readPropertiesByCls(String file, Charset charset,
@@ -482,7 +478,7 @@ public class FileUtil {
     }
 
     public static String readStringByCls(String file, Charset encoding) throws IOException {
-        return createString(readBytesByCls(file), encoding);
+        return readStringByCls(file, encoding, CLASS_LOADER);
     }
     
     public static String readStringByCls(String file, Charset encoding,ClassLoader cl) throws IOException {
@@ -504,27 +500,20 @@ public class FileUtil {
         } finally {
             CloseUtil.close(in);
         }
-
     }
 
     public static void scanDirectory(File file, OnDirectoryScan onDirectoryScan) throws Exception {
-
         if (!file.exists()) {
             return;
         }
-
         if (file.isDirectory()) {
-
             File[] fs = file.listFiles();
-
             for (File f : fs) {
                 scanDirectory(f, onDirectoryScan);
             }
-
             onDirectoryScan.onDirectory(file);
             return;
         }
-
         onDirectoryScan.onFile(file);
     }
 
