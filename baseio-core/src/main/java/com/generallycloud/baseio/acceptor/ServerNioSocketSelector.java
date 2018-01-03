@@ -52,6 +52,10 @@ public class ServerNioSocketSelector extends NioSocketSelector {
 
         final int channelId = channelIdGenerator.getAndIncrement();
 
+        if (serverSocketChannel.getLocalAddress() == null) {
+            return;
+        }
+        
         final java.nio.channels.SocketChannel channel = serverSocketChannel.accept();
 
         SocketSelectorEventLoop selectorLoop = selectorEventLoopGroup.getNext();

@@ -136,7 +136,6 @@ public class FileUtil {
         }
         if (!directory.delete()) {
             String message = "Unable to delete directory " + directory + ".";
-
             throw new IOException(message);
         }
     }
@@ -192,42 +191,31 @@ public class FileUtil {
     }
 
     public static String getCurrentPath(ClassLoader classLoader) {
-
         URL url = classLoader.getResource(".");
-
         if (url == null) {
             return new File(".").getAbsoluteFile().getParent();
         }
-
         return new File(url.getFile()).getAbsoluteFile().getPath();
     }
 
     public static File getJarParentDirectory(File file) throws IOException {
-
         File parent = file;
-
         for (; parent != null;) {
-
             if (parent.getName().endsWith(".jar!")) {
                 return parent.getParentFile();
             }
-
             parent = parent.getParentFile();
         }
-
         throw new IOException("not a jar");
     }
 
     public static File getParentDirectoryOrSelf(File file) throws IOException {
-
         if (file.isDirectory()) {
             return file;
         }
-
         if (inJarFile(file)) {
             return getJarParentDirectory(file);
         }
-
         return file.getParentFile();
     }
 
@@ -240,18 +228,13 @@ public class FileUtil {
     }
 
     public static boolean inJarFile(File file) {
-
         File parent = file;
-
         for (; parent != null;) {
-
             if (parent.getName().endsWith(".jar!")) {
                 return true;
             }
-
             parent = parent.getParentFile();
         }
-
         return false;
     }
 
@@ -491,6 +474,14 @@ public class FileUtil {
         }
         return new String(data, encoding);
     }
+    
+    public static String readStringByFile(String file) throws IOException {
+        return readStringByFile(file, ENCODING);
+    }
+    
+    public static String readStringByFile(String file, Charset encoding) throws IOException {
+        return readStringByFile(new File(file), encoding);
+    }
 
     public static String readStringByFile(File file, Charset encoding) throws IOException {
         InputStream in = null;
@@ -627,9 +618,9 @@ public class FileUtil {
 
     public static interface OnDirectoryScan {
 
-        public abstract void onDirectory(File directory) throws Exception;
+        void onDirectory(File directory) throws Exception;
 
-        public abstract void onFile(File file) throws Exception;
+        void onFile(File file) throws Exception;
     }
 
 }
