@@ -243,10 +243,25 @@ public class FileUtil {
     }
 
     public static byte[] inputStream2ByteArray(InputStream inputStream) throws IOException {
-        if (inputStream == null) {
+        byte [] data = inputStream2ByteArray0(inputStream,inputStream.available());
+        if (data == null) {
             return null;
         }
-        int size = inputStream.available();
+        byte [] temp = null;
+        for(;;){
+            temp = inputStream2ByteArray0(inputStream,inputStream.available());
+            if (temp == null) {
+                break;
+            }
+            byte [] newData = new byte[data.length + temp.length];
+            System.arraycopy(data, 0, newData, 0, data.length);
+            System.arraycopy(temp, 0, newData, data.length, temp.length);
+            data = newData;
+        }
+        return data;
+    }
+    
+    private static byte[] inputStream2ByteArray0(InputStream inputStream,int size) throws IOException {
         if (size < 1) {
             return null;
         }
@@ -340,7 +355,7 @@ public class FileUtil {
         InputStream in = null;
         try {
             in = openInputStream(file);
-            return inputStream2ByteArray(in);
+            return inputStream2ByteArray0(in,(int)file.length());
         } finally {
             CloseUtil.close(in);
         }
