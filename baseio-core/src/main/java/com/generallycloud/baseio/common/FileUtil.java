@@ -243,25 +243,26 @@ public class FileUtil {
     }
 
     public static byte[] inputStream2ByteArray(InputStream inputStream) throws IOException {
-        byte [] data = inputStream2ByteArray0(inputStream,inputStream.available());
+        byte[] data = inputStream2ByteArray0(inputStream, inputStream.available());
         if (data == null) {
             return null;
         }
-        byte [] temp = null;
-        for(;;){
-            temp = inputStream2ByteArray0(inputStream,inputStream.available());
+        byte[] temp = null;
+        for (;;) {
+            temp = inputStream2ByteArray0(inputStream, inputStream.available());
             if (temp == null) {
                 break;
             }
-            byte [] newData = new byte[data.length + temp.length];
+            byte[] newData = new byte[data.length + temp.length];
             System.arraycopy(data, 0, newData, 0, data.length);
             System.arraycopy(temp, 0, newData, data.length, temp.length);
             data = newData;
         }
         return data;
     }
-    
-    private static byte[] inputStream2ByteArray0(InputStream inputStream,int size) throws IOException {
+
+    private static byte[] inputStream2ByteArray0(InputStream inputStream, int size)
+            throws IOException {
         if (size < 1) {
             return null;
         }
@@ -355,7 +356,7 @@ public class FileUtil {
         InputStream in = null;
         try {
             in = openInputStream(file);
-            return inputStream2ByteArray0(in,(int)file.length());
+            return inputStream2ByteArray0(in, (int) file.length());
         } finally {
             CloseUtil.close(in);
         }
@@ -368,7 +369,8 @@ public class FileUtil {
     public static File readFileByCls(String file, ClassLoader classLoader) throws IOException {
         URL url = classLoader.getResource(file);
         if (url == null) {
-            throw new FileNotFoundException(file);
+            File root = new File(classLoader.getResource(".").getFile());
+            return new File(root.getAbsolutePath()+"/"+file);
         }
         String path = url.getFile();
         return new File(URLDecoder.decode(path, ENCODING.name()));
@@ -447,8 +449,7 @@ public class FileUtil {
         return readPropertiesByCls(file, ENCODING);
     }
 
-    public static Properties readPropertiesByCls(String file, Charset charset)
-            throws IOException {
+    public static Properties readPropertiesByCls(String file, Charset charset) throws IOException {
         return readPropertiesByCls(file, charset, CLASS_LOADER);
     }
 
@@ -461,13 +462,11 @@ public class FileUtil {
         return readProperties(inputStream, charset);
     }
 
-    public static Properties readPropertiesByFile(File file, Charset charset)
-            throws IOException {
+    public static Properties readPropertiesByFile(File file, Charset charset) throws IOException {
         return readProperties(new FileInputStream(file), charset);
     }
 
-    public static Properties readPropertiesByFile(String file, Charset charset)
-            throws IOException {
+    public static Properties readPropertiesByFile(String file, Charset charset) throws IOException {
         return readPropertiesByFile(new File(file), charset);
     }
 
@@ -478,9 +477,10 @@ public class FileUtil {
     public static String readStringByCls(String file, Charset encoding) throws IOException {
         return readStringByCls(file, encoding, CLASS_LOADER);
     }
-    
-    public static String readStringByCls(String file, Charset encoding,ClassLoader cl) throws IOException {
-        return createString(readBytesByCls(file,cl), encoding);
+
+    public static String readStringByCls(String file, Charset encoding, ClassLoader cl)
+            throws IOException {
+        return createString(readBytesByCls(file, cl), encoding);
     }
 
     private static String createString(byte[] data, Charset encoding) {
@@ -489,11 +489,11 @@ public class FileUtil {
         }
         return new String(data, encoding);
     }
-    
+
     public static String readStringByFile(String file) throws IOException {
         return readStringByFile(file, ENCODING);
     }
-    
+
     public static String readStringByFile(String file, Charset encoding) throws IOException {
         return readStringByFile(new File(file), encoding);
     }
@@ -574,6 +574,15 @@ public class FileUtil {
         writeByCls(file, content, append, CLASS_LOADER);
     }
 
+    public static void writeByCls(String file, byte[] content, boolean append) throws IOException {
+        writeByCls(file, content, append, CLASS_LOADER);
+    }
+
+    public static void writeByCls(String file, String content, Charset encoding, boolean append)
+            throws IOException {
+        writeByCls(file, content, encoding, append);
+    }
+
     public static void writeByCls(String file, String content, boolean append,
             ClassLoader classLoader) throws IOException {
         writeByCls(file, content, ENCODING, append, classLoader);
@@ -622,8 +631,12 @@ public class FileUtil {
             throws IOException {
         write(content.getBytes(encoding), openOutputStream(file, append));
     }
+    
+    public static void writePropertiesByCls(java.util.Properties properties, String file) throws IOException {
+        writePropertiesByCls(properties, file, CLASS_LOADER);
+    }
 
-    public static void writePropertiesByCls(Properties properties, String file,
+    public static void writePropertiesByCls(java.util.Properties properties, String file,
             ClassLoader classLoader) throws IOException {
         File realFile = readFileByCls(file, classLoader);
         FileOutputStream fos = new FileOutputStream(realFile);
