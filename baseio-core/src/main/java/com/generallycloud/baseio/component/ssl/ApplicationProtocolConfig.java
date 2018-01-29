@@ -15,12 +15,12 @@
  */
 package com.generallycloud.baseio.component.ssl;
 
-import static com.generallycloud.baseio.component.ssl.ApplicationProtocolUtil.toList;
-
 import java.util.Collections;
 import java.util.List;
 
 import javax.net.ssl.SSLEngine;
+
+import com.generallycloud.baseio.common.StringUtil;
 
 /**
  * Provides an {@link SSLEngine} agnostic way to configure a {@link ApplicationProtocolNegotiator}.
@@ -45,20 +45,8 @@ public final class ApplicationProtocolConfig {
      * @param supportedProtocols The order of iteration determines the preference of support for protocols.
      */
     public ApplicationProtocolConfig(Protocol protocol, SelectorFailureBehavior selectorBehavior,
-            SelectedListenerFailureBehavior selectedBehavior, Iterable<String> supportedProtocols) {
-        this(protocol, selectorBehavior, selectedBehavior, toList(supportedProtocols));
-    }
-
-    /**
-     * Create a new instance.
-     * @param protocol The application protocol functionality to use.
-     * @param selectorBehavior How the peer selecting the protocol should behave.
-     * @param selectedBehavior How the peer being notified of the selected protocol should behave.
-     * @param supportedProtocols The order of iteration determines the preference of support for protocols.
-     */
-    public ApplicationProtocolConfig(Protocol protocol, SelectorFailureBehavior selectorBehavior,
             SelectedListenerFailureBehavior selectedBehavior, String... supportedProtocols) {
-        this(protocol, selectorBehavior, selectedBehavior, toList(supportedProtocols));
+        this(protocol, selectorBehavior, selectedBehavior, StringUtil.toList(supportedProtocols));
     }
 
     /**

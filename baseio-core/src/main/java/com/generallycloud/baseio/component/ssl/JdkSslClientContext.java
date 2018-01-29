@@ -18,6 +18,7 @@ package com.generallycloud.baseio.component.ssl;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -36,12 +37,11 @@ final class JdkSslClientContext extends JdkSslContext {
 
     JdkSslClientContext(X509Certificate[] trustCertCollection,
             TrustManagerFactory trustManagerFactory, X509Certificate[] keyCertChain, PrivateKey key,
-            String keyPassword, KeyManagerFactory keyManagerFactory, Iterable<String> ciphers,
-            CipherSuiteFilter cipherFilter, ApplicationProtocolConfig apn, long sessionCacheSize,
+            String keyPassword, KeyManagerFactory keyManagerFactory, List<String> ciphers, ApplicationProtocolConfig apn, long sessionCacheSize,
             long sessionTimeout) throws SSLException {
         super(newSSLContext(trustCertCollection, trustManagerFactory, keyCertChain, key,
                 keyPassword, keyManagerFactory, sessionCacheSize, sessionTimeout), true, ciphers,
-                cipherFilter, toNegotiator(apn, false), ClientAuth.NONE, false);
+                toNegotiator(apn, false), ClientAuth.NONE);
     }
 
     private static SSLContext newSSLContext(X509Certificate[] trustCertCollection,
@@ -69,13 +69,11 @@ final class JdkSslClientContext extends JdkSslContext {
                     @Override
                     public void checkClientTrusted(java.security.cert.X509Certificate[] arg0,
                             String arg1) throws java.security.cert.CertificateException {
-
                     }
 
                     @Override
                     public void checkServerTrusted(java.security.cert.X509Certificate[] arg0,
                             String arg1) throws java.security.cert.CertificateException {
-
                     }
 
                     @Override
@@ -83,10 +81,8 @@ final class JdkSslClientContext extends JdkSslContext {
                         return null;
                     }
                 };
-
                 tms = new X509TrustManager[] { x509m };
             } else {
-
                 tms = trustManagerFactory.getTrustManagers();
             }
 

@@ -41,24 +41,28 @@ public class FileUtil {
 
     private static final byte[]      SKIP_BYTE_BUFFER = new byte[2048];
 
-    private static final char        SYSTEM_SEPARATOR = File.separatorChar;
-
     public static void cleanDirectory(File directory) throws IOException {
         if (!directory.exists()) {
-            throw new IllegalArgumentException(directory + " does not exist");
-        }
-        if (!directory.isDirectory()) {
-            throw new IllegalArgumentException(directory + " is not a directory");
-        }
-        File[] files = directory.listFiles();
-        if (files == null) {
             return;
         }
-        for (File file : files) {
-            try {
-                forceDelete(file);
-            } catch (IOException ioe) {}
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files == null) {
+                directory.delete();
+                return;
+            }
+            for (File file : files) {
+                cleanDirectory(file);
+            }
+        } else {
+            directory.delete();
         }
+    }
+
+    public static void cleanDirectoryByCls(String file, ClassLoader classLoader)
+            throws IOException {
+        File realFile = readFileByCls(file, classLoader);
+        cleanDirectory(realFile);
     }
 
     public static long copyLarge(InputStream input, OutputStream output) throws IOException {
@@ -106,17 +110,18 @@ public class FileUtil {
         return totalRead;
     }
 
-    public static void createDirectory(File file) throws IOException {
+    public static boolean createDirectory(File file) throws IOException {
         if (file.exists()) {
-            return;
+            return true;
         }
-        File parent = file.getParentFile();
-        if (!parent.exists()) {
-            if (!parent.mkdirs()) {
-                throw new IOException("Directory '" + parent + "' could not be created");
-            }
+        return file.mkdirs();
+    }
+
+    private static String createString(byte[] data, Charset encoding) {
+        if (data == null) {
+            return null;
         }
-        file.mkdir();
+        return new String(data, encoding);
     }
 
     public static String decodeURL(String url, Charset charset) {
@@ -124,65 +129,6 @@ public class FileUtil {
             return URLDecoder.decode(url, charset.name());
         } catch (UnsupportedEncodingException e) {
             return url;
-        }
-    }
-
-    private static void deleteDirectory(File directory) throws IOException {
-        if (!directory.exists()) {
-            return;
-        }
-        if (!isSymlink(directory)) {
-            cleanDirectory(directory);
-        }
-        if (!directory.delete()) {
-            String message = "Unable to delete directory " + directory + ".";
-            throw new IOException(message);
-        }
-    }
-
-    public static void deleteDirectoryOrFile(File file) throws IOException {
-        if (!file.exists()) {
-            return;
-        }
-        if (file.isFile()) {
-            file.delete();
-        } else {
-            deleteDirectory(file);
-        }
-    }
-
-    public static void deleteDirectoryOrFileByCls(String file, ClassLoader classLoader)
-            throws IOException {
-        File realFile = readFileByCls(file, classLoader);
-        deleteDirectoryOrFile(realFile);
-    }
-
-    public static boolean deleteQuietly(File file) {
-        if (file == null) {
-            return false;
-        }
-        try {
-            if (file.isDirectory()) {
-                cleanDirectory(file);
-            }
-        } catch (Exception ignored) {}
-        try {
-            return file.delete();
-        } catch (Exception ignored) {}
-        return false;
-    }
-
-    public static void forceDelete(File file) throws IOException {
-        if (file.isDirectory()) {
-            deleteDirectory(file);
-        } else {
-            boolean filePresent = file.exists();
-            if (!file.delete()) {
-                if (!filePresent) {
-                    throw new FileNotFoundException("File does not exist: " + file);
-                }
-                throw new IOException("Unable to delete file: " + file);
-            }
         }
     }
 
@@ -280,30 +226,6 @@ public class FileUtil {
         return data;
     }
 
-    public static boolean isSymlink(File file) throws IOException {
-        if (file == null) {
-            throw new NullPointerException("File must not be null");
-        }
-        if (isSystemWindows()) {
-            return false;
-        }
-        File fileInCanonicalDir = null;
-        if (file.getParent() == null) {
-            fileInCanonicalDir = file;
-        } else {
-            File canonicalDir = file.getParentFile().getCanonicalFile();
-            fileInCanonicalDir = new File(canonicalDir, file.getName());
-        }
-        if (fileInCanonicalDir.getCanonicalFile().equals(fileInCanonicalDir.getAbsoluteFile())) {
-            return false;
-        }
-        return true;
-    }
-
-    private static boolean isSystemWindows() {
-        return SYSTEM_SEPARATOR == '\\';
-    }
-
     public static FileInputStream openInputStream(File file) throws IOException {
         if (file.exists()) {
             if (file.isDirectory()) {
@@ -370,23 +292,23 @@ public class FileUtil {
         URL url = classLoader.getResource(file);
         if (url == null) {
             File root = new File(classLoader.getResource(".").getFile());
-            return new File(root.getAbsolutePath()+"/"+file);
+            return new File(root.getAbsolutePath() + "/" + file);
         }
         String path = url.getFile();
         return new File(URLDecoder.decode(path, ENCODING.name()));
     }
 
     public static int readInputStream(InputStream inputStream, byte[] cache) throws IOException {
-        int c = 0;
-        int s = cache.length;
-        for (; c < s;) {
-            int r = inputStream.read(cache, c, s - c);
+        int read = 0;
+        int cLength = cache.length;
+        for (; read < cLength;) {
+            int r = inputStream.read(cache, read, cLength - read);
             if (r == -1) {
-                return c;
+                return read;
             }
-            c += r;
+            read += r;
         }
-        return c;
+        return read;
     }
 
     public static InputStream readInputStreamByCls(String file) {
@@ -483,21 +405,6 @@ public class FileUtil {
         return createString(readBytesByCls(file, cl), encoding);
     }
 
-    private static String createString(byte[] data, Charset encoding) {
-        if (data == null) {
-            return null;
-        }
-        return new String(data, encoding);
-    }
-
-    public static String readStringByFile(String file) throws IOException {
-        return readStringByFile(file, ENCODING);
-    }
-
-    public static String readStringByFile(String file, Charset encoding) throws IOException {
-        return readStringByFile(new File(file), encoding);
-    }
-
     public static String readStringByFile(File file, Charset encoding) throws IOException {
         InputStream in = null;
         try {
@@ -506,6 +413,14 @@ public class FileUtil {
         } finally {
             CloseUtil.close(in);
         }
+    }
+
+    public static String readStringByFile(String file) throws IOException {
+        return readStringByFile(file, ENCODING);
+    }
+
+    public static String readStringByFile(String file, Charset encoding) throws IOException {
+        return readStringByFile(new File(file), encoding);
     }
 
     public static void scanDirectory(File file, OnDirectoryScan onDirectoryScan) throws Exception {
@@ -561,31 +476,8 @@ public class FileUtil {
         output.write(data);
     }
 
-    public static void writeByCls(String file, String content) throws IOException {
-        writeByCls(file, content, CLASS_LOADER);
-    }
-
-    public static void writeByCls(String file, String content, ClassLoader classLoader)
-            throws IOException {
-        writeByCls(file, content, false, classLoader);
-    }
-
-    public static void writeByCls(String file, String content, boolean append) throws IOException {
-        writeByCls(file, content, append, CLASS_LOADER);
-    }
-
     public static void writeByCls(String file, byte[] content, boolean append) throws IOException {
         writeByCls(file, content, append, CLASS_LOADER);
-    }
-
-    public static void writeByCls(String file, String content, Charset encoding, boolean append)
-            throws IOException {
-        writeByCls(file, content, encoding, append);
-    }
-
-    public static void writeByCls(String file, String content, boolean append,
-            ClassLoader classLoader) throws IOException {
-        writeByCls(file, content, ENCODING, append, classLoader);
     }
 
     public static void writeByCls(String file, byte[] bytes, boolean append,
@@ -594,10 +486,33 @@ public class FileUtil {
         writeByFile(realFile, bytes, append);
     }
 
+    public static void writeByCls(String file, String content) throws IOException {
+        writeByCls(file, content, CLASS_LOADER);
+    }
+
+    public static void writeByCls(String file, String content, boolean append) throws IOException {
+        writeByCls(file, content, append, CLASS_LOADER);
+    }
+
+    public static void writeByCls(String file, String content, boolean append,
+            ClassLoader classLoader) throws IOException {
+        writeByCls(file, content, ENCODING, append, classLoader);
+    }
+
+    public static void writeByCls(String file, String content, Charset encoding, boolean append)
+            throws IOException {
+        writeByCls(file, content, encoding, append);
+    }
+
     public static void writeByCls(String file, String content, Charset encoding, boolean append,
             ClassLoader classLoader) throws IOException {
         File realFile = readFileByCls(file, classLoader);
         writeByFile(realFile, content, encoding, append);
+    }
+
+    public static void writeByCls(String file, String content, ClassLoader classLoader)
+            throws IOException {
+        writeByCls(file, content, false, classLoader);
     }
 
     public static void writeByFile(File file, byte[] bytes) throws IOException {
@@ -631,8 +546,9 @@ public class FileUtil {
             throws IOException {
         write(content.getBytes(encoding), openOutputStream(file, append));
     }
-    
-    public static void writePropertiesByCls(java.util.Properties properties, String file) throws IOException {
+
+    public static void writePropertiesByCls(java.util.Properties properties, String file)
+            throws IOException {
         writePropertiesByCls(properties, file, CLASS_LOADER);
     }
 

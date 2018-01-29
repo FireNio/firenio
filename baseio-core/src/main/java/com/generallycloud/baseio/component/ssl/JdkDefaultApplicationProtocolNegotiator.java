@@ -18,9 +18,11 @@ package com.generallycloud.baseio.component.ssl;
 import java.util.Collections;
 import java.util.List;
 
+import javax.net.ssl.SSLEngine;
+
 final class JdkDefaultApplicationProtocolNegotiator implements JdkApplicationProtocolNegotiator {
 
-    private SslEngineWrapperFactory defaultSslEngineWrapperFactory = new DefaultSslEngineWrapperFactory();
+    private SslEngineWrapperFactory defaultSslEngineWrapperFactory = new JdkSslEngineWrapperFactory();
 
     @Override
     public SslEngineWrapperFactory wrapperFactory() {
@@ -40,5 +42,14 @@ final class JdkDefaultApplicationProtocolNegotiator implements JdkApplicationPro
     @Override
     public List<String> protocols() {
         return Collections.emptyList();
+    }
+
+    class JdkSslEngineWrapperFactory implements SslEngineWrapperFactory {
+
+        @Override
+        public SSLEngine wrapSslEngine(SSLEngine engine,
+                JdkApplicationProtocolNegotiator applicationNegotiator, boolean isServer) {
+            return new JdkSslEngine(engine);
+        }
     }
 }

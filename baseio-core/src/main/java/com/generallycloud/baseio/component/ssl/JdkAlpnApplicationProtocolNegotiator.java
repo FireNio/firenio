@@ -15,22 +15,22 @@
  */
 package com.generallycloud.baseio.component.ssl;
 
+import java.util.List;
+
+import javax.net.ssl.SSLEngine;
+
 public final class JdkAlpnApplicationProtocolNegotiator
         extends JdkBaseApplicationProtocolNegotiator {
 
     private static SslEngineWrapperFactory ALPN_WRAPPER = new ALPNSslEngineWrapperFactory();
 
-    public JdkAlpnApplicationProtocolNegotiator(Iterable<String> protocols) {
-        this(false, protocols);
-    }
-
     public JdkAlpnApplicationProtocolNegotiator(boolean failIfNoCommonProtocols,
-            Iterable<String> protocols) {
+            List<String> protocols) {
         this(failIfNoCommonProtocols, failIfNoCommonProtocols, protocols);
     }
 
     public JdkAlpnApplicationProtocolNegotiator(boolean clientFailIfNoCommonProtocols,
-            boolean serverFailIfNoCommonProtocols, Iterable<String> protocols) {
+            boolean serverFailIfNoCommonProtocols, List<String> protocols) {
         this(serverFailIfNoCommonProtocols ? FAIL_SELECTOR_FACTORY : NO_FAIL_SELECTOR_FACTORY,
                 clientFailIfNoCommonProtocols ? FAIL_SELECTION_LISTENER_FACTORY
                         : NO_FAIL_SELECTION_LISTENER_FACTORY,
@@ -38,8 +38,27 @@ public final class JdkAlpnApplicationProtocolNegotiator
     }
 
     public JdkAlpnApplicationProtocolNegotiator(ProtocolSelectorFactory selectorFactory,
-            ProtocolSelectionListenerFactory listenerFactory, Iterable<String> protocols) {
+            ProtocolSelectionListenerFactory listenerFactory, List<String> protocols) {
         super(ALPN_WRAPPER, selectorFactory, listenerFactory, protocols);
+    }
+
+    public static class ALPNSslEngineWrapperFactory implements SslEngineWrapperFactory {
+
+        public ALPNSslEngineWrapperFactory() {
+            if (!JdkAlpnSslEngine.isAvailable()) {
+                throw new RuntimeException(
+                        "ALPN unsupported. Is your classpatch configured correctly?"
+                                + "\n See http://www.eclipse.org/jetty/documentation/current/alpn-chapter.html#alpn-starting；"
+                                + "\n http://www.cnblogs.com/gifisan/p/6245207.html");
+            }
+        }
+
+        @Override
+        public SSLEngine wrapSslEngine(SSLEngine engine,
+                JdkApplicationProtocolNegotiator applicationNegotiator, boolean isServer) {
+            return new JdkAlpnSslEngine(engine, applicationNegotiator, isServer);
+        }
+
     }
 
 }

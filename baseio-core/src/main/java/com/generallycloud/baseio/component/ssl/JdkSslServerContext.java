@@ -17,6 +17,7 @@ package com.generallycloud.baseio.component.ssl;
 
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -32,12 +33,12 @@ final class JdkSslServerContext extends JdkSslContext {
 
     JdkSslServerContext(X509Certificate[] trustCertCollection,
             TrustManagerFactory trustManagerFactory, X509Certificate[] keyCertChain, PrivateKey key,
-            String keyPassword, KeyManagerFactory keyManagerFactory, Iterable<String> ciphers,
-            CipherSuiteFilter cipherFilter, ApplicationProtocolConfig apn, long sessionCacheSize,
-            long sessionTimeout, ClientAuth clientAuth, boolean startTls) throws SSLException {
+            String keyPassword, KeyManagerFactory keyManagerFactory, List<String> ciphers,
+            ApplicationProtocolConfig apn, long sessionCacheSize, long sessionTimeout,
+            ClientAuth clientAuth) throws SSLException {
         super(newSSLContext(trustCertCollection, trustManagerFactory, keyCertChain, key,
                 keyPassword, keyManagerFactory, sessionCacheSize, sessionTimeout), false, ciphers,
-                cipherFilter, toNegotiator(apn, true), clientAuth, startTls);
+                toNegotiator(apn, true), clientAuth);
     }
 
     private static SSLContext newSSLContext(X509Certificate[] trustCertCollection,

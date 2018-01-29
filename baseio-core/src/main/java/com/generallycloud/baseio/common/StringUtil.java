@@ -18,6 +18,8 @@ package com.generallycloud.baseio.common;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StringUtil {
 
@@ -85,6 +87,27 @@ public class StringUtil {
             }
         }
         return -1;
+    }
+    
+    public static List<String> toList(String... protocols) {
+        return toList(16, protocols);
+    }
+    
+    public static List<String> toList(int initialListSize, String... protocols) {
+        if (protocols == null) {
+            return null;
+        }
+        List<String> result = new ArrayList<>(initialListSize);
+        for (String p : protocols) {
+            if (p == null || p.isEmpty()) {
+                throw new IllegalArgumentException("protocol cannot be null or empty");
+            }
+            result.add(p);
+        }
+        if (result.isEmpty()) {
+            throw new IllegalArgumentException("protocols cannot empty");
+        }
+        return result;
     }
 
 }
