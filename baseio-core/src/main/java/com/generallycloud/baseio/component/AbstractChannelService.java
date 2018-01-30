@@ -36,7 +36,7 @@ public abstract class AbstractChannelService implements ChannelService {
             return;
         }
         if (getContext() == null) {
-            throw new IllegalArgumentException("null nio context");
+            throw new IllegalArgumentException("null context");
         }
         ChannelContext context = getContext();
         LifeCycleUtil.stop(context);
@@ -49,13 +49,12 @@ public abstract class AbstractChannelService implements ChannelService {
 
     protected abstract void initService(ServerConfiguration configuration) throws IOException;
 
-    protected abstract void destroyService();
+    protected abstract void closeService();
 
-    protected synchronized void destroy() {
+    protected void close0() {
         active = false;
-        destroyService();
+        closeService();
         LifeCycleUtil.stop(getContext());
-        notify();
     }
 
     protected abstract void setServerCoreSize(ServerConfiguration configuration);

@@ -89,7 +89,7 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
     }
 
     @Override
-    protected void destroyService() {
+    protected void closeService() {
         CloseUtil.close(serverSocket);
         CloseUtil.close(selectableChannel);
         LifeCycleUtil.stop(selectorEventLoopGroup);

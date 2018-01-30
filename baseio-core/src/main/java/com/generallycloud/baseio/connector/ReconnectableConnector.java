@@ -28,11 +28,10 @@ import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
 
 public class ReconnectableConnector implements Closeable {
 
-    private Logger                 logger                 = LoggerFactory
-            .getLogger(ReconnectableConnector.class);
+    private Logger                 logger                 = LoggerFactory.getLogger(getClass());
     private SocketChannelConnector realConnector          = null;
     private long                   retryTime              = 15000;
-    private volatile boolean       reconnect              = true;
+    private volatile boolean       reconnect             = true;
     private ReconnectableConnector reconnectableConnector = null;
 
     public ReconnectableConnector(SocketChannelContext context) {
@@ -59,7 +58,7 @@ public class ReconnectableConnector implements Closeable {
         logger.info("begin try to connect");
         for (;;) {
             if (session != null && session.isOpened()) {
-                logger.error("connection did not closed, reconnect later on");
+                logger.error("reconnect failed,try reconnect later on {} milliseconds",retryTime);
                 ThreadUtil.sleep(retryTime);
                 continue;
             }
@@ -69,7 +68,7 @@ public class ReconnectableConnector implements Closeable {
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
-            logger.error("reconnect failed,try reconnect later on");
+            logger.error("reconnect failed,try reconnect later on {} milliseconds",retryTime);
             ThreadUtil.sleep(retryTime);
         }
     }
@@ -94,11 +93,9 @@ public class ReconnectableConnector implements Closeable {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         reconnect = false;
-        synchronized (this) {
-            CloseUtil.close(realConnector);
-        }
+        CloseUtil.close(realConnector);
     }
 
     public long getRetryTime() {

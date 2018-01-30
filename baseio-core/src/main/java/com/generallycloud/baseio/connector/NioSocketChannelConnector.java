@@ -22,6 +22,7 @@ import java.nio.channels.SocketChannel;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.NioChannelService;
 import com.generallycloud.baseio.component.NioGlobalSocketSessionManager;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -52,7 +53,7 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
     }
 
     @Override
-    protected void destroyService() {
+    protected void closeService() {
         CloseUtil.close(selectableChannel);
         LifeCycleUtil.stop(selectorEventLoopGroup);
     }
@@ -72,7 +73,8 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
         initChannel();
         initSelectorLoops();
         initNioSessionMananger();
-        ((SocketChannel) this.selectableChannel).connect(socketAddress);
+        SocketChannel ch = (SocketChannel) selectableChannel;
+        ch.connect(socketAddress);
         wait4connect();
     }
 
@@ -102,8 +104,8 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
     }
 
     @Override
-    Logger getLogger() {
-        return logger;
+    protected void connected() {
+        LoggerUtil.prettyLog(logger, "connected to server @{}", getServerSocketAddress());
     }
 
     /**

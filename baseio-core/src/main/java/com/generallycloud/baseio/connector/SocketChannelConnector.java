@@ -88,7 +88,6 @@ public class SocketChannelConnector implements ChannelConnector {
     }
 
     private AbstractSocketChannelConnector buildConnector(SocketChannelContext context) {
-        context.addSessionEventListener(new CloseConnectorSEListener(this));
         if (context instanceof NioSocketChannelContext) {
             return new NioSocketChannelConnector((NioSocketChannelContext) context);
         } else if (context instanceof AioSocketChannelContext) {
@@ -102,10 +101,6 @@ public class SocketChannelConnector implements ChannelConnector {
      */
     public AbstractSocketChannelConnector getConnector() {
         return unwrap();
-    }
-
-    protected void physicalClose() {
-        unwrap().physicalClose();
     }
 
 }

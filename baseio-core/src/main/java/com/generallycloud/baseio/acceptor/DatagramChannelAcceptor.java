@@ -80,7 +80,7 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
     }
 
     @Override
-    protected void destroyService() {
+    protected void closeService() {
         CloseUtil.close(datagramSocket);
         CloseUtil.close(selectableChannel);
         LifeCycleUtil.stop(selectorEventLoopGroup);

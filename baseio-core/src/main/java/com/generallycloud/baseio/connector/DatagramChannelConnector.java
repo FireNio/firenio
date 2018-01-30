@@ -47,7 +47,7 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
     }
 
     @Override
-    protected void destroyService() {
+    protected void closeService() {
         CloseUtil.close(selectableChannel);
         LifeCycleUtil.stop(selectorEventLoopGroup);
     }
@@ -79,11 +79,6 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
                 (DatagramChannel) selectableChannel, socketAddress, 1);
         this.session = channel.getSession();
         LoggerUtil.prettyLog(logger, "已连接到远程服务器 @{}", getServerSocketAddress());
-    }
-
-    @Override
-    protected boolean canSafeClose() {
-        return session == null || !session.inSelectorLoop();
     }
 
     @Override

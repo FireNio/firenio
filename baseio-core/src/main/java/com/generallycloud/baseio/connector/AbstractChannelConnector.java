@@ -19,54 +19,22 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.AbstractChannelService;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public abstract class AbstractChannelConnector extends AbstractChannelService
         implements ChannelConnector {
 
-    protected long timeout = 3000;
+    protected long  timeout     = 3000;
 
     @Override
     public synchronized void close() throws IOException {
-        if (canSafeClose()) {
-            close0();
-            if (isActive()) {
-                ThreadUtil.wait(this);
-            }
-        } else {
-            ThreadUtil.execute(new Runnable() {
-                @Override
-                public void run() {
-                    close0();
-                }
-            });
-        }
-    }
-
-    protected void physicalClose() {
-        if (canSafeClose()) {
-            destroy();
-        } else {
-            ThreadUtil.execute(new Runnable() {
-                @Override
-                public void run() {
-                    destroy();
-                }
-            });
-        }
-    }
-
-    private void close0() {
         if (getSession() == null) {
-            physicalClose();
+            close0();
         } else {
             CloseUtil.close(getSession());
         }
     }
-
-    protected abstract boolean canSafeClose();
 
     @Override
     protected void initService(ServerConfiguration configuration) throws IOException {

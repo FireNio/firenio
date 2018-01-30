@@ -50,8 +50,8 @@ public abstract class AbstractChannelAcceptor extends AbstractChannelService
     }
 
     @Override
-    public void unbind() throws TimeoutException {
-        destroy();
+    public synchronized void unbind() throws TimeoutException {
+        close0();
     }
 
     @Override

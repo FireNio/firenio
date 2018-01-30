@@ -19,12 +19,10 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.UnsafeSocketSession;
-import com.generallycloud.baseio.log.Logger;
 
 /**
  * @author wangkai
@@ -32,23 +30,14 @@ import com.generallycloud.baseio.log.Logger;
  */
 public abstract class AbstractSocketChannelConnector extends AbstractChannelConnector {
 
-    protected UnsafeSocketSession session;
-
-    private Throwable             connectException;
-
-    private boolean               timeouted;
-
-    private Object                wait4ConnectLock = new Object();
+    private UnsafeSocketSession session;
+    private Throwable           connectException;
+    private boolean             timeouted;
+    private Object              wait4ConnectLock = new Object();
 
     @Override
     public SocketSession getSession() {
         return session;
-    }
-
-    @Override
-    protected boolean canSafeClose() {
-        return session == null
-                || (!session.inSelectorLoop() && !session.getExecutorEventLoop().inEventLoop());
     }
 
     //FIXME protected
@@ -63,12 +52,13 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
                 connectException = exception;
             } else {
                 this.session = session;
-                LoggerUtil.prettyLog(getLogger(), "connected to server @{}",
-                        getServerSocketAddress());
+                this.connected();
             }
             wait4ConnectLock.notify();
         }
     }
+
+    protected abstract void connected();
 
     @Override
     public synchronized SocketSession connect() throws IOException {
@@ -81,24 +71,21 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
         timeouted = false;
         connectException = null;
         synchronized (wait4ConnectLock) {
-            ThreadUtil.wait(wait4ConnectLock, timeout);
-        }
-        if (getSession() == null) {
+            if (getSession() == null) {
+                ThreadUtil.wait(wait4ConnectLock, timeout);
+            }
+            if (getSession() != null) {
+                return;
+            }
             timeouted = true;
             CloseUtil.close(this);
             if (connectException == null) {
-                throw new TimeoutException(
-                        "connect to " + getServerSocketAddress().toString() + " time out");
-            } else {
-                throw new TimeoutException(
-                        MessageFormatter.format(
-                                "connect faild,connector:[{}],nested exception is {}",
-                                getServerSocketAddress(), connectException.getMessage()),
-                        connectException);
+                throw new TimeoutException("connect to " + getServerSocketAddress() + " time out");
             }
+            String errorMsg = MessageFormatter.format(
+                    "connect to [{}] failed,nested exception is {}", getServerSocketAddress(),
+                    connectException.getMessage());
+            throw new TimeoutException(errorMsg, connectException);
         }
     }
-
-    abstract Logger getLogger();
-
 }
