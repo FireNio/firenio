@@ -44,8 +44,9 @@ public class ServerConfiguration {
     //内存池内存单元数量百分比（单核），该配置影响"SERVER_MEMORY_POOL_CAPACITY"属性
     private double  SERVER_MEMORY_POOL_CAPACITY_RATE = 1d;
 
-    private String  SERVER_CERT_CRT                  = "localhost";
-    private String  SERVER_CERT_KEY                  = "localhost";
+    private String  SERVER_CERT_CRT;
+    private String  SERVER_CERT_KEY;
+    private String  SERVER_SSL_KEYSTORE;
 
     public ServerConfiguration() {}
 
@@ -236,6 +237,12 @@ public class ServerConfiguration {
         this.SERVER_CERT_KEY = SERVER_CERT_KEY;
     }
 
-    
-    
+    public String getSERVER_SSL_KEYSTORE() {
+        return SERVER_SSL_KEYSTORE;
+    }
+
+    public void setSERVER_SSL_KEYSTORE(String SERVER_SSL_KEYSTORE) {
+        this.SERVER_SSL_KEYSTORE = SERVER_SSL_KEYSTORE;
+    }
+
 }

@@ -16,11 +16,14 @@
 package com.generallycloud.baseio.component.ssl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
+import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.Protocol;
 import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
@@ -39,6 +42,20 @@ public class SSLUtil {
             throws IOException {
         if (sslContext == null) {
             doInit(privateKey, certificate);
+        }
+        return sslContext;
+    }
+
+    public synchronized static SslContext initServer(File storeFile, String storePassword,
+            String alias, String keyPassword) throws SSLException, FileNotFoundException {
+        if (sslContext == null) {
+            FileInputStream storeInput = new FileInputStream(storeFile);
+            try {
+                sslContext = SslContextBuilder
+                        .forServer(storeInput, storePassword, alias, keyPassword).build();
+            } finally {
+                CloseUtil.close(storeInput);
+            }
         }
         return sslContext;
     }
@@ -63,35 +80,43 @@ public class SSLUtil {
     }
 
     private static void doInit(File privateKey, File certificate) throws IOException {
-
         LoggerUtil.prettyLog(logger, "load certificate public  key: {}",
                 certificate.getCanonicalPath());
         LoggerUtil.prettyLog(logger, "load certificate private key: {}",
                 privateKey.getCanonicalPath());
-
-        sslContext = SslContextBuilder.forServer(certificate, privateKey).build();
+        FileInputStream keyInput = new FileInputStream(privateKey);
+        FileInputStream certInput = new FileInputStream(certificate);
+        try {
+            sslContext = SslContextBuilder.forServer(keyInput, certInput, null).build();
+        } finally {
+            CloseUtil.close(keyInput);
+            CloseUtil.close(certInput);
+        }
     }
 
     private static void doInitHttp2(File privateKey, File certificate) throws IOException {
-
         LoggerUtil.prettyLog(logger, "load certificate public key: {}",
                 certificate.getCanonicalPath());
         LoggerUtil.prettyLog(logger, "load certificate private key: {}",
                 privateKey.getCanonicalPath());
-
-        sslContext = SslContextBuilder.forServer(certificate, privateKey)
-                .applicationProtocolConfig(new ApplicationProtocolConfig(Protocol.ALPN,
-                        // NO_ADVERTISE is currently the
-                        // only mode supported by both
-                        // OpenSsl and JDK providers.
-                        SelectorFailureBehavior.NO_ADVERTISE,
-                        // ACCEPT is currently the only
-                        // mode supported by both OpenSsl
-                        // and JDK providers.
-                        SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_2,
-                        ApplicationProtocolNames.HTTP_1_1))
-                .build();
-
+        FileInputStream keyInput = new FileInputStream(privateKey);
+        FileInputStream certInput = new FileInputStream(certificate);
+        try {
+            sslContext = SslContextBuilder.forServer(keyInput, certInput, null).applicationProtocolConfig(new ApplicationProtocolConfig(Protocol.ALPN,
+                    // NO_ADVERTISE is currently the
+                    // only mode supported by both
+                    // OpenSsl and JDK providers.
+                    SelectorFailureBehavior.NO_ADVERTISE,
+                    // ACCEPT is currently the only
+                    // mode supported by both OpenSsl
+                    // and JDK providers.
+                    SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_2,
+                    ApplicationProtocolNames.HTTP_1_1))
+            .build();
+        } finally {
+            CloseUtil.close(keyInput);
+            CloseUtil.close(certInput);
+        }
     }
 
     public static SSLEngine getSslEngine() {

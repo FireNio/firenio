@@ -27,9 +27,6 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLSessionContext;
 
 import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.Protocol;
-import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
-import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -38,13 +35,11 @@ import com.generallycloud.baseio.log.LoggerFactory;
  */
 public class JdkSslContext extends SslContext {
 
-    static final List<String>   DEFAULT_CIPHERS;
-
     private static final Logger logger   = LoggerFactory.getLogger(JdkSslContext.class);
-    
     static final String         PROTOCOL = "TLS";
-    static final String[]       PROTOCOLS;
+    static final String[]       ENABLED_PROTOCOLS;
     static final Set<String>    SUPPORTED_CIPHERS;
+    static final List<String>   ENABLED_CIPHERS;
 
     static {
         SSLContext context;
@@ -68,9 +63,9 @@ public class JdkSslContext extends SslContext {
         addIfSupported(supportedProtocolsSet, protocols, "TLSv1.2", "TLSv1.1", "TLSv1");
 
         if (!protocols.isEmpty()) {
-            PROTOCOLS = protocols.toArray(new String[protocols.size()]);
+            ENABLED_PROTOCOLS = protocols.toArray(new String[protocols.size()]);
         } else {
-            PROTOCOLS = engine.getEnabledProtocols();
+            ENABLED_PROTOCOLS = engine.getEnabledProtocols();
         }
 
         // Choose the sensible default list of cipher suites.
@@ -79,8 +74,8 @@ public class JdkSslContext extends SslContext {
         for (i = 0; i < supportedCiphers.length; ++i) {
             SUPPORTED_CIPHERS.add(supportedCiphers[i]);
         }
-        List<String> ciphers = new ArrayList<>();
-        addIfSupported(SUPPORTED_CIPHERS, ciphers,
+        List<String> enabledCiphers = new ArrayList<>();
+        addIfSupported(SUPPORTED_CIPHERS, enabledCiphers,
                 // XXX: Make sure to sync this list with
                 // OpenSslEngineFactory.
                 // GCM (Galois/Counter Mode) requires JDK 8.
@@ -96,19 +91,19 @@ public class JdkSslContext extends SslContext {
                 // policy files.
                 "TLS_RSA_WITH_AES_256_CBC_SHA");
 
-        if (ciphers.isEmpty()) {
+        if (enabledCiphers.isEmpty()) {
             // Use the default from JDK as fallback.
             for (String cipher : engine.getEnabledCipherSuites()) {
                 if (cipher.contains("_RC4_")) {
                     continue;
                 }
-                ciphers.add(cipher);
+                enabledCiphers.add(cipher);
             }
         }
-        DEFAULT_CIPHERS = Collections.unmodifiableList(ciphers);
+        ENABLED_CIPHERS = Collections.unmodifiableList(enabledCiphers);
 
-        LoggerUtil.prettyLog(logger, "Default protocols (JDK): {} ", Arrays.asList(PROTOCOLS));
-        LoggerUtil.prettyLog(logger, "Default cipher suites (JDK): {}", DEFAULT_CIPHERS);
+        LoggerUtil.prettyLog(logger, "Default protocols (JDK): {} ", Arrays.asList(ENABLED_PROTOCOLS));
+        LoggerUtil.prettyLog(logger, "Default cipher suites (JDK): {}", ENABLED_CIPHERS);
     }
 
     private static void addIfSupported(Set<String> supported, List<String> enabled,
@@ -120,52 +115,6 @@ public class JdkSslContext extends SslContext {
         }
     }
 
-    /**
-     * Translate a {@link ApplicationProtocolConfig} object to a
-     * {@link JdkApplicationProtocolNegotiator} object.
-     * 
-     * @param config
-     *             The configuration which defines the translation
-     * @param isServer
-     *             {@code true} if a server {@code false} otherwise.
-     * @return The results of the translation
-     */
-    static JdkApplicationProtocolNegotiator toNegotiator(ApplicationProtocolConfig config,
-            boolean isServer) {
-        if (config == null) {
-            return new JdkDefaultApplicationProtocolNegotiator();
-        }
-        Protocol p = config.protocol();
-        if (p == Protocol.NONE) {
-            return new JdkDefaultApplicationProtocolNegotiator();
-        } else if (p == Protocol.ALPN) {
-            if (isServer) {
-                SelectorFailureBehavior sfb = config.selectorFailureBehavior(); 
-                if (sfb == SelectorFailureBehavior.FATAL_ALERT) {
-                    return new JdkAlpnApplicationProtocolNegotiator(true,
-                            config.supportedProtocols());
-                }else if(sfb == SelectorFailureBehavior.NO_ADVERTISE){
-                    new JdkAlpnApplicationProtocolNegotiator(false,
-                            config.supportedProtocols());
-                }
-                throw new UnsupportedOperationException("JDK provider does not support "
-                        + config.selectorFailureBehavior() + " failure behavior");
-            } else {
-                SelectedListenerFailureBehavior slfb = config.selectedListenerFailureBehavior(); 
-                if (slfb == SelectedListenerFailureBehavior.ACCEPT) {
-                    return new JdkAlpnApplicationProtocolNegotiator(false,
-                            config.supportedProtocols());
-                }else if(slfb == SelectedListenerFailureBehavior.FATAL_ALERT){
-                    return new JdkAlpnApplicationProtocolNegotiator(true,
-                            config.supportedProtocols());
-                }
-                throw new UnsupportedOperationException("JDK provider does not support "
-                        + config.selectedListenerFailureBehavior() + " failure behavior");
-            }
-        }
-        throw new UnsupportedOperationException(
-                "JDK provider does not support " + config.protocol() + " protocol");
-    }
     private final JdkApplicationProtocolNegotiator apn;
     private final String[]                         cipherSuites;
     private final ClientAuth                       clientAuth;
@@ -173,11 +122,11 @@ public class JdkSslContext extends SslContext {
     private final SSLContext                       sslContext;
     private final List<String>                     unmodifiableCipherSuites;
 
-    JdkSslContext(SSLContext sslContext, boolean isClient, List<String> ciphers,
+    protected JdkSslContext(SSLContext sslContext, boolean isClient, List<String> ciphers,
             JdkApplicationProtocolNegotiator apn, ClientAuth clientAuth) {
         this.apn = apn;
         this.clientAuth = clientAuth;
-        this.cipherSuites = filterCipherSuites(ciphers, DEFAULT_CIPHERS, SUPPORTED_CIPHERS);
+        this.cipherSuites = filterCipherSuites(ciphers, ENABLED_CIPHERS, SUPPORTED_CIPHERS);
         this.unmodifiableCipherSuites = Collections.unmodifiableList(Arrays.asList(cipherSuites));
         this.sslContext = sslContext;
         this.isClient = isClient;
@@ -195,18 +144,13 @@ public class JdkSslContext extends SslContext {
 
     private SSLEngine configureAndWrapEngine(SSLEngine engine) {
         engine.setEnabledCipherSuites(cipherSuites);
-        engine.setEnabledProtocols(PROTOCOLS);
+        engine.setEnabledProtocols(ENABLED_PROTOCOLS);
         engine.setUseClientMode(isClient());
         if (isServer()) {
-            switch (clientAuth) {
-                case OPTIONAL:
-                    engine.setWantClientAuth(true);
-                    break;
-                case REQUIRE:
-                    engine.setNeedClientAuth(true);
-                    break;
-                default:
-                    break;
+            if (clientAuth == ClientAuth.OPTIONAL) {
+                engine.setWantClientAuth(true);
+            }else if(clientAuth == ClientAuth.REQUIRE){
+                engine.setNeedClientAuth(true);
             }
         }
         return apn.wrapperFactory().wrapSslEngine(engine, apn, isServer());
@@ -229,7 +173,9 @@ public class JdkSslContext extends SslContext {
                 if (c == null) {
                     break;
                 }
-                newCiphers.add(c);
+                if (supportedCiphers.contains(c)) {
+                    newCiphers.add(c);
+                }
             }
             return newCiphers.toArray(new String[newCiphers.size()]);
         }
@@ -255,9 +201,6 @@ public class JdkSslContext extends SslContext {
         return sessionContext().getSessionCacheSize();
     }
 
-    /**
-     * Returns the JDK {@link SSLSessionContext} object held by this context.
-     */
     @Override
     public final SSLSessionContext sessionContext() {
         if (isServer()) {
