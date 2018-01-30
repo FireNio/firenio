@@ -67,7 +67,7 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
         return getSession();
     }
 
-    protected void wait4connect() throws TimeoutException {
+    protected void wait4connect() throws IOException {
         timeouted = false;
         connectException = null;
         synchronized (wait4ConnectLock) {
@@ -85,7 +85,7 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
             String errorMsg = MessageFormatter.format(
                     "connect to [{}] failed,nested exception is {}", getServerSocketAddress(),
                     connectException.getMessage());
-            throw new TimeoutException(errorMsg, connectException);
+            throw new IOException(errorMsg, connectException);
         }
     }
 }

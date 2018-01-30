@@ -23,6 +23,7 @@ import java.nio.channels.Selector;
 import com.generallycloud.baseio.component.NioSocketSelector;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSelectorEventLoop;
+import com.generallycloud.baseio.component.UnsafeSocketSession;
 
 /**
  * @author wangkai
@@ -50,10 +51,14 @@ public class ClientNioSocketSelector extends NioSocketSelector {
             if (channel.isEnableSSL()) {
                 return;
             }
-            connector.finishConnect(channel.getSession(), null);
+            finishConnect(channel.getSession(), null);
         } catch (IOException e) {
-            connector.finishConnect(null, e);
+            finishConnect(null, e);
         }
+    }
+    
+    public void finishConnect(UnsafeSocketSession session,Throwable e){
+        connector.finishConnect(session, e);
     }
 
 }

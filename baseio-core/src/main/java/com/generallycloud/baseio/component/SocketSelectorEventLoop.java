@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.net.ssl.SSLHandshakeException;
+
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
@@ -31,6 +33,7 @@ import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.LineEventLoop;
+import com.generallycloud.baseio.connector.ClientNioSocketSelector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -98,6 +101,10 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
             channel.active();
             byteBufReader.accept(channel, buf.flip());
         } catch (Throwable e) {
+            if (e instanceof SSLHandshakeException) {
+                ClientNioSocketSelector selector = (ClientNioSocketSelector) getSelector();
+                selector.finishConnect(null, e);
+            }
             cancelSelectionKey(channel, e);
         }
     }
