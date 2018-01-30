@@ -91,13 +91,24 @@ public class ApplicationBootstrapEngine implements BootstrapEngine {
                     .setIoEventHandleAdaptor(new ApplicationIoEventHandle(applicationContext));
 
             if (sc.isSERVER_ENABLE_SSL()) {
-
-                File certificate = FileUtil.readFileByCls(sc.getSERVER_CERT_CRT(),classLoader);
-                File privateKey = FileUtil.readFileByCls(sc.getSERVER_CERT_KEY(),classLoader);
-
-                SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
-
-                channelContext.setSslContext(sslContext);
+                if (!StringUtil.isNullOrBlank(sc.getSERVER_CERT_KEY())) {
+                    File certificate = FileUtil.readFileByCls(sc.getSERVER_CERT_CRT(),classLoader);
+                    File privateKey = FileUtil.readFileByCls(sc.getSERVER_CERT_KEY(),classLoader);
+                    SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
+                    channelContext.setSslContext(sslContext);
+                }else{
+                    String keystoreInfo = sc.getSERVER_SSL_KEYSTORE();
+                    if (StringUtil.isNullOrBlank(keystoreInfo)) {
+                        throw new IllegalArgumentException("ssl enabled,but no config for");
+                    }
+                    String [] params = keystoreInfo.split(";");
+                    if (params.length != 4) {
+                        throw new IllegalArgumentException("SERVER_SSL_KEYSTORE config error");
+                    }
+                    File storeFile = FileUtil.readFileByCls(params[0],classLoader);
+                    SslContext sslContext = SSLUtil.initServer(storeFile, params[1], params[2], params[3]);
+                    channelContext.setSslContext(sslContext);
+                }
             }
 
             sc.setSERVER_PORT(getServerPort(sc.getSERVER_PORT(), sc.isSERVER_ENABLE_SSL()));
