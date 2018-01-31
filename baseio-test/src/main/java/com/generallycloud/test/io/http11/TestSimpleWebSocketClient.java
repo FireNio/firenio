@@ -82,7 +82,7 @@ public class TestSimpleWebSocketClient {
         context.addSessionEventListener(new LoggerSocketSEListener());
         connector.getContext().setBeatFutureFactory(new WebSocketBeatFutureFactory());
         connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
-        connector.getContext().setSslContext(SSLUtil.initClient());
+        connector.getContext().setSslContext(SSLUtil.initClient(true));
 
         SocketSession session = connector.connect();
         String url = "/web-socket-chat";

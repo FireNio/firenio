@@ -40,7 +40,7 @@ public class TestReconnectClient {
         };
 
         SocketChannelContext context = new NioSocketChannelContext(
-                new ServerConfiguration("localhost", 18300));
+                new ServerConfiguration("localhost", 8300));
 
         ReconnectableConnector connector = new ReconnectableConnector(context);
 

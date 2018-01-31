@@ -47,7 +47,7 @@ public class TestFIxedLengthClient {
             }
         };
 
-        SslContext sslContext = SSLUtil.initClient();
+        SslContext sslContext = SSLUtil.initClient(true);
 
         SocketChannelContext context = new NioSocketChannelContext(
                 new ServerConfiguration("localhost", 18300));

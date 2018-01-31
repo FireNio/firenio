@@ -45,7 +45,7 @@ public class TestSimpleHttpClient {
 
         SocketChannelConnector connector = new SocketChannelConnector(context);
         
-        SslContext sslContext = SSLUtil.initClient();
+        SslContext sslContext = SSLUtil.initClient(true);
 
         context.setProtocolFactory(new ClientHTTPProtocolFactory());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
