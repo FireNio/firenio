@@ -25,15 +25,14 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 public abstract class AbstractChannelConnector extends AbstractChannelService
         implements ChannelConnector {
 
-    protected long  timeout     = 3000;
+    protected long timeout = 3000;
 
     @Override
     public synchronized void close() throws IOException {
-        if (getSession() == null) {
-            close0();
-        } else {
+        if (getSession() != null) {
             CloseUtil.close(getSession());
         }
+        close0();
     }
 
     @Override

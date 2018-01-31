@@ -140,26 +140,6 @@ public final class SslContextBuilder {
         }
     }
 
-    private SslContext newSslContextInternal(SslProvider provider,
-            X509Certificate[] trustCertCollection, TrustManagerFactory trustManagerFactory,
-            X509Certificate[] keyCertChain, PrivateKey key, String keyPassword,
-            KeyManagerFactory keyManagerFactory, List<String> ciphers,
-            ApplicationProtocolConfig apn, long sessionCacheSize, long sessionTimeout,
-            ClientAuth clientAuth, boolean isServer, boolean trustAll) throws SSLException {
-        if (provider == null) {
-            provider = defaultProvider();
-        }
-        if (provider == SslProvider.JDK) {
-            SSLContext context = newSSLContext(trustCertCollection, keyCertChain, key, keyPassword,
-                    keyManagerFactory, sessionCacheSize, sessionTimeout, isServer, trustAll);
-            JdkApplicationProtocolNegotiator negotiator = toNegotiator(apn, isServer);
-            return new JdkSslContext(context, !isServer, ciphers, negotiator, clientAuth);
-        } else if (provider == SslProvider.OPENSSL) {
-            throw new UnsupportedOperationException("not supported yet");
-        }
-        throw new Error(provider.toString());
-    }
-
     private JdkApplicationProtocolNegotiator toNegotiator(ApplicationProtocolConfig config,
             boolean isServer) {
         if (config == null) {
@@ -196,27 +176,24 @@ public final class SslContextBuilder {
                 "JDK provider does not support " + config.protocol() + " protocol");
     }
 
-    private SSLContext newSSLContext(X509Certificate[] trustCertCollection,
-            X509Certificate[] keyCertChain, PrivateKey key, String keyPassword,
-            KeyManagerFactory keyManagerFactory, long sessionCacheSize, long sessionTimeout,
-            boolean isServer, boolean trustAll) throws SSLException {
+    private SSLContext newSSLContext() throws SSLException {
         if (isServer && keyManagerFactory == null) {
             if (key == null) {
                 throw new SSLException("null of key or keyManagerFactory");
             }
             keyManagerFactory = buildKeyManagerFactory(keyCertChain, key, keyPassword);
         }
-        TrustManagerFactory trustManagerFactory = null;
         if (trustCertCollection != null) {
             trustManagerFactory = buildTrustManagerFactory(trustCertCollection);
         }
-        return newSSLContext(trustManagerFactory, keyManagerFactory, sessionCacheSize,
-                sessionTimeout, isServer, trustAll);
+        return newSSLContext(trustManagerFactory, keyManagerFactory, x509TrustManager, isServer,
+                trustAll, sessionCacheSize, sessionTimeout);
     }
 
     private SSLContext newSSLContext(TrustManagerFactory trustManagerFactory,
-            KeyManagerFactory keyManagerFactory, long sessionCacheSize, long sessionTimeout,
-            boolean isServer, boolean trustAll) throws SSLException {
+            KeyManagerFactory keyManagerFactory, X509TrustManager x509TrustManager,
+            boolean isServer, boolean trustAll, long sessionCacheSize, long sessionTimeout)
+            throws SSLException {
         if (isServer && keyManagerFactory == null) {
             throw new SSLException("null keyManagerFactory on server");
         }
@@ -225,34 +202,40 @@ public final class SslContextBuilder {
             TrustManager[] tms = null;
             KeyManager[] kms = null;
             if (keyManagerFactory == null) {
-                if (trustAll) {
-                    X509TrustManager x509m = new X509TrustManager() {
+                // client
+                if (trustManagerFactory == null) {
+                    if (x509TrustManager != null) {
+                        tms = new X509TrustManager[] { x509TrustManager };
+                    } else {
+                        if (trustAll) {
+                            X509TrustManager x509m = new X509TrustManager() {
 
-                        @Override
-                        public void checkClientTrusted(java.security.cert.X509Certificate[] arg0,
-                                String arg1) throws java.security.cert.CertificateException {
-                            System.out.println("checkClientTrusted........");
-                        }
+                                @Override
+                                public void checkClientTrusted(
+                                        java.security.cert.X509Certificate[] arg0, String arg1)
+                                        throws java.security.cert.CertificateException {}
 
-                        @Override
-                        public void checkServerTrusted(java.security.cert.X509Certificate[] arg0,
-                                String arg1) throws java.security.cert.CertificateException {
-                            System.out.println("checkServerTrusted........");
-                        }
+                                @Override
+                                public void checkServerTrusted(
+                                        java.security.cert.X509Certificate[] arg0, String arg1)
+                                        throws java.security.cert.CertificateException {}
 
-                        @Override
-                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                            System.out.println("getAcceptedIssuers........");
-                            return null;
+                                @Override
+                                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                                    return null;
+                                }
+                            };
+                            tms = new X509TrustManager[] { x509m };
                         }
-                    };
-                    tms = new X509TrustManager[] { x509m };
+                    }
+                } else {
+                    tms = trustManagerFactory.getTrustManagers();
                 }
             } else {
                 kms = keyManagerFactory.getKeyManagers();
-            }
-            if (trustManagerFactory != null) {
-                tms = trustManagerFactory.getTrustManagers();
+                if (trustManagerFactory != null) {
+                    tms = trustManagerFactory.getTrustManagers();
+                }
             }
             ctx.init(kms, tms, new SecureRandom());
             SSLSessionContext sessCtx = ctx.getClientSessionContext();
@@ -352,7 +335,6 @@ public final class SslContextBuilder {
     private long                      sessionCacheSize;
     private long                      sessionTimeout;
     private boolean                   isServer;
-    private boolean                   trustAll;
 
     private void needServer() {
         if (!isServer) {
@@ -478,9 +460,17 @@ public final class SslContextBuilder {
     }
 
     public SslContext build() throws SSLException {
-        return newSslContextInternal(provider, trustCertCollection, trustManagerFactory,
-                keyCertChain, key, keyPassword, keyManagerFactory, ciphers, apn, sessionCacheSize,
-                sessionTimeout, clientAuth, isServer, trustAll);
+        if (provider == null) {
+            provider = defaultProvider();
+        }
+        if (provider == SslProvider.JDK) {
+            SSLContext context = newSSLContext();
+            JdkApplicationProtocolNegotiator negotiator = toNegotiator(apn, isServer);
+            return new JdkSslContext(context, !isServer, ciphers, negotiator, clientAuth);
+        } else if (provider == SslProvider.OPENSSL) {
+            throw new UnsupportedOperationException("not supported yet");
+        }
+        throw new Error(provider.toString());
     }
 
     /*----------------------------------------- server end --------------------------------------*/
@@ -489,6 +479,8 @@ public final class SslContextBuilder {
 
     private X509Certificate[]   trustCertCollection;
     private TrustManagerFactory trustManagerFactory;
+    private boolean             trustAll;
+    private X509TrustManager    x509TrustManager;
 
     public SslContextBuilder trustManager(InputStream trustCertCollectionInputStream) {
         needClient();
@@ -510,6 +502,14 @@ public final class SslContextBuilder {
     public SslContextBuilder trustManager(boolean trustAll) {
         needClient();
         this.trustAll = trustAll;
+        this.x509TrustManager = null;
+        return this;
+    }
+
+    public SslContextBuilder trustManager(X509TrustManager x509TrustManager) {
+        needClient();
+        this.x509TrustManager = x509TrustManager;
+        this.trustAll = false;
         return this;
     }
 
