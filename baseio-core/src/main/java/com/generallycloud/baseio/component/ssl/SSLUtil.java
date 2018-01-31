@@ -68,10 +68,10 @@ public class SSLUtil {
         return sslContext;
     }
 
-    public synchronized static SslContext initClient() {
+    public synchronized static SslContext initClient(boolean trustAll) {
         if (sslContext == null) {
             try {
-                sslContext = SslContextBuilder.forClient().build();
+                sslContext = SslContextBuilder.forClient(trustAll).build();
             } catch (SSLException e) {
                 DebugUtil.debug(e);
             }
