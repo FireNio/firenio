@@ -87,7 +87,7 @@ public class SSLUtil {
         FileInputStream keyInput = new FileInputStream(privateKey);
         FileInputStream certInput = new FileInputStream(certificate);
         try {
-            sslContext = SslContextBuilder.forServer(keyInput, certInput, null).build();
+            sslContext = SslContextBuilder.forServer(certInput, keyInput, null).build();
         } finally {
             CloseUtil.close(keyInput);
             CloseUtil.close(certInput);
@@ -102,7 +102,7 @@ public class SSLUtil {
         FileInputStream keyInput = new FileInputStream(privateKey);
         FileInputStream certInput = new FileInputStream(certificate);
         try {
-            sslContext = SslContextBuilder.forServer(keyInput, certInput, null).applicationProtocolConfig(new ApplicationProtocolConfig(Protocol.ALPN,
+            sslContext = SslContextBuilder.forServer(certInput, keyInput, null).applicationProtocolConfig(new ApplicationProtocolConfig(Protocol.ALPN,
                     // NO_ADVERTISE is currently the
                     // only mode supported by both
                     // OpenSsl and JDK providers.
