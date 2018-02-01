@@ -82,9 +82,10 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
     private void initSelectorLoops() {
         //FIXME socket selector event loop ?
         ServerConfiguration configuration = getContext().getServerConfiguration();
+        String eventLoopName = "io-process(" + configuration.getSERVER_PORT()+")";
         int core_size = configuration.getSERVER_CORE_SIZE();
         this.selectorEventLoopGroup = new SocketSelectorEventLoopGroup(
-                (NioSocketChannelContext) getContext(), "io-process", core_size);
+                (NioSocketChannelContext) getContext(), eventLoopName, core_size);
         LifeCycleUtil.start(selectorEventLoopGroup);
     }
 

@@ -58,8 +58,9 @@ public final class DatagramChannelAcceptor extends AbstractChannelAcceptor {
     private void initSelectorLoops() {
         //FIXME socket selector event loop ?
         ServerConfiguration configuration = getContext().getServerConfiguration();
+        String eventLoopName = "io-process(" + configuration.getSERVER_PORT()+")";
         int core_size = configuration.getSERVER_CORE_SIZE();
-        this.selectorEventLoopGroup = new DatagramSelectorEventLoopGroup(getContext(), "io-process",
+        this.selectorEventLoopGroup = new DatagramSelectorEventLoopGroup(getContext(),eventLoopName ,
                 core_size, (java.nio.channels.DatagramChannel) selectableChannel);
         LifeCycleUtil.start(selectorEventLoopGroup);
     }
