@@ -33,53 +33,36 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 
     @Override
     public void accept(SocketChannel channel, ByteBuf buf) throws Exception {
-
         for (;;) {
-
             if (!buf.hasRemaining()) {
                 return;
             }
-
             ChannelFuture future = channel.getReadFuture();
-
             if (future == null) {
-
                 ProtocolDecoder decoder = channel.getProtocolDecoder();
-
                 future = decoder.decode(channel, buf);
-
                 if (future == null) {
                     CloseUtil.close(channel);
                     return;
                 }
-
                 channel.setReadFuture(future);
             }
-
             try {
-
                 if (!future.read(channel, buf)) {
                     return;
                 }
-
                 ReleaseUtil.release(future);
-
             } catch (Throwable e) {
-
                 ReleaseUtil.release(future);
-
                 if (e instanceof IOException) {
                     throw (IOException) e;
                 }
-
                 throw new IOException(
                         "exception occurred when read from channel,the nested exception is,"
                                 + e.getMessage(),
                         e);
             }
-
             channel.setReadFuture(null);
-
             foreReadFutureAcceptor.accept(channel.getSession(), future);
         }
     }

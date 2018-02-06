@@ -119,6 +119,11 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
         this.buf = unpooledByteBufAllocator.allocate(readBuffer);
         super.doStartup();
     }
+    
+    private void cancelSelectionKey(Channel channel, Throwable t) {
+        logger.error(t.getMessage() + " channel:" + channel, t);
+        CloseUtil.close(channel);
+    }
 
     @Override
     protected void doStop() {

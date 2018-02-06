@@ -26,61 +26,39 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
 
     @Override
     public void accept(SocketChannel channel, ByteBuf buffer) throws Exception {
-
         for (;;) {
-
             if (!buffer.hasRemaining()) {
                 return;
             }
-
             SslFuture future = channel.getSslReadFuture();
-
             if (future == null) {
-
                 ByteBuf buf = allocate(channel, SslFuture.SSL_RECORD_HEADER_LENGTH);
-
                 future = new SslFutureImpl(channel, buf, 1024 * 64);//FIXME param
-
                 channel.setSslReadFuture(future);
             }
-
             try {
-
                 if (!future.read(channel, buffer)) {
-
                     return;
                 }
-
             } catch (Throwable e) {
-
                 ReleaseUtil.release(future);
-
                 channel.setSslReadFuture(null);
-
                 if (e instanceof IOException) {
                     throw (IOException) e;
                 }
-
                 throw new IOException(
                         "exception occurred when read from channel,the nested exception is,"
                                 + e.getMessage(),
                         e);
             }
-
             channel.setSslReadFuture(null);
-
             ByteBuf produce = future.getProduce();
-
             if (produce == null) {
                 continue;
             }
-
             try {
-
                 nextAccept(channel, produce);
-
             } finally {
-
                 ReleaseUtil.release(future);
             }
         }

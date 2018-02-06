@@ -55,66 +55,43 @@ public class DatagramSelectorEventLoop extends AbstractSelectorLoop {
     }
 
     private void accept(SelectionKey selectionKey) {
-
         try {
-
             DatagramChannelContext context = this.context;
-
             //FIXME 使用 ByteBuffer
             ByteBuf buf = allocator.allocate(DatagramPacket.PACKET_MAX);
-
             DatagramChannel channel = (DatagramChannel) selectionKey.channel();
-
             InetSocketAddress remoteAddress = (InetSocketAddress) channel.receive(buf.nioBuffer());
-
             DatagramPacketAcceptor acceptor = context.getDatagramPacketAcceptor();
-
             DatagramPacket packet = DatagramPacket.createPacket(buf.reverse().flip());
-
             DatagramSession session = sessionManager.getSession(channel, remoteAddress, this);
-
             acceptor.accept(session, packet);
-
         } catch (Throwable e) {
-
             cancelSelectionKey(selectionKey, e);
         }
     }
 
     private void cancelSelectionKey(SelectionKey selectionKey, Throwable e) {
-
         Object attachment = selectionKey.attachment();
-
         if (attachment instanceof Channel) {
-
             CloseUtil.close((Channel) attachment);
         }
-
         logger.error(e.getMessage(), e);
     }
 
     @Override
     protected void doLoop() throws IOException {
-
         Selector selector = this.selector;
-
         int selected = selector.select(16);
-
         if (selected < 1) {
             return;
         }
-
         Set<SelectionKey> sks = selector.selectedKeys();
-
         for (SelectionKey key : sks) {
-
             if (!key.isValid()) {
                 continue;
             }
-
             accept(key);
         }
-
         sks.clear();
     }
 

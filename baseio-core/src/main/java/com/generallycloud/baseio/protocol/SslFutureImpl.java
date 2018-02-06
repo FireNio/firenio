@@ -40,28 +40,19 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
     }
 
     private void doBodyComplete(ByteBuf buf) throws IOException {
-
         body_complete = true;
-
         buf.flip();
-
         SslHandler handler = channel.getSslHandler();
-
         try {
-
             this.buf = handler.unwrap(channel, buf);
-
         } finally {
             ReleaseUtil.release(buf);
         }
     }
 
     private void doHeaderComplete(SocketChannel channel, ByteBuf buf) throws IOException {
-
         header_complete = true;
-
         int packetLength = getEncryptedPacketLength(buf);
-
         buf.reallocate(packetLength, limit, true);
     }
 
@@ -128,33 +119,22 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-
         if (!header_complete) {
-
             ByteBuf buf = this.buf;
-
             buf.read(buffer);
-
             if (buf.hasRemaining()) {
                 return false;
             }
-
             doHeaderComplete(channel, buf);
         }
-
         if (!body_complete) {
-
             ByteBuf buf = this.buf;
-
             buf.read(buffer);
-
             if (buf.hasRemaining()) {
                 return false;
             }
-
             doBodyComplete(buf);
         }
-
         return true;
     }
 

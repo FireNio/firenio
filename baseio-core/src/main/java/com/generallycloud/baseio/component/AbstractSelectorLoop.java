@@ -18,15 +18,9 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractSelectorLoop extends AbstractEventLoop implements SelectorEventLoop {
-
-    private static final Logger logger           = LoggerFactory
-            .getLogger(AbstractSelectorLoop.class);
 
     private int                 coreIndex;
 
@@ -47,11 +41,6 @@ public abstract class AbstractSelectorLoop extends AbstractEventLoop implements 
     @Override
     public ByteBufAllocator getByteBufAllocator() {
         return byteBufAllocator;
-    }
-
-    protected void cancelSelectionKey(Channel channel, Throwable t) {
-        logger.error(t.getMessage() + " channel:" + channel, t);
-        CloseUtil.close(channel);
     }
 
     @Override
