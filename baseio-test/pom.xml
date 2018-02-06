@@ -31,33 +31,33 @@
 				<version>3.6.1</version>
 				<configuration>
 					<source>${project.JdkVersion}</source>
-                    <target>${project.JdkVersion}</target>
+					<target>${project.JdkVersion}</target>
 					<encoding>${project.build.sourceEncoding}</encoding>
 					<attach>true</attach>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.JdkVersion>1.8</project.JdkVersion>
 	</properties>
-	
+
 	<dependencies>
 
 		<dependency>
-		    <groupId>org.slf4j</groupId>
-		    <artifactId>slf4j-api</artifactId>
-		    <version>1.7.25</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.25</version>
 		</dependency>
 
-  		<dependency>
+		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
 			<version>1.2.2</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -132,11 +132,18 @@
 
 		<!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
 		<dependency>
-		    <groupId>io.netty</groupId>
-		    <artifactId>netty-all</artifactId>
-		    <version>4.1.14.Final</version>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>4.1.14.Final</version>
 		</dependency>
-		
+
+		<dependency>
+		    <groupId>io.undertow</groupId>
+		    <artifactId>undertow-core</artifactId>
+		    <version>1.4.22.Final</version>
+		</dependency>
+
+
 	</dependencies>
 
 </project>
