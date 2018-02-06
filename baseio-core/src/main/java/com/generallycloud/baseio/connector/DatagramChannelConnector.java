@@ -62,7 +62,7 @@ public final class DatagramChannelConnector extends AbstractChannelConnector {
     private void initSelectorLoops() {
         //FIXME socket selector event loop ?
         ServerConfiguration configuration = getContext().getServerConfiguration();
-        String eventLoopName = "io-process(" + configuration.getSERVER_PORT()+")";
+        String eventLoopName = "io-process(udp-" + configuration.getSERVER_PORT()+")";
         int core_size = configuration.getSERVER_CORE_SIZE();
         this.selectorEventLoopGroup = new DatagramSelectorEventLoopGroup(getContext(), eventLoopName,
                 core_size, (java.nio.channels.DatagramChannel) selectableChannel);

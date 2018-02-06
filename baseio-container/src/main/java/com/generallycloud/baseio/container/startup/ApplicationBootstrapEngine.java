@@ -60,7 +60,7 @@ public class ApplicationBootstrapEngine implements BootstrapEngine {
         applicationContext.setDeployModel(deployModel);
 
         SocketChannelContext channelContext = new NioSocketChannelContext(sc);
-        //		SocketChannelContext channelContext = new AioSocketChannelContext(sc);
+//        SocketChannelContext channelContext = new AioSocketChannelContext(sc);
 
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(channelContext);
 

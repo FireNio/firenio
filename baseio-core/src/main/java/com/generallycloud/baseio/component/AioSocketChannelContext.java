@@ -85,10 +85,12 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
     }
 
     private void initializeChannelGroup(int SERVER_CORE_SIZE) throws IOException {
+        
+        String threadName = "aio-process(tcp-"+getServerConfiguration().getSERVER_PORT()+")";
 
         AsynchronousChannelProvider provider = AsynchronousChannelProvider.provider();
 
-        CachedAioThreadFactory cachedAioThreadFactory = new CachedAioThreadFactory(this, "tcp");
+        CachedAioThreadFactory cachedAioThreadFactory = new CachedAioThreadFactory(this, threadName);
 
         this.asynchronousChannelGroup = provider.openAsynchronousChannelGroup(SERVER_CORE_SIZE,
                 cachedAioThreadFactory);
