@@ -39,7 +39,7 @@ BaseIO is an io framework which can build network project fast, it based on java
 	</dependency>  
   ```
   
- * A simple server:
+ * Simple Server:
 
   ```Java
 
@@ -64,7 +64,7 @@ BaseIO is an io framework which can build network project fast, it based on java
 
   ```
 
- * A simple client:
+ * Simple Client:
 
   ```Java
 

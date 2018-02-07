@@ -39,7 +39,7 @@ BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的�
 	</dependency>  
   ```
   
- * A simple server:
+ * Simple Server:
 
   ```Java
 
@@ -64,7 +64,7 @@ BaseIO是基于java nio/aio开发的一款可快速构建网络通讯项目的�
 
   ```
 
- * A simple client:
+ * Simple Client:
 
   ```Java
 
