@@ -30,14 +30,14 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class NioSocketChannel extends AbstractSocketChannel implements SelectorLoopEvent {
 
-    private SocketChannel           channel;
-    private SelectionKey            selectionKey;
-    private boolean                 closing;
-    private NioSocketChannelContext context;
-    private SocketSelectorEventLoop selectorEventLoop;
-    private boolean                 flushing;
-
     private static final int        OPS_RW = SelectionKey.OP_READ | SelectionKey.OP_WRITE;
+    private SocketChannel           channel;
+    private volatile boolean        closing;
+    private NioSocketChannelContext context;
+    private boolean                 flushing;
+    private SelectionKey            selectionKey;
+
+    private SocketSelectorEventLoop selectorEventLoop;
 
     // FIXME 改进network wake 机制
     // FIXME network weak check
@@ -51,28 +51,36 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
     }
 
     @Override
-    public NioSocketChannelContext getContext() {
-        return context;
+    public void close() throws IOException {
+        if (!isOpened()) {
+            return;
+        }
+        if (!inSelectorLoop() && closing) {
+            return;
+        }
+        ReentrantLock lock = getCloseLock();
+        lock.lock();
+        try {
+            if (inSelectorLoop()) {
+                if (!isOpened()) {
+                    return;
+                }
+                physicalClose();
+                return;
+            } else {
+                if (closing || !isOpened()) {
+                    return;
+                }
+                closing = true;
+                dispatchEvent(new CloseSelectorLoopEvent(this));
+            }
+        } finally {
+            lock.unlock();
+        }
     }
 
-    @Override
-    public <T> T getOption(SocketOption<T> name) throws IOException {
-        return channel.getOption(name);
-    }
-
-    @Override
-    public <T> void setOption(SocketOption<T> name, T value) throws IOException {
-        channel.setOption(name, value);
-    }
-
-    @Override
-    protected InetSocketAddress getRemoteSocketAddress0() throws IOException {
-        return (InetSocketAddress) channel.getRemoteAddress();
-    }
-
-    @Override
-    protected InetSocketAddress getLocalSocketAddress0() throws IOException {
-        return (InetSocketAddress) channel.getLocalAddress();
+    protected void dispatchEvent(SelectorLoopEvent event) {
+        this.selectorEventLoop.dispatch(event);
     }
 
     @Override
@@ -89,19 +97,6 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
             return;
         }
         flush(selectorLoop);
-    }
-
-    private void interestRead(SelectionKey key) {
-        int interestOps = key.interestOps();
-        if (SelectionKey.OP_READ != interestOps) {
-            key.interestOps(SelectionKey.OP_READ);
-        }
-    }
-
-    private void interestWrite(SelectionKey key) {
-        if (OPS_RW != key.interestOps()) {
-            key.interestOps(OPS_RW);
-        }
     }
 
     protected void flush(SocketSelectorEventLoop selectorLoop) throws IOException {
@@ -139,31 +134,40 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
     }
 
     @Override
-    public void close() throws IOException {
-        if (!isOpened()) {
-            return;
+    public NioSocketChannelContext getContext() {
+        return context;
+    }
+
+    @Override
+    protected InetSocketAddress getLocalSocketAddress0() throws IOException {
+        return (InetSocketAddress) channel.getLocalAddress();
+    }
+
+    @Override
+    public <T> T getOption(SocketOption<T> name) throws IOException {
+        return channel.getOption(name);
+    }
+
+    @Override
+    protected InetSocketAddress getRemoteSocketAddress0() throws IOException {
+        return (InetSocketAddress) channel.getRemoteAddress();
+    }
+
+    @Override
+    protected SocketChannelThreadContext getSocketChannelThreadContext() {
+        return selectorEventLoop;
+    }
+
+    private void interestRead(SelectionKey key) {
+        int interestOps = key.interestOps();
+        if (SelectionKey.OP_READ != interestOps) {
+            key.interestOps(SelectionKey.OP_READ);
         }
-        if (!inSelectorLoop() && closing) {
-            return;
-        }
-        ReentrantLock lock = getCloseLock();
-        lock.lock();
-        try {
-            if (inSelectorLoop()) {
-                if (!isOpened()) {
-                    return;
-                }
-                physicalClose();
-                return;
-            } else {
-                if (closing || !isOpened()) {
-                    return;
-                }
-                closing = true;
-                dispatchEvent(new CloseSelectorLoopEvent(this));
-            }
-        } finally {
-            lock.unlock();
+    }
+
+    private void interestWrite(SelectionKey key) {
+        if (OPS_RW != key.interestOps()) {
+            key.interestOps(OPS_RW);
         }
     }
 
@@ -190,16 +194,21 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         fireClosed();
     }
 
-    private int read(ByteBuffer buffer) throws IOException {
-        return channel.read(buffer);
-    }
-
     protected int read(ByteBuf buf) throws IOException {
         int length = read(buf.getNioBuffer());
         if (length > 0) {
             buf.reverse();
         }
         return length;
+    }
+
+    private int read(ByteBuffer buffer) throws IOException {
+        return channel.read(buffer);
+    }
+
+    @Override
+    public <T> void setOption(SocketOption<T> name, T value) throws IOException {
+        channel.setOption(name, value);
     }
 
     @Override
@@ -211,17 +220,8 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         buf.reverse();
     }
 
-    protected void dispatchEvent(SelectorLoopEvent event) {
-        this.selectorEventLoop.dispatch(event);
-    }
-
     private int write(ByteBuffer buffer) throws IOException {
         return channel.write(buffer);
-    }
-
-    @Override
-    protected SocketChannelThreadContext getSocketChannelThreadContext() {
-        return selectorEventLoop;
     }
 
 }
