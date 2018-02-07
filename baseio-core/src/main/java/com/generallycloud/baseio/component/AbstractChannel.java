@@ -26,7 +26,7 @@ public abstract class AbstractChannel implements Channel {
 
     static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
 
-    protected String               edp_description;
+    protected String               channelDesc;
     protected int                  channelId;
     protected InetSocketAddress    local;
     protected InetSocketAddress    remote;
@@ -129,13 +129,13 @@ public abstract class AbstractChannel implements Channel {
     @Override
     public String toString() {
 
-        if (edp_description == null) {
-            edp_description = new StringBuilder("[").append("Id(").append(getIdHexString(channelId))
+        if (channelDesc == null) {
+            channelDesc = new StringBuilder("[").append("Id(").append(getIdHexString(channelId))
                     .append(")R/").append(getRemoteAddr()).append(":").append(getRemotePort())
                     .append("; L:").append(getLocalPort()).append("]").toString();
         }
 
-        return edp_description;
+        return channelDesc;
     }
 
     private String getIdHexString(int channelId) {

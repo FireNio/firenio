@@ -55,7 +55,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         if (!isOpened()) {
             return;
         }
-        if (!inSelectorLoop() && closing) {
+        if (closing && !inSelectorLoop()) {
             return;
         }
         ReentrantLock lock = getCloseLock();
