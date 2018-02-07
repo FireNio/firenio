@@ -69,7 +69,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
     }
 
     @Override
-    protected void doFlush0(ChannelFuture future) {
+    protected void doFlush0() {
         flush(false);
     }
 

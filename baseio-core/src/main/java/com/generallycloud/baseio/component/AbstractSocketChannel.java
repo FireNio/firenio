@@ -229,7 +229,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
             if (writeFutures.size() > 1) {
                 return;
             }
-            doFlush0(f);
+            doFlush0();
         } catch (Exception e) {
             f.onException(session, e);
         } finally {
@@ -241,7 +241,7 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
         return writeFutureLength.addAndGet(len);
     }
 
-    protected abstract void doFlush0(ChannelFuture future);
+    protected abstract void doFlush0();
 
     protected void releaseFutures() {
         ReleaseUtil.release(readFuture);
