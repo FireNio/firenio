@@ -98,11 +98,6 @@ public class NioDatagramChannel extends AbstractChannel
     }
 
     @Override
-    protected String getMarkPrefix() {
-        return "udp";
-    }
-
-    @Override
     public boolean isOpened() {
         return channel.isConnected() || channel.isOpen();
     }

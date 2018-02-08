@@ -79,8 +79,6 @@ public abstract class AbstractChannel implements Channel {
     @Override
     public abstract InetSocketAddress getLocalSocketAddress();
 
-    protected abstract String getMarkPrefix();
-
     @Override
     public String getRemoteAddr() {
 
@@ -128,13 +126,18 @@ public abstract class AbstractChannel implements Channel {
 
     @Override
     public String toString() {
-
         if (channelDesc == null) {
-            channelDesc = new StringBuilder("[").append("Id(").append(getIdHexString(channelId))
-                    .append(")R/").append(getRemoteAddr()).append(":").append(getRemotePort())
-                    .append("; L:").append(getLocalPort()).append("]").toString();
+            channelDesc = new StringBuilder("[Id(")
+                    .append(getIdHexString(channelId))
+                    .append(")R/")
+                    .append(getRemoteAddr())
+                    .append(":")
+                    .append(getRemotePort())
+                    .append("; L:")
+                    .append(getLocalPort())
+                    .append("]")
+                    .toString();
         }
-
         return channelDesc;
     }
 

@@ -18,6 +18,8 @@ package com.generallycloud.baseio.component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.log.DebugUtil;
@@ -26,40 +28,80 @@ import com.generallycloud.baseio.log.DebugUtil;
  * @author wangkai
  *
  */
-public class Bootstrap {
+public final class Bootstrap {
 
-    public void startup(String className, boolean deployModel) throws Exception {
+    public static void startup(String className, boolean deployModel,
+            List<ClassPathScaner> classPathScaners) throws Exception {
         String rootPath = URLDecoder.decode(FileUtil.getCurrentPath(), "UTF-8");
         DebugUtil.info(" ROOT_PATH: {}", rootPath);
-        startup(className, rootPath, deployModel);
+        startup(className, rootPath, deployModel, classPathScaners);
     }
 
-    public void startup(String className, String rootPath, boolean deployModel) throws Exception {
-        URLDynamicClassLoader classLoader = newClassLoader(deployModel, rootPath);
+    public static void startup(String className, String rootPath, boolean deployModel,
+            List<ClassPathScaner> classPathScaners) throws Exception {
+        URLDynamicClassLoader classLoader = newClassLoader(deployModel, rootPath, classPathScaners);
         Class<?> bootClass = classLoader.loadClass(className);
         Thread.currentThread().setContextClassLoader(classLoader);
         BootstrapEngine engine = (BootstrapEngine) bootClass.newInstance();
         engine.bootstrap(rootPath, deployModel);
     }
 
-    private URLDynamicClassLoader newClassLoader(boolean deployModel, String rootLocalAddress)
-            throws IOException {
+    private static URLDynamicClassLoader newClassLoader(boolean deployModel,
+            String rootLocalAddress, List<ClassPathScaner> classPathScaners) throws IOException {
         //这里需要设置优先委托自己加载class，因为到后面对象需要用该classloader去加载resources
-        ClassLoader parent = getClass().getClassLoader();
+        ClassLoader parent = Bootstrap.class.getClassLoader();
         URLDynamicClassLoader classLoader = new URLDynamicClassLoader(parent, false);
         classLoader.addMatchExtend(BootstrapEngine.class.getName());
-        return scanClassPaths(classLoader, deployModel, rootLocalAddress);
-    }
-
-    protected URLDynamicClassLoader scanClassPaths(URLDynamicClassLoader classLoader,
-            boolean deployModel, String rootLocalAddress) throws IOException {
-        if (deployModel) {
-            classLoader.scan(new File(rootLocalAddress + "/conf"));
-        } else {
-            classLoader.addExcludePath("/app");
-            classLoader.scan(new File(rootLocalAddress));
+        if (classPathScaners == null || classPathScaners.size() == 0) {
+            throw new IOException("null classPathScaners");
+        }
+        for (ClassPathScaner scaner : classPathScaners) {
+            if (scaner == null) {
+                continue;
+            }
+            scaner.scanClassPaths(classLoader, deployModel, rootLocalAddress);
         }
         return classLoader;
+    }
+    
+    public static List<ClassPathScaner> withDefault(){
+        return withDefault(new ClassPathScaner[0]);
+    }
+    
+    public static List<ClassPathScaner> withDefault(ClassPathScaner ... scaners){
+        List<ClassPathScaner> classPathScaners = new ArrayList<>();
+        classPathScaners.add(new DefaultClassPathScaner());
+        if (scaners != null) {
+            for(ClassPathScaner scaner:scaners){
+                if (scaner == null) {
+                    continue;
+                }
+                classPathScaners.add(scaner);
+            }
+        }
+        return classPathScaners;
+    }
+
+    public interface ClassPathScaner {
+
+        void scanClassPaths(URLDynamicClassLoader classLoader, boolean deployModel,
+                String rootLocalAddress) throws IOException;
+
+    }
+
+    static class DefaultClassPathScaner implements ClassPathScaner {
+
+        @Override
+        public void scanClassPaths(URLDynamicClassLoader classLoader, boolean deployModel,
+                String rootLocalAddress) throws IOException {
+            if (deployModel) {
+                classLoader.scan(new File(rootLocalAddress + "/conf"));
+            } else {
+                classLoader.addExcludePath("/app");
+                classLoader.scan(new File(rootLocalAddress));
+            }
+        }
+
     }
 
 }

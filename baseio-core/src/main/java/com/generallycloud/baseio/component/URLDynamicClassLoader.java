@@ -38,23 +38,21 @@ import java.util.jar.JarFile;
 
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.log.Logger;
 
 public class URLDynamicClassLoader extends URLClassLoader implements DynamicClassLoader {
 
-    private static final ClassLoader PARENT_CLASSLOADER = URLDynamicClassLoader.class.getClassLoader();
-    
-    private Map<String, ClassEntry> clazzEntries   = new HashMap<>();
-    private Logger                  logger;
-    private Map<String, URL>        resourceMap    = new HashMap<>();
-    private Map<String, List<URL>>  resourcesMap   = new HashMap<>();
-    private Set<String>             excludePaths   = new HashSet<>();
-    private Set<String>             matchExtend    = new HashSet<>();
-    private List<String>            matchStartWith = new ArrayList<>();
-    private Set<String>             systemMatch    = new HashSet<>();
-    private boolean                entrustFirst   = true;
+    private static final ClassLoader PARENT_CLASSLOADER = URLDynamicClassLoader.class
+            .getClassLoader();
+
+    private Map<String, ClassEntry>  clazzEntries       = new HashMap<>();
+    private Map<String, URL>         resourceMap        = new HashMap<>();
+    private Map<String, List<URL>>   resourcesMap       = new HashMap<>();
+    private Set<String>              excludePaths       = new HashSet<>();
+    private Set<String>              matchExtend        = new HashSet<>();
+    private List<String>             matchStartWith     = new ArrayList<>();
+    private Set<String>              systemMatch        = new HashSet<>();
+    private boolean                  entrustFirst       = true;
 
     // entrustFirst 是否优先委托父类加载class
     // 最外层classloader（PCL）一般设置优先委托自己加载class，因为到后面对象需要用PCL去加载resources
@@ -89,49 +87,32 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         //		}
 
         resourceMap.put(pathName, url);
-
         List<URL> urls = resourcesMap.get(fileName);
-
         if (urls == null) {
             urls = new ArrayList<>();
             resourcesMap.put(fileName, urls);
         }
-
         urls.add(url);
     }
 
     private synchronized Class<?> defineClass(ClassEntry entry) {
-
         if (entry.loadedClass != null) {
             return entry.loadedClass;
         }
-
         SecurityManager sm = System.getSecurityManager();
-
         if (sm != null) {
-
             String name = entry.className;
-
             int i = name.lastIndexOf('.');
-
             if (i != -1) {
                 sm.checkPackageAccess(name.substring(0, i));
             }
         }
-
         String name = entry.className;
-
         byte[] cb = entry.classBinary;
-
         Class<?> clazz = defineClass(name, cb, 0, cb.length,
                 new CodeSource(entry.codeBase, entry.certificates));
-
         entry.loadedClass = clazz;
-
         entry.classBinary = null;
-
-        LoggerUtil.prettyLog(logger, "define class [ {} ]", name);
-
         return clazz;
     }
 
@@ -145,29 +126,22 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-
         ClassEntry entry = clazzEntries.get(name);
-
         if (entry == null) {
             return null;
         }
-
         if (entry.loadedClass == null) {
             return defineClass(entry);
         }
-
         return entry.loadedClass;
     }
 
     @Override
     public URL findResource(String name) {
-
         URL url = resourceMap.get(name);
-
         if (url == null) {
             return super.findResource(name);
         }
-
         return url;
     }
 
@@ -229,54 +203,39 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-
         if (entrustFirst) {
-
             Class<?> clazz = entrustLoadClass(getParent(), name);
-
             if (clazz != null) {
                 return clazz;
             }
-
             clazz = super.loadClass(name, resolve);
-
             if (clazz != null) {
                 return clazz;
             }
-
             clazz = findClass(name);
-
             if (clazz != null) {
                 return clazz;
             }
-
             throw new ClassNotFoundException(name);
         }
-
         Class<?> clazz = findClass(name);
-
         if (clazz != null) {
             if (resolve) {
                 resolveClass(clazz);
             }
             return clazz;
         }
-
         clazz = entrustLoadClass(getParent(), name);
-
         if (clazz != null) {
             return clazz;
         }
-
         clazz = super.loadClass(name, resolve);
-
         if (clazz != null) {
             return clazz;
         }
-
         throw new ClassNotFoundException(name);
     }
-    
+
     @Override
     public synchronized void scan(String file) throws IOException {
         if (file == null) {
@@ -299,8 +258,6 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         }
         this.scanFile(file, "");
         this.addResource(file, "/.", ".");
-        LoggerUtil.prettyLog(logger, "load class count [ {} ] from [ {} ]", clazzEntries.size(),
-                file.getAbsolutePath());
     }
 
     @Override
@@ -309,62 +266,40 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
             throw new IllegalArgumentException("null files");
         }
         for (File file : files) {
-            try {
-                scan0(file);
-            } catch (Exception e) {
-                if (logger == null) {
-                    return;
-                }
-                logger.error(e.getMessage(), e);
-            }
+            scan0(file);
         }
     }
 
     private void scanFile(File file, String pathName) throws IOException {
-
         if (!file.exists()) {
-            LoggerUtil.prettyLog(logger, "file or directory [ {} ] not found",
-                    file.getAbsoluteFile());
             return;
         }
-
         if (excludePaths.contains(pathName)) {
             return;
         }
-
         if (file.isDirectory()) {
-
             File[] files = file.listFiles();
-
             for (File _file : files) {
                 scanFile(_file, pathName + "/" + _file.getName());
             }
-
             return;
         }
-
         addResource(file, pathName);
     }
 
     private void addResource(File file, String pathName) throws IOException {
-
         String fileName = file.getName();
-
         addResource(file, pathName, fileName);
     }
 
     private void addResource(File file, String filePathName, String fileName) throws IOException {
-
         URL url = file.toURI().toURL();
-
         if (fileName.endsWith(".jar")) {
             scanZip(file, new JarFile(file));
             addURL(url);
             return;
         }
-
         filePathName = filePathName.substring(1);
-
         if (endWidthClass(filePathName)) {
             ClassEntry classEntry = storeClass(filePathName, url.openStream());
             if (classEntry == null) {
@@ -373,28 +308,18 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
             classEntry.codeBase = url;
             return;
         }
-
         addResource(url, filePathName, fileName);
     }
 
     private void scanZip(File realFile, JarFile file) throws IOException {
-
         try {
-
-            LoggerUtil.prettyLog(logger, "load file [ {} ]", file.getName());
-
             Enumeration<JarEntry> entries = file.entries();
-
             for (; entries.hasMoreElements();) {
-
                 JarEntry entry = entries.nextElement();
-
                 if (entry.isDirectory()) {
                     continue;
                 }
-
                 String filePathName = entry.getName();
-
                 if (endWidthClass(filePathName)) {
                     ClassEntry classEntry = storeClass(entry.getName(), file.getInputStream(entry));
                     if (classEntry == null) {
@@ -405,7 +330,6 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
                 }
             }
         } finally {
-
             CloseUtil.close(file);
         }
     }
@@ -415,73 +339,43 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     }
 
     private ClassEntry storeClass(String filePathName, InputStream inputStream) throws IOException {
-
         String className = filePathName.replace('/', '.').substring(0, filePathName.length() - 6);
-
         if (matchSystem(className)) {
             return null;
         }
-
         if (clazzEntries.containsKey(className)) {
             throw new DuplicateClassException(className);
         }
-
-        //		try {
-        //
-        //			parentClassLoader.loadClass(className);
-        //
-        //			throw new DuplicateClassException(className);
-        //		} catch (ClassNotFoundException e) {
-        //		}
-
         byte[] binaryContent = FileUtil.inputStream2ByteArray(inputStream);
-
         ClassEntry classEntry = new ClassEntry();
-
         classEntry.classBinary = binaryContent;
-
         classEntry.className = className;
-
         clazzEntries.put(className, classEntry);
-
         return classEntry;
     }
 
     private void unloadClass(Class<?> clazz) {
-
         CloseUtil.close(this);
-
         if (clazz == null) {
             return;
         }
-
         Field[] fields = clazz.getDeclaredFields();
-
         for (Field field : fields) {
-
             if (!Modifier.isStatic(field.getModifiers())) {
                 continue;
             }
-
             try {
                 if (!field.isAccessible()) {
                     field.setAccessible(true);
                 }
                 field.set(null, null);
-            } catch (Throwable e) {
-                if (logger == null) {
-                    return;
-                }
-                logger.error(e.getMessage(), e);
-            }
+            } catch (Throwable e) {}
         }
     }
 
     @Override
     public void unloadClassLoader() {
-
         Collection<ClassEntry> es = clazzEntries.values();
-
         for (ClassEntry e : es) {
             unloadClass(e.loadedClass);
         }
@@ -592,10 +486,6 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
             return false;
         }
         return matchStartWith.remove(extend);
-    }
-
-    public void setLogger(Logger logger) {
-        this.logger = logger;
     }
 
 }

@@ -106,11 +106,6 @@ public abstract class AbstractSocketChannel extends AbstractChannel implements S
     }
 
     @Override
-    protected String getMarkPrefix() {
-        return "Tcp";
-    }
-
-    @Override
     public ProtocolDecoder getProtocolDecoder() {
         return protocolDecoder;
     }
