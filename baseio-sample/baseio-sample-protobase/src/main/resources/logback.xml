@@ -11,7 +11,6 @@
 		<encoder>
 			<!-- %.-1level 只显示信息级别的首字母,%-5level 左对齐显示信息级别全称 -->
 			<Pattern>${pattern}</Pattern>
-			<charset>${charset}</charset>
 		</encoder>
 	</appender>
 	<appender name="INFO_FILE"
