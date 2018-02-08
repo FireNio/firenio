@@ -371,6 +371,11 @@ public class FileUtil {
         return readPropertiesByCls(file, ENCODING);
     }
 
+    public static Properties readPropertiesByCls(String file, ClassLoader classLoader)
+            throws IOException {
+        return readPropertiesByCls(file, ENCODING, classLoader);
+    }
+
     public static Properties readPropertiesByCls(String file, Charset charset) throws IOException {
         return readPropertiesByCls(file, charset, CLASS_LOADER);
     }

@@ -258,23 +258,14 @@ public class ApplicationContext extends AbstractLifeCycle {
     }
 
     private URLDynamicClassLoader newClassLoader() throws IOException {
-
         ClassLoader parent = getClass().getClassLoader();
-
         URLDynamicClassLoader classLoader = new URLDynamicClassLoader(parent);
-
         if (deployModel) {
-
-            classLoader.scan(new File(getRootLocalAddress() + "/lib"));
-
             classLoader.scan(new File(getRootLocalAddress() + "/conf"));
         } else {
-
             classLoader.addExcludePath("/app");
-
             classLoader.scan(new File(getRootLocalAddress()));
         }
-
         return classLoader;
     }
 
