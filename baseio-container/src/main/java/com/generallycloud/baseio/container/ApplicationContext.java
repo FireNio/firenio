@@ -15,8 +15,6 @@
  */
 package com.generallycloud.baseio.container;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,6 +23,7 @@ import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.Bootstrap;
 import com.generallycloud.baseio.component.DynamicClassLoader;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
@@ -214,35 +213,27 @@ public class ApplicationContext extends AbstractLifeCycle {
     }
 
     private void initializeApplicationContext() throws Exception {
-
-        this.classLoader = newClassLoader();
-
-        this.configuration = acLoader.loadConfiguration(classLoader);
-
+        this.classLoader = Bootstrap.newClassLoader(deployModel, rootLocalAddress,
+                Bootstrap.withDefault());
         this.applicationExtLoader.loadExts(this, classLoader);
-
+        this.configuration = acLoader.loadConfiguration(classLoader);
         if (pluginLoader == null) {
             this.pluginLoader = new PluginLoader();
         }
-
         if (filterLoader == null) {
             this.filterLoader = new FutureAcceptorFilterLoader(getFutureAcceptorServiceFilter());
         }
-
         if (configuration.isAPP_ENABLE_REDEPLOY()) {
             SystemRedeployServlet redeployServlet = new SystemRedeployServlet();
             filterLoader.getFutureAcceptorServiceLoader().getServices()
                     .put(redeployServlet.getServiceName(), redeployServlet);
         }
-
         if (configuration.isAPP_ENABLE_STOPSERVER()) {
             SystemStopServerServlet stopServerServlet = new SystemStopServerServlet();
             filterLoader.getFutureAcceptorServiceLoader().getServices()
                     .put(stopServerServlet.getServiceName(), stopServerServlet);
         }
-
         pluginLoader.initialize(this, null);
-
         filterLoader.initialize(this, null);
     }
 
@@ -257,62 +248,33 @@ public class ApplicationContext extends AbstractLifeCycle {
         return redeploying;
     }
 
-    private URLDynamicClassLoader newClassLoader() throws IOException {
-        ClassLoader parent = getClass().getClassLoader();
-        URLDynamicClassLoader classLoader = new URLDynamicClassLoader(parent);
-        if (deployModel) {
-            classLoader.scan(new File(getRootLocalAddress() + "/conf"));
-        } else {
-            classLoader.addExcludePath("/app");
-            classLoader.scan(new File(getRootLocalAddress()));
-        }
-        return classLoader;
-    }
-
     // FIXME 考虑部署失败后如何再次部署
     // FIXME redeploy roleManager
     // FIXME redeploy loginCenter
     // FIXME keep http session
     public synchronized boolean redeploy() {
-
         LoggerUtil.prettyLog(logger, "//**********************  开始卸载服务  **********************//");
-
         redeploying = true;
-
         destroyApplicationContext();
-
         LoggerUtil.prettyLog(logger,
                 "//**********************  卸载服务完成  **********************//\n");
-
         try {
-
             // FIXME 重新加载configuration
             LoggerUtil.prettyLog(logger,
                     "//**********************  开始加载服务  **********************//");
-
             initializeApplicationContext();
-
             redeploying = false;
-
             LoggerUtil.prettyLog(logger,
                     "//**********************  加载服务完成  **********************//\n");
-
             return true;
-
         } catch (Exception e) {
-
             classLoader.unloadClassLoader();
-
             redeploying = false;
-
             LoggerUtil.prettyLog(logger,
                     "//**********************  加载服务失败  **********************//\n");
-
             logger.info(e.getMessage(), e);
-
             return false;
         }
-
     }
 
     public void setApplicationConfigurationLoader(ApplicationConfigurationLoader acLoader) {

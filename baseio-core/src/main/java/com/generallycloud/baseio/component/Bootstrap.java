@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public final class Bootstrap {
         engine.bootstrap(rootPath, deployModel);
     }
 
-    private static URLDynamicClassLoader newClassLoader(boolean deployModel,
+    public static URLDynamicClassLoader newClassLoader(boolean deployModel,
             String rootLocalAddress, List<ClassPathScaner> classPathScaners) throws IOException {
         //这里需要设置优先委托自己加载class，因为到后面对象需要用该classloader去加载resources
         ClassLoader parent = Bootstrap.class.getClassLoader();
@@ -95,10 +94,10 @@ public final class Bootstrap {
         public void scanClassPaths(URLDynamicClassLoader classLoader, boolean deployModel,
                 String rootLocalAddress) throws IOException {
             if (deployModel) {
-                classLoader.scan(new File(rootLocalAddress + "/conf"));
+                classLoader.scan(rootLocalAddress + "/conf");
             } else {
                 classLoader.addExcludePath("/app");
-                classLoader.scan(new File(rootLocalAddress));
+                classLoader.scan(rootLocalAddress);
             }
         }
 

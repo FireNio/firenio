@@ -15,8 +15,6 @@
  */
 package com.generallycloud.baseio.container.http11;
 
-import java.io.File;
-
 import com.generallycloud.baseio.component.DynamicClassLoader;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.ApplicationExtLoader;
@@ -30,7 +28,7 @@ public class HttpExtLoader implements ApplicationExtLoader {
     @Override
     public void loadExts(ApplicationContext context, DynamicClassLoader classLoader)
             throws Exception {
-        classLoader.scan(new File(context.getAppLocalAddress() + "/lib"));
+        classLoader.scan(context.getAppLocalAddress() + "/lib");
     }
 
 }
