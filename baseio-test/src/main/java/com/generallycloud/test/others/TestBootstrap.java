@@ -25,7 +25,7 @@ import com.generallycloud.baseio.log.LoggerFactory;
  * @author wangkai
  *
  */
-public class TestBootstrap extends Bootstrap implements BootstrapEngine{
+public class TestBootstrap implements BootstrapEngine{
     
     private Logger logger = LoggerFactory.getLogger(getClass());
     
@@ -47,7 +47,7 @@ public class TestBootstrap extends Bootstrap implements BootstrapEngine{
 
         String className = "com.generallycloud.test.others.TestBootstrap";
 
-        new TestBootstrap().startup(className, deployModel);
+        Bootstrap.startup(className, deployModel,Bootstrap.withDefault());
     }
     
 }

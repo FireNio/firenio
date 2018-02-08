@@ -19,9 +19,10 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.Bootstrap;
+import com.generallycloud.baseio.component.Bootstrap.ClassPathScaner;
 import com.generallycloud.baseio.component.URLDynamicClassLoader;
 
-public class ApplicationBootstrap extends Bootstrap{
+public class ApplicationBootstrap {
 
     public static void main(String[] args) throws Exception {
         if (args != null && args.length > 1) {
@@ -29,16 +30,17 @@ public class ApplicationBootstrap extends Bootstrap{
         }
         boolean deployModel = Boolean.parseBoolean(StringUtil.getValueFromArray(args, 0, "false"));
         String className = "com.generallycloud.baseio.container.startup.ApplicationBootstrapEngine";
-        new ApplicationBootstrap().startup(className, deployModel);
+        Bootstrap.startup(className, deployModel, Bootstrap.withDefault(new ClassPathScaner() {
+            
+            @Override
+            public void scanClassPaths(URLDynamicClassLoader classLoader, boolean deployModel,
+                    String rootLocalAddress) throws IOException {
+                if (deployModel) {
+                    classLoader.scan(rootLocalAddress+"/lib");
+                }
+            }
+        }));
     }
     
-    @Override
-    protected URLDynamicClassLoader scanClassPaths(URLDynamicClassLoader classLoader,
-            boolean deployModel, String rootLocalAddress) throws IOException {
-        if (deployModel) {
-            classLoader.scan(rootLocalAddress+"/lib");
-        }
-        return super.scanClassPaths(classLoader, deployModel, rootLocalAddress);
-    }
 
 }
