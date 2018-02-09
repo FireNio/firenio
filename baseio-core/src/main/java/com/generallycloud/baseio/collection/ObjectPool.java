@@ -27,7 +27,7 @@ public class ObjectPool<V> {
 
     private int                  capacity;
 
-    private int                  index;
+    private int                  size;
 
     @SuppressWarnings("unchecked")
     public void init(ObjectPoolFactory<V> factory, int capacity) {
@@ -37,20 +37,21 @@ public class ObjectPool<V> {
         for (int i = 0; i < capacity; i++) {
             vs[i] = factory.newInstance();
         }
+        size = capacity;
     }
 
     public V pop() {
-        if (index == 0) {
+        if (size == 0) {
             return factory.newInstance();
         }
-        return vs[--index];
+        return vs[--size];
     }
 
     public void push(V v) {
-        if (index == capacity) {
+        if (size == capacity) {
             return;
         }
-        vs[index++] = v;
+        vs[size++] = v;
     }
 
 }

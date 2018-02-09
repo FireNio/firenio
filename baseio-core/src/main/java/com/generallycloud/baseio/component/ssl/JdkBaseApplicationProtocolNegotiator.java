@@ -22,9 +22,6 @@ import java.util.Set;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLHandshakeException;
 
-/**
- * Common base class for {@link JdkApplicationProtocolNegotiator} classes to inherit from.
- */
 class JdkBaseApplicationProtocolNegotiator implements JdkApplicationProtocolNegotiator {
 
     static final ProtocolSelectionListenerFactory FAIL_SELECTION_LISTENER_FACTORY    = new FAIL_SELECTION_LISTENER_FACTORY();
@@ -36,13 +33,6 @@ class JdkBaseApplicationProtocolNegotiator implements JdkApplicationProtocolNego
     private final ProtocolSelectorFactory          selectorFactory;
     private final SslEngineWrapperFactory          wrapperFactory;
 
-    /**
-     * Create a new instance.
-     * @param wrapperFactory Determines which application protocol will be used by wrapping the SSLEngine in use.
-     * @param selectorFactory How the peer selecting the protocol should behave.
-     * @param listenerFactory How the peer being notified of the selected protocol should behave.
-     * @param protocols The order of iteration determines the preference of support for protocols.
-     */
     protected JdkBaseApplicationProtocolNegotiator(SslEngineWrapperFactory wrapperFactory,
             ProtocolSelectorFactory selectorFactory,
             ProtocolSelectionListenerFactory listenerFactory, List<String> protocols) {
@@ -130,12 +120,12 @@ class JdkBaseApplicationProtocolNegotiator implements JdkApplicationProtocolNego
     }
 
     protected static class NoFailProtocolSelectionListener implements ProtocolSelectionListener {
-        private final JdkSslEngine jettyWrapper;
+        private final JdkSslEngine sslEngine;
         private final List<String> supportedProtocols;
 
-        public NoFailProtocolSelectionListener(JdkSslEngine jettyWrapper,
+        public NoFailProtocolSelectionListener(JdkSslEngine sslEngine,
                 List<String> supportedProtocols) {
-            this.jettyWrapper = jettyWrapper;
+            this.sslEngine = sslEngine;
             this.supportedProtocols = supportedProtocols;
         }
 
@@ -144,7 +134,7 @@ class JdkBaseApplicationProtocolNegotiator implements JdkApplicationProtocolNego
         @Override
         public void selected(String protocol) throws Exception {
             if (supportedProtocols.contains(protocol)) {
-                jettyWrapper.getSession().setApplicationProtocol(protocol);
+                sslEngine.getSession().setApplicationProtocol(protocol);
             } else {
                 noSelectedMatchFound(protocol);
             }
@@ -152,21 +142,21 @@ class JdkBaseApplicationProtocolNegotiator implements JdkApplicationProtocolNego
 
         @Override
         public void unsupported() {
-            jettyWrapper.getSession().setApplicationProtocol(null);
+            sslEngine.getSession().setApplicationProtocol(null);
         }
     }
 
     protected static class NoFailProtocolSelector implements ProtocolSelector {
-        private final JdkSslEngine jettyWrapper;
+        private final JdkSslEngine sslEngine;
         private final Set<String>  supportedProtocols;
 
-        public NoFailProtocolSelector(JdkSslEngine jettyWrapper, Set<String> supportedProtocols) {
-            this.jettyWrapper = jettyWrapper;
+        public NoFailProtocolSelector(JdkSslEngine sslEngine, Set<String> supportedProtocols) {
+            this.sslEngine = sslEngine;
             this.supportedProtocols = supportedProtocols;
         }
 
         public String noSelectMatchFound() throws Exception {
-            jettyWrapper.getSession().setApplicationProtocol(null);
+            sslEngine.getSession().setApplicationProtocol(null);
             return null;
         }
 
@@ -174,7 +164,7 @@ class JdkBaseApplicationProtocolNegotiator implements JdkApplicationProtocolNego
         public String select(List<String> protocols) throws Exception {
             for (String p : supportedProtocols) {
                 if (protocols.contains(p)) {
-                    jettyWrapper.getSession().setApplicationProtocol(p);
+                    sslEngine.getSession().setApplicationProtocol(p);
                     return p;
                 }
             }
@@ -183,7 +173,7 @@ class JdkBaseApplicationProtocolNegotiator implements JdkApplicationProtocolNego
 
         @Override
         public void unsupported() {
-            jettyWrapper.getSession().setApplicationProtocol(null);
+            sslEngine.getSession().setApplicationProtocol(null);
         }
     }
 

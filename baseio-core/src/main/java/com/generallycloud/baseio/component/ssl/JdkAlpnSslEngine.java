@@ -28,27 +28,6 @@ import org.eclipse.jetty.alpn.ALPN.ServerProvider;
 
 final class JdkAlpnSslEngine extends JdkSslEngine {
 
-    private static boolean available;
-
-    static boolean isAvailable() {
-        updateAvailability();
-        return available;
-    }
-
-    private static void updateAvailability() {
-        if (available) {
-            return;
-        }
-
-        try {
-            // Always use bootstrap class loader.
-            Class.forName("sun.security.ssl.ALPNExtension", true, null);
-            available = true;
-        } catch (Exception ignore) {
-            // alpn-boot was not loaded.
-        }
-    }
-
     JdkAlpnSslEngine(SSLEngine engine, final JdkApplicationProtocolNegotiator applicationNegotiator,
             boolean server) {
         super(engine);

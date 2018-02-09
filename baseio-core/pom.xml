@@ -16,6 +16,12 @@
 
 	<dependencies>
 
+		<dependency>
+			<groupId>org.wildfly.openssl</groupId>
+			<artifactId>wildfly-openssl</artifactId>
+			<version>1.0.2.Final</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.mortbay.jetty.alpn/alpn-boot -->
 		<dependency>
 			<groupId>org.mortbay.jetty.alpn</groupId>

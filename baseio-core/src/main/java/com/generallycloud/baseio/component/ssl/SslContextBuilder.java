@@ -132,14 +132,6 @@ public final class SslContextBuilder {
         }
     }
 
-    public SslProvider defaultProvider() {
-        if (OpenSsl.isAvailable()) {
-            return SslProvider.OPENSSL;
-        } else {
-            return SslProvider.JDK;
-        }
-    }
-
     private JdkApplicationProtocolNegotiator toNegotiator(ApplicationProtocolConfig config,
             boolean isServer) {
         if (config == null) {
@@ -198,7 +190,7 @@ public final class SslContextBuilder {
             throw new SSLException("null keyManagerFactory on server");
         }
         try {
-            SSLContext ctx = SSLContext.getInstance(JdkSslContext.PROTOCOL);
+            SSLContext ctx = SslContext.getSSLContext();
             TrustManager[] tms = null;
             KeyManager[] kms = null;
             if (keyManagerFactory == null) {
@@ -250,7 +242,7 @@ public final class SslContextBuilder {
             if (e instanceof SSLException) {
                 throw (SSLException) e;
             }
-            throw new SSLException("failed to initialize the client-side SSL context", e);
+            throw new SSLException("failed to initialize the SSL context", e);
         }
     }
 
@@ -331,7 +323,6 @@ public final class SslContextBuilder {
 
     private ApplicationProtocolConfig apn;
 
-    private SslProvider               provider;
     private long                      sessionCacheSize;
     private long                      sessionTimeout;
     private boolean                   isServer;
@@ -360,11 +351,6 @@ public final class SslContextBuilder {
 
     public SslContextBuilder sessionTimeout(long sessionTimeout) {
         this.sessionTimeout = sessionTimeout;
-        return this;
-    }
-
-    public SslContextBuilder sslProvider(SslProvider provider) {
-        this.provider = provider;
         return this;
     }
 
@@ -460,17 +446,9 @@ public final class SslContextBuilder {
     }
 
     public SslContext build() throws SSLException {
-        if (provider == null) {
-            provider = defaultProvider();
-        }
-        if (provider == SslProvider.JDK) {
-            SSLContext context = newSSLContext();
-            JdkApplicationProtocolNegotiator negotiator = toNegotiator(apn, isServer);
-            return new JdkSslContext(context, !isServer, ciphers, negotiator, clientAuth);
-        } else if (provider == SslProvider.OPENSSL) {
-            throw new UnsupportedOperationException("not supported yet");
-        }
-        throw new Error(provider.toString());
+        SSLContext context = newSSLContext();
+        JdkApplicationProtocolNegotiator negotiator = toNegotiator(apn, isServer);
+        return new SslContext(context, !isServer, ciphers, negotiator, clientAuth);
     }
 
     /*----------------------------------------- server end --------------------------------------*/

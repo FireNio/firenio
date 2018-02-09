@@ -45,7 +45,7 @@ public final class JdkAlpnApplicationProtocolNegotiator
     public static class ALPNSslEngineWrapperFactory implements SslEngineWrapperFactory {
 
         public ALPNSslEngineWrapperFactory() {
-            if (!JdkAlpnSslEngine.isAvailable()) {
+            if (!isAvailable()) {
                 throw new RuntimeException(
                         "ALPN unsupported. Is your classpatch configured correctly?"
                                 + "\n See http://www.eclipse.org/jetty/documentation/current/alpn-chapter.html#alpn-starting；"
@@ -57,6 +57,20 @@ public final class JdkAlpnApplicationProtocolNegotiator
         public SSLEngine wrapSslEngine(SSLEngine engine,
                 JdkApplicationProtocolNegotiator applicationNegotiator, boolean isServer) {
             return new JdkAlpnSslEngine(engine, applicationNegotiator, isServer);
+        }
+        
+        private static boolean available;
+
+        private static boolean isAvailable() {
+            if (available) {
+                return true;
+            }
+            try {
+                Class.forName("sun.security.ssl.ALPNExtension", true, null);
+                available = true;
+            } catch (Exception ignore) {
+            }
+            return available;
         }
 
     }
