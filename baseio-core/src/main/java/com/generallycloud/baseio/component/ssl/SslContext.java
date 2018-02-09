@@ -49,13 +49,13 @@ public final class SslContext {
         } catch (CertificateException e) {
             throw new IllegalStateException("unable to instance X.509 CertificateFactory", e);
         }
-        boolean test = false;
+        boolean testOpenSsl = false;
         try {
             Class.forName("org.wildfly.openssl.OpenSSLProvider");
             org.wildfly.openssl.OpenSSLProvider.register();
-            test = true;
+            testOpenSsl = true;
         } catch (Exception e) {}
-        openSslAvailable = test;
+        openSslAvailable = testOpenSsl;
 
         SSLContext context;
         try {

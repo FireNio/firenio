@@ -197,7 +197,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         return false;
     }
 
-    public boolean matchSystem(String name) {
+    private boolean matchSystem(String name) {
         return matchExtend(name) || matchStartWith(name);
     }
 

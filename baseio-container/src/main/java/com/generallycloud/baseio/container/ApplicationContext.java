@@ -213,7 +213,7 @@ public class ApplicationContext extends AbstractLifeCycle {
     }
 
     private void initializeApplicationContext() throws Exception {
-        this.classLoader = Bootstrap.newClassLoader(deployModel, rootLocalAddress,
+        this.classLoader = Bootstrap.newClassLoader(deployModel, true, rootLocalAddress,
                 Bootstrap.withDefault());
         this.applicationExtLoader.loadExts(this, classLoader);
         this.configuration = acLoader.loadConfiguration(classLoader);
