@@ -16,29 +16,53 @@
 package com.generallycloud.baseio.connector;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.AbstractChannelService;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.UnsafeSocketSession;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 /**
  * @author wangkai
  *
  */
-public abstract class AbstractSocketChannelConnector extends AbstractChannelConnector {
+public abstract class AbstractSocketChannelConnector extends AbstractChannelService
+        implements ChannelConnector {
 
-    private UnsafeSocketSession session;
     private Throwable           connectException;
+    private UnsafeSocketSession session;
+    protected long              timeout          = 3000;
     private boolean             timeouted;
     private Object              wait4ConnectLock = new Object();
 
     @Override
-    public SocketSession getSession() {
-        return session;
+    public synchronized void close() throws IOException {
+        if (getSession() != null) {
+            CloseUtil.close(getSession());
+        }
+        stop();
     }
+
+    @Override
+    public synchronized SocketSession connect() throws IOException {
+        this.session = null;
+        this.initialize();
+        return getSession();
+    }
+    
+    @Override
+    protected void setServerCoreSize(ServerConfiguration configuration) {
+        configuration.setSERVER_CORE_SIZE(1);
+    }
+
+    protected abstract void connect(InetSocketAddress socketAddress) throws IOException;
+
+    protected abstract void connected();
 
     //FIXME protected
     public void finishConnect(UnsafeSocketSession session, Throwable exception) {
@@ -58,13 +82,37 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
         }
     }
 
-    protected abstract void connected();
+    @Override
+    public SocketSession getSession() {
+        return session;
+    }
 
     @Override
-    public synchronized SocketSession connect() throws IOException {
-        this.session = null;
-        this.initialize();
-        return getSession();
+    public long getTimeout() {
+        return timeout;
+    }
+
+    @Override
+    protected void initService(ServerConfiguration configuration) throws IOException {
+        String SERVER_HOST = configuration.getSERVER_HOST();
+        int SERVER_PORT = configuration.getSERVER_PORT();
+        this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
+        this.connect(getServerSocketAddress());
+    }
+
+    @Override
+    public boolean isActive() {
+        return isConnected();
+    }
+
+    @Override
+    public boolean isConnected() {
+        return getSession() != null && getSession().isOpened();
+    }
+
+    @Override
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
     }
 
     protected void wait4connect() throws IOException {
@@ -88,4 +136,5 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelConn
             throw new IOException(errorMsg, connectException);
         }
     }
+
 }

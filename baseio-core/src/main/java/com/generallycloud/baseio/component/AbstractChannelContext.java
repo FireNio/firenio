@@ -31,7 +31,6 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
     protected Charset                 encoding;
     protected ServerConfiguration     serverConfiguration;
     protected long                    sessionIdleTime;
-    protected ChannelService          channelService;
     protected ByteBufAllocatorManager byteBufAllocatorManager;
     protected Map<Object, Object>     attributes  = new HashMap<>();
     protected long                    startupTime = System.currentTimeMillis();
@@ -113,16 +112,6 @@ public abstract class AbstractChannelContext extends AbstractLifeCycle implement
     @Override
     public long getStartupTime() {
         return startupTime;
-    }
-
-    @Override
-    public ChannelService getChannelService() {
-        return channelService;
-    }
-
-    @Override
-    public void setChannelService(ChannelService channelService) {
-        this.channelService = channelService;
     }
 
     @Override

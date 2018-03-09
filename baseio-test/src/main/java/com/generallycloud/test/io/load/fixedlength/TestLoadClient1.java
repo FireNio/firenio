@@ -21,9 +21,9 @@ import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
@@ -72,7 +72,7 @@ public class TestLoadClient1 extends ITestThread {
         configuration.setSERVER_ENABLE_MEMORY_POOL(true);
         //		c.setSERVER_HOST("192.168.0.180");
 
-        SocketChannelContext context = new AioSocketChannelContext(configuration);
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
 
         connector = new SocketChannelConnector(context);
 
@@ -90,9 +90,9 @@ public class TestLoadClient1 extends ITestThread {
 
     public static void main(String[] args) throws IOException {
 
-        int time = 128 * 10000;
+        int time = 256 * 10000;
 
-        int core_size = 4;
+        int core_size = 12;
 
         ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
     }

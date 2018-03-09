@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.protocol;
 
-import com.generallycloud.baseio.component.DatagramChannelContext;
 import com.generallycloud.baseio.component.JsonParameters;
 import com.generallycloud.baseio.component.Parameters;
 
@@ -38,12 +37,11 @@ public class DatagramRequest {
         return parameters;
     }
 
-    public static DatagramRequest create(DatagramPacket packet, DatagramChannelContext context) {
-        if (packet.getTimestamp() == 0) {
-            String param = new String(packet.getData(), context.getEncoding());
-
-            return new DatagramRequest(param);
-        }
+    public static DatagramRequest create(DatagramPacket packet, Object context) {
+//        if (packet.getTimestamp() == 0) {
+//            String param = new String(packet.getData(), context.getEncoding());
+//            return new DatagramRequest(param);
+//        }
         return null;
     }
 

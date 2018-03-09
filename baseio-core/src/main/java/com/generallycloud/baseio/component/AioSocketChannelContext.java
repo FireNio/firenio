@@ -38,6 +38,8 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
     private AioSessionManangerEventLoopGroup sessionManangerEventLoopGroup;
 
     private AioSocketSessionManager          sessionManager;
+    
+    private ChannelService                   channelService;
 
     private Logger                           logger = LoggerFactory.getLogger(getClass());
 
@@ -111,6 +113,16 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
     @Override
     public AioSocketSessionManager getSessionManager() {
         return sessionManager;
+    }
+
+    @Override
+    public ChannelService getChannelService() {
+        return channelService;
+    }
+
+    @Override
+    public void setChannelService(ChannelService service) {
+        this.channelService = service;
     }
 
 }

@@ -40,16 +40,12 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
         implements NioChannelService {
 
     private ServerSocket                 serverSocket           = null;
-
     private SelectableChannel            selectableChannel      = null;
-
-    private SocketSelectorBuilder        selectorBuilder        = null;
-
+    private SocketSelectorBuilder        selectorBuilder        = new SocketSelectorBuilder();
     private SocketSelectorEventLoopGroup selectorEventLoopGroup = null;
 
     public NioSocketChannelAcceptor(SocketChannelContext context) {
         super(context);
-        this.selectorBuilder = new ServerNioSocketSelectorBuilder();
     }
 
     @Override
@@ -90,7 +86,7 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
     }
 
     @Override
-    protected void closeService() {
+    protected void stop0() {
         CloseUtil.close(serverSocket);
         CloseUtil.close(selectableChannel);
         LifeCycleUtil.stop(selectorEventLoopGroup);

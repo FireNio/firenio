@@ -49,14 +49,14 @@ public abstract class AbstractChannelService implements ChannelService {
 
     protected abstract void initService(ServerConfiguration configuration) throws IOException;
 
-    protected abstract void closeService();
+    protected abstract void stop0();
 
-    protected void close0() {
+    protected void stop() {
         active = false;
-        closeService();
+        stop0();
         LifeCycleUtil.stop(getContext());
     }
 
-    protected abstract void setServerCoreSize(ServerConfiguration configuration);
+    protected void setServerCoreSize(ServerConfiguration configuration) {}
 
 }

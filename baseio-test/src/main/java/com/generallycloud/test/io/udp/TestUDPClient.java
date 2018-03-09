@@ -15,47 +15,35 @@
  */
 package com.generallycloud.test.io.udp;
 
-import java.io.IOException;
-
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.Encoding;
-import com.generallycloud.baseio.common.ThreadUtil;
-import com.generallycloud.baseio.component.DatagramChannelContext;
-import com.generallycloud.baseio.component.DatagramPacketAcceptor;
-import com.generallycloud.baseio.component.DatagramSession;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.connector.DatagramChannelConnector;
-import com.generallycloud.baseio.protocol.DatagramPacket;
-
 public class TestUDPClient {
 
     public static void main(String[] args) throws Exception {
 
-        DatagramPacketAcceptor acceptor = new DatagramPacketAcceptor() {
-
-            @Override
-            public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
-                System.out.println(packet.getDataString(Encoding.UTF8));
-
-            }
-        };
-
-        DatagramChannelContext context = new DatagramChannelContext(
-                new ServerConfiguration("localhost", 18500));
-
-        DatagramChannelConnector connector = new DatagramChannelConnector(context);
-
-        context.setDatagramPacketAcceptor(acceptor);
-
-        DatagramSession session = connector.connect();
-
-        DatagramPacket packet = DatagramPacket.createSendPacket("hello world!".getBytes());
-
-        session.sendPacket(packet);
-
-        ThreadUtil.sleep(30);
-
-        CloseUtil.close(connector);
+//        DatagramPacketAcceptor acceptor = new DatagramPacketAcceptor() {
+//
+//            @Override
+//            public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
+//                System.out.println(packet.getDataString(Encoding.UTF8));
+//
+//            }
+//        };
+//
+//        DatagramChannelContext context = new DatagramChannelContext(
+//                new ServerConfiguration("localhost", 18500));
+//
+//        DatagramChannelConnector connector = new DatagramChannelConnector(context);
+//
+//        context.setDatagramPacketAcceptor(acceptor);
+//
+//        DatagramSession session = connector.connect();
+//
+//        DatagramPacket packet = DatagramPacket.createSendPacket("hello world!".getBytes());
+//
+//        session.sendPacket(packet);
+//
+//        ThreadUtil.sleep(30);
+//
+//        CloseUtil.close(connector);
 
     }
 

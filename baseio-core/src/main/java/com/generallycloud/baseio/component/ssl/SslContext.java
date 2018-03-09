@@ -51,9 +51,12 @@ public final class SslContext {
         }
         boolean testOpenSsl = false;
         try {
-            Class.forName("org.wildfly.openssl.OpenSSLProvider");
-            org.wildfly.openssl.OpenSSLProvider.register();
-            testOpenSsl = true;
+            String enableOpenSsl = System.getProperty("com.generallycloud.baseio.ssl.enableOpenSsl");
+            if ("true".equals(enableOpenSsl)) {
+                Class.forName("org.wildfly.openssl.OpenSSLProvider");
+                org.wildfly.openssl.OpenSSLProvider.register();
+                testOpenSsl = true;
+            }
         } catch (Exception e) {}
         openSslAvailable = testOpenSsl;
 

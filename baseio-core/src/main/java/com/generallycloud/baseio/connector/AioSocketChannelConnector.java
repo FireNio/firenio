@@ -80,7 +80,7 @@ public class AioSocketChannelConnector extends AbstractSocketChannelConnector {
     }
 
     @Override
-    protected void closeService() {}
+    protected void stop0() {}
 
     @Override
     protected void connected() {

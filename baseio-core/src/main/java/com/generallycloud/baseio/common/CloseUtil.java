@@ -32,6 +32,17 @@ public class CloseUtil {
             DebugUtil.debug(e);
         }
     }
+    
+    public static void close(AutoCloseable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (Exception e) {
+            DebugUtil.debug(e);
+        }
+    }
 
     public static void close(Selector selector) {
         if (selector == null) {

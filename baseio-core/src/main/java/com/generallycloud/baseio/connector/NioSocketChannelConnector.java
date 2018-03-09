@@ -41,19 +41,17 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 
     private NioSocketChannelContext      context;
     private SelectableChannel            selectableChannel      = null;
-    private SocketSelectorBuilder        selectorBuilder        = null;
+    private SocketSelectorBuilder        selectorBuilder        = new SocketSelectorBuilder();
     private SocketSelectorEventLoopGroup selectorEventLoopGroup = null;
     private Logger                       logger                 = LoggerFactory
             .getLogger(getClass());
 
-    //FIXME 优化
     protected NioSocketChannelConnector(NioSocketChannelContext context) {
-        this.selectorBuilder = new ClientNioSocketSelectorBuilder(this);
         this.context = context;
     }
 
     @Override
-    protected void closeService() {
+    protected void stop0() {
         CloseUtil.close(selectableChannel);
         LifeCycleUtil.stop(selectorEventLoopGroup);
     }

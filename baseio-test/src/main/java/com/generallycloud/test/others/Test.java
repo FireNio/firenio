@@ -16,6 +16,7 @@
 package com.generallycloud.test.others;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 import com.generallycloud.baseio.common.MathUtil;
 
@@ -40,6 +41,25 @@ public class Test {
         System.out.println(MathUtil.binaryString2HexString("00100000"));
 
         //test branch   tes22222
+        
+        
+        HashSet<String> set = new HashSet<>();
+        
+        
+        set.add("11");
+        set.add("22");
+        
+        for(String s : set){
+            
+            System.out.println(s);
+            
+        }
+        
 
+        for(String s : set){
+            
+            System.out.println(s);
+            
+        }
     }
 }

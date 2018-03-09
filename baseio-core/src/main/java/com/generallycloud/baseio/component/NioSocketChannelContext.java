@@ -22,7 +22,9 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public class NioSocketChannelContext extends AbstractSocketChannelContext {
 
-    protected NioGlobalSocketSessionManager sessionManager;
+    private NioChannelService             channelService;
+
+    private NioGlobalSocketSessionManager sessionManager;
 
     public NioSocketChannelContext(ServerConfiguration configuration) {
         super(configuration);
@@ -42,6 +44,16 @@ public class NioSocketChannelContext extends AbstractSocketChannelContext {
         } else {
             return new LineEventLoopGroup("event-process", eventLoopSize);
         }
+    }
+
+    @Override
+    public NioChannelService getChannelService() {
+        return channelService;
+    }
+
+    @Override
+    public void setChannelService(ChannelService service) {
+        this.channelService = (NioChannelService) service;
     }
 
 }

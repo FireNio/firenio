@@ -25,15 +25,16 @@ import javax.net.ssl.SSLHandshakeException;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ssl.SslHandler;
+import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.LineEventLoop;
-import com.generallycloud.baseio.connector.ClientNioSocketSelector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -42,48 +43,41 @@ import com.generallycloud.baseio.log.LoggerFactory;
  *
  */
 //FIXME 使用ThreadLocal
-public class SocketSelectorEventLoop extends AbstractSelectorLoop
-        implements SocketChannelThreadContext {
+public class SocketSelectorEventLoop extends AbstractEventLoop
+        implements SocketChannelThreadContext, SelectorEventLoop {
 
     private static final Logger                  logger                   = LoggerFactory
             .getLogger(SocketSelectorEventLoop.class);
     private ByteBuf                              buf                      = null;
+    private ByteBufAllocator                     byteBufAllocator         = null;
     private ChannelByteBufReader                 byteBufReader            = null;
     private NioSocketChannelContext              context                  = null;
-    private ExecutorEventLoop                    executorEventLoop        = null;
-    private SocketSessionManager                 sessionManager           = null;
+    private int                                  coreIndex;
     private SocketSelectorEventLoopGroup         eventLoopGroup           = null;
-    private SocketSelectorBuilder                selectorBuilder          = null;
-    private SocketSelector                       selector                 = null;
-    private SslHandler                           sslHandler               = null;
+    private ExecutorEventLoop                    executorEventLoop        = null;
+    private boolean                              mainEventLoop            = true;
     private AtomicBoolean                        selecting                = new AtomicBoolean();
-    private UnpooledByteBufAllocator             unpooledByteBufAllocator = null;
+    private SocketSelector                       selector                 = null;
+    private SocketSelectorBuilder                selectorBuilder          = null;
     private BufferedArrayList<SelectorLoopEvent> selectorLoopEvents       = new BufferedArrayList<>();
+    private SocketSessionManager                 sessionManager           = null;
+    private SslHandler                           sslHandler               = null;
+    private UnpooledByteBufAllocator             unpooledByteBufAllocator = null;
 
     public SocketSelectorEventLoop(SocketSelectorEventLoopGroup group, int coreIndex) {
-        super(group.getChannelContext(), coreIndex);
         this.eventLoopGroup = group;
         this.context = group.getChannelContext();
-        this.selectorBuilder = ((NioChannelService) context.getChannelService())
-                .getSelectorBuilder();
+        this.selectorBuilder = context.getChannelService().getSelectorBuilder();
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
         this.byteBufReader = context.getChannelByteBufReader();
         this.sessionManager = context.getSessionManager();
         this.sessionManager = new NioSocketSessionManager(context);
-        // FIXME 使用direct
         this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(true);
         if (context.isEnableSSL()) {
             sslHandler = context.getSslContext().newSslHandler(context);
         }
-    }
-
-    protected SocketSelector getSelector() {
-        return selector;
-    }
-
-    @Override
-    public void rebuildSelector() throws IOException {
-        this.selector = rebuildSelector0();
+        this.setCoreIndex(coreIndex);
+        this.byteBufAllocator = context.getByteBufAllocatorManager().getNextBufAllocator();
     }
 
     private void accept(NioSocketChannel channel) {
@@ -102,84 +96,10 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
             byteBufReader.accept(channel, buf.flip());
         } catch (Throwable e) {
             if (e instanceof SSLHandshakeException) {
-                ClientNioSocketSelector selector = (ClientNioSocketSelector) getSelector();
-                selector.finishConnect(null, e);
+                getSelector().finishConnect(null, e);
             }
             cancelSelectionKey(channel, e);
         }
-    }
-
-    @Override
-    public void doStartup() throws IOException {
-        if (executorEventLoop instanceof LineEventLoop) {
-            ((LineEventLoop) executorEventLoop).setMonitor(this);
-        }
-        LifeCycleUtil.start(unpooledByteBufAllocator);
-        int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
-        this.buf = unpooledByteBufAllocator.allocate(readBuffer);
-        super.doStartup();
-    }
-    
-    private void cancelSelectionKey(Channel channel, Throwable t) {
-        logger.error(t.getMessage() + " channel:" + channel, t);
-        CloseUtil.close(channel);
-    }
-
-    @Override
-    protected void doStop() {
-        ThreadUtil.sleep(8);
-        closeEvents(selectorLoopEvents);
-        closeEvents(selectorLoopEvents);
-        LifeCycleUtil.stop(sessionManager);
-        CloseUtil.close(selector);
-        ReleaseUtil.release(buf);
-        LifeCycleUtil.stop(unpooledByteBufAllocator);
-    }
-
-    private void closeEvents(BufferedArrayList<SelectorLoopEvent> bufferedList) {
-        List<SelectorLoopEvent> events = bufferedList.getBuffer();
-        for (SelectorLoopEvent event : events) {
-            CloseUtil.close(event);
-        }
-    }
-
-    @Override
-    public NioSocketChannelContext getChannelContext() {
-        return context;
-    }
-
-    @Override
-    public ExecutorEventLoop getExecutorEventLoop() {
-        return executorEventLoop;
-    }
-
-    @Override
-    protected void doLoop() throws IOException {
-
-        if (selectorLoopEvents.getBufferSize() > 0) {
-            handleEvents(selectorLoopEvents.getBuffer());
-        }
-
-        SocketSelector selector = getSelector();
-
-        int selected;
-        //		long last_select = System.currentTimeMillis();
-        if (selecting.compareAndSet(false, true)) {
-            selected = selector.select(16);// FIXME try
-            selecting.set(false);
-        } else {
-            selected = selector.selectNow();
-        }
-
-        if (selected > 0) {
-            accept(selector.selectedKeys());
-        } else {
-            //			selectEmpty(last_select);
-        }
-
-        handleEvents(selectorLoopEvents.getBuffer());
-
-        sessionManager.loop();
     }
 
     private void accept(Set<SelectionKey> sks) {
@@ -212,12 +132,159 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
         sks.clear();
     }
 
-    private void write(NioSocketChannel channel) {
-        try {
-            channel.flush(this);
-        } catch (Throwable e) {
-            cancelSelectionKey(channel, e);
+    private void cancelSelectionKey(Channel channel, Throwable t) {
+        logger.error(t.getMessage() + " channel:" + channel, t);
+        CloseUtil.close(channel);
+    }
+
+    private void closeEvents(BufferedArrayList<SelectorLoopEvent> bufferedList) {
+        List<SelectorLoopEvent> events = bufferedList.getBuffer();
+        for (SelectorLoopEvent event : events) {
+            CloseUtil.close(event);
         }
+    }
+
+    public void dispatch(SelectorLoopEvent event) {
+        //FIXME 找出这里出问题的原因
+        if (inEventLoop()) {
+            if (!isRunning()) {
+                CloseUtil.close(event);
+                return;
+            }
+            handleEvent(event);
+            return;
+        }
+        if (!isRunning()) {
+            CloseUtil.close(event);
+            return;
+        }
+        selectorLoopEvents.offer(event);
+
+        // 这里再次判断一下，防止判断isRunning为true后的线程切换停顿
+        // 如果切换停顿，这里判断可以确保event要么被close了，要么被执行了
+
+        /* ----------------------------------------------------------------- */
+        // 这里不需要再次判断了，因为close方法会延迟执行，
+        // 可以确保event要么被执行，要么被close
+        //        if (!isRunning()) {
+        //            CloseUtil.close(event);
+        //            return;
+        //        }
+        /* ----------------------------------------------------------------- */
+
+        wakeup();
+    }
+
+    @Override
+    protected void doLoop() throws IOException {
+
+        if (selectorLoopEvents.getBufferSize() > 0) {
+            handleEvents(selectorLoopEvents.getBuffer());
+        }
+
+        SocketSelector selector = getSelector();
+
+        int selected;
+        //		long last_select = System.currentTimeMillis();
+        if (selecting.compareAndSet(false, true)) {
+            selected = selector.select(16);// FIXME try
+            selecting.set(false);
+        } else {
+            selected = selector.selectNow();
+        }
+
+        if (selected > 0) {
+            accept(selector.selectedKeys());
+        } else {
+            //			selectEmpty(last_select);
+        }
+
+        handleEvents(selectorLoopEvents.getBuffer());
+
+        sessionManager.loop();
+    }
+
+    @Override
+    public void doStartup() throws IOException {
+        if (executorEventLoop instanceof LineEventLoop) {
+            ((LineEventLoop) executorEventLoop).setMonitor(this);
+        }
+        LifeCycleUtil.start(unpooledByteBufAllocator);
+        int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
+        this.buf = unpooledByteBufAllocator.allocate(readBuffer);
+        this.rebuildSelector();
+    }
+
+    @Override
+    protected void doStop() {
+        ThreadUtil.sleep(8);
+        closeEvents(selectorLoopEvents);
+        closeEvents(selectorLoopEvents);
+        LifeCycleUtil.stop(sessionManager);
+        CloseUtil.close(selector);
+        ReleaseUtil.release(buf);
+        LifeCycleUtil.stop(unpooledByteBufAllocator);
+    }
+
+    @Override
+    public ByteBufAllocator getByteBufAllocator() {
+        return byteBufAllocator;
+    }
+
+    @Override
+    public NioSocketChannelContext getChannelContext() {
+        return context;
+    }
+
+    public int getCoreIndex() {
+        return coreIndex;
+    }
+
+    @Override
+    public SocketSelectorEventLoopGroup getEventLoopGroup() {
+        return eventLoopGroup;
+    }
+
+    @Override
+    public ExecutorEventLoop getExecutorEventLoop() {
+        return executorEventLoop;
+    }
+
+    protected SocketSelector getSelector() {
+        return selector;
+    }
+
+    @Override
+    public SocketSessionManager getSocketSessionManager() {
+        return sessionManager;
+    }
+
+    @Override
+    public SslHandler getSslHandler() {
+        return sslHandler;
+    }
+
+    private void handleEvent(SelectorLoopEvent event) {
+        try {
+            event.fireEvent(this);
+        } catch (Throwable e) {
+            CloseUtil.close(event);
+        }
+    }
+
+    private void handleEvents(List<SelectorLoopEvent> eventBuffer) {
+        for (SelectorLoopEvent event : eventBuffer) {
+            handleEvent(event);
+        }
+    }
+
+    @Override
+    public boolean isMainEventLoop() {
+        return mainEventLoop;
+    }
+
+    private void rebuildSelector() throws IOException {
+        this.selector = rebuildSelector0();
     }
 
     private SocketSelector rebuildSelector0() throws IOException {
@@ -252,72 +319,6 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
         return selector;
     }
 
-    @Override
-    public SocketSelectorEventLoopGroup getEventLoopGroup() {
-        return eventLoopGroup;
-    }
-
-    // FIXME 会不会出现这种情况，数据已经接收到本地，但是还没有被EventLoop处理完
-    // 执行stop的时候如果确保不会再有数据进来
-    @Override
-    public void wakeup() {
-
-        //FIXME 有一定几率select(n)ms
-        if (selecting.compareAndSet(false, true)) {
-            selecting.set(false);
-            return;
-        }
-
-        getSelector().wakeup();
-
-        super.wakeup();
-    }
-
-    public void dispatch(SelectorLoopEvent event) {
-        //FIXME 找出这里出问题的原因
-        if (inEventLoop()) {
-            if (!isRunning()) {
-                CloseUtil.close(event);
-                return;
-            }
-            handleEvent(event);
-            return;
-        }
-        if (!isRunning()) {
-            CloseUtil.close(event);
-            return;
-        }
-        selectorLoopEvents.offer(event);
-        
-        // 这里再次判断一下，防止判断isRunning为true后的线程切换停顿
-        // 如果切换停顿，这里判断可以确保event要么被close了，要么被执行了
-        
-        /* ----------------------------------------------------------------- */
-        // 这里不需要再次判断了，因为close方法会延迟执行，
-        // 可以确保event要么被执行，要么被close
-        //        if (!isRunning()) {
-        //            CloseUtil.close(event);
-        //            return;
-        //        }
-        /* ----------------------------------------------------------------- */
-        
-        wakeup();
-    }
-
-    private void handleEvents(List<SelectorLoopEvent> eventBuffer) {
-        for (SelectorLoopEvent event : eventBuffer) {
-            handleEvent(event);
-        }
-    }
-    
-    private void handleEvent(SelectorLoopEvent event) {
-        try {
-            event.fireEvent(this);
-        } catch (Throwable e) {
-            CloseUtil.close(event);
-        }
-    }
-
     protected void selectEmpty(long last_select) {
 
         long past = System.currentTimeMillis() - last_select;
@@ -338,13 +339,33 @@ public class SocketSelectorEventLoop extends AbstractSelectorLoop
         }
     }
 
-    @Override
-    public SslHandler getSslHandler() {
-        return sslHandler;
+    private void setCoreIndex(int coreIndex) {
+        this.coreIndex = coreIndex;
+        this.mainEventLoop = coreIndex == 0;
     }
 
+    // FIXME 会不会出现这种情况，数据已经接收到本地，但是还没有被EventLoop处理完
+    // 执行stop的时候如果确保不会再有数据进来
     @Override
-    public SocketSessionManager getSocketSessionManager() {
-        return sessionManager;
+    public void wakeup() {
+
+        //FIXME 有一定几率select(n)ms
+        if (selecting.compareAndSet(false, true)) {
+            selecting.set(false);
+            return;
+        }
+
+        getSelector().wakeup();
+
+        super.wakeup();
     }
+
+    private void write(NioSocketChannel channel) {
+        try {
+            channel.flush(this);
+        } catch (Throwable e) {
+            cancelSelectionKey(channel, e);
+        }
+    }
+
 }

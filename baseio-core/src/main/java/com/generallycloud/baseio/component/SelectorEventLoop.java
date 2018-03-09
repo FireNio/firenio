@@ -15,21 +15,17 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.io.IOException;
-
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.concurrent.EventLoop;
 
 public interface SelectorEventLoop extends EventLoop {
 
-    public abstract ChannelContext getChannelContext();
+    ChannelContext getChannelContext();
 
-    public abstract ByteBufAllocator getByteBufAllocator();
+    ByteBufAllocator getByteBufAllocator();
 
-    public abstract void rebuildSelector() throws IOException;
+    boolean isMainEventLoop();
 
-    public abstract boolean isMainEventLoop();
-
-    public abstract int getCoreIndex();
+    int getCoreIndex();
 
 }

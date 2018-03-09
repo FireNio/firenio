@@ -16,42 +16,46 @@
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
 import java.util.Set;
+
+import com.generallycloud.baseio.acceptor.ChannelAcceptor;
+import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
+import com.generallycloud.baseio.connector.AbstractSocketChannelConnector;
 
 /**
  * @author wangkai
  *
  */
-public abstract class NioSocketSelector implements SocketSelector {
+public class NioSocketSelector implements SocketSelector {
 
-    private Selector                  selector = null;
+    private Selector       selector;
+    private ChannelBuilder channelBuilder;
 
-    protected SocketSelectorEventLoop selectorEventLoop;
-
-    public NioSocketSelector(SocketSelectorEventLoop selectorEventLoop, Selector selector) {
-        this.selectorEventLoop = selectorEventLoop;
+    public NioSocketSelector(SocketSelectorEventLoop selectorEventLoop, SelectableChannel channel,
+            Selector selector) {
         this.selector = selector;
+        this.channelBuilder = newChannelBuilder(selectorEventLoop, channel);
+    }
+
+    private ChannelBuilder newChannelBuilder(SocketSelectorEventLoop selectorEventLoop,
+            SelectableChannel channel) {
+        NioSocketChannelContext context = selectorEventLoop.getChannelContext();
+        if (context.getChannelService() instanceof ChannelAcceptor) {
+            return new AcceptorChannelBuilder((ServerSocketChannel) channel,
+                    selectorEventLoop.getEventLoopGroup());
+        } else {
+            return new ConnectorChannelBuilder(selectorEventLoop,
+                    (java.nio.channels.SocketChannel) channel);
+        }
     }
 
     @Override
-    public int selectNow() throws IOException {
-        return selector.selectNow();
-    }
-
-    @Override
-    public int select(long timeout) throws IOException {
-        return selector.select(timeout);
-    }
-
-    @Override
-    public Set<SelectionKey> selectedKeys() throws IOException {
-        return selector.selectedKeys();
-    }
-
-    public java.nio.channels.Selector getSelector() {
-        return selector;
+    public void buildChannel(SelectionKey k) throws IOException {
+        channelBuilder.buildChannel(k);
     }
 
     @Override
@@ -59,9 +63,16 @@ public abstract class NioSocketSelector implements SocketSelector {
         selector.close();
     }
 
-    @Override
-    public void wakeup() {
-        selector.wakeup();
+    public void finishConnect(UnsafeSocketSession session, Throwable e) {
+        SocketChannelContext context = session.getContext();
+        ChannelService service = context.getChannelService();
+        if (service instanceof AbstractSocketChannelConnector) {
+            ((AbstractSocketChannelConnector) service).finishConnect(session, e);
+        }
+    }
+
+    public java.nio.channels.Selector getSelector() {
+        return selector;
     }
 
     protected NioSocketChannel regist(java.nio.channels.SocketChannel channel,
@@ -78,6 +89,96 @@ public abstract class NioSocketSelector implements SocketSelector {
         // fire session open event
         socketChannel.fireOpend();
         return socketChannel;
+    }
+
+    @Override
+    public int select(long timeout) throws IOException {
+        return selector.select(timeout);
+    }
+
+    @Override
+    public Set<SelectionKey> selectedKeys() throws IOException {
+        return selector.selectedKeys();
+    }
+
+    @Override
+    public int selectNow() throws IOException {
+        return selector.selectNow();
+    }
+
+    @Override
+    public void wakeup() {
+        selector.wakeup();
+    }
+
+    interface ChannelBuilder {
+        void buildChannel(SelectionKey k) throws IOException;
+    }
+
+    class AcceptorChannelBuilder implements ChannelBuilder {
+
+        private ServerSocketChannel          serverSocketChannel;
+        private FixedAtomicInteger           channelIdGenerator;
+        private SocketSelectorEventLoopGroup selectorEventLoopGroup;
+
+        public AcceptorChannelBuilder(ServerSocketChannel serverSocketChannel,
+                SocketSelectorEventLoopGroup selectorEventLoopGroup) {
+            this.serverSocketChannel = serverSocketChannel;
+            this.selectorEventLoopGroup = selectorEventLoopGroup;
+            this.channelIdGenerator = selectorEventLoopGroup.getChannelContext().getCHANNEL_ID();
+        }
+
+        @Override
+        public void buildChannel(SelectionKey k) throws IOException {
+            final int channelId = channelIdGenerator.getAndIncrement();
+            if (serverSocketChannel.getLocalAddress() == null) {
+                return;
+            }
+            final java.nio.channels.SocketChannel channel = serverSocketChannel.accept();
+            SocketSelectorEventLoop selectorLoop = selectorEventLoopGroup.getNext();
+            // 配置为非阻塞
+            channel.configureBlocking(false);
+            // 注册到selector，等待连接
+            if (selectorLoop.isMainEventLoop()) {
+                regist(channel, selectorLoop, channelId);
+                return;
+            }
+            selectorLoop.dispatch(new SelectorLoopEventAdapter() {
+                @Override
+                public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
+                    regist(channel, selectLoop, channelId);
+                }
+            });
+            selectorLoop.wakeup();
+        }
+    }
+
+    class ConnectorChannelBuilder implements ChannelBuilder {
+
+        private java.nio.channels.SocketChannel jdkChannel;
+        private SocketSelectorEventLoop         selectorEventLoop;
+
+        public ConnectorChannelBuilder(SocketSelectorEventLoop selectorEventLoop,
+                java.nio.channels.SocketChannel jdkChannel) {
+            this.selectorEventLoop = selectorEventLoop;
+            this.jdkChannel = jdkChannel;
+        }
+
+        @Override
+        public void buildChannel(SelectionKey k) throws IOException {
+            try {
+                if (!jdkChannel.finishConnect()) {
+                    throw new IOException("connect failed");
+                }
+                SocketChannel channel = regist(jdkChannel, selectorEventLoop, 1);
+                if (channel.isEnableSSL()) {
+                    return;
+                }
+                finishConnect(channel.getSession(), null);
+            } catch (IOException e) {
+                finishConnect(null, e);
+            }
+        }
     }
 
 }

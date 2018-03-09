@@ -35,5 +35,7 @@ public interface SocketSelector extends Closeable {
     void buildChannel(SelectionKey k) throws IOException;
 
     void wakeup();
+    
+    void finishConnect(UnsafeSocketSession session, Throwable e);
 
 }
