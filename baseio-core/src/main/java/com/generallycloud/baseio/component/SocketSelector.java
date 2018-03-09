@@ -18,6 +18,7 @@ package com.generallycloud.baseio.component;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.util.Set;
 
 /**
@@ -25,17 +26,21 @@ import java.util.Set;
  *
  */
 public interface SocketSelector extends Closeable {
+    
+    void buildChannel(SelectionKey k) throws IOException;
 
-    int selectNow() throws IOException;
+    void finishConnect(UnsafeSocketSession session, Throwable e);
+    
+    Selector getSelector();
+    
+    int select() throws IOException;
 
     int select(long timeout) throws IOException;
 
     Set<SelectionKey> selectedKeys() throws IOException;
 
-    void buildChannel(SelectionKey k) throws IOException;
-
-    void wakeup();
+    int selectNow() throws IOException;
     
-    void finishConnect(UnsafeSocketSession session, Throwable e);
+    void wakeup();
 
 }

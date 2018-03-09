@@ -16,7 +16,15 @@
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.spi.SelectorProvider;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.AbstractSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,9 +32,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.net.ssl.SSLHandshakeException;
 
 import com.generallycloud.baseio.LifeCycleUtil;
+import com.generallycloud.baseio.acceptor.ChannelAcceptor;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
@@ -58,26 +68,25 @@ public class SocketSelectorEventLoop extends AbstractEventLoop
     private boolean                              mainEventLoop            = true;
     private AtomicBoolean                        selecting                = new AtomicBoolean();
     private SocketSelector                       selector                 = null;
-    private SocketSelectorBuilder                selectorBuilder          = null;
     private BufferedArrayList<SelectorLoopEvent> selectorLoopEvents       = new BufferedArrayList<>();
     private SocketSessionManager                 sessionManager           = null;
     private SslHandler                           sslHandler               = null;
     private UnpooledByteBufAllocator             unpooledByteBufAllocator = null;
+    private SelectionKeySet                     selectionKeySet = null;
 
     public SocketSelectorEventLoop(SocketSelectorEventLoopGroup group, int coreIndex) {
         this.eventLoopGroup = group;
         this.context = group.getChannelContext();
-        this.selectorBuilder = context.getChannelService().getSelectorBuilder();
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
         this.byteBufReader = context.getChannelByteBufReader();
         this.sessionManager = context.getSessionManager();
         this.sessionManager = new NioSocketSessionManager(context);
         this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(true);
+        this.setCoreIndex(coreIndex);
+        this.byteBufAllocator = context.getByteBufAllocatorManager().getNextBufAllocator();
         if (context.isEnableSSL()) {
             sslHandler = context.getSslContext().newSslHandler(context);
         }
-        this.setCoreIndex(coreIndex);
-        this.byteBufAllocator = context.getByteBufAllocatorManager().getNextBufAllocator();
     }
 
     private void accept(NioSocketChannel channel) {
@@ -102,34 +111,28 @@ public class SocketSelectorEventLoop extends AbstractEventLoop
         }
     }
 
-    private void accept(Set<SelectionKey> sks) {
-        for (SelectionKey k : sks) {
-            if (!k.isValid()) {
-                continue;
-            }
-            NioSocketChannel channel = (NioSocketChannel) k.attachment();
-            if (channel == null) {
-                // channel为空说明该链接未打开
-                try {
-                    selector.buildChannel(k);
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                }
-                continue;
-            }
-
-            if (!channel.isOpened()) {
-                continue;
-            }
-
-            if (k.isWritable()) {
-                write(channel);
-                continue;
-            }
-
-            accept(channel);
+    private void accept(SelectionKey k) {
+        if (!k.isValid()) {
+            return;
         }
-        sks.clear();
+        NioSocketChannel channel = (NioSocketChannel) k.attachment();
+        if (channel == null) {
+            // channel为空说明该链接未打开
+            try {
+                selector.buildChannel(k);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+            return;
+        }
+        if (!channel.isOpened()) {
+            return;
+        }
+        if (k.isWritable()) {
+            write(channel);
+            return;
+        }
+        accept(channel);
     }
 
     private void cancelSelectionKey(Channel channel, Throwable t) {
@@ -194,7 +197,20 @@ public class SocketSelectorEventLoop extends AbstractEventLoop
         }
 
         if (selected > 0) {
-            accept(selector.selectedKeys());
+            if (selectionKeySet != null) {
+                SelectionKeySet keySet = selectionKeySet;
+                for (int i = 0; i < keySet.size; ++i) {
+                    SelectionKey k = keySet.keys[i];
+                    keySet.keys[i] = null;
+                    accept(k);
+                }
+            }else{
+                Set<SelectionKey> sks = selector.selectedKeys();
+                for (SelectionKey k : sks) {
+                    accept(k);
+                }
+                sks.clear();
+            }
         } else {
             //			selectEmpty(last_select);
         }
@@ -284,38 +300,98 @@ public class SocketSelectorEventLoop extends AbstractEventLoop
     }
 
     private void rebuildSelector() throws IOException {
-        this.selector = rebuildSelector0();
+        SocketSelector selector = rebuildSelector0();
+        //      Selector old = this.selector;
+        //
+        //      Set<SelectionKey> sks = old.keys();
+        //
+        //      if (sks.size() == 0) {
+        //          logger.debug("sk size 0");
+        //          CloseUtil.close(old);
+        //          return selector;
+        //      }
+        //
+        //      for (SelectionKey sk : sks) {
+        //
+        //          if (!sk.isValid() || sk.attachment() == null) {
+        //              cancelSelectionKey(sk);
+        //              continue;
+        //          }
+        //
+        //          try {
+        //              sk.channel().register(selector, SelectionKey.OP_READ);
+        //          } catch (ClosedChannelException e) {
+        //              cancelSelectionKey(sk, e);
+        //          }
+        //      }
+        //
+        //      CloseUtil.close(old);
+        this.selector = selector;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private SocketSelector openSelector(SelectableChannel channel) throws IOException {
+        SelectorProvider provider = SelectorProvider.provider();
+        Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                try {
+                    return Class.forName("sun.nio.ch.SelectorImpl");
+                } catch (Throwable cause) {
+                    return cause;
+                }
+            }
+        });
+        final Selector selector = provider.openSelector();
+        if (res instanceof Throwable) {
+            return new NioSocketSelector(this, channel, selector);
+        }
+        final Class selectorImplClass = (Class) res;
+        final SelectionKeySet keySet = new SelectionKeySet();
+        res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                try {
+                    Field selectedKeysField = selectorImplClass.getDeclaredField("selectedKeys");
+                    Field publicSelectedKeysField = selectorImplClass
+                            .getDeclaredField("publicSelectedKeys");
+
+                    Throwable cause = ClassUtil.trySetAccessible(selectedKeysField);
+                    if (cause != null) {
+                        return cause;
+                    }
+                    cause = ClassUtil.trySetAccessible(publicSelectedKeysField);
+                    if (cause != null) {
+                        return cause;
+                    }
+
+                    selectedKeysField.set(selector, keySet);
+                    publicSelectedKeysField.set(selector, keySet);
+                    return null;
+                } catch (Exception e) {
+                    return e;
+                }
+            }
+        });
+        if (res instanceof Exception) {
+            return new NioSocketSelector(this, channel, selector);
+        }
+        selectionKeySet = keySet;
+        return new SelectionKeyNioSocketSelector(this, channel, selector, keySet);
     }
 
     private SocketSelector rebuildSelector0() throws IOException {
-        SocketSelector selector = selectorBuilder.build(this);
-
-        //		Selector old = this.selector;
-        //
-        //		Set<SelectionKey> sks = old.keys();
-        //
-        //		if (sks.size() == 0) {
-        //			logger.debug("sk size 0");
-        //			CloseUtil.close(old);
-        //			return selector;
-        //		}
-        //
-        //		for (SelectionKey sk : sks) {
-        //
-        //			if (!sk.isValid() || sk.attachment() == null) {
-        //				cancelSelectionKey(sk);
-        //				continue;
-        //			}
-        //
-        //			try {
-        //				sk.channel().register(selector, SelectionKey.OP_READ);
-        //			} catch (ClosedChannelException e) {
-        //				cancelSelectionKey(sk, e);
-        //			}
-        //		}
-        //
-        //		CloseUtil.close(old);
-
+        SocketChannelContext context = getChannelContext();
+        NioChannelService nioChannelService = (NioChannelService) context.getChannelService();
+        SelectableChannel channel = nioChannelService.getSelectableChannel();
+        SocketSelector selector = openSelector(channel);
+        if (nioChannelService instanceof ChannelAcceptor) {
+            if (isMainEventLoop()) {
+                channel.register(selector.getSelector(), SelectionKey.OP_ACCEPT);
+            }
+        } else {
+            channel.register(selector.getSelector(), SelectionKey.OP_CONNECT);
+        }
         return selector;
     }
 
@@ -365,6 +441,55 @@ public class SocketSelectorEventLoop extends AbstractEventLoop
             channel.flush(this);
         } catch (Throwable e) {
             cancelSelectionKey(channel, e);
+        }
+    }
+
+    class SelectionKeySet extends AbstractSet<SelectionKey> {
+
+        SelectionKey[] keys;
+        int            size;
+
+        SelectionKeySet() {
+            keys = new SelectionKey[1024];
+        }
+
+        @Override
+        public boolean add(SelectionKey o) {
+            keys[size++] = o;
+            if (size == keys.length) {
+                increaseCapacity();
+            }
+            return true;
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return false;
+        }
+
+        private void increaseCapacity() {
+            SelectionKey[] newKeys = new SelectionKey[keys.length << 1];
+            System.arraycopy(keys, 0, newKeys, 0, size);
+            keys = newKeys;
+        }
+
+        @Override
+        public Iterator<SelectionKey> iterator() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            return false;
+        }
+
+        void reset() {
+            size = 0;
+        }
+
+        @Override
+        public int size() {
+            return size;
         }
     }
 

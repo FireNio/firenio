@@ -26,7 +26,6 @@ import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.NioChannelService;
 import com.generallycloud.baseio.component.NioGlobalSocketSessionManager;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketSelectorBuilder;
 import com.generallycloud.baseio.component.SocketSelectorEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.Logger;
@@ -41,7 +40,6 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 
     private NioSocketChannelContext      context;
     private SelectableChannel            selectableChannel      = null;
-    private SocketSelectorBuilder        selectorBuilder        = new SocketSelectorBuilder();
     private SocketSelectorEventLoopGroup selectorEventLoopGroup = null;
     private Logger                       logger                 = LoggerFactory
             .getLogger(getClass());
@@ -90,11 +88,6 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
     private void initChannel() throws IOException {
         this.selectableChannel = SocketChannel.open();
         this.selectableChannel.configureBlocking(false);
-    }
-
-    @Override
-    public SocketSelectorBuilder getSelectorBuilder() {
-        return selectorBuilder;
     }
 
     @Override

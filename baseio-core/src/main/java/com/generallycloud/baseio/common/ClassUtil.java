@@ -15,6 +15,7 @@
  */
 package com.generallycloud.baseio.common;
 
+import java.lang.reflect.AccessibleObject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +65,15 @@ public class ClassUtil {
         }
         cs.add(clazz);
         return cs.toArray(new Class[cs.size()]);
+    }
+
+    public static Throwable trySetAccessible(AccessibleObject object) {
+        try {
+            object.setAccessible(true);
+            return null;
+        } catch (Exception e) {
+            return e;
+        }
     }
 
 }

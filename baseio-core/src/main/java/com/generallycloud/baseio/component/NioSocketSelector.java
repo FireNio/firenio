@@ -32,8 +32,8 @@ import com.generallycloud.baseio.connector.AbstractSocketChannelConnector;
  */
 public class NioSocketSelector implements SocketSelector {
 
-    private Selector       selector;
-    private ChannelBuilder channelBuilder;
+    protected Selector       selector;
+    protected ChannelBuilder channelBuilder;
 
     public NioSocketSelector(SocketSelectorEventLoop selectorEventLoop, SelectableChannel channel,
             Selector selector) {
@@ -89,6 +89,11 @@ public class NioSocketSelector implements SocketSelector {
         // fire session open event
         socketChannel.fireOpend();
         return socketChannel;
+    }
+    
+    @Override
+    public int select() throws IOException {
+        return selector.select();
     }
 
     @Override

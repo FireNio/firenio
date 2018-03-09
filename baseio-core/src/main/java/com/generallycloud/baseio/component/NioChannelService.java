@@ -25,7 +25,6 @@ public interface NioChannelService extends ChannelService {
 
     SocketSelectorEventLoopGroup getSelectorEventLoopGroup();
 
-    SocketSelectorBuilder getSelectorBuilder();
-
     SelectableChannel getSelectableChannel();
+    
 }

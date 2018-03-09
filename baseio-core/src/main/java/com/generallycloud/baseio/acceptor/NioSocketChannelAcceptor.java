@@ -28,7 +28,6 @@ import com.generallycloud.baseio.component.NioChannelService;
 import com.generallycloud.baseio.component.NioGlobalSocketSessionManager;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSelectorBuilder;
 import com.generallycloud.baseio.component.SocketSelectorEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
@@ -41,7 +40,6 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
 
     private ServerSocket                 serverSocket           = null;
     private SelectableChannel            selectableChannel      = null;
-    private SocketSelectorBuilder        selectorBuilder        = new SocketSelectorBuilder();
     private SocketSelectorEventLoopGroup selectorEventLoopGroup = null;
 
     public NioSocketChannelAcceptor(SocketChannelContext context) {
@@ -78,7 +76,7 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
     private void initSelectorLoops() {
         //FIXME socket selector event loop ?
         ServerConfiguration configuration = getContext().getServerConfiguration();
-        String eventLoopName = "nio-process(tcp-" + configuration.getSERVER_PORT()+")";
+        String eventLoopName = "nio-process(tcp-" + configuration.getSERVER_PORT() + ")";
         int core_size = configuration.getSERVER_CORE_SIZE();
         this.selectorEventLoopGroup = new SocketSelectorEventLoopGroup(
                 (NioSocketChannelContext) getContext(), eventLoopName, core_size);
@@ -90,11 +88,6 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
         CloseUtil.close(serverSocket);
         CloseUtil.close(selectableChannel);
         LifeCycleUtil.stop(selectorEventLoopGroup);
-    }
-
-    @Override
-    public SocketSelectorBuilder getSelectorBuilder() {
-        return selectorBuilder;
     }
 
     @Override

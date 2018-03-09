@@ -36,7 +36,7 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelServ
 
     private Throwable           connectException;
     private UnsafeSocketSession session;
-    protected long              timeout          = 3000;
+    private long                timeout          = 3000;
     private boolean             timeouted;
     private Object              wait4ConnectLock = new Object();
 
@@ -54,7 +54,7 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelServ
         this.initialize();
         return getSession();
     }
-    
+
     @Override
     protected void setServerCoreSize(ServerConfiguration configuration) {
         configuration.setSERVER_CORE_SIZE(1);
