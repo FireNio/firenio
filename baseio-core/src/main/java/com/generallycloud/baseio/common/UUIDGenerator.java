@@ -26,5 +26,19 @@ public class UUIDGenerator {
         MathUtil.long2Byte(array, uuid.getLeastSignificantBits(), 8);
         return MathUtil.bytes2HexString(array);
     }
-
+    
+    public static String randomMostSignificantBits() {
+        UUID uuid = UUID.randomUUID();
+        byte[] array = new byte[8];
+        MathUtil.long2Byte(array, uuid.getMostSignificantBits(), 0);
+        return MathUtil.bytes2HexString(array);
+    }
+    
+    public static String randomLeastSignificantBits() {
+        UUID uuid = UUID.randomUUID();
+        byte[] array = new byte[8];
+        MathUtil.long2Byte(array, uuid.getLeastSignificantBits(), 0);
+        return MathUtil.bytes2HexString(array);
+    }
+    
 }

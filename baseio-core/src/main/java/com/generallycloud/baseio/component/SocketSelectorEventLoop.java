@@ -53,8 +53,7 @@ import com.generallycloud.baseio.log.LoggerFactory;
  *
  */
 //FIXME 使用ThreadLocal
-public class SocketSelectorEventLoop extends AbstractEventLoop
-        implements SocketChannelThreadContext, SelectorEventLoop {
+public class SocketSelectorEventLoop extends AbstractEventLoop implements SelectorEventLoop {
 
     private static final Logger                  logger                   = LoggerFactory
             .getLogger(SocketSelectorEventLoop.class);
@@ -72,7 +71,7 @@ public class SocketSelectorEventLoop extends AbstractEventLoop
     private SocketSessionManager                 sessionManager           = null;
     private SslHandler                           sslHandler               = null;
     private UnpooledByteBufAllocator             unpooledByteBufAllocator = null;
-    private SelectionKeySet                     selectionKeySet = null;
+    private SelectionKeySet                      selectionKeySet          = null;
 
     public SocketSelectorEventLoop(SocketSelectorEventLoopGroup group, int coreIndex) {
         this.eventLoopGroup = group;
@@ -204,7 +203,7 @@ public class SocketSelectorEventLoop extends AbstractEventLoop
                     keySet.keys[i] = null;
                     accept(k);
                 }
-            }else{
+            } else {
                 Set<SelectionKey> sks = selector.selectedKeys();
                 for (SelectionKey k : sks) {
                     accept(k);

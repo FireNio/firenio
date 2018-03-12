@@ -90,7 +90,7 @@ public class TestLoadClient1 extends ITestThread {
 
     public static void main(String[] args) throws IOException {
 
-        int time = 256 * 10000;
+        int time = 128 * 10000;
 
         int core_size = 12;
 

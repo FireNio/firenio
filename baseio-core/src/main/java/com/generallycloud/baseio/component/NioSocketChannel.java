@@ -30,17 +30,12 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class NioSocketChannel extends AbstractSocketChannel implements SelectorLoopEvent {
 
-    private static final int        OPS_RW = SelectionKey.OP_READ | SelectionKey.OP_WRITE;
     private SocketChannel           channel;
     private volatile boolean        closing;
     private NioSocketChannelContext context;
-    private boolean                 flushing;
     private SelectionKey            selectionKey;
-
     private SocketSelectorEventLoop selectorEventLoop;
 
-    // FIXME 改进network wake 机制
-    // FIXME network weak check
     public NioSocketChannel(SocketSelectorEventLoop selectorLoop, SelectionKey selectionKey,
             int channelId) {
         super(selectorLoop, channelId);
@@ -93,9 +88,6 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         if (!isOpened()) {
             throw new ClosedChannelException("closed");
         }
-        if (flushing) {
-            return;
-        }
         flush(selectorLoop);
     }
 
@@ -117,7 +109,6 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
             }
             if (!f.isWriteCompleted()) {
                 writeFuture = f;
-                flushing = true;
                 interestWrite(selectionKey);
                 return;
             }
@@ -130,7 +121,6 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         }
         interestRead(selectionKey);
         writeFuture = null;
-        flushing = false;
     }
 
     @Override
@@ -166,8 +156,8 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
     }
 
     private void interestWrite(SelectionKey key) {
-        if (OPS_RW != key.interestOps()) {
-            key.interestOps(OPS_RW);
+        if ((SelectionKey.OP_READ | SelectionKey.OP_WRITE) != key.interestOps()) {
+            key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
         }
     }
 

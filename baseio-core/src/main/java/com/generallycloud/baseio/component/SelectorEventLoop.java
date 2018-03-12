@@ -15,14 +15,9 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.concurrent.EventLoop;
 
-public interface SelectorEventLoop extends EventLoop {
-
-    ChannelContext getChannelContext();
-
-    ByteBufAllocator getByteBufAllocator();
+public interface SelectorEventLoop extends EventLoop, SocketChannelThreadContext {
 
     boolean isMainEventLoop();
 
