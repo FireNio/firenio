@@ -84,7 +84,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     public boolean isHeartbeat() {
         return isHeartbeat;
     }
-
+    
     @Override
     public boolean isPING() {
         return isHeartbeat && isPING;
@@ -144,6 +144,12 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     public void setByteBuf(ByteBuf buf) {
         buf.nioBuffer();
         this.buf = buf;
+    }
+
+    @Override
+    public void setHeartbeat(boolean isPing) {
+        this.isPING = isPing;
+        this.isHeartbeat = true;
     }
 
     @Override

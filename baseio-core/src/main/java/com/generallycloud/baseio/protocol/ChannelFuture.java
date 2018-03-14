@@ -24,38 +24,40 @@ import com.generallycloud.baseio.concurrent.Linkable;
 
 public interface ChannelFuture extends Future, Linkable {
 
+    ChannelFuture duplicate();
+
     ChannelFuture flush();
+
+    ByteBuf getByteBuf();
+
+    int getByteBufLimit();
 
     boolean isHeartbeat();
 
     boolean isPING();
 
     boolean isPONG();
-
-    boolean read(SocketChannel channel, ByteBuf src) throws IOException;
-
-    ChannelFuture setPING();
-
-    ChannelFuture setPONG();
-
+    
     boolean isSilent();
 
-    void setSilent(boolean isSilent);
-
-    void write(SocketChannel channel) throws IOException;
-
     boolean isWriteCompleted();
-
-    ByteBuf getByteBuf();
-
-    ChannelFuture duplicate();
 
     void onException(SocketSession session, Exception e);
 
     void onSuccess(SocketSession session);
 
-    int getByteBufLimit();
+    boolean read(SocketChannel channel, ByteBuf src) throws IOException;
 
     void setByteBuf(ByteBuf buf);
+
+    void setHeartbeat(boolean isPing);
+
+    ChannelFuture setPING();
+
+    ChannelFuture setPONG();
+
+    void setSilent(boolean isSilent);
+
+    void write(SocketChannel channel) throws IOException;
 
 }
