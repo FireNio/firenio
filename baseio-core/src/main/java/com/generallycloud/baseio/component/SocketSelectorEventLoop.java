@@ -104,6 +104,7 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
             byteBufReader.accept(channel, buf.flip());
         } catch (Throwable e) {
             if (e instanceof SSLHandshakeException) {
+                // failed connect , the session should be null
                 getSelector().finishConnect(null, e);
             }
             cancelSelectionKey(channel, e);

@@ -32,12 +32,14 @@ import com.generallycloud.baseio.connector.AbstractSocketChannelConnector;
  */
 public class NioSocketSelector implements SocketSelector {
 
-    protected Selector       selector;
-    protected ChannelBuilder channelBuilder;
+    protected Selector                selector;
+    protected ChannelBuilder          channelBuilder;
+    protected NioSocketChannelContext context;
 
     public NioSocketSelector(SocketSelectorEventLoop selectorEventLoop, SelectableChannel channel,
             Selector selector) {
         this.selector = selector;
+        this.context = selectorEventLoop.getChannelContext();
         this.channelBuilder = newChannelBuilder(selectorEventLoop, channel);
     }
 
@@ -64,7 +66,6 @@ public class NioSocketSelector implements SocketSelector {
     }
 
     public void finishConnect(UnsafeSocketSession session, Throwable e) {
-        SocketChannelContext context = session.getContext();
         ChannelService service = context.getChannelService();
         if (service instanceof AbstractSocketChannelConnector) {
             ((AbstractSocketChannelConnector) service).finishConnect(session, e);
@@ -90,7 +91,7 @@ public class NioSocketSelector implements SocketSelector {
         socketChannel.fireOpend();
         return socketChannel;
     }
-    
+
     @Override
     public int select() throws IOException {
         return selector.select();
