@@ -67,9 +67,9 @@ public final class SslContextBuilder {
         return new SslContextBuilder(false).trustManager(trustAll);
     }
 
-    public static SslContextBuilder forServer(InputStream keyCertChainInputStream,
+    public static SslContextBuilder forServer(InputStream certChainInputStream,
             InputStream keyInputStream, String keyPassword) {
-        return new SslContextBuilder(true).keyManager(keyCertChainInputStream, keyInputStream,
+        return new SslContextBuilder(true).keyManager(certChainInputStream, keyInputStream,
                 keyPassword);
     }
 
@@ -103,13 +103,13 @@ public final class SslContextBuilder {
         return encryptedPrivateKeyInfo.getKeySpec(cipher);
     }
 
-    private X509Certificate[] getCertificatesFromBuffers(byte[][] certs)
+    private X509Certificate[] getCertificatesFromBuffers(List<byte[]> certs)
             throws CertificateException {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        X509Certificate[] x509Certs = new X509Certificate[certs.length];
-        for (int i = 0; i < certs.length; i++) {
+        X509Certificate[] x509Certs = new X509Certificate[certs.size()];
+        for (int i = 0; i < certs.size(); i++) {
             x509Certs[i] = (X509Certificate) cf
-                    .generateCertificate(new ByteArrayInputStream(certs[i]));
+                    .generateCertificate(new ByteArrayInputStream(certs.get(i)));
         }
         return x509Certs;
     }
@@ -307,11 +307,11 @@ public final class SslContextBuilder {
 
     private PrivateKey toPrivateKey(InputStream keyInputStream, String keyPassword)
             throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException,
-            InvalidAlgorithmParameterException, KeyException, IOException {
+            InvalidAlgorithmParameterException, KeyException, IOException, CertificateException {
         if (keyInputStream == null) {
             return null;
         }
-        return getPrivateKeyFromByteBuffer(PemReader.readPrivateKey(keyInputStream), keyPassword);
+        return getPrivateKeyFromByteBuffer(PemReader.readCertificates(keyInputStream).get(0), keyPassword);
     }
 
     private X509Certificate[] toX509Certificates(InputStream in) throws CertificateException {
@@ -422,17 +422,17 @@ public final class SslContextBuilder {
         return this;
     }
 
-    public SslContextBuilder keyManager(InputStream keyCertChainInputStream,
+    public SslContextBuilder keyManager(InputStream certChainInputStream,
             InputStream keyInputStream, String keyPassword) {
         needServer();
         X509Certificate[] keyCertChain;
         PrivateKey key;
         try {
-            keyCertChain = toX509Certificates(keyCertChainInputStream);
+            keyCertChain = toX509Certificates(certChainInputStream);
         } catch (Exception e) {
             throw new IllegalArgumentException("Input stream not contain valid certificates.", e);
         } finally {
-            CloseUtil.close(keyCertChainInputStream);
+            CloseUtil.close(certChainInputStream);
         }
         try {
             key = toPrivateKey(keyInputStream, keyPassword);
