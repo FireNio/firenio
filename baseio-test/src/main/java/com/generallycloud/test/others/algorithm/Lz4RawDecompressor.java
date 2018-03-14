@@ -15,6 +15,7 @@ package com.generallycloud.test.others.algorithm;
 
 import com.generallycloud.baseio.common.UnsafeUtil;
 
+//FIXME read byte by array[i] instead of unsafe
 public final class Lz4RawDecompressor {
     private static final int   LAST_LITERAL_SIZE = 5;
     private static final int   MIN_MATCH         = 4;

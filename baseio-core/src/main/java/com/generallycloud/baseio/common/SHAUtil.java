@@ -35,21 +35,11 @@ public class SHAUtil {
 
         String ss = "test2";
 
-        System.out.println(BASE64Util.byteArrayToBase64(SHA(ss)));
+        System.out.println(MathUtil.bytes2HexString(SHA1(ss)));
 
-        System.out.println(BASE64Util.byteArrayToBase64(SHA1(ss)));
-    }
+        System.out.println(MathUtil.bytes2HexString(SHA256(ss)));
 
-    public static byte[] SHA(byte[] decript) {
-        return doSHA(decript, "SHA");
-    }
-
-    public static byte[] SHA(String decript) {
-        return SHA(decript, Encoding.UTF8);
-    }
-
-    public static byte[] SHA(String decript, Charset encoding) {
-        return doSHA(decript.getBytes(encoding), "SHA");
+        System.out.println(MathUtil.bytes2HexString(SHA512(ss)));
     }
 
     public static byte[] SHA1(byte[] decript) {
@@ -61,7 +51,31 @@ public class SHAUtil {
     }
 
     public static byte[] SHA1(String decript, Charset encoding) {
-        return doSHA(decript.getBytes(encoding), "SHA-1");
+        return SHA1(decript.getBytes(encoding));
+    }
+
+    public static byte[] SHA256(byte[] decript) {
+        return doSHA(decript, "SHA-256");
+    }
+
+    public static byte[] SHA256(String decript) {
+        return SHA256(decript, Encoding.UTF8);
+    }
+
+    public static byte[] SHA256(String decript, Charset encoding) {
+        return SHA256(decript.getBytes(encoding));
+    }
+
+    public static byte[] SHA512(byte[] decript) {
+        return doSHA(decript, "SHA-512");
+    }
+
+    public static byte[] SHA512(String decript) {
+        return SHA512(decript, Encoding.UTF8);
+    }
+
+    public static byte[] SHA512(String decript, Charset encoding) {
+        return SHA512(decript.getBytes(encoding));
     }
 
 }

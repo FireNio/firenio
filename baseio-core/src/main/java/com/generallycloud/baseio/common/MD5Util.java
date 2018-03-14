@@ -20,35 +20,27 @@ import java.security.MessageDigest;
 
 public class MD5Util {
 
-    private static MD5Util instance    = new MD5Util();
-
-    private MD5Util() {}
-
-    public static MD5Util get() {
-        return instance;
-    }
-
-    public String get16(String value) {
+    public static String get16(String value) {
         return get16(value, Encoding.UTF8);
     }
 
-    public String get16(String value, Charset encoding) {
-        return get32(value.getBytes()).substring(8, 24);
+    public static String get16(String value, Charset encoding) {
+        return get32(value.getBytes(encoding)).substring(8, 24);
     }
 
-    public String get32(String value) {
+    public static String get32(String value) {
         return get32(value, Encoding.UTF8);
     }
 
-    public String get32(String value, Charset encoding) {
-        return get32(value.getBytes()).toString();
+    public static String get32(String value, Charset encoding) {
+        return get32(value.getBytes(encoding));
     }
 
-    public String get32(byte[] array) {
+    public static String get32(byte[] array) {
         return get32(array, 0, array.length);
     }
 
-    public String get32(byte[] array, int off, int len) {
+    public static String get32(byte[] array, int off, int len) {
         try {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(array, off, len);
