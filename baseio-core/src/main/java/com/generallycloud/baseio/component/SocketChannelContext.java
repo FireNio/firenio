@@ -15,56 +15,78 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.nio.charset.Charset;
+
+import com.generallycloud.baseio.LifeCycle;
+import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
+import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
+import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
-public interface SocketChannelContext extends ChannelContext {
+public interface SocketChannelContext extends Attributes, LifeCycle {
 
-    public abstract SocketSessionManager getSessionManager();
+    void addSessionEventListener(SocketSessionEventListener listener);
 
-    public abstract IoEventHandleAdaptor getIoEventHandleAdaptor();
+    void addSessionIdleEventListener(SocketSessionIdleEventListener listener);
 
-    public abstract ExecutorEventLoopGroup getExecutorEventLoopGroup();
+    BeatFutureFactory getBeatFutureFactory();
 
-    public abstract BeatFutureFactory getBeatFutureFactory();
+    ByteBufAllocatorManager getByteBufAllocatorManager();
 
-    public abstract void setBeatFutureFactory(BeatFutureFactory beatFutureFactory);
+    ChannelByteBufReader getChannelByteBufReader();
 
-    public abstract void setIoEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor);
+    ChannelService getChannelService();
 
-    public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
+    Charset getEncoding();
 
-    public abstract ProtocolFactory getProtocolFactory();
+    ExecutorEventLoopGroup getExecutorEventLoopGroup();
 
-    public abstract ProtocolEncoder getProtocolEncoder();
+    ForeFutureAcceptor getForeReadFutureAcceptor();
 
-    public abstract ProtocolDecoder getProtocolDecoder();
+    IoEventHandleAdaptor getIoEventHandleAdaptor();
 
-    public abstract SslContext getSslContext();
+    ProtocolDecoder getProtocolDecoder();
 
-    public abstract void setSslContext(SslContext sslContext);
+    ProtocolEncoder getProtocolEncoder();
 
-    public abstract ChannelByteBufReader getChannelByteBufReader();
+    ProtocolFactory getProtocolFactory();
 
-    public abstract boolean isEnableSSL();
+    ServerConfiguration getServerConfiguration();
 
-    public abstract SocketSessionFactory getSessionFactory();
+    SocketSessionEventListenerWrapper getSessionEventListenerLink();
 
-    public abstract void setSocketSessionFactory(SocketSessionFactory sessionFactory);
+    SocketSessionFactory getSessionFactory();
 
-    public abstract ForeFutureAcceptor getForeReadFutureAcceptor();
+    SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink();
 
-    public abstract SocketSessionEventListenerWrapper getSessionEventListenerLink();
+    long getSessionIdleTime();
 
-    public abstract SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink();
+    SocketSessionManager getSessionManager();
 
-    public abstract void addSessionEventListener(SocketSessionEventListener listener);
+    SslContext getSslContext();
 
-    public abstract void addSessionIdleEventListener(SocketSessionIdleEventListener listener);
+    long getStartupTime();
 
-    public abstract void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup);
+    boolean isEnableSSL();
+
+    void setBeatFutureFactory(BeatFutureFactory beatFutureFactory);
+
+    void setByteBufAllocatorManager(ByteBufAllocatorManager byteBufAllocatorManager);
+
+    void setChannelService(ChannelService service);
+
+    void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup);
+
+    void setIoEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor);
+
+    void setProtocolFactory(ProtocolFactory protocolFactory);
+
+    void setSocketSessionFactory(SocketSessionFactory sessionFactory);
+
+    void setSslContext(SslContext sslContext);
 
 }

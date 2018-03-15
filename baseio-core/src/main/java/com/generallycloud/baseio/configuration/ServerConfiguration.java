@@ -18,7 +18,7 @@ package com.generallycloud.baseio.configuration;
 import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.common.Encoding;
-import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
 
 //FIXME 校验参数
 public class ServerConfiguration {
@@ -170,7 +170,7 @@ public class ServerConfiguration {
         this.SERVER_ENABLE_MEMORY_POOL_DIRECT = SERVER_ENABLE_MEMORY_POOL_DIRECT;
     }
 
-    public void initializeDefault(ChannelContext context) {
+    public void initializeDefault(SocketChannelContext context) {
 
         if (SERVER_MEMORY_POOL_UNIT == 0) {
             SERVER_MEMORY_POOL_UNIT = 512;

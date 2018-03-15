@@ -28,6 +28,6 @@ public interface SelectorEventLoopGroup extends EventLoopGroup {
 
     public abstract SelectorEventLoop[] getSelectorEventLoops();
 
-    public abstract ChannelContext getChannelContext();
+    public abstract SocketChannelContext getChannelContext();
 
 }

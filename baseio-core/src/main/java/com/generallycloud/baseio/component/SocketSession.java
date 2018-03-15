@@ -15,11 +15,16 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketOption;
+import java.nio.charset.Charset;
+import java.util.Map;
 
 import javax.net.ssl.SSLEngine;
 
+import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -27,45 +32,92 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
-public interface SocketSession extends Session {
+public interface SocketSession extends Closeable {
 
-    public abstract boolean isEnableSSL();
+    void active();
 
-    public abstract SSLEngine getSSLEngine();
-
-    public abstract ProtocolDecoder getProtocolDecoder();
-
-    public abstract ProtocolEncoder getProtocolEncoder();
-
-    public abstract ProtocolFactory getProtocolFactory();
-
-    @Override
-    public abstract SocketChannelContext getContext();
-
-    public abstract String getProtocolId();
-
-    public abstract ExecutorEventLoop getExecutorEventLoop();
-
-    /**
-     * flush未encode的future
-     * @param future
-     */
-    public abstract void flush(Future future);
+    void clearAttributes();
 
     /**
      * flush已encode的future
      * @param future
      */
-    public abstract void doFlush(ChannelFuture future);
+    void doFlush(ChannelFuture future);
 
-    public abstract <T> T getOption(SocketOption<T> name) throws IOException;
+    /**
+     * flush未encode的future
+     * @param future
+     */
+    void flush(Future future);
 
-    public abstract <T> void setOption(SocketOption<T> name, T value) throws IOException;
+    Object getAttachment();
 
-    public abstract void setProtocolDecoder(ProtocolDecoder protocolDecoder);
+    Object getAttribute(Object key);
 
-    public abstract void setProtocolEncoder(ProtocolEncoder protocolEncoder);
+    Map<Object, Object> getAttributes();
 
-    public abstract void setProtocolFactory(ProtocolFactory protocolFactory);
+    ByteBufAllocator getByteBufAllocator();
+
+    SocketChannelContext getContext();
+
+    long getCreationTime();
+
+    Charset getEncoding();
+
+    ExecutorEventLoop getExecutorEventLoop();
+
+    long getLastAccessTime();
+
+    String getLocalAddr();
+    
+    String getLocalHost();
+
+    int getLocalPort();
+
+    InetSocketAddress getLocalSocketAddress();
+
+    <T> T getOption(SocketOption<T> name) throws IOException;
+
+    ProtocolDecoder getProtocolDecoder();
+
+    ProtocolEncoder getProtocolEncoder();
+
+    ProtocolFactory getProtocolFactory();
+
+    String getProtocolId();
+
+    String getRemoteAddr();
+
+    String getRemoteHost();
+
+    int getRemotePort();
+
+    InetSocketAddress getRemoteSocketAddress();
+
+    int getSessionId();
+
+    SSLEngine getSSLEngine();
+
+    boolean inSelectorLoop();
+
+    boolean isClosed();
+
+    boolean isEnableSSL();
+
+    boolean isOpened();
+
+    Object removeAttribute(Object key);
+
+    void setAttachment(Object attachment);
+
+    void setAttribute(Object key, Object value);
+
+    <T> void setOption(SocketOption<T> name, T value) throws IOException;
+
+    void setProtocolDecoder(ProtocolDecoder protocolDecoder);
+
+    void setProtocolEncoder(ProtocolEncoder protocolEncoder);
+
+    void setProtocolFactory(ProtocolFactory protocolFactory);
 
 }

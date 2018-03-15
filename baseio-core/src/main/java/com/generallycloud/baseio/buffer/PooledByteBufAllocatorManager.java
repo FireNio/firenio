@@ -17,7 +17,7 @@ package com.generallycloud.baseio.buffer;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
-import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public class PooledByteBufAllocatorManager extends AbstractLifeCycle
@@ -27,13 +27,13 @@ public class PooledByteBufAllocatorManager extends AbstractLifeCycle
 
     private LinkAbleByteBufAllocator   allocator  = null;
 
-    private ChannelContext             context    = null;
+    private SocketChannelContext             context    = null;
 
-    public PooledByteBufAllocatorManager(ChannelContext context) {
+    public PooledByteBufAllocatorManager(SocketChannelContext context) {
         this.context = context;
     }
 
-    private void createByteBufAllocator(ChannelContext context) {
+    private void createByteBufAllocator(SocketChannelContext context) {
 
         if (allocators != null) {
             return;

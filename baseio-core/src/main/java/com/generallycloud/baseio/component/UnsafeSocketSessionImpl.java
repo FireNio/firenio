@@ -15,8 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
-public class UnsafeSocketSessionImpl extends SocketChannelSessionImpl
-        implements UnsafeSocketSession {
+public class UnsafeSocketSessionImpl extends SocketSessionImpl implements UnsafeSocketSession {
 
     public UnsafeSocketSessionImpl(SocketChannel channel) {
         super(channel);

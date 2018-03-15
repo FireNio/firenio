@@ -19,7 +19,7 @@ import java.net.InetSocketAddress;
 
 public interface ChannelService {
 
-    public abstract ChannelContext getContext();
+    public abstract SocketChannelContext getContext();
 
     public abstract InetSocketAddress getServerSocketAddress();
 

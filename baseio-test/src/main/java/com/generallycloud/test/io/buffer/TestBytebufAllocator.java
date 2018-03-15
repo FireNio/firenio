@@ -18,7 +18,7 @@ package com.generallycloud.test.io.buffer;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
-import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
@@ -38,7 +38,7 @@ public class TestBytebufAllocator {
 
         configuration.setSERVER_MEMORY_POOL_UNIT(1);
 
-        ChannelContext context = new NioSocketChannelContext(configuration);
+        SocketChannelContext context = new NioSocketChannelContext(configuration);
 
         PooledByteBufAllocatorManager allocator = new PooledByteBufAllocatorManager(context);
 

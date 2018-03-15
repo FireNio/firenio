@@ -15,12 +15,15 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketOption;
 
 import javax.net.ssl.SSLEngine;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.protocol.ChannelFuture;
@@ -29,7 +32,9 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 import com.generallycloud.baseio.protocol.SslFuture;
 
-public interface SocketChannel extends DuplexChannel {
+public interface SocketChannel extends Closeable {
+
+    void active();
 
     void doFlush(ChannelFuture future);
 
@@ -39,10 +44,25 @@ public interface SocketChannel extends DuplexChannel {
 
     void flush(ChannelFuture future);
 
-    @Override
+    ByteBufAllocator getByteBufAllocator();
+
+    int getChannelId();
+
     SocketChannelContext getContext();
 
+    long getCreationTime();
+
     ExecutorEventLoop getExecutorEventLoop();
+
+    long getLastAccessTime();
+
+    String getLocalAddr();
+
+    String getLocalHost();
+
+    int getLocalPort();
+
+    InetSocketAddress getLocalSocketAddress();
 
     <T> T getOption(SocketOption<T> name) throws IOException;
 
@@ -54,7 +74,14 @@ public interface SocketChannel extends DuplexChannel {
 
     ChannelFuture getReadFuture();
 
-    @Override
+    String getRemoteAddr();
+
+    String getRemoteHost();
+
+    int getRemotePort();
+
+    InetSocketAddress getRemoteSocketAddress();
+
     UnsafeSocketSession getSession();
 
     SSLEngine getSSLEngine();
@@ -67,9 +94,13 @@ public interface SocketChannel extends DuplexChannel {
 
     int getWriteFutureSize();
 
+    boolean inSelectorLoop();
+
     boolean isBlocking();
 
     boolean isEnableSSL();
+
+    boolean isOpened();
 
     <T> void setOption(SocketOption<T> name, T value) throws IOException;
 

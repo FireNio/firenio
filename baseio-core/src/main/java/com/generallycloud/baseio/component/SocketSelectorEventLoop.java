@@ -135,7 +135,7 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
         accept(channel);
     }
 
-    private void cancelSelectionKey(Channel channel, Throwable t) {
+    private void cancelSelectionKey(SocketChannel channel, Throwable t) {
         logger.error(t.getMessage() + " channel:" + channel, t);
         CloseUtil.close(channel);
     }

@@ -19,11 +19,11 @@ import java.io.Closeable;
 
 import com.generallycloud.baseio.component.ChannelService;
 import com.generallycloud.baseio.component.Connectable;
-import com.generallycloud.baseio.component.Session;
+import com.generallycloud.baseio.component.SocketSession;
 
 public interface ChannelConnector extends ChannelService, Connectable, Closeable {
 
-    public abstract Session getSession();
+    public abstract SocketSession getSession();
 
     public abstract boolean isConnected();
 

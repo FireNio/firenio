@@ -16,8 +16,16 @@
 package com.generallycloud.baseio.component;
 
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
+import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
+import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
+import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
+import com.generallycloud.baseio.buffer.UnpooledByteBufAllocatorManager;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
@@ -30,83 +38,82 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
-public abstract class AbstractSocketChannelContext extends AbstractChannelContext
+public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         implements SocketChannelContext {
+    
+    protected Map<Object, Object>     attributes  = new HashMap<>();
+    private BeatFutureFactory                                    beatFutureFactory;
+    protected ByteBufAllocatorManager byteBufAllocatorManager;
+    private FixedAtomicInteger                                   CHANNEL_ID;
+    private ChannelByteBufReaderLinkGroup                        channelByteBufReaderGroup     = new ChannelByteBufReaderLinkGroup();
+    private boolean                                              enableSSL;
+
+    protected Charset                 encoding;
+
+    private ExecutorEventLoopGroup                               executorEventLoopGroup;
+
+    private ForeFutureAcceptor                                   foreReadFutureAcceptor;
+
+    private boolean                                              initialized;
 
     private IoEventHandleAdaptor                                 ioEventHandleAdaptor;
-    private ProtocolFactory                                      protocolFactory;
-    private BeatFutureFactory                                    beatFutureFactory;
-    private ExecutorEventLoopGroup                               executorEventLoopGroup;
-    private ProtocolEncoder                                      protocolEncoder;
-    private ProtocolDecoder                                      protocolDecoder;
-    private SslContext                                           sslContext;
-    private boolean                                              enableSSL;
-    private boolean                                              initialized;
-    private ForeFutureAcceptor                                   foreReadFutureAcceptor;
-    private SocketSessionFactory                                 sessionFactory;
-    private ChannelByteBufReaderLinkGroup                        channelByteBufReaderGroup     = new ChannelByteBufReaderLinkGroup();
-    private LinkableGroup<SocketSessionEventListenerWrapper>     sessionEventListenerGroup     = new LinkableGroup<>();
-    private LinkableGroup<SocketSessionIdleEventListenerWrapper> sessionIdleEventListenerGroup = new LinkableGroup<>();
+
     private Logger                                               logger                        = LoggerFactory
             .getLogger(getClass());
-    private FixedAtomicInteger                                   CHANNEL_ID;
 
+    private ProtocolDecoder                                      protocolDecoder;
+
+    private ProtocolEncoder                                      protocolEncoder;
+
+    private ProtocolFactory                                      protocolFactory;
+
+    protected ServerConfiguration     serverConfiguration;
+
+    private LinkableGroup<SocketSessionEventListenerWrapper>     sessionEventListenerGroup     = new LinkableGroup<>();
+
+    private SocketSessionFactory                                 sessionFactory;
+
+    private LinkableGroup<SocketSessionIdleEventListenerWrapper> sessionIdleEventListenerGroup = new LinkableGroup<>();
+
+    protected long                    sessionIdleTime;
+
+
+    private SslContext                                           sslContext;
+    protected long                    startupTime = System.currentTimeMillis();
+    public AbstractSocketChannelContext(ServerConfiguration configuration) {
+
+        if (configuration == null) {
+            throw new IllegalArgumentException("null configuration");
+        }
+
+        this.serverConfiguration = configuration;
+
+        this.addLifeCycleListener(new ChannelContextListener());
+
+        this.sessionIdleTime = configuration.getSERVER_SESSION_IDLE_TIME();
+    }
     @Override
     public void addSessionEventListener(SocketSessionEventListener listener) {
         sessionEventListenerGroup.addLink(new SocketSessionEventListenerWrapper(listener));
     }
-
     @Override
     public void addSessionIdleEventListener(SocketSessionIdleEventListener listener) {
         sessionIdleEventListenerGroup.addLink(new SocketSessionIdleEventListenerWrapper(listener));
     }
-
     @Override
-    public SocketSessionEventListenerWrapper getSessionEventListenerLink() {
-        return sessionEventListenerGroup.getRootLink();
+    public void clearAttributes() {
+        this.attributes.clear();
     }
-
-    @Override
-    public SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink() {
-        return sessionIdleEventListenerGroup.getRootLink();
-    }
-
-    @Override
-    public BeatFutureFactory getBeatFutureFactory() {
-        return beatFutureFactory;
-    }
-
-    @Override
-    public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
-        this.beatFutureFactory = beatFutureFactory;
-    }
-
-    @Override
-    public ProtocolEncoder getProtocolEncoder() {
-        return protocolEncoder;
-    }
-
-    @Override
-    public ProtocolDecoder getProtocolDecoder() {
-        return protocolDecoder;
-    }
-
-    public AbstractSocketChannelContext(ServerConfiguration configuration) {
-        super(configuration);
-    }
-
-    @Override
     protected void clearContext() {
-        super.clearContext();
-        createChannelIdsSequence();
+        this.clearAttributes();
+        this.createChannelIdsSequence();
     }
-
     private void createChannelIdsSequence() {
         int core_size = serverConfiguration.getSERVER_CORE_SIZE();
         int max = (Integer.MAX_VALUE / core_size) * core_size - 1;
         this.CHANNEL_ID = new FixedAtomicInteger(0, max);
     }
-
+    protected abstract ExecutorEventLoopGroup createExecutorEventLoopGroup();
     @Override
     protected void doStart() throws Exception {
 
@@ -201,17 +208,9 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
         
         doStartModule();
     }
-    
-    protected abstract ExecutorEventLoopGroup createExecutorEventLoopGroup();
-
     protected void doStartModule() throws Exception {
 
     }
-
-    protected void doStopModule() {
-
-    }
-
     @Override
     protected void doStop() throws Exception {
 
@@ -229,10 +228,52 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
 
         doStopModule();
     }
+    protected void doStopModule() {
+
+    }
+    @Override
+    public Object getAttribute(Object key) {
+        return this.attributes.get(key);
+    }
+    @Override
+    public Set<Object> getAttributeNames() {
+        return this.attributes.keySet();
+    }
+    @Override
+    public BeatFutureFactory getBeatFutureFactory() {
+        return beatFutureFactory;
+    }
 
     @Override
-    public ProtocolFactory getProtocolFactory() {
-        return protocolFactory;
+    public ByteBufAllocatorManager getByteBufAllocatorManager() {
+        return byteBufAllocatorManager;
+    }
+
+    /**
+     * @return the CHANNEL_ID
+     */
+    public FixedAtomicInteger getCHANNEL_ID() {
+        return CHANNEL_ID;
+    }
+
+    @Override
+    public ChannelByteBufReader getChannelByteBufReader() {
+        return channelByteBufReaderGroup.getRootLink();
+    }
+
+    @Override
+    public Charset getEncoding() {
+        return encoding;
+    }
+
+    @Override
+    public ExecutorEventLoopGroup getExecutorEventLoopGroup() {
+        return executorEventLoopGroup;
+    }
+
+    @Override
+    public ForeFutureAcceptor getForeReadFutureAcceptor() {
+        return foreReadFutureAcceptor;
     }
 
     @Override
@@ -241,8 +282,95 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
     }
 
     @Override
-    public ExecutorEventLoopGroup getExecutorEventLoopGroup() {
-        return executorEventLoopGroup;
+    public ProtocolDecoder getProtocolDecoder() {
+        return protocolDecoder;
+    }
+
+    @Override
+    public ProtocolEncoder getProtocolEncoder() {
+        return protocolEncoder;
+    }
+
+    @Override
+    public ProtocolFactory getProtocolFactory() {
+        return protocolFactory;
+    }
+    
+    @Override
+    public ServerConfiguration getServerConfiguration() {
+        return serverConfiguration;
+    }
+
+    @Override
+    public SocketSessionEventListenerWrapper getSessionEventListenerLink() {
+        return sessionEventListenerGroup.getRootLink();
+    }
+
+    @Override
+    public SocketSessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+
+    @Override
+    public SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink() {
+        return sessionIdleEventListenerGroup.getRootLink();
+    }
+
+    @Override
+    public long getSessionIdleTime() {
+        return sessionIdleTime;
+    }
+
+    @Override
+    public SslContext getSslContext() {
+        return sslContext;
+    }
+
+    @Override
+    public long getStartupTime() {
+        return startupTime;
+    }
+
+    protected void initializeByteBufAllocator() {
+
+        if (getByteBufAllocatorManager() == null) {
+
+            if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
+                this.byteBufAllocatorManager = new PooledByteBufAllocatorManager(this);
+            } else {
+                this.byteBufAllocatorManager = new UnpooledByteBufAllocatorManager(this);
+            }
+        }
+    }
+
+    @Override
+    public boolean isEnableSSL() {
+        return enableSSL;
+    }
+
+    @Override
+    public Object removeAttribute(Object key) {
+        return this.attributes.remove(key);
+    }
+
+    @Override
+    public void setAttribute(Object key, Object value) {
+        this.attributes.put(key, value);
+    }
+
+    @Override
+    public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
+        this.beatFutureFactory = beatFutureFactory;
+    }
+
+    @Override
+    public void setByteBufAllocatorManager(ByteBufAllocatorManager byteBufAllocatorManager) {
+        this.byteBufAllocatorManager = byteBufAllocatorManager;
+    }
+
+    @Override
+    public void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup) {
+        this.executorEventLoopGroup = executorEventLoopGroup;
     }
 
     @Override
@@ -256,13 +384,8 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
     }
 
     @Override
-    public void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup) {
-        this.executorEventLoopGroup = executorEventLoopGroup;
-    }
-
-    @Override
-    public SslContext getSslContext() {
-        return sslContext;
+    public void setSocketSessionFactory(SocketSessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
@@ -272,38 +395,6 @@ public abstract class AbstractSocketChannelContext extends AbstractChannelContex
         }
         this.sslContext = sslContext;
         this.enableSSL = true;
-    }
-
-    @Override
-    public boolean isEnableSSL() {
-        return enableSSL;
-    }
-
-    @Override
-    public SocketSessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
-
-    @Override
-    public void setSocketSessionFactory(SocketSessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
-
-    @Override
-    public ChannelByteBufReader getChannelByteBufReader() {
-        return channelByteBufReaderGroup.getRootLink();
-    }
-
-    @Override
-    public ForeFutureAcceptor getForeReadFutureAcceptor() {
-        return foreReadFutureAcceptor;
-    }
-
-    /**
-     * @return the CHANNEL_ID
-     */
-    public FixedAtomicInteger getCHANNEL_ID() {
-        return CHANNEL_ID;
     }
 
 }

@@ -38,7 +38,7 @@ public abstract class AbstractChannelService implements ChannelService {
         if (getContext() == null) {
             throw new IllegalArgumentException("null context");
         }
-        ChannelContext context = getContext();
+        SocketChannelContext context = getContext();
         LifeCycleUtil.stop(context);
         context.setChannelService(this);
         setServerCoreSize(context.getServerConfiguration());
