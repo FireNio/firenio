@@ -141,6 +141,9 @@ public class NioSocketSelector implements SocketSelector {
                 return;
             }
             final java.nio.channels.SocketChannel channel = serverSocketChannel.accept();
+            if (channel == null) {
+                return;
+            }
             SocketSelectorEventLoop selectorLoop = selectorEventLoopGroup.getNext();
             // 配置为非阻塞
             channel.configureBlocking(false);
