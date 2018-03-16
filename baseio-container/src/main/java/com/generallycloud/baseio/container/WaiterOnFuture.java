@@ -37,6 +37,6 @@ public class WaiterOnFuture implements OnFuture {
 
     @Override
     public void onResponse(SocketSession session, Future future) {
-        this.waiter.setPayload(future);
+        this.waiter.response(future);
     }
 }

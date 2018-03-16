@@ -27,20 +27,16 @@ public class HttpIOEventHandle extends IoEventHandleAdaptor {
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
-
         HttpFuture f = (HttpFuture) future;
-
         Waiter<HttpFuture> waiter = this.waiter;
-
         if (waiter != null) {
-
             this.waiter = null;
-
-            waiter.setPayload(f);
+            waiter.response(f);
         }
     }
 
-    public void setWaiter(Waiter<HttpFuture> waiter) {
-        this.waiter = waiter;
+    public Waiter<HttpFuture> newWaiter() {
+        this.waiter = new Waiter<>();
+        return this.waiter;
     }
 }

@@ -149,11 +149,14 @@ public class NioSocketSelector implements SocketSelector {
                 regist(channel, selectorLoop, channelId);
                 return;
             }
-            selectorLoop.dispatch(new SelectorLoopEventAdapter() {
+            selectorLoop.dispatch(new SelectorLoopEvent() {
                 @Override
                 public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
                     regist(channel, selectLoop, channelId);
                 }
+
+                @Override
+                public void close() throws IOException {}
             });
             selectorLoop.wakeup();
         }

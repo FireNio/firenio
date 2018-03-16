@@ -32,7 +32,6 @@ import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.authority.Authority;
-import com.generallycloud.baseio.protocol.Future;
 
 public class FixedSession {
 
@@ -57,10 +56,6 @@ public class FixedSession {
 
     public long getTimeout() {
         return timeout;
-    }
-
-    public void accept(SocketSession session, Future future) throws Exception {
-
     }
 
     public Authority getAuthority() {

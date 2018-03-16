@@ -15,90 +15,41 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
-
 public class Waiter<T> {
 
-    private ReentrantLock lock     = new ReentrantLock();
-    private Condition     callback = lock.newCondition();
-    private boolean       isDnoe;
-    private boolean       timeouted;
-    private T             t;
+    private boolean isDnoe;
+    private boolean timeouted;
+    private T       response;
 
-    /**
-     * @param timeout
-     * @return timeouted
-     */
     public boolean await() {
-
-        ReentrantLock lock = this.lock;
-
-        lock.lock();
-
-        if (isDnoe) {
-
-            lock.unlock();
-
-            return false;
-        }
-
-        try {
-            callback.await();
-        } catch (InterruptedException e) {
-            callback.signal();
-        }
-
-        timeouted = !isDnoe;
-
-        lock.unlock();
-
-        return timeouted;
+        return await(0);
     }
 
     /**
+     * return true is timeout
+     * 
      * @param timeout
-     * @return timeouted
+     * @return timeouted 
      */
     public boolean await(long timeout) {
-
-        ReentrantLock lock = this.lock;
-
-        lock.lock();
-
-        if (isDnoe) {
-
-            lock.unlock();
-
-            return false;
+        synchronized (this) {
+            if (isDnoe) {
+                return false;
+            }
+            try {
+                this.wait(timeout);
+            } catch (InterruptedException e) {}
+            timeouted = !isDnoe;
         }
-
-        try {
-            callback.await(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            callback.signal();
-        }
-
-        timeouted = !isDnoe;
-
-        lock.unlock();
-
         return timeouted;
     }
 
-    public void setPayload(T t) {
-        ReentrantLock lock = this.lock;
-
-        lock.lock();
-
-        this.isDnoe = true;
-
-        this.t = t;
-
-        callback.signal();
-
-        lock.unlock();
+    public void response(T t) {
+        synchronized (this) {
+            this.isDnoe = true;
+            this.response = t;
+            this.notify();
+        }
     }
 
     public boolean isDnoe() {
@@ -106,10 +57,11 @@ public class Waiter<T> {
     }
 
     public T getPayload() {
-        return t;
+        return response;
     }
 
     public boolean isTimeouted() {
         return timeouted;
     }
+    
 }

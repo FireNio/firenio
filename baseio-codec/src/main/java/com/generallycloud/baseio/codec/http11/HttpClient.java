@@ -26,9 +26,7 @@ import com.generallycloud.baseio.concurrent.Waiter;
 public class HttpClient {
 
     private SocketChannelContext context;
-
     private SocketSession        session;
-
     private HttpIOEventHandle    ioEventHandle;
 
     public HttpClient(SocketSession session) {
@@ -38,22 +36,15 @@ public class HttpClient {
     }
 
     public synchronized HttpFuture request(HttpFuture future, long timeout) throws IOException {
-
-        Waiter<HttpFuture> waiter = new Waiter<>();
-
-        ioEventHandle.setWaiter(waiter);
-
+        Waiter<HttpFuture> waiter = ioEventHandle.newWaiter();
         session.flush(future);
-
         if (waiter.await(timeout)) {
             throw new TimeoutException("timeout");
         }
-
         return waiter.getPayload();
     }
 
     public synchronized HttpFuture request(HttpFuture future) throws IOException {
-
         return request(future, 3000);
     }
 

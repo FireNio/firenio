@@ -107,7 +107,7 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
                 // failed connect , the session should be null
                 getSelector().finishConnect(null, e);
             }
-            cancelSelectionKey(channel, e);
+            closeSocketChannel(channel, e);
         }
     }
 
@@ -115,8 +115,8 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
         if (!k.isValid()) {
             return;
         }
-        NioSocketChannel channel = (NioSocketChannel) k.attachment();
-        if (channel == null) {
+        NioSocketChannel ch = (NioSocketChannel) k.attachment();
+        if (ch == null) {
             // channel为空说明该链接未打开
             try {
                 selector.buildChannel(k);
@@ -125,17 +125,17 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
             }
             return;
         }
-        if (!channel.isOpened()) {
+        if (!ch.isOpened()) {
             return;
         }
         if (k.isWritable()) {
-            write(channel);
+            write(ch);
             return;
         }
-        accept(channel);
+        accept(ch);
     }
-
-    private void cancelSelectionKey(SocketChannel channel, Throwable t) {
+    
+    private void closeSocketChannel(SocketChannel channel, Throwable t) {
         logger.error(t.getMessage() + " channel:" + channel, t);
         CloseUtil.close(channel);
     }
@@ -440,7 +440,7 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
         try {
             channel.flush(this);
         } catch (Throwable e) {
-            cancelSelectionKey(channel, e);
+            closeSocketChannel(channel, e);
         }
     }
 
