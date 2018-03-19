@@ -46,7 +46,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
             int channelId) {
         super(aioThread, channelId);
         this.channel = channel;
-        this.readCache = UnpooledByteBufAllocator.getHeapInstance().allocate(4096);
+        this.readCache = UnpooledByteBufAllocator.getHeap().allocate(4096);
         this.context = aioThread.getChannelContext();
         this.readCompletionHandler = aioThread.getReadCompletionHandler();
         this.writeCompletionHandler = aioThread.getWriteCompletionHandler();

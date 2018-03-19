@@ -73,7 +73,7 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
     private UnpooledByteBufAllocator             unpooledByteBufAllocator = null;
     private SelectionKeySet                      selectionKeySet          = null;
 
-    public SocketSelectorEventLoop(SocketSelectorEventLoopGroup group, int coreIndex) {
+    SocketSelectorEventLoop(SocketSelectorEventLoopGroup group, int coreIndex) {
         this.eventLoopGroup = group;
         this.context = group.getChannelContext();
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();

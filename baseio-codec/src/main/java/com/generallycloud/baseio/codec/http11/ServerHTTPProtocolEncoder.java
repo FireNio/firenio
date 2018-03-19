@@ -48,14 +48,14 @@ public class ServerHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
             return;
         }
 
-        ByteArrayBuffer buffer = f.getWriteBuffer();
+        int writeSize = f.getWriteSize();
 
-        if (buffer == null) {
+        if (writeSize == 0) {
             encode(allocator, f, 0, null);
             return;
         }
 
-        encode(allocator, f, buffer.size(), buffer.array());
+        encode(allocator, f, writeSize, f.getWriteBuffer());
     }
 
     private void encode(ByteBufAllocator allocator, ServerHttpFuture f, int length, byte[] array)

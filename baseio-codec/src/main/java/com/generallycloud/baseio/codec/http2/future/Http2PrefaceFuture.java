@@ -36,8 +36,7 @@ public class Http2PrefaceFuture extends AbstractChannelFuture {
 
     static {
 
-        PREFACE_BUF = UnpooledByteBufAllocator.getHeapInstance()
-                .wrap(ByteBuffer.wrap(PREFACE_BINARY));
+        PREFACE_BUF = UnpooledByteBufAllocator.getHeap().wrap(ByteBuffer.wrap(PREFACE_BINARY));
     }
 
     public Http2PrefaceFuture(SocketChannelContext context, ByteBuf buf) {
@@ -53,7 +52,7 @@ public class Http2PrefaceFuture extends AbstractChannelFuture {
     private void doComplete(SocketChannel channel, ByteBuf buf) throws IOException {
 
         Http2SocketSession session = (Http2SocketSession) channel.getSession();
-        
+
         session.setPrefaceRead(false);
 
         if (!isPreface(buf)) {

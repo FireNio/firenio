@@ -31,7 +31,7 @@ public class SelectionKeyNioSocketSelector extends NioSocketSelector {
 
     private SelectionKeySet selectionKeySet;
 
-    public SelectionKeyNioSocketSelector(SocketSelectorEventLoop selectorEventLoop,
+    SelectionKeyNioSocketSelector(SocketSelectorEventLoop selectorEventLoop,
             SelectableChannel channel, Selector selector, SelectionKeySet selectionKeySet) {
         super(selectorEventLoop, channel, selector);
         this.selectionKeySet = selectionKeySet;

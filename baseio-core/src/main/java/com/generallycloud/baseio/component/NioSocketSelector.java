@@ -36,7 +36,7 @@ public class NioSocketSelector implements SocketSelector {
     protected ChannelBuilder          channelBuilder;
     protected NioSocketChannelContext context;
 
-    public NioSocketSelector(SocketSelectorEventLoop selectorEventLoop, SelectableChannel channel,
+    NioSocketSelector(SocketSelectorEventLoop selectorEventLoop, SelectableChannel channel,
             Selector selector) {
         this.selector = selector;
         this.context = selectorEventLoop.getChannelContext();

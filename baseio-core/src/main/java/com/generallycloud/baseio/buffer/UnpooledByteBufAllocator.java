@@ -38,7 +38,7 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 
     private UnpooledByteBufFactory unpooledByteBufferFactory;
 
-    public static UnpooledByteBufAllocator getHeapInstance() {
+    public static UnpooledByteBufAllocator getHeap() {
         return heapAllocator;
     }
 
@@ -48,7 +48,7 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
      * @return
      */
     @Deprecated
-    public static UnpooledByteBufAllocator getDirectInstance() {
+    public static UnpooledByteBufAllocator getDirect() {
         return directAllocator;
     }
 

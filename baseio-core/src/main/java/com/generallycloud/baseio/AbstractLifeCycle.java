@@ -35,26 +35,12 @@ public abstract class AbstractLifeCycle implements LifeCycle {
     private boolean                       starting                = false;
     private boolean                       stopped                 = true;
     private boolean                       stopping                = false;
-    private Comparator<LifeCycleListener> lifeCycleListenerSorter = new Comparator<LifeCycleListener>() {
-
-                                                                      @Override
-                                                                      public int compare(
-                                                                              LifeCycleListener o1,
-                                                                              LifeCycleListener o2) {
-
-                                                                          return o1
-                                                                                  .lifeCycleListenerSortIndex() > o2
-                                                                                          .lifeCycleListenerSortIndex()
-                                                                                                  ? 1
-                                                                                                  : -1;
-                                                                      }
-                                                                  };
 
     @Override
     public void addLifeCycleListener(LifeCycleListener listener) {
         synchronized (lifeCycleListeners) {
             lifeCycleListeners.add(listener);
-            Collections.sort(lifeCycleListeners, lifeCycleListenerSorter);
+            Collections.sort(lifeCycleListeners, new LifeCycleListenerSorter());
         }
     }
 
@@ -169,7 +155,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
     public void removeLifeCycleListener(LifeCycleListener listener) {
         synchronized (lifeCycleListeners) {
             lifeCycleListeners.remove(listener);
-            Collections.sort(lifeCycleListeners, lifeCycleListenerSorter);
+            Collections.sort(lifeCycleListeners, new LifeCycleListenerSorter());
         }
     }
 
@@ -261,5 +247,13 @@ public abstract class AbstractLifeCycle implements LifeCycle {
         this.stopping = false;
 
     }
+
+    class LifeCycleListenerSorter implements Comparator<LifeCycleListener> {
+
+        @Override
+        public int compare(LifeCycleListener o1, LifeCycleListener o2) {
+            return o1.lifeCycleListenerSortIndex() > o2.lifeCycleListenerSortIndex() ? 1 : -1;
+        }
+    };
 
 }

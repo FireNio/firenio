@@ -18,27 +18,28 @@ package com.generallycloud.baseio.protocol;
 import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.common.Releasable;
-import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.SocketChannelContext;
 
 public interface Future extends Releasable {
 
-    public abstract SocketChannelContext getContext();
+    SocketChannelContext getContext();
 
-    public abstract boolean flushed();
+    boolean flushed();
 
-    public abstract String getReadText();
+    String getReadText();
 
-    public abstract ByteArrayBuffer getWriteBuffer();
+    byte [] getWriteBuffer();
+    
+    int getWriteSize();
 
-    public abstract void write(String text);
+    void write(String text);
 
-    public abstract void write(String text, Charset charset);
+    void write(String text, Charset charset);
 
-    public abstract void write(byte b);
+    void write(byte b);
 
-    public abstract void write(byte b[]);
+    void write(byte b[]);
 
-    public abstract void write(byte b[], int off, int len);
+    void write(byte b[], int off, int len);
 
 }

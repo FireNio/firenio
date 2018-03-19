@@ -53,7 +53,7 @@ public class LinkableByteBufAllocatorImpl extends AbstractLifeCycle
     public ByteBuf allocate(int capacity, LinkAbleByteBufAllocator allocator) {
         if (allocator == this) {
             //FIXME 是否申请java内存
-            return UnpooledByteBufAllocator.getHeapInstance().allocate(capacity);
+            return UnpooledByteBufAllocator.getHeap().allocate(capacity);
             //			return null;
         }
         ByteBuf buf = unwrap().allocate(capacity);

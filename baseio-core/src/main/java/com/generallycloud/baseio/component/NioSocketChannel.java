@@ -36,7 +36,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
     private SelectionKey            selectionKey;
     private SocketSelectorEventLoop selectorEventLoop;
 
-    public NioSocketChannel(SocketSelectorEventLoop selectorLoop, SelectionKey selectionKey,
+    NioSocketChannel(SocketSelectorEventLoop selectorLoop, SelectionKey selectionKey,
             int channelId) {
         super(selectorLoop, channelId);
         this.selectorEventLoop = selectorLoop;
@@ -67,15 +67,11 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                     return;
                 }
                 closing = true;
-                dispatchEvent(new CloseSelectorLoopEvent(this));
+                selectorEventLoop.dispatch(new CloseSelectorLoopEvent(this));
             }
         } finally {
             lock.unlock();
         }
-    }
-
-    protected void dispatchEvent(SelectorLoopEvent event) {
-        this.selectorEventLoop.dispatch(event);
     }
 
     @Override
@@ -185,15 +181,11 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
     }
 
     protected int read(ByteBuf buf) throws IOException {
-        int length = read(buf.getNioBuffer());
+        int length = channel.read(buf.getNioBuffer());
         if (length > 0) {
             buf.reverse();
         }
         return length;
-    }
-
-    private int read(ByteBuffer buffer) throws IOException {
-        return channel.read(buffer);
     }
 
     @Override

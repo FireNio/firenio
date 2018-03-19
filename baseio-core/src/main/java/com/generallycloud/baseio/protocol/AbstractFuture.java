@@ -16,18 +16,19 @@
 package com.generallycloud.baseio.protocol;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
-import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.SocketChannelContext;
 
 public abstract class AbstractFuture implements Future {
 
+    protected SocketChannelContext context;
     protected boolean              flushed;
     protected String               readText;
-    protected SocketChannelContext context;
-    protected ByteArrayBuffer      writeBuffer;
+    protected byte[]               writeBuffer;
+    protected int                  writeSize;
 
-    protected AbstractFuture(SocketChannelContext context) {
+    AbstractFuture(SocketChannelContext context) {
         this.context = context;
     }
 
@@ -47,8 +48,13 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public void write(String text) {
-        write(text, context.getEncoding());
+    public byte[] getWriteBuffer() {
+        return writeBuffer;
+    }
+    
+    @Override
+    public int getWriteSize() {
+        return writeSize;
     }
 
     @Override
@@ -57,21 +63,16 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public ByteArrayBuffer getWriteBuffer() {
-        return writeBuffer;
-    }
-
-    @Override
-    public void write(String text, Charset charset) {
-        write(text.getBytes(charset));
-    }
-
-    @Override
     public void write(byte b) {
         if (writeBuffer == null) {
-            writeBuffer = new ByteArrayBuffer();
+            writeBuffer = new byte [256];
         }
-        writeBuffer.write(b);
+        int newcount = writeSize + 1;
+        if (newcount > writeBuffer.length) {
+            writeBuffer = Arrays.copyOf(writeBuffer, writeBuffer.length << 1);
+        }
+        writeBuffer[writeSize] = (byte) b;
+        writeSize = newcount;
     }
 
     @Override
@@ -82,16 +83,31 @@ public abstract class AbstractFuture implements Future {
     @Override
     public void write(byte[] bytes, int off, int len) {
         if (writeBuffer == null) {
-            if (off != 0) {
-                byte[] copy = new byte[len - off];
-                System.arraycopy(bytes, off, copy, 0, len);
-                writeBuffer = new ByteArrayBuffer(copy, len);
+            if ((len - off) != bytes.length) {
+                writeBuffer = new byte[len];
+                System.arraycopy(bytes, off, writeBuffer, 0, len);
                 return;
             }
-            writeBuffer = new ByteArrayBuffer(bytes, len);
+            writeBuffer = bytes;
+            writeSize = len;
             return;
         }
-        writeBuffer.write(bytes, off, len);
+        int newcount = writeSize + len;
+        if (newcount > writeBuffer.length) {
+            writeBuffer = Arrays.copyOf(writeBuffer, Math.max(writeBuffer.length << 1, newcount));
+        }
+        System.arraycopy(bytes, off, writeBuffer, writeSize, len);
+        writeSize = newcount;
+    }
+
+    @Override
+    public void write(String text) {
+        write(text, context.getEncoding());
+    }
+
+    @Override
+    public void write(String text, Charset charset) {
+        write(text.getBytes(charset));
     }
 
 }

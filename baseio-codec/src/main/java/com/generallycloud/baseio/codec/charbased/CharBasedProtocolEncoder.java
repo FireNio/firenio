@@ -20,7 +20,6 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.codec.charbased.future.CharBasedFuture;
-import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
@@ -37,15 +36,15 @@ public class CharBasedProtocolEncoder implements ProtocolEncoder {
 
         CharBasedFuture f = (CharBasedFuture) future;
 
-        ByteArrayBuffer buffer = f.getWriteBuffer();
+        int writeSize = f.getWriteSize();
 
-        if (buffer == null) {
+        if (writeSize == 0) {
             throw new IOException("null write buffer");
         }
 
-        ByteBuf buf = allocator.allocate(buffer.size() + 1);
+        ByteBuf buf = allocator.allocate(writeSize + 1);
 
-        buf.put(buffer.array(), 0, buffer.size());
+        buf.put(f.getWriteBuffer(), 0, writeSize);
 
         buf.putByte(splitor);
 

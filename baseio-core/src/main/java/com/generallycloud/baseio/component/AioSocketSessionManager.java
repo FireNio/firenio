@@ -105,7 +105,7 @@ public class AioSocketSessionManager extends AbstractSessionManager
         }
         ChannelFuture f = (ChannelFuture) future;
         ProtocolEncoder encoder = context.getProtocolEncoder();
-        ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeapInstance();
+        ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeap();
         encoder.encode(allocator, f);
         broadcastChannelFuture(f);
     }

@@ -21,7 +21,6 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
 import com.generallycloud.baseio.common.MathUtil;
-import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
@@ -36,13 +35,11 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
 
         WebSocketFuture f = (WebSocketFuture) future;
 
-        ByteArrayBuffer buffer = future.getWriteBuffer();
-
         byte[] header;
 
-        byte[] data = buffer.array();
+        byte[] data = f.getWriteBuffer();
 
-        int size = buffer.size();
+        int size = f.getWriteSize();
 
         byte header0 = (byte) (0x8f & (f.getType() | 0xf0));
 

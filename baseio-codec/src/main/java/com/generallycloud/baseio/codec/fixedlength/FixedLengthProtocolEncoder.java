@@ -19,40 +19,49 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
-import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 public class FixedLengthProtocolEncoder implements ProtocolEncoder {
+    
+    private static final ByteBuf PING;
+    private static final ByteBuf PONG;
+    
+    static{
+        ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeap();
+        PING = allocator.allocate(4);
+        PONG = allocator.allocate(4);
+        PING.putInt(FixedLengthProtocolDecoder.PROTOCOL_PING);
+        PONG.putInt(FixedLengthProtocolDecoder.PROTOCOL_PONG);
+        PING.flip();
+        PONG.flip();
+    }
+    
 
     @Override
     public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
 
         if (future.isHeartbeat()) {
-            int value = future.isPING() ? FixedLengthProtocolDecoder.PROTOCOL_PING
-                    : FixedLengthProtocolDecoder.PROTOCOL_PONG;
-            ByteBuf buf = allocator.allocate(4);
-            buf.putInt(value);
-            future.setByteBuf(buf.flip());
+            ByteBuf buf = future.isPING() ? PING.duplicate() : PONG.duplicate();
+            future.setByteBuf(buf);
             return;
         }
 
         FixedLengthFuture f = (FixedLengthFuture) future;
 
-        ByteArrayBuffer buffer = f.getWriteBuffer();
+        int writeSize = f.getWriteSize();
 
-        if (buffer == null) {
+        if (writeSize == 0) {
             throw new IOException("null write buffer");
         }
 
-        int size = buffer.size();
+        ByteBuf buf = allocator.allocate(writeSize + 4);
 
-        ByteBuf buf = allocator.allocate(size + 4);
+        buf.putInt(writeSize);
 
-        buf.putInt(size);
-
-        buf.put(buffer.array(), 0, size);
+        buf.put(f.getWriteBuffer(), 0, writeSize);
 
         future.setByteBuf(buf.flip());
     }

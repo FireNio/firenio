@@ -64,16 +64,16 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
         ByteArrayBuffer binary = f.getWriteBinaryBuffer();
 
-        ByteArrayBuffer buffer = f.getWriteBuffer();
+        int writeSize = f.getWriteSize();
 
         byte[] text_array;
         int text_length;
-        if (buffer == null) {
+        if (writeSize == 0) {
             text_array = EMPTY_ARRAY;
             text_length = 0;
         } else {
-            text_array = buffer.array();
-            text_length = buffer.size();
+            text_array = f.getWriteBuffer();
+            text_length = writeSize;
         }
 
         if (binary != null) {

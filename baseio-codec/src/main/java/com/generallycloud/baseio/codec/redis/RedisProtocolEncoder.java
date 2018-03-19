@@ -21,7 +21,6 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.redis.future.RedisFuture;
-import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
@@ -32,14 +31,13 @@ public class RedisProtocolEncoder implements ProtocolEncoder {
 
         RedisFuture f = (RedisFuture) future;
 
-        ByteArrayBuffer buffer = f.getWriteBuffer();
+        int writeSize = f.getWriteSize();
 
-        if (buffer == null) {
-            throw new IOException("null write text");
+        if (writeSize == 0) {
+            throw new IOException("null write buffer");
         }
 
-        ByteBuf buf = UnpooledByteBufAllocator.getHeapInstance().wrap(buffer.array(), 0,
-                buffer.size());
+        ByteBuf buf = UnpooledByteBufAllocator.getHeap().wrap(f.getWriteBuffer(), 0, writeSize);
 
         future.setByteBuf(buf);
     }

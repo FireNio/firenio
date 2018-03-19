@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.protocol;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.SocketChannelContext;
 
 /**
@@ -44,7 +43,12 @@ public class DuplicateChannelFuture extends DefaultChannelFuture {
     }
 
     @Override
-    public ByteArrayBuffer getWriteBuffer() {
+    public int getWriteSize() {
+        return unwrap().getWriteSize();
+    }
+    
+    @Override
+    public byte[] getWriteBuffer() {
         return unwrap().getWriteBuffer();
     }
 

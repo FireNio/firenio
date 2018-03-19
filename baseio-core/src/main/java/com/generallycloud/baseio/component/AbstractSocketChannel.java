@@ -74,7 +74,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
 
     // FIXME 改进network wake 机制
     // FIXME network weak check
-    public AbstractSocketChannel(SocketChannelThreadContext context, int channelId) {
+    AbstractSocketChannel(SocketChannelThreadContext context, int channelId) {
         SocketChannelContext socketChannelContext = context.getChannelContext();
         DefaultChannelFuture f = new DefaultChannelFuture(context.getChannelContext(),
                 EmptyByteBuf.getInstance());
