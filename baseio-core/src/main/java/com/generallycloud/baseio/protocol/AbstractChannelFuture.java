@@ -22,18 +22,14 @@ import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.Linkable;
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractChannelFuture extends AbstractFuture implements ChannelFuture {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractChannelFuture.class);
-
     //FIXME isX 使用 byte & x ?
     protected ByteBuf  buf        = EmptyByteBuf.getInstance();
+    protected boolean  flushed;
     protected boolean  isHeartbeat;
     protected boolean  isPING;
     protected boolean  isSilent;
@@ -81,10 +77,15 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     }
 
     @Override
+    public boolean flushed() {
+        return flushed;
+    }
+
+    @Override
     public boolean isHeartbeat() {
         return isHeartbeat;
     }
-    
+
     @Override
     public boolean isPING() {
         return isHeartbeat && isPING;
@@ -113,26 +114,6 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     @Override
     public boolean isWriteCompleted() {
         return !buf.hasRemaining();
-    }
-
-    @Override
-    public void onException(SocketSession session, Exception ex) {
-        ReleaseUtil.release(this);
-        try {
-            context.getIoEventHandleAdaptor().exceptionCaught(session, this, ex);
-        } catch (Throwable e) {
-            logger.debug(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void onSuccess(SocketSession session) {
-        ReleaseUtil.release(this);
-        try {
-            context.getIoEventHandleAdaptor().futureSent(session, this);
-        } catch (Throwable e) {
-            logger.debug(e);
-        }
     }
 
     @Override
@@ -186,11 +167,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
         ByteBuf old = this.buf;
         SslHandler handler = channel.getSslHandler();
         try {
-            ByteBuf _buf = handler.wrap(channel, old);
-            if (_buf == null) {
-                throw new IOException("closed ssl");
-            }
-            this.buf = _buf;
+            this.buf = handler.wrap(channel, old);
             this.buf.nioBuffer();
         } finally {
             ReleaseUtil.release(old);

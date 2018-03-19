@@ -52,11 +52,6 @@ public class TestUpload {
 
             }
 
-            @Override
-            public void futureSent(SocketSession session, Future future) {
-                ProtobaseFuture f = (ProtobaseFuture) future;
-                System.out.println("报文已发送：" + f.getReadText());
-            }
         };
 
         LoggerFactory.configure();

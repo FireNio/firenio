@@ -23,18 +23,12 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 public abstract class AbstractFuture implements Future {
 
     protected SocketChannelContext context;
-    protected boolean              flushed;
     protected String               readText;
     protected byte[]               writeBuffer;
     protected int                  writeSize;
 
     AbstractFuture(SocketChannelContext context) {
         this.context = context;
-    }
-
-    @Override
-    public boolean flushed() {
-        return flushed;
     }
 
     @Override

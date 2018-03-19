@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Linkable;
 
 public interface ChannelFuture extends Future, Linkable {
@@ -41,10 +40,6 @@ public interface ChannelFuture extends Future, Linkable {
     boolean isSilent();
 
     boolean isWriteCompleted();
-
-    void onException(SocketSession session, Exception e);
-
-    void onSuccess(SocketSession session);
 
     boolean read(SocketChannel channel, ByteBuf src) throws IOException;
 

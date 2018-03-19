@@ -109,7 +109,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                 return;
             }
             writeFutureLength(-f.getByteBufLimit());
-            f.onSuccess(session);
+            ReleaseUtil.release(f);
             f = writeFutures.poll();
             if (f == null) {
                 break;

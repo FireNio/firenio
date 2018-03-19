@@ -48,13 +48,6 @@ public class TestLoadServer {
                 session.flush(future);
                 //				System.out.println("req======================"+req.getAndIncrement());
             }
-
-            @Override
-            public void futureSent(SocketSession session, Future future) {
-                //				NIOReadFuture f = (NIOReadFuture) future;
-                //				System.out.println(f.getWriteBuffer());
-                //				System.out.println("res==========="+res.getAndIncrement());
-            }
         };
 
         ServerConfiguration c = new ServerConfiguration(8300);

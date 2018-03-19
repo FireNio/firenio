@@ -28,11 +28,6 @@ public abstract class IoEventHandleAdaptor implements IoEventHandle {
         logger.error(ex.getMessage(),ex);
     }
 
-    @Override
-    public void futureSent(SocketSession session, Future future) {
-
-    }
-
     protected void initialize(SocketChannelContext context) throws Exception {
 
     }

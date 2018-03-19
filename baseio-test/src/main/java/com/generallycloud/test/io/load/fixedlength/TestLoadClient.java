@@ -62,20 +62,6 @@ public class TestLoadClient {
                 //				logger.info("res==========={}",res.getAndIncrement());
             }
 
-            @Override
-            public void futureSent(SocketSession session, Future future) {
-                //				NIOReadFuture f = (NIOReadFuture) future;
-                //				System.out.println(f.getWriteBuffer());
-                //				System.out.println("req======================"+req.getAndIncrement());
-
-                latch.countDown();
-                long count = latch.getCount();
-                if (count % 10 == 0) {
-                    if (count < 50) {
-                        logger.info("************************================" + count);
-                    }
-                }
-            }
         };
 
         ServerConfiguration configuration = new ServerConfiguration(8300);

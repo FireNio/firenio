@@ -121,7 +121,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
             // 这里最好使用isClosing()判断更合适，但是使用isOpened()判断也没问题
             // 因为doFlush与Close互斥
             if (!isOpened()) {
-                f.onException(session, new ClosedChannelException(session.toString()));
+                onFutureException(f, new ClosedChannelException(session.toString()));
                 return;
             }
             writeFutures.offer(f);
@@ -136,7 +136,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
             }
             doFlush0();
         } catch (Exception e) {
-            f.onException(session, e);
+            onFutureException(f, e);
         } finally {
             lock.unlock();
         }
@@ -408,7 +408,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         ClosedChannelException e = null;
         if (writeFuture != null && !writeFuture.isReleased()) {
             e = new ClosedChannelException(session.toString());
-            writeFuture.onException(session, e);
+            onFutureException(writeFuture, e);
         }
         LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
         if (writeFutures.size() == 0) {
@@ -420,7 +420,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
             e = new ClosedChannelException(session.toString());
         }
         for (; f != null;) {
-            f.onException(session, e);
+            onFutureException(f, e);
             ReleaseUtil.release(f);
             f = writeFutures.poll();
         }
@@ -463,6 +463,15 @@ public abstract class AbstractSocketChannel implements SocketChannel {
 
     protected int writeFutureLength(int len) {
         return writeFutureLength.addAndGet(len);
+    }
+    
+    protected void onFutureException(ChannelFuture future, Exception ex) {
+        ReleaseUtil.release(future);
+        try {
+            getContext().getIoEventHandleAdaptor().exceptionCaught(getSession(), future, ex);
+        } catch (Throwable e) {
+            logger.debug(e.getMessage(), e);
+        }
     }
 
 }

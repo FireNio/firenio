@@ -43,10 +43,6 @@ public class TestHttpLoadServer {
                 //				System.out.println("req======================"+req.getAndIncrement());
             }
 
-            @Override
-            public void futureSent(SocketSession session, Future future) {
-                //				System.out.println("res==========="+res.getAndIncrement());
-            }
         };
 
         ServerConfiguration c = new ServerConfiguration(8080);
