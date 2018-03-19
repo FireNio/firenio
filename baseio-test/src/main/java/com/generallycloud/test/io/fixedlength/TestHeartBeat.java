@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.test.io.protobase;
+package com.generallycloud.test.io.fixedlength;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
+import com.generallycloud.baseio.codec.fixedlength.future.FLBeatFutureFactory;
+import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -31,7 +31,7 @@ import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Future;
 
-public class TestBeat {
+public class TestHeartBeat {
 
     public static void main(String[] args) throws Exception {
 
@@ -45,23 +45,21 @@ public class TestBeat {
             }
         };
 
-        String serviceKey = "TestSimpleServlet";
-
         ServerConfiguration configuration = new ServerConfiguration(18300);
 
-        configuration.setSERVER_SESSION_IDLE_TIME(10);
+        configuration.setSERVER_SESSION_IDLE_TIME(20);
 
         SocketChannelContext context = new NioSocketChannelContext(configuration);
 
         SocketChannelConnector connector = new SocketChannelConnector(context);
 
         context.addSessionIdleEventListener(new SocketSessionActiveSEListener());
-
-        context.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
         
         context.addSessionEventListener(new LoggerSocketSEListener());
 
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
+        context.setBeatFutureFactory(new FLBeatFutureFactory());
+
+        context.setProtocolFactory(new FixedLengthProtocolFactory());
 
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
@@ -72,7 +70,7 @@ public class TestBeat {
         long old = System.currentTimeMillis();
 
         for (int i = 0; i < 5; i++) {
-            Future future = new ProtobaseFutureImpl(context, serviceKey);
+            Future future = new FixedLengthFutureImpl(context);
             future.write(param);
             session.flush(future);
             ThreadUtil.sleep(300);

@@ -21,7 +21,7 @@ public class Lz4CompressedInputStream extends InputStream {
 
     public Lz4CompressedInputStream(InputStream inputStream, int bufSize) {
         this.inputStream = inputStream;
-        this.buf = UnpooledByteBufAllocator.getHeapInstance().allocate(bufSize);
+        this.buf = UnpooledByteBufAllocator.getHeap().allocate(bufSize);
         this.buf.limit(0);
     }
 

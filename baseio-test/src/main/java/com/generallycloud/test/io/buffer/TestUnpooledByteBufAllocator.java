@@ -31,7 +31,7 @@ public class TestUnpooledByteBufAllocator {
 
     static void test() {
 
-        UnpooledByteBufAllocator allocator = UnpooledByteBufAllocator.getDirectInstance();
+        UnpooledByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
 
         byte[] data = "你好啊，world".getBytes();
 
