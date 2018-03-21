@@ -16,7 +16,7 @@ public class CachedAioThread extends Thread implements SocketChannelThreadContex
         this.executorEventLoop = channelContext.getExecutorEventLoopGroup().getNext();
         this.byteBufAllocator = channelContext.getByteBufAllocatorManager().getNextBufAllocator();
         this.readCompletionHandler = new ReadCompletionHandler(
-                channelContext.getChannelByteBufReader());
+                channelContext.newChannelByteBufReader());
         if (context.isEnableSSL()) {
             sslHandler = context.getSslContext().newSslHandler(context);
         }

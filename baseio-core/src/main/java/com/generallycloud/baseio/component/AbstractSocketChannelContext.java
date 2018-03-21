@@ -26,6 +26,7 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocatorManager;
+import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
@@ -40,80 +41,76 @@ import com.generallycloud.baseio.protocol.ProtocolFactory;
 
 public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         implements SocketChannelContext {
-    
-    protected Map<Object, Object>     attributes  = new HashMap<>();
-    private BeatFutureFactory                                    beatFutureFactory;
-    protected ByteBufAllocatorManager byteBufAllocatorManager;
-    private FixedAtomicInteger                                   CHANNEL_ID;
-    private ChannelByteBufReaderLinkGroup                        channelByteBufReaderGroup     = new ChannelByteBufReaderLinkGroup();
-    private boolean                                              enableSSL;
 
-    protected Charset                 encoding;
+    private Map<Object, Object>                   attributes  = new HashMap<>();
+    private BeatFutureFactory                     beatFutureFactory;
+    private ByteBufAllocatorManager               byteBufAllocatorManager;
+    private FixedAtomicInteger                    CHANNEL_ID;
+    private boolean                               enableSSL;
+    private Charset                               encoding;
+    private ExecutorEventLoopGroup                executorEventLoopGroup;
+    private ForeFutureAcceptor                    foreReadFutureAcceptor;
+    private boolean                               initialized;
+    private IoEventHandleAdaptor                  ioEventHandleAdaptor;
+    private Logger                                logger      = LoggerFactory.getLogger(getClass());
+    private ProtocolDecoder                       protocolDecoder;
+    private ProtocolEncoder                       protocolEncoder;
+    private ProtocolFactory                       protocolFactory;
+    private ServerConfiguration                   serverConfiguration;
+    private SocketSessionEventListenerWrapper     sessionEventListenerRoot;
+    private SocketSessionFactory                  sessionFactory;
+    private SocketSessionIdleEventListenerWrapper sessionIdleEventListenerRoot;
+    private long                                  sessionIdleTime;
+    private SslContext                            sslContext;
+    private long                                  startupTime = System.currentTimeMillis();
 
-    private ExecutorEventLoopGroup                               executorEventLoopGroup;
-
-    private ForeFutureAcceptor                                   foreReadFutureAcceptor;
-
-    private boolean                                              initialized;
-
-    private IoEventHandleAdaptor                                 ioEventHandleAdaptor;
-
-    private Logger                                               logger                        = LoggerFactory
-            .getLogger(getClass());
-
-    private ProtocolDecoder                                      protocolDecoder;
-
-    private ProtocolEncoder                                      protocolEncoder;
-
-    private ProtocolFactory                                      protocolFactory;
-
-    protected ServerConfiguration     serverConfiguration;
-
-    private LinkableGroup<SocketSessionEventListenerWrapper>     sessionEventListenerGroup     = new LinkableGroup<>();
-
-    private SocketSessionFactory                                 sessionFactory;
-
-    private LinkableGroup<SocketSessionIdleEventListenerWrapper> sessionIdleEventListenerGroup = new LinkableGroup<>();
-
-    protected long                    sessionIdleTime;
-
-
-    private SslContext                                           sslContext;
-    protected long                    startupTime = System.currentTimeMillis();
     public AbstractSocketChannelContext(ServerConfiguration configuration) {
-
         if (configuration == null) {
             throw new IllegalArgumentException("null configuration");
         }
-
         this.serverConfiguration = configuration;
-
         this.addLifeCycleListener(new ChannelContextListener());
-
         this.sessionIdleTime = configuration.getSERVER_SESSION_IDLE_TIME();
     }
+
     @Override
     public void addSessionEventListener(SocketSessionEventListener listener) {
-        sessionEventListenerGroup.addLink(new SocketSessionEventListenerWrapper(listener));
+        if (sessionEventListenerRoot == null) {
+            sessionEventListenerRoot = new SocketSessionEventListenerWrapper(listener);
+        } else {
+            ClassUtil.setValueOfLast(sessionEventListenerRoot,
+                    new SocketSessionEventListenerWrapper(listener),"next");
+        }
     }
+
     @Override
     public void addSessionIdleEventListener(SocketSessionIdleEventListener listener) {
-        sessionIdleEventListenerGroup.addLink(new SocketSessionIdleEventListenerWrapper(listener));
+        if (sessionIdleEventListenerRoot == null) {
+            sessionIdleEventListenerRoot = new SocketSessionIdleEventListenerWrapper(listener);
+        } else {
+            ClassUtil.setValueOfLast(sessionIdleEventListenerRoot,
+                    new SocketSessionIdleEventListenerWrapper(listener),"next");
+        }
     }
+
     @Override
     public void clearAttributes() {
         this.attributes.clear();
     }
+
     protected void clearContext() {
         this.clearAttributes();
         this.createChannelIdsSequence();
     }
+
     private void createChannelIdsSequence() {
         int core_size = serverConfiguration.getSERVER_CORE_SIZE();
         int max = (Integer.MAX_VALUE / core_size) * core_size - 1;
         this.CHANNEL_ID = new FixedAtomicInteger(0, max);
     }
+
     protected abstract ExecutorEventLoopGroup createExecutorEventLoopGroup();
+
     @Override
     protected void doStart() throws Exception {
 
@@ -168,13 +165,12 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
                     SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
         }
 
-        
         if (protocolEncoder == null) {
             this.protocolFactory.initialize(this);
             this.protocolEncoder = protocolFactory.getProtocolEncoder(this);
             this.protocolDecoder = protocolFactory.getProtocolDecoder(this);
         }
-        
+
         ioEventHandleAdaptor.initialize(this);
 
         if (executorEventLoopGroup == null) {
@@ -187,17 +183,6 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
 
         foreReadFutureAcceptor.initialize(this);
 
-        if (channelByteBufReaderGroup.getRootLink() == null) {
-
-            channelByteBufReaderGroup.addLink(new IoLimitChannelByteBufReader());
-
-            if (enableSSL) {
-                channelByteBufReaderGroup.addLink(new SslChannelByteBufReader());
-            }
-
-            channelByteBufReaderGroup.addLink(new TransparentByteBufReader(this));
-        }
-
         if (sessionFactory == null) {
             sessionFactory = new SocketSessionFactoryImpl();
         }
@@ -205,40 +190,41 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         LifeCycleUtil.start(byteBufAllocatorManager);
 
         LifeCycleUtil.start(executorEventLoopGroup);
-        
+
         doStartModule();
     }
+
     protected void doStartModule() throws Exception {
 
     }
+
     @Override
     protected void doStop() throws Exception {
-
         LifeCycleUtil.stop(executorEventLoopGroup);
-
         try {
             ioEventHandleAdaptor.destroy(this);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-
         LifeCycleUtil.stop(byteBufAllocatorManager);
-
         clearContext();
-
         doStopModule();
     }
+
     protected void doStopModule() {
 
     }
+
     @Override
     public Object getAttribute(Object key) {
         return this.attributes.get(key);
     }
+
     @Override
     public Set<Object> getAttributeNames() {
         return this.attributes.keySet();
     }
+
     @Override
     public BeatFutureFactory getBeatFutureFactory() {
         return beatFutureFactory;
@@ -254,11 +240,6 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
      */
     public FixedAtomicInteger getCHANNEL_ID() {
         return CHANNEL_ID;
-    }
-
-    @Override
-    public ChannelByteBufReader getChannelByteBufReader() {
-        return channelByteBufReaderGroup.getRootLink();
     }
 
     @Override
@@ -295,7 +276,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     public ProtocolFactory getProtocolFactory() {
         return protocolFactory;
     }
-    
+
     @Override
     public ServerConfiguration getServerConfiguration() {
         return serverConfiguration;
@@ -303,7 +284,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
 
     @Override
     public SocketSessionEventListenerWrapper getSessionEventListenerLink() {
-        return sessionEventListenerGroup.getRootLink();
+        return sessionEventListenerRoot;
     }
 
     @Override
@@ -313,7 +294,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
 
     @Override
     public SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink() {
-        return sessionIdleEventListenerGroup.getRootLink();
+        return sessionIdleEventListenerRoot;
     }
 
     @Override
@@ -332,9 +313,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     }
 
     protected void initializeByteBufAllocator() {
-
         if (getByteBufAllocatorManager() == null) {
-
             if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
                 this.byteBufAllocatorManager = new PooledByteBufAllocatorManager(this);
             } else {
@@ -346,6 +325,16 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     @Override
     public boolean isEnableSSL() {
         return enableSSL;
+    }
+
+    @Override
+    public ChannelByteBufReader newChannelByteBufReader() {
+        IoLimitChannelByteBufReader reader = new IoLimitChannelByteBufReader();
+        if (enableSSL) {
+            ClassUtil.setValueOfLast(reader, new SslChannelByteBufReader(this),"next");
+        }
+        ClassUtil.setValueOfLast(reader, new TransparentByteBufReader(this),"next");
+        return reader;
     }
 
     @Override

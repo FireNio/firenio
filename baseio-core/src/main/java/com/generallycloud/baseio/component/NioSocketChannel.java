@@ -25,6 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
@@ -165,19 +166,17 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
     // FIXME 这里有问题
     @Override
     protected void physicalClose() {
-        opened = false;
         closeSSL();
         // 最后一轮 //FIXME once
         try {
             flush(selectorEventLoop);
-        } catch (IOException e) {}
+        } catch (Exception e) {}
         releaseFutures();
         selectionKey.attach(null);
-        try {
-            channel.close();
-        } catch (Exception e) {}
+        CloseUtil.close(channel);
         selectionKey.cancel();
         fireClosed();
+        opened = false;
     }
 
     protected int read(ByteBuf buf) throws IOException {

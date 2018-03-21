@@ -18,51 +18,58 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.protocol.ChannelFuture;
-import com.generallycloud.baseio.protocol.ProtocolDecoder;
 
 public class TransparentByteBufReader extends LinkableChannelByteBufReader {
 
     private ForeFutureAcceptor foreReadFutureAcceptor;
+    
+    private ByteBuf temporary;
 
     public TransparentByteBufReader(SocketChannelContext context) {
         this.foreReadFutureAcceptor = context.getForeReadFutureAcceptor();
+        //FIXME _________紧急不能无线扩容
+        this.temporary = UnpooledByteBufAllocator.getHeap().allocate(1024 * 1024 * 1);
     }
 
     @Override
-    public void accept(SocketChannel channel, ByteBuf buf) throws Exception {
+    public void accept(SocketChannel channel, ByteBuf buffer) throws Exception {
         for (;;) {
-            if (!buf.hasRemaining()) {
+            if (!buffer.hasRemaining()) {
                 return;
             }
             ChannelFuture future = channel.getReadFuture();
+            boolean setFutureNull = true;
             if (future == null) {
-                ProtocolDecoder decoder = channel.getProtocolDecoder();
-                future = decoder.decode(channel, buf);
-                if (future == null) {
-                    CloseUtil.close(channel);
-                    return;
-                }
-                channel.setReadFuture(future);
+                future = channel.getProtocolDecoder().decode(channel, buffer,temporary.clear());
+                setFutureNull = false;
             }
             try {
-                if (!future.read(channel, buf)) {
+                if (!future.read(channel, buffer)) {
+                    if (!setFutureNull) {
+                        if (future.getByteBuf() == this.temporary) {
+                            ByteBuf src = future.getByteBuf();
+                            ByteBuf buf = allocate(channel, src.limit());
+                            buf.read(src.flip());
+                            future.setByteBuf(buf);
+                        }
+                        channel.setReadFuture(future);
+                    }
                     return;
                 }
-                ReleaseUtil.release(future);
             } catch (Throwable e) {
                 ReleaseUtil.release(future);
                 if (e instanceof IOException) {
                     throw (IOException) e;
                 }
-                throw new IOException(
-                        "exception occurred when read from channel,the nested exception is,"
-                                + e.getMessage(),
-                        e);
+                throw new IOException("exception occurred when do decode," + e.getMessage(), e);
             }
-            channel.setReadFuture(null);
+            if (setFutureNull) {
+                channel.setReadFuture(null);
+            }
+            ReleaseUtil.release(future);
             foreReadFutureAcceptor.accept(channel.getSession(), future);
         }
     }

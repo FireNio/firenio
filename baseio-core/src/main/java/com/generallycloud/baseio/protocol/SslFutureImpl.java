@@ -17,10 +17,11 @@ package com.generallycloud.baseio.protocol;
 
 import java.io.IOException;
 
+import javax.net.ssl.SSLException;
+
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.ssl.SslHandler;
+import com.generallycloud.baseio.component.SocketChannelContext;
 
 public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
 
@@ -30,91 +31,10 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
 
     private int           limit;
 
-    private SocketChannel channel;
-
-    public SslFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
-        super(channel.getContext());
+    public SslFutureImpl(SocketChannelContext context, ByteBuf buf, int limit) {
+        super(context);
         this.buf = buf;
         this.limit = limit;
-        this.channel = channel;
-    }
-
-    private void doBodyComplete(ByteBuf buf) throws IOException {
-        body_complete = true;
-        buf.flip();
-        SslHandler handler = channel.getSslHandler();
-        try {
-            this.buf = handler.unwrap(channel, buf);
-        } finally {
-            ReleaseUtil.release(buf);
-        }
-    }
-
-    private void doHeaderComplete(SocketChannel channel, ByteBuf buf) throws IOException {
-        header_complete = true;
-        int packetLength = getEncryptedPacketLength(buf);
-        buf.reallocate(packetLength, limit, true);
-    }
-
-    private int getEncryptedPacketLength(ByteBuf buffer) {
-        int packetLength = 0;
-        int offset = 0;
-        // FIXME offset
-
-        // SSLv3 or TLS - Check ContentType
-        boolean tls;
-        switch (buffer.getUnsignedByte(offset)) {
-            case SSL_CONTENT_TYPE_CHANGE_CIPHER_SPEC:
-            case SSL_CONTENT_TYPE_ALERT:
-            case SSL_CONTENT_TYPE_HANDSHAKE:
-            case SSL_CONTENT_TYPE_APPLICATION_DATA:
-                tls = true;
-                break;
-            default:
-                // SSLv2 or bad data
-                tls = false;
-        }
-
-        if (tls) {
-            // SSLv3 or TLS - Check ProtocolVersion
-            int majorVersion = buffer.getUnsignedByte(offset + 1);
-            if (majorVersion == 3) {
-                // SSLv3 or TLS
-                packetLength = buffer.getUnsignedShort(offset + 3) + SSL_RECORD_HEADER_LENGTH;
-                if (packetLength <= SSL_RECORD_HEADER_LENGTH) {
-                    // Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
-                    tls = false;
-                }
-            } else {
-                // Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
-                tls = false;
-            }
-        }
-
-        if (!tls) {
-            // SSLv2 or bad data - Check the version
-            int headerLength = (buffer.getUnsignedByte(offset) & 0x80) != 0 ? 2 : 3;
-            int majorVersion = buffer.getUnsignedByte(offset + headerLength + 1);
-            if (majorVersion == 2 || majorVersion == 3) {
-                // SSLv2
-                if (headerLength == 2) {
-                    packetLength = (buffer.getShort(offset) & 0x7FFF) + 2;
-                } else {
-                    packetLength = (buffer.getShort(offset) & 0x3FFF) + 3;
-                }
-                if (packetLength <= headerLength) {
-                    return -1;
-                }
-            } else {
-                return -1;
-            }
-        }
-        return packetLength;
-    }
-
-    @Override
-    public ByteBuf getProduce() {
-        return buf;
     }
 
     @Override
@@ -125,7 +45,21 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
             if (buf.hasRemaining()) {
                 return false;
             }
-            doHeaderComplete(channel, buf);
+            header_complete = true;
+            // SSLv3 or TLS - Check ContentType
+            short type = buf.getUnsignedByte(0);
+            if (type < 20 || type > 23) {
+                throw new SSLException("Neither SSLv3 or TLS");
+            }
+            // SSLv3 or TLS - Check ProtocolVersion
+            int majorVersion = buf.getUnsignedByte(1);
+            int packetLength = buf.getUnsignedShort(3);
+            if (majorVersion != 3 || packetLength <= 0) {
+                throw new SSLException("Neither SSLv3 or TLS");
+            } else {
+                // Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
+            }
+            buf.reallocate(packetLength + 5, limit, true);
         }
         if (!body_complete) {
             ByteBuf buf = this.buf;
@@ -133,9 +67,28 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
             if (buf.hasRemaining()) {
                 return false;
             }
-            doBodyComplete(buf);
+            body_complete = true;
+            buf.flip();
         }
         return true;
     }
-
+    
+    @Override
+    public SslFuture reset() {
+        this.header_complete = false;
+        this.body_complete = false;
+        buf.clear().limit(SSL_RECORD_HEADER_LENGTH);
+        return this;
+    }
+    
+    @Override
+    public SslFuture copy(SocketChannel channel){
+        ByteBuf src = getByteBuf();
+        ByteBuf buf = allocate(channel, src.limit());
+        buf.read(src.flip());
+        SslFutureImpl copy = new SslFutureImpl(channel.getContext(), buf, 1024 * 64);
+        copy.header_complete = this.header_complete;
+        return copy;
+    }
+    
 }

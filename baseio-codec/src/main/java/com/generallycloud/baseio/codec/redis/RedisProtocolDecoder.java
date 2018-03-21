@@ -26,7 +26,8 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
 public class RedisProtocolDecoder implements ProtocolDecoder {
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer, ByteBuf temporary)
+            throws IOException {
         return new RedisFutureImpl(channel.getContext());
     }
 

@@ -77,7 +77,7 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
         this.eventLoopGroup = group;
         this.context = group.getChannelContext();
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
-        this.byteBufReader = context.getChannelByteBufReader();
+        this.byteBufReader = context.newChannelByteBufReader();
         this.sessionManager = context.getSessionManager();
         this.sessionManager = new NioSocketSessionManager(context);
         this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(true);

@@ -18,7 +18,6 @@ package com.generallycloud.baseio.codec.protobase;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseBinaryFutureImpl;
 import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFutureImpl;
 import com.generallycloud.baseio.component.SocketChannel;
@@ -60,16 +59,16 @@ public class HashedProtobaseProtocolDecoder extends ProtobaseProtocolDecoder {
     }
 
     @Override
-    protected ChannelFuture newChannelReadFutureNoBinary(SocketChannel channel,
-            ByteBufAllocator allocator, byte b) throws IOException {
-        ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_NO_BINARY - 1);
+    protected ChannelFuture newChannelReadFutureNoBinary(SocketChannel channel, ByteBuf temporary,
+            byte b) throws IOException {
+        ByteBuf buf = temporary.limit(PROTOCOL_HEADER_NO_BINARY - 1);
         return new HashedProtobaseFutureImpl(channel, buf, isBroadcast(b));
     }
 
     @Override
-    protected ChannelFuture newChannelReadFutureWithBinary(SocketChannel channel,
-            ByteBufAllocator allocator, byte b) throws IOException {
-        ByteBuf buf = allocator.allocate(PROTOCOL_HEADER_WITHBINARY - 1);
+    protected ChannelFuture newChannelReadFutureWithBinary(SocketChannel channel, ByteBuf temporary,
+            byte b) throws IOException {
+        ByteBuf buf = temporary.limit(PROTOCOL_HEADER_WITHBINARY - 1);
         return new HashedProtobaseBinaryFutureImpl(channel, buf, limit, isBroadcast(b));
     }
 

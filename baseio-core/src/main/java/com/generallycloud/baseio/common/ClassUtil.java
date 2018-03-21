@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.common;
 
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +74,66 @@ public class ClassUtil {
             return null;
         } catch (Exception e) {
             return e;
+        }
+    }
+
+    public static Field getDeclaredFieldFC(Class clazz, String name) {
+        try {
+            Class c = clazz;
+            for (;;) {
+                if (c == null) {
+                    throw new NoSuchFieldException(name);
+                }
+                Field f = null;
+                try {
+                    f = c.getDeclaredField(name);
+                } catch (Exception e) {}
+                if (f == null) {
+                    c = c.getSuperclass();
+                    continue;
+                }
+                return f;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void setObjectValue(Object target, Object value, String fieldName) {
+        try {
+            Field fieldNext = ClassUtil.getDeclaredFieldFC(target.getClass(), fieldName);
+            if (fieldNext == null) {
+                throw new NoSuchFieldException(fieldName);
+            }
+            ClassUtil.trySetAccessible(fieldNext);
+            fieldNext.set(target, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void setValueOfLast(Object target, Object value, String fieldName) {
+        Object last = getValueOfLast(target, fieldName);
+        setObjectValue(last, value, fieldName);
+    }
+
+    public static Object getValueOfLast(Object target, String fieldName) {
+        try {
+            Object c = target;
+            for (;;) {
+                Field fieldNext = ClassUtil.getDeclaredFieldFC(c.getClass(), fieldName);
+                if (fieldNext == null) {
+                    throw new NoSuchFieldException(fieldName);
+                }
+                ClassUtil.trySetAccessible(fieldNext);
+                Object next = fieldNext.get(c);
+                if (next == null) {
+                    return c;
+                }
+                c = next;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.codec.fixedlength.future;
 
 import java.io.IOException;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
@@ -29,9 +28,7 @@ import com.generallycloud.baseio.protocol.ProtocolException;
 public class FixedLengthFutureImpl extends AbstractChannelFuture implements FixedLengthFuture {
 
     private boolean header_complete;
-
     private boolean body_complete;
-
     private int     limit;
 
     public FixedLengthFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
@@ -44,64 +41,42 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
         super(context);
     }
 
-    private void doHeaderComplete(SocketChannel channel, ByteBuf buf) {
-
-        int length = buf.getInt();
-
-        if (length < 1) {
-            body_complete = true;
-            if (length == FixedLengthProtocolDecoder.PROTOCOL_PING) {
-                setPING();
-            } else if (length == FixedLengthProtocolDecoder.PROTOCOL_PONG) {
-                setPONG();
-            } else {
-                throw new ProtocolException("illegal length:" + length);
-            }
-            return;
-        }
-
-        buf.reallocate(length, limit);
-    }
-
     @Override
     public boolean read(SocketChannel channel, ByteBuf src) throws IOException {
-
         ByteBuf buf = this.buf;
-
         if (!header_complete) {
-
             buf.read(src);
-
             if (buf.hasRemaining()) {
                 return false;
             }
-
             header_complete = true;
-
-            doHeaderComplete(channel, buf.flip());
+            buf.flip();
+            int length = buf.getInt();
+            if (length < 1) {
+                body_complete = true;
+                if (length == FixedLengthProtocolDecoder.PROTOCOL_PING) {
+                    setPING();
+                } else if (length == FixedLengthProtocolDecoder.PROTOCOL_PONG) {
+                    setPONG();
+                } else {
+                    throw new ProtocolException("illegal length:" + length);
+                }
+            }
+            buf.reallocate(length, limit);
         }
 
         if (!body_complete) {
-
             buf.read(src);
-
             if (buf.hasRemaining()) {
                 return false;
             }
-
             body_complete = true;
-
-            doBodyComplete(buf.flip());
+            buf.flip();
+            CharsetDecoder decoder = context.getEncoding().newDecoder();
+            this.readText = decoder.decode(buf.nioBuffer()).toString();
         }
-
         return true;
     }
 
-    private void doBodyComplete(ByteBuf buf) throws CharacterCodingException {
-
-        CharsetDecoder decoder = context.getEncoding().newDecoder();
-
-        this.readText = decoder.decode(buf.nioBuffer()).toString();
-    }
 
 }

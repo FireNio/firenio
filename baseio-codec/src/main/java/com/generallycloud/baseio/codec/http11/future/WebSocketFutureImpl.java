@@ -63,156 +63,87 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
         return OP_CONNECTION_CLOSE_FRAME == type;
     }
 
-    private void doHeaderComplete(ByteBuf buf) {
-
-        int remain_header_size = 0;
-
-        byte b = buf.getByte();
-
-        eof = (b & 0b10000000) > 0;
-
-        type = (b & 0xF);
-
-        //		switch (type) {
-        //		case WebSocketProtocolDecoder.TYPE_PING:
-        //			setPING();
-        //			break;
-        //		case WebSocketProtocolDecoder.TYPE_PONG:
-        //			setPONG();
-        //			break;
-        //		case WebSocketProtocolDecoder.TYPE_TEXT:
-        //			break;
-        //		case WebSocketProtocolDecoder.TYPE_BINARY:
-        //			break;
-        //		case WebSocketProtocolDecoder.TYPE_CLOSE:
-        //			break;
-        //
-        //		default:
-        //			break;
-        //		}
-
-        if (type == WebSocketProtocolDecoder.TYPE_PING) {
-            setPING();
-        } else if (type == WebSocketProtocolDecoder.TYPE_PONG) {
-            setPONG();
-        }
-
-        b = buf.getByte();
-
-        hasMask = (b & 0b10000000) > 0;
-
-        if (hasMask) {
-            remain_header_size += 4;
-        }
-
-        length = (b & 0x7f);
-
-        if (length < 126) {
-
-        } else if (length == 126) {
-
-            remain_header_size += 2;
-
-        } else {
-
-            remain_header_size += 4;
-        }
-
-        buf.reallocate(remain_header_size);
-    }
-
-    private void doRemainHeaderComplete(SocketChannel channel, ByteBuf buf) throws IOException {
-
-        remain_header_complete = true;
-
-        if (length < 126) {
-
-        } else if (length == 126) {
-
-            length = buf.getUnsignedShort();
-
-        } else {
-
-            length = (int) buf.getUnsignedInt();
-
-            if (length < 0) {
-                throw new IOException("too long data length");
-            }
-        }
-
-        mask = buf.getBytes();
-
-        buf.reallocate(length, limit);
-    }
-
-    private void doDataComplete(ByteBuf buf) {
-
-        byte[] array = buf.getBytes();
-
-        if (hasMask) {
-
-            byte[] mask = this.mask;
-
-            int length = array.length;
-
-            for (int i = 0; i < length; i++) {
-
-                array[i] = (byte) (array[i] ^ mask[i % 4]);
-            }
-        }
-
-        this.byteArray = array;
-
-        if (type == WebSocketProtocolDecoder.TYPE_BINARY) {
-            // FIXME 处理binary
-            return;
-        }
-
-        this.readText = new String(array, context.getEncoding());
-    }
-
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-
         ByteBuf buf = this.buf;
-
         if (!header_complete) {
-
             buf.read(buffer);
-
             if (buf.hasRemaining()) {
                 return false;
             }
-
             header_complete = true;
-
-            doHeaderComplete(buf.flip());
+            buf.flip();
+            int remain_header_size = 0;
+            byte b = buf.getByte();
+            eof = (b & 0b10000000) > 0;
+            type = (b & 0xF);
+            if (type == WebSocketProtocolDecoder.TYPE_PING) {
+                setPING();
+            } else if (type == WebSocketProtocolDecoder.TYPE_PONG) {
+                setPONG();
+            }
+            b = buf.getByte();
+            hasMask = (b & 0b10000000) > 0;
+            if (hasMask) {
+                remain_header_size += 4;
+            }
+            length = (b & 0x7f);
+            if (length < 126) {
+            } else if (length == 126) {
+                remain_header_size += 2;
+            } else {
+                remain_header_size += 4;
+            }
+            buf.reallocate(remain_header_size);
         }
 
         if (!remain_header_complete) {
-
             buf.read(buffer);
-
             if (buf.hasRemaining()) {
                 return false;
             }
-
             remain_header_complete = true;
-
-            doRemainHeaderComplete(channel, buf.flip());
+            buf.flip();
+            remain_header_complete = true;
+            if (length < 126) {
+            } else if (length == 126) {
+                length = buf.getUnsignedShort();
+            } else {
+                length = (int) buf.getUnsignedInt();
+                if (length < 0) {
+                    throw new IOException("too long data length");
+                }
+            }
+            mask = buf.getBytes();
+            buf.reallocate(length, limit);
         }
 
         if (!data_complete) {
-
             buf.read(buffer);
-
             if (buf.hasRemaining()) {
                 return false;
             }
+            buf.flip();
+            byte[] array = buf.getBytes();
 
-            doDataComplete(buf.flip());
+            if (hasMask) {
+
+                byte[] mask = this.mask;
+
+                int length = array.length;
+
+                for (int i = 0; i < length; i++) {
+
+                    array[i] = (byte) (array[i] ^ mask[i % 4]);
+                }
+            }
+            this.byteArray = array;
+            if (type == WebSocketProtocolDecoder.TYPE_BINARY) {
+                // FIXME 处理binary
+            }else{
+                this.readText = new String(array, context.getEncoding());
+            }
         }
-
         return true;
     }
 

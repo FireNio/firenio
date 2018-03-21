@@ -26,11 +26,8 @@ import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBasedFuture {
 
     private boolean         complete;
-
     private int             limit;
-
     private byte            splitor;
-
     private ByteArrayBuffer cache = new ByteArrayBuffer();
 
     public CharBasedFutureImpl(SocketChannelContext context, int limit, byte splitor) {
@@ -43,38 +40,24 @@ public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBa
         super(context);
     }
 
-    private void doBodyComplete() {
-
-        this.readText = cache.toString(context.getEncoding());
-
-        this.complete = true;
-    }
-
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-
         if (complete) {
             return true;
         }
-
         ByteArrayBuffer cache = this.cache;
-
         for (; buffer.hasRemaining();) {
-
             byte b = buffer.getByte();
-
             if (b == splitor) {
-                doBodyComplete();
+                this.readText = cache.toString(context.getEncoding());
+                this.complete = true;
                 return true;
             }
-
             cache.write(b);
-
             if (cache.size() > limit) {
                 throw new IOException("max length " + limit);
             }
         }
-
         return false;
     }
 

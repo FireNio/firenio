@@ -154,7 +154,7 @@ public class SslHandler {
                     return null;
                 }
             }
-            return gc(channel, dst.flip());
+            return dst.flip();
         }
     }
 

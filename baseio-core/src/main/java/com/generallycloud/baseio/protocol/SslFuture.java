@@ -15,8 +15,16 @@
  */
 package com.generallycloud.baseio.protocol;
 
-import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.component.SocketChannel;
 
+/**
+ * <pre>
+ *  B0: type >> ALERT APPLICATION_DATA CHANGE_CIPHER_SPEC HANDSHAKE UnsignedByte
+ *  B1: Major Version UnsignedByte
+ *  B2: Minor Version UnsignedByte
+ *  B3-B4: Length UnsignedShort
+ * </pre>
+ */
 public interface SslFuture extends ChannelFuture {
 
     public static final int SSL_CONTENT_TYPE_ALERT              = 21;
@@ -28,7 +36,9 @@ public interface SslFuture extends ChannelFuture {
     public static final int SSL_CONTENT_TYPE_HANDSHAKE          = 22;
 
     public static final int SSL_RECORD_HEADER_LENGTH            = 5;
-
-    public ByteBuf getProduce();
-
+    
+    SslFuture reset();
+    
+    SslFuture copy(SocketChannel channel);
+    
 }

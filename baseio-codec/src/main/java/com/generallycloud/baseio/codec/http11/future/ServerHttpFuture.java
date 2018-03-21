@@ -18,7 +18,6 @@ package com.generallycloud.baseio.codec.http11.future;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannel;
@@ -26,8 +25,8 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 
 public class ServerHttpFuture extends AbstractHttpFuture {
 
-    public ServerHttpFuture(SocketChannel channel, ByteBuf buffer, int headerLimit, int bodyLimit) {
-        super(channel, buffer, bodyLimit, bodyLimit);
+    public ServerHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
+        super(channel, bodyLimit, bodyLimit);
         this.params = new HashMap<>();
     }
 

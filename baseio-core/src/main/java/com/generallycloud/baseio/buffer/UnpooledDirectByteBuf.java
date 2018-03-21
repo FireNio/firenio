@@ -38,9 +38,14 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
 
     @Override
     public ByteBuf reallocate(int limit, boolean copyOld) {
-
+        if (limit <= capacity) {
+            limit(limit);
+            if (!copyOld) {
+                position(0);
+            }
+            return this;
+        }
         ByteBuffer newMemory = ByteBuffer.allocateDirect(limit);
-
         if (copyOld) {
             memory.flip();
             newMemory.put(memory);
@@ -48,7 +53,6 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
         } else {
             this.position(0);
         }
-
         this.memory = newMemory;
         this.capacity = limit;
         this.limit(limit);

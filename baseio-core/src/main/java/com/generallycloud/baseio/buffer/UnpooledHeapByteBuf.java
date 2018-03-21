@@ -42,11 +42,18 @@ public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
 
     @Override
     public ByteBuf reallocate(int limit, boolean copyOld) {
+        if (limit <= capacity) {
+            this.limit = limit;
+            if (!copyOld) {
+                position(0);
+            }
+            return this;
+        }
         byte[] newMemory = new byte[limit];
         if (copyOld) {
             System.arraycopy(memory, 0, newMemory, 0, position());
         } else {
-            this.position = 0;
+            position(0);
         }
         this.memory = newMemory;
         this.capacity = limit;

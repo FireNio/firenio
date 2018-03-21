@@ -38,8 +38,8 @@ public class NioSocketChannelContext extends AbstractSocketChannelContext {
 
     @Override
     protected ExecutorEventLoopGroup createExecutorEventLoopGroup() {
-        int eventLoopSize = serverConfiguration.getSERVER_CORE_SIZE();
-        if (serverConfiguration.isSERVER_ENABLE_WORK_EVENT_LOOP()) {
+        int eventLoopSize = getServerConfiguration().getSERVER_CORE_SIZE();
+        if (getServerConfiguration().isSERVER_ENABLE_WORK_EVENT_LOOP()) {
             return new ThreadEventLoopGroup(this, "event-process", eventLoopSize);
         } else {
             return new LineEventLoopGroup("event-process", eventLoopSize);

@@ -46,45 +46,43 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
  */
 public abstract class AbstractHttpFuture extends AbstractChannelFuture implements HttpFuture {
 
-    protected static final KMPUtil                  KMP_BOUNDARY        = new KMPUtil("boundary=");
-    protected static final KMPByteUtil              KMP_HEADER          = new KMPByteUtil(
-            "\r\n\r\n".getBytes());
+    protected static final KMPUtil     KMP_BOUNDARY = new KMPUtil("boundary=");
+    protected static final KMPByteUtil KMP_HEADER   = new KMPByteUtil("\r\n\r\n".getBytes());
 
-    protected ByteArrayBuffer                       binaryBuffer;
-    protected boolean                               body_complete;
-    protected byte[]                                bodyArray;
-    protected int                                   bodyLimit;
-    protected String                                boundary;
-    protected int                                   contentLength;
-    protected String                                contentType;
-    protected List<Cookie>                          cookieList;
-    protected Map<String, String>                   cookies;
-    protected StringBuilder                         currentHeaderLine;
-    protected boolean                               hasBodyContent;
-    protected boolean                               header_complete;
-    protected int                                   headerLength;
-    protected int                                   headerLimit;
-    protected List<String>                          headerLines;;
-    protected String                                host;
-    protected String                                method;
-    protected Map<String, String>                   params;
-    protected Map<String, String>                   request_headers;
-    protected String                                requestURI;
-    protected String                                requestURL;
-    protected Map<String, String>                   response_headers;
-    protected SocketChannel                         channel;
-    protected HttpStatus                            status              = HttpStatus.C200;
-    protected String                                version;
+    protected ByteArrayBuffer          binaryBuffer;
+    protected boolean                  body_complete;
+    protected byte[]                   bodyArray;
+    protected int                      bodyLimit;
+    protected String                   boundary;
+    protected int                      contentLength;
+    protected String                   contentType;
+    protected List<Cookie>             cookieList;
+    protected Map<String, String>      cookies;
+    protected StringBuilder            currentHeaderLine;
+    protected boolean                  hasBodyContent;
+    protected boolean                  header_complete;
+    protected int                      headerLength;
+    protected int                      headerLimit;
+    protected List<String>             headerLines;;
+    protected String                   host;
+    protected String                   method;
+    protected Map<String, String>      params;
+    protected Map<String, String>      request_headers;
+    protected String                   requestURI;
+    protected String                   requestURL;
+    protected Map<String, String>      response_headers;
+    protected SocketChannel            channel;
+    protected HttpStatus               status       = HttpStatus.C200;
+    protected String                   version;
 
-    private MapParameters                           mapParameters;
-    private boolean                                 updateWebSocketProtocol;
+    private MapParameters              mapParameters;
+    private boolean                    updateWebSocketProtocol;
 
     public AbstractHttpFuture(SocketChannelContext context) {
         super(context);
     }
 
-    public AbstractHttpFuture(SocketChannel channel, ByteBuf readBuffer, int headerLimit,
-            int bodyLimit) {
+    public AbstractHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
         super(channel.getContext());
         this.channel = channel;
         this.headerLimit = headerLimit;
@@ -189,7 +187,8 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
             channel.setProtocolEncoder(WebSocketProtocolFactory.WS_PROTOCOL_ENCODER);
             channel.setProtocolFactory(WebSocketProtocolFactory.WS_PROTOCOL_FACTORY);
 
-            channel.getSession().setAttribute(WebSocketFuture.SESSION_KEY_SERVICE_NAME, getFutureName());
+            channel.getSession().setAttribute(WebSocketFuture.SESSION_KEY_SERVICE_NAME,
+                    getFutureName());
         }
 
         return super.flush();

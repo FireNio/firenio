@@ -18,11 +18,20 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.protocol.SslFuture;
 import com.generallycloud.baseio.protocol.SslFutureImpl;
 
 public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
+
+    private SslFuture temporary;
+
+    public SslChannelByteBufReader(SocketChannelContext context) {
+        ByteBuf buf = UnpooledByteBufAllocator.getHeap().allocate(1024 * 64);
+        temporary = new SslFutureImpl(context, buf, 1024 * 64);
+    }
 
     @Override
     public void accept(SocketChannel channel, ByteBuf buffer) throws Exception {
@@ -31,13 +40,19 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
                 return;
             }
             SslFuture future = channel.getSslReadFuture();
+            boolean setFutureNull = true;
             if (future == null) {
-                ByteBuf buf = allocate(channel, SslFuture.SSL_RECORD_HEADER_LENGTH);
-                future = new SslFutureImpl(channel, buf, 1024 * 64);//FIXME param
-                channel.setSslReadFuture(future);
+                future = this.temporary.reset();
+                setFutureNull = false;
             }
             try {
                 if (!future.read(channel, buffer)) {
+                    if (!setFutureNull) {
+                        if (future == this.temporary) {
+                            future = future.copy(channel);
+                        }
+                        channel.setSslReadFuture(future);
+                    }
                     return;
                 }
             } catch (Throwable e) {
@@ -46,21 +61,22 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
                 if (e instanceof IOException) {
                     throw (IOException) e;
                 }
-                throw new IOException(
-                        "exception occurred when read from channel,the nested exception is,"
-                                + e.getMessage(),
-                        e);
+                throw new IOException("exception occurred when do decode ssl," + e.getMessage(), e);
             }
-            channel.setSslReadFuture(null);
-            ByteBuf produce = future.getProduce();
-            if (produce == null) {
-                continue;
+            if (setFutureNull) {
+                channel.setSslReadFuture(null);
             }
+            SslHandler sslHandler = channel.getSslHandler();
+            ByteBuf product;
             try {
-                nextAccept(channel, produce);
+                product = sslHandler.unwrap(channel, future.getByteBuf());
             } finally {
                 ReleaseUtil.release(future);
             }
+            if (product == null) {
+                continue;
+            }
+            nextAccept(channel, product);
         }
     }
 

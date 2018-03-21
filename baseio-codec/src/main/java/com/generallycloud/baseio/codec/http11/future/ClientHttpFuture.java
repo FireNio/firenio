@@ -17,11 +17,10 @@ package com.generallycloud.baseio.codec.http11.future;
 
 import java.util.Map;
 
-import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.http11.WebSocketProtocolFactory;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.SocketChannelContext;
 
 public class ClientHttpFuture extends AbstractHttpFuture {
 
@@ -31,8 +30,8 @@ public class ClientHttpFuture extends AbstractHttpFuture {
         this.setRequestURL(url);
     }
 
-    public ClientHttpFuture(SocketChannel channel, ByteBuf buffer, int headerLimit, int bodyLimit) {
-        super(channel, buffer, headerLimit, bodyLimit);
+    public ClientHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
+        super(channel, headerLimit, bodyLimit);
     }
 
     @Override
