@@ -18,15 +18,23 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.buffer.FixedUnpooledByteBuf;
+import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
-public class TransparentByteBufReader extends LinkableChannelByteBufReader {
+public class TransparentByteBufReader2 extends LinkableChannelByteBufReader {
 
     private ForeFutureAcceptor foreReadFutureAcceptor;
     
-    public TransparentByteBufReader(SocketChannelContext context) {
+    private ByteBuf temporary;
+
+    public TransparentByteBufReader2(SocketChannelContext context) {
+        ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeap();
+        ByteBuf bufPrototype = allocator.allocate(1024 * 1024 * 2);
         this.foreReadFutureAcceptor = context.getForeReadFutureAcceptor();
+        this.temporary = new FixedUnpooledByteBuf(bufPrototype);
     }
 
     @Override
@@ -38,12 +46,18 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
             ChannelFuture future = channel.getReadFuture();
             boolean setFutureNull = true;
             if (future == null) {
-                future = channel.getProtocolDecoder().decode(channel, buffer);
+//                future = channel.getProtocolDecoder().decode(channel, buffer,temporary.clear());
                 setFutureNull = false;
             }
             try {
                 if (!future.read(channel, buffer)) {
                     if (!setFutureNull) {
+                        if (future.getByteBuf() == this.temporary) {
+                            ByteBuf src = future.getByteBuf();
+                            ByteBuf buf = allocate(channel, src.limit());
+                            buf.read(src.flip());
+                            future.setByteBuf(buf);
+                        }
                         channel.setReadFuture(future);
                     }
                     return;

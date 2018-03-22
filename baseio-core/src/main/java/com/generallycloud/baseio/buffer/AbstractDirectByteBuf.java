@@ -74,84 +74,53 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 
     @Override
     protected int read0(ByteBuffer src, int srcRemaining, int remaining) {
-
         if (remaining > srcRemaining) {
-
             if (src.hasArray()) {
-
                 put(src.array(), src.position(), srcRemaining);
-
                 src.position(src.limit());
-
                 return srcRemaining;
             }
-
             ByteBuffer buf = this.memory;
-
             for (int i = 0; i < srcRemaining; i++) {
                 buf.put(src.get());
             }
-
             return srcRemaining;
         }
-
         if (src.hasArray()) {
-
             put(src.array(), src.position(), remaining);
-
             src.position(src.position() + remaining);
-
             return remaining;
         }
-
         ByteBuffer buf = this.memory;
-
         for (int i = 0; i < remaining; i++) {
             buf.put(src.get());
         }
-
         return remaining;
     }
 
     @Override
     protected int read0(ByteBuf src, int srcRemaining, int remaining) {
-
         if (remaining > srcRemaining) {
-
             if (src.hasArray()) {
-
                 put(src.array(), src.offset() + src.position(), srcRemaining);
-
                 src.position(src.limit());
-
                 return srcRemaining;
             }
-
             ByteBuffer _this = this.memory;
-
             for (int i = 0; i < srcRemaining; i++) {
                 _this.put(src.getByte());
             }
-
             return srcRemaining;
         }
-
         if (src.hasArray()) {
-
             put(src.array(), src.offset() + src.position(), remaining);
-
             src.skipBytes(remaining);
-
             return remaining;
         }
-
         ByteBuffer _this = this.memory;
-
         for (int i = 0; i < remaining; i++) {
-
             _this.put(src.getByte());
         }
-
         return remaining;
     }
 
@@ -162,41 +131,29 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 
     @Override
     public int forEachByte(int index, int length, ByteProcessor processor) {
-
         int start = ix(index);
-
         int end = start + length;
-
         try {
-
             for (int i = start; i < end; i++) {
-
                 if (!processor.process(getByte(i))) {
                     return i - start;
                 }
             }
         } catch (Exception e) {}
-
         return -1;
     }
 
     @Override
     public int forEachByteDesc(int index, int length, ByteProcessor processor) {
-
         int start = ix(index);
-
         int end = start + length;
-
         try {
-
             for (int i = end; i >= start; i--) {
-
                 if (!processor.process(getByte(i))) {
                     return i - start;
                 }
             }
         } catch (Exception e) {}
-
         return -1;
     }
 
@@ -468,4 +425,18 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     public ByteBuf reverse() {
         return this;
     }
+    
+    @Override
+    public ByteBuf markP() {
+        memory.mark();
+        return this;
+    }
+    
+    @Override
+    public ByteBuf reset() {
+        limit(markLimit);
+        memory.reset();
+        return this;
+    }
+    
 }

@@ -18,6 +18,7 @@ package com.generallycloud.baseio.codec.fixedlength;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFutureImpl;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.ChannelFuture;
@@ -57,9 +58,8 @@ public class FixedLengthProtocolDecoder implements ProtocolDecoder {
     }
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer, ByteBuf temporary)
-            throws IOException {
-        return new FixedLengthFutureImpl(channel, temporary.limit(PROTOCOL_HEADER), limit);
+    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
+        return new FixedLengthFutureImpl(channel, limit);
     }
 
 }

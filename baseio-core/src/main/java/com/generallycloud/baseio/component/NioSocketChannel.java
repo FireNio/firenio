@@ -194,7 +194,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 
     @Override
     public void write(ByteBuf buf) throws IOException {
-        int length = write(buf.getNioBuffer());
+        int length = write(buf.nioBuffer());
         if (length < 1) {
             return;
         }

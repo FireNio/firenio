@@ -24,7 +24,6 @@ public interface ProtocolDecoder {
 
     // 可能会遭受一种攻击，比如最大可接收数据为100，客户端传输到99后暂停，
     // 这样多次以后可能会导致内存溢出
-    ChannelFuture decode(SocketChannel channel, ByteBuf buffer, ByteBuf temporary)
-            throws IOException;
+    ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException;
 
 }

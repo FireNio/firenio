@@ -38,8 +38,7 @@ public class CharBasedProtocolDecoder implements ProtocolDecoder {
     }
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer, ByteBuf temporary)
-            throws IOException {
+    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
         return new CharBasedFutureImpl(channel.getContext(), limit, splitor);
     }
 

@@ -35,8 +35,7 @@ public class ServerHTTPProtocolDecoder implements ProtocolDecoder {
     }
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer, ByteBuf temporary)
-            throws IOException {
+    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
         return new ServerHttpFuture(channel, headerLimit, bodyLimit);
     }
 

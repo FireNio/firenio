@@ -25,6 +25,7 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     protected ByteBuffer nioBuffer;
     protected int        limit;
     protected int        position;
+    protected int        markPos;
 
     public AbstractHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
         super(allocator);
@@ -307,7 +308,7 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     @Override
     public ByteBuffer getNioBuffer() {
         if (nioBuffer == null) {
-            nioBuffer = ByteBuffer.wrap(memory, offset, capacity);
+            nioBuffer = ByteBuffer.wrap(memory);
         }
         return nioBuffer;
     }
@@ -375,6 +376,19 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     @Override
     public ByteBuf reverse() {
         position = nioBuffer.position() - offset;
+        return this;
+    }
+    
+    @Override
+    public ByteBuf markP() {
+        markPos = position;
+        return this;
+    }
+    
+    @Override
+    public ByteBuf reset() {
+        limit(markLimit);
+        position(markPos);
         return this;
     }
 

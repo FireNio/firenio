@@ -100,13 +100,17 @@ public class Http2ProtocolDecoder implements ProtocolDecoder {
     public static final int PROTOCOL_PONG           = -2;
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer, ByteBuf temporary) throws IOException {
+    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
         Http2SocketSession http2UnsafeSession = (Http2SocketSession) channel.getSession();
         SocketChannelContext context = channel.getContext();
         if (http2UnsafeSession.isPrefaceRead()) {
-            return new Http2PrefaceFuture(context,temporary.limit(PROTOCOL_PREFACE_HEADER));
+            return new Http2PrefaceFuture(context, allocate(channel, PROTOCOL_PREFACE_HEADER));
         }
-        return new Http2FrameHeaderImpl(channel, temporary.limit(PROTOCOL_HEADER));
+        return new Http2FrameHeaderImpl(channel, allocate(channel, PROTOCOL_HEADER));
+    }
+
+    private ByteBuf allocate(SocketChannel channel, int capacity) {
+        return channel.getByteBufAllocator().allocate(capacity);
     }
 
 }

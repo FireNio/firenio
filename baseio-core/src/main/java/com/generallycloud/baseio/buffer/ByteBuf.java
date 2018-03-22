@@ -21,138 +21,144 @@ import com.generallycloud.baseio.common.Releasable;
 
 public interface ByteBuf extends ByteBufNew, Releasable {
 
-    public abstract byte[] array();
+    byte[] array();
 
-    public abstract int capacity();
+    int capacity();
 
-    public abstract ByteBuf clear();
+    ByteBuf clear();
 
-    public abstract ByteBuf duplicate();
+    ByteBuf duplicate();
 
-    public abstract ByteBuf flip();
+    ByteBuf flip();
 
-    public abstract int forEachByte(ByteProcessor processor);
+    int forEachByte(ByteProcessor processor);
 
-    public abstract int forEachByte(int index, int length, ByteProcessor processor);
+    int forEachByte(int index, int length, ByteProcessor processor);
 
-    public abstract int forEachByteDesc(ByteProcessor processor);
+    int forEachByteDesc(ByteProcessor processor);
 
-    public abstract int forEachByteDesc(int index, int length, ByteProcessor processor);
+    int forEachByteDesc(int index, int length, ByteProcessor processor);
 
-    public abstract void get(byte[] dst);
+    void get(byte[] dst);
 
-    public abstract void get(byte[] dst, int offset, int length);
+    void get(byte[] dst, int offset, int length);
 
-    public abstract byte getByte();
+    byte getByte();
 
-    public abstract byte getByte(int index);
+    byte getByte(int index);
 
-    public abstract byte[] getBytes();
+    byte[] getBytes();
 
-    public abstract int getInt();
+    int getInt();
 
-    public abstract int getInt(int index);
+    int getInt(int index);
 
-    public abstract int getIntLE();
+    int getIntLE();
 
-    public abstract int getIntLE(int index);
+    int getIntLE(int index);
 
-    public abstract long getLong();
+    long getLong();
 
-    public abstract long getLong(int index);
+    long getLong(int index);
 
-    public abstract long getLongLE();
+    long getLongLE();
 
-    public abstract long getLongLE(int index);
+    long getLongLE(int index);
 
-    public abstract ByteBuffer getNioBuffer();
+    ByteBuffer getNioBuffer();
 
-    public abstract short getShort();
+    short getShort();
 
-    public abstract short getShort(int index);
+    short getShort(int index);
 
-    public abstract short getShortLE();
+    short getShortLE();
 
-    public abstract short getShortLE(int index);
+    short getShortLE(int index);
 
-    public abstract short getUnsignedByte();
+    short getUnsignedByte();
 
-    public abstract short getUnsignedByte(int index);
+    short getUnsignedByte(int index);
 
-    public abstract long getUnsignedInt();
+    long getUnsignedInt();
 
-    public abstract long getUnsignedInt(int index);
+    long getUnsignedInt(int index);
 
-    public abstract long getUnsignedIntLE();
+    long getUnsignedIntLE();
 
-    public abstract long getUnsignedIntLE(int index);
+    long getUnsignedIntLE(int index);
 
-    public abstract int getUnsignedShort();
+    int getUnsignedShort();
 
-    public abstract int getUnsignedShort(int index);
+    int getUnsignedShort(int index);
 
-    public abstract int getUnsignedShortLE();
+    int getUnsignedShortLE();
 
-    public abstract int getUnsignedShortLE(int index);
+    int getUnsignedShortLE(int index);
 
-    public abstract boolean hasArray();
+    boolean hasArray();
 
-    public abstract boolean hasRemaining();
+    boolean hasRemaining();
 
-    public abstract int limit();
+    int limit();
 
-    public abstract ByteBuf limit(int limit);
+    ByteBuf limit(int limit);
 
-    public abstract ByteBuffer nioBuffer();
+    ByteBuf markP();
+    
+    ByteBuf markPL();
 
-    public abstract int offset();
+    ByteBuffer nioBuffer();
 
-    public abstract int position();
+    int offset();
 
-    public abstract ByteBuf position(int position);
+    int position();
 
-    public abstract void put(byte[] src);
+    ByteBuf position(int position);
 
-    public abstract void put(byte[] src, int offset, int length);
+    void put(byte[] src);
 
-    public abstract void putByte(byte b);
+    void put(byte[] src, int offset, int length);
 
-    public abstract void putInt(int value);
+    void putByte(byte b);
 
-    public abstract void putIntLE(int value);
+    void putInt(int value);
 
-    public abstract void putLong(long value);
+    void putIntLE(int value);
 
-    public abstract void putLongLE(long value);
+    void putLong(long value);
 
-    public abstract void putShort(short value);
+    void putLongLE(long value);
 
-    public abstract void putShortLE(short value);
+    void putShort(short value);
 
-    public abstract void putUnsignedInt(long value);
+    void putShortLE(short value);
 
-    public abstract void putUnsignedIntLE(long value);
+    void putUnsignedInt(long value);
 
-    public abstract void putUnsignedShort(int value);
+    void putUnsignedIntLE(long value);
 
-    public abstract void putUnsignedShortLE(int value);
+    void putUnsignedShort(int value);
 
-    public abstract int read(ByteBuf src);
+    void putUnsignedShortLE(int value);
 
-    public abstract int read(ByteBuffer buffer);
+    int read(ByteBuf src);
 
-    public abstract ByteBuf reallocate(int limit);
+    int read(ByteBuffer buffer);
 
-    public abstract ByteBuf reallocate(int limit, boolean copyOld);
+    ByteBuf reallocate(int limit);
 
-    public abstract ByteBuf reallocate(int limit, int maxLimit);
+    ByteBuf reallocate(int limit, boolean copyOld);
 
-    public abstract ByteBuf reallocate(int limit, int maxLimit, boolean copyOld);
+    ByteBuf reallocate(int limit, int maxLimit);
 
-    public abstract int remaining();
+    ByteBuf reallocate(int limit, int maxLimit, boolean copyOld);
 
-    public abstract ByteBuf reverse();
+    int remaining();
 
-    public abstract ByteBuf skipBytes(int length);
+    ByteBuf reset();
+    
+    ByteBuf reverse();
+    
+    ByteBuf skipBytes(int length);
 
 }

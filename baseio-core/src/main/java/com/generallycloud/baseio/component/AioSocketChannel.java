@@ -144,7 +144,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
 
     @Override
     public void write(ByteBuf buf) {
-        channel.write(buf.getNioBuffer(), this, writeCompletionHandler);
+        channel.write(buf.nioBuffer(), this, writeCompletionHandler);
     }
 
     @Override

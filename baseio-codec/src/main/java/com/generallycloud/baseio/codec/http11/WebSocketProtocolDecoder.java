@@ -67,9 +67,9 @@ public class WebSocketProtocolDecoder implements ProtocolDecoder {
     }
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer, ByteBuf temporary)
-            throws IOException {
-        return new WebSocketFutureImpl(channel, temporary.limit(PROTOCOL_HEADER), limit);
+    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
+        return new WebSocketFutureImpl(channel,
+                channel.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
     }
 
 }

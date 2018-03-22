@@ -23,6 +23,7 @@ public abstract class AbstractByteBuf implements ByteBuf {
     protected int              offset;
     protected int              capacity;
     protected boolean          released;
+    protected int              markLimit;
     protected int              referenceCount = 0;
 
     protected AbstractByteBuf(ByteBufAllocator allocator) {
@@ -173,5 +174,12 @@ public abstract class AbstractByteBuf implements ByteBuf {
         b.append("]");
         return b.toString();
     }
-
+    
+    @Override
+    public ByteBuf markPL() {
+        markP();
+        markLimit = limit();
+        return this;
+    }
+    
 }

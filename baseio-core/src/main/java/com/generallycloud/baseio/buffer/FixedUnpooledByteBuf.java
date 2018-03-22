@@ -409,5 +409,23 @@ public class FixedUnpooledByteBuf implements ByteBuf{
     private ByteBuf unwrap() {
         return byteBuf;
     }
+    
+    @Override
+    public ByteBuf markP() {
+        unwrap().markP();
+        return this;
+    }
+
+    @Override
+    public ByteBuf markPL() {
+        unwrap().markPL();
+        return this;
+    }
+
+    @Override
+    public ByteBuf reset() {
+        unwrap().reset();
+        return this;
+    }
 
 }
