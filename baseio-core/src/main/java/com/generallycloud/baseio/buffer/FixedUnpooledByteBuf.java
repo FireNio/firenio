@@ -19,18 +19,18 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.baseio.common.ReleaseUtil;
 
-//FIXME 需要增加UnsupportedOperation
-public class DuplicateByteBuf implements ByteBuf {
-
+/**
+ * @author wangkai
+ *
+ */
+public class FixedUnpooledByteBuf implements ByteBuf{
+    
     private ByteBuf byteBuf;
-
-    private ByteBuf prototype;
 
     private boolean released;
 
-    public DuplicateByteBuf(ByteBuf byteBuf, ByteBuf prototype) {
+    public FixedUnpooledByteBuf(ByteBuf byteBuf) {
         this.byteBuf = byteBuf;
-        this.prototype = prototype;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class DuplicateByteBuf implements ByteBuf {
 
     @Override
     public ByteBuf duplicate() {
-        return prototype.duplicate();
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -274,67 +274,67 @@ public class DuplicateByteBuf implements ByteBuf {
 
     @Override
     public void put(byte[] src) {
-        throw new UnsupportedOperationException();
+        unwrap().put(src);
     }
 
     @Override
     public void put(byte[] src, int offset, int length) {
-        throw new UnsupportedOperationException();
+        unwrap().put(src, offset, length);
     }
 
     @Override
     public void putByte(byte b) {
-        throw new UnsupportedOperationException();
+        unwrap().putByte(b);
     }
 
     @Override
     public void putInt(int value) {
-        throw new UnsupportedOperationException();
+        unwrap().putInt(value);
     }
 
     @Override
     public void putIntLE(int value) {
-        throw new UnsupportedOperationException();
+        unwrap().putIntLE(value);
     }
 
     @Override
     public void putLong(long value) {
-        throw new UnsupportedOperationException();
+        unwrap().putLong(value);
     }
 
     @Override
     public void putLongLE(long value) {
-        throw new UnsupportedOperationException();
+        unwrap().putLongLE(value);
     }
 
     @Override
     public void putShort(short value) {
-        throw new UnsupportedOperationException();
+        unwrap().putShort(value);
     }
 
     @Override
     public void putShortLE(short value) {
-        throw new UnsupportedOperationException();
+        unwrap().putShortLE(value);
     }
 
     @Override
     public void putUnsignedInt(long value) {
-        throw new UnsupportedOperationException();
+        unwrap().putUnsignedInt(value);
     }
 
     @Override
     public void putUnsignedIntLE(long value) {
-        throw new UnsupportedOperationException();
+        unwrap().putUnsignedIntLE(value);
     }
 
     @Override
     public void putUnsignedShort(int value) {
-        throw new UnsupportedOperationException();
+        unwrap().putUnsignedShort(value);
     }
 
     @Override
     public void putUnsignedShortLE(int value) {
-        throw new UnsupportedOperationException();
+        unwrap().putUnsignedShortLE(value);
     }
 
     @Override
@@ -349,22 +349,35 @@ public class DuplicateByteBuf implements ByteBuf {
 
     @Override
     public ByteBuf reallocate(int limit) {
-        throw new UnsupportedOperationException();
+        return reallocate(limit, false);
     }
 
     @Override
     public ByteBuf reallocate(int limit, boolean copyOld) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ByteBuf reallocate(int limit, int maxLimit) {
-        throw new UnsupportedOperationException();
+        if (limit > unwrap().capacity()) {
+            throw new UnsupportedOperationException();
+        }
+        limit(limit);
+        if (!copyOld) {
+            position(0);
+        }
+        return this;
     }
 
     @Override
     public ByteBuf reallocate(int limit, int maxLimit, boolean copyOld) {
-        throw new UnsupportedOperationException();
+        if (limit < 1) {
+            throw new BufferException("illegal limit:" + limit);
+        }
+        if (limit > maxLimit) {
+            throw new BufferException("limit:" + limit + ",maxLimit:" + maxLimit);
+        }
+        return reallocate(limit, copyOld);
+    }
+
+    @Override
+    public ByteBuf reallocate(int limit, int maxLimit) {
+        return reallocate(limit, maxLimit, false);
     }
 
     @Override
@@ -373,7 +386,7 @@ public class DuplicateByteBuf implements ByteBuf {
             return;
         }
         released = true;
-        ReleaseUtil.release(prototype);
+        ReleaseUtil.release(byteBuf);
     }
 
     @Override

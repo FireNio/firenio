@@ -41,11 +41,8 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
 
     public WebSocketFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
         super(channel.getContext());
-
         this.limit = limit;
-
         this.buf = buf;
-
         this.setServiceName(channel.getSession());
     }
 
@@ -125,15 +122,10 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
             }
             buf.flip();
             byte[] array = buf.getBytes();
-
             if (hasMask) {
-
                 byte[] mask = this.mask;
-
                 int length = array.length;
-
                 for (int i = 0; i < length; i++) {
-
                     array[i] = (byte) (array[i] ^ mask[i % 4]);
                 }
             }

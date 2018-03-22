@@ -70,7 +70,6 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
     private BufferedArrayList<SelectorLoopEvent> selectorLoopEvents       = new BufferedArrayList<>();
     private SocketSessionManager                 sessionManager           = null;
     private SslHandler                           sslHandler               = null;
-    private UnpooledByteBufAllocator             unpooledByteBufAllocator = null;
     private SelectionKeySet                      selectionKeySet          = null;
 
     SocketSelectorEventLoop(SocketSelectorEventLoopGroup group, int coreIndex) {
@@ -80,7 +79,6 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
         this.byteBufReader = context.newChannelByteBufReader();
         this.sessionManager = context.getSessionManager();
         this.sessionManager = new NioSocketSessionManager(context);
-        this.unpooledByteBufAllocator = new UnpooledByteBufAllocator(true);
         this.setCoreIndex(coreIndex);
         this.byteBufAllocator = context.getByteBufAllocatorManager().getNextBufAllocator();
         if (context.isEnableSSL()) {
@@ -225,9 +223,8 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
         if (executorEventLoop instanceof LineEventLoop) {
             ((LineEventLoop) executorEventLoop).setMonitor(this);
         }
-        LifeCycleUtil.start(unpooledByteBufAllocator);
         int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
-        this.buf = unpooledByteBufAllocator.allocate(readBuffer);
+        this.buf = UnpooledByteBufAllocator.getHeap().allocate(readBuffer);
         this.rebuildSelector();
     }
 
@@ -239,7 +236,6 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
         LifeCycleUtil.stop(sessionManager);
         CloseUtil.close(selector);
         ReleaseUtil.release(buf);
-        LifeCycleUtil.stop(unpooledByteBufAllocator);
     }
 
     @Override

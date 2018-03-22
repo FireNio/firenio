@@ -65,6 +65,8 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 
     public abstract long getLongLE(int index);
 
+    public abstract ByteBuffer getNioBuffer();
+
     public abstract short getShort();
 
     public abstract short getShort(int index);
@@ -101,8 +103,6 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 
     public abstract ByteBuf limit(int limit);
 
-    public abstract ByteBuffer getNioBuffer();
-
     public abstract ByteBuffer nioBuffer();
 
     public abstract int offset();
@@ -111,39 +111,35 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 
     public abstract ByteBuf position(int position);
 
-    public abstract void putByte(byte b);
-
     public abstract void put(byte[] src);
 
     public abstract void put(byte[] src, int offset, int length);
 
-    public abstract void putShort(short value);
-
-    public abstract void putShortLE(short value);
-
-    public abstract void putUnsignedShort(int value);
-
-    public abstract void putUnsignedShortLE(int value);
+    public abstract void putByte(byte b);
 
     public abstract void putInt(int value);
 
     public abstract void putIntLE(int value);
 
-    public abstract void putUnsignedInt(long value);
-
-    public abstract void putUnsignedIntLE(long value);
-
     public abstract void putLong(long value);
 
     public abstract void putLongLE(long value);
 
+    public abstract void putShort(short value);
+
+    public abstract void putShortLE(short value);
+
+    public abstract void putUnsignedInt(long value);
+
+    public abstract void putUnsignedIntLE(long value);
+
+    public abstract void putUnsignedShort(int value);
+
+    public abstract void putUnsignedShortLE(int value);
+
     public abstract int read(ByteBuf src);
 
     public abstract int read(ByteBuffer buffer);
-
-    public abstract int remaining();
-
-    public abstract ByteBuf reverse();
 
     public abstract ByteBuf reallocate(int limit);
 
@@ -152,6 +148,10 @@ public interface ByteBuf extends ByteBufNew, Releasable {
     public abstract ByteBuf reallocate(int limit, int maxLimit);
 
     public abstract ByteBuf reallocate(int limit, int maxLimit, boolean copyOld);
+
+    public abstract int remaining();
+
+    public abstract ByteBuf reverse();
 
     public abstract ByteBuf skipBytes(int length);
 

@@ -56,30 +56,19 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
     }
 
     private PooledByteBuf allocate(ByteBufNew byteBufNew, int limit) {
-
         int size = (limit + unitMemorySize - 1) / unitMemorySize;
-
         ReentrantLock lock = this.lock;
-
         lock.lock();
-
         try {
-
             if (!isRunning()) {
                 return null;
             }
-
             int mask = this.mask;
-
             PooledByteBuf buf = allocate(byteBufNew, limit, mask, this.capacity, size);
-
             if (buf == null) {
-
                 buf = allocate(byteBufNew, limit, 0, mask, size);
             }
-
             return buf;
-
         } finally {
             lock.unlock();
         }
@@ -87,35 +76,23 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 
     @Override
     public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
-
         if (limit <= buf.capacity()) {
-
             if (copyOld) {
                 return buf.limit(limit);
             }
-
             return buf.position(0).limit(limit);
         }
-
         if (copyOld) {
-
             PooledByteBuf newBuf = allocate(bufFactory, limit);
-
             if (newBuf == null) {
                 throw new BufferException("reallocate failed");
             }
-
             newBuf.read(buf.flip());
-
             ReleaseUtil.release(buf);
-
             return buf.newByteBuf(this).produce(newBuf);
         }
-
         ReleaseUtil.release(buf);
-
         ByteBuf newBuf = allocate(buf, limit);
-
         if (newBuf == null) {
             throw new BufferException("reallocate failed");
         }
@@ -132,23 +109,16 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 
     @Override
     protected void doStart() throws Exception {
-
         lock = new ReentrantLock();
-
         createBufFactory();
-
         int capacity = this.capacity;
-
         initializeMemory(capacity * unitMemorySize);
-
         ByteBufUnit[] bufs = createUnits(capacity);
-
         for (int i = 0; i < capacity; i++) {
             ByteBufUnit buf = new ByteBufUnit();
             buf.index = i;
             bufs[i] = buf;
         }
-
     }
 
     protected abstract ByteBufUnit[] createUnits(int capacity);
@@ -183,11 +153,8 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 
     @Override
     protected void doStop() throws Exception {
-
         ReentrantLock lock = this.lock;
-
         lock.lock();
-
         try {
             freeMemory();
         } finally {
@@ -197,13 +164,9 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
 
     private int fillBusy() {
         busyUnit.clear();
-
         ByteBufUnit[] memoryUnits = getUnits();
-
         int free = 0;
-
         for (ByteBufUnit b : memoryUnits) {
-
             if (b.free) {
                 free++;
             } else {

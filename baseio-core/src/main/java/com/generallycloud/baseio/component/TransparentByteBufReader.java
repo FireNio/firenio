@@ -18,6 +18,8 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.buffer.FixedUnpooledByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.protocol.ChannelFuture;
@@ -29,9 +31,10 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
     private ByteBuf temporary;
 
     public TransparentByteBufReader(SocketChannelContext context) {
+        ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeap();
+        ByteBuf bufPrototype = allocator.allocate(1024 * 1024 * 2);
         this.foreReadFutureAcceptor = context.getForeReadFutureAcceptor();
-        //FIXME _________紧急不能无线扩容
-        this.temporary = UnpooledByteBufAllocator.getHeap().allocate(1024 * 1024 * 1);
+        this.temporary = new FixedUnpooledByteBuf(bufPrototype);
     }
 
     @Override
