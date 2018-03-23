@@ -56,7 +56,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     }
 
     @Override
-    public ChannelFuture flush() {
+    public final ChannelFuture flush() {
         flushed = true;
         return this;
     }

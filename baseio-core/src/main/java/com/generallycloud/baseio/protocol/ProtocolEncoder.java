@@ -17,7 +17,7 @@ package com.generallycloud.baseio.protocol;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.component.SocketChannel;
 
 public interface ProtocolEncoder {
 
@@ -28,7 +28,6 @@ public interface ProtocolEncoder {
      * @return
      * @throws IOException
      */
-    public abstract void encode(ByteBufAllocator allocator, ChannelFuture future)
-            throws IOException;
+    void encode(SocketChannel channel, ChannelFuture future) throws IOException;
 
 }

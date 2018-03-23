@@ -21,6 +21,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
 import com.generallycloud.baseio.common.MathUtil;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
@@ -31,8 +32,10 @@ public class WebSocketProtocolEncoder implements ProtocolEncoder {
     final int MAX_UNSIGNED_SHORT = (1 << 16) - 1;
 
     @Override
-    public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
+    public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
 
+        ByteBufAllocator allocator = channel.getByteBufAllocator();
+        
         WebSocketFuture f = (WebSocketFuture) future;
 
         byte[] header;

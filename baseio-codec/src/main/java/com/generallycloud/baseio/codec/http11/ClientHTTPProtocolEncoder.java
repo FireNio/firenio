@@ -25,6 +25,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.codec.http11.future.Cookie;
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
 //FIXME post
@@ -35,8 +36,8 @@ public class ClientHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
     private static final byte   SEMICOLON = ';';
 
     @Override
-    public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
-
+    public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
+        ByteBufAllocator allocator = channel.getByteBufAllocator();
         HttpFuture f = (HttpFuture) future;
 
         ByteBuf buf = allocator.allocate(256);

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http11.WebSocketProtocolFactory;
 import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.KMPByteUtil;
 import com.generallycloud.baseio.common.KMPUtil;
@@ -35,7 +34,6 @@ import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
-import com.generallycloud.baseio.protocol.ChannelFuture;
 
 //FIXME 改进header parser
 /**
@@ -176,22 +174,6 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
 
         // FIXME 写入临时文件
         buf = allocate(channel, contentLength, bodyLimit);
-    }
-
-    @Override
-    public ChannelFuture flush() {
-
-        if (updateWebSocketProtocol) {
-
-            channel.setProtocolDecoder(WebSocketProtocolFactory.WS_PROTOCOL_DECODER);
-            channel.setProtocolEncoder(WebSocketProtocolFactory.WS_PROTOCOL_ENCODER);
-            channel.setProtocolFactory(WebSocketProtocolFactory.WS_PROTOCOL_FACTORY);
-
-            channel.getSession().setAttribute(WebSocketFuture.SESSION_KEY_SERVICE_NAME,
-                    getFutureName());
-        }
-
-        return super.flush();
     }
 
     @Override
@@ -542,6 +524,13 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
             return;
         }
         binaryBuffer.write(binary);
+    }
+    
+    /**
+     * @return the updateWebSocketProtocol
+     */
+    public boolean isUpdateWebSocketProtocol() {
+        return updateWebSocketProtocol;
     }
 
 }

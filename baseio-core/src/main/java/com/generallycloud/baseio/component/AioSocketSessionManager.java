@@ -21,12 +21,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
 
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
 public class AioSocketSessionManager extends AbstractSessionManager
         implements SocketSessionManager {
@@ -103,10 +100,9 @@ public class AioSocketSessionManager extends AbstractSessionManager
         if (getManagedSessionSize() == 0) {
             return;
         }
+        SocketChannel channel = context.getSimulateSocketChannel();
         ChannelFuture f = (ChannelFuture) future;
-        ProtocolEncoder encoder = context.getProtocolEncoder();
-        ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeap();
-        encoder.encode(allocator, f);
+        context.getProtocolEncoder().encode(channel, f);
         broadcastChannelFuture(f);
     }
 

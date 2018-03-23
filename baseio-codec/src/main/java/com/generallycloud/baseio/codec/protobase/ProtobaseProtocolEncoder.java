@@ -24,6 +24,7 @@ import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolException;
@@ -33,8 +34,8 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
     private static final byte[] EMPTY_ARRAY = EmptyByteBuf.getInstance().array();
 
     @Override
-    public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
-
+    public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
+        ByteBufAllocator allocator = channel.getByteBufAllocator();
         if (future.isHeartbeat()) {
             byte b = future.isPING() ? ProtobaseProtocolDecoder.PROTOCOL_PING
                     : ProtobaseProtocolDecoder.PROTOCOL_PONG;

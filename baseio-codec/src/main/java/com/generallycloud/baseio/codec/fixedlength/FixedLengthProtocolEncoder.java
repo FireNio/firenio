@@ -21,6 +21,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 
@@ -41,8 +42,8 @@ public class FixedLengthProtocolEncoder implements ProtocolEncoder {
     
 
     @Override
-    public void encode(ByteBufAllocator allocator, ChannelFuture future) throws IOException {
-
+    public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
+        ByteBufAllocator allocator = channel.getByteBufAllocator();
         if (future.isHeartbeat()) {
             ByteBuf buf = future.isPING() ? PING.duplicate() : PONG.duplicate();
             future.setByteBuf(buf);

@@ -22,8 +22,10 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.codec.http11.future.Cookie;
 import com.generallycloud.baseio.codec.http11.future.ServerHttpFuture;
+import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
+import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class ServerHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
@@ -34,9 +36,20 @@ public class ServerHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
     private static final byte[] SET_COOKIE = "Set-Cookie:".getBytes();
 
     @Override
-    public void encode(ByteBufAllocator allocator, ChannelFuture readFuture) throws IOException {
+    public void encode(SocketChannel channel, ChannelFuture readFuture) throws IOException {
 
+        ByteBufAllocator allocator = channel.getByteBufAllocator();
+        
         ServerHttpFuture f = (ServerHttpFuture) readFuture;
+        
+        if (f.isUpdateWebSocketProtocol()) {
+
+            channel.setProtocolDecoder(WebSocketProtocolFactory.WS_PROTOCOL_DECODER);
+            channel.setProtocolEncoder(WebSocketProtocolFactory.WS_PROTOCOL_ENCODER);
+            channel.setProtocolFactory(WebSocketProtocolFactory.WS_PROTOCOL_FACTORY);
+            channel.getSession().setAttribute(WebSocketFuture.SESSION_KEY_SERVICE_NAME,
+                    f.getFutureName());
+        }
 
         f.setResponseHeader("Date",
                 HttpHeaderDateFormat.getFormat().format(System.currentTimeMillis()));

@@ -67,6 +67,8 @@ public interface SocketChannelContext extends Attributes, LifeCycle {
 
     SocketSessionManager getSessionManager();
 
+    SimulateSocketChannel getSimulateSocketChannel();
+    
     SslContext getSslContext();
 
     long getStartupTime();

@@ -63,6 +63,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     private long                                  sessionIdleTime;
     private SslContext                            sslContext;
     private long                                  startupTime = System.currentTimeMillis();
+    private SimulateSocketChannel                   simulateSocketChannel;
 
     public AbstractSocketChannelContext(ServerConfiguration configuration) {
         if (configuration == null) {
@@ -195,7 +196,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     }
 
     protected void doStartModule() throws Exception {
-
+        this.simulateSocketChannel = new SimulateSocketChannel(this);
     }
 
     @Override
@@ -384,6 +385,10 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         }
         this.sslContext = sslContext;
         this.enableSSL = true;
+    }
+    
+    public SimulateSocketChannel getSimulateSocketChannel() {
+        return simulateSocketChannel;
     }
 
 }

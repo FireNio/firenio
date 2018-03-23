@@ -40,9 +40,7 @@ public class SimpleTestFIxedLengthClient {
                 System.out.println();
             }
         };
-        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
-        //use java aio
-        //		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(18300));
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 8300));
         SocketChannelConnector connector = new SocketChannelConnector(context);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
