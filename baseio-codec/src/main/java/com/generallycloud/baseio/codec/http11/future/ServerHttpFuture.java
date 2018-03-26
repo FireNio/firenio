@@ -36,42 +36,29 @@ public class ServerHttpFuture extends AbstractHttpFuture {
 
     @Override
     protected void setDefaultResponseHeaders(Map<String, String> headers) {
-
         if (context.getEncoding() == Encoding.GBK) {
             headers.put("Content-Type", "text/plain;charset=gbk");
         } else {
             headers.put("Content-Type", "text/plain;charset=utf-8");
         }
-        headers.put("Connection", "keep-alive");
-        //		headers.put("Connection", "close");
+        headers.put("Connection", "keep-alive"); // or close
     }
 
     @Override
     protected void parseContentType(String contentType) {
-
         if (StringUtil.isNullOrBlank(contentType)) {
-
             this.contentType = CONTENT_APPLICATION_URLENCODED;
-
             return;
         }
-
         if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-
             this.contentType = CONTENT_APPLICATION_URLENCODED;
-
         } else if (CONTENT_TYPE_TEXT_PLAIN.equals(contentType)) {
-
             this.contentType = CONTENT_TYPE_TEXT_PLAIN;
-
         } else if (contentType.startsWith("multipart/form-data;")) {
-
             int index = KMP_BOUNDARY.match(contentType);
-
             if (index != -1) {
                 boundary = contentType.substring(index + 9);
             }
-
             this.contentType = CONTENT_TYPE_MULTIPART;
         } else {
             // FIXME other content-type

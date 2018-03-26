@@ -44,8 +44,8 @@ import com.generallycloud.baseio.protocol.AbstractChannelFuture;
  */
 public abstract class AbstractHttpFuture extends AbstractChannelFuture implements HttpFuture {
 
-    protected static final KMPUtil     KMP_BOUNDARY = new KMPUtil("boundary=");
-    protected static final KMPByteUtil KMP_HEADER   = new KMPByteUtil("\r\n\r\n".getBytes());
+    protected static final KMPUtil     KMP_BOUNDARY   = new KMPUtil("boundary=");
+    protected static final KMPByteUtil KMP_HEADER     = new KMPByteUtil("\r\n\r\n".getBytes());
 
     protected ByteArrayBuffer          binaryBuffer;
     protected boolean                  body_complete;
@@ -61,7 +61,6 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     protected boolean                  header_complete;
     protected int                      headerLength;
     protected int                      headerLimit;
-    protected List<String>             headerLines;;
     protected String                   host;
     protected String                   method;
     protected Map<String, String>      params;
@@ -69,12 +68,12 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     protected String                   requestURI;
     protected String                   requestURL;
     protected Map<String, String>      response_headers;
-    protected SocketChannel            channel;
-    protected HttpStatus               status       = HttpStatus.C200;
+    protected HttpStatus               status         = HttpStatus.C200;
     protected String                   version;
 
     private MapParameters              mapParameters;
     private boolean                    updateWebSocketProtocol;
+    private boolean                    parseFirstLine = true;
 
     public AbstractHttpFuture(SocketChannelContext context) {
         super(context);
@@ -82,98 +81,18 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
 
     public AbstractHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
         super(channel.getContext());
-        this.channel = channel;
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
-        this.cookies = new HashMap<>();
         this.request_headers = new HashMap<>();
-        this.headerLines = new ArrayList<>();
         this.currentHeaderLine = new StringBuilder();
     }
 
     @Override
     public void addCookie(Cookie cookie) {
-
         if (cookieList == null) {
             cookieList = new ArrayList<>();
         }
-
         cookieList.add(cookie);
-    }
-
-    protected void doBodyComplete() {
-
-        body_complete = true;
-
-        buf.flip();
-
-        bodyArray = buf.getBytes();
-
-        if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-            // FIXME encoding
-
-            String paramString = new String(bodyArray, context.getEncoding());
-
-            parseParamString(paramString);
-
-            this.readText = paramString;
-        } else {
-            // FIXME 解析BODY中的内容
-        }
-    }
-
-    public void doHeaderComplete(SocketChannel channel, List<String> headerLines) {
-
-        parseFirstLine(headerLines.get(0));
-
-        for (int i = 1; i < headerLines.size(); i++) {
-
-            String l = headerLines.get(i);
-
-            int p = l.indexOf(":");
-
-            if (p == -1) {
-                setRequestHeader(l, null);
-                continue;
-            }
-
-            String name = l.substring(0, p).trim();
-
-            String value = l.substring(p + 1).trim();
-
-            setRequestHeader(name, value);
-        }
-
-        host = getRequestHeader("Host");
-
-        String _contentLength = getRequestHeader(HttpHeader.CONTENT_LENGTH);
-
-        int contentLength = 0;
-
-        if (!StringUtil.isNullOrBlank(_contentLength)) {
-            contentLength = Integer.parseInt(_contentLength);
-            this.contentLength = contentLength;
-        }
-
-        String contentType = getRequestHeader(HttpHeader.CONTENT_TYPE);
-
-        parseContentType(contentType);
-
-        String cookie = getRequestHeader("Cookie");
-
-        if (!StringUtil.isNullOrBlank(cookie)) {
-            parse_cookies(cookie, cookies);
-        }
-
-        if (contentLength < 1) {
-            body_complete = true;
-            return;
-        }
-
-        hasBodyContent = true;
-
-        // FIXME 写入临时文件
-        buf = allocate(channel, contentLength, bodyLimit);
     }
 
     @Override
@@ -203,6 +122,9 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
 
     @Override
     public String getCookie(String name) {
+        if (cookies == null) {
+            return null;
+        }
         return cookies.get(name);
     }
 
@@ -236,12 +158,9 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
 
     @Override
     public String getRequestHeader(String name) {
-
         if (StringUtil.isNullOrBlank(name)) {
             return null;
         }
-
-        //		return request_headers.get(name.toLowerCase());
         return request_headers.get(name);
     }
 
@@ -294,7 +213,10 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         return hasBodyContent;
     }
 
-    private void parse_cookies(String line, Map<String, String> cookies) {
+    private void parse_cookies(String line) {
+        if (cookies == null) {
+            cookies = new HashMap<>();
+        }
         StringLexer l = new StringLexer(0, line.toCharArray());
         StringBuilder value = new StringBuilder();
         String k = null;
@@ -330,7 +252,6 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
                 break;
             }
         }
-
         cookies.put(k, value.toString());
     }
 
@@ -339,21 +260,15 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     protected abstract void parseFirstLine(String line);
 
     protected void parseParamString(String paramString) {
-
         String[] array = paramString.split("&");
-
         for (String s : array) {
-
             if (StringUtil.isNullOrBlank(s)) {
                 continue;
             }
-
             String[] unitArray = s.split("=");
-
             if (unitArray.length != 2) {
                 continue;
             }
-
             String key = unitArray[0];
             String value = unitArray[1];
             params.put(key, value);
@@ -361,21 +276,30 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     }
 
     private void readHeader(ByteBuf buffer) throws IOException {
-
         for (; buffer.hasRemaining();) {
-
             if (++headerLength > headerLimit) {
                 throw new IOException("max http header length " + headerLimit);
             }
-
             byte b = buffer.getByte();
-
             if (b == '\n') {
                 if (currentHeaderLine.length() == 0) {
                     header_complete = true;
                     break;
                 } else {
-                    headerLines.add(currentHeaderLine.toString());
+                    String line = currentHeaderLine.toString();
+                    if (parseFirstLine) {
+                        parseFirstLine = false;
+                        parseFirstLine(line);
+                    } else {
+                        int p = line.indexOf(":");
+                        if (p == -1) {
+                            setRequestHeader(line, null);
+                            continue;
+                        }
+                        String name = line.substring(0, p).trim();
+                        String value = line.substring(p + 1).trim();
+                        setRequestHeader(name, value);
+                    }
                     currentHeaderLine.setLength(0);
                 }
                 continue;
@@ -389,29 +313,47 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-
         if (!header_complete) {
-
             readHeader(buffer);
-
             if (!header_complete) {
                 return false;
             }
-
-            doHeaderComplete(channel, headerLines);
+            host = getRequestHeader("Host");
+            String contentLengthStr = getRequestHeader(HttpHeader.CONTENT_LENGTH);
+            if (!StringUtil.isNullOrBlank(contentLengthStr)) {
+                this.contentLength = Integer.parseInt(contentLengthStr);
+            }
+            String contentType = getRequestHeader(HttpHeader.CONTENT_TYPE);
+            parseContentType(contentType);
+            String cookie = getRequestHeader("Cookie");
+            if (!StringUtil.isNullOrBlank(cookie)) {
+                parse_cookies(cookie);
+            }
+            if (contentLength < 1) {
+                body_complete = true;
+            }else{
+                hasBodyContent = true;
+                // FIXME 写入临时文件
+                buf = allocate(channel, contentLength, bodyLimit);
+            }
         }
-
         if (!body_complete) {
-
             buf.read(buffer);
-
             if (buf.hasRemaining()) {
                 return false;
             }
-
-            doBodyComplete();
+            body_complete = true;
+            buf.flip();
+            bodyArray = buf.getBytes();
+            if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
+                // FIXME encoding
+                String paramString = new String(bodyArray, context.getEncoding());
+                parseParamString(paramString);
+                this.readText = paramString;
+            } else {
+                // FIXME 解析BODY中的内容
+            }
         }
-
         return true;
     }
 
@@ -419,16 +361,9 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
 
     @Override
     public void setRequestHeader(String name, String value) {
-
-        if (request_headers == null) {
-            throw new RuntimeException("did you want to set response header ?");
-        }
-
         if (StringUtil.isNullOrBlank(name)) {
             return;
         }
-
-        //		request_headers.put(name.toLowerCase(), value);
         request_headers.put(name, value);
     }
 
@@ -445,19 +380,12 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     @Override
     public void setRequestURL(String url) {
         this.requestURL = url;
-
         int index = url.indexOf("?");
-
         if (index > -1) {
-
             String paramString = url.substring(index + 1, url.length());
-
             parseParamString(paramString);
-
             requestURI = url.substring(0, index);
-
         } else {
-
             this.requestURI = url;
         }
     }
@@ -481,7 +409,6 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         if (params == null) {
             params = new HashMap<>();
         }
-
         this.params.put(key, value);
     }
 
@@ -525,7 +452,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         }
         binaryBuffer.write(binary);
     }
-    
+
     /**
      * @return the updateWebSocketProtocol
      */
