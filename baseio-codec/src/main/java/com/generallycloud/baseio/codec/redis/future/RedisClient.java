@@ -45,12 +45,12 @@ public class RedisClient {
     private synchronized RedisNode sendCommand(byte[] command, byte[]... args) throws IOException {
         RedisFuture future = new RedisCmdFuture(context);
         future.writeCommand(command, args);
-        Waiter<RedisNode> waiter = ioEventHandle.newWaiter();
+        Waiter waiter = ioEventHandle.newWaiter();
         session.flush(future);
         if (waiter.await(timeout)) {
             throw new TimeoutException("timeout");
         }
-        return waiter.getPayload();
+        return (RedisNode) waiter.getResponse();
     }
 
     private RedisNode sendCommand(RedisCommand command, byte[]... args) throws IOException {

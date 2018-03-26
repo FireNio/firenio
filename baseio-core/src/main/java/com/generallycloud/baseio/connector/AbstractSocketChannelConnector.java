@@ -21,10 +21,10 @@ import java.net.InetSocketAddress;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
-import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.AbstractChannelService;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.UnsafeSocketSession;
+import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 /**
@@ -34,11 +34,9 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 public abstract class AbstractSocketChannelConnector extends AbstractChannelService
         implements ChannelConnector {
 
-    private Throwable           connectException;
     private UnsafeSocketSession session;
     private long                timeout          = 3000;
-    private boolean             timeouted;
-    private Object              wait4ConnectLock = new Object();
+    private Waiter              waiter;
 
     @Override
     public synchronized void close() throws IOException {
@@ -66,19 +64,18 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelServ
 
     //FIXME protected
     public void finishConnect(UnsafeSocketSession session, Throwable exception) {
-        synchronized (wait4ConnectLock) {
-            if (timeouted) {
-                CloseUtil.close(session);
-                wait4ConnectLock.notify();
-                return;
-            }
-            if (session == null) {
-                connectException = exception;
-            } else {
-                this.session = session;
-                this.connected();
-            }
-            wait4ConnectLock.notify();
+        Waiter waiter = this.waiter;
+        if (waiter == null) {
+            CloseUtil.close(session);
+            return;
+        }
+        if (exception != null) {
+            waiter.response(exception);
+        }else{
+            waiter.response(session);
+        }
+        if (waiter.isTimeouted()) {
+            CloseUtil.close(session);
         }
     }
 
@@ -96,6 +93,7 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelServ
     protected void initService(ServerConfiguration configuration) throws IOException {
         String SERVER_HOST = configuration.getSERVER_HOST();
         int SERVER_PORT = configuration.getSERVER_PORT();
+        this.waiter = new Waiter();
         this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
         this.connect(getServerSocketAddress());
     }
@@ -116,25 +114,21 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelServ
     }
 
     protected void wait4connect() throws IOException {
-        timeouted = false;
-        connectException = null;
-        synchronized (wait4ConnectLock) {
-            if (getSession() == null) {
-                ThreadUtil.wait(wait4ConnectLock, timeout);
-            }
-            if (getSession() != null) {
-                return;
-            }
-            timeouted = true;
+        if(waiter.await(timeout)){
             CloseUtil.close(this);
-            if (connectException == null) {
-                throw new TimeoutException("connect to " + getServerSocketAddress() + " time out");
-            }
+            throw new TimeoutException("connect to " + getServerSocketAddress() + " time out");
+        }
+        if (waiter.isFailed()) {
+            CloseUtil.close(this);
+            Throwable ex = (Throwable) waiter.getResponse();
             String errorMsg = MessageFormatter.format(
                     "connect to [{}] failed,nested exception is {}", getServerSocketAddress(),
-                    connectException.getMessage());
-            throw new IOException(errorMsg, connectException);
+                    ex.getMessage());
+            throw new IOException(errorMsg, ex);
         }
+        this.session = (UnsafeSocketSession) waiter.getResponse();
+        this.connected();
+        this.waiter = null;
     }
 
 }

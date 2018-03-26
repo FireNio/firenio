@@ -197,7 +197,7 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
         if (selected > 0) {
             if (selectionKeySet != null) {
                 SelectionKeySet keySet = selectionKeySet;
-                for (int i = 0; i < keySet.size; ++i) {
+                for (int i = 0; i < keySet.size; i++) {
                     SelectionKey k = keySet.keys[i];
                     keySet.keys[i] = null;
                     accept(k);
@@ -369,7 +369,7 @@ public class SocketSelectorEventLoop extends AbstractEventLoop implements Select
                 }
             }
         });
-        if (res instanceof Exception) {
+        if (res instanceof Throwable) {
             return new NioSocketSelector(this, channel, selector);
         }
         selectionKeySet = keySet;

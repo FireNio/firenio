@@ -21,7 +21,7 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class WaiterOnFuture implements OnFuture {
 
-    private Waiter<Future> waiter = new Waiter<>();
+    private Waiter waiter = new Waiter();
 
     /**
      * @param timeout
@@ -32,7 +32,7 @@ public class WaiterOnFuture implements OnFuture {
     }
 
     public Future getReadFuture() {
-        return waiter.getPayload();
+        return (Future) waiter.getResponse();
     }
 
     @Override

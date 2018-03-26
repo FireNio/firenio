@@ -41,8 +41,6 @@ public class AioSocketChannel extends AbstractSocketChannel {
 
     private static final Logger       logger = LoggerFactory.getLogger(AioSocketChannel.class);
 
-    // FIXME 改进network wake 机制
-    // FIXME network weak check
     public AioSocketChannel(CachedAioThread aioThread, AsynchronousSocketChannel channel,
             int channelId) {
         super(aioThread, channelId);

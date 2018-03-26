@@ -36,12 +36,12 @@ public class HttpClient {
     }
 
     public synchronized HttpFuture request(HttpFuture future, long timeout) throws IOException {
-        Waiter<HttpFuture> waiter = ioEventHandle.newWaiter();
+        Waiter waiter = ioEventHandle.newWaiter();
         session.flush(future);
         if (waiter.await(timeout)) {
             throw new TimeoutException("timeout");
         }
-        return waiter.getPayload();
+        return (HttpFuture) waiter.getResponse();
     }
 
     public synchronized HttpFuture request(HttpFuture future) throws IOException {

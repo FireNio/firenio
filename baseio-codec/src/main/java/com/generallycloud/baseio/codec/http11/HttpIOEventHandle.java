@@ -23,20 +23,20 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class HttpIOEventHandle extends IoEventHandleAdaptor {
 
-    private Waiter<HttpFuture> waiter;
+    private Waiter waiter;
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
         HttpFuture f = (HttpFuture) future;
-        Waiter<HttpFuture> waiter = this.waiter;
+        Waiter waiter = this.waiter;
         if (waiter != null) {
             this.waiter = null;
             waiter.response(f);
         }
     }
 
-    public Waiter<HttpFuture> newWaiter() {
-        this.waiter = new Waiter<>();
+    public Waiter newWaiter() {
+        this.waiter = new Waiter();
         return this.waiter;
     }
 }

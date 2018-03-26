@@ -22,20 +22,20 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class RedisIOEventHandle extends IoEventHandleAdaptor {
 
-    private Waiter<RedisNode> waiter;
+    private Waiter waiter;
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
         RedisFuture f = (RedisFuture) future;
-        Waiter<RedisNode> waiter = this.waiter;
+        Waiter waiter = this.waiter;
         if (waiter != null) {
             this.waiter = null;
-            waiter.response(f.getRedisNode());
+            waiter.response(f);
         }
     }
 
-    public Waiter<RedisNode> newWaiter() {
-        this.waiter = new Waiter<>();
+    public Waiter newWaiter() {
+        this.waiter = new Waiter();
         return this.waiter;
     }
 

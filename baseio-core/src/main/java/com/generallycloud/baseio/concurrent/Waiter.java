@@ -15,11 +15,11 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-public class Waiter<T> {
+public class Waiter {
 
     private boolean isDnoe;
     private boolean timeouted;
-    private T       response;
+    private Object  response;
 
     public boolean await() {
         return await(0);
@@ -44,10 +44,13 @@ public class Waiter<T> {
         return timeouted;
     }
 
-    public void response(T t) {
+    public void response(Object res) {
         synchronized (this) {
+            if (isDnoe) {
+                return;
+            }
             this.isDnoe = true;
-            this.response = t;
+            this.response = res;
             this.notify();
         }
     }
@@ -56,12 +59,17 @@ public class Waiter<T> {
         return isDnoe;
     }
 
-    public T getPayload() {
+    public Object getResponse() {
         return response;
     }
 
     public boolean isTimeouted() {
         return timeouted;
     }
-    
+
+    //not include timeout
+    public boolean isFailed() {
+        return (response instanceof Throwable);
+    }
+
 }
