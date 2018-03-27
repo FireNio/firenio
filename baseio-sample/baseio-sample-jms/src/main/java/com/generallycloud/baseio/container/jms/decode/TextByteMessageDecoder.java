@@ -29,7 +29,7 @@ public class TextByteMessageDecoder implements MessageDecoder {
         String queueName = param.getParameter("queueName");
         String text = param.getParameter("text");
 
-        byte[] array = future.getBinary();
+        byte[] array = future.getReadBinary();
 
         return new TextByteMessage(messageId, queueName, text, array);
     }

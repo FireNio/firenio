@@ -30,7 +30,7 @@ public class MapByteMessageDecoder implements MessageDecoder {
         String queueName = param.getParameter("queueName");
         JSONObject map = param.getJSONObject("map");
 
-        byte[] array = future.getBinary();
+        byte[] array = future.getReadBinary();
 
         return new MapByteMessage(messageId, queueName, map, array);
     }

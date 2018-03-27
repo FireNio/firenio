@@ -62,11 +62,11 @@ public class FileReceiveUtil {
             logger.info("accept...................open,file={}", fileName);
         }
 
-        byte[] data = future.getBinary();
+        byte[] data = future.getReadBinary();
 
-        outputStream.write(data, 0, future.getBinaryLength());
+        outputStream.write(data, 0, future.getReadBinarySize());
 
-        logger.info("accept...................{},{}", future.getBinaryLength(), (num++));
+        logger.info("accept...................{},{}", future.getReadBinarySize(), (num++));
 
         boolean isEnd = parameters.getBooleanParameter(IS_END);
 

@@ -52,7 +52,7 @@ public class ProtobufUtil {
 
         Parser<? extends MessageLite> parser = getParser(future.getFutureName());
 
-        return parser.parseFrom(future.getBinary());
+        return parser.parseFrom(future.getReadBinary());
     }
 
     public void writeProtobuf(MessageLite messageLite, ProtobaseFuture future)

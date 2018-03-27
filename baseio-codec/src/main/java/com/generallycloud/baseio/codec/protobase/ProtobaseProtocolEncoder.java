@@ -22,7 +22,6 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
@@ -64,6 +63,8 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
         }
         byte futureNameLength = (byte) futureNameBytes.length;
         int allLen = 6 + futureNameLength;
+        int textWriteSize = f.getWriteSize();
+        int binaryWriteSize = f.getWriteBinarySize();
         byte h1 = 0b01000000;
         if (f.isBroadcast()) {
             h1 |= 0b00100000;
@@ -80,21 +81,13 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
             h1 |= 0b00000100;
             allLen += 4;
         }
-        if (f.getWriteBinaryBuffer() != null) {
+        if (f.getWriteBinarySize() > 0) {
             h1 |= 0b00000010;
             allLen += 4;
+            allLen += f.getWriteBinarySize();
         }
-        int textWriteSize = f.getWriteSize();
         if (textWriteSize > 0) {
             allLen += textWriteSize;
-        }
-        ByteArrayBuffer binary = f.getWriteBinaryBuffer();
-        int binaryWriteSize = 0;
-        if (binary != null) {
-            binaryWriteSize = binary.size();
-            if (binaryWriteSize > 0) {
-                allLen += binaryWriteSize;
-            }
         }
         ByteBuf buf = allocator.allocate(allLen);
         buf.putByte(h1);
@@ -117,7 +110,7 @@ public class ProtobaseProtocolEncoder implements ProtocolEncoder {
             buf.put(f.getWriteBuffer(), 0, textWriteSize);
         }
         if (binaryWriteSize > 0) {
-            buf.put(binary.array(), 0, binary.size());
+            buf.put(f.getWriteBinary(), 0, binaryWriteSize);
         }
         future.setByteBuf(buf.flip());
     }

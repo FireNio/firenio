@@ -46,16 +46,12 @@ public class TestBalanceClient {
             public void accept(SocketSession session, Future future) throws Exception {
 
                 ProtobaseFuture f = (ProtobaseFuture) future;
-
-                //				if ("getToken".equals(f.getFutureName())) {
-                //					synchronized (lock) {
-                //						((BalanceClientSocketSession) session).setToken(f.getToken());
-                //						lock.notify();
-                //					}
-                //					return;
-                //				}
-
-                System.out.println(f.getReadText() + "______R:" + System.currentTimeMillis());
+                
+                if (f.hasReadBinary()) {
+                    System.out.println(f.getReadText() + new String(f.getReadBinary()) + "______R:" + System.currentTimeMillis());
+                }else{
+                    System.out.println(f.getReadText() + "______R:" + System.currentTimeMillis());
+                }
 
                 res.incrementAndGet();
             }

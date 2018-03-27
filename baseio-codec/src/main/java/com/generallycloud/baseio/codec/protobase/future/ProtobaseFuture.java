@@ -17,22 +17,23 @@ package com.generallycloud.baseio.codec.protobase.future;
 
 import com.generallycloud.baseio.balance.HashedBalanceFuture;
 import com.generallycloud.baseio.balance.SessionIdBalanceFuture;
-import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.NamedFuture;
 
 public interface ProtobaseFuture extends NamedFuture, SessionIdBalanceFuture, HashedBalanceFuture {
 
-    byte[] getBinary();
-
-    int getBinaryLength();
+    int getReadBinarySize();
 
     int getFutureId();
 
+    byte[] getReadBinary();
+
     int getTextLength();
+    
+    byte[] getWriteBinary();
 
-    ByteArrayBuffer getWriteBinaryBuffer();
+    int getWriteBinarySize();
 
-    boolean hasBinary();
+    boolean hasReadBinary();
 
     void setFutureId(int futureId);
 

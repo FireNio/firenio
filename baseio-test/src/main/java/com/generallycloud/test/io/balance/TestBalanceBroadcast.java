@@ -76,10 +76,12 @@ public class TestBalanceBroadcast {
             String msg = "broadcast msg___S:" + System.currentTimeMillis();
 
             future.write(msg);
+            
+            future.writeBinary("__^^^binary^^^__".getBytes());
 
             session.flush(future);
 
-            ThreadUtil.sleep(1);
+            ThreadUtil.sleep(10);
         }
 
         CloseUtil.close(connector);
