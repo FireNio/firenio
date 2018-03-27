@@ -13,16 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.container.jms.decode;
+package com.generallycloud.baseio.codec.protobase;
 
-import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
-import com.generallycloud.baseio.container.jms.ErrorMessage;
-import com.generallycloud.baseio.container.jms.Message;
+public class ParamedProtobaseProtocolEncoder extends ProtobaseProtocolEncoder {
 
-public class ErrorMessageDecoder implements MessageDecoder {
-
-    @Override
-    public Message decode(ParamedProtobaseFuture future) {
-        return new ErrorMessage(future.getParameters().getIntegerParameter("code"));
-    }
 }

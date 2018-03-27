@@ -20,35 +20,33 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
 
-public class HashedProtobaseProtocolFactory implements ProtocolFactory {
-    
+public class ParamedProtobaseProtocolFactory implements ProtocolFactory {
+
     @Override
-    public void initialize(SocketChannelContext context) {
-        
-    }
+    public void initialize(SocketChannelContext context) {}
 
     private int limit;
 
-    public HashedProtobaseProtocolFactory() {
+    public ParamedProtobaseProtocolFactory() {
         this(1024 * 8);
     }
 
-    public HashedProtobaseProtocolFactory(int limit) {
+    public ParamedProtobaseProtocolFactory(int limit) {
         this.limit = limit;
     }
 
     @Override
     public ProtocolDecoder getProtocolDecoder(SocketChannelContext context) {
-        return new HashedProtobaseProtocolDecoder(limit);
+        return new ParamedProtobaseProtocolDecoder(limit);
     }
 
     @Override
     public ProtocolEncoder getProtocolEncoder(SocketChannelContext context) {
-        return new HashedProtobaseProtocolEncoder();
+        return new ParamedProtobaseProtocolEncoder();
     }
 
     @Override
     public String getProtocolId() {
-        return "HashedProtobase";
+        return "ParamedProtobase";
     }
 }

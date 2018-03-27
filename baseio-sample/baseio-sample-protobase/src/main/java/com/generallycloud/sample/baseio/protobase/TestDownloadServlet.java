@@ -18,6 +18,7 @@ package com.generallycloud.sample.baseio.protobase;
 import java.io.File;
 import java.io.IOException;
 
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.FileReceiveUtil;
@@ -30,7 +31,7 @@ public class TestDownloadServlet extends ProtobaseFutureAcceptorService {
     public static final String SERVICE_NAME = TestDownloadServlet.class.getSimpleName();
 
     @Override
-    protected void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
+    protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
         FileSendUtil fileSendUtil = new FileSendUtil();
 
         File file = new File(future.getParameters().getParameter(FileReceiveUtil.FILE_NAME));

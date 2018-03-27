@@ -16,10 +16,9 @@
 package com.generallycloud.test.io.balance;
 
 import com.generallycloud.baseio.balance.BalanceContext;
-import com.generallycloud.baseio.codec.protobase.HashedProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -62,7 +61,7 @@ public class TestBalanceBroadcast {
 
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-        context.setProtocolFactory(new HashedProtobaseProtocolFactory());
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 
@@ -70,7 +69,7 @@ public class TestBalanceBroadcast {
 
         for (; session.isOpened();) {
 
-            HashedProtobaseFuture future = new HashedProtobaseFutureImpl(context, "broadcast");
+            ProtobaseFuture future = new ProtobaseFutureImpl(context, "broadcast");
 
             future.setBroadcast(true);
 

@@ -15,12 +15,14 @@
  */
 package com.generallycloud.baseio.codec.protobase.future;
 
-import com.generallycloud.baseio.balance.HashedBalanceFuture;
+import com.generallycloud.baseio.component.Parameters;
 
 /**
  * @author wangkai
  *
  */
-public interface HashedProtobaseFuture extends SessionIdProtobaseFuture, HashedBalanceFuture {
+public interface ParamedProtobaseFuture extends ProtobaseFuture{
 
+    Parameters getParameters();
+    
 }

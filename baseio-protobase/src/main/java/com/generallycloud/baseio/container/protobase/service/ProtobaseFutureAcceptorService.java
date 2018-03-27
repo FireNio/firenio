@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.container.protobase.service;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 import com.generallycloud.baseio.protocol.Future;
@@ -24,10 +24,10 @@ public abstract class ProtobaseFutureAcceptorService extends FutureAcceptorServi
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
-        this.doAccept(session, (ProtobaseFuture) future);
+        this.doAccept(session, (ParamedProtobaseFuture) future);
     }
 
-    protected abstract void doAccept(SocketSession session, ProtobaseFuture future)
+    protected abstract void doAccept(SocketSession session, ParamedProtobaseFuture future)
             throws Exception;
 
 }

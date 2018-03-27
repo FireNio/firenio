@@ -17,7 +17,7 @@ package com.generallycloud.test.io.protobase;
 
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -73,7 +73,7 @@ public class TestDownload {
             public void onResponse(SocketSession session, Future future) {
 
                 try {
-                    fileReceiveUtil.accept(session, (ProtobaseFuture) future, false);
+                    fileReceiveUtil.accept(session, (ParamedProtobaseFuture) future, false);
                 } catch (Exception e) {
                     DebugUtil.debug(e);
                 }

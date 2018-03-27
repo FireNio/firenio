@@ -15,7 +15,7 @@
  */
 package com.generallycloud.test.io.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
@@ -47,7 +47,7 @@ public class Test404 {
 
         context.setIoEventHandleAdaptor(eventHandle);
 
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
+        context.setProtocolFactory(new ParamedProtobaseProtocolFactory());
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 

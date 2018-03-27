@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.generallycloud.baseio.LifeCycleUtil;
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.ConcurrentSet;
@@ -105,7 +106,7 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
         messageIds.remove(message.getMsgId());
     }
 
-    public Message parse(ProtobaseFuture future) throws MQException {
+    public Message parse(ParamedProtobaseFuture future) throws MQException {
         return messageDecoder.decode(future);
     }
 

@@ -18,6 +18,7 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -469,6 +470,11 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         } catch (Throwable e) {
             logger.debug(e.getMessage(), e);
         }
+    }
+    
+    @Override
+    public Charset getEncoding() {
+        return getContext().getEncoding();
     }
 
 }

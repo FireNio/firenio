@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFutureImpl;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
@@ -40,11 +40,11 @@ import com.generallycloud.baseio.protocol.ProtocolDecoder;
  *  
  * </pre>
  */
-public class ProtobaseProtocolDecoder implements ProtocolDecoder {
+public class ParamedProtobaseProtocolDecoder implements ProtocolDecoder {
 
     protected int limit;
 
-    public ProtobaseProtocolDecoder(int limit) {
+    public ParamedProtobaseProtocolDecoder(int limit) {
         this.limit = limit;
     }
 
@@ -52,7 +52,7 @@ public class ProtobaseProtocolDecoder implements ProtocolDecoder {
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBufAllocator allocator = channel.getByteBufAllocator();
         ByteBuf buf = allocator.allocate(2);
-        return new ProtobaseFutureImpl(channel, buf);
+        return new ParamedProtobaseFutureImpl(channel, buf);
     }
 
 }

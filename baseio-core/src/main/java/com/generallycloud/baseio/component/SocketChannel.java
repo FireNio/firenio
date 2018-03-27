@@ -19,6 +19,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketOption;
+import java.nio.charset.Charset;
 
 import javax.net.ssl.SSLEngine;
 
@@ -45,6 +46,8 @@ public interface SocketChannel extends Closeable {
     void flush(ChannelFuture future);
 
     ByteBufAllocator getByteBufAllocator();
+    
+    Charset getEncoding();
 
     int getChannelId();
 

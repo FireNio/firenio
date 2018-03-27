@@ -16,11 +16,10 @@
 package com.generallycloud.baseio.codec.protobase;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.buffer.EmptyByteBuf;
+import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
@@ -31,123 +30,96 @@ import com.generallycloud.baseio.protocol.ProtocolException;
 
 public class ProtobaseProtocolEncoder implements ProtocolEncoder {
 
-    private static final byte[] EMPTY_ARRAY = EmptyByteBuf.getInstance().array();
+    private static final ByteBuf PING;
+    private static final ByteBuf PONG;
+    
+    static{
+        ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeap();
+        PING = allocator.allocate(2);
+        PONG = allocator.allocate(2);
+        PING.putByte((byte)0b10000000);
+        PING.putByte((byte)0b00000000);
+        PONG.putByte((byte)0b11000000);
+        PONG.putByte((byte)0b00000000);
+        PING.flip();
+        PONG.flip();
+    }
 
     @Override
     public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
         ByteBufAllocator allocator = channel.getByteBufAllocator();
         if (future.isHeartbeat()) {
-            byte b = future.isPING() ? ProtobaseProtocolDecoder.PROTOCOL_PING
-                    : ProtobaseProtocolDecoder.PROTOCOL_PONG;
-            ByteBuf buf = allocator.allocate(1);
-            buf.putByte(b);
-            future.setByteBuf(buf.flip());
+            ByteBuf buf = future.isPING() ? PING.duplicate() : PONG.duplicate();
+            future.setByteBuf(buf);
             return;
         }
-
         ProtobaseFuture f = (ProtobaseFuture) future;
-
-        String future_name = f.getFutureName();
-
-        if (StringUtil.isNullOrBlank(future_name)) {
+        String futureName = f.getFutureName();
+        if (StringUtil.isNullOrBlank(futureName)) {
             throw new ProtocolException("future name is empty");
         }
-
-        Charset charset = future.getContext().getEncoding();
-
-        byte[] future_name_array = future_name.getBytes(charset);
-
-        if (future_name_array.length > 255) {
-            throw new IllegalArgumentException("service name too long ," + future_name);
+        byte [] futureNameBytes = futureName.getBytes(channel.getEncoding());
+        if (futureNameBytes.length > Byte.MAX_VALUE) {
+            throw new ProtocolException("future name max length 127");
         }
-
-        byte future_name_length = (byte) future_name_array.length;
-
+        byte futureNameLength = (byte) futureNameBytes.length;
+        int allLen = 6 + futureNameLength;
+        byte h1 = 0b01000000;
+        if (f.isBroadcast()) {
+            h1 |= 0b00100000;
+        }
+        if (f.getFutureId() > 0) {
+            h1 |= 0b00010000;
+            allLen += 4;
+        }
+        if (f.getSessionId() > 0) {
+            h1 |= 0b00001000;
+            allLen += 4;
+        }
+        if (f.getHashCode() > 0) {
+            h1 |= 0b00000100;
+            allLen += 4;
+        }
+        if (f.getWriteBinaryBuffer() != null) {
+            h1 |= 0b00000010;
+            allLen += 4;
+        }
+        int textWriteSize = f.getWriteSize();
+        if (textWriteSize > 0) {
+            allLen += textWriteSize;
+        }
         ByteArrayBuffer binary = f.getWriteBinaryBuffer();
-
-        int writeSize = f.getWriteSize();
-
-        byte[] text_array;
-        int text_length;
-        if (writeSize == 0) {
-            text_array = EMPTY_ARRAY;
-            text_length = 0;
-        } else {
-            text_array = f.getWriteBuffer();
-            text_length = writeSize;
-        }
-
+        int binaryWriteSize = 0;
         if (binary != null) {
-            text_length = text_array.length;
-            int header_length = getHeaderLengthWithBinary();
-            int binary_length = binary.size();
-            byte byte0 = getBinaryFirstByte();
-
-            int all_length = header_length + future_name_length + text_length + binary_length;
-
-            ByteBuf buf = allocator.allocate(all_length);
-
-            buf.putByte(byte0);
-            buf.putByte((future_name_length));
-            buf.putInt(f.getFutureId());
-            putHeaderExtend(f, buf);
-            buf.putUnsignedShort(text_length);
-            buf.putInt(binary_length);
-
-            buf.put(future_name_array);
-
-            if (text_length > 0) {
-                buf.put(text_array, 0, text_length);
+            binaryWriteSize = binary.size();
+            if (binaryWriteSize > 0) {
+                allLen += binaryWriteSize;
             }
-
-            buf.put(binary.array(), 0, binary_length);
-
-            future.setByteBuf(buf.flip());
-            return;
         }
-
-        int header_length = getHeaderLengthNoBinary();
-
-        byte byte0 = getFirstByte();
-
-        int all_length = header_length + future_name_length + text_length;
-
-        ByteBuf buf = allocator.allocate(all_length);
-
-        buf.putByte(byte0);
-        buf.putByte(future_name_length);
-        buf.putInt(f.getFutureId());
-        putHeaderExtend(f, buf);
-        buf.putUnsignedShort(text_length);
-
-        buf.put(future_name_array);
-
-        if (text_length > 0) {
-            buf.put(text_array, 0, text_length);
+        ByteBuf buf = allocator.allocate(allLen);
+        buf.putByte(h1);
+        buf.putByte(futureNameLength);
+        buf.putInt(textWriteSize);
+        if (f.getFutureId() > 0) {
+            buf.putInt(f.getFutureId());
         }
-
+        if (f.getSessionId() > 0) {
+            buf.putInt(f.getSessionId());
+        }
+        if (f.getHashCode() > 0) {
+            buf.putInt(f.getHashCode());
+        }
+        if (binaryWriteSize > 0) {
+            buf.putInt(binaryWriteSize);
+        }
+        buf.put(futureNameBytes);
+        if (textWriteSize > 0) {
+            buf.put(f.getWriteBuffer(), 0, textWriteSize);
+        }
+        if (binaryWriteSize > 0) {
+            buf.put(binary.array(), 0, binary.size());
+        }
         future.setByteBuf(buf.flip());
-    }
-
-    protected void putHeaderExtend(ProtobaseFuture future, ByteBuf buf) {
-
-    }
-
-    private byte getFirstByte() {
-        return ProtobaseProtocolDecoder.PROTOCOL_PACKET;
-    }
-
-    private byte getBinaryFirstByte() {
-        return ProtobaseProtocolDecoder.PROTOCOL_HAS_BINARY
-                | ProtobaseProtocolDecoder.PROTOCOL_PACKET;
-    }
-
-    protected int getHeaderLengthNoBinary() {
-        return ProtobaseProtocolDecoder.PROTOCOL_HEADER_NO_BINARY;
-    }
-
-    protected int getHeaderLengthWithBinary() {
-        return ProtobaseProtocolDecoder.PROTOCOL_HEADER_WITH_BINARY;
     }
 
 }

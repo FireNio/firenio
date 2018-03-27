@@ -15,7 +15,7 @@
  */
 package com.generallycloud.sample.baseio.protobase;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.protobase.service.ProtobaseFutureAcceptorService;
@@ -31,7 +31,7 @@ public class TestSimpleServlet extends ProtobaseFutureAcceptorService {
     //	private AtomicInteger size = new AtomicInteger();
 
     @Override
-    protected void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
+    protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
 
         //		accept.getAndIncrement();
 

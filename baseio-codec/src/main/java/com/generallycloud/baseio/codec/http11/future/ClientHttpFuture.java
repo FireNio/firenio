@@ -31,6 +31,10 @@ public class ClientHttpFuture extends AbstractHttpFuture {
         this.method = method;
         this.setRequestURL(url);
     }
+    
+    public ClientHttpFuture(SocketChannelContext context, String url) {
+        this(context, url, "GET");
+    }
 
     public ClientHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
         super(channel, headerLimit, bodyLimit);

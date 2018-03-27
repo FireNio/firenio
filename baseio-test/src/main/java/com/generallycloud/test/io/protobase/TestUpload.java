@@ -20,6 +20,7 @@ import java.io.File;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -37,7 +38,7 @@ public class TestUpload {
 
     public static void main(String[] args) throws Exception {
 
-        String serviceName = "TestUploadServlet";
+        String serviceName = "/test-upload";
 
         IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
 
@@ -56,7 +57,7 @@ public class TestUpload {
 
         LoggerFactory.configure();
 
-        ServerConfiguration configuration = new ServerConfiguration(8800);
+        ServerConfiguration configuration = new ServerConfiguration(8300);
 
         SocketChannelContext context = new NioSocketChannelContext(configuration);
 
@@ -71,15 +72,17 @@ public class TestUpload {
 
         String fileName = "lantern-installer-beta.exe";
 
-        fileName = "flashmail-2.4.exe";
+        fileName = "content.rar";
 
         //		fileName = "jdk-8u102-windows-x64.exe";
 
-        File file = new File("D:/TEMP/" + fileName);
+        File file = new File("c:/ryms/" + fileName);
 
         FileSendUtil fileSendUtil = new FileSendUtil();
 
         fileSendUtil.sendFile(session, serviceName, file, 1024 * 800);
+        
+        ThreadUtil.sleep(10000000);
 
     }
 }

@@ -18,6 +18,7 @@ package com.generallycloud.test.io.load.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.codec.http11.ClientHTTPProtocolFactory;
+import com.generallycloud.baseio.codec.http11.future.ClientHttpFuture;
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -28,7 +29,6 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.test.io.common.FutureFactory;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
@@ -45,7 +45,7 @@ public class TestHttpLoadClient extends ITestThread {
 
         for (int i = 0; i < time; i++) {
 
-            HttpFuture future = FutureFactory.createHttpReadFuture(session, "/test");
+            HttpFuture future = new ClientHttpFuture(session.getContext(), "/test");
 
             session.flush(future);
         }

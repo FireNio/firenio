@@ -19,7 +19,7 @@ import com.generallycloud.baseio.protocol.Future;
 
 public interface BalanceFuture extends Future {
 
-    public abstract Object getSessionKey();
+    public abstract int getSessionKey();
 
     public abstract boolean isBroadcast();
 

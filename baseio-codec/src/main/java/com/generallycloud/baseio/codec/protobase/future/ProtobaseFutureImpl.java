@@ -19,11 +19,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.component.JsonParameters;
-import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
@@ -33,15 +32,25 @@ import com.generallycloud.baseio.protocol.AbstractChannelFuture;
  */
 public class ProtobaseFutureImpl extends AbstractChannelFuture implements ProtobaseFuture {
 
+    private byte[]          binary;
+    private int             binaryLength;
+    private int             binaryLengthLimit;
     private boolean         body_complete;
     private int             futureId;
     private String          futureName;
+    private int             hashCode;
+    private byte            futureNameLength;
     private boolean         header_complete;
-    private Parameters      parameters;
+    private int             sessionId;
+    private boolean         isBroadcast;
+    private int             textLength;
+    private int             textLengthLimit;
     private ByteArrayBuffer writeBinaryBuffer;
 
-    protected int           future_name_length;
-    protected int           textLength;
+    public ProtobaseFutureImpl(SocketChannel channel, ByteBuf buf) {
+        super(channel.getContext());
+        this.buf = buf;
+    }
 
     // for ping & pong
     public ProtobaseFutureImpl(SocketChannelContext context) {
@@ -50,77 +59,24 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
         this.body_complete = true;
     }
 
+    public ProtobaseFutureImpl(SocketChannelContext context, String futureName) {
+        this(context, 0, futureName);
+    }
+
     public ProtobaseFutureImpl(SocketChannelContext context, int futureId, String futureName) {
         super(context);
         this.futureName = futureName;
         this.futureId = futureId;
     }
 
-    public ProtobaseFutureImpl(SocketChannelContext context, String futureName) {
-        this(context, 0, futureName);
-    }
-
-    public ProtobaseFutureImpl(SocketChannel channel, ByteBuf buf) {
-        super(channel.getContext());
-        this.buf = buf;
-    }
-
-    private void doBodyComplete(SocketChannel channel, ByteBuf buf) {
-
-        Charset charset = context.getEncoding();
-
-        int offset = buf.offset();
-
-        ByteBuffer memory = buf.nioBuffer();
-
-        memory.limit(offset + future_name_length);
-
-        futureName = StringUtil.decode(charset, memory);
-
-        memory.limit(memory.position() + textLength);
-
-        readText = StringUtil.decode(charset, memory);
-
-        gainBinary(buf, offset);
-    }
-
-    private void doHeaderComplete(SocketChannel channel, ByteBuf buf) throws IOException {
-
-        this.future_name_length = buf.getUnsignedByte();
-
-        this.futureId = buf.getInt();
-
-        this.generateHeaderExtend(buf);
-
-        this.textLength = buf.getUnsignedShort();
-
-        this.generateHeaderBinary(buf);
-
-        reallocateBuf(buf);
-    }
-
-    protected void generateHeaderBinary(ByteBuf buf) {
-
-    }
-
-    protected void generateHeaderExtend(ByteBuf buf) {
-
-    }
-
-    protected void reallocateBuf(ByteBuf buf) {
-        buf.reallocate(future_name_length + textLength);
-    }
-
-    protected void gainBinary(ByteBuf buf, int offset) {}
-
     @Override
     public byte[] getBinary() {
-        return null;
+        return binary;
     }
 
     @Override
     public int getBinaryLength() {
-        return 0;
+        return binaryLength;
     }
 
     @Override
@@ -134,11 +90,13 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     }
 
     @Override
-    public Parameters getParameters() {
-        if (parameters == null) {
-            parameters = new JsonParameters(getReadText());
-        }
-        return parameters;
+    public int getHashCode() {
+        return hashCode;
+    }
+
+    @Override
+    public int getSessionId() {
+        return sessionId;
     }
 
     @Override
@@ -153,40 +111,90 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
 
     @Override
     public boolean hasBinary() {
-        return false;
+        return binaryLength > 0;
     }
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-
         ByteBuf buf = this.buf;
-
         if (!header_complete) {
-
             buf.read(buffer);
-
             if (buf.hasRemaining()) {
                 return false;
             }
-
+            if (futureNameLength == 0) {
+                int nextLen = 4;
+                byte h1 = buf.getByte(0);
+                int type = h1 & 0b11000000;
+                if (type > 0b01000000) {
+                    setHeartbeat(type == 0b10000000);
+                    return true;
+                }
+                isBroadcast = ((h1 & 0b00100000) != 0);
+                if ((h1 & 0b00010000) != 0) {
+                    futureId = -1;
+                    nextLen+=4;
+                }
+                if ((h1 & 0b00001000) != 0) {
+                    sessionId = -1;
+                    nextLen+=4;
+                }
+                if ((h1 & 0b00000100) != 0) {
+                    hashCode = -1;
+                    nextLen+=4;
+                }
+                if ((h1 & 0b00000010) != 0) {
+                    binaryLength = -1;
+                    nextLen+=4;
+                }
+                futureNameLength = buf.getByte(1);
+                if (futureNameLength < 1) {
+                    throw new IOException("futureNameLength < 1");
+                }
+                nextLen += futureNameLength;
+                buf.reallocate(nextLen);
+                return read(channel, buffer);
+            }
+            buf.flip();
+            textLength = buf.getInt();
+            if (futureId == -1) {
+                futureId = buf.getInt();
+            }
+            if (sessionId == -1) {
+                sessionId = buf.getInt();
+            }
+            if (hashCode == -1) {
+                hashCode = buf.getInt();
+            }
+            if (binaryLength == -1) {
+                binaryLength = buf.getInt();
+            }
+            Charset charset = context.getEncoding();
+            ByteBuffer memory = buf.nioBuffer();
+            futureName = StringUtil.decode(charset, memory);
+            buf.reallocate(textLength+binaryLength);
             header_complete = true;
-
-            doHeaderComplete(channel, buf.flip());
         }
-
         if (!body_complete) {
-
             buf.read(buffer);
-
             if (buf.hasRemaining()) {
                 return false;
             }
-
             body_complete = true;
-
-            doBodyComplete(channel, buf.flip());
+            if (textLength > 0) {
+                buf.flip();
+                buf.markPL();
+                buf.limit(textLength);
+                Charset charset = context.getEncoding();
+                ByteBuffer memory = buf.nioBuffer();
+                readText = StringUtil.decode(charset, memory);
+                buf.reset();
+                buf.skipBytes(textLength);
+            }
+            if (binaryLength > 0) {
+                this.binary = buf.getBytes();
+            }
         }
-
         return true;
     }
 
@@ -196,17 +204,40 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     }
 
     @Override
+    public void setFutureName(String futureName) {
+        this.futureName = futureName;
+    }
+
+    @Override
+    public void setHashCode(int hashCode) {
+        this.hashCode = hashCode;
+    }
+
+    @Override
+    public void setSessionId(int sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    @Override
     public String toString() {
         return getFutureName() + "@" + getReadText();
     }
 
     @Override
-    public void writeBinary(byte b) {
+    public BalanceFuture translate() {
+        String text = getReadText();
+        if (StringUtil.isNullOrBlank(text)) {
+            return this;
+        }
+        write(text);
+        return this;
+    }
 
+    @Override
+    public void writeBinary(byte b) {
         if (writeBinaryBuffer == null) {
             writeBinaryBuffer = new ByteArrayBuffer();
         }
-
         writeBinaryBuffer.write(b);
     }
 
@@ -234,8 +265,18 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     }
 
     @Override
-    public void setFutureName(String futureName) {
-        this.futureName = futureName;
+    public int getSessionKey() {
+        return sessionId;
+    }
+
+    @Override
+    public boolean isBroadcast() {
+        return isBroadcast;
+    }
+
+    @Override
+    public void setBroadcast(boolean broadcast) {
+        this.isBroadcast = broadcast;
     }
 
 }

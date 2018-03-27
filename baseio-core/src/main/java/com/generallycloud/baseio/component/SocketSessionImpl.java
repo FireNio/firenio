@@ -103,7 +103,7 @@ public class SocketSessionImpl implements SocketSession {
 
     @Override
     public Charset getEncoding() {
-        return getContext().getEncoding();
+        return getSocketChannel().getEncoding();
     }
     
     @Override

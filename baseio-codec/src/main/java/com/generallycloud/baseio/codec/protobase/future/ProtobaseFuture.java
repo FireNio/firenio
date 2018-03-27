@@ -15,31 +15,33 @@
  */
 package com.generallycloud.baseio.codec.protobase.future;
 
+import com.generallycloud.baseio.balance.HashedBalanceFuture;
+import com.generallycloud.baseio.balance.SessionIdBalanceFuture;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.NamedFuture;
-import com.generallycloud.baseio.protocol.ParametersFuture;
 
-public interface ProtobaseFuture extends NamedFuture, ParametersFuture {
+public interface ProtobaseFuture extends NamedFuture, SessionIdBalanceFuture, HashedBalanceFuture {
 
-    public abstract int getTextLength();
+    byte[] getBinary();
 
-    public abstract int getBinaryLength();
+    int getBinaryLength();
 
-    public abstract boolean hasBinary();
+    int getFutureId();
 
-    public abstract byte[] getBinary();
+    int getTextLength();
 
-    public abstract int getFutureId();
+    ByteArrayBuffer getWriteBinaryBuffer();
 
-    public abstract void setFutureId(int futureId);
+    boolean hasBinary();
 
-    public abstract ByteArrayBuffer getWriteBinaryBuffer();
+    void setFutureId(int futureId);
 
-    public abstract void writeBinary(byte b);
+    void setFutureName(String futureName);
 
-    public abstract void writeBinary(byte[] bytes);
+    void writeBinary(byte b);
 
-    public abstract void writeBinary(byte[] bytes, int offset, int length);
+    void writeBinary(byte[] bytes);
 
-    public abstract void setFutureName(String parserName);
+    void writeBinary(byte[] bytes, int offset, int length);
+    
 }

@@ -22,7 +22,8 @@ import java.util.Map;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFutureImpl;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.BeanUtil;
 import com.generallycloud.baseio.common.ClassUtil;
@@ -82,33 +83,20 @@ public class FixedSession {
     }
 
     public RESMessage login4RES(String username, String password) {
-
         try {
-
             Map<String, Object> param = new HashMap<>();
             param.put("username", username);
             param.put("password",MD5Util.get32(password, context.getEncoding()));
-
             String paramString = JSON.toJSONString(param);
-
-            ProtobaseFuture future = request(ContainerConsotant.ACTION_LOGIN, paramString);
-
+            ParamedProtobaseFuture future = request(ContainerConsotant.ACTION_LOGIN, paramString);
             RESMessage message = RESMessageDecoder.decode(future.getReadText());
-
             if (message.getCode() == 0) {
-
                 JSONObject o = (JSONObject) message.getData();
-
                 String className = o.getString("className");
-
                 Class<?> clazz = ClassUtil.forName(className);
-
                 Authority authority = (Authority) BeanUtil.map2Object(o, clazz);
-
                 setAuthority(authority);
-
             }
-
             return message;
         } catch (Exception e) {
             return new RESMessage(400, e.getMessage());
@@ -119,40 +107,28 @@ public class FixedSession {
         // TODO complete logout
     }
 
-    public ProtobaseFuture request(String serviceName, String content) throws IOException {
+    public ParamedProtobaseFuture request(String serviceName, String content) throws IOException {
         return request(serviceName, content, null);
     }
 
-    public ProtobaseFuture request(String serviceName, String content, byte[] binary)
+    public ParamedProtobaseFuture request(String serviceName, String content, byte[] binary)
             throws IOException {
-
-        if (StringUtil.isNullOrBlank(serviceName)) {
-            throw new IOException("empty service name");
+        ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(context, serviceName);
+        if (!StringUtil.isNullOrBlank(content)) {
+            future.write(content);
         }
-
-        ProtobaseFuture future = new ProtobaseFutureImpl(context, serviceName);
-
-        future.write(content);
-
         if (binary != null) {
             future.writeBinary(binary);
         }
-
         WaiterOnFuture onReadFuture = new WaiterOnFuture();
-
         waiterListen(serviceName, onReadFuture);
-
         session.flush(future);
-
         // FIXME 连接丢失时叫醒我
         if (onReadFuture.await(timeout)) {
-
             CloseUtil.close(session);
-
             throw new TimeoutException("timeout");
         }
-
-        return (ProtobaseFuture) onReadFuture.getReadFuture();
+        return (ParamedProtobaseFuture) onReadFuture.getReadFuture();
     }
 
     public void setAuthority(Authority authority) {
@@ -166,24 +142,14 @@ public class FixedSession {
     }
 
     private void waiterListen(String serviceName, WaiterOnFuture onReadFuture) throws IOException {
-
-        if (StringUtil.isNullOrBlank(serviceName)) {
-            throw new IOException("empty service name");
-        }
-
         if (onReadFuture == null) {
             throw new IOException("empty onReadFuture");
         }
-
         OnFutureWrapper wrapper = eventHandle.getOnReadFutureWrapper(serviceName);
-
         if (wrapper == null) {
-
             wrapper = new OnFutureWrapper();
-
             eventHandle.putOnReadFutureWrapper(serviceName, wrapper);
         }
-
         wrapper.listen(onReadFuture);
     }
 
@@ -192,18 +158,11 @@ public class FixedSession {
     }
 
     public void write(String serviceName, String content, byte[] binary) throws IOException {
-        if (StringUtil.isNullOrBlank(serviceName)) {
-            throw new IOException("empty service name");
-        }
-
-        ProtobaseFuture future = new ProtobaseFutureImpl(context, serviceName);
-
+        ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(context, serviceName);
         future.write(content);
-
         if (binary != null) {
             future.writeBinary(binary);
         }
-
         session.flush(future);
     }
 

@@ -20,10 +20,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.balance.BalanceClientSocketSession;
 import com.generallycloud.baseio.balance.BalanceClientSocketSessionFactory;
-import com.generallycloud.baseio.codec.protobase.HashedProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.future.HashedProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -68,7 +67,7 @@ public class TestBalanceClient {
 
         SocketChannelConnector connector = new SocketChannelConnector(context);
 
-        context.setProtocolFactory(new HashedProtobaseProtocolFactory());
+        context.setProtocolFactory(new ProtobaseProtocolFactory());
 
         context.setSocketSessionFactory(new BalanceClientSocketSessionFactory());
 
@@ -82,7 +81,7 @@ public class TestBalanceClient {
 
             int fid = Math.abs(new Random().nextInt());
 
-            HashedProtobaseFuture future = new HashedProtobaseFutureImpl(context, "future-name");
+            ProtobaseFuture future = new ProtobaseFutureImpl(context, "future-name");
 
             future.write("你好！");
 

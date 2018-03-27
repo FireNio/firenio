@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.container.jms.decode;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.Message;
 
@@ -33,7 +33,7 @@ public class DefaultMessageDecoder implements MessageDecoder {
     }
 
     @Override
-    public Message decode(ProtobaseFuture future) throws MQException {
+    public Message decode(ParamedProtobaseFuture future) throws MQException {
         int msgType = future.getParameters().getIntegerParameter("msgType");
         return decoders[msgType].decode(future);
     }

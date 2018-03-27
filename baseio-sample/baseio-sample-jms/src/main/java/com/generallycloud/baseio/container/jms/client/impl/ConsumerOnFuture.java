@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.container.jms.client.impl;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.OnFuture;
 import com.generallycloud.baseio.container.jms.MQException;
@@ -38,7 +38,7 @@ public class ConsumerOnFuture implements OnFuture {
     @Override
     public void onResponse(SocketSession session, Future future) {
 
-        ProtobaseFuture f = (ProtobaseFuture) future;
+        ParamedProtobaseFuture f = (ParamedProtobaseFuture) future;
 
         try {
 

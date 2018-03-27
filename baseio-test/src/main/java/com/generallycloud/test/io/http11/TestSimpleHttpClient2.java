@@ -20,6 +20,7 @@ import java.io.IOException;
 import com.generallycloud.baseio.codec.http11.ClientHTTPProtocolFactory;
 import com.generallycloud.baseio.codec.http11.HttpClient;
 import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
+import com.generallycloud.baseio.codec.http11.future.ClientHttpFuture;
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -29,7 +30,6 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.test.io.common.FutureFactory;
 
 /**
  * @author wangkai
@@ -58,7 +58,7 @@ public class TestSimpleHttpClient2 {
         }
         SocketSession session = connector.connect();
         HttpClient client = new HttpClient(session);
-        HttpFuture future = FutureFactory.createHttpReadFuture(session, "/");
+        HttpFuture future = new ClientHttpFuture(context, "/");
         HttpFuture res = client.request(future,99990000);
         System.out.println();
         System.out.println(new String(res.getBodyContent()));

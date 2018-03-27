@@ -18,6 +18,7 @@ package com.generallycloud.baseio.container.jms.client.impl;
 import java.io.IOException;
 
 import com.alibaba.fastjson.JSONObject;
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.container.FixedSession;
 import com.generallycloud.baseio.container.jms.JmsUtil;
@@ -46,7 +47,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
         param.put("messageId", messageId);
         param.put("cmd", MQBrowserServlet.BROWSER);
 
-        ProtobaseFuture future;
+        ParamedProtobaseFuture future;
         try {
             future = session.request(SERVICE_NAME, param.toJSONString());
         } catch (IOException e) {

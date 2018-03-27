@@ -15,7 +15,7 @@
  */
 package com.generallycloud.sample.baseio.protobase;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.protobase.service.ProtobaseFutureAcceptorService;
 
@@ -29,7 +29,7 @@ public class TestGetPhoneNOServlet extends ProtobaseFutureAcceptorService {
     private int                index        = 0;
 
     @Override
-    protected void doAccept(SocketSession session, ProtobaseFuture future) throws Exception {
+    protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
 
         String phone = NOS[index++];
 

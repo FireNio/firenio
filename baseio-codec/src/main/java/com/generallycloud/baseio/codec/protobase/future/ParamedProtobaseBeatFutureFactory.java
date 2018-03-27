@@ -15,12 +15,20 @@
  */
 package com.generallycloud.baseio.codec.protobase.future;
 
-import com.generallycloud.baseio.balance.SessionIdBalanceFuture;
+import com.generallycloud.baseio.component.BeatFutureFactory;
+import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.protocol.Future;
 
-/**
- * @author wangkai
- *
- */
-public interface SessionIdProtobaseFuture extends ProtobaseFuture, SessionIdBalanceFuture {
+public class ParamedProtobaseBeatFutureFactory implements BeatFutureFactory {
+
+    @Override
+    public Future createPINGPacket(SocketSession session) {
+        return new ParamedProtobaseFutureImpl(session.getContext()).setPING();
+    }
+
+    @Override
+    public Future createPONGPacket(SocketSession session) {
+        return new ParamedProtobaseFutureImpl(session.getContext()).setPONG();
+    }
 
 }
