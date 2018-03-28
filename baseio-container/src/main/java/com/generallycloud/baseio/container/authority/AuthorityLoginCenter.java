@@ -100,7 +100,7 @@ public class AuthorityLoginCenter extends AbstractInitializeable implements Logi
             return null;
         }
 
-        if (!authority.getPassword().equals(password)) {
+        if (!authority.getPassword().equalsIgnoreCase(password)) {
             return null;
         }
 

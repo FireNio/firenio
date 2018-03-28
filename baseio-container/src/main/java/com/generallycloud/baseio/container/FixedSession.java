@@ -159,7 +159,9 @@ public class FixedSession {
 
     public void write(String serviceName, String content, byte[] binary) throws IOException {
         ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(context, serviceName);
-        future.write(content);
+        if (!StringUtil.isNullOrBlank(content)) {
+            future.write(content);
+        }
         if (binary != null) {
             future.writeBinary(binary);
         }

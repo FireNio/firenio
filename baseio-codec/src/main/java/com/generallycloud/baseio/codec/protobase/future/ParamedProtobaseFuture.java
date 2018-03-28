@@ -15,14 +15,12 @@
  */
 package com.generallycloud.baseio.codec.protobase.future;
 
-import com.generallycloud.baseio.component.Parameters;
+import com.generallycloud.baseio.protocol.ParametersFuture;
 
 /**
  * @author wangkai
  *
  */
-public interface ParamedProtobaseFuture extends ProtobaseFuture{
+public interface ParamedProtobaseFuture extends ProtobaseFuture,ParametersFuture{
 
-    Parameters getParameters();
-    
 }

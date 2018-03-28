@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.baseio.common.CloseUtil;
@@ -28,58 +27,39 @@ import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.Protocol;
 import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
 import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
-import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class SSLUtil {
 
-    private static SslContext sslContext;
-
-    private static Logger     logger = LoggerFactory.getLogger(SSLUtil.class);
+    private static Logger logger = LoggerFactory.getLogger(SSLUtil.class);
 
     public synchronized static SslContext initServer(File privateKey, File certificate)
             throws IOException {
-        if (sslContext == null) {
-            doInit(privateKey, certificate);
-        }
-        return sslContext;
+        return doInit(privateKey, certificate);
     }
 
     public synchronized static SslContext initServer(File storeFile, String storePassword,
             String alias, String keyPassword) throws SSLException, FileNotFoundException {
-        if (sslContext == null) {
-            FileInputStream storeInput = new FileInputStream(storeFile);
-            try {
-                sslContext = SslContextBuilder
-                        .forServer(storeInput, storePassword, alias, keyPassword).build();
-            } finally {
-                CloseUtil.close(storeInput);
-            }
+        FileInputStream storeInput = new FileInputStream(storeFile);
+        try {
+            return SslContextBuilder.forServer(storeInput, storePassword, alias, keyPassword)
+                    .build();
+        } finally {
+            CloseUtil.close(storeInput);
         }
-        return sslContext;
     }
 
     public synchronized static SslContext initServerHttp2(File privateKey, File certificate)
             throws IOException {
-        if (sslContext == null) {
-            doInitHttp2(privateKey, certificate);
-        }
-        return sslContext;
+        return doInitHttp2(privateKey, certificate);
     }
 
-    public synchronized static SslContext initClient(boolean trustAll) {
-        if (sslContext == null) {
-            try {
-                sslContext = SslContextBuilder.forClient(trustAll).build();
-            } catch (SSLException e) {
-                DebugUtil.debug(e);
-            }
-        }
-        return sslContext;
+    public synchronized static SslContext initClient(boolean trustAll) throws SSLException {
+        return SslContextBuilder.forClient(trustAll).build();
     }
 
-    private static void doInit(File privateKey, File certificate) throws IOException {
+    private static SslContext doInit(File privateKey, File certificate) throws IOException {
         LoggerUtil.prettyLog(logger, "load certificate public  key: {}",
                 certificate.getCanonicalPath());
         LoggerUtil.prettyLog(logger, "load certificate private key: {}",
@@ -87,14 +67,14 @@ public class SSLUtil {
         FileInputStream keyInput = new FileInputStream(privateKey);
         FileInputStream certInput = new FileInputStream(certificate);
         try {
-            sslContext = SslContextBuilder.forServer(certInput, keyInput, null).build();
+            return SslContextBuilder.forServer(certInput, keyInput, null).build();
         } finally {
             CloseUtil.close(keyInput);
             CloseUtil.close(certInput);
         }
     }
 
-    private static void doInitHttp2(File privateKey, File certificate) throws IOException {
+    private static SslContext doInitHttp2(File privateKey, File certificate) throws IOException {
         LoggerUtil.prettyLog(logger, "load certificate public key: {}",
                 certificate.getCanonicalPath());
         LoggerUtil.prettyLog(logger, "load certificate private key: {}",
@@ -102,29 +82,22 @@ public class SSLUtil {
         FileInputStream keyInput = new FileInputStream(privateKey);
         FileInputStream certInput = new FileInputStream(certificate);
         try {
-            sslContext = SslContextBuilder.forServer(certInput, keyInput, null).applicationProtocolConfig(new ApplicationProtocolConfig(Protocol.ALPN,
-                    // NO_ADVERTISE is currently the
-                    // only mode supported by both
-                    // OpenSsl and JDK providers.
-                    SelectorFailureBehavior.NO_ADVERTISE,
-                    // ACCEPT is currently the only
-                    // mode supported by both OpenSsl
-                    // and JDK providers.
-                    SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_2,
-                    ApplicationProtocolNames.HTTP_1_1))
-            .build();
+            return SslContextBuilder.forServer(certInput, keyInput, null)
+                    .applicationProtocolConfig(new ApplicationProtocolConfig(Protocol.ALPN,
+                            // NO_ADVERTISE is currently the
+                            // only mode supported by both
+                            // OpenSsl and JDK providers.
+                            SelectorFailureBehavior.NO_ADVERTISE,
+                            // ACCEPT is currently the only
+                            // mode supported by both OpenSsl
+                            // and JDK providers.
+                            SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_2,
+                            ApplicationProtocolNames.HTTP_1_1))
+                    .build();
         } finally {
             CloseUtil.close(keyInput);
             CloseUtil.close(certInput);
         }
-    }
-
-    public static SSLEngine getSslEngine() {
-        return sslContext.newEngine();
-    }
-
-    public static SslContext getSslContext() {
-        return sslContext;
     }
 
 }

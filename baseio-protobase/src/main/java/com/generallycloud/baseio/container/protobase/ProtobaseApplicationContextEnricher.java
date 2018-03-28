@@ -17,8 +17,8 @@ package com.generallycloud.baseio.container.protobase;
 
 import java.util.Set;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseProtocolFactory;
+import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseBeatFutureFactory;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.container.ApplicationContext;
@@ -48,9 +48,9 @@ public class ProtobaseApplicationContextEnricher implements ApplicationContextEn
 
         channelContext.addSessionEventListener(new LoggerSocketSEListener());
 
-        channelContext.setProtocolFactory(new ProtobaseProtocolFactory());
+        channelContext.setProtocolFactory(new ParamedProtobaseProtocolFactory());
 
-        channelContext.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
+        channelContext.setBeatFutureFactory(new ParamedProtobaseBeatFutureFactory());
 
     }
 

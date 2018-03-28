@@ -174,8 +174,10 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     public void fireOpend() {
         SocketChannelContext context = getContext();
         if (context.isEnableSSL()) {
+            InetSocketAddress remote = getRemoteSocketAddress();
             this.sslHandler = getSocketChannelThreadContext().getSslHandler();
-            this.sslEngine = context.getSslContext().newEngine();
+            this.sslEngine = context.getSslContext().newEngine(
+                    remote.getHostName(),remote.getPort());
         }
         if (isEnableSSL() && context.getSslContext().isClient()) {
             doFlush(new DefaultChannelFuture(getContext(), EmptyByteBuf.getInstance()));

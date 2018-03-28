@@ -15,7 +15,7 @@
  */
 package com.generallycloud.test.io.jms;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseProtocolFactory;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -29,13 +29,10 @@ import com.generallycloud.baseio.container.jms.Message;
 import com.generallycloud.baseio.container.jms.client.MessageConsumer;
 import com.generallycloud.baseio.container.jms.client.OnMessage;
 import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageConsumer;
-import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestListener {
 
     public static void main(String[] args) throws Exception {
-
-        LoggerFactory.configure();
 
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
@@ -47,11 +44,9 @@ public class TestListener {
 
         context.setIoEventHandleAdaptor(eventHandle);
 
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
+        context.setProtocolFactory(new ParamedProtobaseProtocolFactory());
 
         context.addSessionEventListener(new LoggerSocketSEListener());
-
-        connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
 
         FixedSession session = new FixedSession(connector.connect());
 
