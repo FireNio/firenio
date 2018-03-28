@@ -37,12 +37,10 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     private int     binaryReadSize;
     private byte[]  binaryWriteBuffer;
     private int     binaryWriteSize;
-    private boolean body_complete;
     private int     futureId;
     private String  futureName;
     private byte    futureNameLength;
     private int     hashCode;
-    private boolean header_complete;
     private boolean isBroadcast;
     private int     sessionId;
     private int     textLength;
@@ -56,8 +54,6 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     // for ping & pong
     public ProtobaseFutureImpl(SocketChannelContext context) {
         super(context);
-        this.header_complete = true;
-        this.body_complete = true;
     }
 
     public ProtobaseFutureImpl(SocketChannelContext context, int futureId, String futureName) {
@@ -133,43 +129,46 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBuf buf = this.buf;
-        if (!header_complete) {
+        if (futureNameLength == 0) {
             buf.read(buffer);
             if (buf.hasRemaining()) {
                 return false;
             }
-            if (futureNameLength == 0) {
-                int nextLen = 4;
-                byte h1 = buf.getByte(0);
-                int type = h1 & 0b11000000;
-                if (type > 0b01000000) {
-                    setHeartbeat(type == 0b10000000);
-                    return true;
-                }
-                isBroadcast = ((h1 & 0b00100000) != 0);
-                if ((h1 & 0b00010000) != 0) {
-                    futureId = -1;
-                    nextLen += 4;
-                }
-                if ((h1 & 0b00001000) != 0) {
-                    sessionId = -1;
-                    nextLen += 4;
-                }
-                if ((h1 & 0b00000100) != 0) {
-                    hashCode = -1;
-                    nextLen += 4;
-                }
-                if ((h1 & 0b00000010) != 0) {
-                    binaryReadSize = -1;
-                    nextLen += 4;
-                }
-                futureNameLength = buf.getByte(1);
-                if (futureNameLength < 1) {
-                    throw new IOException("futureNameLength < 1");
-                }
-                nextLen += futureNameLength;
-                buf.reallocate(nextLen);
-                return read(channel, buffer);
+            int nextLen = 4;
+            byte h1 = buf.getByte(0);
+            int type = h1 & 0b11000000;
+            if (type > 0b01000000) {
+                setHeartbeat(type == 0b10000000);
+                return true;
+            }
+            isBroadcast = ((h1 & 0b00100000) != 0);
+            if ((h1 & 0b00010000) != 0) {
+                futureId = -1;
+                nextLen += 4;
+            }
+            if ((h1 & 0b00001000) != 0) {
+                sessionId = -1;
+                nextLen += 4;
+            }
+            if ((h1 & 0b00000100) != 0) {
+                hashCode = -1;
+                nextLen += 4;
+            }
+            if ((h1 & 0b00000010) != 0) {
+                binaryReadSize = -1;
+                nextLen += 4;
+            }
+            futureNameLength = buf.getByte(1);
+            if (futureNameLength < 1) {
+                throw new IOException("futureNameLength < 1");
+            }
+            nextLen += futureNameLength;
+            buf.reallocate(nextLen);
+        }
+        if (futureName == null) {
+            buf.read(buffer);
+            if (buf.hasRemaining()) {
+                return false;
             }
             buf.flip();
             textLength = buf.getInt();
@@ -189,27 +188,23 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
             ByteBuffer memory = buf.nioBuffer();
             futureName = StringUtil.decode(charset, memory);
             buf.reallocate(textLength + binaryReadSize);
-            header_complete = true;
         }
-        if (!body_complete) {
-            buf.read(buffer);
-            if (buf.hasRemaining()) {
-                return false;
-            }
-            body_complete = true;
-            if (textLength > 0) {
-                buf.flip();
-                buf.markPL();
-                buf.limit(textLength);
-                Charset charset = context.getEncoding();
-                ByteBuffer memory = buf.nioBuffer();
-                readText = StringUtil.decode(charset, memory);
-                buf.reset();
-                buf.skipBytes(textLength);
-            }
-            if (binaryReadSize > 0) {
-                this.binaryReadBuffer = buf.getBytes();
-            }
+        buf.read(buffer);
+        if (buf.hasRemaining()) {
+            return false;
+        }
+        if (textLength > 0) {
+            buf.flip();
+            buf.markPL();
+            buf.limit(textLength);
+            Charset charset = context.getEncoding();
+            ByteBuffer memory = buf.nioBuffer();
+            readText = StringUtil.decode(charset, memory);
+            buf.reset();
+            buf.skipBytes(textLength);
+        }
+        if (binaryReadSize > 0) {
+            this.binaryReadBuffer = buf.getBytes();
         }
         return true;
     }
@@ -259,12 +254,12 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
         if (binaryWriteBuffer == null) {
             binaryWriteBuffer = new byte[256];
         }
-        int newcount = writeSize + 1;
+        int newcount = binaryWriteSize + 1;
         if (newcount > binaryWriteBuffer.length) {
             binaryWriteBuffer = Arrays.copyOf(binaryWriteBuffer, binaryWriteBuffer.length << 1);
         }
-        binaryWriteBuffer[writeSize] = (byte) b;
-        writeSize = newcount;
+        binaryWriteBuffer[binaryWriteSize] = (byte) b;
+        binaryWriteSize = newcount;
     }
 
     @Override
@@ -281,16 +276,16 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
                 return;
             }
             binaryWriteBuffer = bytes;
-            writeSize = len;
+            binaryWriteSize = len;
             return;
         }
-        int newcount = writeSize + len;
+        int newcount = binaryWriteSize + len;
         if (newcount > binaryWriteBuffer.length) {
             binaryWriteBuffer = Arrays.copyOf(binaryWriteBuffer,
                     Math.max(binaryWriteBuffer.length << 1, newcount));
         }
-        System.arraycopy(bytes, off, binaryWriteBuffer, writeSize, len);
-        writeSize = newcount;
+        System.arraycopy(bytes, off, binaryWriteBuffer, binaryWriteSize, len);
+        binaryWriteSize = newcount;
     }
 
 }

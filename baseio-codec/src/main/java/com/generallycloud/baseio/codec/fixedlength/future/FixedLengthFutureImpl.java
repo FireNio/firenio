@@ -29,7 +29,6 @@ import com.generallycloud.baseio.protocol.ProtocolException;
 public class FixedLengthFutureImpl extends AbstractChannelFuture implements FixedLengthFuture {
 
     private boolean header_complete;
-    private boolean body_complete;
     private int     limit;
 
     public FixedLengthFutureImpl(SocketChannel channel, int limit) {
@@ -48,18 +47,12 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
             if (src.remaining() >= 4) {
                 int len = src.getInt();
                 if (len < 1) {
-                    if (len == FixedLengthProtocolDecoder.PROTOCOL_PING) {
-                        setPING();
-                    } else if (len == FixedLengthProtocolDecoder.PROTOCOL_PONG) {
-                        setPONG();
-                    } else {
-                        throw new ProtocolException("illegal length:" + len);
-                    }
+                    setHeartBeat(len);
                     return true;
                 }
                 if (src.remaining() >= len) {
                     src.markPL();
-                    src.limit(len+src.position());
+                    src.limit(len + src.position());
                     try {
                         CharsetDecoder decoder = context.getEncoding().newDecoder();
                         this.readText = decoder.decode(src.nioBuffer()).toString();
@@ -90,29 +83,29 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
                 buf.flip();
                 int len = buf.getInt();
                 if (len < 1) {
-                    body_complete = true;
-                    if (len == FixedLengthProtocolDecoder.PROTOCOL_PING) {
-                        setPING();
-                    } else if (len == FixedLengthProtocolDecoder.PROTOCOL_PONG) {
-                        setPONG();
-                    } else {
-                        throw new ProtocolException("illegal length:" + len);
-                    }
+                    setHeartBeat(len);
+                    return true;
                 }
                 buf.reallocate(len, limit);
             }
-
-            if (!body_complete) {
-                buf.read(src);
-                if (buf.hasRemaining()) {
-                    return false;
-                }
-                body_complete = true;
-                buf.flip();
-                CharsetDecoder decoder = context.getEncoding().newDecoder();
-                this.readText = decoder.decode(buf.nioBuffer()).toString();
+            buf.read(src);
+            if (buf.hasRemaining()) {
+                return false;
             }
+            buf.flip();
+            CharsetDecoder decoder = context.getEncoding().newDecoder();
+            this.readText = decoder.decode(buf.nioBuffer()).toString();
             return true;
+        }
+    }
+
+    private void setHeartBeat(int len) {
+        if (len == FixedLengthProtocolDecoder.PROTOCOL_PING) {
+            setPING();
+        } else if (len == FixedLengthProtocolDecoder.PROTOCOL_PONG) {
+            setPONG();
+        } else {
+            throw new ProtocolException("illegal length:" + len);
         }
     }
 

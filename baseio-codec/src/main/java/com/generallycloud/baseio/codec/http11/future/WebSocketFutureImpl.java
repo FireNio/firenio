@@ -32,9 +32,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     private boolean hasMask;
     private int     length;
     private String  serviceName;
-    private boolean data_complete;
-    private boolean header_complete;
-    private boolean remain_header_complete;
+    private boolean remain_data_complete;
     private int     limit;
     private byte[]  mask;
     private byte[]  byteArray;
@@ -63,12 +61,11 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBuf buf = this.buf;
-        if (!header_complete) {
+        if (type == 0) {
             buf.read(buffer);
             if (buf.hasRemaining()) {
                 return false;
             }
-            header_complete = true;
             buf.flip();
             int remain_header_size = 0;
             byte b = buf.getByte();
@@ -85,25 +82,20 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
                 remain_header_size += 4;
             }
             length = (b & 0x7f);
-            if (length < 126) {
-            } else if (length == 126) {
+            if (length < 126) {} else if (length == 126) {
                 remain_header_size += 2;
             } else {
                 remain_header_size += 4;
             }
             buf.reallocate(remain_header_size);
         }
-
-        if (!remain_header_complete) {
+        if (!remain_data_complete) {
             buf.read(buffer);
             if (buf.hasRemaining()) {
                 return false;
             }
-            remain_header_complete = true;
             buf.flip();
-            remain_header_complete = true;
-            if (length < 126) {
-            } else if (length == 126) {
+            if (length < 126) {} else if (length == 126) {
                 length = buf.getUnsignedShort();
             } else {
                 length = (int) buf.getUnsignedInt();
@@ -111,30 +103,30 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
                     throw new IOException("too long data length");
                 }
             }
-            mask = buf.getBytes();
-            buf.reallocate(length, limit);
-        }
-
-        if (!data_complete) {
-            buf.read(buffer);
-            if (buf.hasRemaining()) {
-                return false;
-            }
-            buf.flip();
-            byte[] array = buf.getBytes();
             if (hasMask) {
-                byte[] mask = this.mask;
-                int length = array.length;
-                for (int i = 0; i < length; i++) {
-                    array[i] = (byte) (array[i] ^ mask[i % 4]);
-                }
+                mask = buf.getBytes();
             }
-            this.byteArray = array;
-            if (type == WebSocketProtocolDecoder.TYPE_BINARY) {
-                // FIXME 处理binary
-            }else{
-                this.readText = new String(array, context.getEncoding());
+            buf.reallocate(length, limit);
+            remain_data_complete = true;
+        }
+        buf.read(buffer);
+        if (buf.hasRemaining()) {
+            return false;
+        }
+        buf.flip();
+        byte[] array = buf.getBytes();
+        if (hasMask) {
+            byte[] mask = this.mask;
+            int length = array.length;
+            for (int i = 0; i < length; i++) {
+                array[i] = (byte) (array[i] ^ mask[i % 4]);
             }
+        }
+        this.byteArray = array;
+        if (type == WebSocketProtocolDecoder.TYPE_BINARY) {
+            // FIXME 处理binary
+        } else {
+            this.readText = new String(array, context.getEncoding());
         }
         return true;
     }

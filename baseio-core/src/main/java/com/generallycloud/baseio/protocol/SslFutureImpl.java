@@ -25,11 +25,8 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 
 public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
 
-    private boolean       body_complete;
-
-    private boolean       header_complete;
-
-    private int           limit;
+    private boolean header_complete;
+    private int     limit;
 
     public SslFutureImpl(SocketChannelContext context, ByteBuf buf, int limit) {
         super(context);
@@ -61,28 +58,24 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
             }
             buf.reallocate(packetLength + 5, limit, true);
         }
-        if (!body_complete) {
-            ByteBuf buf = this.buf;
-            buf.read(buffer);
-            if (buf.hasRemaining()) {
-                return false;
-            }
-            body_complete = true;
-            buf.flip();
+        ByteBuf buf = this.buf;
+        buf.read(buffer);
+        if (buf.hasRemaining()) {
+            return false;
         }
+        buf.flip();
         return true;
     }
-    
+
     @Override
     public SslFuture reset() {
         this.header_complete = false;
-        this.body_complete = false;
         buf.clear().limit(SSL_RECORD_HEADER_LENGTH);
         return this;
     }
-    
+
     @Override
-    public SslFuture copy(SocketChannel channel){
+    public SslFuture copy(SocketChannel channel) {
         ByteBuf src = getByteBuf();
         ByteBuf buf = allocate(channel, src.limit());
         buf.read(src.flip());
@@ -90,5 +83,5 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
         copy.header_complete = this.header_complete;
         return copy;
     }
-    
+
 }
