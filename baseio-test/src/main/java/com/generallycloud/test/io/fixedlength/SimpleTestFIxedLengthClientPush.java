@@ -41,7 +41,7 @@ public class SimpleTestFIxedLengthClientPush {
                 System.out.println(">msg from server: " + future.getReadText());
             }
         };
-        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 18300));
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 8300));
         SocketChannelConnector connector = new SocketChannelConnector(context);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());

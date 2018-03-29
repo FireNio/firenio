@@ -72,6 +72,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     protected transient ChannelFuture      writeFuture;
     protected AtomicInteger                writeFutureLength;
     protected LinkedQueue<ChannelFuture>   writeFutures;
+    protected IoEventHandle                 ioEventHandle;
 
     AbstractSocketChannel(SocketChannelThreadContext context, int channelId) {
         SocketChannelContext socketChannelContext = context.getChannelContext();
@@ -79,6 +80,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
                 EmptyByteBuf.getInstance());
         // 认为在第一次Idle之前，连接都是畅通的
         this.channelId = channelId;
+        this.threadContext = context;
         this.byteBufAllocator = context.getByteBufAllocator();
         this.lastAccess = creationTime + socketChannelContext.getSessionIdleTime();
         this.protocolFactory = socketChannelContext.getProtocolFactory();
@@ -88,7 +90,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         this.session = context.getChannelContext().getSessionFactory().newUnsafeSession(this);
         this.writeFutures = new ScspLinkedQueue<>(f);
         this.writeFutureLength = new AtomicInteger();
-        this.threadContext = context;
+        this.ioEventHandle = socketChannelContext.getIoEventHandleAdaptor();
     }
 
     @Override
@@ -468,7 +470,16 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     protected void onFutureException(ChannelFuture future, Exception ex) {
         ReleaseUtil.release(future);
         try {
-            getContext().getIoEventHandleAdaptor().exceptionCaught(getSession(), future, ex);
+            ioEventHandle.exceptionCaught(getSession(), future, ex);
+        } catch (Throwable e) {
+            logger.debug(e.getMessage(), e);
+        }
+    }
+    
+    protected void onFutureSent(ChannelFuture future) {
+        ReleaseUtil.release(future);
+        try {
+            ioEventHandle.futureSent(session, future);
         } catch (Throwable e) {
             logger.debug(e.getMessage(), e);
         }

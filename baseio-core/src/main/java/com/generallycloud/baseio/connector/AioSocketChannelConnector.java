@@ -37,7 +37,7 @@ public class AioSocketChannelConnector extends AbstractSocketChannelConnector {
 
     private AioSocketChannelContext context;
 
-    public AioSocketChannelConnector(AioSocketChannelContext context) {
+    protected AioSocketChannelConnector(AioSocketChannelContext context) {
         this.context = context;
     }
 

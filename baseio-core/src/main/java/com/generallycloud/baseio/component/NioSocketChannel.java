@@ -18,7 +18,6 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketOption;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.locks.ReentrantLock;
@@ -110,7 +109,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                 return;
             }
             writeFutureLength(-f.getByteBufLimit());
-            ReleaseUtil.release(f);
+            onFutureSent(f);
             f = writeFutures.poll();
             if (f == null) {
                 break;
@@ -194,15 +193,11 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 
     @Override
     public void write(ByteBuf buf) throws IOException {
-        int length = write(buf.nioBuffer());
+        int length = channel.write(buf.nioBuffer());
         if (length < 1) {
             return;
         }
         buf.reverse();
-    }
-
-    private int write(ByteBuffer buffer) throws IOException {
-        return channel.write(buffer);
     }
 
 }

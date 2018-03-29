@@ -44,7 +44,7 @@ public class TestLineBasedClient {
             }
         };
 
-        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
 
         SocketChannelConnector connector = new SocketChannelConnector(context);
 

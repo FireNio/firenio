@@ -50,7 +50,7 @@ public class TestFIxedLengthClient {
         SslContext sslContext = SSLUtil.initClient(true);
 
         SocketChannelContext context = new NioSocketChannelContext(
-                new ServerConfiguration("localhost", 18300));
+                new ServerConfiguration("localhost", 8300));
 
         SocketChannelConnector connector = new SocketChannelConnector(context);
 

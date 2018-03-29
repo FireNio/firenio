@@ -47,7 +47,7 @@ public class TestBeat {
 
         String serviceKey = "TestSimpleServlet";
 
-        ServerConfiguration configuration = new ServerConfiguration(18300);
+        ServerConfiguration configuration = new ServerConfiguration(8300);
 
         configuration.setSERVER_SESSION_IDLE_TIME(10);
 

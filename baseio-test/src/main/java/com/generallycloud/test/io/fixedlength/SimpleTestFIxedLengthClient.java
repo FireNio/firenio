@@ -39,12 +39,19 @@ public class SimpleTestFIxedLengthClient {
                 System.out.println("____________________" + future.getReadText());
                 System.out.println();
             }
+            
+            @Override
+            public void futureSent(SocketSession session, Future future) {
+                System.out.println("_______________________sent ..........");
+            }
         };
         SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 8300));
         SocketChannelConnector connector = new SocketChannelConnector(context);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolFactory(new FixedLengthProtocolFactory());
+        
+        
         SocketSession session = connector.connect();
         FixedLengthFuture future = new FixedLengthFutureImpl(context);
         future.write("hello server!");

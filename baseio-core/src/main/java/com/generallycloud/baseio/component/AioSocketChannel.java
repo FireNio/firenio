@@ -25,7 +25,6 @@ import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
@@ -175,7 +174,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
                 return;
             }
             writeFutureLength(-f.getByteBufLimit());
-            ReleaseUtil.release(f);
+            onFutureSent(f);
             writeFuture = null;
             flush(true);
         } finally {

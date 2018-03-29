@@ -25,15 +25,14 @@ public abstract class IoEventHandleAdaptor implements IoEventHandle {
 
     @Override
     public void exceptionCaught(SocketSession session, Future future, Exception ex) {
-        logger.error(ex.getMessage(),ex);
+        logger.error(ex.getMessage(), ex);
     }
 
-    protected void initialize(SocketChannelContext context) throws Exception {
+    @Override
+    public void futureSent(SocketSession session, Future future) {}
 
-    }
+    protected void initialize(SocketChannelContext context) throws Exception {}
 
-    protected void destroy(SocketChannelContext context) throws Exception {
-
-    }
+    protected void destroy(SocketChannelContext context) throws Exception {}
 
 }

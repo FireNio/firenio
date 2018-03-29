@@ -55,7 +55,7 @@ public class TestLineBasedBroadcastServer {
 
         ServerConfiguration configuration = new ServerConfiguration();
 
-        configuration.setSERVER_PORT(18300);
+        configuration.setSERVER_PORT(8300);
 
         configuration.setSERVER_SESSION_IDLE_TIME(180000);
 

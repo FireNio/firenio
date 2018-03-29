@@ -45,7 +45,7 @@ public class SimpleTestProtobaseServer {
             }
         };
 
-        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(18300));
+        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
 
         context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
 

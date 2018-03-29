@@ -55,7 +55,7 @@ public class SSLSocketClient {
         // 初始化
         context.init(null, new TrustManager[] { x509m }, new SecureRandom());
         SSLSocketFactory factory = context.getSocketFactory();
-        SSLSocket s = (SSLSocket) factory.createSocket("localhost", 18300);
+        SSLSocket s = (SSLSocket) factory.createSocket("localhost", 8300);
         System.out.println("ok");
 
         OutputStream output = s.getOutputStream();
