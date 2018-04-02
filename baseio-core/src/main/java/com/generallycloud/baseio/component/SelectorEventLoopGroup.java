@@ -15,19 +15,51 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.concurrent.EventLoopGroup;
+import com.generallycloud.baseio.concurrent.AbstractEventLoopGroup;
 
 /**
  * @author wangkai
  *
  */
-public interface SelectorEventLoopGroup extends EventLoopGroup {
+public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
+
+    private SelectorEventLoop[]     selectorEventLoops = null;
+
+    private NioSocketChannelContext channelContext;
+
+    public SelectorEventLoopGroup(NioSocketChannelContext context, String eventLoopName,
+            int eventLoopSize) {
+        super(eventLoopName, eventLoopSize);
+        this.channelContext = context;
+    }
 
     @Override
-    public abstract SelectorEventLoop getNext();
+    public SelectorEventLoop getNext() {
+        return selectorEventLoops[getNextEventLoopIndex()];
+    }
 
-    public abstract SelectorEventLoop[] getSelectorEventLoops();
+    public SelectorEventLoop[] getSelectorEventLoops() {
+        return selectorEventLoops;
+    }
 
-    public abstract SocketChannelContext getChannelContext();
+    @Override
+    protected SelectorEventLoop[] initEventLoops() {
+        selectorEventLoops = new SelectorEventLoop[getEventLoopSize()];
+        return selectorEventLoops;
+    }
+
+    @Override
+    protected SelectorEventLoop[] getEventLoops() {
+        return getSelectorEventLoops();
+    }
+
+    @Override
+    protected SelectorEventLoop newEventLoop(int coreIndex) {
+        return new SelectorEventLoop(this, coreIndex);
+    }
+
+    public NioSocketChannelContext getChannelContext() {
+        return channelContext;
+    }
 
 }

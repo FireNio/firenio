@@ -36,14 +36,14 @@ public class NioSocketSelector implements SocketSelector {
     protected ChannelBuilder          channelBuilder;
     protected NioSocketChannelContext context;
 
-    NioSocketSelector(SocketSelectorEventLoop selectorEventLoop, SelectableChannel channel,
+    NioSocketSelector(SelectorEventLoop selectorEventLoop, SelectableChannel channel,
             Selector selector) {
         this.selector = selector;
         this.context = selectorEventLoop.getChannelContext();
         this.channelBuilder = newChannelBuilder(selectorEventLoop, channel);
     }
 
-    private ChannelBuilder newChannelBuilder(SocketSelectorEventLoop selectorEventLoop,
+    private ChannelBuilder newChannelBuilder(SelectorEventLoop selectorEventLoop,
             SelectableChannel channel) {
         NioSocketChannelContext context = selectorEventLoop.getChannelContext();
         if (context.getChannelService() instanceof ChannelAcceptor) {
@@ -56,8 +56,8 @@ public class NioSocketSelector implements SocketSelector {
     }
 
     @Override
-    public void buildChannel(SelectionKey k) throws IOException {
-        channelBuilder.buildChannel(k);
+    public void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException {
+        channelBuilder.buildChannel(eventLoop, k);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class NioSocketSelector implements SocketSelector {
     }
 
     protected NioSocketChannel regist(java.nio.channels.SocketChannel channel,
-            SocketSelectorEventLoop selectorLoop, int channelId) throws IOException {
+            SelectorEventLoop selectorLoop, int channelId) throws IOException {
         NioSocketSelector nioSelector = (NioSocketSelector) selectorLoop.getSelector();
         SelectionKey sk = channel.register(nioSelector.getSelector(), SelectionKey.OP_READ);
         // 绑定SocketChannel到SelectionKey
@@ -118,24 +118,24 @@ public class NioSocketSelector implements SocketSelector {
     }
 
     interface ChannelBuilder {
-        void buildChannel(SelectionKey k) throws IOException;
+        void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException;
     }
 
     class AcceptorChannelBuilder implements ChannelBuilder {
 
-        private ServerSocketChannel          serverSocketChannel;
-        private FixedAtomicInteger           channelIdGenerator;
-        private SocketSelectorEventLoopGroup selectorEventLoopGroup;
+        private ServerSocketChannel    serverSocketChannel;
+        private FixedAtomicInteger     channelIdGenerator;
+        private SelectorEventLoopGroup selectorEventLoopGroup;
 
         public AcceptorChannelBuilder(ServerSocketChannel serverSocketChannel,
-                SocketSelectorEventLoopGroup selectorEventLoopGroup) {
+                SelectorEventLoopGroup selectorEventLoopGroup) {
             this.serverSocketChannel = serverSocketChannel;
             this.selectorEventLoopGroup = selectorEventLoopGroup;
             this.channelIdGenerator = selectorEventLoopGroup.getChannelContext().getCHANNEL_ID();
         }
 
         @Override
-        public void buildChannel(SelectionKey k) throws IOException {
+        public void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException {
             final int channelId = channelIdGenerator.getAndIncrement();
             if (serverSocketChannel.getLocalAddress() == null) {
                 return;
@@ -144,40 +144,40 @@ public class NioSocketSelector implements SocketSelector {
             if (channel == null) {
                 return;
             }
-            SocketSelectorEventLoop selectorLoop = selectorEventLoopGroup.getNext();
+            SelectorEventLoop targetEventLoop = selectorEventLoopGroup.getNext();
             // 配置为非阻塞
             channel.configureBlocking(false);
             // 注册到selector，等待连接
-            if (selectorLoop.isMainEventLoop()) {
-                regist(channel, selectorLoop, channelId);
+            if (eventLoop == targetEventLoop) {
+                regist(channel, targetEventLoop, channelId);
                 return;
             }
-            selectorLoop.dispatch(new SelectorLoopEvent() {
+            targetEventLoop.dispatch(new SelectorLoopEvent() {
                 @Override
-                public void fireEvent(SocketSelectorEventLoop selectLoop) throws IOException {
+                public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
                     regist(channel, selectLoop, channelId);
                 }
 
                 @Override
                 public void close() throws IOException {}
             });
-            selectorLoop.wakeup();
+            targetEventLoop.wakeup();
         }
     }
 
     class ConnectorChannelBuilder implements ChannelBuilder {
 
         private java.nio.channels.SocketChannel jdkChannel;
-        private SocketSelectorEventLoop         selectorEventLoop;
+        private SelectorEventLoop               selectorEventLoop;
 
-        public ConnectorChannelBuilder(SocketSelectorEventLoop selectorEventLoop,
+        public ConnectorChannelBuilder(SelectorEventLoop selectorEventLoop,
                 java.nio.channels.SocketChannel jdkChannel) {
             this.selectorEventLoop = selectorEventLoop;
             this.jdkChannel = jdkChannel;
         }
 
         @Override
-        public void buildChannel(SelectionKey k) throws IOException {
+        public void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException {
             try {
                 if (!jdkChannel.finishConnect()) {
                     throw new IOException("connect failed");

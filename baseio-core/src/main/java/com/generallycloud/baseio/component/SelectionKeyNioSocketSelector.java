@@ -21,7 +21,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
 
-import com.generallycloud.baseio.component.SocketSelectorEventLoop.SelectionKeySet;
+import com.generallycloud.baseio.component.SelectorEventLoop.SelectionKeySet;
 
 /**
  * @author wangkai
@@ -31,7 +31,7 @@ public class SelectionKeyNioSocketSelector extends NioSocketSelector {
 
     private SelectionKeySet selectionKeySet;
 
-    SelectionKeyNioSocketSelector(SocketSelectorEventLoop selectorEventLoop,
+    SelectionKeyNioSocketSelector(SelectorEventLoop selectorEventLoop,
             SelectableChannel channel, Selector selector, SelectionKeySet selectionKeySet) {
         super(selectorEventLoop, channel, selector);
         this.selectionKeySet = selectionKeySet;

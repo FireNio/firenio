@@ -37,7 +37,7 @@ public class CloseSelectorLoopEvent implements SelectorLoopEvent {
     public void close() throws IOException {}
 
     @Override
-    public void fireEvent(SocketSelectorEventLoop selectorLoop) throws IOException {
+    public void fireEvent(SelectorEventLoop selectorLoop) throws IOException {
         if (closed) {
             return;
         }

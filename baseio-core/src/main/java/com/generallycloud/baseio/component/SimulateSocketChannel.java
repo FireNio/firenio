@@ -32,7 +32,7 @@ import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 public class SimulateSocketChannel extends AbstractSocketChannel{
 
     private SocketChannelContext context;
-    private SocketSelectorEventLoop selectorEventLoop;
+    private SelectorEventLoop selectorEventLoop;
 
     SimulateSocketChannel(final SocketChannelContext context) {
         super(new SocketChannelThreadContext() {

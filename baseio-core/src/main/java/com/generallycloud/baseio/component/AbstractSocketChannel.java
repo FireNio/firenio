@@ -26,6 +26,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.baseio.ClosedChannelException;
+import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
@@ -112,7 +113,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     }
 
     @Override
-    public void doFlush(ChannelFuture f) {
+    public void doFlush(ChannelFuture future) {
         UnsafeSocketSession session = getSession();
         //这里需要加锁，因为当多个线程同时flush时，判断(writeFutures.size() > 1)
         //会产生误差，导致无法或者延迟触发doFlush操作
@@ -122,11 +123,11 @@ public abstract class AbstractSocketChannel implements SocketChannel {
             // 这里最好使用isClosing()判断更合适，但是使用isOpened()判断也没问题
             // 因为doFlush与Close互斥
             if (!isOpened()) {
-                onFutureException(f, new ClosedChannelException(session.toString()));
+                exceptionCaught(future, new ClosedChannelException(session.toString()));
                 return;
             }
-            writeFutures.offer(f);
-            int length = writeFutureLength(f.getByteBufLimit());
+            writeFutures.offer(future);
+            int length = writeFutureLength(future.getByteBufLimit());
             if (length > 1024 * 1024 * 10) {
                 // FIXME 该连接写入过多啦
             }
@@ -137,7 +138,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
             }
             doFlush0();
         } catch (Exception e) {
-            onFutureException(f, e);
+            exceptionCaught(future, e);
         } finally {
             lock.unlock();
         }
@@ -145,9 +146,10 @@ public abstract class AbstractSocketChannel implements SocketChannel {
 
     protected abstract void doFlush0();
 
-    private void exceptionCaught(IoEventHandle handle, Future future, Exception ex) {
+    protected void exceptionCaught(Future future, Exception ex) {
+        ReleaseUtil.release(future);
         try {
-            handle.exceptionCaught(getSession(), future, ex);
+            ioEventHandle.exceptionCaught(getSession(), future, ex);
         } catch (Throwable e) {
             logger.error(ex.getMessage(),ex);
             logger.error(e.getMessage(), e);
@@ -201,19 +203,16 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         }
         future.flush();
         if (!isOpened()) {
-            exceptionCaught(getContext().getIoEventHandleAdaptor(), future,
+            exceptionCaught(future,
                     new ClosedChannelException(toString()));
             return;
         }
         try {
             ProtocolEncoder encoder = getProtocolEncoder();
-            // 请勿将future.flush()移到getProtocolEncoder()之前，
-            // 有些情况下如协议切换的时候可能需要将此future使用
-            // 切换前的协议flush
             encoder.encode(this, future);
             doFlush(future);
         } catch (Exception e) {
-            exceptionCaught(getContext().getIoEventHandleAdaptor(), future, e);
+            exceptionCaught(future, e);
         }
     }
 
@@ -410,21 +409,21 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         ClosedChannelException e = null;
         if (writeFuture != null && !writeFuture.isReleased()) {
             e = new ClosedChannelException(session.toString());
-            onFutureException(writeFuture, e);
+            exceptionCaught(writeFuture, e);
         }
         LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
         if (writeFutures.size() == 0) {
             return;
         }
-        ChannelFuture f = writeFutures.poll();
+        ChannelFuture future = writeFutures.poll();
         UnsafeSocketSession session = this.session;
         if (e == null) {
             e = new ClosedChannelException(session.toString());
         }
-        for (; f != null;) {
-            onFutureException(f, e);
-            ReleaseUtil.release(f);
-            f = writeFutures.poll();
+        for (; future != null;) {
+            exceptionCaught(future, e);
+            ReleaseUtil.release(future);
+            future = writeFutures.poll();
         }
     }
 
@@ -467,15 +466,6 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         return writeFutureLength.addAndGet(len);
     }
     
-    protected void onFutureException(ChannelFuture future, Exception ex) {
-        ReleaseUtil.release(future);
-        try {
-            ioEventHandle.exceptionCaught(getSession(), future, ex);
-        } catch (Throwable e) {
-            logger.debug(e.getMessage(), e);
-        }
-    }
-    
     protected void onFutureSent(ChannelFuture future) {
         ReleaseUtil.release(future);
         try {
@@ -488,6 +478,23 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     @Override
     public Charset getEncoding() {
         return getContext().getEncoding();
+    }
+    
+    protected void write(ChannelFuture future) throws IOException{
+        if (future.isNeedSsl()) {
+            future.setNeedSsl(false);
+         // FIXME 部分情况下可以不在业务线程做wrapssl
+            ByteBuf old = future.getByteBuf();
+            SslHandler handler = getSslHandler();
+            try {
+                ByteBuf newBuf = handler.wrap(this, old);
+                newBuf.nioBuffer();
+                future.setByteBuf(newBuf);
+            } finally {
+                ReleaseUtil.release(old);
+            }
+        }
+        write(future.getByteBuf());
     }
 
 }

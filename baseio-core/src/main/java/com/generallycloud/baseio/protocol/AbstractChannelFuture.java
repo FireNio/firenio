@@ -15,14 +15,11 @@
  */
 package com.generallycloud.baseio.protocol;
 
-import java.io.IOException;
-
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.Linkable;
 
 public abstract class AbstractChannelFuture extends AbstractFuture implements ChannelFuture {
@@ -31,15 +28,15 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     protected ByteBuf  buf        = EmptyByteBuf.getInstance();
     protected boolean  flushed;
     protected boolean  isHeartbeat;
+    protected boolean  isNeedSsl;
     protected boolean  isPING;
     protected boolean  isSilent;
     protected boolean  isValidate = true;
-    protected boolean  needSSL;
     protected Linkable next;
 
     protected AbstractChannelFuture(SocketChannelContext context) {
         super(context);
-        this.needSSL = context.isEnableSSL();
+        this.isNeedSsl = context.isEnableSSL();
     }
 
     protected ByteBuf allocate(SocketChannel channel, int capacity) {
@@ -62,6 +59,11 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     }
 
     @Override
+    public boolean flushed() {
+        return flushed;
+    }
+
+    @Override
     public ByteBuf getByteBuf() {
         return buf;
     }
@@ -77,13 +79,13 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     }
 
     @Override
-    public boolean flushed() {
-        return flushed;
+    public boolean isHeartbeat() {
+        return isHeartbeat;
     }
 
     @Override
-    public boolean isHeartbeat() {
-        return isHeartbeat;
+    public boolean isNeedSsl() {
+        return isNeedSsl;
     }
 
     @Override
@@ -132,6 +134,11 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
         this.isPING = isPing;
         this.isHeartbeat = true;
     }
+    
+    @Override
+    public void setNeedSsl(boolean needSsl) {
+        this.isNeedSsl = needSsl;
+    }
 
     @Override
     public void setNext(Linkable next) {
@@ -156,31 +163,10 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     public void setSilent(boolean isSilent) {
         this.isSilent = isSilent;
     }
-
+    
     @Override
     public void setValidate(boolean validate) {
         this.isValidate = validate;
-    }
-
-    private void wrapSSL(SocketChannel channel) throws IOException {
-        // FIXME 部分情况下可以不在业务线程做wrapssl
-        ByteBuf old = this.buf;
-        SslHandler handler = channel.getSslHandler();
-        try {
-            this.buf = handler.wrap(channel, old);
-            this.buf.nioBuffer();
-        } finally {
-            ReleaseUtil.release(old);
-        }
-    }
-
-    @Override
-    public void write(SocketChannel channel) throws IOException {
-        if (needSSL) {
-            needSSL = false;
-            wrapSSL(channel);
-        }
-        channel.write(buf);
     }
 
 }

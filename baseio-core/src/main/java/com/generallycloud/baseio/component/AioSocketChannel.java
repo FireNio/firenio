@@ -68,7 +68,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
 
     @Override
     protected void doFlush0() {
-        flush(false);
+        flush(aioThread);
     }
 
     @Override
@@ -83,11 +83,17 @@ public class AioSocketChannel extends AbstractSocketChannel {
 
     private volatile boolean flushing;
 
-    private void flush(boolean forceFlushing) {
+    //当writeCompleteCallback时forceFlushing为true
+    //此时可以再次write(writeFuture)
+    private void flush(SocketChannelThreadContext context) {
+        if (flushing) {
+            return;
+        }
+        write(context);
+    }
+    
+    private void write(SocketChannelThreadContext context) {
         try {
-            if (!forceFlushing && flushing) {
-                return;
-            }
             if (writeFuture == null) {
                 writeFuture = writeFutures.poll();
             }
@@ -96,21 +102,14 @@ public class AioSocketChannel extends AbstractSocketChannel {
                 return;
             }
             if (!isOpened()) {
-                fireClosed(writeFuture, new ClosedChannelException("closed"));
+                exceptionCaught(writeFuture, new ClosedChannelException("closed"));
                 return;
             }
             flushing = true;
-            writeFuture.write(this);
+            write(writeFuture);
         } catch (IOException e) {
-            fireClosed(writeFuture, e);
+            exceptionCaught(writeFuture, e);
         }
-    }
-
-    private void fireClosed(ChannelFuture future, IOException e) {
-        if (future == null) {
-            return;
-        }
-        onFutureException(future, e);
     }
 
     // FIXME 这里有问题
@@ -119,7 +118,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
         this.opened = false;
         this.closeSSL();
         // 最后一轮 //FIXME once
-        this.flush(false);
+        this.flush(aioThread);
         this.releaseFutures();
         try {
             channel.shutdownOutput();
@@ -159,7 +158,6 @@ public class AioSocketChannel extends AbstractSocketChannel {
         }
     }
 
-    // FIXME __hebing
     protected void writeCallback(int length) {
         ReentrantLock lock = getCloseLock();
         lock.lock();
@@ -170,13 +168,13 @@ public class AioSocketChannel extends AbstractSocketChannel {
             ChannelFuture f = this.writeFuture;
             f.getByteBuf().reverse();
             if (!f.isWriteCompleted()) {
-                flush(true);
+                write(aioThread);
                 return;
             }
             writeFutureLength(-f.getByteBufLimit());
             onFutureSent(f);
             writeFuture = null;
-            flush(true);
+            write(aioThread);
         } finally {
             lock.unlock();
         }

@@ -26,7 +26,7 @@ import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.NioChannelService;
 import com.generallycloud.baseio.component.NioGlobalSocketSessionManager;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketSelectorEventLoopGroup;
+import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -40,7 +40,7 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
 
     private NioSocketChannelContext      context;
     private SelectableChannel            selectableChannel      = null;
-    private SocketSelectorEventLoopGroup selectorEventLoopGroup = null;
+    private SelectorEventLoopGroup selectorEventLoopGroup = null;
     private Logger                       logger                 = LoggerFactory
             .getLogger(getClass());
 
@@ -59,7 +59,7 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
         ServerConfiguration configuration = getContext().getServerConfiguration();
         String eventLoopName = "nio-process(tcp-" + configuration.getSERVER_PORT() + ")";
         int core_size = configuration.getSERVER_CORE_SIZE();
-        this.selectorEventLoopGroup = new SocketSelectorEventLoopGroup(getContext(), eventLoopName,
+        this.selectorEventLoopGroup = new SelectorEventLoopGroup(getContext(), eventLoopName,
                 core_size);
         LifeCycleUtil.start(selectorEventLoopGroup);
     }
@@ -104,7 +104,7 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
      * @return the selectorEventLoopGroup
      */
     @Override
-    public SocketSelectorEventLoopGroup getSelectorEventLoopGroup() {
+    public SelectorEventLoopGroup getSelectorEventLoopGroup() {
         return selectorEventLoopGroup;
     }
 

@@ -26,13 +26,13 @@ import java.util.Set;
  *
  */
 public interface SocketSelector extends Closeable {
-    
-    void buildChannel(SelectionKey k) throws IOException;
+
+    void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException;
 
     void finishConnect(UnsafeSocketSession session, Throwable e);
-    
+
     Selector getSelector();
-    
+
     int select() throws IOException;
 
     int select(long timeout) throws IOException;
@@ -40,7 +40,7 @@ public interface SocketSelector extends Closeable {
     Set<SelectionKey> selectedKeys() throws IOException;
 
     int selectNow() throws IOException;
-    
+
     void wakeup();
 
 }

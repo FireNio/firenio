@@ -31,16 +31,15 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
 public class NioSocketChannel extends AbstractSocketChannel implements SelectorLoopEvent {
 
     private SocketChannel           channel;
-    private volatile boolean        closing;
+    private volatile boolean        closing;   //写入时加锁是不是可以不用volatile修饰
     private NioSocketChannelContext context;
     private SelectionKey            selectionKey;
-    private SocketSelectorEventLoop selectorEventLoop;
+    private SelectorEventLoop       eventLoop;
 
-    NioSocketChannel(SocketSelectorEventLoop selectorLoop, SelectionKey selectionKey,
-            int channelId) {
-        super(selectorLoop, channelId);
-        this.selectorEventLoop = selectorLoop;
-        this.context = selectorLoop.getChannelContext();
+    NioSocketChannel(SelectorEventLoop eventLoop, SelectionKey selectionKey, int channelId) {
+        super(eventLoop, channelId);
+        this.eventLoop = eventLoop;
+        this.context = eventLoop.getChannelContext();
         this.selectionKey = selectionKey;
         this.channel = (SocketChannel) selectionKey.channel();
     }
@@ -67,7 +66,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                     return;
                 }
                 closing = true;
-                selectorEventLoop.dispatch(new CloseSelectorLoopEvent(this));
+                eventLoop.dispatch(new CloseSelectorLoopEvent(this));
             }
         } finally {
             lock.unlock();
@@ -76,42 +75,42 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 
     @Override
     protected void doFlush0() {
-        selectorEventLoop.dispatch(this);
+        eventLoop.dispatch(this);
     }
 
     @Override
-    public void fireEvent(SocketSelectorEventLoop selectorLoop) throws IOException {
+    public void fireEvent(SelectorEventLoop eventLoop) throws IOException {
         if (!isOpened()) {
             throw new ClosedChannelException("closed");
         }
-        flush(selectorLoop);
+        write(eventLoop);
     }
 
-    protected void flush(SocketSelectorEventLoop selectorLoop) throws IOException {
-        ChannelFuture f = writeFuture;
-        if (f == null) {
-            f = writeFutures.poll();
+    protected void write(SelectorEventLoop eventLoop) throws IOException {
+        ChannelFuture future = writeFuture;
+        if (future == null) {
+            future = writeFutures.poll();
         }
-        if (f == null) {
+        if (future == null) {
             return;
         }
         for (;;) {
             try {
-                f.write(this);
+                write(future);
             } catch (Throwable e) {
                 writeFuture = null;
-                ReleaseUtil.release(f);
+                ReleaseUtil.release(future);
                 throw e;
             }
-            if (!f.isWriteCompleted()) {
-                writeFuture = f;
+            if (!future.isWriteCompleted()) {
+                writeFuture = future;
                 interestWrite(selectionKey);
                 return;
             }
-            writeFutureLength(-f.getByteBufLimit());
-            onFutureSent(f);
-            f = writeFutures.poll();
-            if (f == null) {
+            writeFutureLength(-future.getByteBufLimit());
+            onFutureSent(future);
+            future = writeFutures.poll();
+            if (future == null) {
                 break;
             }
         }
@@ -141,7 +140,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
 
     @Override
     protected SocketChannelThreadContext getSocketChannelThreadContext() {
-        return selectorEventLoop;
+        return eventLoop;
     }
 
     private void interestRead(SelectionKey key) {
@@ -168,7 +167,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         closeSSL();
         // 最后一轮 //FIXME once
         try {
-            flush(selectorEventLoop);
+            write(eventLoop);
         } catch (Exception e) {}
         releaseFutures();
         selectionKey.attach(null);

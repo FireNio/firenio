@@ -32,6 +32,8 @@ public interface ChannelFuture extends Future, Linkable {
     int getByteBufLimit();
 
     boolean isHeartbeat();
+    
+    boolean isNeedSsl();
 
     boolean isPING();
 
@@ -46,13 +48,13 @@ public interface ChannelFuture extends Future, Linkable {
     void setByteBuf(ByteBuf buf);
 
     void setHeartbeat(boolean isPing);
+    
+    void setNeedSsl(boolean needSsl);
 
     ChannelFuture setPING();
 
     ChannelFuture setPONG();
 
     void setSilent(boolean isSilent);
-
-    void write(SocketChannel channel) throws IOException;
 
 }
