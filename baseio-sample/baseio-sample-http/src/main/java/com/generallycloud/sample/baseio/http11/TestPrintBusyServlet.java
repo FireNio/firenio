@@ -35,7 +35,7 @@ public class TestPrintBusyServlet extends HttpFutureAcceptorService {
 
         future.write("true");
 
-        future.setResponseHeader("Content-Type", "text/html");
+        future.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_PLAIN);
 
         session.flush(future);
     }

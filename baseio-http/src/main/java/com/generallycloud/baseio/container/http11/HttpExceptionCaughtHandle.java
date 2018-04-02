@@ -15,6 +15,7 @@
  */
 package com.generallycloud.baseio.container.http11;
 
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.codec.http11.future.HttpStatus;
 import com.generallycloud.baseio.codec.http11.future.ServerHttpFuture;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
@@ -55,7 +56,7 @@ public class HttpExceptionCaughtHandle implements ExceptionCaughtHandle {
         builder.append(HtmlUtil.HTML_BOTTOM);
         f.write(builder.toString());
         f.setStatus(HttpStatus.C500);
-        f.setResponseHeader("Content-Type", "text/html");
+        f.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
         session.flush(f);
     }
 

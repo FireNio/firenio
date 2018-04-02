@@ -103,7 +103,7 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
 
         future.write(builder.toString());
 
-        future.setResponseHeader("Content-Type", "text/html");
+        future.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
 
         session.flush(future);
     }

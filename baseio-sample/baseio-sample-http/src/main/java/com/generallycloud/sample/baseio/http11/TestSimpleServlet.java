@@ -32,7 +32,7 @@ public class TestSimpleServlet extends HttpFutureAcceptorService {
         String res = "yes server already accept your message :) " + future.getRequestParams();
 
         future.write(res);
-
+        
         session.flush(future);
     }
 }

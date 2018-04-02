@@ -35,7 +35,7 @@ public class TestUploadServlet extends HttpFutureAcceptorService {
             res = "yes server already accept your message :) " + future.getRequestParams();
         }
 
-        future.setResponseHeader("Content-Type", "text/html");
+        future.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
 
         future.write(res);
         session.flush(future);
