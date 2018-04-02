@@ -31,7 +31,6 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
 public class NioSocketChannel extends AbstractSocketChannel implements SelectorLoopEvent {
 
     private SocketChannel           channel;
-    private volatile boolean        closing;   //写入时加锁是不是可以不用volatile修饰
     private NioSocketChannelContext context;
     private SelectionKey            selectionKey;
     private SelectorEventLoop       eventLoop;
@@ -49,28 +48,16 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         if (!isOpened()) {
             return;
         }
-        if (closing && !inSelectorLoop()) {
-            return;
-        }
-        ReentrantLock lock = getCloseLock();
-        lock.lock();
-        try {
-            if (inSelectorLoop()) {
-                if (!isOpened()) {
-                    return;
-                }
-                physicalClose();
-                return;
-            } else {
-                if (closing || !isOpened()) {
-                    return;
-                }
-                closing = true;
-                eventLoop.dispatch(new CloseSelectorLoopEvent(this));
+        eventLoop.dispatch(new SelectorLoopEvent() {
+            
+            @Override
+            public void close() throws IOException { }
+            
+            @Override
+            public void fireEvent(SelectorEventLoop selectorLoop) {
+                NioSocketChannel.this.physicalClose();
             }
-        } finally {
-            lock.unlock();
-        }
+        });
     }
 
     @Override
@@ -164,17 +151,26 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
     // FIXME 这里有问题
     @Override
     protected void physicalClose() {
-        closeSSL();
-        // 最后一轮 //FIXME once
+        ReentrantLock lock = getCloseLock();
+        lock.lock();
+        if (!isOpened()) {
+            return;
+        }
         try {
-            write(eventLoop);
-        } catch (Exception e) {}
-        releaseFutures();
-        selectionKey.attach(null);
-        CloseUtil.close(channel);
-        selectionKey.cancel();
-        fireClosed();
-        opened = false;
+            closeSSL();
+            // 最后一轮 //FIXME once
+            try {
+                write(eventLoop);
+            } catch (Exception e) {}
+            releaseFutures();
+            selectionKey.attach(null);
+            CloseUtil.close(channel);
+            selectionKey.cancel();
+            fireClosed();
+            opened = false;
+        } finally {
+            lock.unlock();
+        }
     }
 
     protected int read(ByteBuf buf) throws IOException {

@@ -38,8 +38,8 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
         implements NioChannelService {
 
-    private ServerSocket                 serverSocket           = null;
-    private SelectableChannel            selectableChannel      = null;
+    private ServerSocket           serverSocket           = null;
+    private SelectableChannel      selectableChannel      = null;
     private SelectorEventLoopGroup selectorEventLoopGroup = null;
 
     public NioSocketChannelAcceptor(SocketChannelContext context) {

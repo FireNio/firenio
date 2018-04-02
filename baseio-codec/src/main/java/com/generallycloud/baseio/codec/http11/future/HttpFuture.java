@@ -25,9 +25,9 @@ import com.generallycloud.baseio.protocol.ParametersFuture;
 public abstract interface HttpFuture extends NamedFuture, ParametersFuture {
 
     public static final String CONTENT_TYPE_MULTIPART           = "multipart/form-data";
-    public static final String CONTENT_TYPE_TEXT_PLAIN          = "text/plain";
-    public static final String CONTENT_TYPE_TEXT_CSS            = "text/css";
-    public static final String CONTENT_TYPE_TEXT_HTML           = "text/html";
+    public static final String CONTENT_TYPE_TEXT_PLAIN          = "text/plain;charset=utf-8";
+    public static final String CONTENT_TYPE_TEXT_CSS            = "text/css;charset=utf-8";
+    public static final String CONTENT_TYPE_TEXT_HTML           = "text/html;charset=utf-8";
     public static final String CONTENT_TYPE_IMAGE_PNG           = "image/png";
     public static final String CONTENT_TYPE_IMAGE_GIF           = "image/gif";
     public static final String CONTENT_TYPE_IMAGE_JPEG          = "image/jpeg";
