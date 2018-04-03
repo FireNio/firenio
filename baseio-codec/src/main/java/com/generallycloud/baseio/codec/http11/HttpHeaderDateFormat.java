@@ -118,7 +118,8 @@ public class HttpHeaderDateFormat {
         int minute = calendar.get(Calendar.MINUTE);
         int second = calendar.get(Calendar.SECOND);
 
-        StringBuilder b = new StringBuilder(25);
+        StringBuilder b = new StringBuilder(26);
+        b.append(' ');
         b.append(WEEK_DAYS[weekDay]);
         b.append(',');
         b.append(' ');

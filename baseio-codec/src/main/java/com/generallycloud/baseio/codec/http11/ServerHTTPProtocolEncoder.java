@@ -31,7 +31,7 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
 public class ServerHTTPProtocolEncoder extends AbstractHttpProtocolEncoder {
 
     private static final byte[] PROTOCOL   = "HTTP/1.1 ".getBytes();
-    private static final byte[] SERVER_CL  = "\r\nServer:baseio/0.0.1\r\nContent-Length:"
+    private static final byte[] SERVER_CL  = "\r\nServer: baseio/0.0.1\r\nContent-Length: "
             .getBytes();
     private static final byte[] SET_COOKIE = "Set-Cookie:".getBytes();
 

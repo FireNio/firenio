@@ -24,6 +24,7 @@ import com.generallycloud.baseio.container.service.FutureAcceptorFilterWrapper;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 import com.generallycloud.baseio.protocol.Future;
 
+//FIXME .....区分 socket || application exception handle
 public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
     private ApplicationContext          applicationContext;
