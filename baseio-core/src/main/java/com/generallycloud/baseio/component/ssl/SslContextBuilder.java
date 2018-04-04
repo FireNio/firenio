@@ -49,6 +49,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayInputStream;
 import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.Protocol;
 import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
@@ -96,7 +97,7 @@ public final class SslContextBuilder {
         EncryptedPrivateKeyInfo encryptedPrivateKeyInfo = new EncryptedPrivateKeyInfo(key);
         SecretKeyFactory keyFactory = SecretKeyFactory
                 .getInstance(encryptedPrivateKeyInfo.getAlgName());
-        PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray());
+        PBEKeySpec pbeKeySpec = new PBEKeySpec(StringUtil.stringToCharArray(password));
         SecretKey pbeKey = keyFactory.generateSecret(pbeKeySpec);
         Cipher cipher = Cipher.getInstance(encryptedPrivateKeyInfo.getAlgName());
         cipher.init(Cipher.DECRYPT_MODE, pbeKey, encryptedPrivateKeyInfo.getAlgParameters());
@@ -272,7 +273,7 @@ public final class SslContextBuilder {
         if (keyPassword == null) {
             keyPassword = "";
         }
-        char[] keyPasswordChars = keyPassword.toCharArray();
+        char[] keyPasswordChars = StringUtil.stringToCharArray(keyPassword);
         KeyStore ks = buildKeyStore(certChain, key, keyPasswordChars);
         return buildKeyManagerFactory(ks, keyPasswordChars);
     }
@@ -389,11 +390,11 @@ public final class SslContextBuilder {
         needServer();
         try {
             KeyStore keystore = KeyStore.getInstance("JKS");
-            keystore.load(keystoreInput, storePassword.toCharArray());
+            keystore.load(keystoreInput, StringUtil.stringToCharArray(storePassword));
             if (keyPassword == null) {
                 keyPassword = "";
             }
-            this.keyManagerFactory = buildKeyManagerFactory(keystore, keyPassword.toCharArray());
+            this.keyManagerFactory = buildKeyManagerFactory(keystore, StringUtil.stringToCharArray(keyPassword));
             return this;
         } catch (Exception e) {
             throw new SSLException(e);

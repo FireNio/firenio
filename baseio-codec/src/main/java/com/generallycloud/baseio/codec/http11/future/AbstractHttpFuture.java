@@ -217,7 +217,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         if (cookies == null) {
             cookies = new HashMap<>();
         }
-        StringLexer l = new StringLexer(0, line.toCharArray());
+        StringLexer l = new StringLexer(0, StringUtil.stringToCharArray(line));
         StringBuilder value = new StringBuilder();
         String k = null;
         String v = null;

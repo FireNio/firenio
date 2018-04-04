@@ -44,7 +44,7 @@ public class PinyinUtil {
     //			return null;
     //		}
     //		StringBuilder builder = new StringBuilder();
-    //		char[] cs = hanzi.toCharArray();
+    //		char[] cs = StringUtil.stringToCharArray(hanzi);
     //		for (char c : cs) {
     //			String p = toPinyin(c);
     //			if (p == null) {

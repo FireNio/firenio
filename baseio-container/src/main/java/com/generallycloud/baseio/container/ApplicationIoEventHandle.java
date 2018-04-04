@@ -24,14 +24,13 @@ import com.generallycloud.baseio.container.service.FutureAcceptorFilterWrapper;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 import com.generallycloud.baseio.protocol.Future;
 
-//FIXME .....区分 socket || application exception handle
 public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
-    private ApplicationContext          applicationContext;
+    private ApplicationContext    applicationContext;
 
-    private FutureAcceptorService       appRedeployService;
+    private FutureAcceptorService appRedeployService;
 
-    private volatile boolean            deploying = true;
+    private volatile boolean      deploying = true;
 
     private ExceptionCaughtHandle       exceptionCaughtHandle;
 
@@ -74,8 +73,8 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     public ApplicationContext getApplicationContext() {
         return applicationContext;
     }
-    
-    public boolean redeploy(){
+
+    public boolean redeploy() {
         return applicationContext.redeploy();
     }
 
@@ -88,6 +87,8 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
         this.appRedeployService = applicationContext.getAppRedeployService();
 
+        // exceptionCaughtHandle ; ioExceptionCaughtHandle
+        // 区分 socket || application exception handle
         this.exceptionCaughtHandle = applicationContext.getExceptionCaughtHandle();
 
         this.ioExceptionCaughtHandle = applicationContext.getIoExceptionCaughtHandle();

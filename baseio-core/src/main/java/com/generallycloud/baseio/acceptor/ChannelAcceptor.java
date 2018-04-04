@@ -30,5 +30,4 @@ public interface ChannelAcceptor extends ChannelService, Unbindable {
 
     public abstract void broadcastChannelFuture(ChannelFuture future) throws IOException;
 
-    public abstract int getManagedSessionSize();
 }

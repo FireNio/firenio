@@ -24,12 +24,14 @@ import java.nio.channels.ServerSocketChannel;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.NioChannelService;
-import com.generallycloud.baseio.component.NioGlobalSocketSessionManager;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 /**
  * @author wangkai
@@ -38,6 +40,7 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
         implements NioChannelService {
 
+    private Logger                 logger                 = LoggerFactory.getLogger(getClass());
     private ServerSocket           serverSocket           = null;
     private SelectableChannel      selectableChannel      = null;
     private SelectorEventLoopGroup selectorEventLoopGroup = null;
@@ -47,40 +50,30 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
     }
 
     @Override
-    protected void bind(InetSocketAddress socketAddress) throws IOException {
-        initChannel();
-        initSelectorLoops();
-        initNioSessionMananger();
-        try {
-            this.serverSocket.bind(socketAddress, 50);
-        } catch (BindException e) {
-            throw new BindException(e.getMessage() + " at " + socketAddress.getPort());
-        }
-    }
-
-    private void initNioSessionMananger() {
-        NioGlobalSocketSessionManager manager = (NioGlobalSocketSessionManager) getContext()
-                .getSessionManager();
-        manager.init((NioSocketChannelContext) getContext());
-    }
-
-    private void initChannel() throws IOException {
-        // 打开服务器套接字通道
+    protected void bind(InetSocketAddress server) throws IOException {
         this.selectableChannel = ServerSocketChannel.open();
-        // 服务器配置为非阻塞
         this.selectableChannel.configureBlocking(false);
-        // 检索与此通道关联的服务器套接字
         this.serverSocket = ((ServerSocketChannel) selectableChannel).socket();
-    }
-
-    private void initSelectorLoops() {
-        //FIXME socket selector event loop ?
+        NioSocketChannelContext context = (NioSocketChannelContext) getContext();
         ServerConfiguration configuration = getContext().getServerConfiguration();
-        String eventLoopName = "nio-process(tcp-" + configuration.getSERVER_PORT() + ")";
+        String eventLoopName = "nio-process(tcp-" + server.getPort() + ")";
         int core_size = configuration.getSERVER_CORE_SIZE();
-        this.selectorEventLoopGroup = new SelectorEventLoopGroup(
-                (NioSocketChannelContext) getContext(), eventLoopName, core_size);
+        this.selectorEventLoopGroup = new SelectorEventLoopGroup(context, eventLoopName, core_size);
         LifeCycleUtil.start(selectorEventLoopGroup);
+        context.getSessionManager().init(context);
+        try {
+            this.serverSocket.bind(server, 50);
+        } catch (IOException e) {
+            if ("Already bound".equalsIgnoreCase(e.getMessage()) || e instanceof BindException) {
+                int port = serverSocket.getLocalPort();
+                if (port < 1) {
+                    port = server.getPort();
+                }
+                throw new BindException("Already bound at " + port);
+            }
+            throw e;
+        }
+        LoggerUtil.prettyLog(logger, "server listening @{}", getServerSocketAddress());
     }
 
     @Override

@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.acceptor;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
@@ -23,6 +24,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.AioSocketChannel;
 import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.CachedAioThread;
@@ -45,33 +47,36 @@ public class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    protected void bind(InetSocketAddress socketAddress) throws IOException {
-
+    protected void bind(InetSocketAddress server) throws IOException {
         AioSocketChannelContext context = (AioSocketChannelContext) getContext();
-
         AsynchronousChannelGroup group = context.getAsynchronousChannelGroup();
-
         final FixedAtomicInteger channelIds = new FixedAtomicInteger(1,Integer.MAX_VALUE);
-
         serverSocketChannel = AsynchronousServerSocketChannel.open(group);
-
-        serverSocketChannel.bind(socketAddress);
-
+        try {
+            serverSocketChannel.bind(server);
+        } catch (IOException e) {
+            if ("Already bound".equalsIgnoreCase(e.getMessage()) || e instanceof BindException) {
+                InetSocketAddress local = (InetSocketAddress) serverSocketChannel.getLocalAddress();
+                int port = -1;
+                if (local != null) {
+                    port = local.getPort();
+                }
+                if (port < 1) {
+                    port = server.getPort();
+                }
+                throw new BindException("Already bound at " + local.getPort());
+            }
+            throw e;
+        }
         serverSocketChannel.accept(null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
 
             @Override
             public void completed(AsynchronousSocketChannel _channel, Void attachment) {
-
                 serverSocketChannel.accept(null, this); // 接受下一个连接
-
                 int channelId = channelIds.getAndIncrement();
-
                 CachedAioThread aioThread = (CachedAioThread) Thread.currentThread();
-
                 AioSocketChannel channel = new AioSocketChannel(aioThread, _channel, channelId);
-
                 channel.fireOpend();
-
                 aioThread.getReadCompletionHandler().completed(0, channel);
             }
 
@@ -80,6 +85,7 @@ public class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
                 logger.error(exc.getMessage(), exc);
             }
         });
+        LoggerUtil.prettyLog(logger, "server listening @{}", getServerSocketAddress());
     }
 
     @Override

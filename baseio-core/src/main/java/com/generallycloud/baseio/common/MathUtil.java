@@ -26,7 +26,7 @@ public class MathUtil {
         if (string.length() != 8) {
             throw new IllegalArgumentException("except length 8");
         }
-        char[] cs = string.toCharArray();
+        char[] cs = StringUtil.stringToCharArray(string);
         byte result = 0;
         for (int i = 0; i < 8; i++) {
             char c = cs[i];
@@ -444,7 +444,7 @@ public class MathUtil {
         int2Byte(bytes, v, 0);
 
         String hex = bytes2HexString(bytes);
-        bytes = hexString2bytes(hex.toCharArray());
+        bytes = hexString2bytes(StringUtil.stringToCharArray(hex));
         System.out.println(v);
         System.out.println(hex);
         int v1 = byte2Int(bytes, 0);

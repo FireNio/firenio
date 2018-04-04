@@ -35,7 +35,7 @@ public class KMPUtil {
             throw new IllegalArgumentException("null value");
         }
         this.match_value = value;
-        this.match_array = match_value.toCharArray();
+        this.match_array = StringUtil.stringToCharArray(match_value);
         this.match_table = new int[match_value.length()];
         this.initialize_part_match_table();
     }
@@ -76,7 +76,7 @@ public class KMPUtil {
         if (value.length() - begin < this.match_array.length) {
             return -1;
         }
-        char[] source_array = value.toCharArray();
+        char[] source_array = StringUtil.stringToCharArray(value);
         int source_length = value.length();
         int index = begin;
         int match_length = this.match_array.length;
@@ -110,7 +110,7 @@ public class KMPUtil {
             matchs.add(0);
             return matchs;
         }
-        char[] source_array = value.toCharArray();
+        char[] source_array = StringUtil.stringToCharArray(value);
         int source_length = value.length();
         int index = 0;
         int match_length = this.match_array.length;

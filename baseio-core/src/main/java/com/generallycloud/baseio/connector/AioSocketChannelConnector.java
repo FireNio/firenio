@@ -36,42 +36,38 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public class AioSocketChannelConnector extends AbstractSocketChannelConnector {
 
     private AioSocketChannelContext context;
+    private Logger                  logger = LoggerFactory.getLogger(getClass());
 
     protected AioSocketChannelConnector(AioSocketChannelContext context) {
         this.context = context;
     }
 
-    private Logger logger = LoggerFactory.getLogger(getClass());
-
     @Override
-    protected void connect(InetSocketAddress socketAddress) throws IOException {
-
+    protected void connect(InetSocketAddress server) throws IOException {
         AsynchronousChannelGroup group = context.getAsynchronousChannelGroup();
-
         final AsynchronousSocketChannel _channel = AsynchronousSocketChannel.open(group);
+        _channel.connect(server, this, new CompletionHandler<Void, AioSocketChannelConnector>() {
 
-        _channel.connect(socketAddress, this,
-                new CompletionHandler<Void, AioSocketChannelConnector>() {
+            @Override
+            public void completed(Void result, AioSocketChannelConnector connector) {
+                CachedAioThread aioThread = (CachedAioThread) Thread.currentThread();
+                AioSocketChannel channel = new AioSocketChannel(aioThread, _channel, 1);
+                connector.finishConnect(channel.getSession(), null);
+                aioThread.getReadCompletionHandler().completed(0, channel);
+            }
 
-                    @Override
-                    public void completed(Void result, AioSocketChannelConnector connector) {
-
-                        CachedAioThread aioThread = (CachedAioThread) Thread.currentThread();
-
-                        AioSocketChannel channel = new AioSocketChannel(aioThread, _channel, 1);
-
-                        connector.finishConnect(channel.getSession(), null);
-
-                        aioThread.getReadCompletionHandler().completed(0, channel);
-                    }
-
-                    @Override
-                    public void failed(Throwable exc, AioSocketChannelConnector connector) {
-                        connector.finishConnect((UnsafeSocketSession) getSession(), exc);
-                    }
-                });
+            @Override
+            public void failed(Throwable exc, AioSocketChannelConnector connector) {
+                connector.finishConnect((UnsafeSocketSession) getSession(), exc);
+            }
+        });
 
         wait4connect();
+    }
+
+    @Override
+    protected void connected() {
+        LoggerUtil.prettyLog(logger, "connected to server @{}", getServerSocketAddress());
     }
 
     @Override
@@ -81,10 +77,5 @@ public class AioSocketChannelConnector extends AbstractSocketChannelConnector {
 
     @Override
     protected void stop0() {}
-
-    @Override
-    protected void connected() {
-        LoggerUtil.prettyLog(logger, "connected to server @{}", getServerSocketAddress());
-    }
 
 }

@@ -70,11 +70,6 @@ public class SocketChannelAcceptor implements ChannelAcceptor {
         unwrap().broadcast(future);
     }
 
-    @Override
-    public int getManagedSessionSize() {
-        return unwrap().getManagedSessionSize();
-    }
-
     private AbstractSocketChannelAcceptor buildConnector(SocketChannelContext context) {
         if (context instanceof NioSocketChannelContext) {
             return new NioSocketChannelAcceptor(context);

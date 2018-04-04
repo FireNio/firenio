@@ -27,7 +27,6 @@ import com.generallycloud.baseio.component.NioChannelService;
 import com.generallycloud.baseio.component.NioGlobalSocketSessionManager;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SelectorEventLoopGroup;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -38,56 +37,39 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public class NioSocketChannelConnector extends AbstractSocketChannelConnector
         implements NioChannelService {
 
-    private NioSocketChannelContext      context;
-    private SelectableChannel            selectableChannel      = null;
-    private SelectorEventLoopGroup selectorEventLoopGroup = null;
-    private Logger                       logger                 = LoggerFactory
-            .getLogger(getClass());
+    private NioSocketChannelContext context;
+    private SelectableChannel       selectableChannel = null;
+    private SelectorEventLoopGroup  eventLoopGroup    = null;
+    private Logger                  logger            = LoggerFactory.getLogger(getClass());
 
-    protected NioSocketChannelConnector(NioSocketChannelContext context) {
+    NioSocketChannelConnector(NioSocketChannelContext context) {
         this.context = context;
     }
 
     @Override
     protected void stop0() {
         CloseUtil.close(selectableChannel);
-        LifeCycleUtil.stop(selectorEventLoopGroup);
-    }
-
-    private void initSelectorLoops() {
-        //FIXME socket selector event loop ?
-        ServerConfiguration configuration = getContext().getServerConfiguration();
-        String eventLoopName = "nio-process(tcp-" + configuration.getSERVER_PORT() + ")";
-        int core_size = configuration.getSERVER_CORE_SIZE();
-        this.selectorEventLoopGroup = new SelectorEventLoopGroup(getContext(), eventLoopName,
-                core_size);
-        LifeCycleUtil.start(selectorEventLoopGroup);
+        LifeCycleUtil.stop(eventLoopGroup);
     }
 
     @Override
-    protected void connect(InetSocketAddress socketAddress) throws IOException {
-        LifeCycleUtil.stop(selectorEventLoopGroup);
-        initChannel();
-        initSelectorLoops();
-        initNioSessionMananger();
-        SocketChannel ch = (SocketChannel) selectableChannel;
-        ch.connect(socketAddress);
-        wait4connect();
-    }
-
-    private void initNioSessionMananger() {
+    protected void connect(InetSocketAddress server) throws IOException {
+        LifeCycleUtil.stop(eventLoopGroup);
+        selectableChannel = SocketChannel.open();
+        selectableChannel.configureBlocking(false);
+        String eventLoopName = "nio-process(tcp-" + server.getPort() + ")";
+        eventLoopGroup = new SelectorEventLoopGroup(getContext(), eventLoopName, 1);
+        LifeCycleUtil.start(eventLoopGroup);
         NioGlobalSocketSessionManager manager = getContext().getSessionManager();
         manager.init(getContext());
+        SocketChannel ch = (SocketChannel) selectableChannel;
+        ch.connect(server);
+        wait4connect();
     }
 
     @Override
     public NioSocketChannelContext getContext() {
         return context;
-    }
-
-    private void initChannel() throws IOException {
-        this.selectableChannel = SocketChannel.open();
-        this.selectableChannel.configureBlocking(false);
     }
 
     @Override
@@ -100,12 +82,9 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
         LoggerUtil.prettyLog(logger, "connected to server @{}", getServerSocketAddress());
     }
 
-    /**
-     * @return the selectorEventLoopGroup
-     */
     @Override
     public SelectorEventLoopGroup getSelectorEventLoopGroup() {
-        return selectorEventLoopGroup;
+        return eventLoopGroup;
     }
 
 }

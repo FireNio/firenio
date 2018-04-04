@@ -30,23 +30,17 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public class AioSocketChannelContext extends AbstractSocketChannelContext {
 
     private AsynchronousChannelGroup         asynchronousChannelGroup;
-
     private ReadCompletionHandler            readCompletionHandler;
-
     private WriteCompletionHandler           writeCompletionHandler;
-
-    private AioSessionManangerEventLoopGroup sessionManangerEventLoopGroup;
-
+    private AioSessionManangerEventLoopGroup smEventLoopGroup;
     private AioSocketSessionManager          sessionManager;
-    
     private ChannelService                   channelService;
-
     private Logger                           logger = LoggerFactory.getLogger(getClass());
 
     public AioSocketChannelContext(ServerConfiguration configuration) {
         super(configuration);
     }
-    
+
     @Override
     protected ExecutorEventLoopGroup createExecutorEventLoopGroup() {
         int eventLoopSize = getServerConfiguration().getSERVER_CORE_SIZE();
@@ -59,43 +53,28 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 
     @Override
     protected void doStartModule() throws Exception {
-
-        sessionManangerEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 1,
-                this);
-        
+        smEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 1, this);
         sessionManager = new AioSocketSessionManager(this);
-
-        LifeCycleUtil.start(sessionManangerEventLoopGroup);
-
-        initializeChannelGroup(getServerConfiguration().getSERVER_CORE_SIZE());
-
+        ServerConfiguration sc = getServerConfiguration();
+        LifeCycleUtil.start(smEventLoopGroup);
+        String threadName = "aio-process(tcp-" + sc.getSERVER_PORT() + ")";
+        AsynchronousChannelProvider provider = AsynchronousChannelProvider.provider();
+        CachedAioThreadFactory cachedAioThreadFactory = new CachedAioThreadFactory(this,
+                threadName);
+        this.asynchronousChannelGroup = provider
+                .openAsynchronousChannelGroup(sc.getSERVER_CORE_SIZE(), cachedAioThreadFactory);
         super.doStartModule();
     }
 
     @Override
     protected void doStopModule() {
-
         try {
             this.asynchronousChannelGroup.shutdownNow();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
-
-        LifeCycleUtil.stop(sessionManangerEventLoopGroup);
-
+        LifeCycleUtil.stop(smEventLoopGroup);
         super.doStopModule();
-    }
-
-    private void initializeChannelGroup(int SERVER_CORE_SIZE) throws IOException {
-        
-        String threadName = "aio-process(tcp-"+getServerConfiguration().getSERVER_PORT()+")";
-
-        AsynchronousChannelProvider provider = AsynchronousChannelProvider.provider();
-
-        CachedAioThreadFactory cachedAioThreadFactory = new CachedAioThreadFactory(this, threadName);
-
-        this.asynchronousChannelGroup = provider.openAsynchronousChannelGroup(SERVER_CORE_SIZE,
-                cachedAioThreadFactory);
     }
 
     public AsynchronousChannelGroup getAsynchronousChannelGroup() {

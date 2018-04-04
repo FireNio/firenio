@@ -53,12 +53,7 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelServ
         return getSession();
     }
 
-    @Override
-    protected void setServerCoreSize(ServerConfiguration configuration) {
-        configuration.setSERVER_CORE_SIZE(1);
-    }
-
-    protected abstract void connect(InetSocketAddress socketAddress) throws IOException;
+    protected abstract void connect(InetSocketAddress server) throws IOException;
 
     protected abstract void connected();
 

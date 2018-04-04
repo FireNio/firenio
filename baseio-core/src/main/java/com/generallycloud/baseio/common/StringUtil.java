@@ -15,23 +15,48 @@
  */
 package com.generallycloud.baseio.common;
 
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 
 public class StringUtil {
 
     private static String[] ZEROS;
+    
+    private static Field stringValueField;
+    
+    private static boolean enableGetStringValueField;
 
     static {
         int max = 15;
-        int i = 0;
         ZEROS = new String[max + 1];
         ZEROS[0] = "";
-        for (; i++ < max;) {
+        for (int i = 0; i++ < max;) {
             ZEROS[i] = ZEROS[i - 1] + "0";
+        }
+        Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                try {
+                    Field value = String.class.getDeclaredField("value");
+                    Throwable cause = ClassUtil.trySetAccessible(value);
+                    if (cause != null) {
+                        return cause;
+                    }
+                    return value;
+                } catch (Exception e) {
+                    return e;
+                }
+            }
+        });
+        enableGetStringValueField = !(res instanceof Throwable);
+        if (enableGetStringValueField) {
+            stringValueField = (Field) res;
         }
     }
 
@@ -109,5 +134,16 @@ public class StringUtil {
         }
         return result;
     }
-
+    
+    public static char[] stringToCharArray(String str){
+        if (!enableGetStringValueField) {
+            return str.toCharArray();
+        }
+        try {
+            return (char[]) stringValueField.get(str);
+        } catch (Exception e) {
+            return str.toCharArray();
+        }
+    }
+    
 }
