@@ -30,7 +30,6 @@ import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
-import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -45,7 +44,6 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     private Map<Object, Object>                   attributes  = new HashMap<>();
     private BeatFutureFactory                     beatFutureFactory;
     private ByteBufAllocatorManager               byteBufAllocatorManager;
-    private FixedAtomicInteger                    CHANNEL_ID;
     private boolean                               enableSSL;
     private Charset                               encoding;
     private ExecutorEventLoopGroup                executorEventLoopGroup;
@@ -63,7 +61,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     private long                                  sessionIdleTime;
     private SslContext                            sslContext;
     private long                                  startupTime = System.currentTimeMillis();
-    private SimulateSocketChannel                   simulateSocketChannel;
+    private SimulateSocketChannel                 simulateSocketChannel;
 
     public AbstractSocketChannelContext(ServerConfiguration configuration) {
         if (configuration == null) {
@@ -80,7 +78,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
             sessionEventListenerRoot = new SocketSessionEventListenerWrapper(listener);
         } else {
             ClassUtil.setValueOfLast(sessionEventListenerRoot,
-                    new SocketSessionEventListenerWrapper(listener),"next");
+                    new SocketSessionEventListenerWrapper(listener), "next");
         }
     }
 
@@ -90,7 +88,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
             sessionIdleEventListenerRoot = new SocketSessionIdleEventListenerWrapper(listener);
         } else {
             ClassUtil.setValueOfLast(sessionIdleEventListenerRoot,
-                    new SocketSessionIdleEventListenerWrapper(listener),"next");
+                    new SocketSessionIdleEventListenerWrapper(listener), "next");
         }
     }
 
@@ -101,13 +99,6 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
 
     protected void clearContext() {
         this.clearAttributes();
-        this.createChannelIdsSequence();
-    }
-
-    private void createChannelIdsSequence() {
-        int core_size = serverConfiguration.getSERVER_CORE_SIZE();
-        int max = (Integer.MAX_VALUE / core_size) * core_size - 1;
-        this.CHANNEL_ID = new FixedAtomicInteger(0, max);
     }
 
     protected abstract ExecutorEventLoopGroup createExecutorEventLoopGroup();
@@ -127,8 +118,6 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
             initialized = true;
             serverConfiguration.initializeDefault(this);
         }
-
-        createChannelIdsSequence();
 
         EmptyFuture.initializeReadFuture(this);
 
@@ -236,13 +225,6 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         return byteBufAllocatorManager;
     }
 
-    /**
-     * @return the CHANNEL_ID
-     */
-    public FixedAtomicInteger getCHANNEL_ID() {
-        return CHANNEL_ID;
-    }
-
     @Override
     public Charset getEncoding() {
         return encoding;
@@ -332,9 +314,9 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     public ChannelByteBufReader newChannelByteBufReader() {
         IoLimitChannelByteBufReader reader = new IoLimitChannelByteBufReader();
         if (enableSSL) {
-            ClassUtil.setValueOfLast(reader, new SslChannelByteBufReader(this),"next");
+            ClassUtil.setValueOfLast(reader, new SslChannelByteBufReader(this), "next");
         }
-        ClassUtil.setValueOfLast(reader, new TransparentByteBufReader(this),"next");
+        ClassUtil.setValueOfLast(reader, new TransparentByteBufReader(this), "next");
         return reader;
     }
 
@@ -386,7 +368,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         this.sslContext = sslContext;
         this.enableSSL = true;
     }
-    
+
     public SimulateSocketChannel getSimulateSocketChannel() {
         return simulateSocketChannel;
     }

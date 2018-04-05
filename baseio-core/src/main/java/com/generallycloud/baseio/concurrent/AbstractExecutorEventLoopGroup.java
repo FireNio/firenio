@@ -40,7 +40,7 @@ public abstract class AbstractExecutorEventLoopGroup extends AbstractEventLoopGr
     }
 
     @Override
-    protected EventLoop[] getEventLoops() {
+    public ExecutorEventLoop[] getEventLoops() {
         return executorEventLoops;
     }
 }

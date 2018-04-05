@@ -24,7 +24,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFutureImpl;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.BeanUtil;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;

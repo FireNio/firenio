@@ -21,9 +21,7 @@ import com.generallycloud.baseio.LifeCycleUtil;
 public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
 
     private String             eventLoopName;
-
     private int                eventLoopSize;
-
     private FixedAtomicInteger eventLoopIndex;
 
     public AbstractEventLoopGroup(String eventLoopName, int eventLoopSize) {
@@ -34,39 +32,30 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 
     @Override
     protected void doStart() throws Exception {
-
         EventLoop[] eventLoopArray = initEventLoops();
-
         for (int i = 0; i < eventLoopArray.length; i++) {
-
             eventLoopArray[i] = newEventLoop(i);
         }
-
         for (int i = 0; i < eventLoopArray.length; i++) {
-
             eventLoopArray[i].startup(eventLoopName + "-" + i);
         }
     }
 
     protected abstract EventLoop[] initEventLoops();
 
-    protected abstract EventLoop[] getEventLoops();
-
     protected int getNextEventLoopIndex() {
         return eventLoopIndex.getAndIncrement();
     }
 
-    protected int getEventLoopSize() {
+    public int getEventLoopSize() {
         return eventLoopSize;
     }
 
-    protected abstract EventLoop newEventLoop(int coreIndex);
+    protected abstract EventLoop newEventLoop(int index);
 
     @Override
     protected void doStop() throws Exception {
-
         EventLoop[] eventLoopArray = getEventLoops();
-
         for (EventLoop el : eventLoopArray) {
             LifeCycleUtil.stop(el);
         }

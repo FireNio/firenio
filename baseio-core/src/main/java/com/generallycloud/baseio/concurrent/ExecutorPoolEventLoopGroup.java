@@ -21,17 +21,12 @@ import com.generallycloud.baseio.LifeCycleUtil;
 public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
         implements ExecutorEventLoopGroup {
 
-    private String            eventLoopName;
-
-    private int               maxEventLoopSize;
-
-    private int               maxEventQueueSize;
-
-    private int               eventLoopSize;
-
     private ExecutorEventLoop eventLoop;
-
+    private String            eventLoopName;
+    private int               eventLoopSize;
     private long              keepAliveTime;
+    private int               maxEventLoopSize;
+    private int               maxEventQueueSize;
 
     public ExecutorPoolEventLoopGroup(String eventLoopName, int maxEventLoopSize,
             int maxEventQueueSize, int eventLoopSize, long keepAliveTime) {
@@ -43,22 +38,25 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
     }
 
     @Override
-    public ExecutorEventLoop getNext() {
-        return eventLoop;
-    }
-
-    @Override
     protected void doStart() throws Exception {
-
         eventLoop = new ExecutorPoolEventLoop(this, eventLoopSize, maxEventLoopSize,
                 maxEventQueueSize, keepAliveTime);
-
         eventLoop.startup(eventLoopName);
     }
 
     @Override
     protected void doStop() throws Exception {
         LifeCycleUtil.stop(eventLoop);
+    }
+
+    @Override
+    public EventLoop[] getEventLoops() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ExecutorEventLoop getNext() {
+        return eventLoop;
     }
 
 }

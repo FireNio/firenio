@@ -19,7 +19,8 @@ import com.generallycloud.baseio.LifeCycle;
 
 public interface EventLoopGroup extends LifeCycle {
 
-    public abstract EventLoop getNext();
+    EventLoop getNext();
 
-    //	public abstract ChannelContext getChannelContext();
+    EventLoop[] getEventLoops();
+
 }

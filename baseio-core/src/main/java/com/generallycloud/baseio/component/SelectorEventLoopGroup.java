@@ -23,7 +23,7 @@ import com.generallycloud.baseio.concurrent.AbstractEventLoopGroup;
  */
 public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
 
-    private SelectorEventLoop[]     selectorEventLoops = null;
+    private SelectorEventLoop[]     selectorEventLoops;
 
     private NioSocketChannelContext channelContext;
 
@@ -38,10 +38,6 @@ public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
         return selectorEventLoops[getNextEventLoopIndex()];
     }
 
-    public SelectorEventLoop[] getSelectorEventLoops() {
-        return selectorEventLoops;
-    }
-
     @Override
     protected SelectorEventLoop[] initEventLoops() {
         selectorEventLoops = new SelectorEventLoop[getEventLoopSize()];
@@ -49,13 +45,13 @@ public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     @Override
-    protected SelectorEventLoop[] getEventLoops() {
-        return getSelectorEventLoops();
+    public SelectorEventLoop[] getEventLoops() {
+        return selectorEventLoops;
     }
 
     @Override
-    protected SelectorEventLoop newEventLoop(int coreIndex) {
-        return new SelectorEventLoop(this, coreIndex);
+    protected SelectorEventLoop newEventLoop(int index) {
+        return new SelectorEventLoop(this, index);
     }
 
     public NioSocketChannelContext getChannelContext() {

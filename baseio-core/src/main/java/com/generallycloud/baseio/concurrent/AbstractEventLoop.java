@@ -24,25 +24,29 @@ public abstract class AbstractEventLoop implements EventLoop {
 
     private class SingleEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
 
-        private EventLoop eventLoop;
+        private EventLoop   eventLoop;
+
+        private EventLoop[] eventLoops;
 
         public SingleEventLoopGroup(EventLoop eventLoop) {
             this.eventLoop = eventLoop;
+            this.eventLoops = new EventLoop[] { eventLoop };
         }
 
         @Override
-        protected void doStart() throws Exception {
-
-        }
+        protected void doStart() throws Exception {}
 
         @Override
-        protected void doStop() throws Exception {
-
-        }
+        protected void doStop() throws Exception {}
 
         @Override
         public EventLoop getNext() {
             return eventLoop;
+        }
+
+        @Override
+        public EventLoop[] getEventLoops() {
+            return eventLoops;
         }
     }
 

@@ -16,11 +16,14 @@
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
+import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 import com.generallycloud.baseio.concurrent.LineEventLoopGroup;
 import com.generallycloud.baseio.concurrent.ThreadEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public class NioSocketChannelContext extends AbstractSocketChannelContext {
+
+    private FixedAtomicInteger            channelIds;
 
     private NioChannelService             channelService;
 
@@ -31,9 +34,10 @@ public class NioSocketChannelContext extends AbstractSocketChannelContext {
         this.sessionManager = new NioGlobalSocketSessionManager();
     }
 
-    @Override
-    public NioGlobalSocketSessionManager getSessionManager() {
-        return sessionManager;
+    private FixedAtomicInteger createChannelIdsSequence() {
+        int core_size = getServerConfiguration().getSERVER_CORE_SIZE();
+        int max = (Integer.MAX_VALUE / core_size) * core_size - 1;
+        return new FixedAtomicInteger(0, max);
     }
 
     @Override
@@ -47,8 +51,23 @@ public class NioSocketChannelContext extends AbstractSocketChannelContext {
     }
 
     @Override
+    protected void doStartModule() throws Exception {
+        channelIds = createChannelIdsSequence();
+        super.doStartModule();
+    }
+
+    public FixedAtomicInteger getChannelIds() {
+        return channelIds;
+    }
+    
+    @Override
     public NioChannelService getChannelService() {
         return channelService;
+    }
+
+    @Override
+    public NioGlobalSocketSessionManager getSessionManager() {
+        return sessionManager;
     }
 
     @Override

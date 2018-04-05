@@ -27,11 +27,11 @@ import com.generallycloud.baseio.component.SelectorEventLoop.SelectionKeySet;
  * @author wangkai
  *
  */
-public class SelectionKeyNioSocketSelector extends NioSocketSelector {
+public class SelectionKeySocketSelector extends SocketSelector {
 
     private SelectionKeySet selectionKeySet;
 
-    SelectionKeyNioSocketSelector(SelectorEventLoop selectorEventLoop,
+    SelectionKeySocketSelector(SelectorEventLoop selectorEventLoop,
             SelectableChannel channel, Selector selector, SelectionKeySet selectionKeySet) {
         super(selectorEventLoop, channel, selector);
         this.selectionKeySet = selectionKeySet;

@@ -61,16 +61,18 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
     private ByteBufAllocator                     byteBufAllocator   = null;
     private ChannelByteBufReader                 byteBufReader      = null;
     private NioSocketChannelContext              context            = null;
-    private SelectorEventLoopGroup         eventLoopGroup     = null;
+    private SelectorEventLoopGroup               eventLoopGroup     = null;
     private ExecutorEventLoop                    executorEventLoop  = null;
+    private int                                 index;
     private AtomicBoolean                        selecting          = new AtomicBoolean();
+    private SelectionKeySet                      selectionKeySet    = null;
     private SocketSelector                       selector           = null;
     private BufferedArrayList<SelectorLoopEvent> selectorLoopEvents = new BufferedArrayList<>();
     private SocketSessionManager                 sessionManager     = null;
     private SslHandler                           sslHandler         = null;
-    private SelectionKeySet                      selectionKeySet    = null;
 
-    SelectorEventLoop(SelectorEventLoopGroup group, int coreIndex) {
+    SelectorEventLoop(SelectorEventLoopGroup group, int index) {
+        this.index = index;
         this.eventLoopGroup = group;
         this.context = group.getChannelContext();
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
@@ -130,16 +132,16 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
         accept(ch);
     }
 
-    private void closeSocketChannel(SocketChannel channel, Throwable t) {
-        logger.error(t.getMessage() + " channel:" + channel, t);
-        CloseUtil.close(channel);
-    }
-
     private void closeEvents(BufferedArrayList<SelectorLoopEvent> bufferedList) {
         List<SelectorLoopEvent> events = bufferedList.getBuffer();
         for (SelectorLoopEvent event : events) {
             CloseUtil.close(event);
         }
+    }
+
+    private void closeSocketChannel(SocketChannel channel, Throwable t) {
+        logger.error(t.getMessage() + " channel:" + channel, t);
+        CloseUtil.close(channel);
     }
 
     public void dispatch(SelectorLoopEvent event) {
@@ -255,6 +257,10 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
         return executorEventLoop;
     }
 
+    public int getIndex() {
+        return index;
+    }
+    
     protected SocketSelector getSelector() {
         return selector;
     }
@@ -281,6 +287,57 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
         for (SelectorLoopEvent event : eventBuffer) {
             handleEvent(event);
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private SocketSelector openSelector(SelectableChannel channel) throws IOException {
+        SelectorProvider provider = SelectorProvider.provider();
+        Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                try {
+                    return Class.forName("sun.nio.ch.SelectorImpl");
+                } catch (Throwable cause) {
+                    return cause;
+                }
+            }
+        });
+        final Selector selector = provider.openSelector();
+        if (res instanceof Throwable) {
+            return new SocketSelector(this, channel, selector);
+        }
+        final Class selectorImplClass = (Class) res;
+        final SelectionKeySet keySet = new SelectionKeySet();
+        res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                try {
+                    Field selectedKeysField = selectorImplClass.getDeclaredField("selectedKeys");
+                    Field publicSelectedKeysField = selectorImplClass
+                            .getDeclaredField("publicSelectedKeys");
+
+                    Throwable cause = ClassUtil.trySetAccessible(selectedKeysField);
+                    if (cause != null) {
+                        return cause;
+                    }
+                    cause = ClassUtil.trySetAccessible(publicSelectedKeysField);
+                    if (cause != null) {
+                        return cause;
+                    }
+
+                    selectedKeysField.set(selector, keySet);
+                    publicSelectedKeysField.set(selector, keySet);
+                    return null;
+                } catch (Exception e) {
+                    return e;
+                }
+            }
+        });
+        if (res instanceof Throwable) {
+            return new SocketSelector(this, channel, selector);
+        }
+        selectionKeySet = keySet;
+        return new SelectionKeySocketSelector(this, channel, selector, keySet);
     }
 
     private void rebuildSelector() throws IOException {
@@ -311,57 +368,6 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
         //
         //      CloseUtil.close(old);
         this.selector = selector;
-    }
-
-    @SuppressWarnings("rawtypes")
-    private SocketSelector openSelector(SelectableChannel channel) throws IOException {
-        SelectorProvider provider = SelectorProvider.provider();
-        Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            @Override
-            public Object run() {
-                try {
-                    return Class.forName("sun.nio.ch.SelectorImpl");
-                } catch (Throwable cause) {
-                    return cause;
-                }
-            }
-        });
-        final Selector selector = provider.openSelector();
-        if (res instanceof Throwable) {
-            return new NioSocketSelector(this, channel, selector);
-        }
-        final Class selectorImplClass = (Class) res;
-        final SelectionKeySet keySet = new SelectionKeySet();
-        res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            @Override
-            public Object run() {
-                try {
-                    Field selectedKeysField = selectorImplClass.getDeclaredField("selectedKeys");
-                    Field publicSelectedKeysField = selectorImplClass
-                            .getDeclaredField("publicSelectedKeys");
-
-                    Throwable cause = ClassUtil.trySetAccessible(selectedKeysField);
-                    if (cause != null) {
-                        return cause;
-                    }
-                    cause = ClassUtil.trySetAccessible(publicSelectedKeysField);
-                    if (cause != null) {
-                        return cause;
-                    }
-
-                    selectedKeysField.set(selector, keySet);
-                    publicSelectedKeysField.set(selector, keySet);
-                    return null;
-                } catch (Exception e) {
-                    return e;
-                }
-            }
-        });
-        if (res instanceof Throwable) {
-            return new NioSocketSelector(this, channel, selector);
-        }
-        selectionKeySet = keySet;
-        return new SelectionKeyNioSocketSelector(this, channel, selector, keySet);
     }
 
     private SocketSelector rebuildSelector0() throws IOException {

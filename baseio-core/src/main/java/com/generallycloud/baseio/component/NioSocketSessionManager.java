@@ -70,7 +70,6 @@ public class NioSocketSessionManager extends AbstractSessionManager
         SocketSession old = sessions.get(sessionId);
         if (old != null) {
             CloseUtil.close(old);
-            removeSession(old);
         }
         if (sessions.size() >= getSessionSizeLimit()) {
             throw new RejectedExecutionException(
