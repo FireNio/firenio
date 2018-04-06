@@ -64,6 +64,7 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelServ
             CloseUtil.close(session);
             return;
         }
+        this.session = session;
         if (exception != null) {
             waiter.response(exception);
         }else{
