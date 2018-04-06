@@ -50,8 +50,8 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
     }
 
     @Override
-    public EventLoop[] getEventLoops() {
-        throw new UnsupportedOperationException();
+    public EventLoop getEventLoop(int index) {
+        return eventLoop;
     }
 
     @Override

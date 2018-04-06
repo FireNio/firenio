@@ -44,11 +44,10 @@ public class NioGlobalSocketSessionManager implements SocketSessionManager {
         this.context = context;
         NioChannelService service = (NioChannelService) context.getChannelService();
         SelectorEventLoopGroup group = service.getSelectorEventLoopGroup();
-        SelectorEventLoop[] loops = group.getEventLoops();
-        socketSessionManagers = new SocketSessionManager[loops.length];
-        managerLen = loops.length;
+        managerLen = group.getEventLoopSize();
+        socketSessionManagers = new SocketSessionManager[managerLen];
         for (int i = 0; i < managerLen; i++) {
-            socketSessionManagers[i] = loops[i].getSocketSessionManager();
+            socketSessionManagers[i] = group.getEventLoop(i).getSocketSessionManager();
         }
     }
 

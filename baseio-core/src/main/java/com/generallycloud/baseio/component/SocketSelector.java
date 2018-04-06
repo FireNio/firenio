@@ -134,7 +134,7 @@ public class SocketSelector implements Closeable {
             }
             final int channelId = channelIdGenerator.getAndIncrement();
             int eventLoopIndex = channelId % eventLoopGroup.getEventLoopSize();
-            SelectorEventLoop targetEventLoop = eventLoopGroup.getEventLoops()[eventLoopIndex];
+            SelectorEventLoop targetEventLoop = eventLoopGroup.getEventLoop(eventLoopIndex);
             // 配置为非阻塞
             channel.configureBlocking(false);
             // 注册到selector，等待连接

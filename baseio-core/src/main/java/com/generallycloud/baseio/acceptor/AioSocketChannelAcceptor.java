@@ -50,7 +50,7 @@ public class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
     protected void bind(InetSocketAddress server) throws IOException {
         AioSocketChannelContext context = (AioSocketChannelContext) getContext();
         AsynchronousChannelGroup group = context.getAsynchronousChannelGroup();
-        final FixedAtomicInteger channelIds = new FixedAtomicInteger(1,Integer.MAX_VALUE);
+        final FixedAtomicInteger channelIds = new FixedAtomicInteger(0, Integer.MAX_VALUE);
         serverSocketChannel = AsynchronousServerSocketChannel.open(group);
         try {
             serverSocketChannel.bind(server);

@@ -21,6 +21,6 @@ public interface EventLoopGroup extends LifeCycle {
 
     EventLoop getNext();
 
-    EventLoop[] getEventLoops();
+    EventLoop getEventLoop(int index);
 
 }

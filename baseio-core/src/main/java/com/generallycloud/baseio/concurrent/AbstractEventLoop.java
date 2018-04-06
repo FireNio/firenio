@@ -26,11 +26,8 @@ public abstract class AbstractEventLoop implements EventLoop {
 
         private EventLoop   eventLoop;
 
-        private EventLoop[] eventLoops;
-
         public SingleEventLoopGroup(EventLoop eventLoop) {
             this.eventLoop = eventLoop;
-            this.eventLoops = new EventLoop[] { eventLoop };
         }
 
         @Override
@@ -45,8 +42,8 @@ public abstract class AbstractEventLoop implements EventLoop {
         }
 
         @Override
-        public EventLoop[] getEventLoops() {
-            return eventLoops;
+        public EventLoop getEventLoop(int index) {
+            return eventLoop;
         }
     }
 

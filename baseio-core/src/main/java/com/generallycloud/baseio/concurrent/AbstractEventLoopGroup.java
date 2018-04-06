@@ -55,9 +55,8 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 
     @Override
     protected void doStop() throws Exception {
-        EventLoop[] eventLoopArray = getEventLoops();
-        for (EventLoop el : eventLoopArray) {
-            LifeCycleUtil.stop(el);
+        for (int i = 0; i < getEventLoopSize(); i++) {
+            LifeCycleUtil.stop(getEventLoop(i));
         }
     }
 }

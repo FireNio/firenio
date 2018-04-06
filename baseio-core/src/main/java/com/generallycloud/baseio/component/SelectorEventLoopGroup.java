@@ -45,8 +45,8 @@ public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     @Override
-    public SelectorEventLoop[] getEventLoops() {
-        return selectorEventLoops;
+    public SelectorEventLoop getEventLoop(int index) {
+        return selectorEventLoops[index];
     }
 
     @Override
