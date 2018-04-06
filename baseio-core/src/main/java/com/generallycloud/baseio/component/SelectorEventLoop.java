@@ -15,8 +15,10 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -85,29 +87,6 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
         }
     }
 
-    private void accept(NioSocketChannel channel) {
-        try {
-            ByteBuf buf = this.buf;
-            buf.clear();
-            buf.nioBuffer();
-            int length = channel.read(buf);
-            if (length < 1) {
-                if (length == -1) {
-                    CloseUtil.close(channel);
-                }
-                return;
-            }
-            channel.active();
-            byteBufReader.accept(channel, buf.flip());
-        } catch (Throwable e) {
-            if (e instanceof SSLHandshakeException) {
-                // failed connect , the session should be null
-                getSelector().finishConnect(null, e);
-            }
-            closeSocketChannel(channel, e);
-        }
-    }
-
     private void accept(SelectionKey k) {
         if (!k.isValid()) {
             return;
@@ -129,7 +108,26 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
             write(ch);
             return;
         }
-        accept(ch);
+        try {
+            ByteBuf buf = this.buf;
+            buf.clear();
+            buf.nioBuffer();
+            int length = ch.read(buf);
+            if (length < 1) {
+                if (length == -1) {
+                    CloseUtil.close(ch);
+                }
+                return;
+            }
+            ch.active();
+            byteBufReader.accept(ch, buf.flip());
+        } catch (Throwable e) {
+            if (e instanceof SSLHandshakeException) {
+                // failed connect , the session should be null
+                getSelector().finishConnect(null, e);
+            }
+            closeSocketChannel(ch, e);
+        }
     }
 
     private void closeEvents(BufferedArrayList<SelectorLoopEvent> bufferedList) {
@@ -341,33 +339,41 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
     }
 
     private void rebuildSelector() throws IOException {
-        SocketSelector selector = rebuildSelector0();
-        //      Selector old = this.selector;
-        //
-        //      Set<SelectionKey> sks = old.keys();
-        //
-        //      if (sks.size() == 0) {
-        //          logger.debug("sk size 0");
-        //          CloseUtil.close(old);
-        //          return selector;
-        //      }
-        //
-        //      for (SelectionKey sk : sks) {
-        //
-        //          if (!sk.isValid() || sk.attachment() == null) {
-        //              cancelSelectionKey(sk);
-        //              continue;
-        //          }
-        //
-        //          try {
-        //              sk.channel().register(selector, SelectionKey.OP_READ);
-        //          } catch (ClosedChannelException e) {
-        //              cancelSelectionKey(sk, e);
-        //          }
-        //      }
-        //
-        //      CloseUtil.close(old);
-        this.selector = selector;
+        SocketSelector newSelector = rebuildSelector0();
+        if (selector != null) {
+            Selector old = selector.getSelector();
+            if (selectionKeySet != null) {
+                SelectionKeySet keySet = selectionKeySet;
+                for (int i = 0; i < keySet.size; i++) {
+                    SelectionKey k = keySet.keys[i];
+                    keySet.keys[i] = null;
+                    registerSelectionKey(k, newSelector.getSelector());
+                }
+            } else {
+                Set<SelectionKey> sks = selector.selectedKeys();
+                for (SelectionKey k : sks) {
+                    registerSelectionKey(k, newSelector.getSelector());
+                }
+                sks.clear();
+            }
+            
+            CloseUtil.close(old);
+        }
+        this.selector = newSelector;
+    }
+    
+    private void registerSelectionKey(SelectionKey sk,Selector selector){
+        if (!sk.isValid() || sk.attachment() == null) {
+            return;
+        }
+        try {
+            sk.channel().register(selector, SelectionKey.OP_READ);
+        } catch (ClosedChannelException e) {
+            Object atta = sk.attachment();
+            if (atta instanceof Closeable) {
+                CloseUtil.close((Closeable) atta);
+            }
+        }
     }
 
     private SocketSelector rebuildSelector0() throws IOException {
@@ -394,14 +400,14 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
         }
 
         // JDK bug fired ?
-        IOException e = new IOException("JDK bug fired ?");
-        logger.error(e.getMessage(), e);
+        IOException be = new IOException("JDK bug fired ?");
+        logger.error(be.getMessage(), be);
         logger.info("last={},past={}", last_select, past);
 
         try {
             rebuildSelector();
-        } catch (IOException e1) {
-            logger.error(e1.getMessage(), e1);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
         }
     }
 
