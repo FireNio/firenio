@@ -356,6 +356,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
                         CloseUtil.close((Closeable) atta);
                     }
                 }
+
             }
             CloseUtil.close(oldSelector);
         }
