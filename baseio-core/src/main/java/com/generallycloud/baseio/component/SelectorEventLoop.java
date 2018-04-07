@@ -65,7 +65,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
     private NioSocketChannelContext              context            = null;
     private SelectorEventLoopGroup               eventLoopGroup     = null;
     private ExecutorEventLoop                    executorEventLoop  = null;
-    private int                                 index;
+    private int                                  index;
     private AtomicBoolean                        selecting          = new AtomicBoolean();
     private SelectionKeySet                      selectionKeySet    = null;
     private SocketSelector                       selector           = null;
@@ -257,7 +257,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
     public int getIndex() {
         return index;
     }
-    
+
     protected SocketSelector getSelector() {
         return selector;
     }
@@ -338,41 +338,28 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
     }
 
     private void rebuildSelector() throws IOException {
+        SocketSelector oldSelector = this.selector;
         SocketSelector newSelector = rebuildSelector0();
-        if (selector != null) {
-            Selector old = selector.getSelector();
-            if (selectionKeySet != null) {
-                SelectionKeySet keySet = selectionKeySet;
-                for (int i = 0; i < keySet.size; i++) {
-                    SelectionKey k = keySet.keys[i];
-                    keySet.keys[i] = null;
-                    registerSelectionKey(k, newSelector.getSelector());
+        if (oldSelector != null) {
+            Selector oldSel = oldSelector.getSelector();
+            Selector newSel = newSelector.getSelector();
+            Set<SelectionKey> sks = oldSel.keys();
+            for (SelectionKey sk : sks) {
+                if (!sk.isValid() || sk.attachment() == null) {
+                    continue;
                 }
-            } else {
-                Set<SelectionKey> sks = selector.selectedKeys();
-                for (SelectionKey k : sks) {
-                    registerSelectionKey(k, newSelector.getSelector());
+                try {
+                    sk.channel().register(newSel, SelectionKey.OP_READ);
+                } catch (ClosedChannelException e) {
+                    Object atta = sk.attachment();
+                    if (atta instanceof Closeable) {
+                        CloseUtil.close((Closeable) atta);
+                    }
                 }
-                sks.clear();
             }
-            
-            CloseUtil.close(old);
+            CloseUtil.close(oldSelector);
         }
         this.selector = newSelector;
-    }
-    
-    private void registerSelectionKey(SelectionKey sk,Selector selector){
-        if (!sk.isValid() || sk.attachment() == null) {
-            return;
-        }
-        try {
-            sk.channel().register(selector, SelectionKey.OP_READ);
-        } catch (ClosedChannelException e) {
-            Object atta = sk.attachment();
-            if (atta instanceof Closeable) {
-                CloseUtil.close((Closeable) atta);
-            }
-        }
     }
 
     private SocketSelector rebuildSelector0() throws IOException {
