@@ -40,7 +40,7 @@ public class FakeHttpSessionManager extends AbstractEventLoop implements HttpSes
     }
 
     @Override
-    public HttpSession getHttpSession(HttpContext context, SocketSession ioSession,
+    public HttpSession getHttpSession(HttpFutureAcceptor context, SocketSession ioSession,
             HttpFuture future) {
         HttpSession httpSession = (HttpSession) ioSession.getAttribute(HTTP_SESSION_KEY);
         if (httpSession == null) {

@@ -24,7 +24,7 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.FileReceiveUtil;
 import com.generallycloud.baseio.container.FileSendUtil;
 import com.generallycloud.baseio.container.RESMessage;
-import com.generallycloud.baseio.container.protobase.service.ProtobaseFutureAcceptorService;
+import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
 public class TestDownloadServlet extends ProtobaseFutureAcceptorService {
 

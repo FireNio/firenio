@@ -18,20 +18,16 @@ package com.generallycloud.baseio.container.implementation;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
-import com.generallycloud.baseio.container.service.FutureAcceptorService;
 import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
  *
  */
-public class SystemRedeployServlet extends FutureAcceptorService {
-
-    public SystemRedeployServlet() {
-        this.setServiceName("/system-redeploy");
-    }
+public class SystemRedeployServlet implements FutureAcceptor {
 
     @Override
     public void accept(SocketSession session, Future future) throws IOException {
@@ -39,8 +35,7 @@ public class SystemRedeployServlet extends FutureAcceptorService {
         ApplicationIoEventHandle applicationIoEventHandle =  
                 (ApplicationIoEventHandle) session.getContext().getIoEventHandleAdaptor();
 
-        AtomicInteger redeployTime = applicationIoEventHandle
-                .getApplicationContext().getRedeployTime();
+        AtomicInteger redeployTime = applicationIoEventHandle.getRedeployTime();
         
         int time = redeployTime.incrementAndGet();
 

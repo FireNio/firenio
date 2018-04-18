@@ -52,8 +52,6 @@ public class TestTransaction {
 
         FixedSession session = new FixedSession(connector.connect());
 
-        session.login("admin", "admin100");
-
         MessageConsumer consumer = new DefaultMessageConsumer(session);
 
         rollback(consumer);

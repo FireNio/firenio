@@ -49,8 +49,6 @@ public class TestBrowser {
 
         FixedSession session = new FixedSession(connector.connect());
 
-        session.login("admin", "admin100");
-
         MessageBrowser browser = new DefaultMessageBrowser(session);
 
         Message message = browser.browser(queueName);

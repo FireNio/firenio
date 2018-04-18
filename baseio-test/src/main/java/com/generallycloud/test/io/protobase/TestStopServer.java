@@ -49,8 +49,6 @@ public class TestStopServer {
 
         FixedSession session = new FixedSession(connector.connect());
 
-        session.login("admin", "admin100");
-
         ProtobaseFuture future = session.request("test-stop-server2.auth", null);
 
         System.out.println(future.getReadText());

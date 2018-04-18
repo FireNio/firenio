@@ -18,14 +18,15 @@ package com.generallycloud.sample.baseio.http11;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.stereotype.Service;
+
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.common.UUIDGenerator;
-import com.generallycloud.baseio.container.ApplicationContext;
-import com.generallycloud.baseio.container.configuration.Configuration;
+import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
-import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
 
+@Service("/test-mm")
 public class TestMmServlet extends HttpFutureAcceptorService {
 
     private Map<String, String> mm         = new ConcurrentHashMap<>();
@@ -72,17 +73,11 @@ public class TestMmServlet extends HttpFutureAcceptorService {
         session.flush(future);
     }
 
-    @Override
-    public void initialize(ApplicationContext context, Configuration config) throws Exception {
+    public String getUrl() {
+        return url;
+    }
 
-        super.initialize(context, config);
-
-        String url = config.getParameter("url");
-
-        if (StringUtil.isNullOrBlank(url)) {
-            return;
-        }
-
+    public void setUrl(String url) {
         this.url = url;
     }
 

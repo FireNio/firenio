@@ -15,25 +15,23 @@
  */
 package com.generallycloud.baseio.container.jms.server;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.ConcurrentSet;
-import com.generallycloud.baseio.container.AbstractPluginContext;
-import com.generallycloud.baseio.container.ApplicationContext;
-import com.generallycloud.baseio.container.configuration.Configuration;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.Message;
 import com.generallycloud.baseio.container.jms.decode.DefaultMessageDecoder;
 import com.generallycloud.baseio.container.jms.decode.MessageDecoder;
-import com.generallycloud.baseio.container.service.FutureAcceptorService;
 
-public class MQContext extends AbstractPluginContext implements MessageQueue {
+public class MQContext implements MessageQueue {
+    
+    public static final String SESSION_KEY_MQ_ATT = "SESSION_KEY_MQ_ATT";
 
     private long                           dueTime;
     private ConcurrentMap<String, Message> messageIds     = new ConcurrentHashMap<>();
@@ -52,32 +50,22 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
     }
 
     public MQSessionAttachment getSessionAttachment(SocketSession session) {
-        return (MQSessionAttachment) session.getAttribute(getPluginKey());
+        return (MQSessionAttachment) session.getAttribute(SESSION_KEY_MQ_ATT);
     }
 
-    @Override
-    public void initialize(ApplicationContext context, Configuration config) throws Exception {
-
-        super.initialize(context, config);
-
-        long dueTime = config.getLongParameter("due-time");
-
-        setMessageDueTime(dueTime == 0 ? 1000 * 60 * 60 * 24 * 7 : dueTime);
-
+    public void initialize(SocketChannelContext context) throws Exception {
+        long dueTime = 1000 * 60 * 60 * 24 * 7;
+        setMessageDueTime(dueTime);
         p2pProductLine.startup("MQ-P2P-ProductLine");
         subProductLine.startup("MQ-SUB-ProductLine");
-
         context.addSessionEventListener(new MQSessionEventListener());
-
         instance = this;
     }
 
-    @Override
-    public void destroy(ApplicationContext context, Configuration config) throws Exception {
+    public void destroy() throws Exception {
         LifeCycleUtil.stop(p2pProductLine);
         LifeCycleUtil.stop(subProductLine);
         instance = null;
-        super.destroy(context, config);
     }
 
     public long getMessageDueTime() {
@@ -138,16 +126,6 @@ public class MQContext extends AbstractPluginContext implements MessageQueue {
 
     public void removeReceiver(String queueName) {
         receivers.remove(queueName);
-    }
-
-    @Override
-    public void configFutureAcceptor(Map<String, FutureAcceptorService> acceptors) {
-        putServlet(acceptors, new MQConsumerServlet());
-        putServlet(acceptors, new MQProducerServlet());
-        putServlet(acceptors, new MQSubscribeServlet());
-        putServlet(acceptors, new MQPublishServlet());
-        putServlet(acceptors, new MQTransactionServlet());
-        putServlet(acceptors, new MQBrowserServlet());
     }
 
 }

@@ -20,7 +20,7 @@ import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.protobase.service.ProtobaseFutureAcceptorService;
+import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
 public class TestListenSimpleServlet extends ProtobaseFutureAcceptorService {
 

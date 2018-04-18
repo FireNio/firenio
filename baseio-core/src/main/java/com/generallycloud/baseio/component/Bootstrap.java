@@ -38,18 +38,19 @@ public final class Bootstrap {
 
     public static void startup(String className, String rootPath, boolean deployModel,
             List<ClassPathScaner> classPathScaners) throws Exception {
-        URLDynamicClassLoader classLoader = newClassLoader(deployModel, false, rootPath,
-                classPathScaners);
+        ClassLoader parent = Bootstrap.class.getClassLoader();
+        URLDynamicClassLoader classLoader = newClassLoader(parent, deployModel, !deployModel,
+                rootPath, classPathScaners);
         Class<?> bootClass = classLoader.loadClass(className);
         Thread.currentThread().setContextClassLoader(classLoader);
         BootstrapEngine engine = (BootstrapEngine) bootClass.newInstance();
         engine.bootstrap(rootPath, deployModel);
     }
 
-    public static URLDynamicClassLoader newClassLoader(boolean deployModel, boolean entrustFirst,
-            String rootLocalAddress, List<ClassPathScaner> classPathScaners) throws IOException {
+    public static URLDynamicClassLoader newClassLoader(ClassLoader parent, boolean deployModel,
+            boolean entrustFirst, String rootLocalAddress, List<ClassPathScaner> classPathScaners)
+            throws IOException {
         //这里需要设置优先委托自己加载class，因为到后面对象需要用该classloader去加载resources
-        ClassLoader parent = Bootstrap.class.getClassLoader();
         URLDynamicClassLoader classLoader = new URLDynamicClassLoader(parent, entrustFirst);
         classLoader.addMatchExtend(BootstrapEngine.class.getName());
         if (classPathScaners == null || classPathScaners.size() == 0) {
@@ -83,10 +84,8 @@ public final class Bootstrap {
     }
 
     public interface ClassPathScaner {
-
         void scanClassPaths(URLDynamicClassLoader classLoader, boolean deployModel,
                 String rootLocalAddress) throws IOException;
-
     }
 
     static class DefaultClassPathScaner implements ClassPathScaner {

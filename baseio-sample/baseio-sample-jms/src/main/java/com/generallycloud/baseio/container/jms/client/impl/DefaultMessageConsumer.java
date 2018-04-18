@@ -47,27 +47,19 @@ public class DefaultMessageConsumer implements MessageConsumer {
 
     private boolean transactionVal(String action) throws MQException {
         try {
-
             WaiterOnFuture onReadFuture = new WaiterOnFuture();
-
             session.listen(MQTransactionServlet.SERVICE_NAME, onReadFuture);
-
             session.write(MQTransactionServlet.SERVICE_NAME, action);
-
             if (onReadFuture.await(3000)) {
                 throw MQException.TIME_OUT;
             }
-
             ProtobaseFuture future = (ProtobaseFuture) onReadFuture.getReadFuture();
-
             RESMessage message = RESMessageDecoder.decode(future.getReadText());
-
             if (message.getCode() == 0) {
                 return true;
             } else {
                 throw new MQException(message.getDescription());
             }
-
         } catch (IOException e) {
             throw new MQException(e.getMessage(), e);
         }
@@ -96,48 +88,29 @@ public class DefaultMessageConsumer implements MessageConsumer {
     }
 
     private void sendReceiveCommandCallback(OnMessage onMessage) throws MQException {
-
         if (!needSendReceiveCommand) {
             return;
         }
-
-        checkLoginState();
-
         try {
-
             session.listen("MQConsumerServlet", new ConsumerOnFuture(onMessage, messageDecoder));
-
             session.write("MQConsumerServlet", null);
-
             needSendReceiveCommand = false;
         } catch (IOException e) {
             throw new MQException(e);
         }
     }
 
-    private void checkLoginState() throws MQException {
-        if (session.getAuthority() == null) {
-            throw new MQException("not login");
-        }
-    }
-
     private void sendSubscribeCommandCallback(OnMessage onMessage) throws MQException {
-
         if (!needSendSubscribeCommand) {
             return;
         }
-
-        checkLoginState();
-
         try {
-
             session.listen("MQSubscribeServlet", new ConsumerOnFuture(onMessage, messageDecoder));
-
             session.write("MQSubscribeServlet", null);
-
             needSendSubscribeCommand = false;
         } catch (IOException e) {
             throw new MQException(e);
         }
     }
+    
 }

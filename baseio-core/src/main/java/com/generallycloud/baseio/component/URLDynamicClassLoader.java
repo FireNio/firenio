@@ -241,7 +241,8 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         if (file == null) {
             throw new IllegalArgumentException("null file");
         }
-        scan0(new File(file));
+        File root = new File(file);
+        scan0(root);
     }
 
     @Override

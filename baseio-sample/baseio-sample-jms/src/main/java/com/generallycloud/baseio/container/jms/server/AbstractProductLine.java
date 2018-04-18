@@ -21,8 +21,6 @@ import java.util.Map;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
-import com.generallycloud.baseio.container.ApplicationContextUtil;
-import com.generallycloud.baseio.container.authority.Authority;
 import com.generallycloud.baseio.container.jms.Message;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -36,13 +34,9 @@ public abstract class AbstractProductLine extends AbstractEventLoop implements M
     private Logger                       logger = LoggerFactory.getLogger(getClass());
 
     public AbstractProductLine(MQContext context) {
-
         this.context = context;
-
         this.storage = new MessageStorage();
-
         this.consumerMap = new HashMap<>();
-
         this.dueTime = context.getMessageDueTime();
     }
 
@@ -57,37 +51,23 @@ public abstract class AbstractProductLine extends AbstractEventLoop implements M
     @Override
     public void pollMessage(SocketSession session, ProtobaseFuture future,
             MQSessionAttachment attachment) {
-
         if (attachment.getConsumer() != null) {
             return;
         }
-
-        Authority authority = ApplicationContextUtil.getAuthority(session);
-
-        String queueName = authority.getUuid();
-
+        String queueName = future.getReadText();
         // 来自终端类型
         context.addReceiver(queueName);
-
         ConsumerQueue consumerQueue = getConsumerQueue(queueName);
-
         Consumer consumer = new Consumer(consumerQueue, attachment, session, future, queueName);
-
         attachment.setConsumer(consumer);
-
         consumerQueue.offer(consumer);
     }
 
     protected ConsumerQueue getConsumerQueue(String queueName) {
-
         ConsumerQueue consumerQueue = consumerMap.get(queueName);
-
         if (consumerQueue == null) {
-
             synchronized (consumerMap) {
-
                 consumerQueue = consumerMap.get(queueName);
-
                 if (consumerQueue == null) {
                     consumerQueue = createConsumerQueue();
                     consumerMap.put(queueName, consumerQueue);
@@ -101,14 +81,12 @@ public abstract class AbstractProductLine extends AbstractEventLoop implements M
 
     @Override
     public void offerMessage(Message message) {
-
         storage.offer(message);
     }
 
     protected void filterUseless(Message message) {
         long now = System.currentTimeMillis();
         long dueTime = this.dueTime;
-
         if (now - message.getTimestamp() > dueTime) {
             // 消息过期了
             logger.debug(">>>> message invalidate : {}", message);

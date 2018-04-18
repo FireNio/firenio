@@ -33,11 +33,8 @@ import com.generallycloud.baseio.log.DebugUtil;
 public class DefaultHttpSessionManager extends AbstractEventLoop implements HttpSessionManager {
 
     private String                   COOKIE_NAME_SESSIONID = "BSESSIONID";
-
     private Object                   sleepLock             = new Object();
-
     private Map<String, HttpSession> sessions              = new ConcurrentHashMap<>();
-
     private Map<String, HttpSession> readOnlySessions      = Collections.unmodifiableMap(sessions);
 
     @Override
@@ -51,61 +48,41 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
     }
 
     @Override
-    public HttpSession getHttpSession(HttpContext context, SocketSession ioSession,
+    public HttpSession getHttpSession(HttpFutureAcceptor context, SocketSession ioSession,
             HttpFuture future) {
-
         String sessionId = future.getCookie(COOKIE_NAME_SESSIONID);
-
         if (StringUtil.isNullOrBlank(sessionId)) {
-
             DefaultHttpSession session = new DefaultHttpSession(context, ioSession);
-
             sessionId = session.getSessionId();
-
             Cookie cookie = new Cookie(COOKIE_NAME_SESSIONID, sessionId);
-
             future.addCookie(cookie);
-
             this.sessions.put(sessionId, session);
-
             return session;
         }
-
         HttpSession session = sessions.get(sessionId);
-
         if (session == null) {
-
             session = new DefaultHttpSession(context, ioSession, sessionId);
-
             this.sessions.put(sessionId, session);
-
             return session;
         }
-
         if (!session.isValidate()) {
             sessions.remove(sessionId);
             CloseUtil.close(session.getIoSession());
             return getHttpSession(context, ioSession, future);
         }
-
         session.active(ioSession);
-
         return session;
     }
 
     @Override
     public void doLoop() {
-
         Collection<HttpSession> es = sessions.values();
-
         for (HttpSession session : es) {
-
             if (!session.isValidate()) {
                 sessions.remove(session.getSessionId());
                 CloseUtil.close(session.getIoSession());
             }
         }
-
         sleep(30 * 60 * 1000);
     }
 

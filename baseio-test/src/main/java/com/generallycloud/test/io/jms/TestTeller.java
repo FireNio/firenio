@@ -46,10 +46,6 @@ public class TestTeller {
 
         FixedSession session = new FixedSession(connector.connect());
 
-        boolean b = session.login("admin", "admin100");
-
-        System.out.println(b);
-
         MessageProducer producer = new DefaultMessageProducer(session);
 
         TextMessage message = new TextMessage("msgId", "uuid", "你好！");

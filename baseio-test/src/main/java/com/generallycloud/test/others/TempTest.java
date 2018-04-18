@@ -15,12 +15,6 @@
  */
 package com.generallycloud.test.others;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.List;
-
-import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
 
 public class TempTest {
@@ -30,35 +24,24 @@ public class TempTest {
     private static long[]          ls  = new long[10];
     private static Long[]          ls2 = new Long[10];
 
-    public static void main(String[] args) throws ClassNotFoundException, Exception {
-
-        List<String> ls = FileUtil.readLines(FileUtil.readFileByCls("test2.txt"));
-
-        FileOutputStream out = new FileOutputStream(new File("test3.Queue"), false);
-
-        for (String s : ls) {
-            if (StringUtil.isNullOrBlank(s)) {
-                continue;
-            }
-            String[] ss = s.split(",");
-            for (String bs : ss) {
-                if (StringUtil.isNullOrBlank(bs)) {
-                    continue;
+    public static void main(String[] args)  {
+        
+        try {
+            throw new Exception();
+        } catch (Exception e) {
+            try {
+                throw new Exception(e);
+            } catch (Exception e1) {
+                try {
+                    throw new Exception(e1);
+                } catch (Exception e2) {
+                    e2.printStackTrace();
                 }
-                out.write(Byte.parseByte(bs));
             }
         }
-
-        out.close();
+        
+        
     }
 
-    public static void writeBinary(byte[] bytes, int offset, int length) {
-
-        if (writeBinaryBuffer == null) {
-            writeBinaryBuffer = new ByteArrayBuffer();
-        }
-
-        writeBinaryBuffer.write(bytes, offset, length);
-    }
 
 }

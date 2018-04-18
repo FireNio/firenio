@@ -19,31 +19,23 @@ import com.generallycloud.baseio.acceptor.ChannelAcceptor;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.service.FutureAcceptorService;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
 
-public class SystemStopServerServlet extends FutureAcceptorService {
+public class SystemStopServerServlet implements FutureAcceptor {
 
     private Logger logger = LoggerFactory.getLogger(SystemStopServerServlet.class);
 
-    public SystemStopServerServlet() {
-        this.setServiceName("/system-stop-server.auth");
-    }
-
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
-
         SocketChannelContext context = session.getContext();
-
         future.write("server is stopping");
-
         session.flush(future);
-
-        new Thread(new StopServer(context)).start();
+        ThreadUtil.execute(new StopServer(context));
     }
 
     private class StopServer implements Runnable {
@@ -56,22 +48,15 @@ public class SystemStopServerServlet extends FutureAcceptorService {
 
         @Override
         public void run() {
-
             ThreadUtil.sleep(500);
-
             LoggerUtil.prettyLog(logger, "execute stop service");
-
             String[] words = new String[] { "5", "4", "3", "2", "1" };
-
             for (int i = 0; i < 5; i++) {
-
                 LoggerUtil.prettyLog(logger, "service will stop after {} seconds", words[i]);
-
                 ThreadUtil.sleep(1000);
             }
-
             CloseUtil.unbind((ChannelAcceptor) context.getChannelService());
-
         }
     }
+    
 }

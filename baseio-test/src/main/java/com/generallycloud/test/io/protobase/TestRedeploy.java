@@ -53,8 +53,6 @@ public class TestRedeploy {
 
         FixedSession session = new FixedSession(connector.connect());
 
-        session.login("admin", "admin100");
-
         ProtobaseFuture future = session.request(serviceKey, param);
         System.out.println(future.getReadText());
 

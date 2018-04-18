@@ -15,24 +15,19 @@
  */
 package com.generallycloud.sample.baseio.http11;
 
+import org.springframework.stereotype.Service;
+
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
+import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
-import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
 
+@Service("/test")
 public class TestSimpleServlet extends HttpFutureAcceptorService {
-
-    //	private Logger	logger	= LoggerFactory.getLogger(TestSimpleServlet.class);
 
     @Override
     protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
-        //		System.out.println();
-        //		logger.info(future.getHost());
-        //		logger.info(future.getRequestURI());
-        //		System.out.println();
         String res = "yes server already accept your message :) " + future.getRequestParams();
-
         future.write(res);
-        
         session.flush(future);
     }
 }

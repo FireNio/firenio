@@ -49,8 +49,6 @@ public class TestListenerByteMessage {
 
         FixedSession session = new FixedSession(connector.connect());
 
-        session.login("admin", "admin100");
-
         MessageConsumer consumer = new DefaultMessageConsumer(session);
 
         final long old = System.currentTimeMillis();

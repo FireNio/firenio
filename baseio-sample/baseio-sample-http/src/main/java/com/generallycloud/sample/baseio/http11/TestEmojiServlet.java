@@ -19,14 +19,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.springframework.stereotype.Service;
+
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.EmojiUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.container.http11.HtmlUtil;
+import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
-import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
 
+@Service("/test-emoji")
 public class TestEmojiServlet extends HttpFutureAcceptorService {
 
     @Override

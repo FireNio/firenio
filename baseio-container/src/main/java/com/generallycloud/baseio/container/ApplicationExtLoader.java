@@ -23,7 +23,7 @@ import com.generallycloud.baseio.component.DynamicClassLoader;
  */
 public interface ApplicationExtLoader {
 
-    public abstract void loadExts(ApplicationContext context, DynamicClassLoader classLoader)
+    public abstract void loadExts(ApplicationIoEventHandle context, DynamicClassLoader classLoader)
             throws Exception;
 
 }

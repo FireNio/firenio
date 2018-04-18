@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.protobase.service.ProtobaseFutureAcceptorService;
+import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
 public class TestExceptionServlet extends ProtobaseFutureAcceptorService {
 

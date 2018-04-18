@@ -66,7 +66,7 @@ public class TestLoadClient1 extends ITestThread {
 
         ServerConfiguration configuration = new ServerConfiguration(8300);
 
-        configuration.setSERVER_MEMORY_POOL_CAPACITY(1280000);
+        configuration.setSERVER_MEMORY_POOL_CAPACITY(320000);
         configuration.setSERVER_MEMORY_POOL_UNIT(128);
         configuration.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
         configuration.setSERVER_ENABLE_MEMORY_POOL(true);
@@ -92,7 +92,7 @@ public class TestLoadClient1 extends ITestThread {
 
         int time = 128 * 10000;
 
-        int core_size = 12;
+        int core_size = 16;
 
         ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
     }

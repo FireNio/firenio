@@ -16,8 +16,8 @@
 package com.generallycloud.baseio.container.http11;
 
 import com.generallycloud.baseio.component.DynamicClassLoader;
-import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.ApplicationExtLoader;
+import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 
 /**
  * @author wangkai
@@ -26,9 +26,9 @@ import com.generallycloud.baseio.container.ApplicationExtLoader;
 public class HttpExtLoader implements ApplicationExtLoader {
 
     @Override
-    public void loadExts(ApplicationContext context, DynamicClassLoader classLoader)
+    public void loadExts(ApplicationIoEventHandle handle, DynamicClassLoader classLoader)
             throws Exception {
-        classLoader.scan(context.getAppLocalAddress() + "/lib");
+        classLoader.scan(handle.getAppLocalAddress() + "/lib");
     }
 
 }

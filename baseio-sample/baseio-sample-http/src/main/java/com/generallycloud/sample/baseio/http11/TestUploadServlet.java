@@ -15,10 +15,13 @@
  */
 package com.generallycloud.sample.baseio.http11;
 
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
-import com.generallycloud.baseio.container.http11.HttpSession;
-import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
+import org.springframework.stereotype.Service;
 
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
+import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
+import com.generallycloud.baseio.container.http11.HttpSession;
+
+@Service("/upload")
 public class TestUploadServlet extends HttpFutureAcceptorService {
 
     @Override

@@ -74,7 +74,7 @@
 		</filter>
 	</appender>
 	<root level="DEBUG">
-		<appender-ref ref="STDOUT" />
+ 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="INFO_FILE" />
 		<appender-ref ref="DEBUG_FILE" />
 		<appender-ref ref="ERROR_FILE" />

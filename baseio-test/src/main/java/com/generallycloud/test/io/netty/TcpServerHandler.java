@@ -2,8 +2,11 @@ package com.generallycloud.test.io.netty;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.generallycloud.baseio.common.DateUtil;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.timeout.IdleStateEvent;
 
 public class TcpServerHandler extends ChannelInboundHandlerAdapter {
 
@@ -30,4 +33,13 @@ public class TcpServerHandler extends ChannelInboundHandlerAdapter {
         System.out.println("hi 发生异常了:" + cause.getMessage());
         super.exceptionCaught(ctx, cause);
     }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        IdleStateEvent e = (IdleStateEvent)evt;
+        System.out.println(DateUtil.formatYyyy_MM_dd_HH_mm_ss_SSS()+"   "+e.state());
+        super.userEventTriggered(ctx, evt);
+    }
+    
+    
 }

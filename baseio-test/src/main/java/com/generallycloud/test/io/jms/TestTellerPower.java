@@ -50,8 +50,6 @@ public class TestTellerPower {
 
         FixedSession session = new FixedSession(connector.connect());
 
-        session.login("admin", "admin100");
-
         MessageProducer producer = new DefaultMessageProducer(session);
 
         TextMessage message = new TextMessage("msgId", "qName", "你好！");

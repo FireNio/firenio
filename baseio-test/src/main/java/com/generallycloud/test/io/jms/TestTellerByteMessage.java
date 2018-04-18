@@ -45,8 +45,6 @@ public class TestTellerByteMessage {
 
         FixedSession session = new FixedSession(connector.connect());
 
-        session.login("admin", "admin100");
-
         MessageProducer producer = new DefaultMessageProducer(session);
 
         TextByteMessage message = new TextByteMessage("msgId", "uuid", "============",

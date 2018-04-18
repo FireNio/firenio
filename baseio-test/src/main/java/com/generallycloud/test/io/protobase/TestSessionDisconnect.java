@@ -57,8 +57,6 @@ public class TestSessionDisconnect {
 
         FixedSession session = new FixedSession(connector.connect());
 
-        session.login("admin", "admin100");
-
         ProtobaseFuture future = session.request(serviceName, param);
         System.out.println(future.getReadText());
 

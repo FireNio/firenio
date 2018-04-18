@@ -18,7 +18,7 @@ package com.generallycloud.sample.baseio.protobase;
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.protobase.service.ProtobaseFutureAcceptorService;
+import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
 public class TestSimpleServlet extends ProtobaseFutureAcceptorService {
 

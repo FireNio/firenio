@@ -16,26 +16,17 @@
 package com.generallycloud.baseio.container;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFutureImpl;
-import com.generallycloud.baseio.common.BeanUtil;
-import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.MD5Util;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.authority.Authority;
 
 public class FixedSession {
 
-    private Authority            authority   = null;
     private SocketChannelContext context     = null;
     private boolean              logined     = false;
     private SocketSession        session     = null;
@@ -58,10 +49,6 @@ public class FixedSession {
         return timeout;
     }
 
-    public Authority getAuthority() {
-        return authority;
-    }
-
     public SocketChannelContext getContext() {
         return context;
     }
@@ -72,38 +59,6 @@ public class FixedSession {
 
     public boolean isLogined() {
         return logined;
-    }
-
-    public boolean login(String username, String password) {
-
-        RESMessage message = login4RES(username, password);
-
-        return message.getCode() == 0;
-    }
-
-    public RESMessage login4RES(String username, String password) {
-        try {
-            Map<String, Object> param = new HashMap<>();
-            param.put("username", username);
-            param.put("password",MD5Util.get32(password, context.getEncoding()));
-            String paramString = JSON.toJSONString(param);
-            ParamedProtobaseFuture future = request(ContainerConsotant.ACTION_LOGIN, paramString);
-            RESMessage message = RESMessageDecoder.decode(future.getReadText());
-            if (message.getCode() == 0) {
-                JSONObject o = (JSONObject) message.getData();
-                String className = o.getString("className");
-                Class<?> clazz = ClassUtil.forName(className);
-                Authority authority = (Authority) BeanUtil.map2Object(o, clazz);
-                setAuthority(authority);
-            }
-            return message;
-        } catch (Exception e) {
-            return new RESMessage(400, e.getMessage());
-        }
-    }
-
-    public void logout() {
-        // TODO complete logout
     }
 
     public ParamedProtobaseFuture request(String serviceName, String content) throws IOException {
@@ -128,10 +83,6 @@ public class FixedSession {
             throw new TimeoutException("timeout");
         }
         return (ParamedProtobaseFuture) onReadFuture.getReadFuture();
-    }
-
-    public void setAuthority(Authority authority) {
-        this.authority = authority;
     }
 
     public void update(SocketSession session) {

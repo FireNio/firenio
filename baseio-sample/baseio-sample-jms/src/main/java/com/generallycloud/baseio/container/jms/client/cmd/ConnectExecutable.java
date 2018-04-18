@@ -75,9 +75,6 @@ public class ConnectExecutable extends MQCommandExecutor {
 
             FixedSession session = new FixedSession(connector.connect());
 
-            //FIXME denglu cuowu 
-            session.login(username, password);
-
             MessageBrowser browser = new DefaultMessageBrowser(session);
 
             response.setResponse("连接成功！");

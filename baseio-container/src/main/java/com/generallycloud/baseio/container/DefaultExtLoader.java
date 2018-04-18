@@ -24,7 +24,7 @@ import com.generallycloud.baseio.component.DynamicClassLoader;
 public class DefaultExtLoader implements ApplicationExtLoader {
 
     @Override
-    public void loadExts(ApplicationContext context, DynamicClassLoader classLoader)
+    public void loadExts(ApplicationIoEventHandle context, DynamicClassLoader classLoader)
             throws Exception {
         classLoader.scan(context.getAppLocalAddress());
     }

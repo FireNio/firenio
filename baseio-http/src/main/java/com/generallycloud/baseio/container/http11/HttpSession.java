@@ -36,6 +36,6 @@ public interface HttpSession {
 
     public abstract boolean isValidate();
 
-    public abstract HttpContext getContext();
+    public abstract HttpFutureAcceptor getContext();
 
 }

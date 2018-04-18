@@ -18,33 +18,33 @@ package com.generallycloud.sample.baseio.http11;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.springframework.stereotype.Service;
+
 import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.http11.HtmlUtil;
-import com.generallycloud.baseio.container.http11.HttpContext;
+import com.generallycloud.baseio.container.http11.HttpFutureAcceptor;
+import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
-import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
-import com.generallycloud.baseio.container.service.FutureAcceptorServiceLoader;
 
+@Service("/test-show-memory")
 public class TestShowMemoryServlet extends HttpFutureAcceptorService {
 
     @Override
     protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
 
-        ApplicationContext appContext = ApplicationContext.getInstance();
-        FutureAcceptorServiceLoader fasLoader =  appContext.getFutureAcceptorServiceLoader();
-        TestWebSocketChatServlet chatServlet = (TestWebSocketChatServlet) fasLoader.getFutureAcceptor("/web-socket-chat");
-        TestWebSocketRumpetrollServlet rumpetrollServlet = (TestWebSocketRumpetrollServlet) fasLoader.getFutureAcceptor("/web-socket-rumpetroll");
-        
+        TestWebSocketChatServlet chatServlet = ContextUtil.getBean(TestWebSocketChatServlet.class);
+        TestWebSocketRumpetrollServlet rumpetrollServlet = ContextUtil
+                .getBean(TestWebSocketRumpetrollServlet.class);
+
         WebSocketMsgAdapter chatMsgAdapter = chatServlet.getMsgAdapter();
         WebSocketMsgAdapter rumpetrollMsgAdapter = rumpetrollServlet.getMsgAdapter();
-        
+
         SocketChannelContext context = session.getIoSession().getContext();
-        HttpContext httpContext = session.getContext();
+        HttpFutureAcceptor httpContext = session.getContext();
 
         BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
         BigDecimal anHour = new BigDecimal(60 * 60 * 1000);

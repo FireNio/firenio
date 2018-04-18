@@ -26,51 +26,33 @@ public class MQSessionEventListener extends SocketSessionEventListenerAdapter {
 
     @Override
     public void sessionOpened(SocketSession session) {
-
         MQContext context = MQContext.getInstance();
-
         MQSessionAttachment attachment = context.getSessionAttachment(session);
-
         if (attachment == null) {
-
             attachment = new MQSessionAttachment(context);
-
-            session.setAttribute(context.getPluginKey(), attachment);
+            session.setAttribute(MQContext.SESSION_KEY_MQ_ATT, attachment);
         }
     }
 
     // FIXME 移除该session上的consumer
     @Override
     public void sessionClosed(SocketSession session) {
-
         MQContext context = MQContext.getInstance();
-
         MQSessionAttachment attachment = context.getSessionAttachment(session);
-
         if (attachment == null) {
             return;
         }
-
         TransactionSection section = attachment.getTransactionSection();
-
         if (section != null) {
-
             section.rollback();
         }
-
         Consumer consumer = attachment.getConsumer();
-
         if (consumer != null) {
-
             consumer.getConsumerQueue().remove(consumer);
-
             consumer.getConsumerQueue().getSnapshot();
-
             context.removeReceiver(consumer.getQueueName());
         }
-
         LOGGER.debug(">>>> TransactionProtectListener execute");
-
     }
 
 }

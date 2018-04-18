@@ -15,12 +15,15 @@
  */
 package com.generallycloud.sample.baseio.http11;
 
+import org.springframework.stereotype.Service;
+
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
-import com.generallycloud.baseio.container.http11.service.HttpFutureAcceptorService;
 
+@Service("/test-print-busy")
 public class TestPrintBusyServlet extends HttpFutureAcceptorService {
 
     @Override

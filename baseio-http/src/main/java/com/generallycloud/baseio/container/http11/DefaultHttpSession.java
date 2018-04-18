@@ -24,23 +24,20 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
-    private long          createTime     = System.currentTimeMillis();
+    private long               createTime     = System.currentTimeMillis();
+    private SocketSession      ioSession;
+    private long               lastAccessTime = createTime;
+    private String             sessionId;
+    private HttpFutureAcceptor context;
 
-    private SocketSession ioSession;
-
-    private long          lastAccessTime = createTime;
-
-    private String        sessionId;
-
-    private HttpContext   context;
-
-    protected DefaultHttpSession(HttpContext context, SocketSession ioSession) {
+    protected DefaultHttpSession(HttpFutureAcceptor context, SocketSession ioSession) {
         this.context = context;
         this.ioSession = ioSession;
         this.sessionId = UUIDGenerator.random();
     }
 
-    protected DefaultHttpSession(HttpContext context, SocketSession ioSession, String sessionId) {
+    protected DefaultHttpSession(HttpFutureAcceptor context, SocketSession ioSession,
+            String sessionId) {
         this.context = context;
         this.ioSession = ioSession;
         this.sessionId = sessionId;
@@ -83,7 +80,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
     }
 
     @Override
-    public HttpContext getContext() {
+    public HttpFutureAcceptor getContext() {
         return context;
     }
 }
