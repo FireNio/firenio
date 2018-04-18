@@ -83,6 +83,7 @@ public class SpringHttpFutureAcceptor extends HttpFutureAcceptor {
     protected void initialize(SocketChannelContext context) throws Exception {
         super.initialize(context);
         addNoneLogSuffix();
+        System.setProperty("org.apache.commons.logging.log", Sl4jLogger.class.getName());
         Thread.currentThread().setContextClassLoader(null); //for spring
         applicationContext = new ClassPathXmlApplicationContext("classpath:spring-core.xml");
         applicationContext.start();
