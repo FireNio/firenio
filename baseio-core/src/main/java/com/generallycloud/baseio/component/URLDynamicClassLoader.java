@@ -345,7 +345,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
             return null;
         }
         if (clazzEntries.containsKey(className)) {
-            throw new DuplicateClassException(className);
+//            throw new DuplicateClassException(className);
         }
         byte[] binaryContent = FileUtil.inputStream2ByteArray(inputStream);
         ClassEntry classEntry = new ClassEntry();

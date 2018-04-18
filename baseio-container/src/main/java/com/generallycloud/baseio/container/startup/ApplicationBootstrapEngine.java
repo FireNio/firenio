@@ -40,7 +40,7 @@ public abstract class ApplicationBootstrapEngine implements BootstrapEngine {
     @Override
     public void bootstrap(String rootPath, boolean deployModel) throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
-        Properties serverProperties = FileUtil.readPropertiesByCls("server.properties");
+        Properties serverProperties = FileUtil.readPropertiesByCls("server.properties",classLoader);
         ServerConfiguration sc = new ServerConfiguration();
         new PropertiesSCLoader("SERVER").loadConfiguration(sc, serverProperties);
         SocketChannelContext context = new NioSocketChannelContext(sc);

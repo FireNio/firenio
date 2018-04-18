@@ -31,7 +31,7 @@ public class ApplicationBootstrap {
             public void scanClassPaths(URLDynamicClassLoader classLoader, boolean deployModel,
                     String rootLocalAddress) throws IOException {
                 if (deployModel) {
-                    classLoader.scan(rootLocalAddress+"/app/lib");
+                    classLoader.scan(rootLocalAddress+"/lib");
                 }
             }
         }));

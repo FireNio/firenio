@@ -25,7 +25,7 @@ import com.generallycloud.baseio.container.startup.ApplicationBootstrap;
 public class HttpStartup {
 
     public static void main(String[] args) throws Exception {
-
+        
         if (args != null && args.length > 1) {
             throw new Exception("args must be one , true or flase");
         }
