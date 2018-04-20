@@ -22,13 +22,13 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
 
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.Parameters;
-import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
-import com.generallycloud.baseio.container.http11.HttpSession;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.NamedFuture;
 import com.generallycloud.baseio.protocol.ParametersFuture;
 
@@ -37,14 +37,14 @@ import com.generallycloud.baseio.protocol.ParametersFuture;
  *
  */
 @Service("http-filter")
-public class HttpFilter extends HttpFutureAcceptorService {
+public class HttpFilter implements FutureAcceptor {
 
     private Logger      logger              = LoggerFactory.getLogger(getClass());
     private Set<String> noneLoggerSuffixSet = new HashSet<>();
     private Set<String> noneLoggerUrlSet    = new HashSet<>();
 
     @Override
-    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
+    public void accept(SocketSession session, Future future) throws Exception {
         log(session, future);
     }
 
@@ -70,13 +70,13 @@ public class HttpFilter extends HttpFutureAcceptorService {
         noneLoggerSuffixSet.add(".scss");
     }
 
-    private void log(HttpSession session, NamedFuture future) throws Exception {
+    private void log(SocketSession session, Future future) throws Exception {
         NamedFuture nf = (NamedFuture) future;
         String futureName = nf.getFutureName();
         if (noneLoggerUrlSet.contains(futureName) || endContains(futureName)) {
             return;
         }
-        String remoteAddr = session.getIoSession().getRemoteAddr();
+        String remoteAddr = session.getRemoteAddr();
         String readText = nf.getReadText();
         if (!StringUtil.isNullOrBlank(readText)) {
             logger.info("request ip:{}, service name:{}, content: {}",

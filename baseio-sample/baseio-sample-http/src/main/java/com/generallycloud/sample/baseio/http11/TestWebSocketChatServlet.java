@@ -26,6 +26,7 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
@@ -141,6 +142,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
     @PreDestroy
     public void destroy() throws Exception {
         LifeCycleUtil.stop(msgAdapter);
+        ThreadUtil.sleep(2000);
     }
     
     public WebSocketMsgAdapter getMsgAdapter() {

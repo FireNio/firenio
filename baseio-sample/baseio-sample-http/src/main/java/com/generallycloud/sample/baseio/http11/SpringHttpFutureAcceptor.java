@@ -21,7 +21,6 @@ import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptor;
-import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.NamedFuture;
 
@@ -31,7 +30,7 @@ public class SpringHttpFutureAcceptor extends HttpFutureAcceptor {
 
     private boolean                        checkFilter = true;
 
-    private HttpFutureAcceptorService      filter;
+    private FutureAcceptor                 filter;
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
@@ -53,9 +52,9 @@ public class SpringHttpFutureAcceptor extends HttpFutureAcceptor {
         }
         acceptor.accept(session, future);
     }
-    
-    private HttpFutureAcceptorService getFutureAcceptor(String name){
-        return (HttpFutureAcceptorService) ContextUtil.getBean(name);
+
+    private FutureAcceptor getFutureAcceptor(String name) {
+        return (FutureAcceptor) ContextUtil.getBean(name);
     }
 
     @Override

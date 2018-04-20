@@ -34,7 +34,6 @@ import com.generallycloud.baseio.component.URLDynamicClassLoader;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
-import com.generallycloud.baseio.container.implementation.SystemRedeployServlet;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -43,7 +42,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
     private ApplicationExtLoader           applicationExtLoader;
     private String                         appLocalAddres;
-    private FutureAcceptor                 appRedeployService;
+    private FutureAcceptor                 appOnRedeployService;
     private SocketChannelContext           channelContext;
     private URLDynamicClassLoader          classLoader;
     private ApplicationConfiguration       configuration;
@@ -55,7 +54,6 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     private ContainerIoEventHandle         futureAcceptor;
     private ExceptionCaughtHandle          ioExceptionCaughtHandle;
     private Logger                         logger       = LoggerFactory.getLogger(getClass());
-    private boolean                        redeploying;
     private AtomicInteger                  redeployTime = new AtomicInteger();
     private String                         rootLocalAddress;
 
@@ -69,7 +67,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
         if (deploying) {
-            appRedeployService.accept(session, future);
+            appOnRedeployService.accept(session, future);
             return;
         }
         try {
@@ -106,10 +104,6 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
     public String getAppLocalAddress() {
         return appLocalAddres;
-    }
-
-    public FutureAcceptor getAppRedeployService() {
-        return appRedeployService;
     }
 
     public SocketChannelContext getChannelContext() {
@@ -174,25 +168,40 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     }
 
     private void initializeHandle(SocketChannelContext context) throws Exception {
-        this.classLoader = Bootstrap.newClassLoader(getClass().getClassLoader(), deployModel,
+        ClassLoader parent = getClass().getClassLoader();
+        this.classLoader = Bootstrap.newClassLoader(parent, deployModel,
                 true, rootLocalAddress, Bootstrap.withDefault());
         this.applicationExtLoader.loadExts(this, classLoader);
         this.configuration = configurationLoader.loadConfiguration(classLoader);
-        //FIXME ....get from configuration 
-        if (appRedeployService == null) {
-            appRedeployService = new SystemRedeployServlet();
+        if (!StringUtil.isNullOrBlank(configuration.getAPP_ON_REDEPLOY_FUTURE_ACCEPTOR())) {
+            Class<?> clazz = classLoader.loadClass(configuration.getAPP_ON_REDEPLOY_FUTURE_ACCEPTOR());
+            appOnRedeployService = (FutureAcceptor) clazz.newInstance();
+        }else{
+            if (appOnRedeployService == null) {
+                appOnRedeployService = new DefaultOnRedeployAcceptor();
+            }
         }
-        if (exceptionCaughtHandle == null) {
-            exceptionCaughtHandle = new LoggerExceptionCaughtHandle();
+        if (!StringUtil.isNullOrBlank(configuration.getAPP_EXCEPTION_CAUGHT_HANDLE())) {
+            Class<?> clazz = classLoader.loadClass(configuration.getAPP_EXCEPTION_CAUGHT_HANDLE());
+            exceptionCaughtHandle = (ExceptionCaughtHandle) clazz.newInstance();
+        }else{
+            if (exceptionCaughtHandle == null) {
+                exceptionCaughtHandle = new LoggerExceptionCaughtHandle();
+            }
         }
-        if (ioExceptionCaughtHandle == null) {
-            ioExceptionCaughtHandle = new LoggerExceptionCaughtHandle();
+        if (!StringUtil.isNullOrBlank(configuration.getAPP_IO_EXCEPTION_CAUGHT_HANDLE())) {
+            Class<?> clazz = classLoader.loadClass(configuration.getAPP_IO_EXCEPTION_CAUGHT_HANDLE());
+            ioExceptionCaughtHandle = (ExceptionCaughtHandle) clazz.newInstance();
+        }else{
+            if (ioExceptionCaughtHandle == null) {
+                ioExceptionCaughtHandle = new LoggerExceptionCaughtHandle();
+            }
         }
         if (StringUtil.isNullOrBlank(configuration.getAPP_FUTURE_ACCEPTOR())) {
             throw new IllegalArgumentException("APP_FUTURE_ACCEPTOR");
         }
         Class<?> clazz = classLoader.loadClass(configuration.getAPP_FUTURE_ACCEPTOR());
-        setFutureAcceptor((ContainerIoEventHandle) clazz.newInstance());
+        futureAcceptor = (ContainerIoEventHandle) clazz.newInstance();
         getFutureAcceptor().initialize(channelContext);
     }
 
@@ -200,15 +209,15 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         return deployModel;
     }
 
-    public boolean isRedeploying() {
-        return redeploying;
+    public boolean isDeploying() {
+        return deploying;
     }
 
     // FIXME 考虑部署失败后如何再次部署
     // FIXME keep http session
     public synchronized boolean redeploy() {
         LoggerUtil.prettyLog(logger, "//**********************  开始卸载服务  **********************//");
-        this.redeploying = true;
+        this.deploying = true;
         try {
             destroyHandle(channelContext);
             LoggerUtil.prettyLog(logger,
@@ -216,13 +225,13 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
             LoggerUtil.prettyLog(logger,
                     "//**********************  开始加载服务  **********************//");
             initializeHandle(channelContext);
-            redeploying = false;
+            deploying = false;
             LoggerUtil.prettyLog(logger,
                     "//**********************  加载服务完成  **********************//\n");
             return true;
         } catch (Exception e) {
             classLoader.unloadClassLoader();
-            redeploying = false;
+            deploying = false;
             LoggerUtil.prettyLog(logger,
                     "//**********************  加载服务失败  **********************//\n");
             logger.info(e.getMessage(), e);
@@ -238,12 +247,12 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         this.applicationExtLoader = applicationExtLoader;
     }
 
-    public void setAppRedeployService(FutureAcceptor appRedeployService) {
-        this.appRedeployService = appRedeployService;
-    }
-
     public void setChannelContext(SocketChannelContext context) {
         this.channelContext = context;
+    }
+    
+    public void setAppOnRedeployService(FutureAcceptor appOnRedeployService) {
+        this.appOnRedeployService = appOnRedeployService;
     }
 
     /**
@@ -252,10 +261,6 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
      */
     public void setExceptionCaughtHandle(ExceptionCaughtHandle exceptionCaughtHandle) {
         this.exceptionCaughtHandle = exceptionCaughtHandle;
-    }
-
-    protected void setFutureAcceptor(ContainerIoEventHandle futureAcceptor) {
-        this.futureAcceptor = futureAcceptor;
     }
 
     public void setIoExceptionCaughtHandle(ExceptionCaughtHandle ioExceptionCaughtHandle) {
