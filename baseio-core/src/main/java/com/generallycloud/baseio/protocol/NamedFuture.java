@@ -17,5 +17,5 @@ package com.generallycloud.baseio.protocol;
 
 public interface NamedFuture extends Future {
 
-    public abstract String getFutureName();
+    String getFutureName();
 }

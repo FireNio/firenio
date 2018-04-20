@@ -61,8 +61,8 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
     // exceptionCaughtHandle ; ioExceptionCaughtHandle
     // 区分 socket || application exception handle
-    public ApplicationIoEventHandle(String rootLocalAddress, boolean deployModel) {
-        this.rootLocalAddress = rootLocalAddress;
+    public ApplicationIoEventHandle(String rootPath, boolean deployModel) {
+        this.rootLocalAddress = rootPath;
         this.deployModel = deployModel;
     }
 

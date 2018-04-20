@@ -17,32 +17,32 @@ package com.generallycloud.baseio;
 
 public interface LifeCycle {
 
-    public static int STARTING = 1;
+    int RUNNING  = 2;
 
-    public static int RUNNING  = 2;
+    int STARTING = 1;
 
-    public static int STOPPING = 3;
+    int STOPPED  = 4;
 
-    public static int STOPPED  = 4;
+    int FAILED   = 5;
 
-    public abstract void start() throws Exception;
+    int STOPPING = 3;
 
-    public abstract void stop();
+    void addLifeCycleListener(LifeCycleListener listener);
 
-    public abstract boolean isFailed();
+    boolean isFailed();
 
-    public abstract boolean isRunning();
+    boolean isRunning();
 
-    public abstract boolean isStarted();
+    boolean isStarting();
 
-    public abstract boolean isStarting();
+    boolean isStopped();
 
-    public abstract boolean isStopped();
+    boolean isStopping();
 
-    public abstract boolean isStopping();
+    void removeLifeCycleListener(LifeCycleListener listener);
 
-    public abstract void removeLifeCycleListener(LifeCycleListener listener);
+    void start() throws Exception;
 
-    public abstract void addLifeCycleListener(LifeCycleListener listener);
+    void stop();
 
 }

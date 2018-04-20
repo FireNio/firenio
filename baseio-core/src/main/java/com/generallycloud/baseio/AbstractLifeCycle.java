@@ -27,14 +27,10 @@ import com.generallycloud.baseio.log.LoggerFactory;
 //FIXME status volatile modify ?
 public abstract class AbstractLifeCycle implements LifeCycle {
 
-    private boolean                       failed                  = false;
-    private List<LifeCycleListener>       lifeCycleListeners      = new ArrayList<>();
-    private Logger                        logger                  = LoggerFactory
+    private List<LifeCycleListener> lifeCycleListeners = new ArrayList<>();
+    private static final Logger     logger             = LoggerFactory
             .getLogger(AbstractLifeCycle.class);
-    private boolean                       running                 = false;
-    private boolean                       starting                = false;
-    private boolean                       stopped                 = true;
-    private boolean                       stopping                = false;
+    private int                     state              = STOPPED;
 
     @Override
     public void addLifeCycleListener(LifeCycleListener listener) {
@@ -48,74 +44,50 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 
     protected abstract void doStop() throws Exception;
 
-    protected boolean logger() {
-        return true;
-    }
-
-    private void fireEvent(int event) {
-        if (lifeCycleListeners.size() == 0) {
-            return;
-        }
-        switch (event) {
-            case STARTING:
-                synchronized (lifeCycleListeners) {
-                    for (LifeCycleListener listener : lifeCycleListeners) {
-                        try {
-                            listener.lifeCycleStarting(this);
-                        } catch (Exception e) {
-                            logger.error(e.getMessage(), e);
-                        }
-                    }
-                }
-                break;
-            case RUNNING:
-                synchronized (lifeCycleListeners) {
-                    for (LifeCycleListener listener : lifeCycleListeners) {
-                        try {
-                            listener.lifeCycleStarted(this);
-                        } catch (Exception e) {
-                            logger.error(e.getMessage(), e);
-                        }
-                    }
-                }
-                break;
-            case STOPPING:
-                synchronized (lifeCycleListeners) {
-                    for (LifeCycleListener listener : lifeCycleListeners) {
-                        try {
-                            listener.lifeCycleStopping(this);
-                        } catch (Exception e) {
-                            logger.error(e.getMessage(), e);
-                        }
-                    }
-                }
-                break;
-            case STOPPED:
-                synchronized (lifeCycleListeners) {
-                    for (LifeCycleListener listener : lifeCycleListeners) {
-                        try {
-                            listener.lifeCycleStopped(this);
-                        } catch (Exception e) {
-                            logger.error(e.getMessage(), e);
-                        }
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void fireFailed(Exception exception) {
+    private void fireEvent(int event, Exception exception) {
         if (lifeCycleListeners.size() == 0) {
             return;
         }
         synchronized (lifeCycleListeners) {
-            for (LifeCycleListener listener : lifeCycleListeners) {
-                try {
-                    listener.lifeCycleFailure(this, exception);
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+            if (event == STARTING) {
+                for (LifeCycleListener listener : lifeCycleListeners) {
+                    try {
+                        listener.lifeCycleStarting(this);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                }
+            } else if (event == RUNNING) {
+                for (LifeCycleListener listener : lifeCycleListeners) {
+                    try {
+                        listener.lifeCycleStarted(this);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                }
+            } else if (event == STOPPING) {
+                for (LifeCycleListener listener : lifeCycleListeners) {
+                    try {
+                        listener.lifeCycleStopping(this);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                }
+            } else if (event == STOPPED) {
+                for (LifeCycleListener listener : lifeCycleListeners) {
+                    try {
+                        listener.lifeCycleStopped(this);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                }
+            }else if(event == FAILED){
+                for (LifeCycleListener listener : lifeCycleListeners) {
+                    try {
+                        listener.lifeCycleFailure(this, exception);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
                 }
             }
         }
@@ -123,32 +95,31 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 
     @Override
     public boolean isFailed() {
-        return this.failed;
+        return state == FAILED;
     }
 
     @Override
     public boolean isRunning() {
-        return this.running;
-    }
-
-    @Override
-    public boolean isStarted() {
-        return this.running;
+        return state == RUNNING;
     }
 
     @Override
     public boolean isStarting() {
-        return this.starting;
+        return state == STARTING;
     }
 
     @Override
     public boolean isStopped() {
-        return this.stopped;
+        return state == STOPPED;
     }
 
     @Override
     public boolean isStopping() {
-        return this.stopping;
+        return state == STOPPING;
+    }
+
+    protected boolean logger() {
+        return true;
     }
 
     @Override
@@ -161,91 +132,42 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 
     @Override
     public void start() throws Exception {
-
-        if (this.stopped != true && this.stopping != true) {
+        if (isStopping() || isRunning()) {
             throw new IllegalStateException("did not stopped");
         }
-
-        this.starting = true;
-
-        this.fireEvent(STARTING);
-
+        this.state = STARTING;
+        this.fireEvent(state, null);
         try {
-
             this.doStart();
-
             if (logger()) {
                 LoggerUtil.prettyLog(logger, "loaded [ {} ]", this.toString());
             }
-
         } catch (Exception e) {
-
-            this.failed = true;
-
-            this.starting = false;
-
-            this.fireFailed(e);
-
+            this.state = FAILED;
+            this.fireEvent(state, e);
             throw e;
         }
-
-        this.starting = false;
-
-        this.running = true;
-
-        this.stopped = false;
-
-        this.stopping = false;
-
-        this.fireEvent(RUNNING);
-
+        this.state = RUNNING;
+        this.fireEvent(state, null);
     }
 
     @Override
     public void stop() {
-
-        //		if (this.starting != true && this.running != true) {
-        //			throw new IllegalStateException("stopped,"+this.toString());
-        //		}
-
-        this.running = false;
-
-        this.stopping = true;
-
-        this.fireEvent(STOPPING);
-
+        if (isStopping() || isStopped() || isFailed()) {
+            return;
+        }
+        this.state = STOPPING;
+        this.fireEvent(state, null);
         try {
-
             this.doStop();
-
             if (logger()) {
                 LoggerUtil.prettyLog(logger, "unloaded [ {} ]", this.toString());
             }
-
         } catch (Exception e) {
-
             logger.error(e.getMessage(), e);
-
         }
-
-        this.stopping = false;
-
-        this.stopped = true;
-
-        this.fireEvent(STOPPED);
-
-    }
-
-    public void softStart() {
-
-        this.starting = false;
-
-        this.running = true;
-
-        this.stopped = false;
-
-        this.stopping = false;
-
+        this.state = STOPPED;
+        this.fireEvent(state, null);
     }
 
     class LifeCycleListenerSorter implements Comparator<LifeCycleListener> {

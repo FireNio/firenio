@@ -36,20 +36,21 @@ public final class Bootstrap {
         startup(className, rootPath, deployModel, classPathScaners);
     }
 
-    public static void startup(String className, String rootPath, boolean deployModel,
-            List<ClassPathScaner> classPathScaners) throws Exception {
+    public static void startup(String className, String rootPath,
+            boolean deployModel, List<ClassPathScaner> classPathScaners)
+            throws Exception {
         ClassLoader parent = Bootstrap.class.getClassLoader();
-        URLDynamicClassLoader classLoader = newClassLoader(parent, deployModel, !deployModel,
-                rootPath, classPathScaners);
+        URLDynamicClassLoader classLoader = newClassLoader(parent, deployModel,
+                !deployModel, rootPath, classPathScaners);
         Class<?> bootClass = classLoader.loadClass(className);
         Thread.currentThread().setContextClassLoader(classLoader);
         BootstrapEngine engine = (BootstrapEngine) bootClass.newInstance();
         engine.bootstrap(rootPath, deployModel);
     }
 
-    public static URLDynamicClassLoader newClassLoader(ClassLoader parent, boolean deployModel,
-            boolean entrustFirst, String rootLocalAddress, List<ClassPathScaner> classPathScaners)
-            throws IOException {
+    public static URLDynamicClassLoader newClassLoader(ClassLoader parent,
+            boolean deployModel, boolean entrustFirst, String rootLocalAddress,
+            List<ClassPathScaner> classPathScaners) throws IOException {
         //这里需要设置优先委托自己加载class，因为到后面对象需要用该classloader去加载resources
         URLDynamicClassLoader classLoader = new URLDynamicClassLoader(parent, entrustFirst);
         classLoader.addMatchExtend(BootstrapEngine.class.getName());
@@ -69,7 +70,8 @@ public final class Bootstrap {
         return withDefault(new ClassPathScaner[0]);
     }
 
-    public static List<ClassPathScaner> withDefault(ClassPathScaner... scaners) {
+    public static List<ClassPathScaner> withDefault(
+            ClassPathScaner... scaners) {
         List<ClassPathScaner> classPathScaners = new ArrayList<>();
         classPathScaners.add(new DefaultClassPathScaner());
         if (scaners != null) {
@@ -84,15 +86,17 @@ public final class Bootstrap {
     }
 
     public interface ClassPathScaner {
-        void scanClassPaths(URLDynamicClassLoader classLoader, boolean deployModel,
-                String rootLocalAddress) throws IOException;
+        void scanClassPaths(URLDynamicClassLoader classLoader,
+                boolean deployModel, String rootLocalAddress)
+                throws IOException;
     }
 
     static class DefaultClassPathScaner implements ClassPathScaner {
 
         @Override
-        public void scanClassPaths(URLDynamicClassLoader classLoader, boolean deployModel,
-                String rootLocalAddress) throws IOException {
+        public void scanClassPaths(URLDynamicClassLoader classLoader,
+                boolean deployModel, String rootLocalAddress)
+                throws IOException {
             if (deployModel) {
                 classLoader.scan(rootLocalAddress + "/conf");
             } else {

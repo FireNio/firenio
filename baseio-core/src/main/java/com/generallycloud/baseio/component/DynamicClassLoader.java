@@ -28,35 +28,35 @@ import java.util.Enumeration;
  */
 public interface DynamicClassLoader extends Closeable {
 
-    public abstract URL getResource(String name);
+    URL getResource(String name);
 
-    public abstract Enumeration<URL> getResources(String name) throws IOException;
+    Enumeration<URL> getResources(String name) throws IOException;
 
-    public abstract InputStream getResourceAsStream(String name);
+    InputStream getResourceAsStream(String name);
 
-    public abstract ClassLoader getParent();
+    ClassLoader getParent();
 
-    public abstract void setDefaultAssertionStatus(boolean enabled);
+    void setDefaultAssertionStatus(boolean enabled);
 
-    public abstract void setPackageAssertionStatus(String packageName, boolean enabled);
+    void setPackageAssertionStatus(String packageName, boolean enabled);
 
-    public abstract void setClassAssertionStatus(String className, boolean enabled);
+    void setClassAssertionStatus(String className, boolean enabled);
 
-    public abstract void clearAssertionStatus();
+    void clearAssertionStatus();
 
-    public abstract Class<?> loadClass(String name) throws ClassNotFoundException;
+    Class<?> loadClass(String name) throws ClassNotFoundException;
     
-    public abstract void scan(String file) throws IOException;
+    void scan(String file) throws IOException;
 
-    public abstract void scan(File file) throws IOException;
+    void scan(File file) throws IOException;
 
-    public abstract void scan(File[] files) throws IOException;
+    void scan(File[] files) throws IOException;
 
-    public abstract void unloadClassLoader();
+    void unloadClassLoader();
 
-    public abstract void addExcludePath(String path);
+    void addExcludePath(String path);
 
-    public abstract void removeExcludePath(String path);
+    void removeExcludePath(String path);
     
     class DuplicateClassException extends IOException {
 

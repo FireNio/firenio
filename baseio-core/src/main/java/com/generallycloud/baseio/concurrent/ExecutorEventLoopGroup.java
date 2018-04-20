@@ -22,6 +22,6 @@ package com.generallycloud.baseio.concurrent;
 public interface ExecutorEventLoopGroup extends EventLoopGroup {
 
     @Override
-    public abstract ExecutorEventLoop getNext();
+    ExecutorEventLoop getNext();
 
 }

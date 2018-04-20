@@ -18,12 +18,15 @@ package com.generallycloud.sample.baseio.http11;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Service;
 
 /**
  * @author wangkai
  *
  */
-public class ContextUtil {
+@Service
+public class ContextUtil implements ApplicationContextAware{
     
     private static ApplicationContext applicationContext = null;
 
@@ -31,12 +34,11 @@ public class ContextUtil {
      * 当继承了ApplicationContextAware类之后，那么程序在调用
      * getBean(String)的时候会自动调用该方法，不用自己操作
      */
-    public static void setApplicationContext(ApplicationContext applicationContext) {
+    public void setApplicationContext(ApplicationContext applicationContext) {
         ContextUtil.applicationContext = applicationContext;
     }
     
-    @SuppressWarnings("unused")
-    private static ApplicationContext getApplicationContext() {
+    public static ApplicationContext getApplicationContext() {
         return applicationContext;
     }
     

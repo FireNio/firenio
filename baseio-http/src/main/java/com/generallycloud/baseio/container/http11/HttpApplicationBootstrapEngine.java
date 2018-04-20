@@ -31,9 +31,9 @@ import com.generallycloud.baseio.container.startup.ApplicationBootstrapEngine;
 public class HttpApplicationBootstrapEngine extends ApplicationBootstrapEngine {
 
     @Override
-    protected void enrichSocketChannelContext(String rootPath, boolean deployModel,
-            SocketChannelContext context) {
-        ApplicationIoEventHandle handle = new ApplicationIoEventHandle(rootPath, deployModel);
+    protected void enrichSocketChannelContext(SocketChannelContext context) {
+        ApplicationIoEventHandle handle = 
+                (ApplicationIoEventHandle) context.getIoEventHandleAdaptor();
         handle.setApplicationExtLoader(new HttpExtLoader());
         handle.setApplicationConfigurationLoader(new FileSystemACLoader());
         handle.setExceptionCaughtHandle(new HttpExceptionCaughtHandle());
@@ -41,7 +41,6 @@ public class HttpApplicationBootstrapEngine extends ApplicationBootstrapEngine {
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.addSessionIdleEventListener(new SocketSessionAliveSEListener());
         context.setProtocolFactory(new ServerHTTPProtocolFactory());
-        context.setIoEventHandleAdaptor(handle);
     }
 
 }

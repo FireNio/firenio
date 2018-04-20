@@ -23,12 +23,12 @@ import com.generallycloud.baseio.component.SocketSession;
 
 public interface ChannelConnector extends ChannelService, Connectable, Closeable {
 
-    public abstract SocketSession getSession();
+    SocketSession getSession();
 
-    public abstract boolean isConnected();
+    boolean isConnected();
 
-    public abstract long getTimeout();
+    long getTimeout();
 
-    public abstract void setTimeout(long timeout);
+    void setTimeout(long timeout);
 
 }

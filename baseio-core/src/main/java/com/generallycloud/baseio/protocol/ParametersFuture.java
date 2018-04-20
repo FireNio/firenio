@@ -19,6 +19,6 @@ import com.generallycloud.baseio.component.Parameters;
 
 public interface ParametersFuture extends Future {
 
-    public abstract Parameters getParameters();
+    Parameters getParameters();
 
 }

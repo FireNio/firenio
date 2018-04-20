@@ -17,18 +17,18 @@ package com.generallycloud.baseio.concurrent;
 
 public interface EventLoop extends Looper {
 
-    public abstract boolean inEventLoop();
+    EventLoopGroup getEventLoopGroup();
 
-    public abstract boolean inEventLoop(Thread thread);
+    Thread getMonitor();
 
-    public abstract Thread getMonitor();
+    boolean inEventLoop();
 
-    public abstract boolean isRunning();
+    boolean inEventLoop(Thread thread);
 
-    public abstract EventLoopGroup getEventLoopGroup();
+    boolean isRunning();
 
-    public abstract void wakeup();
+    void startup(String threadName) throws Exception;
 
-    public abstract void startup(String threadName) throws Exception;
+    void wakeup();
 
 }

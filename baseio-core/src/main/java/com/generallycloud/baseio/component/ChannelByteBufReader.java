@@ -19,10 +19,10 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 
 public interface ChannelByteBufReader {
 
-    public abstract ChannelByteBufReader getNext();
+    ChannelByteBufReader getNext();
 
-    public abstract void setNext(ChannelByteBufReader channelByteBufReader);
+    void setNext(ChannelByteBufReader channelByteBufReader);
 
-    public abstract void accept(SocketChannel channel, ByteBuf buf) throws Exception;
+    void accept(SocketChannel channel, ByteBuf buf) throws Exception;
 
 }

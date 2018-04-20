@@ -18,20 +18,16 @@ package com.generallycloud.baseio.container.configuration;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Properties;
-import com.generallycloud.baseio.configuration.PropertiesSCLoader;
+import com.generallycloud.baseio.configuration.ConfigurationParser;
 
 public class FileSystemACLoader implements ApplicationConfigurationLoader {
-    
+
     @Override
     public ApplicationConfiguration loadConfiguration(ClassLoader classLoader) throws Exception {
-
         ApplicationConfiguration configuration = new ApplicationConfiguration();
-
-        Properties properties = FileUtil.readPropertiesByCls("app.properties", Encoding.UTF8,
-                classLoader);
-
-        new PropertiesSCLoader("APP").loadConfiguration(configuration, properties);
-
+        Properties properties = FileUtil.readPropertiesByCls(
+                "app.properties", Encoding.UTF8, classLoader);
+        ConfigurationParser.parseConfiguration("APP", configuration, properties);
         return configuration;
     }
 

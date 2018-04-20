@@ -17,16 +17,16 @@ package com.generallycloud.baseio.collection;
 
 import java.util.Set;
 
-public abstract interface Attributes {
+public interface Attributes {
 
-    public abstract Object removeAttribute(Object key);
+    Object removeAttribute(Object key);
 
-    public abstract void setAttribute(Object key, Object value);
+    void setAttribute(Object key, Object value);
 
-    public abstract Object getAttribute(Object key);
+    Object getAttribute(Object key);
 
-    public abstract Set<Object> getAttributeNames();
+    Set<Object> getAttributeNames();
 
-    public abstract void clearAttributes();
+    void clearAttributes();
 
 }

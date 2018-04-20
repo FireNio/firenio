@@ -19,7 +19,7 @@ import com.generallycloud.baseio.log.Logger;
 
 public class LoggerUtil {
 
-    private static int    maxNameLength = "AbstractSocketChannelContext".length();
+    private static int    maxNameLength = "PooledByteBufAllocatorManager".length();
 
     private static String prefix_log    = "[baseio] ";
 

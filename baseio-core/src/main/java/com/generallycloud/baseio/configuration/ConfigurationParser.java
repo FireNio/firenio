@@ -20,54 +20,27 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.common.Properties;
 
-public class PropertiesSCLoader implements ServerConfigurationLoader {
+/**
+ * @author wangkai
+ *
+ */
+public class ConfigurationParser {
 
-    private String prefix;
-    
-    public PropertiesSCLoader(String prefix) {
-        this.prefix = prefix;
-    }
-
-    @Override
-    public void loadConfiguration(Object cfg,Properties properties) throws Exception {
-
-        String setENCODING = "set"+prefix+"_ENCODING"; 
-        String pEncoding = prefix + ".ENCODING";
-        String set_CORE_SIZE = "set"+prefix+"_CORE_SIZE";
-        String setPrefix = "set"+prefix+"_";
+    public static void parseConfiguration(String prefix, Object cfg, Properties properties)
+            throws Exception {
+        String setPrefix = "set" + prefix + "_";
         String prefixDot = prefix + ".";
-        
         Method[] methods = cfg.getClass().getDeclaredMethods();
-
         for (Method method : methods) {
-
             String name = method.getName();
-
             if (!name.startsWith("set")) {
                 continue;
             }
-
-            if (setENCODING.equals(name)) {
-                String encoding = properties.getProperty(pEncoding, "GBK");
-                if (!method.isAccessible()) {
-                    method.setAccessible(true);
-                }
-                method.invoke(cfg, Charset.forName(encoding));
-                continue;
-            }
-            
-            if (set_CORE_SIZE.equals(name)) {
-                continue;
-            }
-
             if (!method.isAccessible()) {
                 method.setAccessible(true);
             }
-
             Class<?> type = method.getParameterTypes()[0];
-
             String temp = name.replace(setPrefix, prefixDot);
-
             if (type == String.class) {
                 method.invoke(cfg, properties.getProperty(temp));
             } else if (type == int.class) {
@@ -78,9 +51,10 @@ public class PropertiesSCLoader implements ServerConfigurationLoader {
                 method.invoke(cfg, properties.getBooleanProperty(temp));
             } else if (type == long.class) {
                 method.invoke(cfg, properties.getLongProperty(temp));
+            } else if (type == Charset.class) {
+                method.invoke(cfg, Charset.forName(properties.getProperty(temp, "GBK")));
             } else {
-//                throw new Exception("unknow type " + type);
-                // do nothing
+                throw new Exception("unknow type " + type);
             }
         }
 

@@ -23,6 +23,6 @@ import java.io.IOException;
  */
 public interface Unbindable {
 
-    public abstract void unbind() throws IOException;
+    void unbind() throws IOException;
 
 }

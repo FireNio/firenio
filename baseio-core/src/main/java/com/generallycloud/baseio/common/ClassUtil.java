@@ -77,9 +77,9 @@ public class ClassUtil {
         }
     }
 
-    public static Field getDeclaredFieldFC(Class clazz, String name) {
+    public static Field getDeclaredFieldFC(Class<?> clazz, String name) {
         try {
-            Class c = clazz;
+            Class<?> c = clazz;
             for (;;) {
                 if (c == null) {
                     throw new NoSuchFieldException(name);

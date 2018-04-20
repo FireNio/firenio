@@ -19,8 +19,8 @@ import java.util.EventListener;
 
 public interface SocketSessionEventListener extends EventListener {
 
-    public abstract void sessionOpened(SocketSession session) throws Exception;
+    void sessionOpened(SocketSession session) throws Exception;
 
-    public abstract void sessionClosed(SocketSession session);
+    void sessionClosed(SocketSession session);
 
 }

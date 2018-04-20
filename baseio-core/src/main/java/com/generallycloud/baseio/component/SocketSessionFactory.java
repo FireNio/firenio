@@ -17,6 +17,6 @@ package com.generallycloud.baseio.component;
 
 public interface SocketSessionFactory {
 
-    public abstract UnsafeSocketSession newUnsafeSession(SocketChannel channel);
+    UnsafeSocketSession newUnsafeSession(SocketChannel channel);
 
 }

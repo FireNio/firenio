@@ -17,8 +17,8 @@ package com.generallycloud.baseio.buffer;
 
 public interface ByteBufFactory extends ByteBufNew {
 
-    public abstract void freeMemory();
+    void freeMemory();
 
-    public abstract void initializeMemory(int capacity);
+    void initializeMemory(int capacity);
 
 }

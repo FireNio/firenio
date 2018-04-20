@@ -19,16 +19,16 @@ import java.util.EventListener;
 
 public interface LifeCycleListener extends EventListener {
 
-    public abstract int lifeCycleListenerSortIndex();
+    int lifeCycleListenerSortIndex();
 
-    public abstract void lifeCycleStarting(LifeCycle lifeCycle);
+    void lifeCycleStarting(LifeCycle lifeCycle);
 
-    public abstract void lifeCycleStarted(LifeCycle lifeCycle);
+    void lifeCycleStarted(LifeCycle lifeCycle);
 
-    public abstract void lifeCycleFailure(LifeCycle lifeCycle, Exception exception);
+    void lifeCycleFailure(LifeCycle lifeCycle, Exception exception);
 
-    public abstract void lifeCycleStopping(LifeCycle lifeCycle);
+    void lifeCycleStopping(LifeCycle lifeCycle);
 
-    public abstract void lifeCycleStopped(LifeCycle lifeCycle);
+    void lifeCycleStopped(LifeCycle lifeCycle);
 
 }

@@ -19,6 +19,6 @@ import com.generallycloud.baseio.concurrent.Looper;
 
 public interface SessionManager extends Looper {
 
-    public abstract int getManagedSessionSize();
+    int getManagedSessionSize();
 
 }

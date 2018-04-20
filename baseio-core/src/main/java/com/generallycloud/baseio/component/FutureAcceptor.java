@@ -19,6 +19,6 @@ import com.generallycloud.baseio.protocol.Future;
 
 public interface FutureAcceptor {
 
-    public abstract void accept(SocketSession session, Future future) throws Exception;
+    void accept(SocketSession session, Future future) throws Exception;
 
 }

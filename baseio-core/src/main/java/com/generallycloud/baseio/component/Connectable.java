@@ -19,6 +19,6 @@ import java.io.IOException;
 
 public interface Connectable {
 
-    public abstract SocketSession connect() throws IOException;
+    SocketSession connect() throws IOException;
 
 }

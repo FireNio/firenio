@@ -17,5 +17,5 @@ package com.generallycloud.baseio.component;
 
 public interface UnsafeSocketSession extends SocketSession {
 
-    public abstract SocketChannel getSocketChannel();
+    SocketChannel getSocketChannel();
 }

@@ -47,9 +47,9 @@ public class SpringProtobaseFutureAcceptor extends ProtobaseFutureAcceptor{
     @Override
     protected void initialize(SocketChannelContext context) throws Exception {
         super.initialize(context);
+        Thread.currentThread().setContextClassLoader(null); // for spring
         applicationContext = new ClassPathXmlApplicationContext("classpath:spring-core.xml");
         applicationContext.start();
-        ContextUtil.setApplicationContext(applicationContext);
     }
     
     @Override

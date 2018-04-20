@@ -17,8 +17,8 @@ package com.generallycloud.baseio.concurrent;
 
 public interface Looper {
 
-    public abstract void loop();
+    void loop();
 
     //FIXME stop 之前处理剩下的资源
-    public abstract void stop();
+    void stop();
 }

@@ -30,14 +30,13 @@ import com.generallycloud.baseio.container.startup.ApplicationBootstrapEngine;
 public class ProtobaseApplicationBootstrapEngine extends ApplicationBootstrapEngine {
 
     @Override
-    protected void enrichSocketChannelContext(String rootPath, boolean deployModel,
-            SocketChannelContext context) {
-        ApplicationIoEventHandle handle = new ApplicationIoEventHandle(rootPath, deployModel);
+    protected void enrichSocketChannelContext(SocketChannelContext context) {
+        ApplicationIoEventHandle handle = 
+                (ApplicationIoEventHandle) context.getIoEventHandleAdaptor();
         handle.setApplicationConfigurationLoader(new FileSystemACLoader());
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolFactory(new ParamedProtobaseProtocolFactory());
         context.setBeatFutureFactory(new ParamedProtobaseBeatFutureFactory());
-        context.setIoEventHandleAdaptor(handle);
     }
 
 }

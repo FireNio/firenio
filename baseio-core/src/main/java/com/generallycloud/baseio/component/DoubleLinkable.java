@@ -23,8 +23,8 @@ import com.generallycloud.baseio.concurrent.Linkable;
  */
 public interface DoubleLinkable extends Linkable {
 
-    public abstract Linkable getLast();
+    Linkable getLast();
 
-    public abstract void setLast(Linkable last);
+    void setLast(Linkable last);
 
 }

@@ -19,7 +19,8 @@ import com.generallycloud.baseio.protocol.Future;
 
 public interface BeatFutureFactory {
 
-    public abstract Future createPINGPacket(SocketSession session);
+    Future createPINGPacket(SocketSession session);
 
-    public abstract Future createPONGPacket(SocketSession session);
+    Future createPONGPacket(SocketSession session);
+    
 }

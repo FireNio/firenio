@@ -30,7 +30,7 @@ import com.generallycloud.baseio.protocol.ProtocolEncoder;
 public abstract class AbstractHttpProtocolEncoder implements ProtocolEncoder {
 
     protected static final byte[] RN    = "\r\n".getBytes();
-    protected static final byte   COLON = ':';
+    protected static final byte   COLON = ':';//FIXME .... http header
     protected static final byte   SPACE = ' ';
 
     protected void writeBuf(ByteBuf buf, byte[] array) {

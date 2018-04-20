@@ -24,10 +24,10 @@ import com.generallycloud.baseio.protocol.Future;
 
 public interface ChannelAcceptor extends ChannelService, Unbindable {
 
-    public abstract void bind() throws IOException;
+    void bind() throws IOException;
 
-    public abstract void broadcast(Future future) throws IOException;
+    void broadcast(Future future) throws IOException;
 
-    public abstract void broadcastChannelFuture(ChannelFuture future) throws IOException;
+    void broadcastChannelFuture(ChannelFuture future) throws IOException;
 
 }
