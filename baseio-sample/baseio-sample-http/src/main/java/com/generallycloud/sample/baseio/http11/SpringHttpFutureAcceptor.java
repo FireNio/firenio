@@ -15,53 +15,47 @@
  */
 package com.generallycloud.sample.baseio.http11;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptor;
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
+import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.NamedFuture;
-import com.generallycloud.baseio.protocol.ParametersFuture;
 
 public class SpringHttpFutureAcceptor extends HttpFutureAcceptor {
 
     private ClassPathXmlApplicationContext applicationContext;
-    private Logger                         logger              = LoggerFactory
-            .getLogger(getClass());
-    private Set<String>                    noneLoggerSuffixSet = new HashSet<>();
-    private Set<String>                    noneLoggerUrlSet    = new HashSet<>();
+
+    private boolean                        checkFilter = true;
+
+    private HttpFutureAcceptorService      filter;
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
         NamedFuture f = (NamedFuture) future;
-        log(session, f);
-        FutureAcceptor acceptor = (FutureAcceptor) ContextUtil.getBean(f.getFutureName());
+        if (checkFilter) {
+            checkFilter = false;
+            filter = getFutureAcceptor("http-filter");
+        }
+        if (filter != null) {
+            filter.accept(session, future);
+            if (future.flushed()) {
+                return;
+            }
+        }
+        FutureAcceptor acceptor = getFutureAcceptor(f.getFutureName());
         if (acceptor == null) {
             acceptHtml(session, f);
             return;
         }
         acceptor.accept(session, future);
     }
-
-    private void addNoneLogSuffix() throws Exception {
-        noneLoggerSuffixSet.add(".html");
-        noneLoggerSuffixSet.add(".css");
-        noneLoggerSuffixSet.add(".js");
-        noneLoggerSuffixSet.add(".jpg");
-        noneLoggerSuffixSet.add(".png");
-        noneLoggerSuffixSet.add(".ico");
-        noneLoggerSuffixSet.add(".jpeg");
-        noneLoggerSuffixSet.add(".gif");
-        noneLoggerSuffixSet.add(".scss");
+    
+    private HttpFutureAcceptorService getFutureAcceptor(String name){
+        return (HttpFutureAcceptorService) ContextUtil.getBean(name);
     }
 
     @Override
@@ -70,47 +64,13 @@ public class SpringHttpFutureAcceptor extends HttpFutureAcceptor {
         super.destroy(context);
     }
 
-    private boolean endContains(String futureName) {
-        int idx = StringUtil.lastIndexOf(futureName, '.', 5);
-        if (idx == -1) {
-            return false;
-        }
-        String suffix = futureName.substring(idx);
-        return noneLoggerSuffixSet.contains(suffix);
-    }
-
     @Override
     protected void initialize(SocketChannelContext context) throws Exception {
-        addNoneLogSuffix();
+        super.initialize(context);
         System.setProperty("org.apache.commons.logging.log", Sl4jLogger.class.getName());
         Thread.currentThread().setContextClassLoader(null); //for spring
         applicationContext = new ClassPathXmlApplicationContext("classpath:spring-core.xml");
         applicationContext.start();
-        super.initialize(context);
-    }
-
-    private void log(SocketSession session, NamedFuture future) throws Exception {
-        NamedFuture nf = (NamedFuture) future;
-        String futureName = nf.getFutureName();
-        if (noneLoggerUrlSet.contains(futureName) || endContains(futureName)) {
-            return;
-        }
-        String remoteAddr = session.getRemoteAddr();
-        String readText = nf.getReadText();
-        if (!StringUtil.isNullOrBlank(readText)) {
-            logger.info("request ip:{}, service name:{}, content: {}",
-                    new String[] { remoteAddr, futureName, readText });
-            return;
-        }
-        if (nf instanceof ParametersFuture) {
-            Parameters parameters = ((ParametersFuture) nf).getParameters();
-            if (parameters.size() > 0) {
-                logger.info("request ip:{}, service name:{}, content: {}",
-                        new String[] { remoteAddr, futureName, parameters.toString() });
-                return;
-            }
-        }
-        logger.info("request ip:{}, service name:{}", remoteAddr, futureName);
     }
 
 }
