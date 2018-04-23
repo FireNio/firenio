@@ -360,9 +360,17 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         if (clazz == null) {
             return;
         }
-        Field[] fields = clazz.getDeclaredFields();
+        Field[] fields = null;
+        try {
+            fields = clazz.getDeclaredFields();
+        } catch (Throwable e) {
+            return;
+        }
         for (Field field : fields) {
             if (!Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+            if (!field.getType().isAssignableFrom(Object.class)) {
                 continue;
             }
             try {
@@ -373,7 +381,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
             } catch (Throwable e) {}
         }
     }
-
+    
     @Override
     public void unloadClassLoader() {
         Collection<ClassEntry> es = clazzEntries.values();
