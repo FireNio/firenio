@@ -50,7 +50,6 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     private volatile boolean               deploying    = true;
     private boolean                        deployModel;
     private Charset                        encoding;
-    private ExceptionCaughtHandle          exceptionCaughtHandle;
     private ContainerIoEventHandle         futureAcceptor;
     private ExceptionCaughtHandle          ioExceptionCaughtHandle;
     private Logger                         logger       = LoggerFactory.getLogger(getClass());
@@ -73,7 +72,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         try {
             futureAcceptor.accept(session, future);
         } catch (Exception e) {
-            exceptionCaughtHandle.exceptionCaught(session, future, e);
+            futureAcceptor.exceptionCaught(session, future, e);
         }
     }
 
@@ -126,10 +125,6 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         return encoding;
     }
 
-    public ExceptionCaughtHandle getExceptionCaughtHandle() {
-        return exceptionCaughtHandle;
-    }
-
     public ContainerIoEventHandle getFutureAcceptor() {
         return futureAcceptor;
     }
@@ -179,14 +174,6 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         }else{
             if (appOnRedeployService == null) {
                 appOnRedeployService = new DefaultOnRedeployAcceptor();
-            }
-        }
-        if (!StringUtil.isNullOrBlank(configuration.getAPP_EXCEPTION_CAUGHT_HANDLE())) {
-            Class<?> clazz = classLoader.loadClass(configuration.getAPP_EXCEPTION_CAUGHT_HANDLE());
-            exceptionCaughtHandle = (ExceptionCaughtHandle) clazz.newInstance();
-        }else{
-            if (exceptionCaughtHandle == null) {
-                exceptionCaughtHandle = new LoggerExceptionCaughtHandle();
             }
         }
         if (!StringUtil.isNullOrBlank(configuration.getAPP_IO_EXCEPTION_CAUGHT_HANDLE())) {
@@ -255,16 +242,13 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         this.appOnRedeployService = appOnRedeployService;
     }
 
-    /**
-     * accept抛出异常时则使用该
-     * @param exceptionCaughtHandle
-     */
-    public void setExceptionCaughtHandle(ExceptionCaughtHandle exceptionCaughtHandle) {
-        this.exceptionCaughtHandle = exceptionCaughtHandle;
-    }
-
     public void setIoExceptionCaughtHandle(ExceptionCaughtHandle ioExceptionCaughtHandle) {
         this.ioExceptionCaughtHandle = ioExceptionCaughtHandle;
+    }
+    
+    @Override
+    public void futureSent(SocketSession session, Future future) {
+        futureAcceptor.futureSent(session, future);
     }
 
 }

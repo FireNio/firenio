@@ -17,15 +17,15 @@ package com.generallycloud.baseio.container.http11;
 
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.codec.http11.future.HttpStatus;
-import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.container.DefaultOnRedeployAcceptor;
 import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
  *
  */
-public class HttpOnRedeployAcceptor implements FutureAcceptor{
+public class HttpOnRedeployAcceptor extends DefaultOnRedeployAcceptor{
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
@@ -33,8 +33,7 @@ public class HttpOnRedeployAcceptor implements FutureAcceptor{
             HttpFuture hf = (HttpFuture) future;
             hf.setStatus(HttpStatus.C503);
         }
-        future.write("server is upgrading , please wait ...");
-        session.flush(future);
+        super.accept(session, future);
     }
     
 }

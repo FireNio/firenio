@@ -42,45 +42,13 @@ import com.generallycloud.baseio.protocol.NamedFuture;
 //FIXME limit too large file
 public class HttpFutureAcceptor extends ContainerIoEventHandle {
 
-    private Logger                  logger    = LoggerFactory.getLogger(getClass());
     private Map<String, HttpEntity> htmlCache = new HashMap<>();
     private HttpSessionManager      httpSessionManager;
+    private Logger                  logger    = LoggerFactory.getLogger(getClass());
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
         acceptHtml(session, (NamedFuture) future);
-    }
-
-    private ApplicationIoEventHandle geApplicationIoEventHandle(SocketChannelContext context) {
-        return (ApplicationIoEventHandle) context.getIoEventHandleAdaptor();
-    }
-
-    private void initializeSessionManager(SocketChannelContext context) throws Exception {
-        ApplicationIoEventHandle handle = geApplicationIoEventHandle(context);
-        if (handle.getConfiguration().isAPP_ENABLE_HTTP_SESSION()) {
-            httpSessionManager = new DefaultHttpSessionManager();
-            httpSessionManager.startup("HTTPSession-Manager");
-        } else {
-            httpSessionManager = new FakeHttpSessionManager();
-        }
-        context.addSessionEventListener(new WebSocketSEListener());
-    }
-
-    @Override
-    protected void initialize(SocketChannelContext context) throws Exception {
-        initializeHtml(context);
-        initializeSessionManager(context);
-        super.initialize(context);
-    }
-
-    @Override
-    protected void destroy(SocketChannelContext context) throws Exception {
-        LifeCycleUtil.stop(httpSessionManager);
-        super.destroy(context);
-    }
-
-    public HttpSessionManager getHttpSessionManager() {
-        return httpSessionManager;
     }
 
     protected void acceptHtml(SocketSession session, NamedFuture future) throws IOException {
@@ -115,6 +83,79 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         session.flush(f);
     }
 
+    @Override
+    protected void destroy(SocketChannelContext context) throws Exception {
+        LifeCycleUtil.stop(httpSessionManager);
+        super.destroy(context);
+    }
+
+    @Override
+    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
+        logger.error(ex.getMessage(), ex);
+        ServerHttpFuture f = new ServerHttpFuture(session.getContext());
+        StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
+        builder.append("        <div style=\"margin-left:20px;\">\n");
+        builder.append("            <div>oops, server threw an inner exception, the stack trace is :</div>\n");
+        builder.append("            <div style=\"font-family:serif;color:#5c5c5c;\">\n");
+        builder.append("            -------------------------------------------------------</BR>\n");
+        builder.append("            ");
+        builder.append(ex.toString());
+        builder.append("</BR>\n");
+        StackTraceElement[] es = ex.getStackTrace();
+        for (StackTraceElement e : es) {
+            builder.append("                &emsp;at ");
+            builder.append(e.toString());
+            builder.append("</BR>\n");
+        }
+        builder.append("            </div>\n");
+        builder.append("        </div>\n");
+        builder.append(HtmlUtil.HTML_POWER_BY);
+        builder.append(HtmlUtil.HTML_BOTTOM);
+        f.write(builder.toString());
+        f.setStatus(HttpStatus.C500);
+        f.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
+        session.flush(f);
+    }
+
+    private void flush(SocketSession session, ServerHttpFuture future, HttpEntity entity) {
+        future.setResponseHeader(HttpHeader.CONTENT_TYPE, entity.getContentType());
+        future.setResponseHeader(HttpHeader.LAST_MODIFIED, entity.getLastModifyGTM());
+        future.write(entity.getBinary());
+        session.flush(future);
+    }
+
+    private ApplicationIoEventHandle geApplicationIoEventHandle(SocketChannelContext context) {
+        return (ApplicationIoEventHandle) context.getIoEventHandleAdaptor();
+    }
+
+    private String getContentType(String fileName, Map<String, String> mapping) {
+        int index = fileName.lastIndexOf(".");
+        if (index == -1) {
+            return HttpFuture.CONTENT_TYPE_TEXT_PLAIN;
+        }
+        String subfix = fileName.substring(index + 1);
+        String contentType = mapping.get(subfix);
+        if (contentType == null) {
+            contentType = HttpFuture.CONTENT_TYPE_TEXT_PLAIN;
+        }
+        return contentType;
+    }
+
+    protected Map<String, HttpEntity> getHtmlCache() {
+        return htmlCache;
+    }
+
+    public HttpSessionManager getHttpSessionManager() {
+        return httpSessionManager;
+    }
+
+    @Override
+    protected void initialize(SocketChannelContext context) throws Exception {
+        initializeHtml(context);
+        initializeSessionManager(context);
+        super.initialize(context);
+    }
+
     private void initializeHtml(SocketChannelContext context) throws Exception {
         ApplicationIoEventHandle handle = geApplicationIoEventHandle(context);
         String rootPath = handle.getAppLocalAddress();
@@ -137,6 +178,24 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         }
     }
 
+    private void initializeSessionManager(SocketChannelContext context) throws Exception {
+        ApplicationIoEventHandle handle = geApplicationIoEventHandle(context);
+        if (handle.getConfiguration().isAPP_ENABLE_HTTP_SESSION()) {
+            httpSessionManager = new DefaultHttpSessionManager();
+            httpSessionManager.startup("HTTPSession-Manager");
+        } else {
+            httpSessionManager = new FakeHttpSessionManager();
+        }
+        context.addSessionEventListener(new WebSocketSEListener());
+    }
+
+    private void reloadEntity(HttpEntity entity, SocketChannelContext context, HttpStatus status)
+            throws IOException {
+        File file = entity.getFile();
+        entity.setBinary(FileUtil.readBytesByFile(file));
+        entity.setLastModify(file.lastModified());
+    }
+    
     private void scanFolder(SocketChannelContext context, Map<String, HttpEntity> htmlCache,
             File file, String root, Map<String, String> mapping, String path) throws IOException {
         if (file.isFile()) {
@@ -205,37 +264,6 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
             entity.setBinary(b.toString().getBytes(context.getEncoding()));
             htmlCache.put(staticName, entity);
         }
-    }
-
-    private String getContentType(String fileName, Map<String, String> mapping) {
-        int index = fileName.lastIndexOf(".");
-        if (index == -1) {
-            return HttpFuture.CONTENT_TYPE_TEXT_PLAIN;
-        }
-        String subfix = fileName.substring(index + 1);
-        String contentType = mapping.get(subfix);
-        if (contentType == null) {
-            contentType = HttpFuture.CONTENT_TYPE_TEXT_PLAIN;
-        }
-        return contentType;
-    }
-
-    private void flush(SocketSession session, ServerHttpFuture future, HttpEntity entity) {
-        future.setResponseHeader(HttpHeader.CONTENT_TYPE, entity.getContentType());
-        future.setResponseHeader(HttpHeader.LAST_MODIFIED, entity.getLastModifyGTM());
-        future.write(entity.getBinary());
-        session.flush(future);
-    }
-
-    private void reloadEntity(HttpEntity entity, SocketChannelContext context, HttpStatus status)
-            throws IOException {
-        File file = entity.getFile();
-        entity.setBinary(FileUtil.readBytesByFile(file));
-        entity.setLastModify(file.lastModified());
-    }
-
-    protected Map<String, HttpEntity> getHtmlCache() {
-        return htmlCache;
     }
 
 }

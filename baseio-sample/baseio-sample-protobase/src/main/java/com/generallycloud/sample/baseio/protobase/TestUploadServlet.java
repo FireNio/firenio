@@ -17,7 +17,7 @@ package com.generallycloud.sample.baseio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.FileReceiveUtil;
+import com.generallycloud.baseio.container.protobase.FileReceiveUtil;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
 public class TestUploadServlet extends ProtobaseFutureAcceptorService {

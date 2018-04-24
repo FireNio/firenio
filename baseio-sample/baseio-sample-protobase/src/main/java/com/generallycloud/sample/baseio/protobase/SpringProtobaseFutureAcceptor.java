@@ -15,6 +15,7 @@
  */
 package com.generallycloud.sample.baseio.protobase;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.generallycloud.baseio.component.FutureAcceptor;
@@ -48,6 +49,7 @@ public class SpringProtobaseFutureAcceptor extends ProtobaseFutureAcceptor{
     protected void initialize(SocketChannelContext context) throws Exception {
         super.initialize(context);
         Thread.currentThread().setContextClassLoader(null); // for spring
+        System.setProperty("org.apache.commons.logging.log", Sl4jLogger.class.getName());
         applicationContext = new ClassPathXmlApplicationContext("classpath:spring-core.xml");
         applicationContext.start();
     }
@@ -56,6 +58,10 @@ public class SpringProtobaseFutureAcceptor extends ProtobaseFutureAcceptor{
     protected void destroy(SocketChannelContext context) throws Exception {
         applicationContext.destroy();
         super.destroy(context);
+    }
+    
+    public ApplicationContext getApplicationContext(){
+        return applicationContext;
     }
     
 }

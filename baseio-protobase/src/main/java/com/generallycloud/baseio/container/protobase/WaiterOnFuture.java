@@ -13,12 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.container;
+package com.generallycloud.baseio.container.protobase;
 
 import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.protocol.Future;
 
-public interface OnFuture {
+public class WaiterOnFuture implements OnFuture {
 
-    public abstract void onResponse(SocketSession session, Future future);
+    private Waiter waiter = new Waiter();
+
+    /**
+     * @param timeout
+     * @return timeouted
+     */
+    public boolean await(long timeout) {
+        return waiter.await(timeout);
+    }
+
+    public Future getReadFuture() {
+        return (Future) waiter.getResponse();
+    }
+
+    @Override
+    public void onResponse(SocketSession session, Future future) {
+        this.waiter.response(future);
+    }
 }

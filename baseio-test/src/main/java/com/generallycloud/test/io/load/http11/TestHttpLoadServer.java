@@ -38,7 +38,7 @@ public class TestHttpLoadServer {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-                future.write("hello world!");
+                future.write("hello world!8080");
                 session.flush(future);
                 //				System.out.println("req======================"+req.getAndIncrement());
             }
@@ -50,9 +50,9 @@ public class TestHttpLoadServer {
         //		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
         c.setSERVER_MEMORY_POOL_UNIT(256);
         c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-        //		c.setSERVER_CORE_SIZE(2);
+        		c.setSERVER_CORE_SIZE(1);
         c.setSERVER_ENABLE_MEMORY_POOL(true);
-        c.setSERVER_MEMORY_POOL_CAPACITY_RATE(4);
+        c.setSERVER_MEMORY_POOL_CAPACITY_RATE(1);
 
         SocketChannelContext context = new NioSocketChannelContext(c);
 

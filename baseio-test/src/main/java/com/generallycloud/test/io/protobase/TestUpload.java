@@ -28,7 +28,7 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.container.FileSendUtil;
+import com.generallycloud.baseio.container.protobase.FileSendUtil;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
 

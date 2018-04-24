@@ -21,10 +21,10 @@ import java.io.IOException;
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.container.FileReceiveUtil;
-import com.generallycloud.baseio.container.FileSendUtil;
-import com.generallycloud.baseio.container.RESMessage;
+import com.generallycloud.baseio.container.protobase.FileReceiveUtil;
+import com.generallycloud.baseio.container.protobase.FileSendUtil;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
+import com.generallycloud.baseio.container.protobase.RESMessage;
 
 public class TestDownloadServlet extends ProtobaseFutureAcceptorService {
 

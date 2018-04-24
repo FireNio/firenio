@@ -27,8 +27,6 @@ public class ApplicationConfiguration {
 
     private String  APP_ON_REDEPLOY_FUTURE_ACCEPTOR;
 
-    private String  APP_EXCEPTION_CAUGHT_HANDLE;
-
     private String  APP_IO_EXCEPTION_CAUGHT_HANDLE;
 
     public String getAPP_FUTURE_ACCEPTOR() {
@@ -69,14 +67,6 @@ public class ApplicationConfiguration {
 
     public void setAPP_ON_REDEPLOY_FUTURE_ACCEPTOR(String APP_ON_REDEPLOY_FUTURE_ACCEPTOR) {
         this.APP_ON_REDEPLOY_FUTURE_ACCEPTOR = APP_ON_REDEPLOY_FUTURE_ACCEPTOR;
-    }
-
-    public String getAPP_EXCEPTION_CAUGHT_HANDLE() {
-        return APP_EXCEPTION_CAUGHT_HANDLE;
-    }
-
-    public void setAPP_EXCEPTION_CAUGHT_HANDLE(String APP_EXCEPTION_CAUGHT_HANDLE) {
-        this.APP_EXCEPTION_CAUGHT_HANDLE = APP_EXCEPTION_CAUGHT_HANDLE;
     }
 
     public String getAPP_IO_EXCEPTION_CAUGHT_HANDLE() {
