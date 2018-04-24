@@ -21,11 +21,7 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.container.FixedSession;
-import com.generallycloud.baseio.container.SimpleIoEventHandle;
-import com.generallycloud.baseio.container.jms.TextByteMessage;
-import com.generallycloud.baseio.container.jms.client.MessageProducer;
-import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageProducer;
+import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
 public class TestTellerByteMessage {
 
@@ -43,20 +39,20 @@ public class TestTellerByteMessage {
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 
-        FixedSession session = new FixedSession(connector.connect());
-
-        MessageProducer producer = new DefaultMessageProducer(session);
-
-        TextByteMessage message = new TextByteMessage("msgId", "uuid", "============",
-                "你好！".getBytes(session.getContext().getEncoding()));
-
-        long old = System.currentTimeMillis();
-
-        for (int i = 0; i < 5; i++) {
-            producer.offer(message);
-        }
-
-        System.out.println("Time:" + (System.currentTimeMillis() - old));
+//        FixedSession session = new FixedSession(connector.connect());
+//
+//        MessageProducer producer = new DefaultMessageProducer(session);
+//
+//        TextByteMessage message = new TextByteMessage("msgId", "uuid", "============",
+//                "你好！".getBytes(session.getContext().getEncoding()));
+//
+//        long old = System.currentTimeMillis();
+//
+//        for (int i = 0; i < 5; i++) {
+//            producer.offer(message);
+//        }
+//
+//        System.out.println("Time:" + (System.currentTimeMillis() - old));
 
         connector.close();
 

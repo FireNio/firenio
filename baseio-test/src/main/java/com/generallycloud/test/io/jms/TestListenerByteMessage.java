@@ -16,20 +16,13 @@
 package com.generallycloud.test.io.jms;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.container.FixedSession;
-import com.generallycloud.baseio.container.SimpleIoEventHandle;
-import com.generallycloud.baseio.container.jms.Message;
-import com.generallycloud.baseio.container.jms.TextByteMessage;
-import com.generallycloud.baseio.container.jms.client.MessageConsumer;
-import com.generallycloud.baseio.container.jms.client.OnMessage;
-import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageConsumer;
+import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
 public class TestListenerByteMessage {
 
@@ -47,25 +40,25 @@ public class TestListenerByteMessage {
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 
-        FixedSession session = new FixedSession(connector.connect());
-
-        MessageConsumer consumer = new DefaultMessageConsumer(session);
-
-        final long old = System.currentTimeMillis();
-
-        consumer.receive(new OnMessage() {
-
-            @Override
-            public void onReceive(Message message) {
-                System.out.println(message);
-                if (message.getMsgType() == Message.TYPE_TEXT_BYTE) {
-                    TextByteMessage _Message = (TextByteMessage) message;
-                    System.out.println(new String(_Message.getByteArray(), Encoding.UTF8));
-                }
-
-                System.out.println("Time:" + (System.currentTimeMillis() - old));
-            }
-        });
+//        FixedSession session = new FixedSession(connector.connect());
+//
+//        MessageConsumer consumer = new DefaultMessageConsumer(session);
+//
+//        final long old = System.currentTimeMillis();
+//
+//        consumer.receive(new OnMessage() {
+//
+//            @Override
+//            public void onReceive(Message message) {
+//                System.out.println(message);
+//                if (message.getMsgType() == Message.TYPE_TEXT_BYTE) {
+//                    TextByteMessage _Message = (TextByteMessage) message;
+//                    System.out.println(new String(_Message.getByteArray(), Encoding.UTF8));
+//                }
+//
+//                System.out.println("Time:" + (System.currentTimeMillis() - old));
+//            }
+//        });
 
         ThreadUtil.sleep(30000000);
 

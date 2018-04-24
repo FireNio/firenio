@@ -21,11 +21,7 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.container.FixedSession;
-import com.generallycloud.baseio.container.SimpleIoEventHandle;
-import com.generallycloud.baseio.container.jms.TextMessage;
-import com.generallycloud.baseio.container.jms.client.MessageProducer;
-import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageProducer;
+import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestPublish {
@@ -48,13 +44,13 @@ public class TestPublish {
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 
-        FixedSession session = new FixedSession(connector.connect());
-
-        MessageProducer producer = new DefaultMessageProducer(session);
-
-        TextMessage message = new TextMessage("msgId", "qName", "你好！");
-
-        producer.publish(message);
+//        FixedSession session = new FixedSession(connector.connect());
+//
+//        MessageProducer producer = new DefaultMessageProducer(session);
+//
+//        TextMessage message = new TextMessage("msgId", "qName", "你好！");
+//
+//        producer.publish(message);
 
         connector.close();
 

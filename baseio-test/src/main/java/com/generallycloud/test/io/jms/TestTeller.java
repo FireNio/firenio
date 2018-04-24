@@ -21,12 +21,7 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.container.FixedSession;
-import com.generallycloud.baseio.container.SimpleIoEventHandle;
-import com.generallycloud.baseio.container.jms.MapMessage;
-import com.generallycloud.baseio.container.jms.TextMessage;
-import com.generallycloud.baseio.container.jms.client.MessageProducer;
-import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageProducer;
+import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
 public class TestTeller {
 
@@ -44,23 +39,23 @@ public class TestTeller {
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 
-        FixedSession session = new FixedSession(connector.connect());
-
-        MessageProducer producer = new DefaultMessageProducer(session);
-
-        TextMessage message = new TextMessage("msgId", "uuid", "你好！");
-
-        MapMessage mapMessage = new MapMessage("msgId", "uuid");
-
-        mapMessage.put("test", "test111111111111111111111");
-
-        long old = System.currentTimeMillis();
-
-        producer.offer(message);
-
-        producer.offer(mapMessage);
-
-        System.out.println("Time:" + (System.currentTimeMillis() - old));
+//        FixedSession session = new FixedSession(connector.connect());
+//
+//        MessageProducer producer = new DefaultMessageProducer(session);
+//
+//        TextMessage message = new TextMessage("msgId", "uuid", "你好！");
+//
+//        MapMessage mapMessage = new MapMessage("msgId", "uuid");
+//
+//        mapMessage.put("test", "test111111111111111111111");
+//
+//        long old = System.currentTimeMillis();
+//
+//        producer.offer(message);
+//
+//        producer.offer(mapMessage);
+//
+//        System.out.println("Time:" + (System.currentTimeMillis() - old));
 
         connector.close();
 

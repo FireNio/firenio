@@ -15,89 +15,74 @@
  */
 package com.generallycloud.test.io.jms;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.container.FixedSession;
-import com.generallycloud.baseio.container.SimpleIoEventHandle;
-import com.generallycloud.baseio.container.jms.MQException;
-import com.generallycloud.baseio.container.jms.Message;
-import com.generallycloud.baseio.container.jms.client.MessageConsumer;
-import com.generallycloud.baseio.container.jms.client.OnMessage;
-import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageConsumer;
-import com.generallycloud.baseio.log.LoggerFactory;
-
 public class TestTransaction {
 
-    public static void main(String[] args) throws Exception {
-
-        LoggerFactory.configure();
-
-        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
-
-        ServerConfiguration configuration = new ServerConfiguration(8300);
-
-        SocketChannelContext context = new NioSocketChannelContext(configuration);
-
-        SocketChannelConnector connector = new SocketChannelConnector(context);
-
-        context.setIoEventHandleAdaptor(eventHandle);
-
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
-
-        context.addSessionEventListener(new LoggerSocketSEListener());
-
-        FixedSession session = new FixedSession(connector.connect());
-
-        MessageConsumer consumer = new DefaultMessageConsumer(session);
-
-        rollback(consumer);
-
-        //		commit(consumer);
-
-        connector.close();
-
-    }
-
-    static void commit(MessageConsumer consumer) throws MQException {
-        long old = System.currentTimeMillis();
-
-        consumer.beginTransaction();
-
-        consumer.receive(new OnMessage() {
-
-            @Override
-            public void onReceive(Message message) {
-                System.out.println(message);
-            }
-        });
-
-        consumer.commit();
-
-        System.out.println("Time:" + (System.currentTimeMillis() - old));
-
-    }
-
-    static void rollback(MessageConsumer consumer) throws MQException {
-        long old = System.currentTimeMillis();
-
-        consumer.beginTransaction();
-
-        consumer.receive(new OnMessage() {
-
-            @Override
-            public void onReceive(Message message) {
-
-                System.out.println(message);
-            }
-        });
-
-        consumer.rollback();
-
-        System.out.println("Time:" + (System.currentTimeMillis() - old));
-    }
+//    public static void main(String[] args) throws Exception {
+//
+//        LoggerFactory.configure();
+//
+//        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+//
+//        ServerConfiguration configuration = new ServerConfiguration(8300);
+//
+//        SocketChannelContext context = new NioSocketChannelContext(configuration);
+//
+//        SocketChannelConnector connector = new SocketChannelConnector(context);
+//
+//        context.setIoEventHandleAdaptor(eventHandle);
+//
+//        context.setProtocolFactory(new ProtobaseProtocolFactory());
+//
+//        context.addSessionEventListener(new LoggerSocketSEListener());
+//
+//        FixedSession session = new FixedSession(connector.connect());
+//
+//        MessageConsumer consumer = new DefaultMessageConsumer(session);
+//
+//        rollback(consumer);
+//
+//        //		commit(consumer);
+//
+//        connector.close();
+//
+//    }
+//
+//    static void commit(MessageConsumer consumer) throws MQException {
+//        long old = System.currentTimeMillis();
+//
+//        consumer.beginTransaction();
+//
+//        consumer.receive(new OnMessage() {
+//
+//            @Override
+//            public void onReceive(Message message) {
+//                System.out.println(message);
+//            }
+//        });
+//
+//        consumer.commit();
+//
+//        System.out.println("Time:" + (System.currentTimeMillis() - old));
+//
+//    }
+//
+//    static void rollback(MessageConsumer consumer) throws MQException {
+//        long old = System.currentTimeMillis();
+//
+//        consumer.beginTransaction();
+//
+//        consumer.receive(new OnMessage() {
+//
+//            @Override
+//            public void onReceive(Message message) {
+//
+//                System.out.println(message);
+//            }
+//        });
+//
+//        consumer.rollback();
+//
+//        System.out.println("Time:" + (System.currentTimeMillis() - old));
+//    }
 
 }

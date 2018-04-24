@@ -23,12 +23,7 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.container.FixedSession;
-import com.generallycloud.baseio.container.SimpleIoEventHandle;
-import com.generallycloud.baseio.container.jms.Message;
-import com.generallycloud.baseio.container.jms.client.MessageConsumer;
-import com.generallycloud.baseio.container.jms.client.OnMessage;
-import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageConsumer;
+import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestListenerCallBack {
@@ -51,17 +46,17 @@ public class TestListenerCallBack {
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 
-        FixedSession session = new FixedSession(connector.connect());
-
-        MessageConsumer consumer = new DefaultMessageConsumer(session);
-
-        consumer.receive(new OnMessage() {
-
-            @Override
-            public void onReceive(Message message) {
-                System.out.println(message);
-            }
-        });
+//        FixedSession session = new FixedSession(connector.connect());
+//
+//        MessageConsumer consumer = new DefaultMessageConsumer(session);
+//
+//        consumer.receive(new OnMessage() {
+//
+//            @Override
+//            public void onReceive(Message message) {
+//                System.out.println(message);
+//            }
+//        });
 
         ThreadUtil.sleep(1000);
         CloseUtil.close(connector);
