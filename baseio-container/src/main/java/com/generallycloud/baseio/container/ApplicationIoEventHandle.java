@@ -168,21 +168,15 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
                 true, rootLocalAddress, Bootstrap.withDefault());
         this.applicationExtLoader.loadExts(this, classLoader);
         this.configuration = configurationLoader.loadConfiguration(classLoader);
-        if (!StringUtil.isNullOrBlank(configuration.getAPP_ON_REDEPLOY_FUTURE_ACCEPTOR())) {
-            Class<?> clazz = classLoader.loadClass(configuration.getAPP_ON_REDEPLOY_FUTURE_ACCEPTOR());
-            appOnRedeployService = (FutureAcceptor) clazz.newInstance();
-        }else{
-            if (appOnRedeployService == null) {
-                appOnRedeployService = new DefaultOnRedeployAcceptor();
-            }
+        this.appOnRedeployService = (FutureAcceptor) newInstanceFromClass(
+                configuration.getAPP_ON_REDEPLOY_FUTURE_ACCEPTOR(),appOnRedeployService);
+        if (appOnRedeployService == null) {
+            appOnRedeployService = new DefaultOnRedeployAcceptor();
         }
-        if (!StringUtil.isNullOrBlank(configuration.getAPP_IO_EXCEPTION_CAUGHT_HANDLE())) {
-            Class<?> clazz = classLoader.loadClass(configuration.getAPP_IO_EXCEPTION_CAUGHT_HANDLE());
-            ioExceptionCaughtHandle = (ExceptionCaughtHandle) clazz.newInstance();
-        }else{
-            if (ioExceptionCaughtHandle == null) {
-                ioExceptionCaughtHandle = new LoggerExceptionCaughtHandle();
-            }
+        this.ioExceptionCaughtHandle = (ExceptionCaughtHandle) newInstanceFromClass(
+                configuration.getAPP_IO_EXCEPTION_CAUGHT_HANDLE(),ioExceptionCaughtHandle);
+        if (ioExceptionCaughtHandle == null) {
+            ioExceptionCaughtHandle = new LoggerExceptionCaughtHandle();
         }
         if (StringUtil.isNullOrBlank(configuration.getAPP_FUTURE_ACCEPTOR())) {
             throw new IllegalArgumentException("APP_FUTURE_ACCEPTOR");
@@ -190,6 +184,14 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         Class<?> clazz = classLoader.loadClass(configuration.getAPP_FUTURE_ACCEPTOR());
         futureAcceptor = (ContainerIoEventHandle) clazz.newInstance();
         getFutureAcceptor().initialize(channelContext);
+    }
+
+    private Object newInstanceFromClass(String className,Object defaultObj) throws Exception {
+        if (StringUtil.isNullOrBlank(className)) {
+            return defaultObj;
+        }
+        Class<?> clazz = classLoader.loadClass(className);
+        return clazz.newInstance();
     }
 
     public boolean isDeployModel() {
@@ -203,24 +205,23 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     // FIXME 考虑部署失败后如何再次部署
     // FIXME keep http session
     public synchronized boolean redeploy() {
-        LoggerUtil.prettyLog(logger, "//**********************  开始卸载服务  **********************//");
+        LoggerUtil.prettyLog(logger, 
+                "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  开始卸载服务  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         this.deploying = true;
         try {
             destroyHandle(channelContext);
             LoggerUtil.prettyLog(logger,
-                    "//**********************  卸载服务完成  **********************//\n");
-            LoggerUtil.prettyLog(logger,
-                    "//**********************  开始加载服务  **********************//");
+                    "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  开始加载服务  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
             initializeHandle(channelContext);
             deploying = false;
             LoggerUtil.prettyLog(logger,
-                    "//**********************  加载服务完成  **********************//\n");
+                    "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  加载服务完成  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
             return true;
         } catch (Exception e) {
             classLoader.unloadClassLoader();
             deploying = false;
             LoggerUtil.prettyLog(logger,
-                    "//**********************  加载服务失败  **********************//\n");
+                    "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  加载服务失败  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
             logger.info(e.getMessage(), e);
             return false;
         }

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.generallycloud.baseio.common.FileUtil;
+import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.log.DebugUtil;
 
 /**
@@ -32,7 +33,7 @@ public final class Bootstrap {
     public static void startup(String className, boolean deployModel,
             List<ClassPathScaner> classPathScaners) throws Exception {
         String rootPath = URLDecoder.decode(FileUtil.getCurrentPath(), "UTF-8");
-        DebugUtil.info(" ROOT_PATH: {}", rootPath);
+        LoggerUtil.prettyLog(DebugUtil.getLogger(), "ROOT_PATH: {}", rootPath);
         startup(className, rootPath, deployModel, classPathScaners);
     }
 

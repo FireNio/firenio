@@ -31,22 +31,21 @@ public class SystemRedeployServlet implements FutureAcceptor {
 
     @Override
     public void accept(SocketSession session, Future future) throws IOException {
-
         ApplicationIoEventHandle applicationIoEventHandle =  
                 (ApplicationIoEventHandle) session.getContext().getIoEventHandleAdaptor();
-
         AtomicInteger redeployTime = applicationIoEventHandle.getRedeployTime();
-        
-        int time = redeployTime.incrementAndGet();
-
+        long startTime = System.currentTimeMillis();
         if (applicationIoEventHandle.redeploy()) {
-            future.write("redeploy successful_" + time);
+            int time = redeployTime.incrementAndGet();
+            future.write("redeploy successful_");
+            future.write(String.valueOf(time));
+            future.write(",spent time:");
+            future.write(String.valueOf(System.currentTimeMillis() - startTime));
         } else {
-            future.write("redeploy failed_" + time);
+            future.write("redeploy failed,spent time:");
+            future.write(String.valueOf(System.currentTimeMillis() - startTime));
         }
-
         session.flush(future);
-
     }
 
 }

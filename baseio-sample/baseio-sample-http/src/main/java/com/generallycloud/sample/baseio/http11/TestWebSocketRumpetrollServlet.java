@@ -104,7 +104,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 
     @PostConstruct
     public void init() throws Exception {
-        msgAdapter.startup("WebSocketRumpetroll");
+        msgAdapter.startup("websocket-rumpetroll");
     }
 
     @PreDestroy

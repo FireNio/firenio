@@ -182,7 +182,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         ApplicationIoEventHandle handle = geApplicationIoEventHandle(context);
         if (handle.getConfiguration().isAPP_ENABLE_HTTP_SESSION()) {
             httpSessionManager = new DefaultHttpSessionManager();
-            httpSessionManager.startup("HTTPSession-Manager");
+            httpSessionManager.startup("http-session-manager");
         } else {
             httpSessionManager = new FakeHttpSessionManager();
         }
@@ -200,12 +200,11 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
             File file, String root, Map<String, String> mapping, String path) throws IOException {
         if (file.isFile()) {
             String contentType = getContentType(file.getName(), mapping);
-            String fileName = file.getCanonicalPath().replace("\\", "/");
             HttpEntity entity = new HttpEntity();
             entity.setContentType(contentType);
             entity.setFile(file);
             htmlCache.put(path, entity);
-            LoggerUtil.prettyLog(logger, "mapping static :{}@{}", path, fileName);
+            LoggerUtil.prettyLog(logger, "mapping static url:{}", path);
         } else if (file.isDirectory()) {
             String staticName = path;
             if ("/lib".equals(staticName)) {

@@ -34,36 +34,25 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public class WebSocketMsgAdapter extends AbstractEventLoop {
 
     private Logger                     logger     = LoggerFactory.getLogger(getClass());
-
     private List<SocketSession>        clients    = new ArrayList<>();
-
     private Map<String, SocketSession> clientsMap = new HashMap<>();
-
     private BlockingQueue<Msg>         msgs       = new ArrayBlockingQueue<>(1024 * 4);
 
     public synchronized void addClient(String username, SocketSession session) {
-
         clients.add(session);
-
         clientsMap.put(username, session);
-
         logger.info("client joined {} ,clients size: {}", session, clients.size());
     }
 
     public synchronized boolean removeClient(SocketSession session) {
-
         if (clients.remove(session)) {
-
             String username = (String) session.getAttribute("username");
-
             if (!StringUtil.isNullOrBlank(username)) {
                 clientsMap.remove(username);
             }
-
             logger.info("client left {} ,clients size: {}", session, clients.size());
             return true;
         }
-
         return false;
     }
 
@@ -85,43 +74,26 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
     @Override
     protected void doLoop() throws InterruptedException {
-
         Msg msg = msgs.poll(16, TimeUnit.MILLISECONDS);
-
         if (msg == null) {
             return;
         }
-
         synchronized (this) {
-
             SocketSession session = msg.session;
-
             if (session != null) {
-
                 WebSocketFuture f = new WebSocketFutureImpl(session.getContext());
-
                 f.write(msg.msg);
-
                 session.flush(f);
-
                 return;
             }
-
             for (int i = 0; i < clients.size(); i++) {
-
                 SocketSession s = clients.get(i);
-
                 if (s.isOpened()) {
-
                     WebSocketFuture f = new WebSocketFutureImpl(s.getContext());
-
                     f.write(msg.msg);
-
                     s.flush(f);
                 } else {
-
                     removeClient(s);
-
                     i--;
                 }
             }

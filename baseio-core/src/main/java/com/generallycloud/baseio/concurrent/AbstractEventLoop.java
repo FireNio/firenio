@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.concurrent;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
+import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -62,9 +63,13 @@ public abstract class AbstractEventLoop implements EventLoop {
 
     protected abstract void doLoop() throws Exception;
 
-    protected void doStartup() throws Exception {}
+    protected void doStartup() throws Exception {
+        LoggerUtil.prettyLog(logger, "event looper {} inited",this);
+    }
 
-    protected void doStop() {}
+    protected void doStop() {
+        LoggerUtil.prettyLog(logger, "event looper {} stopped",this);
+    }
 
     @Override
     public EventLoopGroup getEventLoopGroup() {

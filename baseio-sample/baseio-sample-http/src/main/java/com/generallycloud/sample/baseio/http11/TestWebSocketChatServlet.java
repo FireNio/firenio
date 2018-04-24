@@ -136,7 +136,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
 
     @PostConstruct
     public void initialize() throws Exception {
-        msgAdapter.startup("WebSocketChat");
+        msgAdapter.startup("websocket-chat");
     }
 
     @PreDestroy

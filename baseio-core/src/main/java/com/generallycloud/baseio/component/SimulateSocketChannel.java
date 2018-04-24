@@ -68,6 +68,7 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
             }
         } , -1);
         this.context = context;
+        this.channelDesc = getClass().getSimpleName()+"@"+hashCode();
     }
 
     @Override
