@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.container;
+package com.generallycloud.baseio.container.protobase;
 
-/**
- * @author wangkai
- *
- */
-public class ContainerConsotant {
+import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.protocol.Future;
 
-    public static String ACTION_LOGIN = "/login";
+public interface OnFuture {
 
+    public abstract void onResponse(SocketSession session, Future future);
 }

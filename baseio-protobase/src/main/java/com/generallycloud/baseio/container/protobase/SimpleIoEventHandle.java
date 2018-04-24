@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.container;
+package com.generallycloud.baseio.container.protobase;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -31,35 +31,25 @@ public class SimpleIoEventHandle extends IoEventHandleAdaptor {
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
-
         NamedFuture f = (NamedFuture) future;
-
         OnFutureWrapper onReadFuture = listeners.get(f.getFutureName());
-
         if (onReadFuture != null) {
             onReadFuture.onResponse(session, f);
         }
     }
 
     public void listen(String serviceName, OnFuture onReadFuture) throws IOException {
-
         if (StringUtil.isNullOrBlank(serviceName)) {
             throw new IOException("empty service name");
         }
-
         OnFutureWrapper wrapper = listeners.get(serviceName);
-
         if (wrapper == null) {
-
             wrapper = new OnFutureWrapper();
-
             listeners.put(serviceName, wrapper);
         }
-
         if (onReadFuture == null) {
             return;
         }
-
         wrapper.setListener(onReadFuture);
     }
 

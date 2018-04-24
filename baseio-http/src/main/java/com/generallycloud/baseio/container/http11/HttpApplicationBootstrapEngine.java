@@ -36,7 +36,6 @@ public class HttpApplicationBootstrapEngine extends ApplicationBootstrapEngine {
                 (ApplicationIoEventHandle) context.getIoEventHandleAdaptor();
         handle.setApplicationExtLoader(new HttpExtLoader());
         handle.setApplicationConfigurationLoader(new FileSystemACLoader());
-        handle.setExceptionCaughtHandle(new HttpExceptionCaughtHandle());
         handle.setAppOnRedeployService(new HttpOnRedeployAcceptor());
         context.setBeatFutureFactory(new WebSocketBeatFutureFactory());
         context.addSessionEventListener(new LoggerSocketSEListener());
