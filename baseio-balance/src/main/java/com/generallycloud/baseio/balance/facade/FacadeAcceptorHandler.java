@@ -20,7 +20,7 @@ import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.balance.FacadeInterceptor;
 import com.generallycloud.baseio.balance.NoneLoadFutureAcceptor;
 import com.generallycloud.baseio.balance.reverse.ReverseLogger;
-import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -53,13 +53,13 @@ public abstract class FacadeAcceptorHandler extends IoEventHandleAdaptor {
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
-        BalanceFacadeSocketSession fs = (BalanceFacadeSocketSession) session;
+        FacadeSocketSession fs = (FacadeSocketSession) session;
         BalanceFuture f = (BalanceFuture) future;
         if (facadeInterceptor.intercept(fs, f)) {
             logger.info("msg intercepted [ {} ], msg: {}", fs.getRemoteSocketAddress(), f);
             return;
         }
-        BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs, f);
+        ReverseSocketSession rs = balanceRouter.getRouterSession(fs, f);
         if (rs == null || rs.isClosed()) {
             noneLoadReadFutureAcceptor.accept(fs, f, reverseLogger);
             return;
@@ -67,10 +67,10 @@ public abstract class FacadeAcceptorHandler extends IoEventHandleAdaptor {
         doAccept(fs, rs, f);
     }
 
-    protected abstract void doAccept(BalanceFacadeSocketSession fs, BalanceReverseSocketSession rs,
+    protected abstract void doAccept(FacadeSocketSession fs, ReverseSocketSession rs,
             BalanceFuture future);
 
-    protected void logDispatchMsg(BalanceFacadeSocketSession fs, BalanceReverseSocketSession rs,
+    protected void logDispatchMsg(FacadeSocketSession fs, ReverseSocketSession rs,
             BalanceFuture f) {
         logger.info("dispatch msg: F[{}],T[{}],msg:{}", fs.getRemoteSocketAddress(),
                 rs.getRemoteSocketAddress(), f);

@@ -23,10 +23,10 @@ import com.generallycloud.baseio.component.SocketChannel;
  * @author wangkai
  *
  */
-public class TokenBalanceFacadeSocketSessionImpl extends BalanceFacadeSocketSessionImpl
-        implements TokenBalanceFacadeSocketSession {
+public class TokenFacadeSocketSessionImpl extends FacadeSocketSessionImpl
+        implements TokenFacadeSocketSession {
 
-    public TokenBalanceFacadeSocketSessionImpl(SocketChannel channel) {
+    public TokenFacadeSocketSessionImpl(SocketChannel channel) {
         super(channel);
         this.token = generateToken();
     }

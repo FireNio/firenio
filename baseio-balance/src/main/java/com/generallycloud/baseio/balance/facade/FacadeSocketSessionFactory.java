@@ -15,17 +15,15 @@
  */
 package com.generallycloud.baseio.balance.facade;
 
-import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.SocketSessionFactoryImpl;
+import com.generallycloud.baseio.component.UnsafeSocketSession;
 
-public interface BalanceFacadeSocketSession extends SocketSession {
+public class FacadeSocketSessionFactory extends SocketSessionFactoryImpl {
 
-    public abstract Object getSessionKey();
-
-    public abstract boolean overfulfil(int size);
-
-    public abstract BalanceReverseSocketSession getReverseSocketSession();
-
-    public abstract void setReverseSocketSession(BalanceReverseSocketSession reverseSocketSession);
+    @Override
+    public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
+        return new FacadeSocketSessionImpl(channel);
+    }
 
 }

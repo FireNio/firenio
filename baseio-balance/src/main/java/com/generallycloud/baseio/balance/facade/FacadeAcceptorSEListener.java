@@ -17,37 +17,37 @@ package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.balance.ChannelLostFutureFactory;
-import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class BalanceFacadeAcceptorSEListener extends SocketSessionEventListenerAdapter {
+public class FacadeAcceptorSEListener extends SocketSessionEventListenerAdapter {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
     
     private BalanceContext context;
     
-    public BalanceFacadeAcceptorSEListener(BalanceContext context) {
+    public FacadeAcceptorSEListener(BalanceContext context) {
         this.context = context;
     }
 
     @Override
     public void sessionOpened(SocketSession session) {
         BalanceRouter balanceRouter = context.getBalanceRouter();
-        balanceRouter.addClientSession((BalanceFacadeSocketSession) session);
+        balanceRouter.addClientSession((FacadeSocketSession) session);
         logger.info("client from [ {} ] connected.", session.getRemoteSocketAddress());
     }
 
     @Override
     public void sessionClosed(SocketSession session) {
         BalanceRouter balanceRouter = context.getBalanceRouter();
-        BalanceFacadeSocketSession fs = (BalanceFacadeSocketSession) session;
+        FacadeSocketSession fs = (FacadeSocketSession) session;
         balanceRouter.removeClientSession(fs);
         logger.info("client from [ {} ] disconnected.", session.getRemoteSocketAddress());
-        BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs);
+        ReverseSocketSession rs = balanceRouter.getRouterSession(fs);
         if (rs == null) {
             return;
         }

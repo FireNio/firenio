@@ -27,7 +27,7 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
 
-public class BalanceReverseAcceptorHandler extends IoEventHandleAdaptor {
+public class ReverseAcceptorHandler extends IoEventHandleAdaptor {
 
     private Logger                logger = LoggerFactory.getLogger(getClass());
     private BalanceRouter         balanceRouter;

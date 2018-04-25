@@ -15,26 +15,26 @@
  */
 package com.generallycloud.baseio.balance.router;
 
-import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
-import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
+import com.generallycloud.baseio.balance.facade.FacadeSocketSession;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 import com.generallycloud.baseio.protocol.Future;
 
 public interface BalanceRouter {
 
-    public abstract void addClientSession(BalanceFacadeSocketSession session);
+    public abstract void addClientSession(FacadeSocketSession session);
 
-    public abstract void addRouterSession(BalanceReverseSocketSession session);
+    public abstract void addRouterSession(ReverseSocketSession session);
 
-    public abstract BalanceFacadeSocketSession getClientSession(Object key);
+    public abstract FacadeSocketSession getClientSession(Object key);
 
-    public abstract BalanceReverseSocketSession getRouterSession(
-            BalanceFacadeSocketSession session);
+    public abstract ReverseSocketSession getRouterSession(
+            FacadeSocketSession session);
 
-    public abstract BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session,
+    public abstract ReverseSocketSession getRouterSession(FacadeSocketSession session,
             Future future);
 
-    public abstract void removeClientSession(BalanceFacadeSocketSession session);
+    public abstract void removeClientSession(FacadeSocketSession session);
 
-    public abstract void removeRouterSession(BalanceReverseSocketSession session);
+    public abstract void removeRouterSession(ReverseSocketSession session);
 
 }

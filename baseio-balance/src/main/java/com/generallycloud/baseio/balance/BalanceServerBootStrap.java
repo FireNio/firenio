@@ -18,13 +18,13 @@ package com.generallycloud.baseio.balance;
 import java.io.IOException;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.baseio.balance.facade.BalanceFacadeAcceptorSEListener;
-import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSessionFactory;
+import com.generallycloud.baseio.balance.facade.FacadeAcceptorSEListener;
+import com.generallycloud.baseio.balance.facade.FacadeSocketSessionFactory;
 import com.generallycloud.baseio.balance.facade.SessionIdFacadeAcceptorHandler;
-import com.generallycloud.baseio.balance.reverse.BalanceReverseAcceptorHandler;
-import com.generallycloud.baseio.balance.reverse.BalanceReverseAcceptorSEListener;
+import com.generallycloud.baseio.balance.reverse.ReverseAcceptorHandler;
+import com.generallycloud.baseio.balance.reverse.ReverseAcceptorSEListener;
 import com.generallycloud.baseio.balance.reverse.ReverseLogger;
-import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSessionFactory;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketSessionFactory;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.balance.router.SimpleNextRouter;
 import com.generallycloud.baseio.common.CloseUtil;
@@ -38,24 +38,20 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class BalanceServerBootStrap {
 
-    private Logger                 logger         = LoggerFactory.getLogger(getClass());
     private BalanceContext         balanceContext = new BalanceContext();
-    private ReverseLogger   balanceReverseLogger;
     private IoEventHandleAdaptor   facadeAcceptorHandler;
     private SocketChannelContext   facadeChannelContext;
     private ExceptionCaughtHandle  facadeExceptionCaughtHandle;
     private FacadeInterceptor      facadeInterceptor;
+    private Logger                 logger         = LoggerFactory.getLogger(getClass());
     private NoneLoadFutureAcceptor noneLoadReadFutureAcceptor;
     private IoEventHandleAdaptor   reverseAcceptorHandler;
     private SocketChannelContext   reverseChannelContext;
     private ExceptionCaughtHandle  reverseExceptionCaughtHandle;
+    private ReverseLogger          reverseLogger;
 
     public BalanceContext getBalanceContext() {
         return balanceContext;
-    }
-
-    public ReverseLogger getBalanceReverseLogger() {
-        return balanceReverseLogger;
     }
 
     public IoEventHandleAdaptor getFacadeAcceptorHandler() {
@@ -90,8 +86,8 @@ public class BalanceServerBootStrap {
         return reverseExceptionCaughtHandle;
     }
 
-    public void setBalanceReverseLogger(ReverseLogger balanceReverseLogger) {
-        this.balanceReverseLogger = balanceReverseLogger;
+    public ReverseLogger getReverseLogger() {
+        return reverseLogger;
     }
 
     public void setBalanceRouter(BalanceRouter balanceRouter) {
@@ -136,6 +132,10 @@ public class BalanceServerBootStrap {
         this.reverseExceptionCaughtHandle = reverseExceptionCaughtHandle;
     }
 
+    public void setReverseLogger(ReverseLogger reverseLogger) {
+        this.reverseLogger = reverseLogger;
+    }
+
     public void startup() throws IOException {
         if (facadeChannelContext == null) {
             throw new IllegalArgumentException("facadeChannelContext is null");
@@ -149,8 +149,8 @@ public class BalanceServerBootStrap {
         if (facadeInterceptor == null) {
             facadeInterceptor = new FacadeInterceptorImpl(5, 50000);
         }
-        if (balanceReverseLogger == null) {
-            balanceReverseLogger = new ReverseLogger();
+        if (reverseLogger == null) {
+            reverseLogger = new ReverseLogger();
         }
         if (noneLoadReadFutureAcceptor == null) {
             noneLoadReadFutureAcceptor = new DefaultNoneLoadFutureAcceptor();
@@ -165,23 +165,23 @@ public class BalanceServerBootStrap {
             facadeAcceptorHandler = new SessionIdFacadeAcceptorHandler();
         }
         if (reverseAcceptorHandler == null) {
-            reverseAcceptorHandler = new BalanceReverseAcceptorHandler();
+            reverseAcceptorHandler = new ReverseAcceptorHandler();
         }
         balanceContext.setNoneLoadReadFutureAcceptor(noneLoadReadFutureAcceptor);
         balanceContext.setReverseExceptionCaughtHandle(reverseExceptionCaughtHandle);
         balanceContext.setFacadeExceptionCaughtHandle(facadeExceptionCaughtHandle);
-        balanceContext.setReverseLogger(balanceReverseLogger);
+        balanceContext.setReverseLogger(reverseLogger);
         balanceContext.setFacadeInterceptor(facadeInterceptor);
         balanceContext.setFacadeAcceptor(new SocketChannelAcceptor(facadeChannelContext));
         balanceContext.setReverseAcceptor(new SocketChannelAcceptor(reverseChannelContext));
         facadeChannelContext.setAttribute(BalanceContext.BALANCE_CONTEXT_KEY, balanceContext);
         facadeChannelContext.setIoEventHandleAdaptor(facadeAcceptorHandler);
-        facadeChannelContext.addSessionEventListener(new BalanceFacadeAcceptorSEListener(balanceContext));
-        facadeChannelContext.setSocketSessionFactory(new BalanceFacadeSocketSessionFactory());
+        facadeChannelContext.addSessionEventListener(new FacadeAcceptorSEListener(balanceContext));
+        facadeChannelContext.setSocketSessionFactory(new FacadeSocketSessionFactory());
         reverseChannelContext.setAttribute(BalanceContext.BALANCE_CONTEXT_KEY, balanceContext);
         reverseChannelContext.setIoEventHandleAdaptor(reverseAcceptorHandler);
-        reverseChannelContext.addSessionEventListener(new BalanceReverseAcceptorSEListener(balanceContext));
-        reverseChannelContext.setSocketSessionFactory(new BalanceReverseSocketSessionFactory());
+        reverseChannelContext.addSessionEventListener(new ReverseAcceptorSEListener(balanceContext));
+        reverseChannelContext.setSocketSessionFactory(new ReverseSocketSessionFactory());
         balanceContext.getFacadeAcceptor().bind();
         LoggerUtil.prettyLog(logger, "Facade Acceptor startup completed ...");
         balanceContext.getReverseAcceptor().bind();

@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.balance;
 
-import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
+import com.generallycloud.baseio.balance.facade.FacadeSocketSession;
 
 public interface FacadeInterceptor {
 
@@ -27,6 +27,6 @@ public interface FacadeInterceptor {
      * @return true拦截，false放行
      * @throws Exception
      */
-    public abstract boolean intercept(BalanceFacadeSocketSession session, BalanceFuture future)
+    public abstract boolean intercept(FacadeSocketSession session, BalanceFuture future)
             throws Exception;
 }

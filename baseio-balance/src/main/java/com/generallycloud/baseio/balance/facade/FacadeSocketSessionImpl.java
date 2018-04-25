@@ -17,26 +17,26 @@ package com.generallycloud.baseio.balance.facade;
 
 import java.util.Random;
 
-import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.UnsafeSocketSessionImpl;
 
-public class BalanceFacadeSocketSessionImpl extends UnsafeSocketSessionImpl
-        implements BalanceFacadeSocketSession {
+public class FacadeSocketSessionImpl extends UnsafeSocketSessionImpl
+        implements FacadeSocketSession {
 
     private int                         msg_size;
 
     private long                        next_check_time;
 
-    private BalanceReverseSocketSession reverseSocketSession;
+    private ReverseSocketSession reverseSocketSession;
 
-    public BalanceFacadeSocketSessionImpl(SocketChannel channel) {
+    public FacadeSocketSessionImpl(SocketChannel channel) {
         super(channel);
     }
 
     @Override
-    public BalanceReverseSocketSession getReverseSocketSession() {
+    public ReverseSocketSession getReverseSocketSession() {
         return reverseSocketSession;
     }
 
@@ -54,7 +54,7 @@ public class BalanceFacadeSocketSessionImpl extends UnsafeSocketSessionImpl
     }
 
     @Override
-    public void setReverseSocketSession(BalanceReverseSocketSession reverseSocketSession) {
+    public void setReverseSocketSession(ReverseSocketSession reverseSocketSession) {
         this.reverseSocketSession = reverseSocketSession;
     }
 

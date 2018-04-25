@@ -19,22 +19,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
-import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
+import com.generallycloud.baseio.balance.facade.FacadeSocketSession;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleNextRouter extends AbstractBalanceRouter {
 
     private int                               index      = 0;
     private ReentrantLock                     lock       = new ReentrantLock();
-    private List<BalanceReverseSocketSession> routerList = new ArrayList<>();
+    private List<ReverseSocketSession> routerList = new ArrayList<>();
 
-    private BalanceReverseSocketSession getNextRouterSession() {
-        List<BalanceReverseSocketSession> list = this.routerList;
+    private ReverseSocketSession getNextRouterSession() {
+        List<ReverseSocketSession> list = this.routerList;
         if (list.isEmpty()) {
             return null;
         }
-        BalanceReverseSocketSession session;
+        ReverseSocketSession session;
         if (index < list.size()) {
             session = list.get(index++);
         } else {
@@ -45,7 +45,7 @@ public class SimpleNextRouter extends AbstractBalanceRouter {
     }
 
     @Override
-    public void addRouterSession(BalanceReverseSocketSession session) {
+    public void addRouterSession(ReverseSocketSession session) {
         ReentrantLock lock = this.lock;
         lock.lock();
         this.routerList.add(session);
@@ -53,7 +53,7 @@ public class SimpleNextRouter extends AbstractBalanceRouter {
     }
 
     @Override
-    public void removeRouterSession(BalanceReverseSocketSession session) {
+    public void removeRouterSession(ReverseSocketSession session) {
         ReentrantLock lock = this.lock;
         lock.lock();
         routerList.remove(session);
@@ -61,9 +61,9 @@ public class SimpleNextRouter extends AbstractBalanceRouter {
     }
 
     @Override
-    public BalanceReverseSocketSession getRouterSession(BalanceFacadeSocketSession session,
+    public ReverseSocketSession getRouterSession(FacadeSocketSession session,
             Future future) {
-        BalanceReverseSocketSession router_session = getRouterSession(session);
+        ReverseSocketSession router_session = getRouterSession(session);
         if (router_session == null) {
             return getRouterSessionFresh(session);
         }
@@ -73,11 +73,11 @@ public class SimpleNextRouter extends AbstractBalanceRouter {
         return router_session;
     }
 
-    private BalanceReverseSocketSession getRouterSessionFresh(BalanceFacadeSocketSession session) {
+    private ReverseSocketSession getRouterSessionFresh(FacadeSocketSession session) {
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            BalanceReverseSocketSession router_session = getRouterSession(session);
+            ReverseSocketSession router_session = getRouterSession(session);
             if (router_session == null || router_session.isClosed()) {
                 router_session = getNextRouterSession();
                 if (router_session == null) {

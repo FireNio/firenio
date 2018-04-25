@@ -21,25 +21,25 @@ import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class BalanceReverseAcceptorSEListener extends SocketSessionEventListenerAdapter {
+public class ReverseAcceptorSEListener extends SocketSessionEventListenerAdapter {
 
     private Logger         logger = LoggerFactory.getLogger(getClass());
 
     private BalanceContext context;
 
-    public BalanceReverseAcceptorSEListener(BalanceContext context) {
+    public ReverseAcceptorSEListener(BalanceContext context) {
         this.context = context;
     }
 
     @Override
     public void sessionOpened(SocketSession session) {
         logger.info("load node from [ {} ] connected.", session);
-        context.getBalanceRouter().addRouterSession((BalanceReverseSocketSession) session);
+        context.getBalanceRouter().addRouterSession((ReverseSocketSession) session);
     }
 
     @Override
     public void sessionClosed(SocketSession session) {
         logger.info("load node from [ {} ] disconnected.", session);
-        context.getBalanceRouter().removeRouterSession((BalanceReverseSocketSession) session);
+        context.getBalanceRouter().removeRouterSession((ReverseSocketSession) session);
     }
 }

@@ -18,6 +18,6 @@ package com.generallycloud.baseio.balance.reverse;
 import com.generallycloud.baseio.balance.router.VirtualMachine;
 import com.generallycloud.baseio.component.SocketSession;
 
-public interface BalanceReverseSocketSession extends SocketSession, VirtualMachine {
+public interface ReverseSocketSession extends SocketSession, VirtualMachine {
 
 }

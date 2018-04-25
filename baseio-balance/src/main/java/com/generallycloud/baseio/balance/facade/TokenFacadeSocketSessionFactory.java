@@ -15,8 +15,15 @@
  */
 package com.generallycloud.baseio.balance.facade;
 
-public interface TokenBalanceFacadeSocketSession extends BalanceFacadeSocketSession {
+import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.SocketSessionFactoryImpl;
+import com.generallycloud.baseio.component.UnsafeSocketSession;
 
-    public abstract Long getToken();
+public class TokenFacadeSocketSessionFactory extends SocketSessionFactoryImpl {
+
+    @Override
+    public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
+        return new TokenFacadeSocketSessionImpl(channel);
+    }
 
 }
