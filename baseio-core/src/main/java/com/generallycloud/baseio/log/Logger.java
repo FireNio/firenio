@@ -23,7 +23,7 @@ public interface Logger {
 
     void info(String message, Object param, Object param1);
 
-    void info(String message, Object[] param);
+    void info(String message, Object... params);
 
     void debug(String message);
 
@@ -33,7 +33,7 @@ public interface Logger {
 
     void debug(String message, Object param, Object param1);
 
-    void debug(String message, Object[] param);
+    void debug(String message, Object... params);
 
     void error(String message);
 

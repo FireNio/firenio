@@ -41,7 +41,7 @@ public class TestBalanceBroadcast {
 
                 ProtobaseFuture f = (ProtobaseFuture) future;
 
-                if (BalanceContext.BALANCE_CHANNEL_LOST.equals(f.getFutureName())) {
+                if ("XXX".equals(f.getFutureName())) {
                     System.out.println("客户端已下线：" + f.getReadText());
                 } else {
                     System.out.println("~~~~~~收到报文：" + future.toString());

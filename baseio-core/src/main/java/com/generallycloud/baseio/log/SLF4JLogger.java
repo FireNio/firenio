@@ -41,31 +41,26 @@ public class SLF4JLogger implements Logger {
     @Override
     public void info(String message, Object param) {
         logger.info(message, param);
-
     }
 
     @Override
     public void info(String message, Object param, Object param1) {
         logger.info(message, param, param1);
-
     }
 
     @Override
-    public void info(String message, Object[] param) {
+    public void info(String message, Object... param) {
         logger.info(message, param);
-
     }
 
     @Override
     public void debug(String message) {
         logger.debug(message);
-
     }
 
     @Override
     public void debug(String message, Object param) {
         logger.debug(message, param);
-
     }
 
     @Override
@@ -74,7 +69,7 @@ public class SLF4JLogger implements Logger {
     }
 
     @Override
-    public void debug(String message, Object[] param) {
+    public void debug(String message, Object... param) {
         logger.debug(message, param);
     }
 

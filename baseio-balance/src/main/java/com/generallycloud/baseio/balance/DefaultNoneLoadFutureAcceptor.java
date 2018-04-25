@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
-import com.generallycloud.baseio.balance.reverse.BalanceReverseLogger;
+import com.generallycloud.baseio.balance.reverse.ReverseLogger;
 
 /**
  * @author wangkai
@@ -31,7 +31,7 @@ public class DefaultNoneLoadFutureAcceptor implements NoneLoadFutureAcceptor {
 
     @Override
     public void accept(BalanceFacadeSocketSession session, BalanceFuture future,
-            BalanceReverseLogger reverseLogger) {
+            ReverseLogger reverseLogger) {
         logger.info("none load node found: [ {} ], msg: {}", session.getRemoteSocketAddress(),
                 future);
     }

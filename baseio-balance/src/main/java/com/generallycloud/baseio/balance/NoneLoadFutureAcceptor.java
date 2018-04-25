@@ -16,10 +16,10 @@
 package com.generallycloud.baseio.balance;
 
 import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSession;
-import com.generallycloud.baseio.balance.reverse.BalanceReverseLogger;
+import com.generallycloud.baseio.balance.reverse.ReverseLogger;
 
 public interface NoneLoadFutureAcceptor {
 
     public abstract void accept(BalanceFacadeSocketSession session, BalanceFuture future,
-            BalanceReverseLogger reverseLogger);
+            ReverseLogger reverseLogger);
 }

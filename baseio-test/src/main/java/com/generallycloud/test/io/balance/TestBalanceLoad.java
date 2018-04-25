@@ -15,7 +15,6 @@
  */
 package com.generallycloud.test.io.balance;
 
-import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
@@ -39,7 +38,7 @@ public class TestBalanceLoad {
 
                 ProtobaseFuture f = (ProtobaseFuture) future;
 
-                if (BalanceContext.BALANCE_CHANNEL_LOST.equals(f.getFutureName())) {
+                if ("XXX".equals(f.getFutureName())) {
                     System.out.println("客户端已下线：" + f.getReadText());
                 } else {
                     System.out.println("收到报文：" + future.toString());

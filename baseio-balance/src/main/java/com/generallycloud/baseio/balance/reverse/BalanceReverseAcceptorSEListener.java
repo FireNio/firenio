@@ -23,7 +23,7 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class BalanceReverseAcceptorSEListener extends SocketSessionEventListenerAdapter {
 
-    private Logger         logger = LoggerFactory.getLogger(BalanceReverseAcceptorSEListener.class);
+    private Logger         logger = LoggerFactory.getLogger(getClass());
 
     private BalanceContext context;
 

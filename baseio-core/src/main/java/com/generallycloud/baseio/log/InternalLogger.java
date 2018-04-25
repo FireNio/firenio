@@ -67,7 +67,7 @@ public class InternalLogger implements Logger {
     }
 
     @Override
-    public void debug(String message, Object[] param) {
+    public void debug(String message, Object... param) {
         if (isEnableDebug()) {
             info0(debugClassName, message, param);
         }
@@ -124,7 +124,7 @@ public class InternalLogger implements Logger {
                 getTimeFormat() + className + MessageFormatter.format(message, param, param1));
     }
 
-    private void info0(String className, String message, Object[] param) {
+    private void info0(String className, String message, Object... param) {
         printer.println(getTimeFormat() + className + MessageFormatter.arrayFormat(message, param));
     }
 
@@ -144,7 +144,7 @@ public class InternalLogger implements Logger {
     }
 
     @Override
-    public void info(String message, Object[] param) {
+    public void info(String message, Object... param) {
         info0(infoClassName, message, param);
     }
 

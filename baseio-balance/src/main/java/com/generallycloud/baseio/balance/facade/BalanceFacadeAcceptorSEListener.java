@@ -26,46 +26,36 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class BalanceFacadeAcceptorSEListener extends SocketSessionEventListenerAdapter {
 
-    private Logger         logger = LoggerFactory.getLogger(BalanceFacadeAcceptorSEListener.class);
-
-    private BalanceContext balanceContext;
-
-    private BalanceRouter  balanceRouter;
-
-    public BalanceFacadeAcceptorSEListener(BalanceContext balanceContext) {
-        this.balanceContext = balanceContext;
-        this.balanceRouter = balanceContext.getBalanceRouter();
+    private Logger logger = LoggerFactory.getLogger(getClass());
+    
+    private BalanceContext context;
+    
+    public BalanceFacadeAcceptorSEListener(BalanceContext context) {
+        this.context = context;
     }
 
     @Override
     public void sessionOpened(SocketSession session) {
+        BalanceRouter balanceRouter = context.getBalanceRouter();
         balanceRouter.addClientSession((BalanceFacadeSocketSession) session);
         logger.info("client from [ {} ] connected.", session.getRemoteSocketAddress());
     }
 
     @Override
     public void sessionClosed(SocketSession session) {
-
+        BalanceRouter balanceRouter = context.getBalanceRouter();
         BalanceFacadeSocketSession fs = (BalanceFacadeSocketSession) session;
-
         balanceRouter.removeClientSession(fs);
-
         logger.info("client from [ {} ] disconnected.", session.getRemoteSocketAddress());
-
-        BalanceRouter balanceRouter = balanceContext.getBalanceRouter();
-
         BalanceReverseSocketSession rs = balanceRouter.getRouterSession(fs);
-
         if (rs == null) {
             return;
         }
-
-        ChannelLostFutureFactory factory = balanceContext.getChannelLostReadFutureFactory();
-
+        ChannelLostFutureFactory factory = context.getChannelLostReadFutureFactory();
         if (factory == null) {
             return;
         }
-
         rs.flush(factory.createChannelLostPacket(fs));
     }
+
 }

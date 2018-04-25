@@ -15,27 +15,18 @@
  */
 package com.generallycloud.baseio.balance.facade;
 
-import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.balance.SessionIdBalanceFuture;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSession;
 
-public class SessionIdBalanceFacadeAcceptorHandler extends BalanceFacadeAcceptorHandler {
-
-    public SessionIdBalanceFacadeAcceptorHandler(BalanceContext context) {
-        super(context);
-    }
+public class SessionIdFacadeAcceptorHandler extends FacadeAcceptorHandler {
 
     @Override
     protected void doAccept(BalanceFacadeSocketSession fs, BalanceReverseSocketSession rs,
             BalanceFuture future) {
-
         SessionIdBalanceFuture f = (SessionIdBalanceFuture) future;
-
         f.setSessionId(fs.getSessionId());
-
         rs.flush(f.translate());
-
         logDispatchMsg(fs, rs, f);
     }
 

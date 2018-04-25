@@ -22,6 +22,8 @@ import com.generallycloud.baseio.balance.FacadeInterceptorImpl;
 import com.generallycloud.baseio.balance.router.HashedBalanceRouter;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
+import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 
 public class TestBalanceMain {
@@ -30,22 +32,21 @@ public class TestBalanceMain {
 
         BalanceServerBootStrap f = new BalanceServerBootStrap();
 
-        f.setBalanceProtocolFactory(new ProtobaseProtocolFactory());
-        f.setBalanceReverseProtocolFactory(new ProtobaseProtocolFactory());
-
-        f.setBalanceProtocolFactory(new ProtobaseProtocolFactory());
-        f.setBalanceReverseProtocolFactory(new ProtobaseProtocolFactory());
-
         ServerConfiguration fc = new ServerConfiguration();
+        ServerConfiguration rc = new ServerConfiguration();
         fc.setSERVER_PORT(8600);
+        rc.setSERVER_PORT(8800);
 
-        ServerConfiguration frc = new ServerConfiguration();
-        frc.setSERVER_PORT(8800);
+        SocketChannelContext fcc = new NioSocketChannelContext(fc);
+        SocketChannelContext rcc = new NioSocketChannelContext(rc);
 
+        fcc.setProtocolFactory(new ProtobaseProtocolFactory());
+        rcc.setProtocolFactory(new ProtobaseProtocolFactory());
+
+        f.setFacadeChannelContext(fcc);
+        f.setReverseChannelContext(rcc);
         f.setFacadeExceptionCaughtHandle(new LoggerExceptionCaughtHandle());
         f.setReverseExceptionCaughtHandle(new LoggerExceptionCaughtHandle());
-        f.setBalanceServerConfiguration(fc);
-        f.setBalanceReverseServerConfiguration(frc);
         f.setFacadeInterceptor(new FacadeInterceptorImpl(500, 50000));
         f.setBalanceRouter(new HashedBalanceRouter(10240));
         //		f.setBalanceRouter(new SimpleNextRouter());

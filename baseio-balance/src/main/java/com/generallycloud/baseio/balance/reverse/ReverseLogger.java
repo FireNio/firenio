@@ -23,7 +23,7 @@ import com.generallycloud.baseio.protocol.Future;
  * @author wangkai
  *
  */
-public class BalanceReverseLogger {
+public class ReverseLogger {
 
     public void logBroadcast(SocketSession session, Future future, Logger logger) {
         logger.info("broadcast msg: F:{}, msg:{}", session.getRemoteSocketAddress(), future);

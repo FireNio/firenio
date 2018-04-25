@@ -16,344 +16,119 @@
 package com.generallycloud.baseio.balance;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.generallycloud.baseio.balance.facade.BalanceFacadeAcceptor;
-import com.generallycloud.baseio.balance.facade.BalanceFacadeAcceptorHandler;
+import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
+import com.generallycloud.baseio.balance.facade.BalanceFacadeAcceptorSEListener;
 import com.generallycloud.baseio.balance.facade.BalanceFacadeSocketSessionFactory;
-import com.generallycloud.baseio.balance.facade.SessionIdBalanceFacadeAcceptorHandler;
-import com.generallycloud.baseio.balance.reverse.BalanceReverseLogger;
+import com.generallycloud.baseio.balance.facade.SessionIdFacadeAcceptorHandler;
+import com.generallycloud.baseio.balance.reverse.BalanceReverseAcceptorHandler;
+import com.generallycloud.baseio.balance.reverse.BalanceReverseAcceptorSEListener;
+import com.generallycloud.baseio.balance.reverse.ReverseLogger;
 import com.generallycloud.baseio.balance.reverse.BalanceReverseSocketSessionFactory;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.balance.router.SimpleNextRouter;
-import com.generallycloud.baseio.component.BeatFutureFactory;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
+import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SilentExceptionCaughtHandle;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSessionEventListener;
-import com.generallycloud.baseio.component.SocketSessionIdleEventListener;
-import com.generallycloud.baseio.component.ssl.SslContext;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.protocol.ProtocolFactory;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class BalanceServerBootStrap {
 
-    private ProtocolFactory                      balanceProtocolFactory;
-    private ProtocolFactory                      balanceReverseProtocolFactory;
-    private ServerConfiguration                  balanceServerConfiguration;
-    private ServerConfiguration                  balanceReverseServerConfiguration;
-    private List<SocketSessionEventListener>     balanceSessionEventListeners;
-    private List<SocketSessionIdleEventListener> balanceSessionIdleEventListeners;
-    private List<SocketSessionEventListener>     balanceReverseSessionEventListeners;
-    private List<SocketSessionIdleEventListener> balanceReverseSessionIdleEventListeners;
-    private BeatFutureFactory                    balanceBeatFutureFactory;
-    private BeatFutureFactory                    balanceReverseBeatFutureFactory;
-    private ChannelLostFutureFactory             channelLostReadFutureFactory;
-    private NoneLoadFutureAcceptor               noneLoadReadFutureAcceptor;
-    private ExceptionCaughtHandle                facadeExceptionCaughtHandle;
-    private ExceptionCaughtHandle                reverseExceptionCaughtHandle;
-    private BalanceRouter                        balanceRouter;
-    private SslContext                           sslContext;
-    private FacadeInterceptor                    facadeInterceptor;
-    private BalanceFacadeAcceptor                balanceFacadeAcceptor;
-    private BalanceReverseLogger                 balanceReverseLogger;
-    private BalanceFacadeAcceptorHandler         balanceFacadeAcceptorHandler;
+    private Logger                 logger         = LoggerFactory.getLogger(getClass());
+    private BalanceContext         balanceContext = new BalanceContext();
+    private ReverseLogger   balanceReverseLogger;
+    private IoEventHandleAdaptor   facadeAcceptorHandler;
+    private SocketChannelContext   facadeChannelContext;
+    private ExceptionCaughtHandle  facadeExceptionCaughtHandle;
+    private FacadeInterceptor      facadeInterceptor;
+    private NoneLoadFutureAcceptor noneLoadReadFutureAcceptor;
+    private IoEventHandleAdaptor   reverseAcceptorHandler;
+    private SocketChannelContext   reverseChannelContext;
+    private ExceptionCaughtHandle  reverseExceptionCaughtHandle;
 
-    public void startup() throws IOException {
-
-        if (balanceRouter == null) {
-            balanceRouter = new SimpleNextRouter();
-        }
-
-        if (facadeInterceptor == null) {
-            facadeInterceptor = new FacadeInterceptorImpl(5, 50000);
-        }
-
-        if (balanceReverseLogger == null) {
-            balanceReverseLogger = new BalanceReverseLogger();
-        }
-
-        if (noneLoadReadFutureAcceptor == null) {
-            noneLoadReadFutureAcceptor = new DefaultNoneLoadFutureAcceptor();
-        }
-
-        if (facadeExceptionCaughtHandle == null) {
-            facadeExceptionCaughtHandle = new SilentExceptionCaughtHandle();
-        }
-
-        if (reverseExceptionCaughtHandle == null) {
-            reverseExceptionCaughtHandle = new SilentExceptionCaughtHandle();
-        }
-
-        BalanceContext balanceContext = new BalanceContext();
-
-        balanceContext.setChannelLostReadFutureFactory(channelLostReadFutureFactory);
-
-        balanceContext.setNoneLoadReadFutureAcceptor(noneLoadReadFutureAcceptor);
-
-        balanceContext.setReverseExceptionCaughtHandle(reverseExceptionCaughtHandle);
-
-        balanceContext.setFacadeExceptionCaughtHandle(facadeExceptionCaughtHandle);
-
-        balanceContext.setBalanceReverseLogger(balanceReverseLogger);
-
-        balanceContext.setFacadeInterceptor(facadeInterceptor);
-
-        balanceContext.setBalanceRouter(balanceRouter);
-
-        if (balanceFacadeAcceptorHandler == null) {
-            balanceFacadeAcceptorHandler = new SessionIdBalanceFacadeAcceptorHandler(
-                    balanceContext);
-        }
-
-        balanceContext.setBalanceFacadeAcceptorHandler(balanceFacadeAcceptorHandler);
-
-        balanceContext.initialize();
-
-        balanceFacadeAcceptor = balanceContext.getBalanceFacadeAcceptor();
-
-        SocketChannelContext balanceChannelContext = getBalanceChannelContext(balanceContext,
-                balanceServerConfiguration, balanceProtocolFactory);
-
-        balanceChannelContext.setSocketSessionFactory(new BalanceFacadeSocketSessionFactory());
-
-        SocketChannelContext balanceReverseChannelContext = getBalanceReverseChannelContext(
-                balanceContext, balanceReverseServerConfiguration, balanceReverseProtocolFactory);
-
-        balanceReverseChannelContext
-                .setSocketSessionFactory(new BalanceReverseSocketSessionFactory());
-
-        balanceFacadeAcceptor.start(balanceContext, balanceChannelContext,
-                balanceReverseChannelContext);
+    public BalanceContext getBalanceContext() {
+        return balanceContext;
     }
 
-    public void stop() {
-
-        if (balanceFacadeAcceptor == null) {
-            return;
-        }
-
-        balanceFacadeAcceptor.stop();
-    }
-
-    private SocketChannelContext getBalanceChannelContext(BalanceContext balanceContext,
-            ServerConfiguration configuration, ProtocolFactory protocolFactory) {
-
-        SocketChannelContext context = new NioSocketChannelContext(configuration);
-
-        //		SocketChannelContext context = new AioSocketChannelContext(configuration);
-
-        context.setIoEventHandleAdaptor(balanceContext.getBalanceFacadeAcceptorHandler());
-
-        context.addSessionEventListener(balanceContext.getBalanceFacadeAcceptorSEListener());
-
-        context.setProtocolFactory(protocolFactory);
-
-        context.setBeatFutureFactory(balanceBeatFutureFactory);
-
-        if (balanceSessionEventListeners != null) {
-            addSessionEventListener2Context(context, balanceSessionEventListeners);
-        }
-
-        if (balanceSessionIdleEventListeners != null) {
-            addSessionIdleEventListener2Context(context, balanceSessionIdleEventListeners);
-        }
-
-        if (sslContext != null) {
-            context.setSslContext(sslContext);
-        }
-
-        return context;
-    }
-
-    private SocketChannelContext getBalanceReverseChannelContext(BalanceContext balanceContext,
-            ServerConfiguration configuration, ProtocolFactory protocolFactory) {
-
-        SocketChannelContext context = new NioSocketChannelContext(configuration);
-
-        //		SocketChannelContext context = new AioSocketChannelContext(configuration);
-
-        context.setIoEventHandleAdaptor(balanceContext.getBalanceReverseAcceptorHandler());
-
-        context.addSessionEventListener(balanceContext.getBalanceReverseAcceptorSEListener());
-
-        context.setProtocolFactory(protocolFactory);
-
-        context.setBeatFutureFactory(balanceReverseBeatFutureFactory);
-
-        if (balanceReverseSessionEventListeners != null) {
-            addSessionEventListener2Context(context, balanceReverseSessionEventListeners);
-        }
-
-        if (balanceReverseSessionIdleEventListeners != null) {
-            addSessionIdleEventListener2Context(context, balanceReverseSessionIdleEventListeners);
-        }
-
-        return context;
-    }
-
-    public ProtocolFactory getBalanceProtocolFactory() {
-        return balanceProtocolFactory;
-    }
-
-    public void setBalanceProtocolFactory(ProtocolFactory balanceProtocolFactory) {
-        this.balanceProtocolFactory = balanceProtocolFactory;
-    }
-
-    public ProtocolFactory getBalanceReverseProtocolFactory() {
-        return balanceReverseProtocolFactory;
-    }
-
-    public void setBalanceReverseProtocolFactory(ProtocolFactory balanceReverseProtocolFactory) {
-        this.balanceReverseProtocolFactory = balanceReverseProtocolFactory;
-    }
-
-    public ServerConfiguration getBalanceServerConfiguration() {
-        return balanceServerConfiguration;
-    }
-
-    public void setBalanceServerConfiguration(ServerConfiguration balanceServerConfiguration) {
-        this.balanceServerConfiguration = balanceServerConfiguration;
-    }
-
-    public ServerConfiguration getBalanceReverseServerConfiguration() {
-        return balanceReverseServerConfiguration;
-    }
-
-    public void setBalanceReverseServerConfiguration(
-            ServerConfiguration balanceReverseServerConfiguration) {
-        this.balanceReverseServerConfiguration = balanceReverseServerConfiguration;
-    }
-
-    public void addBalanceSessionIdleEventListener(SocketSessionIdleEventListener listener) {
-        if (balanceSessionIdleEventListeners == null) {
-            balanceSessionIdleEventListeners = new ArrayList<>();
-        }
-        balanceSessionIdleEventListeners.add(listener);
-    }
-
-    public void addBalanceSessionEventListener(SocketSessionEventListener listener) {
-        if (balanceSessionEventListeners == null) {
-            balanceSessionEventListeners = new ArrayList<>();
-        }
-        balanceSessionEventListeners.add(listener);
-    }
-
-    public void addBalanceReverseSessionIdleEventListener(SocketSessionIdleEventListener listener) {
-        if (balanceReverseSessionIdleEventListeners == null) {
-            balanceReverseSessionIdleEventListeners = new ArrayList<>();
-        }
-        balanceReverseSessionIdleEventListeners.add(listener);
-    }
-
-    public void addBalanceReverseSessionEventListener(SocketSessionEventListener listener) {
-        if (balanceReverseSessionEventListeners == null) {
-            balanceReverseSessionEventListeners = new ArrayList<>();
-        }
-        balanceReverseSessionEventListeners.add(listener);
-    }
-
-    private void addSessionEventListener2Context(SocketChannelContext context,
-            List<SocketSessionEventListener> listeners) {
-        for (SocketSessionEventListener l : listeners) {
-            context.addSessionEventListener(l);
-        }
-    }
-
-    private void addSessionIdleEventListener2Context(SocketChannelContext context,
-            List<SocketSessionIdleEventListener> listeners) {
-        for (SocketSessionIdleEventListener l : listeners) {
-            context.addSessionIdleEventListener(l);
-        }
-    }
-
-    public BeatFutureFactory getBalanceBeatFutureFactory() {
-        return balanceBeatFutureFactory;
-    }
-
-    public BeatFutureFactory getBalanceReverseBeatFutureFactory() {
-        return balanceReverseBeatFutureFactory;
-    }
-
-    public void setBalanceBeatFutureFactory(BeatFutureFactory balanceBeatFutureFactory) {
-        this.balanceBeatFutureFactory = balanceBeatFutureFactory;
-    }
-
-    public void setBalanceReverseBeatFutureFactory(
-            BeatFutureFactory balanceReverseBeatFutureFactory) {
-        this.balanceReverseBeatFutureFactory = balanceReverseBeatFutureFactory;
-    }
-
-    public void setBalanceRouter(BalanceRouter balanceRouter) {
-        this.balanceRouter = balanceRouter;
-    }
-
-    public BalanceRouter getBalanceRouter() {
-        return balanceRouter;
-    }
-
-    public SslContext getSslContext() {
-        return sslContext;
-    }
-
-    public void setSslContext(SslContext sslContext) {
-        this.sslContext = sslContext;
-    }
-
-    public ChannelLostFutureFactory getChannelLostReadFutureFactory() {
-        return channelLostReadFutureFactory;
-    }
-
-    public void setChannelLostReadFutureFactory(
-            ChannelLostFutureFactory channelLostReadFutureFactory) {
-        this.channelLostReadFutureFactory = channelLostReadFutureFactory;
-    }
-
-    public NoneLoadFutureAcceptor getNoneLoadReadFutureAcceptor() {
-        return noneLoadReadFutureAcceptor;
-    }
-
-    public void setNoneLoadReadFutureAcceptor(NoneLoadFutureAcceptor noneLoadReadFutureAcceptor) {
-        this.noneLoadReadFutureAcceptor = noneLoadReadFutureAcceptor;
-    }
-
-    public FacadeInterceptor getFacadeInterceptor() {
-        return facadeInterceptor;
-    }
-
-    public void setFacadeInterceptor(FacadeInterceptor facadeInterceptor) {
-        this.facadeInterceptor = facadeInterceptor;
-    }
-
-    public BalanceReverseLogger getBalanceReverseLogger() {
+    public ReverseLogger getBalanceReverseLogger() {
         return balanceReverseLogger;
     }
 
-    public void setBalanceReverseLogger(BalanceReverseLogger balanceReverseLogger) {
-        this.balanceReverseLogger = balanceReverseLogger;
+    public IoEventHandleAdaptor getFacadeAcceptorHandler() {
+        return facadeAcceptorHandler;
     }
 
-    public BalanceFacadeAcceptorHandler getBalanceFacadeAcceptorHandler() {
-        return balanceFacadeAcceptorHandler;
-    }
-
-    public void setBalanceFacadeAcceptorHandler(
-            BalanceFacadeAcceptorHandler balanceFacadeAcceptorHandler) {
-        this.balanceFacadeAcceptorHandler = balanceFacadeAcceptorHandler;
+    public SocketChannelContext getFacadeChannelContext() {
+        return facadeChannelContext;
     }
 
     public ExceptionCaughtHandle getFacadeExceptionCaughtHandle() {
         return facadeExceptionCaughtHandle;
     }
 
-    public void setFacadeExceptionCaughtHandle(ExceptionCaughtHandle facadeExceptionCaughtHandle) {
-        this.facadeExceptionCaughtHandle = facadeExceptionCaughtHandle;
+    public FacadeInterceptor getFacadeInterceptor() {
+        return facadeInterceptor;
+    }
+
+    public NoneLoadFutureAcceptor getNoneLoadReadFutureAcceptor() {
+        return noneLoadReadFutureAcceptor;
+    }
+
+    public IoEventHandleAdaptor getReverseAcceptorHandler() {
+        return reverseAcceptorHandler;
+    }
+
+    public SocketChannelContext getReverseChannelContext() {
+        return reverseChannelContext;
     }
 
     public ExceptionCaughtHandle getReverseExceptionCaughtHandle() {
         return reverseExceptionCaughtHandle;
+    }
+
+    public void setBalanceReverseLogger(ReverseLogger balanceReverseLogger) {
+        this.balanceReverseLogger = balanceReverseLogger;
+    }
+
+    public void setBalanceRouter(BalanceRouter balanceRouter) {
+        this.balanceContext.setBalanceRouter(balanceRouter);
+    }
+
+    public void setChannelLostReadFutureFactory(
+            ChannelLostFutureFactory channelLostReadFutureFactory) {
+        balanceContext.setChannelLostReadFutureFactory(channelLostReadFutureFactory);
+    }
+
+    public void setFacadeAcceptorHandler(IoEventHandleAdaptor facadeAcceptorHandler) {
+        this.facadeAcceptorHandler = facadeAcceptorHandler;
+    }
+
+    public void setFacadeChannelContext(SocketChannelContext facadeChannelContext) {
+        this.facadeChannelContext = facadeChannelContext;
+    }
+
+    public void setFacadeExceptionCaughtHandle(ExceptionCaughtHandle facadeExceptionCaughtHandle) {
+        this.facadeExceptionCaughtHandle = facadeExceptionCaughtHandle;
+    }
+
+    public void setFacadeInterceptor(FacadeInterceptor facadeInterceptor) {
+        this.facadeInterceptor = facadeInterceptor;
+    }
+
+    public void setNoneLoadReadFutureAcceptor(NoneLoadFutureAcceptor noneLoadReadFutureAcceptor) {
+        this.noneLoadReadFutureAcceptor = noneLoadReadFutureAcceptor;
+    }
+
+    public void setReverseAcceptorHandler(IoEventHandleAdaptor reverseAcceptorHandler) {
+        this.reverseAcceptorHandler = reverseAcceptorHandler;
+    }
+
+    public void setReverseChannelContext(SocketChannelContext reverseChannelContext) {
+        this.reverseChannelContext = reverseChannelContext;
     }
 
     public void setReverseExceptionCaughtHandle(
@@ -361,4 +136,61 @@ public class BalanceServerBootStrap {
         this.reverseExceptionCaughtHandle = reverseExceptionCaughtHandle;
     }
 
+    public void startup() throws IOException {
+        if (facadeChannelContext == null) {
+            throw new IllegalArgumentException("facadeChannelContext is null");
+        }
+        if (reverseChannelContext == null) {
+            throw new IllegalArgumentException("reverseChannelContext is null");
+        }
+        if (balanceContext.getBalanceRouter() == null) {
+            balanceContext.setBalanceRouter(new SimpleNextRouter());
+        }
+        if (facadeInterceptor == null) {
+            facadeInterceptor = new FacadeInterceptorImpl(5, 50000);
+        }
+        if (balanceReverseLogger == null) {
+            balanceReverseLogger = new ReverseLogger();
+        }
+        if (noneLoadReadFutureAcceptor == null) {
+            noneLoadReadFutureAcceptor = new DefaultNoneLoadFutureAcceptor();
+        }
+        if (facadeExceptionCaughtHandle == null) {
+            facadeExceptionCaughtHandle = new SilentExceptionCaughtHandle();
+        }
+        if (reverseExceptionCaughtHandle == null) {
+            reverseExceptionCaughtHandle = new SilentExceptionCaughtHandle();
+        }
+        if (facadeAcceptorHandler == null) {
+            facadeAcceptorHandler = new SessionIdFacadeAcceptorHandler();
+        }
+        if (reverseAcceptorHandler == null) {
+            reverseAcceptorHandler = new BalanceReverseAcceptorHandler();
+        }
+        balanceContext.setNoneLoadReadFutureAcceptor(noneLoadReadFutureAcceptor);
+        balanceContext.setReverseExceptionCaughtHandle(reverseExceptionCaughtHandle);
+        balanceContext.setFacadeExceptionCaughtHandle(facadeExceptionCaughtHandle);
+        balanceContext.setReverseLogger(balanceReverseLogger);
+        balanceContext.setFacadeInterceptor(facadeInterceptor);
+        balanceContext.setFacadeAcceptor(new SocketChannelAcceptor(facadeChannelContext));
+        balanceContext.setReverseAcceptor(new SocketChannelAcceptor(reverseChannelContext));
+        facadeChannelContext.setAttribute(BalanceContext.BALANCE_CONTEXT_KEY, balanceContext);
+        facadeChannelContext.setIoEventHandleAdaptor(facadeAcceptorHandler);
+        facadeChannelContext.addSessionEventListener(new BalanceFacadeAcceptorSEListener(balanceContext));
+        facadeChannelContext.setSocketSessionFactory(new BalanceFacadeSocketSessionFactory());
+        reverseChannelContext.setAttribute(BalanceContext.BALANCE_CONTEXT_KEY, balanceContext);
+        reverseChannelContext.setIoEventHandleAdaptor(reverseAcceptorHandler);
+        reverseChannelContext.addSessionEventListener(new BalanceReverseAcceptorSEListener(balanceContext));
+        reverseChannelContext.setSocketSessionFactory(new BalanceReverseSocketSessionFactory());
+        balanceContext.getFacadeAcceptor().bind();
+        LoggerUtil.prettyLog(logger, "Facade Acceptor startup completed ...");
+        balanceContext.getReverseAcceptor().bind();
+        LoggerUtil.prettyLog(logger, "Reverse Acceptor startup completed ...");
+    }
+
+    public void stop() {
+        CloseUtil.unbind(balanceContext.getFacadeAcceptor());
+        CloseUtil.unbind(balanceContext.getReverseAcceptor());
+    }
+    
 }
