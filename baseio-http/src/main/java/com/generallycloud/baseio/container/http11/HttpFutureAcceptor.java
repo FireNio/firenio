@@ -111,7 +111,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         builder.append("        </div>\n");
         builder.append(HtmlUtil.HTML_POWER_BY);
         builder.append(HtmlUtil.HTML_BOTTOM);
-        f.write(builder.toString());
+        f.write(builder.toString(),session.getEncoding());
         f.setStatus(HttpStatus.C500);
         f.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
         session.flush(f);

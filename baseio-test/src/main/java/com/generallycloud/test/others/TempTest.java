@@ -15,6 +15,10 @@
  */
 package com.generallycloud.test.others;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+
 import com.generallycloud.baseio.component.ByteArrayBuffer;
 
 public class TempTest {
@@ -24,24 +28,17 @@ public class TempTest {
     private static long[]          ls  = new long[10];
     private static Long[]          ls2 = new Long[10];
 
-    public static void main(String[] args)  {
-        
-        try {
-            throw new Exception();
-        } catch (Exception e) {
-            try {
-                throw new Exception(e);
-            } catch (Exception e1) {
-                try {
-                    throw new Exception(e1);
-                } catch (Exception e2) {
-                    e2.printStackTrace();
-                }
-            }
-        }
-        
-        
-    }
-
+    public static void main(String[] args) {  
+        System.out.println("Default Charset=" + Charset.defaultCharset());  
+        System.out.println("file.encoding=" + System.getProperty("file.encoding"));  
+        System.out.println("Default Charset=" + Charset.defaultCharset());  
+        System.out.println("Default Charset in Use=" + getDefaultCharSet());  
+    }  
+  
+    private static String getDefaultCharSet() {  
+        OutputStreamWriter writer = new OutputStreamWriter(new ByteArrayOutputStream());  
+        String enc = writer.getEncoding();  
+        return enc;  
+    }  
 
 }

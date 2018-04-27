@@ -24,6 +24,7 @@ import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 /**
@@ -236,12 +237,12 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     }
 
     @Override
-    public BalanceFuture translate() {
+    public BalanceFuture translate(SocketSession session) {
         String text = getReadText();
         if (StringUtil.isNullOrBlank(text)) {
             return this;
         }
-        write(text);
+        write(text,session.getEncoding());
         return this;
     }
 

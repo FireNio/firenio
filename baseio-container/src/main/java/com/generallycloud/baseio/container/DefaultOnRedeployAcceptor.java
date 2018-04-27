@@ -23,12 +23,12 @@ import com.generallycloud.baseio.protocol.Future;
  * @author wangkai
  *
  */
-public class DefaultOnRedeployAcceptor implements FutureAcceptor{
+public class DefaultOnRedeployAcceptor implements FutureAcceptor {
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
-        future.write("server is upgrading , please wait ...");
+        future.write("server is upgrading , please wait ...", session.getEncoding());
         session.flush(future);
     }
-    
+
 }

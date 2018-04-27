@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.container.implementation;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.component.FutureAcceptor;
@@ -31,19 +32,20 @@ public class SystemRedeployServlet implements FutureAcceptor {
 
     @Override
     public void accept(SocketSession session, Future future) throws IOException {
-        ApplicationIoEventHandle applicationIoEventHandle =  
-                (ApplicationIoEventHandle) session.getContext().getIoEventHandleAdaptor();
+        ApplicationIoEventHandle applicationIoEventHandle = (ApplicationIoEventHandle) session
+                .getContext().getIoEventHandleAdaptor();
         AtomicInteger redeployTime = applicationIoEventHandle.getRedeployTime();
         long startTime = System.currentTimeMillis();
+        Charset charset = session.getEncoding();
         if (applicationIoEventHandle.redeploy()) {
             int time = redeployTime.incrementAndGet();
-            future.write("redeploy successful_");
-            future.write(String.valueOf(time));
-            future.write(",spent time:");
-            future.write(String.valueOf(System.currentTimeMillis() - startTime));
+            future.write("redeploy successful_", charset);
+            future.write(String.valueOf(time), charset);
+            future.write(",spent time:", charset);
+            future.write(String.valueOf(System.currentTimeMillis() - startTime), charset);
         } else {
-            future.write("redeploy failed,spent time:");
-            future.write(String.valueOf(System.currentTimeMillis() - startTime));
+            future.write("redeploy failed,spent time:", charset);
+            future.write(String.valueOf(System.currentTimeMillis() - startTime), charset);
         }
         session.flush(future);
     }

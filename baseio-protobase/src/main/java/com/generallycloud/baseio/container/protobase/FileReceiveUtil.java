@@ -29,15 +29,10 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public class FileReceiveUtil {
 
     public static final String FILE_NAME   = "file-name";
-
     public static final String IS_END      = "isEnd";
-
-    private Logger             logger      = LoggerFactory.getLogger(FileReceiveUtil.class);
-
+    private Logger             logger      = LoggerFactory.getLogger(getClass());
     private int                num;
-
     private String             prefix;
-
     private String             ACCEPT_FILE = "accept-file";
 
     public FileReceiveUtil(String prefix) {
@@ -46,44 +41,27 @@ public class FileReceiveUtil {
 
     public void accept(SocketSession session, ParamedProtobaseFuture future, boolean callback)
             throws Exception {
-
         Parameters parameters = future.getParameters();
-
         OutputStream outputStream = (OutputStream) session.getAttribute(ACCEPT_FILE);
-
         if (outputStream == null) {
-
             String fileName = prefix + parameters.getParameter(FILE_NAME);
-
             outputStream = new FileOutputStream(new File(fileName));
-
             session.setAttribute(ACCEPT_FILE, outputStream);
-
             logger.info("accept...................open,file={}", fileName);
         }
-
         byte[] data = future.getReadBinary();
-
         outputStream.write(data, 0, future.getReadBinarySize());
-
         logger.info("accept...................{},{}", future.getReadBinarySize(), (num++));
-
         boolean isEnd = parameters.getBooleanParameter(IS_END);
-
         if (isEnd) {
-
             logger.info("accept...................close,stream={}", outputStream);
-
             CloseUtil.close(outputStream);
-
             session.removeAttribute(ACCEPT_FILE);
-
             if (callback) {
-
-                future.write("传输成功！");
-
+                future.write("传输成功！", session.getEncoding());
                 session.flush(future);
             }
         }
     }
+    
 }

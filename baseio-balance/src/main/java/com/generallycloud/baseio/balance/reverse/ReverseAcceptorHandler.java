@@ -50,7 +50,7 @@ public class ReverseAcceptorHandler extends IoEventHandleAdaptor {
     public void accept(SocketSession session, Future future) throws Exception {
         BalanceFuture f = (BalanceFuture) future;
         if (f.isBroadcast()) {
-            facadeAcceptor.broadcast(f.translate());
+            facadeAcceptor.broadcast(f.translate(session));
             reverseLogger.logBroadcast(session, future, logger);
             return;
         }
@@ -59,7 +59,7 @@ public class ReverseAcceptorHandler extends IoEventHandleAdaptor {
             reverseLogger.logPushLost(session, future, logger);
             return;
         }
-        response.flush(f.translate());
+        response.flush(f.translate(session));
         reverseLogger.logPush(session, response, future, logger);
     }
 

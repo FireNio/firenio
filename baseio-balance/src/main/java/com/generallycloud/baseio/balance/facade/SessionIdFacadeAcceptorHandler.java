@@ -26,7 +26,7 @@ public class SessionIdFacadeAcceptorHandler extends FacadeAcceptorHandler {
             BalanceFuture future) {
         SessionIdBalanceFuture f = (SessionIdBalanceFuture) future;
         f.setSessionId(fs.getSessionId());
-        rs.flush(f.translate());
+        rs.flush(f.translate(rs));
         logDispatchMsg(fs, rs, f);
     }
 

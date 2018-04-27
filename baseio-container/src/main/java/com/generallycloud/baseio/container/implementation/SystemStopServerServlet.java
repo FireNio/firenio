@@ -28,12 +28,12 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class SystemStopServerServlet implements FutureAcceptor {
 
-    private Logger logger = LoggerFactory.getLogger(SystemStopServerServlet.class);
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
         SocketChannelContext context = session.getContext();
-        future.write("server is stopping");
+        future.write("server is stopping", session.getEncoding());
         session.flush(future);
         ThreadUtil.execute(new StopServer(context));
     }
@@ -58,5 +58,5 @@ public class SystemStopServerServlet implements FutureAcceptor {
             CloseUtil.unbind((ChannelAcceptor) context.getChannelService());
         }
     }
-    
+
 }

@@ -15,6 +15,7 @@
  */
 package com.generallycloud.baseio.balance;
 
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.Future;
 
 public interface BalanceFuture extends Future {
@@ -25,6 +26,6 @@ public interface BalanceFuture extends Future {
 
     public abstract void setBroadcast(boolean broadcast);
 
-    public abstract BalanceFuture translate();
+    public abstract BalanceFuture translate(SocketSession session);
 
 }

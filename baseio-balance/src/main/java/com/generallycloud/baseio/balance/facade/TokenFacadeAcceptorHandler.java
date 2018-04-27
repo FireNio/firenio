@@ -30,7 +30,7 @@ public abstract class TokenFacadeAcceptorHandler extends FacadeAcceptorHandler {
             fs.flush(createTokenPacket(fs));
             return;
         }
-        rs.flush(f.translate());
+        rs.flush(f.translate(rs));
         logDispatchMsg(fs, rs, f);
     }
 

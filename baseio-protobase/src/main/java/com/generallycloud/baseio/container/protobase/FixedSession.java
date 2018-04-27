@@ -69,7 +69,7 @@ public class FixedSession {
             throws IOException {
         ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(serviceName);
         if (!StringUtil.isNullOrBlank(content)) {
-            future.write(content);
+            future.write(content,session.getEncoding());
         }
         if (binary != null) {
             future.writeBinary(binary);
@@ -110,7 +110,7 @@ public class FixedSession {
     public void write(String serviceName, String content, byte[] binary) throws IOException {
         ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(serviceName);
         if (!StringUtil.isNullOrBlank(content)) {
-            future.write(content);
+            future.write(content,session.getEncoding());
         }
         if (binary != null) {
             future.writeBinary(binary);
