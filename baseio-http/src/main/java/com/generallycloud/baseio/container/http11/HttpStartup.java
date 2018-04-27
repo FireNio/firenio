@@ -25,9 +25,7 @@ public class HttpStartup {
 
     public static void main(String[] args) throws Exception {
 
-        String className = "com.generallycloud.baseio.container.http11.HttpApplicationBootstrapEngine";
-
-        ApplicationBootstrap.startup(className);
+        ApplicationBootstrap.startup(HttpApplicationBootstrapEngine.class);
 
     }
 

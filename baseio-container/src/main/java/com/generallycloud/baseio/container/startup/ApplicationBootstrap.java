@@ -20,6 +20,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
@@ -28,6 +29,11 @@ import com.generallycloud.baseio.component.URLDynamicClassLoader;
 import com.generallycloud.baseio.log.DebugUtil;
 
 public class ApplicationBootstrap {
+    
+    public static void startup(Class<?> clazz) throws Exception {
+        Assert.notNull(clazz,"clazz");
+        startup(clazz.getName());
+    }
 
     public static void startup(String className) throws Exception {
         startup(className, withDefault(new ClassPathScaner() {
@@ -52,6 +58,9 @@ public class ApplicationBootstrap {
 
     public static void startup(String className, boolean deployModel, String rootPath,
             List<ClassPathScaner> classPathScaners) throws Exception {
+        Assert.notNull(className,"className");
+        Assert.notNull(rootPath,"rootPath");
+        Assert.notNull(classPathScaners,"classPathScaners");
         LoggerUtil.prettyLog(DebugUtil.getLogger(), "ROOT_PATH: {}", rootPath);
         LoggerUtil.prettyLog(DebugUtil.getLogger(), "deployModel: {}", deployModel);
         ClassLoader parent = ApplicationBootstrap.class.getClassLoader();

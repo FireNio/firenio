@@ -25,9 +25,7 @@ public class ProtobaseStartup {
 
     public static void main(String[] args) throws Exception {
 
-        String className = "com.generallycloud.baseio.container.protobase.ProtobaseApplicationBootstrapEngine";
-
-        ApplicationBootstrap.startup(className);
+        ApplicationBootstrap.startup(ProtobaseApplicationBootstrapEngine.class);
 
     }
 
