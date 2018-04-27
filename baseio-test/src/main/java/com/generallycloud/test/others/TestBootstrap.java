@@ -15,9 +15,8 @@
  */
 package com.generallycloud.test.others;
 
-import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.Bootstrap;
 import com.generallycloud.baseio.component.BootstrapEngine;
+import com.generallycloud.baseio.container.startup.ApplicationBootstrap;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -25,29 +24,23 @@ import com.generallycloud.baseio.log.LoggerFactory;
  * @author wangkai
  *
  */
-public class TestBootstrap implements BootstrapEngine{
-    
+public class TestBootstrap implements BootstrapEngine {
+
     private Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     @Override
     public void bootstrap(String rootPath, boolean deployModel) throws Exception {
         logger.info("startup ............");
-        logger.info("this class loader: {}",getClass().getClassLoader());
-        logger.info("logger class loader: {}",logger.getClass().getClassLoader());
+        logger.info("this class loader: {}", getClass().getClassLoader());
+        logger.info("logger class loader: {}", logger.getClass().getClassLoader());
         logger.info("startup end ............");
     }
-    
+
     public static void main(String[] args) throws Exception {
-        
-        if (args != null && args.length > 1) {
-            throw new Exception("args must be one , true or flase");
-        }
-        
-        boolean deployModel = Boolean.parseBoolean(StringUtil.getValueFromArray(args, 0, "false"));
 
         String className = "com.generallycloud.test.others.TestBootstrap";
 
-        Bootstrap.startup(className, deployModel,Bootstrap.withDefault());
+        ApplicationBootstrap.startup(className, ApplicationBootstrap.withDefault());
     }
-    
+
 }

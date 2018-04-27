@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.container.protobase;
 
-import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.container.startup.ApplicationBootstrap;
 
 /**
@@ -26,15 +25,9 @@ public class ProtobaseStartup {
 
     public static void main(String[] args) throws Exception {
 
-        if (args != null && args.length > 1) {
-            throw new Exception("args must be one , true or flase");
-        }
-
-        boolean deployModel = Boolean.parseBoolean(StringUtil.getValueFromArray(args, 0, "false"));
-
         String className = "com.generallycloud.baseio.container.protobase.ProtobaseApplicationBootstrapEngine";
 
-        ApplicationBootstrap.startup(className, deployModel);
+        ApplicationBootstrap.startup(className);
 
     }
 

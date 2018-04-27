@@ -76,37 +76,43 @@ public class ClassUtil {
             return e;
         }
     }
-
-    public static Field getDeclaredFieldFC(Class<?> clazz, String name) {
-        try {
-            Class<?> c = clazz;
-            for (;;) {
-                if (c == null) {
-                    throw new NoSuchFieldException(name);
-                }
-                Field f = null;
-                try {
-                    f = c.getDeclaredField(name);
-                } catch (Exception e) {}
-                if (f == null) {
-                    c = c.getSuperclass();
-                    continue;
-                }
+    
+    public static Field getDeclaredField(Class<?> clazz, String name) {
+        if (clazz == null) {
+            return null;
+        }
+        Field[] fs = clazz.getDeclaredFields();
+        for(Field f : fs){
+            if (f.getName().equals(name)) {
                 return f;
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public static Field getDeclaredFieldFC(Class<?> clazz, String name) {
+        Class<?> c = clazz;
+        for (;;) {
+            if (c == null) {
+                return null;
+            }
+            Field f = getDeclaredField(c, name);
+            if (f == null) {
+                c = c.getSuperclass();
+                continue;
+            }
+            return f;
         }
     }
 
     public static void setObjectValue(Object target, Object value, String fieldName) {
         try {
-            Field fieldNext = ClassUtil.getDeclaredFieldFC(target.getClass(), fieldName);
-            if (fieldNext == null) {
+            Field field = getDeclaredFieldFC(target.getClass(), fieldName);
+            if (field == null) {
                 throw new NoSuchFieldException(fieldName);
             }
-            ClassUtil.trySetAccessible(fieldNext);
-            fieldNext.set(target, value);
+            ClassUtil.trySetAccessible(field);
+            field.set(target, value);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -123,7 +129,7 @@ public class ClassUtil {
             for (;;) {
                 Field fieldNext = ClassUtil.getDeclaredFieldFC(c.getClass(), fieldName);
                 if (fieldNext == null) {
-                    throw new NoSuchFieldException(fieldName);
+                    return c;
                 }
                 ClassUtil.trySetAccessible(fieldNext);
                 Object next = fieldNext.get(c);

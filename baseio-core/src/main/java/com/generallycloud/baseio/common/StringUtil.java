@@ -146,4 +146,8 @@ public class StringUtil {
         }
     }
     
+    public static boolean isTrueValue(String value){
+        return "true".equals(value) || "1".equals(value);
+    }
+    
 }

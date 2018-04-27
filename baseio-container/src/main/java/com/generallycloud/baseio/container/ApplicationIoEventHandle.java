@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.Bootstrap;
 import com.generallycloud.baseio.component.DynamicClassLoader;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.FutureAcceptor;
@@ -34,6 +33,7 @@ import com.generallycloud.baseio.component.URLDynamicClassLoader;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
+import com.generallycloud.baseio.container.startup.ApplicationBootstrap;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -164,8 +164,8 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
     private void initializeHandle(SocketChannelContext context) throws Exception {
         ClassLoader parent = getClass().getClassLoader();
-        this.classLoader = Bootstrap.newClassLoader(parent, deployModel,
-                true, rootLocalAddress, Bootstrap.withDefault());
+        this.classLoader = ApplicationBootstrap.newClassLoader(parent, deployModel,
+                true, rootLocalAddress, ApplicationBootstrap.withDefault());
         this.applicationExtLoader.loadExts(this, classLoader);
         this.configuration = configurationLoader.loadConfiguration(classLoader);
         this.appOnRedeployService = (FutureAcceptor) newInstanceFromClass(
