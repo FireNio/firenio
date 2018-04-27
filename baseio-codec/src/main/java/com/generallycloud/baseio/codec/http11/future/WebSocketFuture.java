@@ -15,10 +15,7 @@
  */
 package com.generallycloud.baseio.codec.http11.future;
 
-import com.generallycloud.baseio.protocol.NamedFuture;
-import com.generallycloud.baseio.protocol.TextFuture;
-
-public interface WebSocketFuture extends NamedFuture, TextFuture {
+public interface WebSocketFuture extends HttpMessage {
 
     public static final int    OP_CONTINUATION_FRAME     = 0;
     public static final int    OP_TEXT_FRAME             = 1;

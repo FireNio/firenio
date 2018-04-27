@@ -22,7 +22,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
 
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
+import com.generallycloud.baseio.codec.http11.future.HttpMessage;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.Parameters;
@@ -71,20 +71,20 @@ public class HttpFilter implements FutureAcceptor {
     }
 
     private void log(SocketSession session, Future future) throws Exception {
-        HttpFuture nf = (HttpFuture) future;
-        String futureName = nf.getFutureName();
+        HttpMessage m = (HttpMessage) future;
+        String futureName = m.getFutureName();
         if (noneLoggerUrlSet.contains(futureName) || endContains(futureName)) {
             return;
         }
         String remoteAddr = session.getRemoteAddr();
-        String readText = nf.getReadText();
+        String readText = m.getReadText();
         if (!StringUtil.isNullOrBlank(readText)) {
             logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, futureName,
                     readText);
             return;
         }
-        if (nf instanceof ParametersFuture) {
-            Parameters parameters = ((ParametersFuture) nf).getParameters();
+        if (future instanceof ParametersFuture) {
+            Parameters parameters = ((ParametersFuture) future).getParameters();
             if (parameters.size() > 0) {
                 logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, futureName,
                         parameters.toString());
