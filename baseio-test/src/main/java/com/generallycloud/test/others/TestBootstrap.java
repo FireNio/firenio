@@ -15,8 +15,9 @@
  */
 package com.generallycloud.test.others;
 
-import com.generallycloud.baseio.component.BootstrapEngine;
-import com.generallycloud.baseio.container.startup.ApplicationBootstrap;
+import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap;
+import com.generallycloud.baseio.container.bootstrap.BootstrapEngine;
+import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap.RuntimeMode;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -29,8 +30,9 @@ public class TestBootstrap implements BootstrapEngine {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void bootstrap(String rootPath, boolean deployModel) throws Exception {
+    public void bootstrap(String rootPath, RuntimeMode mode) throws Exception {
         logger.info("startup ............");
+        logger.info("runtime mode {}............", mode);
         logger.info("this class loader: {}", getClass().getClassLoader());
         logger.info("logger class loader: {}", logger.getClass().getClassLoader());
         logger.info("startup end ............");
@@ -38,9 +40,7 @@ public class TestBootstrap implements BootstrapEngine {
 
     public static void main(String[] args) throws Exception {
 
-        String className = "com.generallycloud.test.others.TestBootstrap";
-
-        ApplicationBootstrap.startup(className, ApplicationBootstrap.withDefault());
+        ApplicationBootstrap.startup(TestBootstrap.class);
     }
 
 }

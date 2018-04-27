@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component;
+package com.generallycloud.baseio.container.bootstrap;
+
+import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap.RuntimeMode;
 
 /**
  * @author wangkai
@@ -21,5 +23,5 @@ package com.generallycloud.baseio.component;
  */
 public interface BootstrapEngine {
 
-    void bootstrap(String rootPath, boolean deployModel) throws Exception;
+    void bootstrap(String rootPath, RuntimeMode mode) throws Exception;
 }

@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.container.protobase;
 
-import com.generallycloud.baseio.container.startup.ApplicationBootstrap;
+import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap;
 
 /**
  * @author wangkai

@@ -30,10 +30,11 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionEventListener;
 import com.generallycloud.baseio.component.URLDynamicClassLoader;
+import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap;
+import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap.RuntimeMode;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
-import com.generallycloud.baseio.container.startup.ApplicationBootstrap;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -48,7 +49,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     private ApplicationConfiguration       configuration;
     private ApplicationConfigurationLoader configurationLoader;
     private volatile boolean               deploying    = true;
-    private boolean                        deployModel;
+    private RuntimeMode                        runtimeMode;
     private Charset                        encoding;
     private ContainerIoEventHandle         futureAcceptor;
     private ExceptionCaughtHandle          ioExceptionCaughtHandle;
@@ -58,9 +59,9 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
     // exceptionCaughtHandle ; ioExceptionCaughtHandle
     // 区分 socket || application exception handle
-    public ApplicationIoEventHandle(String rootPath, boolean deployModel) {
+    public ApplicationIoEventHandle(String rootPath, RuntimeMode runtimeMode) {
         this.rootLocalAddress = rootPath;
-        this.deployModel = deployModel;
+        this.runtimeMode = runtimeMode;
     }
 
     @Override
@@ -164,7 +165,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
     private void initializeHandle(SocketChannelContext context) throws Exception {
         ClassLoader parent = getClass().getClassLoader();
-        this.classLoader = ApplicationBootstrap.newClassLoader(parent, deployModel,
+        this.classLoader = ApplicationBootstrap.newClassLoader(parent, runtimeMode,
                 true, rootLocalAddress, ApplicationBootstrap.withDefault());
         this.applicationExtLoader.loadExts(this, classLoader);
         this.configuration = configurationLoader.loadConfiguration(classLoader);
@@ -194,8 +195,8 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         return clazz.newInstance();
     }
 
-    public boolean isDeployModel() {
-        return deployModel;
+    public RuntimeMode getRuntimeMode() {
+        return runtimeMode;
     }
 
     public boolean isDeploying() {
