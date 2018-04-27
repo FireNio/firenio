@@ -21,8 +21,9 @@ import java.util.Map;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.protocol.NamedFuture;
 import com.generallycloud.baseio.protocol.ParametersFuture;
+import com.generallycloud.baseio.protocol.TextFuture;
 
-public abstract interface HttpFuture extends NamedFuture, ParametersFuture {
+public abstract interface HttpFuture extends NamedFuture, ParametersFuture ,TextFuture {
 
     public static final String CONTENT_TYPE_MULTIPART           = "multipart/form-data";
     public static final String CONTENT_TYPE_TEXT_PLAIN          = "text/plain;charset=utf-8";

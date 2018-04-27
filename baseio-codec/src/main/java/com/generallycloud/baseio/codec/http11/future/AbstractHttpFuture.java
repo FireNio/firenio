@@ -54,6 +54,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     protected String                   boundary;
     protected int                      contentLength;
     protected String                   contentType;
+    protected SocketChannelContext     context;
     protected List<Cookie>             cookieList;
     protected Map<String, String>      cookies;
     protected StringBuilder            currentHeaderLine;
@@ -62,23 +63,20 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     protected int                      headerLength;
     protected int                      headerLimit;
     protected String                   host;
+    private MapParameters              mapParameters;
     protected String                   method;
     protected Map<String, String>      params;
+    private boolean                    parseFirstLine = true;
+    protected String                   readText;
     protected Map<String, String>      request_headers;
     protected String                   requestURI;
     protected String                   requestURL;
+
     protected Map<String, String>      response_headers;
     protected HttpStatus               status         = HttpStatus.C200;
-    protected String                   version;
-    protected SocketChannelContext     context;
-
-    private MapParameters              mapParameters;
     private boolean                    updateWebSocketProtocol;
-    private boolean                    parseFirstLine = true;
 
-    public AbstractHttpFuture(SocketChannelContext context) {
-        this.context = context;
-    }
+    protected String                   version;
 
     public AbstractHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
         this.context = channel.getContext();
@@ -86,6 +84,10 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         this.bodyLimit = bodyLimit;
         this.request_headers = new HashMap<>();
         this.currentHeaderLine = new StringBuilder();
+    }
+
+    public AbstractHttpFuture(SocketChannelContext context) {
+        this.context = context;
     }
 
     @Override
@@ -158,6 +160,11 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     }
 
     @Override
+    public String getReadText() {
+        return readText;
+    }
+
+    @Override
     public String getRequestHeader(String name) {
         if (StringUtil.isNullOrBlank(name)) {
             return null;
@@ -212,6 +219,10 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     @Override
     public boolean hasBodyContent() {
         return hasBodyContent;
+    }
+
+    public boolean isUpdateWebSocketProtocol() {
+        return updateWebSocketProtocol;
     }
 
     private void parse_cookies(String line) {
@@ -276,6 +287,52 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         }
     }
 
+    @Override
+    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
+        if (!header_complete) {
+            readHeader(buffer);
+            if (!header_complete) {
+                return false;
+            }
+            host = getRequestHeader("Host");
+            String contentLengthStr = getRequestHeader(HttpHeader.CONTENT_LENGTH);
+            if (!StringUtil.isNullOrBlank(contentLengthStr)) {
+                this.contentLength = Integer.parseInt(contentLengthStr);
+            }
+            String contentType = getRequestHeader(HttpHeader.CONTENT_TYPE);
+            parseContentType(contentType);
+            String cookie = getRequestHeader("Cookie");
+            if (!StringUtil.isNullOrBlank(cookie)) {
+                parse_cookies(cookie);
+            }
+            if (contentLength < 1) {
+                body_complete = true;
+            } else {
+                hasBodyContent = true;
+                // FIXME 写入临时文件
+                buf = allocate(channel, contentLength, bodyLimit);
+            }
+        }
+        if (!body_complete) {
+            buf.read(buffer);
+            if (buf.hasRemaining()) {
+                return false;
+            }
+            body_complete = true;
+            buf.flip();
+            bodyArray = buf.getBytes();
+            if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
+                // FIXME encoding
+                String paramString = new String(bodyArray, context.getEncoding());
+                parseParamString(paramString);
+                this.readText = paramString;
+            } else {
+                // FIXME 解析BODY中的内容
+            }
+        }
+        return true;
+    }
+
     private void readHeader(ByteBuf buffer) throws IOException {
         for (; buffer.hasRemaining();) {
             if (++headerLength > headerLimit) {
@@ -310,52 +367,6 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
                 currentHeaderLine.append((char) b);
             }
         }
-    }
-
-    @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-        if (!header_complete) {
-            readHeader(buffer);
-            if (!header_complete) {
-                return false;
-            }
-            host = getRequestHeader("Host");
-            String contentLengthStr = getRequestHeader(HttpHeader.CONTENT_LENGTH);
-            if (!StringUtil.isNullOrBlank(contentLengthStr)) {
-                this.contentLength = Integer.parseInt(contentLengthStr);
-            }
-            String contentType = getRequestHeader(HttpHeader.CONTENT_TYPE);
-            parseContentType(contentType);
-            String cookie = getRequestHeader("Cookie");
-            if (!StringUtil.isNullOrBlank(cookie)) {
-                parse_cookies(cookie);
-            }
-            if (contentLength < 1) {
-                body_complete = true;
-            }else{
-                hasBodyContent = true;
-                // FIXME 写入临时文件
-                buf = allocate(channel, contentLength, bodyLimit);
-            }
-        }
-        if (!body_complete) {
-            buf.read(buffer);
-            if (buf.hasRemaining()) {
-                return false;
-            }
-            body_complete = true;
-            buf.flip();
-            bodyArray = buf.getBytes();
-            if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-                // FIXME encoding
-                String paramString = new String(bodyArray, context.getEncoding());
-                parseParamString(paramString);
-                this.readText = paramString;
-            } else {
-                // FIXME 解析BODY中的内容
-            }
-        }
-        return true;
     }
 
     protected abstract void setDefaultResponseHeaders(Map<String, String> headers);
@@ -419,26 +430,23 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     }
 
     @Override
+    public String toString() {
+        return getReadText();
+    }
+
+    @Override
     public void updateWebSocketProtocol() {
-
         String Sec_WebSocket_Key = getRequestHeader("Sec-WebSocket-Key");
-
         if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key)) {
-
             //FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
-
             String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key
                     + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-
             byte[] key_array = SHAUtil.SHA1(Sec_WebSocket_Key_Magic);
-
             String acceptKey = BASE64Util.byteArrayToBase64(key_array);
-
             setStatus(HttpStatus.C101);
             setResponseHeader("Connection", "Upgrade");
             setResponseHeader("Upgrade", "WebSocket");
             setResponseHeader("Sec-WebSocket-Accept", acceptKey);
-
             updateWebSocketProtocol = true;
             return;
         }
@@ -452,13 +460,6 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
             return;
         }
         binaryBuffer.write(binary);
-    }
-
-    /**
-     * @return the updateWebSocketProtocol
-     */
-    public boolean isUpdateWebSocketProtocol() {
-        return updateWebSocketProtocol;
     }
 
 }

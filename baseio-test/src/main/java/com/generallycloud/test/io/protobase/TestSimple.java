@@ -41,7 +41,7 @@ public class TestSimple {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-                System.out.println("________________________" + future.getReadText());
+                System.out.println("________________________" + future);
             }
         };
 

@@ -38,7 +38,7 @@ public class SimpleTestFIxedLengthClientPush {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-                System.out.println(">msg from server: " + future.getReadText());
+                System.out.println(">msg from server: " + future);
             }
         };
         SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration("localhost", 8300));

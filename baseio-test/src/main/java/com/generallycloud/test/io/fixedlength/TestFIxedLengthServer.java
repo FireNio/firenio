@@ -20,6 +20,7 @@ import java.io.File;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.baseio.codec.fixedlength.future.FLBeatFutureFactory;
+import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -39,8 +40,9 @@ public class TestFIxedLengthServer {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
+                FixedLengthFuture f = (FixedLengthFuture) future;
                 future.write("yes server already accept your message:");
-                future.write(future.getReadText());
+                future.write(f.getReadText());
                 session.flush(future);
             }
         };

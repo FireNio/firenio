@@ -26,15 +26,20 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSocketFuture {
 
-    private int     type;
+    private byte[]  byteArray;
     private boolean eof;
     private boolean hasMask;
     private int     length;
-    private String  serviceName;
-    private boolean remain_data_complete;
     private int     limit;
     private byte[]  mask;
-    private byte[]  byteArray;
+    private String  readText;
+    private boolean remain_data_complete;
+    private String  serviceName;
+    private int     type;
+
+    public WebSocketFutureImpl() {
+        this.type = WebSocketProtocolDecoder.TYPE_TEXT;
+    }
 
     public WebSocketFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
         this.limit = limit;
@@ -42,17 +47,39 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
         this.setServiceName(channel.getSession());
     }
 
-    public WebSocketFutureImpl() {
-        this.type = WebSocketProtocolDecoder.TYPE_TEXT;
+    @Override
+    public byte[] getByteArray() {
+        return byteArray;
     }
 
-    protected void setServiceName(SocketSession session) {
-        this.serviceName = (String) session.getAttribute(SESSION_KEY_SERVICE_NAME);
+    @Override
+    public String getFutureName() {
+        return serviceName;
+    }
+
+    @Override
+    public int getLength() {
+        return length;
+    }
+
+    @Override
+    public String getReadText() {
+        return readText;
+    }
+
+    @Override
+    public int getType() {
+        return type;
     }
 
     @Override
     public boolean isCloseFrame() {
         return OP_CONNECTION_CLOSE_FRAME == type;
+    }
+
+    @Override
+    public boolean isEof() {
+        return eof;
     }
 
     @Override
@@ -129,31 +156,6 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     }
 
     @Override
-    public String getFutureName() {
-        return serviceName;
-    }
-
-    @Override
-    public boolean isEof() {
-        return eof;
-    }
-
-    @Override
-    public int getType() {
-        return type;
-    }
-
-    @Override
-    public int getLength() {
-        return length;
-    }
-
-    @Override
-    public byte[] getByteArray() {
-        return byteArray;
-    }
-
-    @Override
     public ChannelFuture setPING() {
         this.type = WebSocketProtocolDecoder.TYPE_PING;
         return super.setPING();
@@ -165,8 +167,17 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
         return super.setPONG();
     }
 
+    protected void setServiceName(SocketSession session) {
+        this.serviceName = (String) session.getAttribute(SESSION_KEY_SERVICE_NAME);
+    }
+
     protected void setType(int type) {
         this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return getReadText();
     }
 
 }

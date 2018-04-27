@@ -20,34 +20,23 @@ import java.util.Arrays;
 
 public abstract class AbstractFuture implements Future {
 
-    protected String               readText;
-    protected byte[]               writeBuffer;
-    protected int                  writeSize;
-
-    @Override
-    public String getReadText() {
-        return readText;
-    }
+    protected byte[] writeBuffer;
+    protected int    writeSize;
 
     @Override
     public byte[] getWriteBuffer() {
         return writeBuffer;
     }
-    
+
     @Override
     public int getWriteSize() {
         return writeSize;
     }
 
     @Override
-    public String toString() {
-        return getReadText();
-    }
-
-    @Override
     public void write(byte b) {
         if (writeBuffer == null) {
-            writeBuffer = new byte [256];
+            writeBuffer = new byte[256];
         }
         int newcount = writeSize + 1;
         if (newcount > writeBuffer.length) {

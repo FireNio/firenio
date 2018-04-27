@@ -18,8 +18,10 @@ package com.generallycloud.baseio.codec.protobase.future;
 import com.generallycloud.baseio.balance.HashedBalanceFuture;
 import com.generallycloud.baseio.balance.SessionIdBalanceFuture;
 import com.generallycloud.baseio.protocol.NamedFuture;
+import com.generallycloud.baseio.protocol.TextFuture;
 
-public interface ProtobaseFuture extends NamedFuture, SessionIdBalanceFuture, HashedBalanceFuture {
+public interface ProtobaseFuture
+        extends NamedFuture, SessionIdBalanceFuture, HashedBalanceFuture, TextFuture {
 
     int getReadBinarySize();
 
@@ -28,7 +30,7 @@ public interface ProtobaseFuture extends NamedFuture, SessionIdBalanceFuture, Ha
     byte[] getReadBinary();
 
     int getTextLength();
-    
+
     byte[] getWriteBinary();
 
     int getWriteBinarySize();
@@ -44,5 +46,5 @@ public interface ProtobaseFuture extends NamedFuture, SessionIdBalanceFuture, Ha
     void writeBinary(byte[] bytes);
 
     void writeBinary(byte[] bytes, int offset, int length);
-    
+
 }

@@ -38,9 +38,10 @@ public class SimpleTestFIxedLengthBroadcastServer {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
+                FixedLengthFuture f = (FixedLengthFuture) future;
                 future.write("yes server already accept your message:");
-                future.write(future.getReadText());
-                session.flush(future);
+                future.write(f.getReadText());
+                session.flush(f);
             }
         };
 

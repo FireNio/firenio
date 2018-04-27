@@ -29,12 +29,17 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
 
     private boolean header_complete;
     private int     limit;
+    private String  readText;
+
+    public FixedLengthFutureImpl() {}
 
     public FixedLengthFutureImpl(int limit) {
         this.limit = limit;
     }
 
-    public FixedLengthFutureImpl() {
+    @Override
+    public String getReadText() {
+        return readText;
     }
 
     @Override
@@ -104,6 +109,11 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
         } else {
             throw new ProtocolException("illegal length:" + len);
         }
+    }
+
+    @Override
+    public String toString() {
+        return getReadText();
     }
 
 }

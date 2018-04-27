@@ -37,33 +37,22 @@ public class TestLineBasedClient {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-
                 System.out.println();
-                System.out.println("____________________" + future.getReadText());
+                System.out.println("____________________" + future);
                 System.out.println();
             }
         };
 
         SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         context.setProtocolFactory(new CharBasedProtocolFactory());
-
         SocketSession session = connector.connect();
-
         CharBasedFuture future = new CharBasedFutureImpl();
-
         future.write("hello server!");
-
         session.flush(future);
-
         ThreadUtil.sleep(100);
-
         CloseUtil.close(connector);
 
     }

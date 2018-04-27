@@ -38,36 +38,25 @@ public class SimpleTestProtobaseClient {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 System.out.println();
-                System.out.println("____________________" + future.getReadText());
+                System.out.println("____________________" + future);
                 System.out.println();
             }
         };
 
         SocketChannelContext context = new NioSocketChannelContext(
                 new ServerConfiguration("localhost", 8300));
-
         context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         connector.setTimeout(99999999);
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         context.setProtocolFactory(new ProtobaseProtocolFactory());
-
         SocketSession session = connector.connect();
-
         ProtobaseFuture future = new ProtobaseFutureImpl("test222");
-
         future.write("hello server!");
-
         session.flush(future);
-
         ThreadUtil.sleep(100);
-
         CloseUtil.close(connector);
+        
     }
 }

@@ -22,6 +22,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
 
+import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.Parameters;
@@ -29,7 +30,6 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.baseio.protocol.NamedFuture;
 import com.generallycloud.baseio.protocol.ParametersFuture;
 
 /**
@@ -71,7 +71,7 @@ public class HttpFilter implements FutureAcceptor {
     }
 
     private void log(SocketSession session, Future future) throws Exception {
-        NamedFuture nf = (NamedFuture) future;
+        HttpFuture nf = (HttpFuture) future;
         String futureName = nf.getFutureName();
         if (noneLoggerUrlSet.contains(futureName) || endContains(futureName)) {
             return;
@@ -79,15 +79,15 @@ public class HttpFilter implements FutureAcceptor {
         String remoteAddr = session.getRemoteAddr();
         String readText = nf.getReadText();
         if (!StringUtil.isNullOrBlank(readText)) {
-            logger.info("request ip:{}, service name:{}, content: {}",
-                    new String[] { remoteAddr, futureName, readText });
+            logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, futureName,
+                    readText);
             return;
         }
         if (nf instanceof ParametersFuture) {
             Parameters parameters = ((ParametersFuture) nf).getParameters();
             if (parameters.size() > 0) {
-                logger.info("request ip:{}, service name:{}, content: {}",
-                        new String[] { remoteAddr, futureName, parameters.toString() });
+                logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, futureName,
+                        parameters.toString());
                 return;
             }
         }

@@ -41,7 +41,7 @@ public class TestHeartBeat {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-                DebugUtil.debug("______________" + future.getReadText());
+                DebugUtil.debug("______________" + future);
             }
         };
 

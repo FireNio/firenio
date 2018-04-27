@@ -25,17 +25,29 @@ import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBasedFuture {
 
+    private ByteArrayBuffer cache = new ByteArrayBuffer();
     private boolean         complete;
     private int             limit;
+    private String readText;
+
     private byte            splitor;
-    private ByteArrayBuffer cache = new ByteArrayBuffer();
+
+    public CharBasedFutureImpl() {
+    }
 
     public CharBasedFutureImpl(int limit, byte splitor) {
         this.limit = limit;
         this.splitor = splitor;
     }
 
-    public CharBasedFutureImpl() {
+    @Override
+    public ByteArrayBuffer getLineOutputStream() {
+        return cache;
+    }
+    
+    @Override
+    public String getReadText() {
+        return readText;
     }
 
     @Override
@@ -59,10 +71,10 @@ public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBa
         }
         return false;
     }
-
+    
     @Override
-    public ByteArrayBuffer getLineOutputStream() {
-        return cache;
+    public String toString() {
+        return getReadText();
     }
 
 }

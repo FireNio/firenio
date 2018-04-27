@@ -15,8 +15,8 @@
  */
 package com.generallycloud.baseio.codec.fixedlength.future;
 
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.TextFuture;
 
-public interface FixedLengthFuture extends Future {
+public interface FixedLengthFuture extends TextFuture {
 
 }

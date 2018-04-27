@@ -43,9 +43,10 @@ public class SimpleTestFIxedLengthServerPush {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
+                FixedLengthFuture f = (FixedLengthFuture) future;
                 SocketSessionManager sessionManager = session.getContext().getSessionManager();
                 Map<Integer, SocketSession> sessions = sessionManager.getManagedSessions();
-                String msg = future.getReadText();
+                String msg = f.getReadText();
                 String []arr = msg.split(" ");  
                 String cmd = arr[0];
                 logger.info("msg received: {}",msg);

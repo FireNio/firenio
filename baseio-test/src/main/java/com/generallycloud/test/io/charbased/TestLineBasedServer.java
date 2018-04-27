@@ -38,30 +38,22 @@ public class TestLineBasedServer {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-
-                String res = "yes server already accept your message:" + future.getReadText();
+                String res = "yes server already accept your message:" + future;
                 future.write(res);
                 session.flush(future);
             }
         };
 
         SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
-
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         context.setProtocolFactory(new CharBasedProtocolFactory());
-
         File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
         File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
-
         SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
-
         context.setSslContext(sslContext);
-
         acceptor.bind();
+        
     }
 }

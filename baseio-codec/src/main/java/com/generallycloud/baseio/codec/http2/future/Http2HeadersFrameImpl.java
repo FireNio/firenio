@@ -25,17 +25,11 @@ import com.generallycloud.baseio.component.SocketChannel;
 public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2HeadersFrame {
 
     private boolean        isComplete;
-
     private byte           padLength;
-
     private boolean        e;
-
     private int            streamDependency;
-
     private short          weight;
-
     private boolean        endStream;
-
     private static Decoder decoder = new Decoder();
 
     public Http2HeadersFrameImpl(ByteBuf buf, Http2FrameHeader header) {

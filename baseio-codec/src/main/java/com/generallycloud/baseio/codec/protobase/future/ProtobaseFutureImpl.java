@@ -42,16 +42,16 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     private byte    futureNameLength;
     private int     hashCode;
     private boolean isBroadcast;
+    private String  readText;
     private int     sessionId;
     private int     textLength;
     private int     textLengthLimit;
 
+    // for ping & pong
+    public ProtobaseFutureImpl() {}
+
     public ProtobaseFutureImpl(ByteBuf buf) {
         this.buf = buf;
-    }
-
-    // for ping & pong
-    public ProtobaseFutureImpl() {
     }
 
     public ProtobaseFutureImpl(int futureId, String futureName) {
@@ -86,6 +86,11 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     @Override
     public int getReadBinarySize() {
         return binaryReadSize;
+    }
+
+    @Override
+    public String getReadText() {
+        return readText;
     }
 
     @Override
@@ -242,7 +247,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
         if (StringUtil.isNullOrBlank(text)) {
             return this;
         }
-        write(text,session.getEncoding());
+        write(text, session.getEncoding());
         return this;
     }
 

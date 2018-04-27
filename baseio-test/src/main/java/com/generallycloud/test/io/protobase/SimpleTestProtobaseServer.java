@@ -18,6 +18,7 @@ package com.generallycloud.test.io.protobase;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
+import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -38,9 +39,10 @@ public class SimpleTestProtobaseServer {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-                DebugUtil.debug("receive:" + future.getReadText());
+                ProtobaseFuture f = (ProtobaseFuture) future;
+                DebugUtil.debug("receive:" + f.getReadText());
                 future.write("yes server already accept your message:");
-                future.write(future.getReadText());
+                future.write(f.getReadText());
                 session.flush(future);
             }
         };

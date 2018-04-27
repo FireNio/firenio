@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.charbased.future;
+package com.generallycloud.baseio.protocol;
 
-import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.protocol.TextFuture;
+/**
+ * @author wangkai
+ *
+ */
+public interface TextFuture extends Future {
 
-public interface CharBasedFuture extends TextFuture {
-
-    public abstract ByteArrayBuffer getLineOutputStream();
+    String getReadText();
 
 }

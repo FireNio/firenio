@@ -59,9 +59,4 @@ public class DuplicateChannelFuture extends DefaultChannelFuture {
         return unwrap().getWriteBuffer();
     }
 
-    @Override
-    public String getReadText() {
-        return unwrap().getReadText();
-    }
-
 }

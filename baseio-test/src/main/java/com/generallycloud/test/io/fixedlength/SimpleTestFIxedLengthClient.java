@@ -35,8 +35,9 @@ public class SimpleTestFIxedLengthClient {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
+                FixedLengthFuture f = (FixedLengthFuture) future;
                 System.out.println();
-                System.out.println("____________________" + future.getReadText());
+                System.out.println("____________________" + f.getReadText());
                 System.out.println();
             }
             

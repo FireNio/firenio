@@ -42,7 +42,7 @@ public class TestFIxedLengthClient {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 System.out.println();
-                System.out.println("____________________" + future.getReadText());
+                System.out.println("____________________" + future);
                 System.out.println();
             }
         };

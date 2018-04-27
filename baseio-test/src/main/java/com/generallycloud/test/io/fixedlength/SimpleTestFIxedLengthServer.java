@@ -18,6 +18,7 @@ package com.generallycloud.test.io.fixedlength;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
 import com.generallycloud.baseio.codec.fixedlength.future.FLBeatFutureFactory;
+import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -32,8 +33,9 @@ public class SimpleTestFIxedLengthServer {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
+                FixedLengthFuture f = (FixedLengthFuture) future;
                 future.write("yes server already accept your message:");
-                future.write(future.getReadText());
+                future.write(f.getReadText());
                 session.flush(future);
             }
         };

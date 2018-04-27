@@ -23,8 +23,6 @@ public interface Future extends Releasable {
 
     boolean flushed();
 
-    String getReadText();
-
     byte [] getWriteBuffer();
     
     int getWriteSize();
