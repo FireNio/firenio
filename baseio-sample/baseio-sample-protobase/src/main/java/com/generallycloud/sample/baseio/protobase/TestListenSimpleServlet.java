@@ -41,8 +41,7 @@ public class TestListenSimpleServlet extends ProtobaseFutureAcceptorService {
 
         for (int i = 0; i < 5; i++) {
 
-            ProtobaseFuture f = new ProtobaseFutureImpl(session.getContext(), future.getFutureId(),
-                    future.getFutureName());
+            ProtobaseFuture f = new ProtobaseFutureImpl(future.getFutureId(),future.getFutureName());
 
             f.write(test);
             f.write("$");

@@ -81,7 +81,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
         synchronized (this) {
             SocketSession session = msg.session;
             if (session != null) {
-                WebSocketFuture f = new WebSocketFutureImpl(session.getContext());
+                WebSocketFuture f = new WebSocketFutureImpl();
                 f.write(msg.msg);
                 session.flush(f);
                 return;
@@ -89,7 +89,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
             for (int i = 0; i < clients.size(); i++) {
                 SocketSession s = clients.get(i);
                 if (s.isOpened()) {
-                    WebSocketFuture f = new WebSocketFutureImpl(s.getContext());
+                    WebSocketFuture f = new WebSocketFutureImpl();
                     f.write(msg.msg);
                     s.flush(f);
                 } else {

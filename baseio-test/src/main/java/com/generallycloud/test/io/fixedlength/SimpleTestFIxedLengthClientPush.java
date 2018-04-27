@@ -68,7 +68,7 @@ public class SimpleTestFIxedLengthClientPush {
                         CloseUtil.close(session);
                         break;
                     }
-                    FixedLengthFuture future = new FixedLengthFutureImpl(context);
+                    FixedLengthFuture future = new FixedLengthFutureImpl();
                     future.write(line);
                     session.flush(future);
                 }

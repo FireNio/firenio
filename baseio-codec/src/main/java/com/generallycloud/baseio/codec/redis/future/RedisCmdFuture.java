@@ -19,13 +19,8 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 
 public class RedisCmdFuture extends AbstractRedisFuture {
-
-    protected RedisCmdFuture(SocketChannelContext context) {
-        super(context);
-    }
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {

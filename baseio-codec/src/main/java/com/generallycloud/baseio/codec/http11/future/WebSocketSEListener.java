@@ -36,7 +36,7 @@ public class WebSocketSEListener extends SocketSessionEventListenerAdapter {
 
         SocketChannelContext context = session.getContext();
 
-        WebSocketFutureImpl future = new WebSocketFutureImpl(context);
+        WebSocketFutureImpl future = new WebSocketFutureImpl();
 
         future.setType(WebSocketProtocolDecoder.TYPE_CLOSE);
 

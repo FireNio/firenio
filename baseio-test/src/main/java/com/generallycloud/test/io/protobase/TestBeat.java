@@ -72,7 +72,7 @@ public class TestBeat {
         long old = System.currentTimeMillis();
 
         for (int i = 0; i < 5; i++) {
-            Future future = new ProtobaseFutureImpl(context, serviceKey);
+            Future future = new ProtobaseFutureImpl(serviceKey);
             future.write(param);
             session.flush(future);
             ThreadUtil.sleep(300);

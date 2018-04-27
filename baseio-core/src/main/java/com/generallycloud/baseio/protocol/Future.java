@@ -18,11 +18,8 @@ package com.generallycloud.baseio.protocol;
 import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.common.Releasable;
-import com.generallycloud.baseio.component.SocketChannelContext;
 
 public interface Future extends Releasable {
-
-    SocketChannelContext getContext();
 
     boolean flushed();
 

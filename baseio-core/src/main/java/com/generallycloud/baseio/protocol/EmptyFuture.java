@@ -20,26 +20,17 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 
 public class EmptyFuture extends AbstractChannelFuture {
 
-    private static EmptyFuture EMPTY_FUTURE = null;
+    private static EmptyFuture EMPTY_FUTURE = new EmptyFuture();
 
-    public static void initializeReadFuture(SocketChannelContext context) {
-        if (EMPTY_FUTURE != null) {
-            return;
-        }
-        EMPTY_FUTURE = new EmptyFuture(context);
-        EMPTY_FUTURE.setByteBuf(EmptyByteBuf.getInstance());
+    public EmptyFuture(){
+        this.buf = EmptyByteBuf.getInstance();
     }
-
+    
     public static EmptyFuture get() {
         return EMPTY_FUTURE;
-    }
-
-    public EmptyFuture(SocketChannelContext context) {
-        super(context);
     }
 
     @Override

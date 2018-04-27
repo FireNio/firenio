@@ -24,7 +24,6 @@ import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 /**
@@ -46,24 +45,21 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     private int     textLength;
     private int     textLengthLimit;
 
-    public ProtobaseFutureImpl(SocketChannel channel, ByteBuf buf) {
-        super(channel.getContext());
+    public ProtobaseFutureImpl(ByteBuf buf) {
         this.buf = buf;
     }
 
     // for ping & pong
-    public ProtobaseFutureImpl(SocketChannelContext context) {
-        super(context);
+    public ProtobaseFutureImpl() {
     }
 
-    public ProtobaseFutureImpl(SocketChannelContext context, int futureId, String futureName) {
-        super(context);
+    public ProtobaseFutureImpl(int futureId, String futureName) {
         this.futureName = futureName;
         this.futureId = futureId;
     }
 
-    public ProtobaseFutureImpl(SocketChannelContext context, String futureName) {
-        this(context, 0, futureName);
+    public ProtobaseFutureImpl(String futureName) {
+        this(0, futureName);
     }
 
     @Override
@@ -184,7 +180,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
             if (binaryReadSize == -1) {
                 binaryReadSize = buf.getInt();
             }
-            Charset charset = context.getEncoding();
+            Charset charset = channel.getEncoding();
             ByteBuffer memory = buf.nioBuffer();
             futureName = StringUtil.decode(charset, memory);
             buf.reallocate(textLength + binaryReadSize);
@@ -197,7 +193,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
             buf.flip();
             buf.markPL();
             buf.limit(textLength);
-            Charset charset = context.getEncoding();
+            Charset charset = channel.getEncoding();
             ByteBuffer memory = buf.nioBuffer();
             readText = StringUtil.decode(charset, memory);
             buf.reset();

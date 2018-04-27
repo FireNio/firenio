@@ -27,49 +27,34 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 
     private long[]  settings;  //FIXME delete
 
-    public Http2SettingsFrameImpl(SocketChannel channel, ByteBuf buf,
-            Http2FrameHeader header) {
-        super(channel, header);
+    public Http2SettingsFrameImpl(ByteBuf buf, Http2FrameHeader header) {
+        super(header);
         this.buf = buf;
     }
 
     private void doComplete(SocketChannel channel, ByteBuf buf) throws IOException {
-
         Http2SocketSession session = (Http2SocketSession) channel.getSession();
-        
         int settings = buf.limit() / 6;
-
         for (int i = 0; i < settings; i++) {
-
             int key = buf.getShort();
             int value = buf.getInt();
-
             session.setSettings(key, value);
         }
-
         this.settings = session.getSettings();
-
         channel.flush(this);
     }
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-
         if (!isComplete) {
-
             ByteBuf buf = this.buf;
-
             buf.read(buffer);
-
             if (buf.hasRemaining()) {
                 return false;
             }
-
             isComplete = true;
-
             doComplete(channel, buf.flip());
         }
-
         return true;
     }
 

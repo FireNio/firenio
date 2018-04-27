@@ -52,7 +52,7 @@ public class ProtobaseProtocolDecoder implements ProtocolDecoder {
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBufAllocator allocator = channel.getByteBufAllocator();
         ByteBuf buf = allocator.allocate(2);
-        return new ProtobaseFutureImpl(channel, buf);
+        return new ProtobaseFutureImpl(buf);
     }
 
 }

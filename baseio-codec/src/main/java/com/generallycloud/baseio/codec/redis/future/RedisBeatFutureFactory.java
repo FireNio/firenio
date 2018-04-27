@@ -24,25 +24,17 @@ public class RedisBeatFutureFactory implements BeatFutureFactory {
 
     @Override
     public Future createPINGPacket(SocketSession session) {
-
-        RedisCmdFuture f = new RedisCmdFuture(session.getContext());
-
+        RedisCmdFuture f = new RedisCmdFuture();
         f.setPING();
-
         f.writeCommand(RedisCommand.PING.raw);
-
         return f;
     }
 
     @Override
     public Future createPONGPacket(SocketSession session) {
-
-        RedisCmdFuture f = new RedisCmdFuture(session.getContext());
-
+        RedisCmdFuture f = new RedisCmdFuture();
         f.setPONG();
-
         f.writeCommand(RedisCommand.PONG.raw);
-
         return f;
     }
 

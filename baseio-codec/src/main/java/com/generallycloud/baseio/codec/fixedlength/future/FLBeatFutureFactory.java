@@ -23,12 +23,12 @@ public class FLBeatFutureFactory implements BeatFutureFactory {
 
     @Override
     public Future createPINGPacket(SocketSession session) {
-        return new FixedLengthFutureImpl(session.getContext()).setPING();
+        return new FixedLengthFutureImpl().setPING();
     }
 
     @Override
     public Future createPONGPacket(SocketSession session) {
-        return new FixedLengthFutureImpl(session.getContext()).setPONG();
+        return new FixedLengthFutureImpl().setPONG();
     }
 
 }

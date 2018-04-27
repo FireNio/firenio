@@ -89,7 +89,7 @@ public class TestLoadClient {
 
         for (int i = 0; i < time; i++) {
 
-            FixedLengthFuture future = new FixedLengthFutureImpl(session.getContext());
+            FixedLengthFuture future = new FixedLengthFutureImpl();
 
             future.write("hello server!");
 

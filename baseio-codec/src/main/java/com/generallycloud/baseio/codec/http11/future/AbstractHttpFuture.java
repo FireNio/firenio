@@ -70,17 +70,18 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     protected Map<String, String>      response_headers;
     protected HttpStatus               status         = HttpStatus.C200;
     protected String                   version;
+    protected SocketChannelContext     context;
 
     private MapParameters              mapParameters;
     private boolean                    updateWebSocketProtocol;
     private boolean                    parseFirstLine = true;
 
     public AbstractHttpFuture(SocketChannelContext context) {
-        super(context);
+        this.context = context;
     }
 
     public AbstractHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
-        super(channel.getContext());
+        this.context = channel.getContext();
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
         this.request_headers = new HashMap<>();

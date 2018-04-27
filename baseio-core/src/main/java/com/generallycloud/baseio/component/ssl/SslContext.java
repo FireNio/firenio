@@ -30,7 +30,6 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLSessionContext;
 
 import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -219,8 +218,8 @@ public final class SslContext {
         return configureAndWrapEngine(context().createSSLEngine(peerHost, peerPort));
     }
 
-    public SslHandler newSslHandler(SocketChannelContext context) {
-        return new SslHandler(context);
+    public SslHandler newSslHandler() {
+        return new SslHandler();
     }
 
     public final long sessionCacheSize() {

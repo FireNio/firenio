@@ -77,8 +77,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
 
     AbstractSocketChannel(SocketChannelThreadContext context, int channelId) {
         SocketChannelContext socketChannelContext = context.getChannelContext();
-        DefaultChannelFuture f = new DefaultChannelFuture(context.getChannelContext(),
-                EmptyByteBuf.getInstance());
+        DefaultChannelFuture f = new DefaultChannelFuture(EmptyByteBuf.getInstance());
         // 认为在第一次Idle之前，连接都是畅通的
         this.channelId = channelId;
         this.threadContext = context;
@@ -103,8 +102,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         if (isEnableSSL()) {
             sslEngine.closeOutbound();
             if (getContext().getSslContext().isClient()) {
-                writeFutures
-                        .offer(new DefaultChannelFuture(getContext(), EmptyByteBuf.getInstance()));
+                writeFutures.offer(new DefaultChannelFuture(EmptyByteBuf.getInstance(),true));
             }
             try {
                 sslEngine.closeInbound();
@@ -184,7 +182,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
                     remote.getHostName(),remote.getPort());
         }
         if (isEnableSSL() && context.getSslContext().isClient()) {
-            doFlush(new DefaultChannelFuture(getContext(), EmptyByteBuf.getInstance()));
+            doFlush(new DefaultChannelFuture(EmptyByteBuf.getInstance(),true));
         }
         UnsafeSocketSession session = getSession();
         if (!session.isClosed()) {
@@ -208,6 +206,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
             return;
         }
         try {
+            future.setNeedSsl(getContext().isEnableSSL());
             ProtocolEncoder encoder = getProtocolEncoder();
             encoder.encode(this, future);
             doFlush(future);
@@ -252,13 +251,10 @@ public abstract class AbstractSocketChannel implements SocketChannel {
 
     @Override
     public String getLocalAddr() {
-
         InetAddress address = getLocalSocketAddress().getAddress();
-
         if (address == null) {
             return "127.0.0.1";
         }
-
         return address.getHostAddress();
     }
 

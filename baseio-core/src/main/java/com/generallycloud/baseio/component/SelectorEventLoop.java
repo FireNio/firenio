@@ -83,7 +83,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
         this.sessionManager = new NioSocketSessionManager(context);
         this.byteBufAllocator = context.getByteBufAllocatorManager().getNextBufAllocator();
         if (context.isEnableSSL()) {
-            sslHandler = context.getSslContext().newSslHandler(context);
+            sslHandler = context.getSslContext().newSslHandler();
         }
     }
 

@@ -50,7 +50,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
         JSONObject o = new JSONObject();
         o.put("type", "welcome");
         o.put("id", ioSession.getSessionId());
-        WebSocketFuture f = new WebSocketFutureImpl(ioSession.getContext());
+        WebSocketFuture f = new WebSocketFutureImpl();
         f.write(o.toJSONString());
         session.flush(f);
     }

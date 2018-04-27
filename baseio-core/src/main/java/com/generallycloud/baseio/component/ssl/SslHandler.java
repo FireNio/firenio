@@ -28,19 +28,14 @@ import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 
 public class SslHandler {
 
-    private ChannelFuture forgeFuture;
+    private ChannelFuture forgeFuture = new DefaultChannelFuture(EmptyByteBuf.getInstance(),true);
 
     private ByteBuf       tempDst;
-
-    public SslHandler(SocketChannelContext context) {
-        this.forgeFuture = new DefaultChannelFuture(context, EmptyByteBuf.getInstance());
-    }
 
     private ByteBuf getTempDst(SSLEngine engine) {
         if (tempDst == null) {

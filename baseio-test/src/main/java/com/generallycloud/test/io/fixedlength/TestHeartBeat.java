@@ -70,7 +70,7 @@ public class TestHeartBeat {
         long old = System.currentTimeMillis();
 
         for (int i = 0; i < 5; i++) {
-            Future future = new FixedLengthFutureImpl(context);
+            Future future = new FixedLengthFutureImpl();
             future.write(param);
             session.flush(future);
             ThreadUtil.sleep(300);

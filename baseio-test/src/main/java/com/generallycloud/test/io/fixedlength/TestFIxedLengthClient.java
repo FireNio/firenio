@@ -68,7 +68,7 @@ public class TestFIxedLengthClient {
 
         SocketSession session = connector.connect();
 
-        FixedLengthFuture future = new FixedLengthFutureImpl(context);
+        FixedLengthFuture future = new FixedLengthFutureImpl();
 
         future.write("hello server!");
 

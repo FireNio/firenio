@@ -45,7 +45,7 @@ public class TestLoadClient1 extends ITestThread {
 
         for (int i = 0; i < time1; i++) {
 
-            FixedLengthFuture future = new FixedLengthFutureImpl(session.getContext());
+            FixedLengthFuture future = new FixedLengthFutureImpl();
 
             future.write("hello server!");
 

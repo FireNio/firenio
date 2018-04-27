@@ -38,57 +38,40 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 
     private static Decoder decoder = new Decoder();
 
-    public Http2HeadersFrameImpl(SocketChannel channel, ByteBuf buf, Http2FrameHeader header) {
-        super(channel, header);
+    public Http2HeadersFrameImpl(ByteBuf buf, Http2FrameHeader header) {
+        super(header);
         this.buf = buf;
     }
 
     private void doComplete(SocketChannel channel, ByteBuf buf) throws IOException {
-
         Http2SocketSession session = (Http2SocketSession) channel.getSession();
-        
         byte flags = getHeader().getFlags();
-
         this.endStream = (flags & FLAG_END_STREAM) > 0;
-
         if ((flags & FLAG_PADDED) > 0) {
             padLength = buf.getByte();
         }
-
         if ((flags & FLAG_PRIORITY) > 0) {
-
             streamDependency = buf.getInt();
-
             e = streamDependency < 0;
-
             if (e) {
                 streamDependency = streamDependency & 0x7FFFFFFF;
             }
-
             weight = buf.getUnsignedByte();
         }
-
         decoder.decode(streamDependency, buf, session.getHttp2Headers());
     }
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-
         if (!isComplete) {
-
             ByteBuf buf = this.buf;
-
             buf.read(buffer);
-
             if (buf.hasRemaining()) {
                 return false;
             }
-
             this.isComplete = true;
-
             doComplete(channel, buf.flip());
         }
-
         return true;
     }
 

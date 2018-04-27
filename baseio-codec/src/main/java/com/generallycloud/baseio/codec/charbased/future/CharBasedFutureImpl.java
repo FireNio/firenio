@@ -16,10 +16,10 @@
 package com.generallycloud.baseio.codec.charbased.future;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
@@ -30,14 +30,12 @@ public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBa
     private byte            splitor;
     private ByteArrayBuffer cache = new ByteArrayBuffer();
 
-    public CharBasedFutureImpl(SocketChannelContext context, int limit, byte splitor) {
-        super(context);
+    public CharBasedFutureImpl(int limit, byte splitor) {
         this.limit = limit;
         this.splitor = splitor;
     }
 
-    public CharBasedFutureImpl(SocketChannelContext context) {
-        super(context);
+    public CharBasedFutureImpl() {
     }
 
     @Override
@@ -46,10 +44,11 @@ public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBa
             return true;
         }
         ByteArrayBuffer cache = this.cache;
+        Charset charset = channel.getEncoding();
         for (; buffer.hasRemaining();) {
             byte b = buffer.getByte();
             if (b == splitor) {
-                this.readText = cache.toString(context.getEncoding());
+                this.readText = cache.toString(charset);
                 this.complete = true;
                 return true;
             }

@@ -22,7 +22,6 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolDecoder;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolException;
 
@@ -31,13 +30,11 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
     private boolean header_complete;
     private int     limit;
 
-    public FixedLengthFutureImpl(SocketChannel channel, int limit) {
-        super(channel.getContext());
+    public FixedLengthFutureImpl(int limit) {
         this.limit = limit;
     }
 
-    public FixedLengthFutureImpl(SocketChannelContext context) {
-        super(context);
+    public FixedLengthFutureImpl() {
     }
 
     @Override
@@ -54,7 +51,7 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
                     src.markPL();
                     src.limit(len + src.position());
                     try {
-                        CharsetDecoder decoder = context.getEncoding().newDecoder();
+                        CharsetDecoder decoder = channel.getEncoding().newDecoder();
                         this.readText = decoder.decode(src.nioBuffer()).toString();
                     } finally {
                         src.reset();
@@ -93,7 +90,7 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
                 return false;
             }
             buf.flip();
-            CharsetDecoder decoder = context.getEncoding().newDecoder();
+            CharsetDecoder decoder = channel.getEncoding().newDecoder();
             this.readText = decoder.decode(buf.nioBuffer()).toString();
             return true;
         }

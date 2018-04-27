@@ -18,7 +18,6 @@ package com.generallycloud.baseio.codec.redis.future;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
 
 //FIXME 完善心跳
@@ -33,8 +32,7 @@ public class RedisFutureImpl extends AbstractRedisFuture {
 
     private boolean       complete    = false;
 
-    public RedisFutureImpl(SocketChannelContext context) {
-        super(context);
+    public RedisFutureImpl() {
         //		this.currentLine 	= new StringBuilder();
         //		this.rootNode		= new RedisNode(0);
         //		this.currentNode	= rootNode;

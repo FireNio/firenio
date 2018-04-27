@@ -57,7 +57,7 @@ public class TestSimple {
 
         SocketSession session = connector.connect();
 
-        ProtobaseFuture f = new ProtobaseFutureImpl(connector.getContext(), serviceKey);
+        ProtobaseFuture f = new ProtobaseFutureImpl(serviceKey);
 
         f.write(param);
 

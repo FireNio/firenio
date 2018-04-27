@@ -67,7 +67,7 @@ public class FixedSession {
 
     public ParamedProtobaseFuture request(String serviceName, String content, byte[] binary)
             throws IOException {
-        ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(context, serviceName);
+        ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(serviceName);
         if (!StringUtil.isNullOrBlank(content)) {
             future.write(content);
         }
@@ -108,7 +108,7 @@ public class FixedSession {
     }
 
     public void write(String serviceName, String content, byte[] binary) throws IOException {
-        ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(context, serviceName);
+        ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(serviceName);
         if (!StringUtil.isNullOrBlank(content)) {
             future.write(content);
         }

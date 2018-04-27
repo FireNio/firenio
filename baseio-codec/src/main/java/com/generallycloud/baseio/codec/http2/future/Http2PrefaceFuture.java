@@ -22,7 +22,6 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.http2.Http2SocketSession;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 
@@ -35,12 +34,10 @@ public class Http2PrefaceFuture extends AbstractChannelFuture {
     private static ByteBuf PREFACE_BUF;
 
     static {
-
         PREFACE_BUF = UnpooledByteBufAllocator.getHeap().wrap(ByteBuffer.wrap(PREFACE_BINARY));
     }
 
-    public Http2PrefaceFuture(SocketChannelContext context, ByteBuf buf) {
-        super(context);
+    public Http2PrefaceFuture(ByteBuf buf) {
         this.buf = buf;
     }
 
@@ -50,16 +47,12 @@ public class Http2PrefaceFuture extends AbstractChannelFuture {
     }
 
     private void doComplete(SocketChannel channel, ByteBuf buf) throws IOException {
-
         Http2SocketSession session = (Http2SocketSession) channel.getSession();
-
         session.setPrefaceRead(false);
-
         if (!isPreface(buf)) {
             throw new IOException("not http2 preface");
         }
-
-        session.doFlush(new DefaultChannelFuture(context, PREFACE_BUF.duplicate()));
+        session.doFlush(new DefaultChannelFuture(PREFACE_BUF.duplicate()));
     }
 
     private boolean isPreface(ByteBuf buf) {

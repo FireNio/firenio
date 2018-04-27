@@ -64,7 +64,7 @@ public class SimpleTestFIxedLengthBroadcastServer {
             public void run() {
                 for(;;){
                     ThreadUtil.sleep(1000);
-                    FixedLengthFuture future = new FixedLengthFutureImpl(context);
+                    FixedLengthFuture future = new FixedLengthFutureImpl();
                     future.write("broadcast msg .........................");
                     try {
                         acceptor.broadcast(future);

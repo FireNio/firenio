@@ -33,7 +33,6 @@ import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.EmptyFuture;
 import com.generallycloud.baseio.protocol.ProtocolDecoder;
 import com.generallycloud.baseio.protocol.ProtocolEncoder;
 import com.generallycloud.baseio.protocol.ProtocolFactory;
@@ -118,8 +117,6 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
             initialized = true;
             serverConfiguration.initializeDefault(this);
         }
-
-        EmptyFuture.initializeReadFuture(this);
 
         int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
         int server_port = serverConfiguration.getSERVER_PORT();
@@ -314,7 +311,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     public ChannelByteBufReader newChannelByteBufReader() {
         IoLimitChannelByteBufReader reader = new IoLimitChannelByteBufReader();
         if (enableSSL) {
-            ClassUtil.setValueOfLast(reader, new SslChannelByteBufReader(this), "next");
+            ClassUtil.setValueOfLast(reader, new SslChannelByteBufReader(), "next");
         }
         ClassUtil.setValueOfLast(reader, new TransparentByteBufReader(this), "next");
         return reader;

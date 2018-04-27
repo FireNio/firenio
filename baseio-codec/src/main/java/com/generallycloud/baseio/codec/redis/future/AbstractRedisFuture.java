@@ -15,14 +15,9 @@
  */
 package com.generallycloud.baseio.codec.redis.future;
 
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 public abstract class AbstractRedisFuture extends AbstractChannelFuture implements RedisFuture {
-
-    protected AbstractRedisFuture(SocketChannelContext context) {
-        super(context);
-    }
 
     @Override
     public void writeCommand(byte[] command, byte[]... args) {

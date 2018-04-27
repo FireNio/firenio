@@ -23,12 +23,12 @@ public class ProtobaseBeatFutureFactory implements BeatFutureFactory {
 
     @Override
     public Future createPINGPacket(SocketSession session) {
-        return new ProtobaseFutureImpl(session.getContext()).setPING();
+        return new ProtobaseFutureImpl().setPING();
     }
 
     @Override
     public Future createPONGPacket(SocketSession session) {
-        return new ProtobaseFutureImpl(session.getContext()).setPONG();
+        return new ProtobaseFutureImpl().setPONG();
     }
 
 }

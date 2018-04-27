@@ -48,7 +48,7 @@ public class FileSendUtil {
 
             FileUtil.readInputStream(inputStream, cache);
 
-            ProtobaseFuture f = new ProtobaseFutureImpl(session.getContext(), serviceName);
+            ProtobaseFuture f = new ProtobaseFutureImpl(serviceName);
 
             f.write(jsonString);
 
@@ -61,7 +61,7 @@ public class FileSendUtil {
 
         json.put(FileReceiveUtil.IS_END, true);
 
-        ProtobaseFuture f = new ProtobaseFutureImpl(session.getContext(), serviceName);
+        ProtobaseFuture f = new ProtobaseFutureImpl(serviceName);
 
         f.write(json.toJSONString());
 

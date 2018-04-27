@@ -72,7 +72,7 @@ public class TestProtobufClient {
 
         SocketSession session = connector.connect();
 
-        ProtobaseFuture f = new ProtobaseFutureImpl(context);
+        ProtobaseFuture f = new ProtobaseFutureImpl();
 
         ByteString byteString = ByteString.copyFrom("222".getBytes());
 

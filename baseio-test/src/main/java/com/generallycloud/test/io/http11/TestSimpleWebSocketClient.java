@@ -47,7 +47,7 @@ public class TestSimpleWebSocketClient {
                     ClientHttpFuture f = (ClientHttpFuture) future;
                     if (f.getRequestHeader("Sec-WebSocket-Accept") != null) {
                         f.updateWebSocketProtocol();
-                        WebSocketFuture f2 = new WebSocketFutureImpl(session.getContext());
+                        WebSocketFuture f2 = new WebSocketFutureImpl();
                         f2.write("{action: \"add-user\", username: \"火星人\"}");
                         //						f2.write("{\"action\":999}");
                         session.flush(f2);

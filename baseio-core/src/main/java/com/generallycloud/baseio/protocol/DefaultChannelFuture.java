@@ -18,7 +18,6 @@ package com.generallycloud.baseio.protocol;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
 
 /**
@@ -26,11 +25,16 @@ import com.generallycloud.baseio.component.SocketChannel;
  *
  */
 //FIXME 部分方法需要抛UnsupportedException
+//FIXME .....部分使用该类地方是否可以使用EmptyFuture
 public class DefaultChannelFuture extends AbstractChannelFuture {
 
-    public DefaultChannelFuture(SocketChannelContext context, ByteBuf buf) {
-        super(context);
+    public DefaultChannelFuture(ByteBuf buf) {
         this.buf = buf;
+    }
+    
+    public DefaultChannelFuture(ByteBuf buf,boolean isNeedSsl) {
+        this.buf = buf;
+        this.isNeedSsl = isNeedSsl;
     }
 
     @Override

@@ -19,9 +19,8 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.http11.WebSocketProtocolDecoder;
-import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
@@ -38,14 +37,12 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     private byte[]  byteArray;
 
     public WebSocketFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
-        super(channel.getContext());
         this.limit = limit;
         this.buf = buf;
         this.setServiceName(channel.getSession());
     }
 
-    public WebSocketFutureImpl(SocketChannelContext context) {
-        super(context);
+    public WebSocketFutureImpl() {
         this.type = WebSocketProtocolDecoder.TYPE_TEXT;
     }
 
@@ -126,7 +123,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
         if (type == WebSocketProtocolDecoder.TYPE_BINARY) {
             // FIXME 处理binary
         } else {
-            this.readText = new String(array, context.getEncoding());
+            this.readText = new String(array, channel.getEncoding());
         }
         return true;
     }

@@ -8,9 +8,7 @@ public class CachedAioThread extends Thread implements SocketChannelThreadContex
 
     public CachedAioThread(AioSocketChannelContext context, ThreadGroup group, Runnable r,
             String string, int i) {
-
         super(group, r, string, i);
-
         this.channelContext = context;
         this.writeCompletionHandler = new WriteCompletionHandler();
         this.executorEventLoop = channelContext.getExecutorEventLoopGroup().getNext();
@@ -18,20 +16,15 @@ public class CachedAioThread extends Thread implements SocketChannelThreadContex
         this.readCompletionHandler = new ReadCompletionHandler(
                 channelContext.newChannelByteBufReader());
         if (context.isEnableSSL()) {
-            sslHandler = context.getSslContext().newSslHandler(context);
+            sslHandler = context.getSslContext().newSslHandler();
         }
     }
 
     private ExecutorEventLoop       executorEventLoop      = null;
-
     private AioSocketChannelContext channelContext         = null;
-
     private ByteBufAllocator        byteBufAllocator       = null;
-
     private ReadCompletionHandler   readCompletionHandler  = null;
-
     private WriteCompletionHandler  writeCompletionHandler = null;
-
     private SslHandler              sslHandler             = null;
 
     @Override

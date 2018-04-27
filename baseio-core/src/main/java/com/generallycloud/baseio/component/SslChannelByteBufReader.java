@@ -28,9 +28,9 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
 
     private SslFuture temporary;
 
-    public SslChannelByteBufReader(SocketChannelContext context) {
+    public SslChannelByteBufReader() {
         ByteBuf buf = UnpooledByteBufAllocator.getHeap().allocate(1024 * 64);
-        temporary = new SslFutureImpl(context, buf, 1024 * 64);
+        temporary = new SslFutureImpl(buf, 1024 * 64);
     }
 
     @Override

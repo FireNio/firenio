@@ -56,7 +56,7 @@ public class TestLineBasedClient {
 
         SocketSession session = connector.connect();
 
-        CharBasedFuture future = new CharBasedFutureImpl(context);
+        CharBasedFuture future = new CharBasedFutureImpl();
 
         future.write("hello server!");
 

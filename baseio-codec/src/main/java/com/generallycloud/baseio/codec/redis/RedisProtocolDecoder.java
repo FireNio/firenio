@@ -27,7 +27,7 @@ public class RedisProtocolDecoder implements ProtocolDecoder {
 
     @Override
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
-        return new RedisFutureImpl(channel.getContext());
+        return new RedisFutureImpl();
     }
 
 }

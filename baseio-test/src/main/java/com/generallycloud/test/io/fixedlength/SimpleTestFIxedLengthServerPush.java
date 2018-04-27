@@ -92,7 +92,7 @@ public class SimpleTestFIxedLengthServerPush {
             @Override
             public void sessionClosed(SocketSession session) {
                 SocketSessionManager sessionManager = session.getContext().getSessionManager();
-                FixedLengthFuture future = new FixedLengthFutureImpl(session.getContext());
+                FixedLengthFuture future = new FixedLengthFutureImpl();
                 future.write("client left: "+session.getSessionId());
                 try {
                     sessionManager.broadcast(future);

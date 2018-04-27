@@ -15,7 +15,6 @@
  */
 package com.generallycloud.test.io.balance;
 
-import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
@@ -69,7 +68,7 @@ public class TestBalanceBroadcast {
 
         for (; session.isOpened();) {
 
-            ProtobaseFuture future = new ProtobaseFutureImpl(context, "broadcast");
+            ProtobaseFuture future = new ProtobaseFutureImpl("broadcast");
 
             future.setBroadcast(true);
 

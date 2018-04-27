@@ -19,7 +19,6 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.concurrent.Linkable;
 
 public abstract class AbstractChannelFuture extends AbstractFuture implements ChannelFuture {
@@ -34,11 +33,6 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     protected boolean  isValidate = true;
     protected Linkable next;
 
-    protected AbstractChannelFuture(SocketChannelContext context) {
-        super(context);
-        this.isNeedSsl = context.isEnableSSL();
-    }
-
     protected ByteBuf allocate(SocketChannel channel, int capacity) {
         return channel.getByteBufAllocator().allocate(capacity);
     }
@@ -49,7 +43,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
 
     @Override
     public ChannelFuture duplicate() {
-        return new DuplicateChannelFuture(context, buf.duplicate(), this);
+        return new DuplicateChannelFuture(buf.duplicate(), this);
     }
 
     @Override

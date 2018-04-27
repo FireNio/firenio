@@ -15,15 +15,13 @@
  */
 package com.generallycloud.baseio.codec.http2.future;
 
-import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 public abstract class AbstractHttp2Frame extends AbstractChannelFuture implements SocketHttp2Frame {
 
     private Http2FrameHeader header;
 
-    protected AbstractHttp2Frame(SocketChannel channel, Http2FrameHeader header) {
-        super(channel.getContext());
+    protected AbstractHttp2Frame(Http2FrameHeader header) {
         this.header = header;
     }
 

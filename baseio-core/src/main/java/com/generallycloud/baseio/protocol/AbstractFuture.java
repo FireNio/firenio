@@ -18,23 +18,11 @@ package com.generallycloud.baseio.protocol;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-import com.generallycloud.baseio.component.SocketChannelContext;
-
 public abstract class AbstractFuture implements Future {
 
-    protected SocketChannelContext context;
     protected String               readText;
     protected byte[]               writeBuffer;
     protected int                  writeSize;
-
-    AbstractFuture(SocketChannelContext context) {
-        this.context = context;
-    }
-
-    @Override
-    public SocketChannelContext getContext() {
-        return context;
-    }
 
     @Override
     public String getReadText() {
@@ -96,7 +84,7 @@ public abstract class AbstractFuture implements Future {
 
     @Override
     public void write(String text) {
-        write(text, context.getEncoding());
+        write(text.getBytes());
     }
 
     @Override

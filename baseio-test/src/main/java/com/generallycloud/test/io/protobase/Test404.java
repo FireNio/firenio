@@ -57,7 +57,7 @@ public class Test404 {
 
         System.out.println(future.getReadText());
 
-        Future future1 = new ProtobaseFutureImpl(connector.getContext()).setPING();
+        Future future1 = new ProtobaseFutureImpl().setPING();
 
         session.getSession().flush(future1);
 

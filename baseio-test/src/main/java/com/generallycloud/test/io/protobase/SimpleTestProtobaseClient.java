@@ -60,7 +60,7 @@ public class SimpleTestProtobaseClient {
 
         SocketSession session = connector.connect();
 
-        ProtobaseFuture future = new ProtobaseFutureImpl(context, "test222");
+        ProtobaseFuture future = new ProtobaseFutureImpl("test222");
 
         future.write("hello server!");
 

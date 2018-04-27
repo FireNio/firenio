@@ -77,7 +77,7 @@ public class TestBalanceClient {
 
             int fid = Math.abs(new Random().nextInt());
 
-            ProtobaseFuture future = new ProtobaseFutureImpl(context, "future-name");
+            ProtobaseFuture future = new ProtobaseFutureImpl("future-name");
 
             future.write("你好！");
 

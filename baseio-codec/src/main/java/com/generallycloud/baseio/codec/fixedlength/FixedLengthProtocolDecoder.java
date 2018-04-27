@@ -58,7 +58,7 @@ public class FixedLengthProtocolDecoder implements ProtocolDecoder {
 
     @Override
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
-        return new FixedLengthFutureImpl(channel, limit);
+        return new FixedLengthFutureImpl(limit);
     }
 
 }

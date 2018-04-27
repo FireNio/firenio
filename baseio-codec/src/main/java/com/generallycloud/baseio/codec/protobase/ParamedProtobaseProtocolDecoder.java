@@ -52,7 +52,7 @@ public class ParamedProtobaseProtocolDecoder implements ProtocolDecoder {
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBufAllocator allocator = channel.getByteBufAllocator();
         ByteBuf buf = allocator.allocate(2);
-        return new ParamedProtobaseFutureImpl(channel, buf);
+        return new ParamedProtobaseFutureImpl(buf);
     }
 
 }

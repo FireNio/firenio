@@ -18,30 +18,27 @@ package com.generallycloud.baseio.codec.protobase.future;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.JsonParameters;
 import com.generallycloud.baseio.component.Parameters;
-import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 
 /**
  * @author wangkai
  *
  */
-public class ParamedProtobaseFutureImpl extends ProtobaseFutureImpl implements ParamedProtobaseFuture{
+public class ParamedProtobaseFutureImpl extends ProtobaseFutureImpl
+        implements ParamedProtobaseFuture {
 
-    public ParamedProtobaseFutureImpl(SocketChannel channel, ByteBuf buf) {
-        super(channel, buf);
+    public ParamedProtobaseFutureImpl(ByteBuf buf) {
+        super(buf);
     }
 
     // for ping & pong
-    public ParamedProtobaseFutureImpl(SocketChannelContext context) {
-        super(context);
+    public ParamedProtobaseFutureImpl() {}
+
+    public ParamedProtobaseFutureImpl(String futureName) {
+        super(futureName);
     }
 
-    public ParamedProtobaseFutureImpl(SocketChannelContext context, String futureName) {
-        super(context, futureName);
-    }
-
-    public ParamedProtobaseFutureImpl(SocketChannelContext context, int futureId, String futureName) {
-        super(context, futureId, futureName);
+    public ParamedProtobaseFutureImpl(int futureId, String futureName) {
+        super(futureId, futureName);
     }
 
     private Parameters parameters;

@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.protocol;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.SocketChannelContext;
 
 /**
  * @author wangkai
@@ -27,10 +26,18 @@ public class DuplicateChannelFuture extends DefaultChannelFuture {
 
     private ChannelFuture prototype;
 
-    public DuplicateChannelFuture(SocketChannelContext context, ByteBuf buf,
-            ChannelFuture prototype) {
-        super(context, buf);
+    public DuplicateChannelFuture(ByteBuf buf,ChannelFuture prototype) {
+        super(buf);
         this.prototype = prototype;
+//        this.flushed = prototype.flushed();
+//        this.isHeartbeat = prototype.isHeartbeat();
+        this.isNeedSsl = prototype.isNeedSsl();
+//        this.isPING = prototype.isPING();
+//        this.isSilent = prototype.isSilent();
+//        this.readText = prototype.getReadText();
+//        this.writeBuffer = prototype.getWriteBuffer();
+//        this.writeSize = prototype.getWriteSize();
+        //FIXME 放开这段代码
     }
 
     private ChannelFuture unwrap() {

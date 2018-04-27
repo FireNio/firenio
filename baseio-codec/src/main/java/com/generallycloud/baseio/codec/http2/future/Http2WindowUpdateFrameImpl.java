@@ -28,9 +28,8 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame
 
     private int     updateValue;
 
-    public Http2WindowUpdateFrameImpl(SocketChannel channel, ByteBuf buf,
-            Http2FrameHeader header) {
-        super(channel, header);
+    public Http2WindowUpdateFrameImpl(ByteBuf buf, Http2FrameHeader header) {
+        super(header);
         this.buf = buf;
     }
 
@@ -41,22 +40,15 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-
         if (!isComplete) {
-
             ByteBuf buf = this.buf;
-
             buf.read(buffer);
-
             if (buf.hasRemaining()) {
                 return false;
             }
-
             isComplete = true;
-
             doComplete((SocketChannel) channel, buf.flip());
         }
-
         return true;
     }
 

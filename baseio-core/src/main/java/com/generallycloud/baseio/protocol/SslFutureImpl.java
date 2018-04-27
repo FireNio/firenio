@@ -21,15 +21,13 @@ import javax.net.ssl.SSLException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 
 public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
 
     private boolean header_complete;
     private int     limit;
 
-    public SslFutureImpl(SocketChannelContext context, ByteBuf buf, int limit) {
-        super(context);
+    public SslFutureImpl(ByteBuf buf, int limit) {
         this.buf = buf;
         this.limit = limit;
     }
@@ -79,7 +77,7 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
         ByteBuf src = getByteBuf();
         ByteBuf buf = allocate(channel, src.limit());
         buf.read(src.flip());
-        SslFutureImpl copy = new SslFutureImpl(channel.getContext(), buf, 1024 * 64);
+        SslFutureImpl copy = new SslFutureImpl(buf, 1024 * 64);
         copy.header_complete = this.header_complete;
         return copy;
     }
