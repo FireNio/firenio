@@ -15,8 +15,8 @@
  */
 package com.generallycloud.test.io.balance;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -58,7 +58,7 @@ public class TestBalanceLoad {
 
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
+        context.setProtocolCodec(new ProtobaseCodec());
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 

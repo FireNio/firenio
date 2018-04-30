@@ -19,10 +19,10 @@ import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFutureImpl;
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -73,11 +73,11 @@ public class TestLoadClient {
 
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
+        context.setProtocolCodec(new ProtobaseCodec());
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 
-        connector.getContext().setProtocolFactory(new FixedLengthProtocolFactory());
+        connector.getContext().setProtocolCodec(new FixedLengthCodec());
 
         connector.getContext().getServerConfiguration().setSERVER_CORE_SIZE(1);
 

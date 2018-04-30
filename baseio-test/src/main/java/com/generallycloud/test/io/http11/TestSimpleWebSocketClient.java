@@ -15,14 +15,12 @@
  */
 package com.generallycloud.test.io.http11;
 
-import com.generallycloud.baseio.codec.http11.ClientHTTPProtocolFactory;
 import com.generallycloud.baseio.codec.http11.future.ClientHttpFuture;
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
-import com.generallycloud.baseio.codec.http11.future.WebSocketBeatFutureFactory;
 import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
 import com.generallycloud.baseio.codec.http11.future.WebSocketFutureImpl;
 import com.generallycloud.baseio.codec.http11.future.WebSocketUpgradeRequestFuture;
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -72,18 +70,11 @@ public class TestSimpleWebSocketClient {
         //		configuration.setSERVER_PORT(8280);
 
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
-
+        context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
-        connector.getContext().setBeatFutureFactory(new WebSocketBeatFutureFactory());
-        connector.getContext().setProtocolFactory(new ClientHTTPProtocolFactory());
-        connector.getContext().setSslContext(SSLUtil.initClient(true));
-
+        context.setSslContext(SSLUtil.initClient(true));
         SocketSession session = connector.connect();
         String url = "/web-socket-chat";
         url = "/c1020";

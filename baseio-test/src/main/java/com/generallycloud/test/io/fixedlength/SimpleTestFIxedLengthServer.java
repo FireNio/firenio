@@ -16,9 +16,8 @@
 package com.generallycloud.test.io.fixedlength;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FLBeatFutureFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -45,8 +44,7 @@ public class SimpleTestFIxedLengthServer {
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-        context.setBeatFutureFactory(new FLBeatFutureFactory());
-        context.setProtocolFactory(new FixedLengthProtocolFactory());
+        context.setProtocolCodec(new FixedLengthCodec());
         acceptor.bind();
     }
     

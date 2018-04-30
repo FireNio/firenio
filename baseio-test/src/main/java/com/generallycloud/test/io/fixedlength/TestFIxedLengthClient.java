@@ -15,10 +15,9 @@
  */
 package com.generallycloud.test.io.fixedlength;
 
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FLBeatFutureFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFutureImpl;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -48,36 +47,21 @@ public class TestFIxedLengthClient {
         };
 
         SslContext sslContext = SSLUtil.initClient(true);
-
         SocketChannelContext context = new NioSocketChannelContext(
                 new ServerConfiguration("localhost", 8300));
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         //		context.addSessionEventListener(new SessionActiveSEListener());
-
-        context.setBeatFutureFactory(new FLBeatFutureFactory());
-
-        context.setProtocolFactory(new FixedLengthProtocolFactory());
-
+        context.setProtocolCodec(new FixedLengthCodec());
         context.setSslContext(sslContext);
-
         SocketSession session = connector.connect();
-
         FixedLengthFuture future = new FixedLengthFutureImpl();
-
         future.write("hello server!");
-
         session.flush(future);
-
         ThreadUtil.sleep(100);
-
         CloseUtil.close(connector);
-
         DebugUtil.debug("连接已关闭。。。");
     }
+
 }

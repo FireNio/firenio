@@ -15,8 +15,7 @@
  */
 package com.generallycloud.baseio.codec.http11.future;
 
-import com.generallycloud.baseio.codec.http11.WebSocketProtocolDecoder;
-import com.generallycloud.baseio.codec.http11.WebSocketProtocolFactory;
+import com.generallycloud.baseio.codec.http11.WebSocketCodec;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
@@ -25,29 +24,22 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class WebSocketSEListener extends SocketSessionEventListenerAdapter {
 
-    private Logger logger = LoggerFactory.getLogger(WebSocketSEListener.class);
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
     public void sessionClosed(SocketSession session) {
-
-        if (!WebSocketProtocolFactory.PROTOCOL_ID.equals(session.getProtocolId())) {
+        if (!WebSocketCodec.PROTOCOL_ID.equals(session.getProtocolId())) {
             return;
         }
-
         SocketChannelContext context = session.getContext();
-
         WebSocketFutureImpl future = new WebSocketFutureImpl();
-
-        future.setType(WebSocketProtocolDecoder.TYPE_CLOSE);
-
+        future.setType(WebSocketCodec.TYPE_CLOSE);
         future.setServiceName(session);
-
         try {
             context.getForeReadFutureAcceptor().accept(session, future);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-
         super.sessionClosed(session);
     }
 

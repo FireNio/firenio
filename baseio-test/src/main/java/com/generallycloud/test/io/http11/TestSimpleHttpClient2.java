@@ -17,7 +17,7 @@ package com.generallycloud.test.io.http11;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.codec.http11.ClientHTTPProtocolFactory;
+import com.generallycloud.baseio.codec.http11.ClientHttpCodec;
 import com.generallycloud.baseio.codec.http11.HttpClient;
 import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.baseio.codec.http11.future.ClientHttpFuture;
@@ -50,7 +50,7 @@ public class TestSimpleHttpClient2 {
         ServerConfiguration c = new ServerConfiguration(host, port);
         SocketChannelContext context = new NioSocketChannelContext(c);
         SocketChannelConnector connector = new SocketChannelConnector(context);
-        context.setProtocolFactory(new ClientHTTPProtocolFactory());
+        context.setProtocolCodec(new ClientHttpCodec());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         if (port == 443) {

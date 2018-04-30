@@ -17,7 +17,7 @@ package com.generallycloud.test.io.load.http11;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.codec.http11.ClientHTTPProtocolFactory;
+import com.generallycloud.baseio.codec.http11.ClientHttpCodec;
 import com.generallycloud.baseio.codec.http11.future.ClientHttpFuture;
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.CloseUtil;
@@ -72,7 +72,7 @@ public class TestHttpLoadClient extends ITestThread {
 
         connector = new SocketChannelConnector(context);
 
-        context.setProtocolFactory(new ClientHTTPProtocolFactory());
+        context.setProtocolCodec(new ClientHttpCodec());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
 

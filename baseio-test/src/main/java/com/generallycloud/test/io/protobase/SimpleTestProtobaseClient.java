@@ -15,9 +15,9 @@
  */
 package com.generallycloud.test.io.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -50,7 +50,7 @@ public class SimpleTestProtobaseClient {
         connector.setTimeout(99999999);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
+        context.setProtocolCodec(new ProtobaseCodec());
         SocketSession session = connector.connect();
         ProtobaseFuture future = new ProtobaseFutureImpl("test222");
         future.write("hello server!");

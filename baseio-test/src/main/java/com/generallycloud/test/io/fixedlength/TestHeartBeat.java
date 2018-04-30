@@ -15,9 +15,8 @@
  */
 package com.generallycloud.test.io.fixedlength;
 
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FLBeatFutureFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFutureImpl;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -46,41 +45,25 @@ public class TestHeartBeat {
         };
 
         ServerConfiguration configuration = new ServerConfiguration(8300);
-
         configuration.setSERVER_SESSION_IDLE_TIME(20);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.addSessionIdleEventListener(new SocketSessionActiveSEListener());
-        
         context.addSessionEventListener(new LoggerSocketSEListener());
-
-        context.setBeatFutureFactory(new FLBeatFutureFactory());
-
-        context.setProtocolFactory(new FixedLengthProtocolFactory());
-
+        context.setProtocolCodec(new FixedLengthCodec());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         SocketSession session = connector.connect();
-
         String param = "tttt";
-
         long old = System.currentTimeMillis();
-
         for (int i = 0; i < 5; i++) {
             Future future = new FixedLengthFutureImpl();
             future.write(param);
             session.flush(future);
             ThreadUtil.sleep(300);
         }
-
         System.out.println("Time:" + (System.currentTimeMillis() - old));
-
         Thread.sleep(2000);
-
         CloseUtil.close(connector);
-
     }
+    
 }

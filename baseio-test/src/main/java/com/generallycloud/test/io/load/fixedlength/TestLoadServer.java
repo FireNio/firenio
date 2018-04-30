@@ -18,8 +18,8 @@ package com.generallycloud.test.io.load.fixedlength;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -62,7 +62,7 @@ public class TestLoadServer {
 
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
 
-        context.setProtocolFactory(new FixedLengthProtocolFactory());
+        context.setProtocolCodec(new FixedLengthCodec());
 
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
 

@@ -18,7 +18,7 @@ package com.generallycloud.test.io.load.http11;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.baseio.codec.http11.ServerHTTPProtocolFactory;
+import com.generallycloud.baseio.codec.http11.ServerHttpCodec;
 import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.AioSocketChannelContext;
@@ -72,7 +72,7 @@ public class TestHttpLoadServerAio {
 
         SocketChannelContext context = new AioSocketChannelContext(c);
 
-        context.setProtocolFactory(new ServerHTTPProtocolFactory());
+        context.setProtocolCodec(new ServerHttpCodec());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
 

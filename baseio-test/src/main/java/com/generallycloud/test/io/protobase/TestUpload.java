@@ -17,8 +17,8 @@ package com.generallycloud.test.io.protobase;
 
 import java.io.File;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -65,7 +65,7 @@ public class TestUpload {
 
         context.setIoEventHandleAdaptor(eventHandle);
 
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
+        context.setProtocolCodec(new ProtobaseCodec());
 
         context.addSessionEventListener(new LoggerSocketSEListener());
         SocketSession session = connector.connect();

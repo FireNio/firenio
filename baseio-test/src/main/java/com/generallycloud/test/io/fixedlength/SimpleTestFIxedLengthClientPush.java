@@ -17,9 +17,9 @@ package com.generallycloud.test.io.fixedlength;
 
 import java.util.Scanner;
 
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFutureImpl;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -45,7 +45,7 @@ public class SimpleTestFIxedLengthClientPush {
         SocketChannelConnector connector = new SocketChannelConnector(context);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
-        context.setProtocolFactory(new FixedLengthProtocolFactory());
+        context.setProtocolCodec(new FixedLengthCodec());
         SocketSession session = connector.connect();
         ThreadUtil.exec(new Runnable() {
             

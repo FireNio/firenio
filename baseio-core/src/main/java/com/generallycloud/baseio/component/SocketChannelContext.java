@@ -23,17 +23,13 @@ import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.protocol.ProtocolDecoder;
-import com.generallycloud.baseio.protocol.ProtocolEncoder;
-import com.generallycloud.baseio.protocol.ProtocolFactory;
+import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public interface SocketChannelContext extends Attributes, LifeCycle {
 
     void addSessionEventListener(SocketSessionEventListener listener);
 
     void addSessionIdleEventListener(SocketSessionIdleEventListener listener);
-
-    BeatFutureFactory getBeatFutureFactory();
 
     ByteBufAllocatorManager getByteBufAllocatorManager();
 
@@ -49,11 +45,7 @@ public interface SocketChannelContext extends Attributes, LifeCycle {
 
     IoEventHandleAdaptor getIoEventHandleAdaptor();
 
-    ProtocolDecoder getProtocolDecoder();
-
-    ProtocolEncoder getProtocolEncoder();
-
-    ProtocolFactory getProtocolFactory();
+    ProtocolCodec getProtocolCodec();
 
     ServerConfiguration getServerConfiguration();
 
@@ -75,8 +67,6 @@ public interface SocketChannelContext extends Attributes, LifeCycle {
 
     boolean isEnableSSL();
 
-    void setBeatFutureFactory(BeatFutureFactory beatFutureFactory);
-
     void setByteBufAllocatorManager(ByteBufAllocatorManager byteBufAllocatorManager);
 
     void setChannelService(ChannelService service);
@@ -85,7 +75,7 @@ public interface SocketChannelContext extends Attributes, LifeCycle {
 
     void setIoEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor);
 
-    void setProtocolFactory(ProtocolFactory protocolFactory);
+    void setProtocolCodec(ProtocolCodec protocolCodec);
 
     void setSocketSessionFactory(SocketSessionFactory sessionFactory);
 

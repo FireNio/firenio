@@ -16,8 +16,8 @@
 package com.generallycloud.test.io.protobase;
 
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -57,11 +57,9 @@ public class TestDownload {
 
         context.setIoEventHandleAdaptor(eventHandle);
 
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
+        context.setProtocolCodec(new ProtobaseCodec());
 
         context.addSessionEventListener(new LoggerSocketSEListener());
-
-        connector.getContext().setProtocolFactory(new ProtobaseProtocolFactory());
 
         FixedSession session = new FixedSession(connector.connect());
 

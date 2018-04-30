@@ -17,7 +17,8 @@ package com.generallycloud.test.io.charbased;
 
 import com.generallycloud.baseio.acceptor.ChannelAcceptor;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.baseio.codec.charbased.CharBasedProtocolFactory;
+import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
+import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -71,7 +72,7 @@ public class TestLineBasedBroadcastServer {
 
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
 
-        context.setProtocolFactory(new CharBasedProtocolFactory());
+        context.setProtocolCodec(new CharBasedCodec());
 
         acceptor.bind();
     }

@@ -28,9 +28,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.baseio.protocol.ProtocolDecoder;
-import com.generallycloud.baseio.protocol.ProtocolEncoder;
-import com.generallycloud.baseio.protocol.ProtocolFactory;
+import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public interface SocketSession extends Closeable {
 
@@ -78,11 +76,7 @@ public interface SocketSession extends Closeable {
 
     <T> T getOption(SocketOption<T> name) throws IOException;
 
-    ProtocolDecoder getProtocolDecoder();
-
-    ProtocolEncoder getProtocolEncoder();
-
-    ProtocolFactory getProtocolFactory();
+    ProtocolCodec getProtocolCodec();
 
     String getProtocolId();
 
@@ -114,10 +108,6 @@ public interface SocketSession extends Closeable {
 
     <T> void setOption(SocketOption<T> name, T value) throws IOException;
 
-    void setProtocolDecoder(ProtocolDecoder protocolDecoder);
-
-    void setProtocolEncoder(ProtocolEncoder protocolEncoder);
-
-    void setProtocolFactory(ProtocolFactory protocolFactory);
+    void setProtocolCodec(ProtocolCodec protocolCodec);
 
 }

@@ -169,6 +169,9 @@ public class SocketSelector implements Closeable {
 
         public void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException {
             try {
+                if (!jdkChannel.isConnectionPending()) {
+                    return;
+                }
                 if (!jdkChannel.finishConnect()) {
                     throw new IOException("connect failed");
                 }

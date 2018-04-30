@@ -28,9 +28,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.baseio.protocol.ProtocolDecoder;
-import com.generallycloud.baseio.protocol.ProtocolEncoder;
-import com.generallycloud.baseio.protocol.ProtocolFactory;
+import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class SocketSessionImpl implements SocketSession {
 
@@ -141,23 +139,13 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public ProtocolDecoder getProtocolDecoder() {
-        return getSocketChannel().getProtocolDecoder();
-    }
-
-    @Override
-    public ProtocolEncoder getProtocolEncoder() {
-        return getSocketChannel().getProtocolEncoder();
-    }
-
-    @Override
-    public ProtocolFactory getProtocolFactory() {
-        return getSocketChannel().getProtocolFactory();
+    public ProtocolCodec getProtocolCodec() {
+        return getSocketChannel().getProtocolCodec();
     }
 
     @Override
     public String getProtocolId() {
-        return getSocketChannel().getProtocolFactory().getProtocolId();
+        return getSocketChannel().getProtocolCodec().getProtocolId();
     }
 
     @Override
@@ -231,24 +219,13 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
-        getSocketChannel().setProtocolDecoder(protocolDecoder);
-    }
-
-    @Override
-    public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
-        getSocketChannel().setProtocolEncoder(protocolEncoder);
-    }
-
-    @Override
-    public void setProtocolFactory(ProtocolFactory protocolFactory) {
-        getSocketChannel().setProtocolFactory(protocolFactory);
+    public void setProtocolCodec(ProtocolCodec protocolCodec) {
+        getSocketChannel().setProtocolCodec(protocolCodec);
     }
 
     @Override
     public String toString() {
         return getSocketChannel().toString();
     }
-
 
 }

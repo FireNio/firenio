@@ -18,7 +18,7 @@ package com.generallycloud.test.io.charbased;
 import java.io.File;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.baseio.codec.charbased.CharBasedProtocolFactory;
+import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -48,7 +48,7 @@ public class TestLineBasedServer {
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-        context.setProtocolFactory(new CharBasedProtocolFactory());
+        context.setProtocolCodec(new CharBasedCodec());
         File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
         File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
         SslContext sslContext = SSLUtil.initServer(privateKey, certificate);

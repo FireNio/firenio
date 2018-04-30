@@ -31,7 +31,7 @@ public class TestTransaction {
 //
 //        context.setIoEventHandleAdaptor(eventHandle);
 //
-//        context.setProtocolFactory(new ProtobaseProtocolFactory());
+//        context.setProtocolCodec(new ProtobaseCodec());
 //
 //        context.addSessionEventListener(new LoggerSocketSEListener());
 //

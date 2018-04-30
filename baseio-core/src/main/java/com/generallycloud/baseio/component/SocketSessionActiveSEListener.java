@@ -19,6 +19,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class SocketSessionActiveSEListener implements SocketSessionIdleEventListener {
 
@@ -26,43 +27,22 @@ public class SocketSessionActiveSEListener implements SocketSessionIdleEventList
 
     @Override
     public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
-
         if (session.isClosed()) {
             logger.info("closed session");
             return;
         }
-
         if (session.getLastAccessTime() < lastIdleTime) {
-
             logger.info(
                     "Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",
                     session);
             CloseUtil.close(session);
-
         } else {
-
-            SocketChannelContext context = session.getContext();
-
-            BeatFutureFactory factory = context.getBeatFutureFactory();
-
-            if (factory == null) {
-
-                RuntimeException e = new RuntimeException("none factory of BeatFuture");
-
-                CloseUtil.close(session);
-
-                logger.error(e.getMessage(), e);
-
-                return;
-            }
-
-            Future future = factory.createPINGPacket(session);
-
+            ProtocolCodec codec = session.getProtocolCodec();
+            Future future = codec.createPINGPacket(session);
             if (future == null) {
                 // 该session无需心跳,比如HTTP协议
                 return;
             }
-
             session.flush(future);
         }
     }

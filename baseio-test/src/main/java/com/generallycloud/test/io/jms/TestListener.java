@@ -29,7 +29,7 @@ public class TestListener {
 //
 //        context.setIoEventHandleAdaptor(eventHandle);
 //
-//        context.setProtocolFactory(new ParamedProtobaseProtocolFactory());
+//        context.setProtocolCodec(new ParamedProtobaseCodec());
 //
 //        context.addSessionEventListener(new LoggerSocketSEListener());
 //

@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFutureImpl;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -103,7 +103,7 @@ public class SimpleTestFIxedLengthServerPush {
             }
         });
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-        context.setProtocolFactory(new FixedLengthProtocolFactory());
+        context.setProtocolCodec(new FixedLengthCodec());
         acceptor.bind();
         
     }

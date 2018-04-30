@@ -18,7 +18,7 @@ package com.generallycloud.baseio.codec.http11.future;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http11.WebSocketProtocolDecoder;
+import com.generallycloud.baseio.codec.http11.WebSocketCodec;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
@@ -38,7 +38,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     private int     type;
 
     public WebSocketFutureImpl() {
-        this.type = WebSocketProtocolDecoder.TYPE_TEXT;
+        this.type = WebSocketCodec.TYPE_TEXT;
     }
 
     public WebSocketFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
@@ -95,9 +95,9 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
             byte b = buf.getByte();
             eof = (b & 0b10000000) > 0;
             type = (b & 0xF);
-            if (type == WebSocketProtocolDecoder.TYPE_PING) {
+            if (type == WebSocketCodec.TYPE_PING) {
                 setPING();
-            } else if (type == WebSocketProtocolDecoder.TYPE_PONG) {
+            } else if (type == WebSocketCodec.TYPE_PONG) {
                 setPONG();
             }
             b = buf.getByte();
@@ -147,7 +147,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
             }
         }
         this.byteArray = array;
-        if (type == WebSocketProtocolDecoder.TYPE_BINARY) {
+        if (type == WebSocketCodec.TYPE_BINARY) {
             // FIXME 处理binary
         } else {
             this.readText = new String(array, channel.getEncoding());
@@ -157,13 +157,13 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
 
     @Override
     public ChannelFuture setPING() {
-        this.type = WebSocketProtocolDecoder.TYPE_PING;
+        this.type = WebSocketCodec.TYPE_PING;
         return super.setPING();
     }
 
     @Override
     public ChannelFuture setPONG() {
-        this.type = WebSocketProtocolDecoder.TYPE_PONG;
+        this.type = WebSocketCodec.TYPE_PONG;
         return super.setPONG();
     }
 

@@ -15,9 +15,9 @@
  */
 package com.generallycloud.test.io.protobuf;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
@@ -68,7 +68,7 @@ public class TestProtobufClient {
 
         //		context.setBeatFutureFactory(new FLBeatFutureFactory());
 
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
+        context.setProtocolCodec(new ProtobaseCodec());
 
         SocketSession session = connector.connect();
 

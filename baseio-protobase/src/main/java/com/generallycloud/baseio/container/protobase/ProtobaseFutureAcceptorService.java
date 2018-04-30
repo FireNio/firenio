@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.container.protobase;
 
-import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.Future;

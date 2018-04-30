@@ -15,9 +15,9 @@
  */
 package com.generallycloud.test.io.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseCodec;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -47,7 +47,7 @@ public class Test404 {
 
         context.setIoEventHandleAdaptor(eventHandle);
 
-        context.setProtocolFactory(new ParamedProtobaseProtocolFactory());
+        context.setProtocolCodec(new ParamedProtobaseCodec());
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 

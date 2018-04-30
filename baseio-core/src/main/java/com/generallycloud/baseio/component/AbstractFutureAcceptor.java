@@ -15,11 +15,11 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
 
@@ -34,24 +34,16 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
 
     @Override
     public void accept(final SocketSession session, final Future future) throws Exception {
-
         ChannelFuture f = (ChannelFuture) future;
-
         if (f.isSilent()) {
             return;
         }
-
         if (f.isHeartbeat()) {
-
             acceptHeartBeat(session, f);
-
             return;
         }
-
         SocketChannelContext context = session.getContext();
-
         IoEventHandle eventHandle = context.getIoEventHandleAdaptor();
-
         accept(eventHandle, session, f);
     }
 
@@ -59,44 +51,26 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
             ChannelFuture future);
 
     private void acceptHeartBeat(final SocketSession session, final ChannelFuture future) {
-
         if (future.isPING()) {
-
             heartBeatLogger.logRequest(session);
-
-            SocketChannelContext context = session.getContext();
-
-            BeatFutureFactory factory = context.getBeatFutureFactory();
-
-            if (factory == null) {
-
-                RuntimeException e = new RuntimeException("none factory of BeatFuture");
-
-                CloseUtil.close(session);
-
-                logger.error(e.getMessage(), e);
-
+            ProtocolCodec codec = session.getProtocolCodec();
+            Future f = codec.createPONGPacket(session);
+            if (f == null) {
                 return;
             }
-
-            Future f = factory.createPONGPacket(session);
-
             session.flush(f);
         } else {
             heartBeatLogger.logResponse(session);
         }
-
     }
 
     private void createHeartBeatLogger(SocketChannelContext context) {
-
         if (context.getServerConfiguration().isSERVER_ENABLE_HEARTBEAT_LOG()) {
             heartBeatLogger = new HeartBeatLogger() {
                 @Override
                 public void logRequest(SocketSession session) {
                     logger.info("heart beat request from: {}", session);
                 }
-
                 @Override
                 public void logResponse(SocketSession session) {
                     logger.info("heart beat response from: {}", session);
@@ -108,7 +82,6 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
                 public void logRequest(SocketSession session) {
                     logger.debug("heart beat request from: {}", session);
                 }
-
                 @Override
                 public void logResponse(SocketSession session) {
                     logger.debug("heart beat response from: {}", session);
@@ -118,6 +91,7 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
     }
 
     private interface HeartBeatLogger {
+        
         void logRequest(SocketSession session);
 
         void logResponse(SocketSession session);

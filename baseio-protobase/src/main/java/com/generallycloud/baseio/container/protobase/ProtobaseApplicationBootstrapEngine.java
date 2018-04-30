@@ -15,8 +15,7 @@
  */
 package com.generallycloud.baseio.container.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseBeatFutureFactory;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseCodec;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
@@ -35,8 +34,7 @@ public class ProtobaseApplicationBootstrapEngine extends ApplicationBootstrapEng
                 (ApplicationIoEventHandle) context.getIoEventHandleAdaptor();
         handle.setApplicationConfigurationLoader(new FileSystemACLoader());
         context.addSessionEventListener(new LoggerSocketSEListener());
-        context.setProtocolFactory(new ParamedProtobaseProtocolFactory());
-        context.setBeatFutureFactory(new ParamedProtobaseBeatFutureFactory());
+        context.setProtocolCodec(new ParamedProtobaseCodec());
     }
 
 }

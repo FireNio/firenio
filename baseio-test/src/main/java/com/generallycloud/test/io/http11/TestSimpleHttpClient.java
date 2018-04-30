@@ -15,7 +15,7 @@
  */
 package com.generallycloud.test.io.http11;
 
-import com.generallycloud.baseio.codec.http11.ClientHTTPProtocolFactory;
+import com.generallycloud.baseio.codec.http11.ClientHttpCodec;
 import com.generallycloud.baseio.codec.http11.HttpClient;
 import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.baseio.codec.http11.future.ClientHttpFuture;
@@ -46,7 +46,7 @@ public class TestSimpleHttpClient {
         
         SslContext sslContext = SSLUtil.initClient(true);
 
-        context.setProtocolFactory(new ClientHTTPProtocolFactory());
+        context.setProtocolCodec(new ClientHttpCodec());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setSslContext(sslContext);

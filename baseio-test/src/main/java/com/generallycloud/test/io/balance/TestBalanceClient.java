@@ -20,9 +20,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.balance.BalanceClientSocketSession;
 import com.generallycloud.baseio.balance.BalanceClientSocketSessionFactory;
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -63,7 +63,7 @@ public class TestBalanceClient {
 
         SocketChannelConnector connector = new SocketChannelConnector(context);
 
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
+        context.setProtocolCodec(new ProtobaseCodec());
 
         context.setSocketSessionFactory(new BalanceClientSocketSessionFactory());
 

@@ -17,7 +17,7 @@ package com.generallycloud.baseio.codec.http11.future;
 
 import java.util.Map;
 
-import com.generallycloud.baseio.codec.http11.WebSocketProtocolFactory;
+import com.generallycloud.baseio.codec.http11.WebSocketCodec;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
@@ -50,33 +50,22 @@ public class ClientHttpFuture extends AbstractHttpFuture {
         ChannelConnector connector = (ChannelConnector) context.getChannelService();
         UnsafeSocketSession session = (UnsafeSocketSession) connector.getSession();
         SocketChannel channel = session.getSocketChannel();
-        channel.setProtocolFactory(WebSocketProtocolFactory.WS_PROTOCOL_FACTORY);
-        channel.setProtocolDecoder(WebSocketProtocolFactory.WS_PROTOCOL_DECODER);
-        channel.setProtocolEncoder(WebSocketProtocolFactory.WS_PROTOCOL_ENCODER);
+        channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
     }
 
     @Override
     protected void parseContentType(String contentType) {
-
         if (StringUtil.isNullOrBlank(contentType)) {
-
             this.contentType = CONTENT_APPLICATION_URLENCODED;
-
             return;
         }
-
         if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-
             this.contentType = CONTENT_APPLICATION_URLENCODED;
-
         } else if (contentType.startsWith("multipart/form-data;")) {
-
             int index = KMP_BOUNDARY.match(contentType);
-
             if (index != -1) {
                 this.boundary = contentType.substring(index + 9);
             }
-
             this.contentType = CONTENT_TYPE_MULTIPART;
         } else {
             // FIXME other content-type

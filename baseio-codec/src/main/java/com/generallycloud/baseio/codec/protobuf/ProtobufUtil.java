@@ -18,7 +18,7 @@ package com.generallycloud.baseio.codec.protobuf;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.Parser;

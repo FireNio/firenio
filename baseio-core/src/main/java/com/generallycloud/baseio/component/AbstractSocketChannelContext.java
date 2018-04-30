@@ -33,15 +33,12 @@ import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ProtocolDecoder;
-import com.generallycloud.baseio.protocol.ProtocolEncoder;
-import com.generallycloud.baseio.protocol.ProtocolFactory;
+import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         implements SocketChannelContext {
 
     private Map<Object, Object>                   attributes  = new HashMap<>();
-    private BeatFutureFactory                     beatFutureFactory;
     private ByteBufAllocatorManager               byteBufAllocatorManager;
     private boolean                               enableSSL;
     private Charset                               encoding;
@@ -50,9 +47,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     private boolean                               initialized;
     private IoEventHandleAdaptor                  ioEventHandleAdaptor;
     private Logger                                logger      = LoggerFactory.getLogger(getClass());
-    private ProtocolDecoder                       protocolDecoder;
-    private ProtocolEncoder                       protocolEncoder;
-    private ProtocolFactory                       protocolFactory;
+    private ProtocolCodec                         protocolCodec;
     private ServerConfiguration                   serverConfiguration;
     private SocketSessionEventListenerWrapper     sessionEventListenerRoot;
     private SocketSessionFactory                  sessionFactory;
@@ -109,8 +104,8 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
             throw new IllegalArgumentException("null ioEventHandle");
         }
 
-        if (protocolFactory == null) {
-            throw new IllegalArgumentException("null protocolFactory");
+        if (protocolCodec == null) {
+            throw new IllegalArgumentException("null protocolCodec");
         }
 
         if (!initialized) {
@@ -121,7 +116,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
         int server_port = serverConfiguration.getSERVER_PORT();
         long session_idle = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
-        String protocolId = protocolFactory.getProtocolId();
+        String protocolId = protocolCodec.getProtocolId();
 
         this.encoding = serverConfiguration.getSERVER_ENCODING();
         this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
@@ -152,11 +147,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
                     SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
         }
 
-        if (protocolEncoder == null) {
-            this.protocolFactory.initialize(this);
-            this.protocolEncoder = protocolFactory.getProtocolEncoder(this);
-            this.protocolDecoder = protocolFactory.getProtocolDecoder(this);
-        }
+        protocolCodec.initialize(this);
 
         ioEventHandleAdaptor.initialize(this);
 
@@ -213,11 +204,6 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     }
 
     @Override
-    public BeatFutureFactory getBeatFutureFactory() {
-        return beatFutureFactory;
-    }
-
-    @Override
     public ByteBufAllocatorManager getByteBufAllocatorManager() {
         return byteBufAllocatorManager;
     }
@@ -243,18 +229,8 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     }
 
     @Override
-    public ProtocolDecoder getProtocolDecoder() {
-        return protocolDecoder;
-    }
-
-    @Override
-    public ProtocolEncoder getProtocolEncoder() {
-        return protocolEncoder;
-    }
-
-    @Override
-    public ProtocolFactory getProtocolFactory() {
-        return protocolFactory;
+    public ProtocolCodec getProtocolCodec() {
+        return protocolCodec;
     }
 
     @Override
@@ -328,11 +304,6 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     }
 
     @Override
-    public void setBeatFutureFactory(BeatFutureFactory beatFutureFactory) {
-        this.beatFutureFactory = beatFutureFactory;
-    }
-
-    @Override
     public void setByteBufAllocatorManager(ByteBufAllocatorManager byteBufAllocatorManager) {
         this.byteBufAllocatorManager = byteBufAllocatorManager;
     }
@@ -348,8 +319,8 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     }
 
     @Override
-    public void setProtocolFactory(ProtocolFactory protocolFactory) {
-        this.protocolFactory = protocolFactory;
+    public void setProtocolCodec(ProtocolCodec protocolCodec) {
+        this.protocolCodec = protocolCodec;
     }
 
     @Override

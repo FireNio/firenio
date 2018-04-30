@@ -15,9 +15,8 @@
  */
 package com.generallycloud.test.io.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -46,43 +45,26 @@ public class TestBeat {
         };
 
         String serviceKey = "TestSimpleServlet";
-
         ServerConfiguration configuration = new ServerConfiguration(8300);
-
         configuration.setSERVER_SESSION_IDLE_TIME(10);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.addSessionIdleEventListener(new SocketSessionActiveSEListener());
-
-        context.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
-        
         context.addSessionEventListener(new LoggerSocketSEListener());
-
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
-
+        context.setProtocolCodec(new ProtobaseCodec());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         SocketSession session = connector.connect();
-
         String param = "tttt";
-
         long old = System.currentTimeMillis();
-
         for (int i = 0; i < 5; i++) {
             Future future = new ProtobaseFutureImpl(serviceKey);
             future.write(param);
             session.flush(future);
             ThreadUtil.sleep(300);
         }
-
         System.out.println("Time:" + (System.currentTimeMillis() - old));
-
         Thread.sleep(2000);
-
         CloseUtil.close(connector);
-
     }
+
 }

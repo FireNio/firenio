@@ -16,9 +16,8 @@
 package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.baseio.codec.protobase.ProtobaseProtocolFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseBeatFutureFactory;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -48,23 +47,14 @@ public class SimpleTestProtobaseServer {
         };
 
         SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
-
         context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-
         context.getServerConfiguration().setSERVER_SESSION_IDLE_TIME(60 * 60 * 1000);
-
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
-        context.setBeatFutureFactory(new ProtobaseBeatFutureFactory());
-
         context.addSessionIdleEventListener(new SocketSessionAliveSEListener());
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
-        context.setProtocolFactory(new ProtobaseProtocolFactory());
-
+        context.setProtocolCodec(new ProtobaseCodec());
         acceptor.bind();
     }
+    
 }

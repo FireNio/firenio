@@ -18,8 +18,8 @@ package com.generallycloud.sample.baseio.protobase;
 import java.io.File;
 import java.io.IOException;
 
-import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.protobase.FileReceiveUtil;
 import com.generallycloud.baseio.container.protobase.FileSendUtil;

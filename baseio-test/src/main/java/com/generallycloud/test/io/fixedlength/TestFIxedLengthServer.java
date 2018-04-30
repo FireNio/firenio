@@ -18,9 +18,8 @@ package com.generallycloud.test.io.fixedlength;
 import java.io.File;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthProtocolFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FLBeatFutureFactory;
-import com.generallycloud.baseio.codec.fixedlength.future.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -46,28 +45,17 @@ public class TestFIxedLengthServer {
                 session.flush(future);
             }
         };
-
         SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
-
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         //		context.addSessionEventListener(new SocketSessionAliveSEListener());
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
-        context.setBeatFutureFactory(new FLBeatFutureFactory());
-
-        context.setProtocolFactory(new FixedLengthProtocolFactory());
-
+        context.setProtocolCodec(new FixedLengthCodec());
         File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
         File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
-
         SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
-
         context.setSslContext(sslContext);
-
         acceptor.bind();
     }
+
 }

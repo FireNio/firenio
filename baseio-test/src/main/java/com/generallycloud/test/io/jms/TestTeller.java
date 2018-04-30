@@ -15,7 +15,7 @@
  */
 package com.generallycloud.test.io.jms;
 
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseProtocolFactory;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseCodec;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
@@ -35,7 +35,7 @@ public class TestTeller {
 
         context.setIoEventHandleAdaptor(eventHandle);
 
-        context.setProtocolFactory(new ParamedProtobaseProtocolFactory());
+        context.setProtocolCodec(new ParamedProtobaseCodec());
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 

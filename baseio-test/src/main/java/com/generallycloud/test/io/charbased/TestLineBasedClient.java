@@ -15,9 +15,9 @@
  */
 package com.generallycloud.test.io.charbased;
 
-import com.generallycloud.baseio.codec.charbased.CharBasedProtocolFactory;
-import com.generallycloud.baseio.codec.charbased.future.CharBasedFuture;
-import com.generallycloud.baseio.codec.charbased.future.CharBasedFutureImpl;
+import com.generallycloud.baseio.codec.charbased.CharBasedFuture;
+import com.generallycloud.baseio.codec.charbased.CharBasedFutureImpl;
+import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
@@ -47,7 +47,7 @@ public class TestLineBasedClient {
         SocketChannelConnector connector = new SocketChannelConnector(context);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
-        context.setProtocolFactory(new CharBasedProtocolFactory());
+        context.setProtocolCodec(new CharBasedCodec());
         SocketSession session = connector.connect();
         CharBasedFuture future = new CharBasedFutureImpl();
         future.write("hello server!");

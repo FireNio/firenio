@@ -38,7 +38,7 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
             ChannelFuture future = channel.getReadFuture();
             boolean setFutureNull = true;
             if (future == null) {
-                future = channel.getProtocolDecoder().decode(channel, buffer);
+                future = channel.getProtocolCodec().decode(channel, buffer);
                 setFutureNull = false;
             }
             try {

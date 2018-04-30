@@ -101,7 +101,7 @@ public class AioSocketSessionManager extends AbstractSessionManager
         }
         SocketChannel channel = context.getSimulateSocketChannel();
         ChannelFuture f = (ChannelFuture) future;
-        context.getProtocolEncoder().encode(channel, f);
+        context.getProtocolCodec().encode(channel, f);
         broadcastChannelFuture(f);
     }
 

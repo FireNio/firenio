@@ -15,8 +15,7 @@
  */
 package com.generallycloud.baseio.container.http11;
 
-import com.generallycloud.baseio.codec.http11.ServerHTTPProtocolFactory;
-import com.generallycloud.baseio.codec.http11.future.WebSocketBeatFutureFactory;
+import com.generallycloud.baseio.codec.http11.ServerHttpCodec;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSessionAliveSEListener;
@@ -37,10 +36,9 @@ public class HttpApplicationBootstrapEngine extends ApplicationBootstrapEngine {
         handle.setApplicationExtLoader(new HttpExtLoader());
         handle.setApplicationConfigurationLoader(new FileSystemACLoader());
         handle.setAppOnRedeployService(new HttpOnRedeployAcceptor());
-        context.setBeatFutureFactory(new WebSocketBeatFutureFactory());
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.addSessionIdleEventListener(new SocketSessionAliveSEListener());
-        context.setProtocolFactory(new ServerHTTPProtocolFactory());
+        context.setProtocolCodec(new ServerHttpCodec());
     }
 
 }

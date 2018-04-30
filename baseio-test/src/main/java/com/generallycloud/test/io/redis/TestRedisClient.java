@@ -15,9 +15,9 @@
  */
 package com.generallycloud.test.io.redis;
 
-import com.generallycloud.baseio.codec.redis.RedisProtocolFactory;
-import com.generallycloud.baseio.codec.redis.future.RedisClient;
-import com.generallycloud.baseio.codec.redis.future.RedisIOEventHandle;
+import com.generallycloud.baseio.codec.redis.RedisClient;
+import com.generallycloud.baseio.codec.redis.RedisIOEventHandle;
+import com.generallycloud.baseio.codec.redis.RedisCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -39,7 +39,7 @@ public class TestRedisClient {
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 
-        context.setProtocolFactory(new RedisProtocolFactory());
+        context.setProtocolCodec(new RedisCodec());
 
         SocketSession session = connector.connect();
 

@@ -41,9 +41,7 @@ import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.baseio.protocol.ProtocolDecoder;
-import com.generallycloud.baseio.protocol.ProtocolEncoder;
-import com.generallycloud.baseio.protocol.ProtocolFactory;
+import com.generallycloud.baseio.protocol.ProtocolCodec;
 import com.generallycloud.baseio.protocol.SslFuture;
 
 public abstract class AbstractSocketChannel implements SocketChannel {
@@ -60,9 +58,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     protected long                         lastAccess;
     protected InetSocketAddress            local;
     protected boolean                      opened               = true;
-    protected ProtocolDecoder              protocolDecoder;
-    protected ProtocolEncoder              protocolEncoder;
-    protected ProtocolFactory              protocolFactory;
+    protected ProtocolCodec                 protocolCodec;
     protected transient ChannelFuture      readFuture;
     protected InetSocketAddress            remote;
     protected UnsafeSocketSession          session;
@@ -83,9 +79,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         this.threadContext = context;
         this.byteBufAllocator = context.getByteBufAllocator();
         this.lastAccess = creationTime + socketChannelContext.getSessionIdleTime();
-        this.protocolFactory = socketChannelContext.getProtocolFactory();
-        this.protocolDecoder = socketChannelContext.getProtocolDecoder();
-        this.protocolEncoder = socketChannelContext.getProtocolEncoder();
+        this.protocolCodec = socketChannelContext.getProtocolCodec();
         this.executorEventLoop = context.getExecutorEventLoop();
         this.session = context.getChannelContext().getSessionFactory().newUnsafeSession(this);
         this.writeFutures = new ScspLinkedQueue<>(f);
@@ -207,8 +201,8 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         }
         try {
             future.setNeedSsl(getContext().isEnableSSL());
-            ProtocolEncoder encoder = getProtocolEncoder();
-            encoder.encode(this, future);
+            ProtocolCodec codec = getProtocolCodec();
+            codec.encode(this, future);
             flushChannelFuture(future);
         } catch (Exception e) {
             exceptionCaught(future, e);
@@ -283,18 +277,8 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     protected abstract InetSocketAddress getLocalSocketAddress0() throws IOException;
 
     @Override
-    public ProtocolDecoder getProtocolDecoder() {
-        return protocolDecoder;
-    }
-
-    @Override
-    public ProtocolEncoder getProtocolEncoder() {
-        return protocolEncoder;
-    }
-
-    @Override
-    public ProtocolFactory getProtocolFactory() {
-        return protocolFactory;
+    public ProtocolCodec getProtocolCodec() {
+        return protocolCodec;
     }
 
     @Override
@@ -424,18 +408,8 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     }
 
     @Override
-    public void setProtocolDecoder(ProtocolDecoder protocolDecoder) {
-        this.protocolDecoder = protocolDecoder;
-    }
-
-    @Override
-    public void setProtocolEncoder(ProtocolEncoder protocolEncoder) {
-        this.protocolEncoder = protocolEncoder;
-    }
-
-    @Override
-    public void setProtocolFactory(ProtocolFactory protocolFactory) {
-        this.protocolFactory = protocolFactory;
+    public void setProtocolCodec(ProtocolCodec protocolCodec) {
+        this.protocolCodec = protocolCodec;
     }
 
     @Override
