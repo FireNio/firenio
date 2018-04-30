@@ -52,7 +52,7 @@ public class Http2PrefaceFuture extends AbstractChannelFuture {
         if (!isPreface(buf)) {
             throw new IOException("not http2 preface");
         }
-        session.doFlush(new DefaultChannelFuture(PREFACE_BUF.duplicate()));
+        session.flushChannelFuture(new DefaultChannelFuture(PREFACE_BUF.duplicate()));
     }
 
     private boolean isPreface(ByteBuf buf) {

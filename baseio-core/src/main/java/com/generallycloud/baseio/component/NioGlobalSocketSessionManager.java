@@ -107,7 +107,7 @@ public class NioGlobalSocketSessionManager implements SocketSessionManager {
             return;
         }
         for (SocketSession s : sessions.values()) {
-            s.doFlush(future.duplicate());
+            s.flushChannelFuture(future.duplicate());
         }
     }
 

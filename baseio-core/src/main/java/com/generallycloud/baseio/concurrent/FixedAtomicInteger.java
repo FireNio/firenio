@@ -40,19 +40,14 @@ public class FixedAtomicInteger {
     }
 
     public final int getAndIncrement() {
-
         for (;;) {
-
             int current = atomiticInteger.get();
-
             int next;
-
             if (current == max_value) {
                 next = min_value;
             } else {
                 next = current + 1;
             }
-
             if (atomiticInteger.compareAndSet(current, next)) {
                 return current;
             }
@@ -60,19 +55,14 @@ public class FixedAtomicInteger {
     }
 
     public final int getAndDecrement() {
-
         for (;;) {
-
             int current = atomiticInteger.get();
-
             int next;
-
             if (current == min_value) {
                 next = max_value;
             } else {
                 next = current - 1;
             }
-
             if (atomiticInteger.compareAndSet(current, next)) {
                 return current;
             }
@@ -80,18 +70,14 @@ public class FixedAtomicInteger {
     }
 
     public final int incrementAndGet() {
-
         for (;;) {
             int current = atomiticInteger.get();
-
             int next;
-
             if (current == max_value) {
                 next = min_value;
             } else {
                 next = current + 1;
             }
-
             if (atomiticInteger.compareAndSet(current, next)) {
                 return next;
             }
@@ -99,19 +85,14 @@ public class FixedAtomicInteger {
     }
 
     public final int decrementAndGet() {
-
         for (;;) {
-
             int current = atomiticInteger.get();
-
             int next;
-
             if (current == min_value) {
                 next = max_value;
             } else {
                 next = current - 1;
             }
-
             if (atomiticInteger.compareAndSet(current, next)) {
                 return next;
             }

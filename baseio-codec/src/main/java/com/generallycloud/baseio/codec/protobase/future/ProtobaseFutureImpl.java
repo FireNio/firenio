@@ -274,6 +274,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
         if (binaryWriteBuffer == null) {
             if ((len - off) != bytes.length) {
                 binaryWriteBuffer = new byte[len];
+                binaryWriteSize = len;
                 System.arraycopy(bytes, off, binaryWriteBuffer, 0, len);
                 return;
             }

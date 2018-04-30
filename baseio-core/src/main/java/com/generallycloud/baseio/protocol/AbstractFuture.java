@@ -56,6 +56,7 @@ public abstract class AbstractFuture implements Future {
         if (writeBuffer == null) {
             if ((len - off) != bytes.length) {
                 writeBuffer = new byte[len];
+                writeSize = len;
                 System.arraycopy(bytes, off, writeBuffer, 0, len);
                 return;
             }

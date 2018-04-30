@@ -42,7 +42,7 @@ public interface SocketSession extends Closeable {
      * flush已encode的future
      * @param future
      */
-    void doFlush(ChannelFuture future);
+    void flushChannelFuture(ChannelFuture future);
 
     /**
      * flush未encode的future

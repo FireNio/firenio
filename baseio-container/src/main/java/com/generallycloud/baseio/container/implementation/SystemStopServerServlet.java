@@ -35,7 +35,7 @@ public class SystemStopServerServlet implements FutureAcceptor {
         SocketChannelContext context = session.getContext();
         future.write("server is stopping", session.getEncoding());
         session.flush(future);
-        ThreadUtil.execute(new StopServer(context));
+        ThreadUtil.exec(new StopServer(context));
     }
 
     private class StopServer implements Runnable {

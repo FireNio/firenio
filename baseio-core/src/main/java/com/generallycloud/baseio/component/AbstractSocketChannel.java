@@ -111,7 +111,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     }
 
     @Override
-    public void doFlush(ChannelFuture future) {
+    public void flushChannelFuture(ChannelFuture future) {
         UnsafeSocketSession session = getSession();
         //这里需要加锁，因为当多个线程同时flush时，判断(writeFutures.size() > 1)
         //会产生误差，导致无法或者延迟触发doFlush操作
@@ -182,7 +182,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
                     remote.getHostName(),remote.getPort());
         }
         if (isEnableSSL() && context.getSslContext().isClient()) {
-            doFlush(new DefaultChannelFuture(EmptyByteBuf.getInstance(),true));
+            flushChannelFuture(new DefaultChannelFuture(EmptyByteBuf.getInstance(),true));
         }
         UnsafeSocketSession session = getSession();
         if (!session.isClosed()) {
@@ -209,7 +209,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
             future.setNeedSsl(getContext().isEnableSSL());
             ProtocolEncoder encoder = getProtocolEncoder();
             encoder.encode(this, future);
-            doFlush(future);
+            flushChannelFuture(future);
         } catch (Exception e) {
             exceptionCaught(future, e);
         }

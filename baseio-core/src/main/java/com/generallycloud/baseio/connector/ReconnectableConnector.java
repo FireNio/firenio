@@ -83,7 +83,7 @@ public class ReconnectableConnector implements Closeable {
     }
 
     private void reconnect(final ReconnectableConnector reconnectableConnector) {
-        ThreadUtil.execute(new Runnable() {
+        ThreadUtil.exec(new Runnable() {
             @Override
             public void run() {
                 logger.info("begin try to reconnect");

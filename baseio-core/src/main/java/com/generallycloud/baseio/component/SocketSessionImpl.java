@@ -58,8 +58,8 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public void doFlush(ChannelFuture future) {
-        getSocketChannel().doFlush(future);
+    public void flushChannelFuture(ChannelFuture future) {
+        getSocketChannel().flushChannelFuture(future);
     }
 
     @Override

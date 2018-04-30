@@ -27,11 +27,11 @@ public class ThreadUtil {
         }
     }
 
-    public static void execute(Runnable runnable) {
-        execute(runnable, null);
+    public static void exec(Runnable runnable) {
+        exec(runnable, null);
     }
 
-    public static void execute(Runnable runnable, String name) {
+    public static void exec(Runnable runnable, String name) {
         if (!StringUtil.isNullOrBlank(name)) {
             new Thread(runnable, name).start();
         } else {

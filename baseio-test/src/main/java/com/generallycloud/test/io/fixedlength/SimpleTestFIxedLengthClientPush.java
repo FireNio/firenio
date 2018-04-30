@@ -47,7 +47,7 @@ public class SimpleTestFIxedLengthClientPush {
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolFactory(new FixedLengthProtocolFactory());
         SocketSession session = connector.connect();
-        ThreadUtil.execute(new Runnable() {
+        ThreadUtil.exec(new Runnable() {
             
             @Override
             public void run() {

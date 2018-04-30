@@ -29,7 +29,7 @@ public class TestReentrantLock {
 
         ReentrantLock lock = new ReentrantLock();
 
-        ThreadUtil.execute(() -> {
+        ThreadUtil.exec(() -> {
 
             lock.lock();
 
@@ -37,7 +37,7 @@ public class TestReentrantLock {
 
         });
 
-        ThreadUtil.execute(() -> {
+        ThreadUtil.exec(() -> {
 
             lock.lock();
 

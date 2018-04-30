@@ -69,9 +69,9 @@ public class TestSimplyByteBufAllocator {
             }
         };
 
-        ThreadUtil.execute(r);
+        ThreadUtil.exec(r);
 
-        ThreadUtil.execute(r);
+        ThreadUtil.exec(r);
 
         //		 ThreadUtil.execute(r);
         //		

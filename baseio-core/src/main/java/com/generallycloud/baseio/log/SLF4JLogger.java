@@ -72,6 +72,21 @@ public class SLF4JLogger implements Logger {
     public void debug(String message, Object... param) {
         logger.debug(message, param);
     }
+    
+    @Override
+    public void error(String message, Object param) {
+        logger.error(message,param);
+    }
+
+    @Override
+    public void error(String message, Object param, Object param1) {
+        logger.error(message, param, param1);
+    }
+
+    @Override
+    public void error(String message, Object... params) {
+        logger.error(message, params);
+    }
 
     @Override
     public void error(String object, Throwable throwable) {

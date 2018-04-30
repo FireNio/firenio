@@ -59,7 +59,7 @@ public class SimpleTestFIxedLengthBroadcastServer {
 
         acceptor.bind();
         
-        ThreadUtil.execute(new Runnable() {
+        ThreadUtil.exec(new Runnable() {
             
             @Override
             public void run() {

@@ -25,11 +25,11 @@ public class TestSingleton {
 
     public static void main(String[] args) {
 
-        ThreadUtil.execute(() -> {
+        ThreadUtil.exec(() -> {
             Singleton.getSingleton();
         });
 
-        ThreadUtil.execute(() -> {
+        ThreadUtil.exec(() -> {
             Singleton.getSingleton();
         });
 

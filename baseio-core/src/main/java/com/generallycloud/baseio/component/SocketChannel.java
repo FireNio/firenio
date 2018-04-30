@@ -37,7 +37,7 @@ public interface SocketChannel extends Closeable {
 
     void active();
 
-    void doFlush(ChannelFuture future);
+    void flushChannelFuture(ChannelFuture future);
 
     void finishHandshake(Exception e);
 

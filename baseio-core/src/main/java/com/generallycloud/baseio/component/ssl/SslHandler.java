@@ -137,7 +137,7 @@ public class SslHandler {
             synchByteBuf(result, src, dst);
             if (handshakeStatus != HandshakeStatus.NOT_HANDSHAKING) {
                 if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
-                    channel.doFlush(forgeFuture.duplicate());
+                    channel.flushChannelFuture(forgeFuture.duplicate());
                     return null;
                 } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
                     runDelegatedTasks(sslEngine);

@@ -36,6 +36,12 @@ public interface Logger {
     void debug(String message, Object... params);
 
     void error(String message);
+    
+    void error(String message, Object param);
+
+    void error(String message, Object param, Object param1);
+
+    void error(String message, Object... params);
 
     void error(String message, Throwable throwable);
 

@@ -20,6 +20,7 @@
 			<groupId>org.wildfly.openssl</groupId>
 			<artifactId>wildfly-openssl</artifactId>
 			<version>1.0.2.Final</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.mortbay.jetty.alpn/alpn-boot -->
@@ -27,6 +28,7 @@
 			<groupId>org.mortbay.jetty.alpn</groupId>
 			<artifactId>alpn-boot</artifactId>
 			<version>8.1.10.v20161026</version>
+			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>

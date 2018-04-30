@@ -56,7 +56,7 @@ public class NettyClientThread {
                 s.append(len % 10);
             }
             final String msg = s.toString();
-            ThreadUtil.execute(new Runnable() {
+            ThreadUtil.exec(new Runnable() {
 
                 @Override
                 public void run() {
