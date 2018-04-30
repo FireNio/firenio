@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 /**

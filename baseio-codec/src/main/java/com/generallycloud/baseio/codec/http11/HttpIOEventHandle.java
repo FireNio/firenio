@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Waiter;

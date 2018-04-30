@@ -21,7 +21,7 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.common.EmojiUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.StringUtil;

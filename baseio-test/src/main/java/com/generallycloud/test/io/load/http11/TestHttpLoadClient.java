@@ -18,8 +18,8 @@ package com.generallycloud.test.io.load.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.codec.http11.ClientHttpCodec;
-import com.generallycloud.baseio.codec.http11.future.ClientHttpFuture;
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
+import com.generallycloud.baseio.codec.http11.ClientHttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;

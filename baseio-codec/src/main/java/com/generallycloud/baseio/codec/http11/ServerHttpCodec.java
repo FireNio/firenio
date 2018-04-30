@@ -20,9 +20,6 @@ import java.util.List;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.codec.http11.future.Cookie;
-import com.generallycloud.baseio.codec.http11.future.ServerHttpFuture;
-import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.SocketChannel;

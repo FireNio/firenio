@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.generallycloud.baseio.codec.http11.future.Cookie;
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
+import com.generallycloud.baseio.codec.http11.Cookie;
+import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;

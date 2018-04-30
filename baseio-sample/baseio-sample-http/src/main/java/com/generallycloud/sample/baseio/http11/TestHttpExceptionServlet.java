@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import org.springframework.stereotype.Service;
 
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
 

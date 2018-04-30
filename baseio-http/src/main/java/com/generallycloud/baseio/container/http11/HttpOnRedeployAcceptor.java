@@ -15,8 +15,8 @@
  */
 package com.generallycloud.baseio.container.http11;
 
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
-import com.generallycloud.baseio.codec.http11.future.HttpStatus;
+import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpStatus;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.DefaultOnRedeployAcceptor;
 import com.generallycloud.baseio.protocol.Future;

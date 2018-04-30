@@ -23,8 +23,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
-import com.generallycloud.baseio.codec.http11.future.WebSocketFutureImpl;
+import com.generallycloud.baseio.codec.http11.WebSocketFuture;
+import com.generallycloud.baseio.codec.http11.WebSocketFutureImpl;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;

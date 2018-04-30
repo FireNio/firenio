@@ -15,11 +15,11 @@
  */
 package com.generallycloud.test.io.http11;
 
-import com.generallycloud.baseio.codec.http11.future.ClientHttpFuture;
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
-import com.generallycloud.baseio.codec.http11.future.WebSocketFuture;
-import com.generallycloud.baseio.codec.http11.future.WebSocketFutureImpl;
-import com.generallycloud.baseio.codec.http11.future.WebSocketUpgradeRequestFuture;
+import com.generallycloud.baseio.codec.http11.ClientHttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.WebSocketFuture;
+import com.generallycloud.baseio.codec.http11.WebSocketFutureImpl;
+import com.generallycloud.baseio.codec.http11.WebSocketUpgradeRequestFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;

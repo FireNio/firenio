@@ -18,8 +18,8 @@ package com.generallycloud.test.io.load.http11;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
+import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.codec.http11.ServerHttpCodec;
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;

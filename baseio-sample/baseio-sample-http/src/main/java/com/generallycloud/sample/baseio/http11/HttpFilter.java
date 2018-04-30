@@ -22,7 +22,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
 
-import com.generallycloud.baseio.codec.http11.future.HttpMessage;
+import com.generallycloud.baseio.codec.http11.HttpMessage;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.Parameters;

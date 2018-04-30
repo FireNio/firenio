@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.http11.future;
+package com.generallycloud.baseio.codec.http11;
 
-import com.generallycloud.baseio.codec.http11.WebSocketCodec;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;

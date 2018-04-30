@@ -16,10 +16,10 @@
 package com.generallycloud.test.io.http11;
 
 import com.generallycloud.baseio.codec.http11.ClientHttpCodec;
+import com.generallycloud.baseio.codec.http11.ClientHttpFuture;
 import com.generallycloud.baseio.codec.http11.HttpClient;
+import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
-import com.generallycloud.baseio.codec.http11.future.ClientHttpFuture;
-import com.generallycloud.baseio.codec.http11.future.HttpFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
