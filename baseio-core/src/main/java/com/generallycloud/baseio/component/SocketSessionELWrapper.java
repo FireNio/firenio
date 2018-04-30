@@ -19,64 +19,53 @@ import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class SocketSessionEventListenerWrapper extends AbstractLinkable
-        implements SocketSessionEventListener {
+public class SocketSessionELWrapper implements SocketSessionEventListener {
 
-    private SocketSessionEventListenerWrapper next;
+    private SocketSessionELWrapper next;
 
     private Logger                            logger;
 
     private SocketSessionEventListener        value;
 
-    public SocketSessionEventListenerWrapper(SocketSessionEventListener value) {
+    public SocketSessionELWrapper(SocketSessionEventListener value) {
         this.value = value;
         this.logger = LoggerFactory.getLogger(value.getClass());
     }
 
     @Override
     public void sessionOpened(SocketSession session) {
-
         try {
             value.sessionOpened(session);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-
-        SocketSessionEventListenerWrapper listener = getNext();
-
+        SocketSessionELWrapper listener = getNext();
         if (listener == null) {
             return;
         }
-
         listener.sessionOpened(session);
     }
 
     @Override
     public void sessionClosed(SocketSession session) {
-
         try {
             value.sessionClosed(session);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-
-        SocketSessionEventListenerWrapper listener = getNext();
-
+        SocketSessionELWrapper listener = getNext();
         if (listener == null) {
             return;
         }
-
         listener.sessionClosed(session);
     }
 
-    @Override
-    public SocketSessionEventListenerWrapper getNext() {
+    public SocketSessionELWrapper getNext() {
         return next;
     }
 
-    @Override
     public void setNext(Linkable next) {
-        this.next = (SocketSessionEventListenerWrapper) next;
+        this.next = (SocketSessionELWrapper) next;
     }
 
 }

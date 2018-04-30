@@ -13,12 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component;
+package com.generallycloud.baseio.concurrent;
 
-import com.generallycloud.baseio.concurrent.Looper;
+public abstract class AbstractLinkable implements Linkable {
 
-public interface SessionManager extends Looper {
+    private boolean isValidate = true;
 
-    int getManagedSessionSize();
+    @Override
+    public boolean isValidate() {
+        return isValidate;
+    }
+
+    @Override
+    public void setValidate(boolean validate) {
+        this.isValidate = validate;
+    }
 
 }

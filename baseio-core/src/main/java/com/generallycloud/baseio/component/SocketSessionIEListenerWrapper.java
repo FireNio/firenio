@@ -15,30 +15,26 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.concurrent.Linkable;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class SocketSessionIdleEventListenerWrapper extends AbstractLinkable
-        implements SocketSessionIdleEventListener {
+public class SocketSessionIEListenerWrapper implements SocketSessionIdleEventListener {
 
-    private SocketSessionIdleEventListenerWrapper next;
+    private SocketSessionIEListenerWrapper next;
 
     private SocketSessionIdleEventListener        value;
 
-    public SocketSessionIdleEventListenerWrapper(SocketSessionIdleEventListener value) {
+    public SocketSessionIEListenerWrapper(SocketSessionIdleEventListener value) {
         this.value = value;
         this.logger = LoggerFactory.getLogger(value.getClass());
     }
 
-    @Override
-    public SocketSessionIdleEventListenerWrapper getNext() {
+    public SocketSessionIEListenerWrapper getNext() {
         return next;
     }
 
-    @Override
-    public void setNext(Linkable next) {
-        this.next = (SocketSessionIdleEventListenerWrapper) next;
+    public void setNext(SocketSessionIEListenerWrapper next) {
+        this.next = next;
     }
 
     private Logger logger = null;
@@ -52,7 +48,7 @@ public class SocketSessionIdleEventListenerWrapper extends AbstractLinkable
             logger.error(e.getMessage(), e);
         }
 
-        SocketSessionIdleEventListenerWrapper listener = getNext();
+        SocketSessionIEListenerWrapper listener = getNext();
 
         if (listener == null) {
             return;

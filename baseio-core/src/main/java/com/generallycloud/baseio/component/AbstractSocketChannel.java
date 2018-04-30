@@ -158,7 +158,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     }
 
     protected void fireClosed() {
-        SocketSessionEventListenerWrapper linkable = getContext().getSessionEventListenerLink();
+        SocketSessionELWrapper linkable = getContext().getSessionEventListenerLink();
         UnsafeSocketSession session = getSession();
         threadContext.getSocketSessionManager().removeSession(session);
         if (linkable != null) {
@@ -181,7 +181,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         UnsafeSocketSession session = getSession();
         if (!session.isClosed()) {
             threadContext.getSocketSessionManager().putSession(session);
-            SocketSessionEventListenerWrapper linkable = context.getSessionEventListenerLink();
+            SocketSessionELWrapper linkable = context.getSessionEventListenerLink();
             if (linkable != null) {
                 linkable.sessionOpened(session);
             }

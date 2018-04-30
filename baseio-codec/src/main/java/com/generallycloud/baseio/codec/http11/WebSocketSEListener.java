@@ -17,11 +17,11 @@ package com.generallycloud.baseio.codec.http11;
 
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
+import com.generallycloud.baseio.component.SocketSessionELAdapter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class WebSocketSEListener extends SocketSessionEventListenerAdapter {
+public class WebSocketSEListener extends SocketSessionELAdapter {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 

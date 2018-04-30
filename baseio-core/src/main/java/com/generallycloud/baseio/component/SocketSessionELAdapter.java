@@ -15,16 +15,12 @@
  */
 package com.generallycloud.baseio.component;
 
-public class SocketSessionEventListenerAdapter implements SocketSessionEventListener {
+public class SocketSessionELAdapter implements SocketSessionEventListener {
 
     @Override
-    public void sessionOpened(SocketSession session) throws Exception {
-
-    }
+    public void sessionOpened(SocketSession session) throws Exception {}
 
     @Override
-    public void sessionClosed(SocketSession session) {
-
-    }
+    public void sessionClosed(SocketSession session) {}
 
 }

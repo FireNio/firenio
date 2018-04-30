@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
-public abstract class AbstractSessionManager implements SessionManager {
+public abstract class AbstractSessionManager implements SocketSessionManager {
 
     //FIXME chuan can
     protected int sessionSizeLimit  = 100 * 10000;

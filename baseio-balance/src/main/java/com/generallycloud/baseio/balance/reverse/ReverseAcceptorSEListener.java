@@ -17,11 +17,11 @@ package com.generallycloud.baseio.balance.reverse;
 
 import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
+import com.generallycloud.baseio.component.SocketSessionELAdapter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class ReverseAcceptorSEListener extends SocketSessionEventListenerAdapter {
+public class ReverseAcceptorSEListener extends SocketSessionELAdapter {
 
     private Logger         logger = LoggerFactory.getLogger(getClass());
 

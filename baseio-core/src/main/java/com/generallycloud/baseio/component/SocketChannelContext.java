@@ -49,11 +49,11 @@ public interface SocketChannelContext extends Attributes, LifeCycle {
 
     ServerConfiguration getServerConfiguration();
 
-    SocketSessionEventListenerWrapper getSessionEventListenerLink();
+    SocketSessionELWrapper getSessionEventListenerLink();
 
     SocketSessionFactory getSessionFactory();
 
-    SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink();
+    SocketSessionIEListenerWrapper getSessionIdleEventListenerLink();
 
     long getSessionIdleTime();
 

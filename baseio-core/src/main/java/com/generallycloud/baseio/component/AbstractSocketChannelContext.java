@@ -49,9 +49,9 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     private Logger                                logger      = LoggerFactory.getLogger(getClass());
     private ProtocolCodec                         protocolCodec;
     private ServerConfiguration                   serverConfiguration;
-    private SocketSessionEventListenerWrapper     sessionEventListenerRoot;
+    private SocketSessionELWrapper     sessionEventListenerRoot;
     private SocketSessionFactory                  sessionFactory;
-    private SocketSessionIdleEventListenerWrapper sessionIdleEventListenerRoot;
+    private SocketSessionIEListenerWrapper sessionIdleEventListenerRoot;
     private long                                  sessionIdleTime;
     private SslContext                            sslContext;
     private long                                  startupTime = System.currentTimeMillis();
@@ -69,20 +69,20 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     @Override
     public void addSessionEventListener(SocketSessionEventListener listener) {
         if (sessionEventListenerRoot == null) {
-            sessionEventListenerRoot = new SocketSessionEventListenerWrapper(listener);
+            sessionEventListenerRoot = new SocketSessionELWrapper(listener);
         } else {
             ClassUtil.setValueOfLast(sessionEventListenerRoot,
-                    new SocketSessionEventListenerWrapper(listener), "next");
+                    new SocketSessionELWrapper(listener), "next");
         }
     }
 
     @Override
     public void addSessionIdleEventListener(SocketSessionIdleEventListener listener) {
         if (sessionIdleEventListenerRoot == null) {
-            sessionIdleEventListenerRoot = new SocketSessionIdleEventListenerWrapper(listener);
+            sessionIdleEventListenerRoot = new SocketSessionIEListenerWrapper(listener);
         } else {
             ClassUtil.setValueOfLast(sessionIdleEventListenerRoot,
-                    new SocketSessionIdleEventListenerWrapper(listener), "next");
+                    new SocketSessionIEListenerWrapper(listener), "next");
         }
     }
 
@@ -239,7 +239,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     }
 
     @Override
-    public SocketSessionEventListenerWrapper getSessionEventListenerLink() {
+    public SocketSessionELWrapper getSessionEventListenerLink() {
         return sessionEventListenerRoot;
     }
 
@@ -249,7 +249,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     }
 
     @Override
-    public SocketSessionIdleEventListenerWrapper getSessionIdleEventListenerLink() {
+    public SocketSessionIEListenerWrapper getSessionIdleEventListenerLink() {
         return sessionIdleEventListenerRoot;
     }
 

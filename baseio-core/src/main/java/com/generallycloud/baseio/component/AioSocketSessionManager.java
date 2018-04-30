@@ -44,7 +44,7 @@ public class AioSocketSessionManager extends AbstractSessionManager
             return;
         }
         SocketChannelContext context = this.context;
-        SocketSessionIdleEventListenerWrapper linkable = context.getSessionIdleEventListenerLink();
+        SocketSessionIEListenerWrapper linkable = context.getSessionIdleEventListenerLink();
         if (linkable == null) {
             return;
         }

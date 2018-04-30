@@ -24,7 +24,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
+import com.generallycloud.baseio.component.SocketSessionELAdapter;
 
 public class ReconnectableConnector implements Closeable {
 
@@ -73,8 +73,8 @@ public class ReconnectableConnector implements Closeable {
         }
     }
 
-    private SocketSessionEventListenerAdapter getReconnectSEListener() {
-        return new SocketSessionEventListenerAdapter() {
+    private SocketSessionELAdapter getReconnectSEListener() {
+        return new SocketSessionELAdapter() {
             @Override
             public void sessionClosed(SocketSession session) {
                 reconnect(reconnectableConnector);

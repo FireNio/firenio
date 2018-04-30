@@ -20,11 +20,11 @@ import com.generallycloud.baseio.balance.ChannelLostFutureFactory;
 import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
+import com.generallycloud.baseio.component.SocketSessionELAdapter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class FacadeAcceptorSEListener extends SocketSessionEventListenerAdapter {
+public class FacadeAcceptorSEListener extends SocketSessionELAdapter {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
     
