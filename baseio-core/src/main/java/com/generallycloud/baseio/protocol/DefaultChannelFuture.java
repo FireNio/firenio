@@ -34,7 +34,7 @@ public class DefaultChannelFuture extends AbstractChannelFuture {
     
     public DefaultChannelFuture(ByteBuf buf,boolean isNeedSsl) {
         this.buf = buf;
-        this.isNeedSsl = isNeedSsl;
+        this.setNeedSsl(isNeedSsl);
     }
 
     @Override

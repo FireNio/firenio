@@ -44,7 +44,7 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
     @Override
     public boolean read(SocketChannel channel, ByteBuf src) throws IOException {
         ByteBuf buf = this.buf;
-        if (buf == EmptyByteBuf.getInstance()) {
+        if (buf == EmptyByteBuf.get()) {
             if (src.remaining() >= 4) {
                 int len = src.getInt();
                 if (len < 1) {

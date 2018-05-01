@@ -73,7 +73,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
 
     AbstractSocketChannel(SocketChannelThreadContext context, int channelId) {
         SocketChannelContext socketChannelContext = context.getChannelContext();
-        DefaultChannelFuture f = new DefaultChannelFuture(EmptyByteBuf.getInstance());
+        DefaultChannelFuture f = new DefaultChannelFuture(EmptyByteBuf.get());
         // 认为在第一次Idle之前，连接都是畅通的
         this.channelId = channelId;
         this.threadContext = context;
@@ -96,7 +96,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         if (isEnableSSL()) {
             sslEngine.closeOutbound();
             if (getContext().getSslContext().isClient()) {
-                writeFutures.offer(new DefaultChannelFuture(EmptyByteBuf.getInstance(),true));
+                writeFutures.offer(new DefaultChannelFuture(EmptyByteBuf.get(),true));
             }
             try {
                 sslEngine.closeInbound();
@@ -158,11 +158,14 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     }
 
     protected void fireClosed() {
-        SocketSessionELWrapper linkable = getContext().getSessionEventListenerLink();
-        UnsafeSocketSession session = getSession();
         threadContext.getSocketSessionManager().removeSession(session);
-        if (linkable != null) {
-            linkable.sessionClosed(session);
+        UnsafeSocketSession session = getSession();
+        for(SocketSessionEventListener l : getContext().getSessionEventListeners()){
+            try {
+                l.sessionClosed(session);
+            } catch (Exception e) {
+                logger.error(e.getMessage(),e);
+            }
         }
     }
 
@@ -176,14 +179,17 @@ public abstract class AbstractSocketChannel implements SocketChannel {
                     remote.getHostName(),remote.getPort());
         }
         if (isEnableSSL() && context.getSslContext().isClient()) {
-            flushChannelFuture(new DefaultChannelFuture(EmptyByteBuf.getInstance(),true));
+            flushChannelFuture(new DefaultChannelFuture(EmptyByteBuf.get(),true));
         }
         UnsafeSocketSession session = getSession();
         if (!session.isClosed()) {
             threadContext.getSocketSessionManager().putSession(session);
-            SocketSessionELWrapper linkable = context.getSessionEventListenerLink();
-            if (linkable != null) {
-                linkable.sessionOpened(session);
+            for(SocketSessionEventListener l : getContext().getSessionEventListeners()){
+                try {
+                    l.sessionOpened(session);
+                } catch (Exception e) {
+                    logger.error(e.getMessage(),e);
+                }
             }
         }
     }

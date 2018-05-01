@@ -31,7 +31,7 @@ public class DuplicateChannelFuture extends DefaultChannelFuture {
         this.prototype = prototype;
 //        this.flushed = prototype.flushed();
 //        this.isHeartbeat = prototype.isHeartbeat();
-        this.isNeedSsl = prototype.isNeedSsl();
+        this.setNeedSsl(prototype.isNeedSsl());
 //        this.isPING = prototype.isPING();
 //        this.isSilent = prototype.isSilent();
 //        this.readText = prototype.getReadText();

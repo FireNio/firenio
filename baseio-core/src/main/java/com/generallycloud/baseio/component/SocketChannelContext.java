@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import java.nio.charset.Charset;
+import java.util.List;
 
 import com.generallycloud.baseio.LifeCycle;
 import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
@@ -49,11 +50,11 @@ public interface SocketChannelContext extends Attributes, LifeCycle {
 
     ServerConfiguration getServerConfiguration();
 
-    SocketSessionELWrapper getSessionEventListenerLink();
+    List<SocketSessionEventListener> getSessionEventListeners();
 
     SocketSessionFactory getSessionFactory();
 
-    SocketSessionIEListenerWrapper getSessionIdleEventListenerLink();
+    List<SocketSessionIdleEventListener> getSessionIdleEventListeners();
 
     long getSessionIdleTime();
 

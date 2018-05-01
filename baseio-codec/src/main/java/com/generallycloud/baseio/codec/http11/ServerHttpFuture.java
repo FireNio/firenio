@@ -27,7 +27,7 @@ public class ServerHttpFuture extends AbstractHttpFuture {
 
     public ServerHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
         super(channel, bodyLimit, bodyLimit);
-        this.params = new HashMap<>();
+        setRequestParams(new HashMap<String,String>());
     }
 
     public ServerHttpFuture(SocketChannelContext context) {
@@ -36,30 +36,30 @@ public class ServerHttpFuture extends AbstractHttpFuture {
 
     @Override
     protected void setDefaultResponseHeaders(Map<String, String> headers) {
-        if (context.getEncoding() == Encoding.GBK) {
-            headers.put("Content-Type", "text/plain;charset=gbk");
+        if (getContext().getEncoding() == Encoding.GBK) {
+            headers.put("Content-Type", " text/plain;charset=gbk");
         } else {
-            headers.put("Content-Type", "text/plain;charset=utf-8");
+            headers.put("Content-Type", " text/plain;charset=utf-8");
         }
-        headers.put("Connection", "keep-alive"); // or close
+        headers.put("Connection", " keep-alive"); // or close
     }
 
     @Override
     protected void parseContentType(String contentType) {
         if (StringUtil.isNullOrBlank(contentType)) {
-            this.contentType = CONTENT_APPLICATION_URLENCODED;
+            setContentType(CONTENT_APPLICATION_URLENCODED);
             return;
         }
         if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-            this.contentType = CONTENT_APPLICATION_URLENCODED;
+            setContentType(CONTENT_APPLICATION_URLENCODED);
         } else if (CONTENT_TYPE_TEXT_PLAIN.equals(contentType)) {
-            this.contentType = CONTENT_TYPE_TEXT_PLAIN;
+            setContentType(CONTENT_TYPE_TEXT_PLAIN);
         } else if (contentType.startsWith("multipart/form-data;")) {
             int index = KMP_BOUNDARY.match(contentType);
             if (index != -1) {
-                boundary = contentType.substring(index + 9);
+                setBoundary(contentType.substring(index + 9));
             }
-            this.contentType = CONTENT_TYPE_MULTIPART;
+            setContentType(CONTENT_TYPE_MULTIPART);
         } else {
             // FIXME other content-type
         }
@@ -68,10 +68,10 @@ public class ServerHttpFuture extends AbstractHttpFuture {
     @Override
     protected void parseFirstLine(String line) {
         int index1 = line.indexOf(' ');
-        this.method = line.substring(0, index1);
         int index2 = line.indexOf(' ', index1 + 1);
-        this.setRequestURL(line.substring(index1 + 1, index2));
-        this.version = line.substring(index2 + 1);
+        setRequestURL(line.substring(index1 + 1, index2));
+        setMethod(line.substring(0, index1));
+        setVersion(line.substring(index2 + 1));
     }
 
 }

@@ -15,15 +15,98 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSONObject;
+import com.generallycloud.baseio.common.StringUtil;
 
-public class MapParameters extends JsonParameters {
+public class MapParameters implements Parameters {
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public MapParameters(Map parameters) {
-        super(new JSONObject(parameters));
+    private Map map;
+
+    public MapParameters(Map object) {
+        this.map = object;
+    }
+
+    public MapParameters() {
+        this(new HashMap<>());
+    }
+
+    @Override
+    public boolean getBooleanParameter(String key) {
+        if (map == null) {
+            return false;
+        }
+        return (boolean) map.get(key);
+    }
+
+    @Override
+    public int getIntegerParameter(String key) {
+        return getIntegerParameter(key, 0);
+    }
+
+    @Override
+    public int getIntegerParameter(String key, int defaultValue) {
+        if (map == null) {
+            return defaultValue;
+        }
+        Integer value = (Integer) map.get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        return value;
+    }
+
+    @Override
+    public long getLongParameter(String key) {
+        return getLongParameter(key, 0);
+    }
+
+    @Override
+    public long getLongParameter(String key, long defaultValue) {
+        if (map == null) {
+            return defaultValue;
+        }
+        Long value = (Long) map.get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        return value;
+    }
+
+    @Override
+    public Object getObjectParameter(String key) {
+        if (map == null) {
+            return null;
+        }
+        return map.get(key);
+    }
+
+    @Override
+    public String getParameter(String key) {
+        return getParameter(key, null);
+    }
+
+    @Override
+    public String getParameter(String key, String defaultValue) {
+        if (map == null) {
+            return defaultValue;
+        }
+        String value = (String) map.get(key);
+        if (StringUtil.isNullOrBlank(value)) {
+            return defaultValue;
+        }
+        return value;
+    }
+
+    @Override
+    public int size() {
+        return map.size();
+    }
+
+    @Override
+    public Map getMap() {
+        return map;
     }
 
 }

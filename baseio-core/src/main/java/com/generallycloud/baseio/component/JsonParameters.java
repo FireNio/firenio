@@ -115,21 +115,8 @@ public class JsonParameters implements Parameters {
     }
 
     @Override
-    public String toString() {
-        if (json == null) {
-            json = jsonObject.toJSONString();
-        }
-        return json;
-    }
-
-    @Override
-    public JSONObject getJSONObject(String key) {
-        return jsonObject.getJSONObject(key);
-    }
-
-    @Override
-    public JSONArray getJSONArray(String key) {
-        return jsonObject.getJSONArray(key);
+    public JSONObject getMap() {
+        return jsonObject;
     }
 
     @Override
@@ -138,8 +125,19 @@ public class JsonParameters implements Parameters {
     }
 
     @Override
-    public JSONObject getJsonObject() {
-        return jsonObject;
+    public String toString() {
+        if (json == null) {
+            json = jsonObject.toJSONString();
+        }
+        return json;
+    }
+
+    public JSONObject getJSONObject(String key) {
+        return jsonObject.getJSONObject(key);
+    }
+
+    public JSONArray getJSONArray(String key) {
+        return jsonObject.getJSONArray(key);
     }
 
 }

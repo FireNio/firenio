@@ -17,17 +17,21 @@ package com.generallycloud.baseio.component;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
 
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
 
 public class AioSocketSessionManager extends AbstractSessionManager
         implements SocketSessionManager {
 
+    private Logger                      logger           = LoggerFactory.getLogger(getClass());
     private SocketChannelContext        context          = null;
     private Map<Integer, SocketSession> sessions         = new ConcurrentHashMap<>();
     private Map<Integer, SocketSession> readOnlySessions = Collections.unmodifiableMap(sessions);
@@ -43,13 +47,15 @@ public class AioSocketSessionManager extends AbstractSessionManager
         if (sessions.size() == 0) {
             return;
         }
-        SocketChannelContext context = this.context;
-        SocketSessionIEListenerWrapper linkable = context.getSessionIdleEventListenerLink();
-        if (linkable == null) {
-            return;
-        }
-        for (SocketSession session : sessions.values()) {
-            linkable.sessionIdled(session, lastIdleTime, currentTime);
+        List<SocketSessionIdleEventListener> ls = context.getSessionIdleEventListeners();
+        for (SocketSessionIdleEventListener l : ls) {
+            for (SocketSession session : sessions.values()) {
+                try {
+                    l.sessionIdled(session, lastIdleTime, currentTime);
+                } catch (Exception e) {
+                    logger.error(e.getMessage(),e);
+                }
+            }
         }
     }
 

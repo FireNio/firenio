@@ -24,14 +24,14 @@ import com.generallycloud.baseio.concurrent.Linkable;
 public abstract class AbstractChannelFuture extends AbstractFuture implements ChannelFuture {
 
     //FIXME isX 使用 byte & x ?
-    protected ByteBuf  buf        = EmptyByteBuf.getInstance();
-    protected boolean  flushed;
-    protected boolean  isHeartbeat;
-    protected boolean  isNeedSsl;
-    protected boolean  isPING;
-    protected boolean  isSilent;
-    protected boolean  isValidate = true;
-    protected Linkable next;
+    protected ByteBuf buf        = EmptyByteBuf.get();
+    private boolean   flushed;
+    private boolean   isHeartbeat;
+    private boolean   isNeedSsl;
+    private boolean   isPING;
+    private boolean   isSilent;
+    private boolean   isValidate = true;
+    private Linkable  next;
 
     protected ByteBuf allocate(SocketChannel channel, int capacity) {
         return channel.getByteBufAllocator().allocate(capacity);
@@ -128,7 +128,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
         this.isPING = isPing;
         this.isHeartbeat = true;
     }
-    
+
     @Override
     public void setNeedSsl(boolean needSsl) {
         this.isNeedSsl = needSsl;
@@ -157,7 +157,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     public void setSilent(boolean isSilent) {
         this.isSilent = isSilent;
     }
-    
+
     @Override
     public void setValidate(boolean validate) {
         this.isValidate = validate;

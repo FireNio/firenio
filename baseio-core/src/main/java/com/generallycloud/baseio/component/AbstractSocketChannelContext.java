@@ -17,7 +17,9 @@ package com.generallycloud.baseio.component;
 
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,24 +40,24 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         implements SocketChannelContext {
 
-    private Map<Object, Object>                   attributes  = new HashMap<>();
-    private ByteBufAllocatorManager               byteBufAllocatorManager;
-    private boolean                               enableSSL;
-    private Charset                               encoding;
-    private ExecutorEventLoopGroup                executorEventLoopGroup;
-    private ForeFutureAcceptor                    foreReadFutureAcceptor;
-    private boolean                               initialized;
-    private IoEventHandleAdaptor                  ioEventHandleAdaptor;
-    private Logger                                logger      = LoggerFactory.getLogger(getClass());
-    private ProtocolCodec                         protocolCodec;
-    private ServerConfiguration                   serverConfiguration;
-    private SocketSessionELWrapper     sessionEventListenerRoot;
-    private SocketSessionFactory                  sessionFactory;
-    private SocketSessionIEListenerWrapper sessionIdleEventListenerRoot;
-    private long                                  sessionIdleTime;
-    private SslContext                            sslContext;
-    private long                                  startupTime = System.currentTimeMillis();
-    private SimulateSocketChannel                 simulateSocketChannel;
+    private Map<Object, Object>                  attributes  = new HashMap<>();
+    private ByteBufAllocatorManager              byteBufAllocatorManager;
+    private boolean                              enableSSL;
+    private Charset                              encoding;
+    private ExecutorEventLoopGroup               executorEventLoopGroup;
+    private ForeFutureAcceptor                   foreReadFutureAcceptor;
+    private boolean                              initialized;
+    private IoEventHandleAdaptor                 ioEventHandleAdaptor;
+    private Logger                               logger      = LoggerFactory.getLogger(getClass());
+    private ProtocolCodec                        protocolCodec;
+    private ServerConfiguration                  serverConfiguration;
+    private SocketSessionFactory                 sessionFactory;
+    private long                                 sessionIdleTime;
+    private SimulateSocketChannel                simulateSocketChannel;
+    private List<SocketSessionEventListener>     ssels       = new ArrayList<>();
+    private List<SocketSessionIdleEventListener> ssiels      = new ArrayList<>();
+    private SslContext                           sslContext;
+    private long                                 startupTime = System.currentTimeMillis();
 
     public AbstractSocketChannelContext(ServerConfiguration configuration) {
         if (configuration == null) {
@@ -68,21 +70,19 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
 
     @Override
     public void addSessionEventListener(SocketSessionEventListener listener) {
-        if (sessionEventListenerRoot == null) {
-            sessionEventListenerRoot = new SocketSessionELWrapper(listener);
-        } else {
-            ClassUtil.setValueOfLast(sessionEventListenerRoot,
-                    new SocketSessionELWrapper(listener), "next");
-        }
+        checkNotRunning();
+        ssels.add(listener);
     }
 
     @Override
     public void addSessionIdleEventListener(SocketSessionIdleEventListener listener) {
-        if (sessionIdleEventListenerRoot == null) {
-            sessionIdleEventListenerRoot = new SocketSessionIEListenerWrapper(listener);
-        } else {
-            ClassUtil.setValueOfLast(sessionIdleEventListenerRoot,
-                    new SocketSessionIEListenerWrapper(listener), "next");
+        checkNotRunning();
+        ssiels.add(listener);
+    }
+
+    private void checkNotRunning(){
+        if (isRunning()) {
+            throw new UnsupportedOperationException("starting or running");
         }
     }
 
@@ -99,30 +99,23 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
 
     @Override
     protected void doStart() throws Exception {
-
         if (ioEventHandleAdaptor == null) {
             throw new IllegalArgumentException("null ioEventHandle");
         }
-
         if (protocolCodec == null) {
             throw new IllegalArgumentException("null protocolCodec");
         }
-
         if (!initialized) {
             initialized = true;
             serverConfiguration.initializeDefault(this);
         }
-
         int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
         int server_port = serverConfiguration.getSERVER_PORT();
         long session_idle = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
         String protocolId = protocolCodec.getProtocolId();
-
         this.encoding = serverConfiguration.getSERVER_ENCODING();
         this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
-
         this.initializeByteBufAllocator();
-
         LoggerUtil.prettyLog(logger,
                 "======================================= service begin to start =======================================");
         LoggerUtil.prettyLog(logger, "encoding              :{ {} }", encoding);
@@ -131,44 +124,31 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSSL());
         LoggerUtil.prettyLog(logger, "session idle          :{ {} }", session_idle);
         LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", server_port);
-
         if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
-
             long SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY()
                     * SERVER_CORE_SIZE;
             long SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
-
             double MEMORY_POOL_SIZE = new BigDecimal(
                     SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
                             .divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
                             .doubleValue();
-
             LoggerUtil.prettyLog(logger, "memory pool cap       :{ {} * {} ≈ {} M }", new Object[] {
                     SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
         }
-
         protocolCodec.initialize(this);
-
         ioEventHandleAdaptor.initialize(this);
-
         if (executorEventLoopGroup == null) {
             this.executorEventLoopGroup = createExecutorEventLoopGroup();
         }
-
         if (foreReadFutureAcceptor == null) {
             foreReadFutureAcceptor = new EventLoopFutureAcceptor();
         }
-
         foreReadFutureAcceptor.initialize(this);
-
         if (sessionFactory == null) {
             sessionFactory = new SocketSessionFactoryImpl();
         }
-
         LifeCycleUtil.start(byteBufAllocatorManager);
-
         LifeCycleUtil.start(executorEventLoopGroup);
-
         doStartModule();
     }
 
@@ -189,9 +169,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         doStopModule();
     }
 
-    protected void doStopModule() {
-
-    }
+    protected void doStopModule() {}
 
     @Override
     public Object getAttribute(Object key) {
@@ -232,30 +210,34 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     public ProtocolCodec getProtocolCodec() {
         return protocolCodec;
     }
-
+    
     @Override
     public ServerConfiguration getServerConfiguration() {
         return serverConfiguration;
     }
 
     @Override
-    public SocketSessionELWrapper getSessionEventListenerLink() {
-        return sessionEventListenerRoot;
+    public List<SocketSessionEventListener> getSessionEventListeners() {
+        return ssels;
     }
-
+    
     @Override
     public SocketSessionFactory getSessionFactory() {
         return sessionFactory;
     }
 
     @Override
-    public SocketSessionIEListenerWrapper getSessionIdleEventListenerLink() {
-        return sessionIdleEventListenerRoot;
+    public List<SocketSessionIdleEventListener> getSessionIdleEventListeners() {
+        return ssiels;
     }
 
     @Override
     public long getSessionIdleTime() {
         return sessionIdleTime;
+    }
+
+    public SimulateSocketChannel getSimulateSocketChannel() {
+        return simulateSocketChannel;
     }
 
     @Override
@@ -305,40 +287,42 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
 
     @Override
     public void setByteBufAllocatorManager(ByteBufAllocatorManager byteBufAllocatorManager) {
+        checkNotRunning();
         this.byteBufAllocatorManager = byteBufAllocatorManager;
     }
 
     @Override
     public void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup) {
+        checkNotRunning();
         this.executorEventLoopGroup = executorEventLoopGroup;
     }
 
     @Override
     public void setIoEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor) {
+        checkNotRunning();
         this.ioEventHandleAdaptor = ioEventHandleAdaptor;
     }
 
     @Override
     public void setProtocolCodec(ProtocolCodec protocolCodec) {
+        checkNotRunning();
         this.protocolCodec = protocolCodec;
     }
 
     @Override
     public void setSocketSessionFactory(SocketSessionFactory sessionFactory) {
+        checkNotRunning();
         this.sessionFactory = sessionFactory;
     }
-
+    
     @Override
     public void setSslContext(SslContext sslContext) {
+        checkNotRunning();
         if (sslContext == null) {
             throw new IllegalArgumentException("null sslContext");
         }
         this.sslContext = sslContext;
         this.enableSSL = true;
-    }
-
-    public SimulateSocketChannel getSimulateSocketChannel() {
-        return simulateSocketChannel;
     }
 
 }

@@ -27,7 +27,7 @@ public class ClientHttpFuture extends AbstractHttpFuture {
     
     public ClientHttpFuture(SocketChannelContext context, String url, String method) {
         super(context);
-        this.method = method;
+        this.setMethod(method);
         this.setRequestURL(url);
     }
     
@@ -46,7 +46,7 @@ public class ClientHttpFuture extends AbstractHttpFuture {
 
     @Override
     public void updateWebSocketProtocol() {
-        ChannelConnector connector = (ChannelConnector) context.getChannelService();
+        ChannelConnector connector = (ChannelConnector) getContext().getChannelService();
         UnsafeSocketSession session = (UnsafeSocketSession) connector.getSession();
         SocketChannel channel = session.getSocketChannel();
         channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
@@ -55,17 +55,17 @@ public class ClientHttpFuture extends AbstractHttpFuture {
     @Override
     protected void parseContentType(String contentType) {
         if (StringUtil.isNullOrBlank(contentType)) {
-            this.contentType = CONTENT_APPLICATION_URLENCODED;
+            setContentType(CONTENT_APPLICATION_URLENCODED);
             return;
         }
         if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-            this.contentType = CONTENT_APPLICATION_URLENCODED;
+            setContentType(CONTENT_APPLICATION_URLENCODED);
         } else if (contentType.startsWith("multipart/form-data;")) {
             int index = KMP_BOUNDARY.match(contentType);
             if (index != -1) {
-                this.boundary = contentType.substring(index + 9);
+                setBoundary(contentType.substring(index + 9));
             }
-            this.contentType = CONTENT_TYPE_MULTIPART;
+            setContentType(CONTENT_TYPE_MULTIPART);
         } else {
             // FIXME other content-type
         }
@@ -75,8 +75,8 @@ public class ClientHttpFuture extends AbstractHttpFuture {
     protected void parseFirstLine(String line) {
         int index = line.indexOf(' ');
         int status = Integer.parseInt(line.substring(index + 1, index + 4));
-        this.version = line.substring(0, index);
-        this.status = HttpStatus.getHttpStatus(status);
+        setVersion(line.substring(0, index));
+        setStatus(HttpStatus.getHttpStatus(status));
     }
 
 }

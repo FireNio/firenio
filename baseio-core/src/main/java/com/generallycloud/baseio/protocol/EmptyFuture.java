@@ -23,20 +23,18 @@ import com.generallycloud.baseio.component.SocketChannel;
 
 public class EmptyFuture extends AbstractChannelFuture {
 
-    private static EmptyFuture EMPTY_FUTURE = new EmptyFuture();
+    private final static EmptyFuture INSTANCE = new EmptyFuture();
 
     public EmptyFuture(){
-        this.buf = EmptyByteBuf.getInstance();
+        this.buf = EmptyByteBuf.get();
     }
     
     public static EmptyFuture get() {
-        return EMPTY_FUTURE;
+        return INSTANCE;
     }
 
     @Override
-    public void release() {
-
-    }
+    public void release() {}
 
     @Override
     public boolean isReleased() {

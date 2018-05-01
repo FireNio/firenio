@@ -15,8 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import java.util.Map;
 
 public interface Parameters {
 
@@ -26,11 +25,7 @@ public interface Parameters {
 
     int getIntegerParameter(String key, int defaultValue);
 
-    JSONArray getJSONArray(String key);
-
-    JSONObject getJsonObject();
-
-    JSONObject getJSONObject(String key);
+    Map getMap();
 
     long getLongParameter(String key);
 

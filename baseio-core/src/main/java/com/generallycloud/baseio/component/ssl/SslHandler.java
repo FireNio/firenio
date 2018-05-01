@@ -33,7 +33,7 @@ import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 
 public class SslHandler {
 
-    private ChannelFuture forgeFuture = new DefaultChannelFuture(EmptyByteBuf.getInstance(),true);
+    private ChannelFuture forgeFuture = new DefaultChannelFuture(EmptyByteBuf.get(),true);
 
     private ByteBuf       tempDst;
 
