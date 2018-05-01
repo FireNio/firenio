@@ -19,9 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.protocol.ParametersFuture;
 
-public abstract interface HttpFuture extends HttpMessage, ParametersFuture {
+public abstract interface HttpFuture extends HttpMessage {
 
     public static final String CONTENT_TYPE_MULTIPART           = "multipart/form-data";
     public static final String CONTENT_TYPE_TEXT_PLAIN          = "text/plain;charset=utf-8";

@@ -28,8 +28,6 @@ import com.generallycloud.baseio.common.SHAUtil;
 import com.generallycloud.baseio.common.StringLexer;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.component.MapParameters;
-import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
@@ -43,37 +41,35 @@ import com.generallycloud.baseio.protocol.AbstractChannelFuture;
  */
 public abstract class AbstractHttpFuture extends AbstractChannelFuture implements HttpFuture {
 
-    protected static final KMPUtil     KMP_BOUNDARY   = new KMPUtil("boundary=");
+    protected static final KMPUtil KMP_BOUNDARY   = new KMPUtil("boundary=");
 
-    private ByteArrayBuffer          binaryBuffer;
-    private boolean                  body_complete;
-    private byte[]                   bodyArray;
-    private int                      bodyLimit;
-    private String                   boundary;
-    private int                      contentLength;
-    private String                   contentType;
-    private SocketChannelContext     context;
-    private List<Cookie>             cookieList;
-    private Map<String, String>      cookies;
-    private StringBuilder            currentHeaderLine;
-    private boolean                  hasBodyContent;
-    private boolean                  header_complete;
-    private int                      headerLength;
-    private int                      headerLimit;
-    private String                   host;
-    private MapParameters              mapParameters;
-    private String                   method;
-    private Map<String, String>      params;
-    private boolean                    parseFirstLine = true;
-    private String                   readText;
-    private Map<String, String>      request_headers;
-    private String                   requestURI;
-    private String                   requestURL;
-    private Map<String, String>      response_headers;
-    private HttpStatus               status         = HttpStatus.C200;
-    private boolean                    updateWebSocketProtocol;
+    private ByteArrayBuffer        binaryBuffer;
+    private byte[]                 bodyArray;
+    private int                    bodyLimit;
+    private String                 boundary;
+    private int                    contentLength;
+    private String                 contentType;
+    private SocketChannelContext   context;
+    private List<Cookie>           cookieList;
+    private Map<String, String>    cookies;
+    private StringBuilder          currentHeaderLine;
+    private boolean                hasBodyContent;
+    private boolean                header_complete;
+    private int                    headerLength;
+    private int                    headerLimit;
+    private String                 host;
+    private String                 method;
+    private Map<String, String>    params;
+    private boolean                parseFirstLine = true;
+    private String                 readText;
+    private Map<String, String>    request_headers;
+    private String                 requestURI;
+    private String                 requestURL;
+    private Map<String, String>    response_headers;
+    private HttpStatus             status         = HttpStatus.C200;
+    private boolean                updateWebSocketProtocol;
 
-    private String                   version;
+    private String                 version;
 
     public AbstractHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
         this.context = channel.getContext();
@@ -146,14 +142,6 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     @Override
     public String getMethod() {
         return method;
-    }
-
-    @Override
-    public Parameters getParameters() {
-        if (mapParameters == null) {
-            mapParameters = new MapParameters(getRequestParams());
-        }
-        return mapParameters;
     }
 
     @Override
@@ -303,29 +291,26 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
                 parse_cookies(cookie);
             }
             if (contentLength < 1) {
-                body_complete = true;
+                return true;
             } else {
                 hasBodyContent = true;
                 // FIXME 写入临时文件
                 buf = allocate(channel, contentLength, bodyLimit);
             }
         }
-        if (!body_complete) {
-            buf.read(buffer);
-            if (buf.hasRemaining()) {
-                return false;
-            }
-            body_complete = true;
-            buf.flip();
-            bodyArray = buf.getBytes();
-            if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-                // FIXME encoding
-                String paramString = new String(bodyArray, context.getEncoding());
-                parseParamString(paramString);
-                this.readText = paramString;
-            } else {
-                // FIXME 解析BODY中的内容
-            }
+        buf.read(buffer);
+        if (buf.hasRemaining()) {
+            return false;
+        }
+        buf.flip();
+        bodyArray = buf.getBytes();
+        if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
+            // FIXME encoding
+            String paramString = new String(bodyArray, context.getEncoding());
+            parseParamString(paramString);
+            this.readText = paramString;
+        } else {
+            // FIXME 解析BODY中的内容
         }
         return true;
     }
@@ -458,25 +443,25 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         }
         binaryBuffer.write(binary);
     }
-    
+
     protected void setMethod(String method) {
         this.method = method;
     }
-    
+
     protected SocketChannelContext getContext() {
         return context;
     }
-    
+
     protected void setContentType(String contentType) {
         this.contentType = contentType;
     }
-    
+
     protected void setBoundary(String boundary) {
         this.boundary = boundary;
     }
-    
+
     protected void setVersion(String version) {
         this.version = version;
     }
-    
+
 }
