@@ -72,6 +72,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
     private BufferedArrayList<SelectorLoopEvent> selectorLoopEvents = new BufferedArrayList<>();
     private SocketSessionManager                 sessionManager     = null;
     private SslHandler                           sslHandler         = null;
+    private volatile boolean                   hasTask;
 
     SelectorEventLoop(SelectorEventLoopGroup group, int index) {
         this.index = index;
@@ -175,19 +176,24 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
     @Override
     protected void doLoop() throws IOException {
 
-        if (selectorLoopEvents.getBufferSize() > 0) {
-            handleEvents(selectorLoopEvents.getBuffer());
-        }
-
         SocketSelector selector = getSelector();
 
         int selected;
         //		long last_select = System.currentTimeMillis();
         if (selecting.compareAndSet(false, true)) {
-            selected = selector.select(16);// FIXME try
+            // Im not sure selectorLoopEvent.size if visible immediately by other thread ?
+            // can we use selectorLoopEvents.getBufferSize() > 0 ?
+            if (hasTask) {
+                selected = selector.selectNow();
+            }else{
+                // FIXME try
+                selected = selector.select(16);
+            }
+            hasTask = false;
             selecting.set(false);
         } else {
             selected = selector.selectNow();
+            hasTask = false;
         }
 
         if (selected > 0) {
@@ -403,7 +409,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
     @Override
     public void wakeup() {
 
-        //FIXME 有一定几率select(n)ms
+        hasTask = true;
         if (selecting.compareAndSet(false, true)) {
             selecting.set(false);
             return;
