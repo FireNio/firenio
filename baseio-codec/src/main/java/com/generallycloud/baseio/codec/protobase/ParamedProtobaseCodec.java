@@ -46,7 +46,7 @@ public class ParamedProtobaseCodec extends ProtobaseCodec {
     }
 
     @Override
-    public Future createPONGPacket(SocketSession session) {
+    public Future createPONGPacket(SocketSession session, ChannelFuture ping) {
         return new ParamedProtobaseFutureImpl().setPONG();
     }
 

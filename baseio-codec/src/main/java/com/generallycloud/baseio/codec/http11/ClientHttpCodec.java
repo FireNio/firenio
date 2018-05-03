@@ -56,7 +56,7 @@ public class ClientHttpCodec extends AbstractHttpCodec{
     }
 
     @Override
-    public Future createPONGPacket(SocketSession session) {
+    public Future createPONGPacket(SocketSession session, ChannelFuture ping) {
         return null;
     }
 

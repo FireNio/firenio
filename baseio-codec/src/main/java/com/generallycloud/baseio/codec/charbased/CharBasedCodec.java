@@ -55,7 +55,7 @@ public class CharBasedCodec implements ProtocolCodec {
     }
 
     @Override
-    public Future createPONGPacket(SocketSession session) {
+    public Future createPONGPacket(SocketSession session, ChannelFuture ping) {
         throw new UnsupportedOperationException();
     }
 

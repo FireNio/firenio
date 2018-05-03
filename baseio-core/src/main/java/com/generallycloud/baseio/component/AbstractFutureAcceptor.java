@@ -54,7 +54,7 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
         if (future.isPING()) {
             heartBeatLogger.logRequest(session);
             ProtocolCodec codec = session.getProtocolCodec();
-            Future f = codec.createPONGPacket(session);
+            Future f = codec.createPONGPacket(session,future);
             if (f == null) {
                 return;
             }
