@@ -43,6 +43,13 @@ public interface ChannelFuture extends Future, Linkable {
 
     boolean isWriteCompleted();
 
+    /**
+     * return true if the future read complete
+     * @param channel
+     * @param src
+     * @return
+     * @throws IOException
+     */
     boolean read(SocketChannel channel, ByteBuf src) throws IOException;
 
     void setByteBuf(ByteBuf buf);

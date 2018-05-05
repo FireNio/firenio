@@ -53,7 +53,7 @@ public class SimpleTestProtobaseClient {
         context.setProtocolCodec(new ProtobaseCodec());
         SocketSession session = connector.connect();
         ProtobaseFuture future = new ProtobaseFutureImpl("test222");
-        future.write("hello server!");
+        future.write("hello server!",session);
         session.flush(future);
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);

@@ -24,40 +24,26 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
-import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestListenerCallBack {
 
     public static void main(String[] args) throws Exception {
 
-        LoggerFactory.configure();
-
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
-
         ServerConfiguration configuration = new ServerConfiguration(8300);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandle);
-
         context.setProtocolCodec(new ProtobaseCodec());
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
 //        FixedSession session = new FixedSession(connector.connect());
-//
 //        MessageConsumer consumer = new DefaultMessageConsumer(session);
-//
 //        consumer.receive(new OnMessage() {
-//
 //            @Override
 //            public void onReceive(Message message) {
 //                System.out.println(message);
 //            }
 //        });
-
         ThreadUtil.sleep(1000);
         CloseUtil.close(connector);
 

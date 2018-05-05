@@ -15,8 +15,8 @@
  */
 package com.generallycloud.test.io.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -25,35 +25,22 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.protobase.FixedSession;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
-import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestStopServer {
 
     public static void main(String[] args) throws Exception {
 
-        LoggerFactory.configure();
-
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
-
         ServerConfiguration configuration = new ServerConfiguration(8300);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandle);
-
         context.setProtocolCodec(new ProtobaseCodec());
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         FixedSession session = new FixedSession(connector.connect());
-
         ProtobaseFuture future = session.request("test-stop-server2.auth", null);
-
         System.out.println(future.getReadText());
-
         CloseUtil.close(connector);
-
     }
+
 }

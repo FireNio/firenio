@@ -28,18 +28,12 @@ public class TestPrintBusyServlet extends HttpFutureAcceptorService {
 
     @Override
     protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
-
         SocketChannelContext context = session.getIoSession().getContext();
-
         PooledByteBufAllocatorManager allocator = (PooledByteBufAllocatorManager) context
                 .getByteBufAllocatorManager();
-
         allocator.printBusy();
-
-        future.write("true");
-
+        future.write("true", session.getEncoding());
         future.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_PLAIN);
-
         session.flush(future);
     }
 

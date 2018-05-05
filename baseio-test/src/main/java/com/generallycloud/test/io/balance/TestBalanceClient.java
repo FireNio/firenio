@@ -44,54 +44,36 @@ public class TestBalanceClient {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-
                 ProtobaseFuture f = (ProtobaseFuture) future;
-                
                 if (f.hasReadBinary()) {
                     System.out.println(f.getReadText() + new String(f.getReadBinary()) + "______R:" + System.currentTimeMillis());
                 }else{
                     System.out.println(f.getReadText() + "______R:" + System.currentTimeMillis());
                 }
-
                 res.incrementAndGet();
             }
         };
 
         ServerConfiguration configuration = new ServerConfiguration(8600);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setProtocolCodec(new ProtobaseCodec());
-
         context.setSocketSessionFactory(new BalanceClientSocketSessionFactory());
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         BalanceClientSocketSession session = (BalanceClientSocketSession) connector.connect();
 
         for (int i = 0; i < 100; i++) {
-
             int fid = Math.abs(new Random().nextInt());
-
             ProtobaseFuture future = new ProtobaseFutureImpl("future-name");
-
-            future.write("你好！");
-
+            future.write("你好！",session);
             future.setHashCode(fid);
-
             session.flush(future);
         }
 
         ThreadUtil.sleep(300);
-
         System.out.println("==========" + res.get());
-
         ThreadUtil.sleep(500000000);
-
         CloseUtil.close(connector);
     }
 

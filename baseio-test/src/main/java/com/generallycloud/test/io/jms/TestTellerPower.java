@@ -22,42 +22,28 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
-import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestTellerPower {
 
     public static void main(String[] args) throws Exception {
 
-        LoggerFactory.configure();
-
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
-
         ServerConfiguration configuration = new ServerConfiguration(8300);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandle);
-
         context.setProtocolCodec(new ProtobaseCodec());
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
 //        FixedSession session = new FixedSession(connector.connect());
-//
 //        MessageProducer producer = new DefaultMessageProducer(session);
-//
 //        TextMessage message = new TextMessage("msgId", "qName", "你好！");
-//
 //        long old = System.currentTimeMillis();
 //        for (int i = 0; i < 10000; i++) {
 //            producer.offer(message);
 //
 //        }
 //        System.out.println("Time:" + (System.currentTimeMillis() - old));
-
         connector.close();
-
     }
+
 }

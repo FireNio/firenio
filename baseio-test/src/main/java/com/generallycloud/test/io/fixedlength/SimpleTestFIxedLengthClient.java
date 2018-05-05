@@ -55,7 +55,7 @@ public class SimpleTestFIxedLengthClient {
         
         SocketSession session = connector.connect();
         FixedLengthFuture future = new FixedLengthFutureImpl();
-        future.write("hello server!");
+        future.write("hello server!",session);
         session.flush(future);
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);

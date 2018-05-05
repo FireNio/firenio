@@ -25,6 +25,4 @@ public class Encoding {
 
     public static Charset ASCII = Charset.forName("ASCII");
     
-    public static Charset DEFAULT = UTF8;
-
 }

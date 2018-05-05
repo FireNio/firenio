@@ -50,39 +50,23 @@ public class TestUpload {
                 System.out.println();
 
                 CloseUtil.close(connector);
-
             }
-
         };
 
-        LoggerFactory.configure();
-
         ServerConfiguration configuration = new ServerConfiguration(8300);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandle);
-
         context.setProtocolCodec(new ProtobaseCodec());
-
         context.addSessionEventListener(new LoggerSocketSEListener());
         SocketSession session = connector.connect();
-
         String fileName = "lantern-installer-beta.exe";
-
         fileName = "content.rar";
-
         //		fileName = "jdk-8u102-windows-x64.exe";
-
         File file = new File("c:/ryms/" + fileName);
-
         FileSendUtil fileSendUtil = new FileSendUtil();
-
         fileSendUtil.sendFile(session, serviceName, file, 1024 * 800);
-        
         ThreadUtil.sleep(10000000);
-
     }
+
 }

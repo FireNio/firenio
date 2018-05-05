@@ -40,7 +40,7 @@ public class LoggerFactory {
         return new SLF4JLogger(clazz);
     }
 
-    public static void configure() {
+    private static void configure() {
         try {
             Class.forName("org.slf4j.LoggerFactory");
             enableSLF4JLogger = true;

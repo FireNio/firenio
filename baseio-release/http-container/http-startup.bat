@@ -14,4 +14,4 @@ cd ..\..\baseio-release\http-container
 rem java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=6666,suspend=n -cp ./lib/*;  com.generallycloud.baseio.container.startup.ApplicationBootstrap %cd% true
 rem java -cp ./lib/*;  com.generallycloud.baseio.container.startup.ApplicationBootstrap %cd% true
 
-java -XX:+PrintGCDetails -Xloggc:gc.log -cp ./lib/*; -Dcontainer.deployModel=true com.generallycloud.baseio.container.http11.HttpStartup
+java -XX:+PrintGCDetails -Xloggc:gc.log -cp ./lib/*; -Dcontainer.runtime=prod com.generallycloud.baseio.container.http11.HttpStartup

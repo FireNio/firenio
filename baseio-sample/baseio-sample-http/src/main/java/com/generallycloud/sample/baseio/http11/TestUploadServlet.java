@@ -26,21 +26,16 @@ public class TestUploadServlet extends HttpFutureAcceptorService {
 
     @Override
     protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
-
         String res;
-
         if (future.hasBodyContent()) {
-
             res = "yes server already accept your message :) " + future.getRequestParams()
                     + " </BR><PRE style='font-size: 18px;color: #FF9800;'>"
                     + new String(future.getBodyContent()) + "</PRE>";
         } else {
             res = "yes server already accept your message :) " + future.getRequestParams();
         }
-
         future.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
-
-        future.write(res);
+        future.write(res,session.getEncoding());
         session.flush(future);
     }
 

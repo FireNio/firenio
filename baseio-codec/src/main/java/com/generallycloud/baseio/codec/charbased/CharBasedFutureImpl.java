@@ -26,16 +26,13 @@ import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBasedFuture {
 
     private ByteArrayBuffer cache = new ByteArrayBuffer();
-    private boolean         complete;
     private int             limit;
-    private String readText;
-
+    private String          readText;
     private byte            splitor;
 
-    public CharBasedFutureImpl() {
-    }
+    public CharBasedFutureImpl() {}
 
-    public CharBasedFutureImpl(int limit, byte splitor) {
+    CharBasedFutureImpl(int limit, byte splitor) {
         this.limit = limit;
         this.splitor = splitor;
     }
@@ -44,7 +41,7 @@ public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBa
     public ByteArrayBuffer getLineOutputStream() {
         return cache;
     }
-    
+
     @Override
     public String getReadText() {
         return readText;
@@ -52,16 +49,12 @@ public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBa
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-        if (complete) {
-            return true;
-        }
         ByteArrayBuffer cache = this.cache;
         Charset charset = channel.getEncoding();
         for (; buffer.hasRemaining();) {
             byte b = buffer.getByte();
             if (b == splitor) {
                 this.readText = cache.toString(charset);
-                this.complete = true;
                 return true;
             }
             cache.write(b);
@@ -71,7 +64,7 @@ public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBa
         }
         return false;
     }
-    
+
     @Override
     public String toString() {
         return getReadText();

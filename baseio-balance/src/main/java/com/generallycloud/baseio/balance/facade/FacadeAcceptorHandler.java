@@ -56,7 +56,7 @@ public abstract class FacadeAcceptorHandler extends IoEventHandleAdaptor {
         FacadeSocketSession fs = (FacadeSocketSession) session;
         BalanceFuture f = (BalanceFuture) future;
         if (facadeInterceptor.intercept(fs, f)) {
-            logger.info("msg intercepted [ {} ], msg: {}", fs.getRemoteSocketAddress(), f);
+            logger.info("msg intercepted [ {} ], msg: {}", fs.getRemoteAddrPort(), f);
             return;
         }
         ReverseSocketSession rs = balanceRouter.getRouterSession(fs, f);
@@ -72,8 +72,8 @@ public abstract class FacadeAcceptorHandler extends IoEventHandleAdaptor {
 
     protected void logDispatchMsg(FacadeSocketSession fs, ReverseSocketSession rs,
             BalanceFuture f) {
-        logger.info("dispatch msg: F[{}],T[{}],msg:{}", fs.getRemoteSocketAddress(),
-                rs.getRemoteSocketAddress(), f);
+        logger.info("dispatch msg: F[{}],T[{}],msg:{}", fs.getRemoteAddrPort(),
+                rs.getRemoteAddrPort(), f);
     }
 
     @Override

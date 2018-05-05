@@ -16,26 +16,29 @@
 package com.generallycloud.baseio.container.http11;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.Future;
 
 public interface HttpSession {
 
-    public abstract void active(SocketSession ioSession);
+    void active(SocketSession ioSession);
 
-    public abstract void flush(Future future) throws IOException;
+    void flush(Future future) throws IOException;
 
-    public abstract long getCreateTime();
+    long getCreateTime();
 
-    public abstract SocketSession getIoSession();
+    SocketSession getIoSession();
 
-    public abstract long getLastAccessTime();
+    long getLastAccessTime();
 
-    public abstract String getSessionId();
+    String getSessionId();
 
-    public abstract boolean isValidate();
+    boolean isValidate();
+    
+    Charset getEncoding();
 
-    public abstract HttpFutureAcceptor getContext();
+    HttpFutureAcceptor getContext();
 
 }

@@ -32,7 +32,7 @@ public class DefaultNoneLoadFutureAcceptor implements NoneLoadFutureAcceptor {
     @Override
     public void accept(FacadeSocketSession session, BalanceFuture future,
             ReverseLogger reverseLogger) {
-        logger.info("none load node found: [ {} ], msg: {}", session.getRemoteSocketAddress(),
+        logger.info("none load node found: [ {}:{} ], msg: {}", session.getRemoteAddrPort(),
                 future);
     }
 

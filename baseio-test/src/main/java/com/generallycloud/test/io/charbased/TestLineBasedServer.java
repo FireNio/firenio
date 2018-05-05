@@ -39,7 +39,7 @@ public class TestLineBasedServer {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 String res = "yes server already accept your message:" + future;
-                future.write(res);
+                future.write(res,session.getEncoding());
                 session.flush(future);
             }
         };

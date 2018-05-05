@@ -40,8 +40,8 @@ public class SimpleTestProtobaseServer {
             public void accept(SocketSession session, Future future) throws Exception {
                 ProtobaseFuture f = (ProtobaseFuture) future;
                 DebugUtil.debug("receive:" + f.getReadText());
-                future.write("yes server already accept your message:");
-                future.write(f.getReadText());
+                future.write("yes server already accept your message:",session);
+                future.write(f.getReadText(),session);
                 session.flush(future);
             }
         };

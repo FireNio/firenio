@@ -96,7 +96,7 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
     }
 
     @Override
-    protected InetSocketAddress getRemoteSocketAddress0() throws IOException {
+    protected InetSocketAddress getRemoteSocketAddress0(){
         throw new UnsupportedOperationException();
     }
 

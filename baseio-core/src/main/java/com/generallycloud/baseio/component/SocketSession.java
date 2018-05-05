@@ -17,7 +17,6 @@ package com.generallycloud.baseio.component;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -37,17 +36,17 @@ public interface SocketSession extends Closeable {
     void clearAttributes();
 
     /**
-     * flush已encode的future
-     * @param future
-     */
-    void flushChannelFuture(ChannelFuture future);
-
-    /**
      * flush未encode的future
      * @param future
      */
     void flush(Future future);
 
+    /**
+     * flush已encode的future
+     * @param future
+     */
+    void flushChannelFuture(ChannelFuture future);
+    
     Object getAttachment();
 
     Object getAttribute(Object key);
@@ -67,13 +66,9 @@ public interface SocketSession extends Closeable {
     long getLastAccessTime();
 
     String getLocalAddr();
-    
-    String getLocalHost();
 
     int getLocalPort();
-
-    InetSocketAddress getLocalSocketAddress();
-
+    
     <T> T getOption(SocketOption<T> name) throws IOException;
 
     ProtocolCodec getProtocolCodec();
@@ -82,11 +77,9 @@ public interface SocketSession extends Closeable {
 
     String getRemoteAddr();
 
-    String getRemoteHost();
-
+    String getRemoteAddrPort();
+    
     int getRemotePort();
-
-    InetSocketAddress getRemoteSocketAddress();
 
     int getSessionId();
 

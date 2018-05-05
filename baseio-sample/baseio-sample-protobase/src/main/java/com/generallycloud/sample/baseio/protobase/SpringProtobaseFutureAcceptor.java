@@ -38,7 +38,7 @@ public class SpringProtobaseFutureAcceptor extends ProtobaseFutureAcceptor{
         NamedFuture f = (NamedFuture) future;
         FutureAcceptor acceptor = (FutureAcceptor) ContextUtil.getBean(f.getFutureName());
         if (acceptor == null) {
-            future.write("404");
+            future.write("404",session);
             session.flush(future);
             return;
         }

@@ -48,7 +48,7 @@ public class RedisCodec implements ProtocolCodec {
 
     @Override
     public Future createPONGPacket(SocketSession session, ChannelFuture ping) {
-        RedisCmdFuture f = new RedisCmdFuture();
+        RedisCmdFuture f = (RedisCmdFuture) ping;
         f.setPONG();
         f.writeCommand(RedisCommand.PONG.raw);
         return f;

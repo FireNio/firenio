@@ -18,6 +18,8 @@ package com.generallycloud.baseio.protocol;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import com.generallycloud.baseio.component.SocketChannelContext;
+
 public abstract class AbstractFuture implements Future {
 
     protected byte[] writeBuffer;
@@ -73,13 +75,13 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public void write(String text) {
-        write(text.getBytes());
-    }
-
-    @Override
     public void write(String text, Charset charset) {
         write(text.getBytes(charset));
+    }
+    
+    @Override
+    public void write(String text, SocketChannelContext context) {
+        write(text, context.getEncoding());
     }
 
 }

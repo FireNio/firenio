@@ -17,7 +17,6 @@ package com.generallycloud.baseio.component;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.nio.charset.Charset;
 
@@ -35,23 +34,23 @@ public interface SocketChannel extends Closeable {
 
     void active();
 
-    void flushChannelFuture(ChannelFuture future);
-
     void finishHandshake(Exception e);
 
     void fireOpend();
 
     void flush(ChannelFuture future);
 
+    void flushChannelFuture(ChannelFuture future);
+
     ByteBufAllocator getByteBufAllocator();
     
-    Charset getEncoding();
-
     int getChannelId();
-
+    
     SocketChannelContext getContext();
 
     long getCreationTime();
+
+    Charset getEncoding();
 
     ExecutorEventLoop getExecutorEventLoop();
 
@@ -59,11 +58,7 @@ public interface SocketChannel extends Closeable {
 
     String getLocalAddr();
 
-    String getLocalHost();
-
     int getLocalPort();
-
-    InetSocketAddress getLocalSocketAddress();
 
     <T> T getOption(SocketOption<T> name) throws IOException;
 
@@ -73,11 +68,9 @@ public interface SocketChannel extends Closeable {
 
     String getRemoteAddr();
 
-    String getRemoteHost();
+    String getRemoteAddrPort();
 
     int getRemotePort();
-
-    InetSocketAddress getRemoteSocketAddress();
 
     UnsafeSocketSession getSession();
 

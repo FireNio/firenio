@@ -28,24 +28,17 @@ public class TestListenSimpleServlet extends ProtobaseFutureAcceptorService {
 
     @Override
     protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
-
         String test = future.getReadText();
-
         if (StringUtil.isNullOrBlank(test)) {
             test = "test";
         }
-
-        future.write(test);
-        future.write("$");
+        future.write(test,session.getContext());
+        future.write("$",session.getContext());
         session.flush(future);
-
         for (int i = 0; i < 5; i++) {
-
             ProtobaseFuture f = new ProtobaseFutureImpl(future.getFutureId(),future.getFutureName());
-
-            f.write(test);
-            f.write("$");
-
+            f.write(test,session);
+            f.write("$",session);
             session.flush(f);
         }
 

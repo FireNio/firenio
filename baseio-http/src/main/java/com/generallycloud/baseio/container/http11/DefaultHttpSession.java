@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.container.http11;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.collection.AttributesImpl;
 import com.generallycloud.baseio.common.UUIDGenerator;
@@ -72,6 +73,11 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
     @Override
     public String getSessionId() {
         return sessionId;
+    }
+    
+    @Override
+    public Charset getEncoding() {
+        return ioSession.getEncoding();
     }
 
     @Override

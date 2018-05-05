@@ -37,49 +37,34 @@ public class TestBalanceBroadcast {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-
                 ProtobaseFuture f = (ProtobaseFuture) future;
-
                 if ("XXX".equals(f.getFutureName())) {
                     System.out.println("客户端已下线：" + f.getReadText());
                 } else {
                     System.out.println("~~~~~~收到报文：" + future.toString());
                     String res = "(***" + f.getReadText() + "***)";
                     System.out.println("~~~~~~处理报文：" + res);
-                    f.write(res);
+                    f.write(res,session.getContext());
                     session.flush(future);
                 }
             }
         };
 
         ServerConfiguration configuration = new ServerConfiguration(8800);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         context.setProtocolCodec(new ProtobaseCodec());
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         SocketSession session = connector.connect();
 
         for (; session.isOpened();) {
-
             ProtobaseFuture future = new ProtobaseFutureImpl("broadcast");
-
             future.setBroadcast(true);
-
             String msg = "broadcast msg___S:" + System.currentTimeMillis();
-
-            future.write(msg);
-            
+            future.write(msg,context);
             future.writeBinary("__^^^binary^^^__".getBytes());
-
             session.flush(future);
-
             ThreadUtil.sleep(10);
         }
 

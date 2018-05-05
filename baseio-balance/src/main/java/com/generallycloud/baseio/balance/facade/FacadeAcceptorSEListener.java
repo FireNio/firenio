@@ -38,7 +38,8 @@ public class FacadeAcceptorSEListener extends SocketSessionELAdapter {
     public void sessionOpened(SocketSession session) {
         BalanceRouter balanceRouter = context.getBalanceRouter();
         balanceRouter.addClientSession((FacadeSocketSession) session);
-        logger.info("client from [ {} ] connected.", session.getRemoteSocketAddress());
+        logger.info("client from [ {}:{} ] connected."
+                , session.getRemoteAddr(),session.getRemotePort());
     }
 
     @Override
@@ -46,7 +47,8 @@ public class FacadeAcceptorSEListener extends SocketSessionELAdapter {
         BalanceRouter balanceRouter = context.getBalanceRouter();
         FacadeSocketSession fs = (FacadeSocketSession) session;
         balanceRouter.removeClientSession(fs);
-        logger.info("client from [ {} ] disconnected.", session.getRemoteSocketAddress());
+        logger.info("client from [ {}:{} ] disconnected."
+                , session.getRemoteAddr(),session.getRemotePort());
         ReverseSocketSession rs = balanceRouter.getRouterSession(fs);
         if (rs == null) {
             return;

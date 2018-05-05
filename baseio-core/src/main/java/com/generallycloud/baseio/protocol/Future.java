@@ -18,18 +18,22 @@ package com.generallycloud.baseio.protocol;
 import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.common.Releasable;
+import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SocketSession;
 
 public interface Future extends Releasable {
 
     boolean flushed();
 
-    byte [] getWriteBuffer();
-    
+    byte[] getWriteBuffer();
+
     int getWriteSize();
 
-    void write(String text);
-
     void write(String text, Charset charset);
+
+    void write(String text, SocketSession session);
+
+    void write(String text, SocketChannelContext context);
 
     void write(byte b);
 

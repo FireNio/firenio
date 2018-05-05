@@ -31,7 +31,6 @@ import com.generallycloud.baseio.container.protobase.FixedSession;
 import com.generallycloud.baseio.container.protobase.OnFuture;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 import com.generallycloud.baseio.log.DebugUtil;
-import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestDownload {
@@ -39,37 +38,21 @@ public class TestDownload {
     public static void main(String[] args) throws Exception {
 
         String serviceName = "TestDownloadServlet";
-
         String fileName = "upload-flashmail-2.4.exe";
-
         JSONObject j = new JSONObject();
         j.put(FileReceiveUtil.FILE_NAME, fileName);
-
-        LoggerFactory.configure();
-
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
-
         ServerConfiguration configuration = new ServerConfiguration(8300);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandle);
-
         context.setProtocolCodec(new ProtobaseCodec());
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         FixedSession session = new FixedSession(connector.connect());
-
         final FileReceiveUtil fileReceiveUtil = new FileReceiveUtil("download-");
-
         session.listen(serviceName, new OnFuture() {
-
             @Override
             public void onResponse(SocketSession session, Future future) {
-
                 try {
                     fileReceiveUtil.accept(session, (ParamedProtobaseFuture) future, false);
                 } catch (Exception e) {
@@ -77,16 +60,11 @@ public class TestDownload {
                 }
             }
         });
-
         long old = System.currentTimeMillis();
-
         session.write(serviceName, j.toJSONString());
-
         System.out.println("Time:" + (System.currentTimeMillis() - old));
-
         ThreadUtil.sleep(5000);
-
         CloseUtil.close(connector);
-
     }
+
 }

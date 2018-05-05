@@ -44,7 +44,7 @@ public class TestBalanceLoad {
                     System.out.println("收到报文：" + future.toString());
                     String res = "_____________" + f.getReadText();
                     System.out.println("处理报文：" + res);
-                    f.write(res);
+                    f.write(res,session.getContext());
                     session.flush(future);
                 }
             }

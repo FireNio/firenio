@@ -33,22 +33,18 @@ public class TestDownloadServlet extends ProtobaseFutureAcceptorService {
     @Override
     protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
         FileSendUtil fileSendUtil = new FileSendUtil();
-
         File file = new File(future.getParameters().getParameter(FileReceiveUtil.FILE_NAME));
-
         if (!file.exists()) {
             fileNotFound(session, future, "file not found");
             return;
         }
-
         fileSendUtil.sendFile(session, future.getFutureName(), file, 1024 * 800);
-
     }
 
     private void fileNotFound(SocketSession session, ProtobaseFuture future, String msg)
             throws IOException {
         RESMessage message = new RESMessage(404, msg);
-        future.write(message.toString());
+        future.write(message.toString(),session);
         session.flush(future);
     }
 }

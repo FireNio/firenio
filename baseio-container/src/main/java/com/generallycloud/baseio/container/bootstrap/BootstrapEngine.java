@@ -15,13 +15,11 @@
  */
 package com.generallycloud.baseio.container.bootstrap;
 
-import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap.RuntimeMode;
-
 /**
  * @author wangkai
  *
  */
 public interface BootstrapEngine {
 
-    void bootstrap(String rootPath, RuntimeMode mode) throws Exception;
+    void bootstrap(String rootPath, String mode) throws Exception;
 }

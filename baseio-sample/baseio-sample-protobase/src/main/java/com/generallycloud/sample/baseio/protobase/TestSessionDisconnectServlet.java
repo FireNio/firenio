@@ -26,23 +26,17 @@ public class TestSessionDisconnectServlet extends ProtobaseFutureAcceptorService
 
     private TestSimple1        simple1      = new TestSimple1();
 
-    //	private AtomicInteger size = new AtomicInteger();
-
     @Override
     protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
-
         String test = future.getReadText();
-
         if (StringUtil.isNullOrBlank(test)) {
             test = "test";
         }
-        future.write(simple1.dynamic());
-        future.write(test);
-        future.write("$");
+        future.write(simple1.dynamic(),session);
+        future.write(test,session);
+        future.write("$",session);
         session.flush(future);
-
         session.close();
-
     }
 
 }

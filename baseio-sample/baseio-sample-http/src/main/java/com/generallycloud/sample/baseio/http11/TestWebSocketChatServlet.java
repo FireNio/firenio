@@ -128,7 +128,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
                 String msg1 = obj.toJSONString();
                 msgAdapter.sendMsg(msg1);
             } else {
-                f.write("no action matched:" + action);
+                f.write("no action matched:" + action,session);
                 session.flush(f);
             }
         }

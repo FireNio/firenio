@@ -7,4 +7,4 @@ done
 
 PRG="$0"
 PRGDIR=`dirname "$PRG"`
-java -XX:+PrintGCDetails -Xloggc:gc.log -cp $CLASSPATH -Dcontainer.deployModel=true com.generallycloud.baseio.container.http11.HttpStartup
+java -XX:+PrintGCDetails -Xloggc:gc.log -cp $CLASSPATH -Dcontainer.runtime=prod com.generallycloud.baseio.container.http11.HttpStartup

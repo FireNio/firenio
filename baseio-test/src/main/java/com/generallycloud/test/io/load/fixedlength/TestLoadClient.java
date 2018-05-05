@@ -68,31 +68,19 @@ public class TestLoadClient {
         
 //        SocketChannelContext context = new NioSocketChannelContext(configuration);
         SocketChannelContext context = new AioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         context.setProtocolCodec(new ProtobaseCodec());
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         connector.getContext().setProtocolCodec(new FixedLengthCodec());
-
         connector.getContext().getServerConfiguration().setSERVER_CORE_SIZE(1);
-
         SocketSession session = connector.connect();
-
         System.out.println("################## Test start ####################");
-
         long old = System.currentTimeMillis();
 
         for (int i = 0; i < time; i++) {
-
             FixedLengthFuture future = new FixedLengthFutureImpl();
-
-            future.write("hello server!");
-
+            future.write("hello server!",session);
             session.flush(future);
         }
 

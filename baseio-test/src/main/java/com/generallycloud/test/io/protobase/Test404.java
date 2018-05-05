@@ -35,8 +35,6 @@ public class Test404 {
 
         String serviceKey = "22";
 
-        LoggerFactory.configure();
-
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
         ServerConfiguration configuration = new ServerConfiguration(8300);

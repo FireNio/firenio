@@ -31,7 +31,6 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionEventListener;
 import com.generallycloud.baseio.component.URLDynamicClassLoader;
 import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap;
-import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap.RuntimeMode;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
 import com.generallycloud.baseio.container.configuration.ApplicationConfigurationLoader;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
@@ -49,7 +48,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     private ApplicationConfiguration       configuration;
     private ApplicationConfigurationLoader configurationLoader;
     private volatile boolean               deploying    = true;
-    private RuntimeMode                        runtimeMode;
+    private String                         runtimeMode;
     private Charset                        encoding;
     private ContainerIoEventHandle         futureAcceptor;
     private ExceptionCaughtHandle          ioExceptionCaughtHandle;
@@ -59,7 +58,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
     // exceptionCaughtHandle ; ioExceptionCaughtHandle
     // 区分 socket || application exception handle
-    public ApplicationIoEventHandle(String rootPath, RuntimeMode runtimeMode) {
+    public ApplicationIoEventHandle(String rootPath, String runtimeMode) {
         this.rootLocalAddress = rootPath;
         this.runtimeMode = runtimeMode;
     }
@@ -165,17 +164,17 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
     private void initializeHandle(SocketChannelContext context) throws Exception {
         ClassLoader parent = getClass().getClassLoader();
-        this.classLoader = ApplicationBootstrap.newClassLoader(parent, runtimeMode,
-                true, rootLocalAddress, ApplicationBootstrap.withDefault());
+        this.classLoader = ApplicationBootstrap.newClassLoader(parent, runtimeMode, true,
+                rootLocalAddress, ApplicationBootstrap.withDefault());
         this.applicationExtLoader.loadExts(this, classLoader);
         this.configuration = configurationLoader.loadConfiguration(classLoader);
         this.appOnRedeployService = (FutureAcceptor) newInstanceFromClass(
-                configuration.getAPP_ON_REDEPLOY_FUTURE_ACCEPTOR(),appOnRedeployService);
+                configuration.getAPP_ON_REDEPLOY_FUTURE_ACCEPTOR(), appOnRedeployService);
         if (appOnRedeployService == null) {
             appOnRedeployService = new DefaultOnRedeployAcceptor();
         }
         this.ioExceptionCaughtHandle = (ExceptionCaughtHandle) newInstanceFromClass(
-                configuration.getAPP_IO_EXCEPTION_CAUGHT_HANDLE(),ioExceptionCaughtHandle);
+                configuration.getAPP_IO_EXCEPTION_CAUGHT_HANDLE(), ioExceptionCaughtHandle);
         if (ioExceptionCaughtHandle == null) {
             ioExceptionCaughtHandle = new LoggerExceptionCaughtHandle();
         }
@@ -187,7 +186,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         getFutureAcceptor().initialize(channelContext);
     }
 
-    private Object newInstanceFromClass(String className,Object defaultObj) throws Exception {
+    private Object newInstanceFromClass(String className, Object defaultObj) throws Exception {
         if (StringUtil.isNullOrBlank(className)) {
             return defaultObj;
         }
@@ -195,7 +194,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         return clazz.newInstance();
     }
 
-    public RuntimeMode getRuntimeMode() {
+    public String getRuntimeMode() {
         return runtimeMode;
     }
 
@@ -206,7 +205,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     // FIXME 考虑部署失败后如何再次部署
     // FIXME keep http session
     public synchronized boolean redeploy() {
-        LoggerUtil.prettyLog(logger, 
+        LoggerUtil.prettyLog(logger,
                 "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  开始卸载服务  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         this.deploying = true;
         try {
@@ -239,7 +238,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     public void setChannelContext(SocketChannelContext context) {
         this.channelContext = context;
     }
-    
+
     public void setAppOnRedeployService(FutureAcceptor appOnRedeployService) {
         this.appOnRedeployService = appOnRedeployService;
     }
@@ -247,7 +246,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     public void setIoExceptionCaughtHandle(ExceptionCaughtHandle ioExceptionCaughtHandle) {
         this.ioExceptionCaughtHandle = ioExceptionCaughtHandle;
     }
-    
+
     @Override
     public void futureSent(SocketSession session, Future future) {
         futureAcceptor.futureSent(session, future);

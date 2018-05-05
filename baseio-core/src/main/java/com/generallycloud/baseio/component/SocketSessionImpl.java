@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -56,13 +55,13 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public void flushChannelFuture(ChannelFuture future) {
-        getSocketChannel().flushChannelFuture(future);
+    public void flush(Future future) {
+        getSocketChannel().flush((ChannelFuture) future);
     }
 
     @Override
-    public void flush(Future future) {
-        getSocketChannel().flush((ChannelFuture) future);
+    public void flushChannelFuture(ChannelFuture future) {
+        getSocketChannel().flushChannelFuture(future);
     }
 
     @Override
@@ -85,10 +84,6 @@ public class SocketSessionImpl implements SocketSession {
         return getSocketChannel().getByteBufAllocator();
     }
 
-    protected SocketChannel getSocketChannel() {
-        return channel;
-    }
-
     @Override
     public SocketChannelContext getContext() {
         return getSocketChannel().getContext();
@@ -103,34 +98,24 @@ public class SocketSessionImpl implements SocketSession {
     public Charset getEncoding() {
         return getSocketChannel().getEncoding();
     }
-    
+
     @Override
     public ExecutorEventLoop getExecutorEventLoop() {
         return getSocketChannel().getExecutorEventLoop();
     }
+    
     @Override
     public long getLastAccessTime() {
         return getSocketChannel().getLastAccessTime();
     }
-
     @Override
     public String getLocalAddr() {
         return getSocketChannel().getLocalAddr();
     }
 
     @Override
-    public String getLocalHost() {
-        return getSocketChannel().getLocalHost();
-    }
-
-    @Override
     public int getLocalPort() {
         return getSocketChannel().getLocalPort();
-    }
-
-    @Override
-    public InetSocketAddress getLocalSocketAddress() {
-        return getSocketChannel().getLocalSocketAddress();
     }
 
     @Override
@@ -154,8 +139,8 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public String getRemoteHost() {
-        return getSocketChannel().getRemoteHost();
+    public String getRemoteAddrPort() {
+        return getSocketChannel().getRemoteAddrPort();
     }
 
     @Override
@@ -164,13 +149,12 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public InetSocketAddress getRemoteSocketAddress() {
-        return getSocketChannel().getRemoteSocketAddress();
-    }
-
-    @Override
     public int getSessionId() {
         return getSocketChannel().getChannelId();
+    }
+
+    protected SocketChannel getSocketChannel() {
+        return channel;
     }
 
     @Override
@@ -207,7 +191,7 @@ public class SocketSessionImpl implements SocketSession {
     public void setAttachment(Object attachment) {
         this.attachment = attachment;
     }
-
+    
     @Override
     public void setAttribute(Object key, Object value) {
         attributes.put(key, value);

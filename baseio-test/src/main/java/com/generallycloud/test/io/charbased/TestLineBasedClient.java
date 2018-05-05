@@ -50,7 +50,7 @@ public class TestLineBasedClient {
         context.setProtocolCodec(new CharBasedCodec());
         SocketSession session = connector.connect();
         CharBasedFuture future = new CharBasedFutureImpl();
-        future.write("hello server!");
+        future.write("hello server!",session);
         session.flush(future);
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);

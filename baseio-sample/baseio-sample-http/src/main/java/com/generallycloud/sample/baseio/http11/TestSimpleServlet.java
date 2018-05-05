@@ -27,7 +27,7 @@ public class TestSimpleServlet extends HttpFutureAcceptorService {
     @Override
     protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
         String res = "yes server already accept your message :) " + future.getRequestParams();
-        future.write(res);
+        future.write(res,session.getEncoding());
         session.flush(future);
     }
 }

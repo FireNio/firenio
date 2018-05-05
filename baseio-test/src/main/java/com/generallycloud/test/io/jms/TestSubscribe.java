@@ -25,16 +25,13 @@ import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 import com.generallycloud.baseio.log.DebugUtil;
-import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestSubscribe {
 
     public static void main(String[] args) throws IOException {
 
         for (int i = 0; i < 5; i++) {
-
             new Thread(new Runnable() {
-
                 @Override
                 public void run() {
                     try {
@@ -44,41 +41,26 @@ public class TestSubscribe {
                     }
                 }
             }).start();
-
         }
-
     }
 
     private static void test() throws Exception {
 
-        LoggerFactory.configure();
-
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
-
         ServerConfiguration configuration = new ServerConfiguration(8300);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandle);
-
         context.setProtocolCodec(new ProtobaseCodec());
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
 //        FixedSession session = new FixedSession(connector.connect());
-//
 //        MessageConsumer consumer = new DefaultMessageConsumer(session);
-//
 //        consumer.subscribe(new OnMessage() {
-//
 //            @Override
 //            public void onReceive(Message message) {
 //                System.out.println(message);
 //            }
 //        });
-
         connector.close();
     }
 

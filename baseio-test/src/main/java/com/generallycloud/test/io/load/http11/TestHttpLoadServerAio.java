@@ -41,20 +41,15 @@ public class TestHttpLoadServerAio {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 HttpFuture f = (HttpFuture) future;
-
                 String res;
-
                 if (f.hasBodyContent()) {
-
                     byte[] array = f.getBodyContent();
-
                     res = "yes server already accept your message :) </BR><PRE style='font-size: 18px;color: #FF9800;'>"
                             + new String(array) + "</PRE>";
                 } else {
                     res = "yes server already accept your message :) " + f.getRequestParams();
                 }
-
-                f.write(res);
+                f.write(res,session);
                 session.flush(f);
                 //				System.out.println("req======================"+req.getAndIncrement());
             }

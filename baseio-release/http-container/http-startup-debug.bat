@@ -1,1 +1,1 @@
-java -XX:+PrintGCDetails -Xloggc:gc.log -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=6666,suspend=n -cp ./lib/*; -Dcontainer.deployModel=true com.generallycloud.baseio.container.http11.HttpStartup
+java -XX:+PrintGCDetails -Xloggc:gc.log -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=6666,suspend=n -cp ./lib/*; -Dcontainer.runtime=prod com.generallycloud.baseio.container.http11.HttpStartup

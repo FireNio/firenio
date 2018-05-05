@@ -29,7 +29,6 @@ import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.ConfigurationParser;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
-import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap.RuntimeMode;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -38,7 +37,7 @@ public abstract class ApplicationBootstrapEngine implements BootstrapEngine {
     protected abstract void enrichSocketChannelContext(SocketChannelContext context);
 
     @Override
-    public void bootstrap(String rootPath, RuntimeMode mode) throws Exception {
+    public void bootstrap(String rootPath, String mode) throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         Properties properties = FileUtil.readPropertiesByCls("server.properties");
         ServerConfiguration cfg = new ServerConfiguration();

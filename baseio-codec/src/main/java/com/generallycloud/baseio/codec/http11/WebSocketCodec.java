@@ -91,7 +91,7 @@ public class WebSocketCodec implements ProtocolCodec{
     @Override
     public Future createPONGPacket(SocketSession session, ChannelFuture ping) {
         if (WebSocketCodec.PROTOCOL_ID.equals(session.getProtocolId())) {
-            return new WebSocketFutureImpl().setPONG();
+            return ping.setPONG();
         }
         return null;
     }

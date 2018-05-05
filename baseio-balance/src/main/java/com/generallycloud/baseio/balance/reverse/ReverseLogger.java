@@ -26,21 +26,21 @@ import com.generallycloud.baseio.protocol.Future;
 public class ReverseLogger {
 
     public void logBroadcast(SocketSession session, Future future, Logger logger) {
-        logger.info("broadcast msg: F:{}, msg:{}", session.getRemoteSocketAddress(), future);
+        logger.info("broadcast msg: F:{}, msg:{}", session.getRemoteAddrPort(), future);
     }
 
     public void logPushLost(SocketSession session, Future future, Logger logger) {
-        logger.info("connection lost: F:{}, msg:{}", session.getRemoteSocketAddress(), future);
+        logger.info("connection lost: F:{}, msg:{}", session.getRemoteAddrPort(), future);
     }
 
     public void logPush(SocketSession session, SocketSession response, Future future,
             Logger logger) {
         logger.info("reply msg: F:[{}], T:[{}], msg: {}", new Object[] {
-                session.getRemoteSocketAddress(), response.getRemoteSocketAddress(), future });
+                session.getRemoteAddrPort(), response.getRemoteAddrPort(), future });
     }
 
     public void logPush(SocketSession response, Future future, Logger logger) {
-        logger.info("reply msg: T:[{}], msg: {}", response.getRemoteSocketAddress(), future);
+        logger.info("reply msg: T:[{}], msg: {}", response.getRemoteAddrPort(), future);
     }
 
 }

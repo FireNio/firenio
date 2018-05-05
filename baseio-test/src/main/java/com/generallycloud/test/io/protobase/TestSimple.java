@@ -32,11 +32,8 @@ import com.generallycloud.baseio.protocol.Future;
 public class TestSimple {
 
     public static void main(String[] args) throws Exception {
-
         String serviceKey = "/test-simple";
-
         String param = "ttt";
-
         IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
 
             @Override
@@ -44,27 +41,17 @@ public class TestSimple {
                 System.out.println("________________________" + future);
             }
         };
-
         SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setProtocolCodec(new ProtobaseCodec());
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         context.setIoEventHandleAdaptor(eventHandle);
-
         SocketSession session = connector.connect();
-
         ProtobaseFuture f = new ProtobaseFutureImpl(serviceKey);
-
-        f.write(param);
-
+        f.write(param,session);
         session.flush(f);
-
         ThreadUtil.sleep(500);
-
         CloseUtil.close(connector);
     }
+    
 }

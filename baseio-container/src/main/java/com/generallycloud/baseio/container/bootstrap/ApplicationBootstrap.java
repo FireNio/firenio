@@ -28,6 +28,9 @@ import com.generallycloud.baseio.log.DebugUtil;
 
 public class ApplicationBootstrap {
     
+    public static final String RUNTIME_DEV = "dev";
+    public static final String RUNTIME_PROD = "prod";
+    
     public static void startup(Class<?> clazz) throws Exception {
         Assert.notNull(clazz,"clazz");
         startup(clazz.getName());
@@ -37,9 +40,9 @@ public class ApplicationBootstrap {
         startup(className, withDefault(new ClassPathScaner() {
 
             @Override
-            public void scanClassPaths(URLDynamicClassLoader classLoader, RuntimeMode mode,
+            public void scanClassPaths(URLDynamicClassLoader classLoader, String mode,
                     String rootLocalAddress) throws IOException {
-                if (mode == RuntimeMode.PROD) {
+                if (RUNTIME_PROD.equalsIgnoreCase(mode)) {
                     classLoader.scan(rootLocalAddress + "/lib");
                 }
             }
@@ -49,25 +52,30 @@ public class ApplicationBootstrap {
     public static void startup(String className, List<ClassPathScaner> classPathScaners)throws Exception {
         String rootPath = URLDecoder.decode(FileUtil.getCurrentPath(), "UTF-8");
         String runtime = System.getProperty("container.runtime");
-        startup(className, RuntimeMode.getRuntimeMode(runtime), rootPath, classPathScaners);
+        startup(className, runtime, rootPath, classPathScaners);
     }
 
-    public static void startup(String className, RuntimeMode mode, String rootPath,
+    public static void startup(String className, String mode, String rootPath,
             List<ClassPathScaner> classPathScaners) throws Exception {
         Assert.notNull(className,"className");
         Assert.notNull(rootPath,"rootPath");
         Assert.notNull(classPathScaners,"classPathScaners");
+        LoggerUtil.prettyLog(DebugUtil.getLogger(), "RUNTIME_MODE: {}", mode);
         LoggerUtil.prettyLog(DebugUtil.getLogger(), "ROOT_PATH: {}", rootPath);
         ClassLoader parent = ApplicationBootstrap.class.getClassLoader();
         URLDynamicClassLoader classLoader = 
-                newClassLoader(parent, mode, mode == RuntimeMode.DEV, rootPath, classPathScaners);
+                newClassLoader(parent, mode, isRuntimeDevMode(mode), rootPath, classPathScaners);
         Class<?> bootClass = classLoader.loadClass(className);
         Thread.currentThread().setContextClassLoader(classLoader);
         BootstrapEngine engine = (BootstrapEngine) bootClass.newInstance();
         engine.bootstrap(rootPath, mode);
     }
+    
+    public static boolean isRuntimeDevMode(String mode){
+        return !RUNTIME_PROD.equalsIgnoreCase(mode);
+    }
 
-    public static URLDynamicClassLoader newClassLoader(ClassLoader parent, RuntimeMode mode,
+    public static URLDynamicClassLoader newClassLoader(ClassLoader parent, String mode,
             boolean entrustFirst, String rootLocalAddress, List<ClassPathScaner> classPathScaners)
             throws IOException {
         //这里需要设置优先委托自己加载class，因为到后面对象需要用该classloader去加载resources
@@ -104,16 +112,16 @@ public class ApplicationBootstrap {
     }
 
     public interface ClassPathScaner {
-        void scanClassPaths(URLDynamicClassLoader classLoader, RuntimeMode mode,
+        void scanClassPaths(URLDynamicClassLoader classLoader, String mode,
                 String rootLocalAddress) throws IOException;
     }
 
     static class DefaultClassPathScaner implements ClassPathScaner {
 
         @Override
-        public void scanClassPaths(URLDynamicClassLoader classLoader, RuntimeMode mode,
+        public void scanClassPaths(URLDynamicClassLoader classLoader, String mode,
                 String rootLocalAddress) throws IOException {
-            if (mode == RuntimeMode.DEV) {
+            if (isRuntimeDevMode(mode)) {
                 classLoader.addExcludePath("/app");
                 classLoader.scan(rootLocalAddress);
             } else {
@@ -122,31 +130,4 @@ public class ApplicationBootstrap {
         }
     }
     
-    public enum RuntimeMode{
-        
-        DEV("dev"),
-        PROD("prod");
-        
-        private String mode;
-
-        private RuntimeMode(String mode) {
-            this.mode = mode;
-        } 
-        
-        public String getMode() {
-            return mode;
-        }
-        
-        public static RuntimeMode getRuntimeMode(String mode){
-            for(RuntimeMode m : values()){
-                if (m.getMode().equals(mode)) {
-                    return m;
-                }
-            }
-            return DEV;
-        }
-        
-    }
-    
-
 }

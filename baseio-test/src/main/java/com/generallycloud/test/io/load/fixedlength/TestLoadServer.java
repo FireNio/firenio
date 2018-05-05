@@ -18,22 +18,20 @@ package com.generallycloud.test.io.load.fixedlength;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
-import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.test.io.fixedlength.SetOptionListener;
 
 public class TestLoadServer {
 
     public static void main(String[] args) throws Exception {
-
-        LoggerFactory.configure();
 
         final AtomicInteger res = new AtomicInteger();
         final AtomicInteger req = new AtomicInteger();
@@ -44,7 +42,7 @@ public class TestLoadServer {
             public void accept(SocketSession session, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
                 String res = "yes server already accept your message" + f.getReadText();
-                f.write(res);
+                f.write(res, session);
                 session.flush(future);
                 //				System.out.println("req======================"+req.getAndIncrement());
             }
@@ -59,17 +57,12 @@ public class TestLoadServer {
         c.setSERVER_CORE_SIZE(4);
 
         SocketChannelContext context = new NioSocketChannelContext(c);
-
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-
         context.setProtocolCodec(new FixedLengthCodec());
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
-        //		context.addSessionEventListener(new SetOptionListener());
-
+        context.addSessionEventListener(new SetOptionListener());
         acceptor.bind();
     }
+    
 }

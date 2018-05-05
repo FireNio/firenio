@@ -30,15 +30,11 @@ public class TestGetPhoneNOServlet extends ProtobaseFutureAcceptorService {
 
     @Override
     protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
-
         String phone = NOS[index++];
-
         if (index == 4) {
             index = 0;
         }
-
-        future.write(phone);
-
+        future.write(phone,session.getContext());
         session.flush(future);
     }
 

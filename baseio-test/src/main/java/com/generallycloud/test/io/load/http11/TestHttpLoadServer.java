@@ -38,7 +38,7 @@ public class TestHttpLoadServer {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-                future.write("hello world!8080");
+                future.write("hello world!8080",session.getContext());
                 session.flush(future);
                 //				System.out.println("req======================"+req.getAndIncrement());
             }

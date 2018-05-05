@@ -19,6 +19,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Linkable;
 
 public abstract class AbstractChannelFuture extends AbstractFuture implements ChannelFuture {
@@ -161,6 +162,11 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     @Override
     public void setValidate(boolean validate) {
         this.isValidate = validate;
+    }
+
+    @Override
+    public void write(String text, SocketSession session) {
+        write(text, session.getContext());
     }
 
 }

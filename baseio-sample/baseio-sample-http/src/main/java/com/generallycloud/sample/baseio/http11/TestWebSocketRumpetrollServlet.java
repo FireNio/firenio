@@ -45,13 +45,13 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
     protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
         future.updateWebSocketProtocol();
         session.flush(future);
-        msgAdapter.addClient(getAddress(session.getIoSession()), session.getIoSession());
         SocketSession ioSession = session.getIoSession();
+        msgAdapter.addClient(ioSession.getRemoteAddrPort(), ioSession);
         JSONObject o = new JSONObject();
         o.put("type", "welcome");
         o.put("id", ioSession.getSessionId());
         WebSocketFuture f = new WebSocketFutureImpl();
-        f.write(o.toJSONString());
+        f.write(o.toJSONString(),session.getEncoding());
         session.flush(f);
     }
 
@@ -75,7 +75,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
             JSONObject o = JSON.parseObject(msg);
             String name = o.getString("name");
             if (StringUtil.isNullOrBlank(name)) {
-                name = getAddress(session);
+                name = session.getRemoteAddrPort();
             }
             o.put("name", name);
             o.put("id", session.getSessionId());
@@ -91,15 +91,6 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
             }
             msgAdapter.sendMsg(o.toJSONString());
         }
-    }
-
-    private String getAddress(SocketSession session) {
-        String address = (String) session.getAttribute("_remote_address");
-        if (address == null) {
-            address = session.getRemoteSocketAddress().toString();
-            session.setAttribute("_remote_address", address);
-        }
-        return address;
     }
 
     @PostConstruct

@@ -44,7 +44,8 @@ public class SimpleTestFIxedLengthServerPush {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
-                SocketSessionManager sessionManager = session.getContext().getSessionManager();
+                SocketChannelContext context = session.getContext();
+                SocketSessionManager sessionManager = context.getSessionManager();
                 Map<Integer, SocketSession> sessions = sessionManager.getManagedSessions();
                 String msg = f.getReadText();
                 String []arr = msg.split(" ");  
@@ -52,31 +53,31 @@ public class SimpleTestFIxedLengthServerPush {
                 logger.info("msg received: {}",msg);
                 if ("list".equals(cmd)) {
                     String keys = sessions.keySet().toString();
-                    future.write(keys);
+                    future.write(keys,context);
                 }else if ("id".equals(cmd)) {
-                    future.write(String.valueOf(session.getSessionId()));
+                    future.write(String.valueOf(session.getSessionId()),context);
                 }else if ("push".equals(cmd)) {
                     Integer id = Integer.valueOf(arr[1]);
                     SocketSession target = sessions.get(id);
                     if (target == null) {
-                        future.write("offline id: "+id);
+                        future.write("offline id: "+id,context);
                     }else {
-                        future.write("from [");
-                        future.write(String.valueOf(session.getSessionId()));
-                        future.write("] push msg>");
-                        future.write(arr[2]);
+                        future.write("from [",context);
+                        future.write(String.valueOf(session.getSessionId()),context);
+                        future.write("] push msg>",context);
+                        future.write(arr[2],context);
                         target.flush(future);
                         return;
                     }
                 }else if ("broadcast".equals(cmd)) {
-                    future.write("from [");
-                    future.write(String.valueOf(session.getSessionId()));
-                    future.write("] broadcast msg>");
-                    future.write(arr[1]);
+                    future.write("from [",context);
+                    future.write(String.valueOf(session.getSessionId()),context);
+                    future.write("] broadcast msg>",context);
+                    future.write(arr[1],context);
                     sessionManager.broadcast(future);
                     return;
                 }else {
-                    future.write("no cmd: "+cmd);
+                    future.write("no cmd: "+cmd,context);
                 }
                 session.flush(future);
             }
@@ -94,7 +95,7 @@ public class SimpleTestFIxedLengthServerPush {
             public void sessionClosed(SocketSession session) {
                 SocketSessionManager sessionManager = session.getContext().getSessionManager();
                 FixedLengthFuture future = new FixedLengthFutureImpl();
-                future.write("client left: "+session.getSessionId());
+                future.write("client left: "+session.getSessionId(),context);
                 try {
                     sessionManager.broadcast(future);
                 } catch (IOException e) {

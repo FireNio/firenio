@@ -38,17 +38,11 @@ public class TestLoadClient1 extends ITestThread {
 
     @Override
     public void run() {
-
         int time1 = getTime();
-
         SocketSession session = connector.getSession();
-
         for (int i = 0; i < time1; i++) {
-
             FixedLengthFuture future = new FixedLengthFutureImpl();
-
-            future.write("hello server!");
-
+            future.write("hello server!",session);
             session.flush(future);
         }
     }
@@ -59,7 +53,6 @@ public class TestLoadClient1 extends ITestThread {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-
                 addCount(10000);
             }
         };

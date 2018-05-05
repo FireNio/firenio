@@ -22,38 +22,23 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
-import com.generallycloud.baseio.log.LoggerFactory;
 
 public class TestPublish {
 
     public static void main(String[] args) throws Exception {
 
-        LoggerFactory.configure();
-
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
-
         ServerConfiguration configuration = new ServerConfiguration(8300);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandle);
-
         context.setProtocolCodec(new ParamedProtobaseCodec());
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
 //        FixedSession session = new FixedSession(connector.connect());
-//
 //        MessageProducer producer = new DefaultMessageProducer(session);
-//
 //        TextMessage message = new TextMessage("msgId", "qName", "你好！");
-//
 //        producer.publish(message);
-
         connector.close();
-
     }
 
 }

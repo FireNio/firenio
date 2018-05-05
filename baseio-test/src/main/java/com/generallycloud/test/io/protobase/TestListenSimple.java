@@ -15,8 +15,8 @@
  */
 package com.generallycloud.test.io.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
@@ -28,7 +28,6 @@ import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.protobase.FixedSession;
 import com.generallycloud.baseio.container.protobase.OnFuture;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
-import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestListenSimple {
@@ -38,38 +37,24 @@ public class TestListenSimple {
         String serviceKey = "TestListenSimpleServlet";
         String param = "ttt";
 
-        LoggerFactory.configure();
-
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
-
         ServerConfiguration configuration = new ServerConfiguration(8300);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelConnector connector = new SocketChannelConnector(context);
-
         context.setIoEventHandleAdaptor(eventHandle);
-
         context.setProtocolCodec(new ProtobaseCodec());
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         FixedSession session = new FixedSession(connector.connect());
-
         ProtobaseFuture future = session.request(serviceKey, param);
         System.out.println(future.getReadText());
-
         session.listen(serviceKey, new OnFuture() {
-
             @Override
             public void onResponse(SocketSession session, Future future) {
                 ProtobaseFuture f = (ProtobaseFuture) future;
                 System.out.println(f.getReadText());
             }
         });
-
         session.write(serviceKey, param);
-
         ThreadUtil.sleep(1000);
         CloseUtil.close(connector);
 

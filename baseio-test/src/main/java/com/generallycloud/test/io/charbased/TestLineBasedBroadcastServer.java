@@ -18,7 +18,6 @@ package com.generallycloud.test.io.charbased;
 import com.generallycloud.baseio.acceptor.ChannelAcceptor;
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
-import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -35,45 +34,29 @@ public class TestLineBasedBroadcastServer {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-
                 long old = System.currentTimeMillis();
-
                 String res = "hello world!";
-
-                future.write(res);
-
+                future.write(res,session);
                 ChannelAcceptor acceptor = (ChannelAcceptor) session.getContext()
                         .getChannelService();
-
                 acceptor.broadcast(future);
-
                 long now = System.currentTimeMillis();
-
                 System.out.println("广播花费时间：" + (now - old) + ",连接数："
                         + session.getContext().getSessionManager().getManagedSessionSize());
             }
         };
 
         ServerConfiguration configuration = new ServerConfiguration();
-
         configuration.setSERVER_PORT(8300);
-
         configuration.setSERVER_SESSION_IDLE_TIME(180000);
-
         configuration.setSERVER_MEMORY_POOL_CAPACITY(1024 * 512);
-
         configuration.setSERVER_MEMORY_POOL_UNIT(64);
-
         SocketChannelContext context = new NioSocketChannelContext(configuration);
-
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         context.setProtocolCodec(new CharBasedCodec());
-
         acceptor.bind();
     }
+
 }

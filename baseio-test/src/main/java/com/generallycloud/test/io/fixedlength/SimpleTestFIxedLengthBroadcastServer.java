@@ -39,24 +39,18 @@ public class SimpleTestFIxedLengthBroadcastServer {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:");
-                future.write(f.getReadText());
+                future.write("yes server already accept your message:",session);
+                future.write(f.getReadText(),session);
                 session.flush(f);
             }
         };
 
         SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
-
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
-
         context.addSessionEventListener(new LoggerSocketSEListener());
-
         context.addSessionEventListener(new SetOptionListener());
-
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
-
         context.setProtocolCodec(new FixedLengthCodec());
-
         acceptor.bind();
         
         ThreadUtil.exec(new Runnable() {
@@ -66,7 +60,7 @@ public class SimpleTestFIxedLengthBroadcastServer {
                 for(;;){
                     ThreadUtil.sleep(1000);
                     FixedLengthFuture future = new FixedLengthFutureImpl();
-                    future.write("broadcast msg .........................");
+                    future.write("broadcast msg .........................",context);
                     try {
                         acceptor.broadcast(future);
                     } catch (IOException e) {

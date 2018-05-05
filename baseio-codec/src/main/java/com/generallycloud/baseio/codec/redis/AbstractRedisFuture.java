@@ -23,17 +23,17 @@ public abstract class AbstractRedisFuture extends AbstractChannelFuture implemen
     public void writeCommand(byte[] command, byte[]... args) {
 
         this.write(RedisFuture.BYTE_ARRAYS);
-        this.write(String.valueOf(args.length + 1));
+        this.write(String.valueOf(args.length + 1).getBytes());
         this.write(RedisFuture.CRLF_BYTES);
         this.write(RedisFuture.BYTE_BULK_STRINGS);
-        this.write(String.valueOf(command.length));
+        this.write(String.valueOf(command.length).getBytes());
         this.write(RedisFuture.CRLF_BYTES);
         this.write(command);
         this.write(RedisFuture.CRLF_BYTES);
 
         for (byte[] arg : args) {
             this.write(RedisFuture.BYTE_BULK_STRINGS);
-            this.write(String.valueOf(arg.length));
+            this.write(String.valueOf(arg.length).getBytes());
             this.write(RedisFuture.CRLF_BYTES);
             this.write(arg);
             this.write(RedisFuture.CRLF_BYTES);

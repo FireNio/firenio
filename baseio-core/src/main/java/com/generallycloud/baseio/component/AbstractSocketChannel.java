@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,30 +45,33 @@ import com.generallycloud.baseio.protocol.SslFuture;
 
 public abstract class AbstractSocketChannel implements SocketChannel {
 
-    private static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
-    private static final Logger            logger               = LoggerFactory
+    protected static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
+    private static final Logger              logger               = LoggerFactory
             .getLogger(AbstractSocketChannel.class);
-    protected ByteBufAllocator             byteBufAllocator;
-    protected String                       channelDesc;
-    protected int                          channelId;
-    protected ReentrantLock                closeLock            = new ReentrantLock();
-    protected long                         creationTime         = System.currentTimeMillis();
-    protected ExecutorEventLoop            executorEventLoop;
-    protected long                         lastAccess;
-    protected InetSocketAddress            local;
-    protected boolean                      opened               = true;
-    protected ProtocolCodec                 protocolCodec;
-    protected transient ChannelFuture      readFuture;
-    protected InetSocketAddress            remote;
-    protected UnsafeSocketSession          session;
-    protected SSLEngine                    sslEngine;
-    protected SslHandler                   sslHandler;
-    protected transient SslFuture          sslReadFuture;
-    protected SocketChannelThreadContext   threadContext;
-    protected transient ChannelFuture      writeFuture;
-    protected AtomicInteger                writeFutureLength;
-    protected LinkedQueue<ChannelFuture>   writeFutures;
-    protected IoEventHandle                 ioEventHandle;
+    protected ByteBufAllocator               byteBufAllocator;
+    protected String                         channelDesc;
+    protected int                            channelId;
+    protected ReentrantLock                  closeLock            = new ReentrantLock();
+    protected long                           creationTime         = System.currentTimeMillis();
+    protected ExecutorEventLoop              executorEventLoop;
+    protected IoEventHandle                  ioEventHandle;
+    protected long                           lastAccess;
+    protected String                         localAddr;
+    protected int                            localPort;
+    protected boolean                        opened               = true;
+    protected ProtocolCodec                  protocolCodec;
+    protected transient ChannelFuture        readFuture;
+    protected String                         remoteAddr;
+    protected String                         remoteAddrPort;
+    protected int                            remotePort;
+    protected UnsafeSocketSession            session;
+    protected SSLEngine                      sslEngine;
+    protected SslHandler                     sslHandler;
+    protected transient SslFuture            sslReadFuture;
+    protected SocketChannelThreadContext     threadContext;
+    protected transient ChannelFuture        writeFuture;
+    protected AtomicInteger                  writeFutureLength;
+    protected LinkedQueue<ChannelFuture>     writeFutures;
 
     AbstractSocketChannel(SocketChannelThreadContext context, int channelId) {
         SocketChannelContext socketChannelContext = context.getChannelContext();
@@ -96,11 +98,96 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         if (isEnableSSL()) {
             sslEngine.closeOutbound();
             if (getContext().getSslContext().isClient()) {
-                writeFutures.offer(new DefaultChannelFuture(EmptyByteBuf.get(),true));
+                writeFutures.offer(new DefaultChannelFuture(EmptyByteBuf.get(), true));
             }
             try {
                 sslEngine.closeInbound();
             } catch (SSLException e) {}
+        }
+    }
+
+    protected abstract void doFlush0();
+
+    protected void exceptionCaught(Future future, Exception ex) {
+        ReleaseUtil.release(future);
+        try {
+            ioEventHandle.exceptionCaught(getSession(), future, ex);
+        } catch (Throwable e) {
+            logger.error(ex.getMessage(), ex);
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void finishHandshake(Exception e) {
+        if (getContext().getSslContext().isClient()) {
+            AbstractSocketChannelConnector connector = (AbstractSocketChannelConnector) getContext()
+                    .getChannelService();
+            connector.finishConnect(getSession(), e);
+        }
+    }
+
+    protected void fireClosed() {
+        threadContext.getSocketSessionManager().removeSession(session);
+        UnsafeSocketSession session = getSession();
+        for (SocketSessionEventListener l : getContext().getSessionEventListeners()) {
+            try {
+                l.sessionClosed(session);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    @Override
+    public void fireOpend() {
+        //FIXME ..如果这时候连接关闭了如何处理
+        //请勿使用remote.getRemoteHost(),可能出现阻塞
+        InetSocketAddress remote = getRemoteSocketAddress0();
+        InetSocketAddress local = getRemoteSocketAddress0();
+        remoteAddr = remote.getAddress().getHostAddress();
+        remotePort = remote.getPort();
+        remoteAddrPort = remoteAddr + ":" + remotePort;
+        localAddr = local.getAddress().getHostAddress();
+        localPort = local.getPort();
+        SocketChannelContext context = getContext();
+        if (context.isEnableSSL()) {
+            this.sslHandler = getSocketChannelThreadContext().getSslHandler();
+            this.sslEngine = context.getSslContext().newEngine(remoteAddr, remotePort);
+        }
+        if (isEnableSSL() && context.getSslContext().isClient()) {
+            flushChannelFuture(new DefaultChannelFuture(EmptyByteBuf.get(), true));
+        }
+        UnsafeSocketSession session = getSession();
+        if (!session.isClosed()) {
+            threadContext.getSocketSessionManager().putSession(session);
+            for (SocketSessionEventListener l : getContext().getSessionEventListeners()) {
+                try {
+                    l.sessionOpened(session);
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void flush(ChannelFuture future) {
+        if (future == null || future.flushed()) {
+            return;
+        }
+        future.flush();
+        if (!isOpened()) {
+            exceptionCaught(future, new ClosedChannelException(toString()));
+            return;
+        }
+        try {
+            future.setNeedSsl(getContext().isEnableSSL());
+            ProtocolCodec codec = getProtocolCodec();
+            codec.encode(this, future);
+            flushChannelFuture(future);
+        } catch (Exception e) {
+            exceptionCaught(future, e);
         }
     }
 
@@ -136,85 +223,6 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         }
     }
 
-    protected abstract void doFlush0();
-
-    protected void exceptionCaught(Future future, Exception ex) {
-        ReleaseUtil.release(future);
-        try {
-            ioEventHandle.exceptionCaught(getSession(), future, ex);
-        } catch (Throwable e) {
-            logger.error(ex.getMessage(),ex);
-            logger.error(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void finishHandshake(Exception e) {
-        if (getContext().getSslContext().isClient()) {
-            AbstractSocketChannelConnector connector = (AbstractSocketChannelConnector) getContext()
-                    .getChannelService();
-            connector.finishConnect(getSession(), e);
-        }
-    }
-
-    protected void fireClosed() {
-        threadContext.getSocketSessionManager().removeSession(session);
-        UnsafeSocketSession session = getSession();
-        for(SocketSessionEventListener l : getContext().getSessionEventListeners()){
-            try {
-                l.sessionClosed(session);
-            } catch (Exception e) {
-                logger.error(e.getMessage(),e);
-            }
-        }
-    }
-
-    @Override
-    public void fireOpend() {
-        SocketChannelContext context = getContext();
-        if (context.isEnableSSL()) {
-            InetSocketAddress remote = getRemoteSocketAddress();
-            this.sslHandler = getSocketChannelThreadContext().getSslHandler();
-            this.sslEngine = context.getSslContext().newEngine(
-                    remote.getHostName(),remote.getPort());
-        }
-        if (isEnableSSL() && context.getSslContext().isClient()) {
-            flushChannelFuture(new DefaultChannelFuture(EmptyByteBuf.get(),true));
-        }
-        UnsafeSocketSession session = getSession();
-        if (!session.isClosed()) {
-            threadContext.getSocketSessionManager().putSession(session);
-            for(SocketSessionEventListener l : getContext().getSessionEventListeners()){
-                try {
-                    l.sessionOpened(session);
-                } catch (Exception e) {
-                    logger.error(e.getMessage(),e);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void flush(ChannelFuture future) {
-        if (future == null || future.flushed()) {
-            return;
-        }
-        future.flush();
-        if (!isOpened()) {
-            exceptionCaught(future,
-                    new ClosedChannelException(toString()));
-            return;
-        }
-        try {
-            future.setNeedSsl(getContext().isEnableSSL());
-            ProtocolCodec codec = getProtocolCodec();
-            codec.encode(this, future);
-            flushChannelFuture(future);
-        } catch (Exception e) {
-            exceptionCaught(future, e);
-        }
-    }
-
     @Override
     public ByteBufAllocator getByteBufAllocator() {
         return byteBufAllocator;
@@ -235,13 +243,13 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     }
 
     @Override
-    public ExecutorEventLoop getExecutorEventLoop() {
-        return executorEventLoop;
+    public Charset getEncoding() {
+        return getContext().getEncoding();
     }
 
-    private String getIdHexString(int channelId) {
-        String id = Long.toHexString(channelId);
-        return "0x" + StringUtil.getZeroString(8 - id.length()) + id;
+    @Override
+    public ExecutorEventLoop getExecutorEventLoop() {
+        return executorEventLoop;
     }
 
     @Override
@@ -251,33 +259,12 @@ public abstract class AbstractSocketChannel implements SocketChannel {
 
     @Override
     public String getLocalAddr() {
-        InetAddress address = getLocalSocketAddress().getAddress();
-        if (address == null) {
-            return "127.0.0.1";
-        }
-        return address.getHostAddress();
-    }
-
-    @Override
-    public String getLocalHost() {
-        return getLocalSocketAddress().getHostName();
+        return localAddr;
     }
 
     @Override
     public int getLocalPort() {
-        return getLocalSocketAddress().getPort();
-    }
-
-    @Override
-    public InetSocketAddress getLocalSocketAddress() {
-        if (local == null) {
-            try {
-                local = getLocalSocketAddress0();
-            } catch (IOException e) {
-                local = ERROR_SOCKET_ADDRESS;
-            }
-        }
-        return local;
+        return localPort;
     }
 
     protected abstract InetSocketAddress getLocalSocketAddress0() throws IOException;
@@ -294,50 +281,20 @@ public abstract class AbstractSocketChannel implements SocketChannel {
 
     @Override
     public String getRemoteAddr() {
-        InetSocketAddress address = getRemoteSocketAddress();
-        if (address == null) {
-            return "closed";
-        }
-        return address.getAddress().getHostAddress();
+        return remoteAddr;
     }
 
-    /**
-     * 请勿使用,可能出现阻塞
-     * 
-     * @see http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6487744
-     */
     @Override
-    @Deprecated
-    public String getRemoteHost() {
-        InetSocketAddress address = getRemoteSocketAddress();
-        if (address == null) {
-            return "closed";
-        }
-        return address.getAddress().getHostName();
+    public String getRemoteAddrPort() {
+        return remoteAddrPort;
     }
 
     @Override
     public int getRemotePort() {
-        InetSocketAddress address = getRemoteSocketAddress();
-        if (address == null) {
-            return -1;
-        }
-        return address.getPort();
+        return remotePort;
     }
 
-    @Override
-    public InetSocketAddress getRemoteSocketAddress() {
-        if (remote == null) {
-            try {
-                remote = getRemoteSocketAddress0();
-            } catch (IOException e) {
-                remote = ERROR_SOCKET_ADDRESS;
-            }
-        }
-        return remote;
-    }
-
-    protected abstract InetSocketAddress getRemoteSocketAddress0() throws IOException;
+    protected abstract InetSocketAddress getRemoteSocketAddress0();
 
     @Override
     public UnsafeSocketSession getSession() {
@@ -387,6 +344,15 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         return opened;
     }
 
+    protected void onFutureSent(ChannelFuture future) {
+        ReleaseUtil.release(future);
+        try {
+            ioEventHandle.futureSent(session, future);
+        } catch (Throwable e) {
+            logger.debug(e.getMessage(), e);
+        }
+    }
+
     protected abstract void physicalClose();
 
     protected void releaseFutures() {
@@ -431,35 +397,19 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     @Override
     public String toString() {
         if (channelDesc == null) {
-            channelDesc = new StringBuilder("[Id(").append(getIdHexString(channelId)).append(")R/")
+            String idStr = Long.toHexString(channelId);
+            idStr = "0x" + StringUtil.getZeroString(8 - idStr.length()) + idStr;
+            channelDesc = new StringBuilder("[Id(").append(idStr).append(")R/")
                     .append(getRemoteAddr()).append(":").append(getRemotePort()).append("; L:")
                     .append(getLocalPort()).append("]").toString();
         }
         return channelDesc;
     }
 
-    protected int writeFutureLength(int len) {
-        return writeFutureLength.addAndGet(len);
-    }
-    
-    protected void onFutureSent(ChannelFuture future) {
-        ReleaseUtil.release(future);
-        try {
-            ioEventHandle.futureSent(session, future);
-        } catch (Throwable e) {
-            logger.debug(e.getMessage(), e);
-        }
-    }
-    
-    @Override
-    public Charset getEncoding() {
-        return getContext().getEncoding();
-    }
-    
-    protected void write(ChannelFuture future) throws IOException{
+    protected void write(ChannelFuture future) throws IOException {
         if (future.isNeedSsl()) {
             future.setNeedSsl(false);
-         // FIXME 部分情况下可以不在业务线程做wrapssl
+            // FIXME 部分情况下可以不在业务线程做wrapssl
             ByteBuf old = future.getByteBuf();
             SslHandler handler = getSslHandler();
             try {
@@ -471,6 +421,10 @@ public abstract class AbstractSocketChannel implements SocketChannel {
             }
         }
         write(future.getByteBuf());
+    }
+    
+    protected int writeFutureLength(int len) {
+        return writeFutureLength.addAndGet(len);
     }
 
 }
