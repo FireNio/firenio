@@ -47,7 +47,7 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
     }
 
     @Override
-    protected void stop0() {
+    protected void close0() {
         CloseUtil.close(selectableChannel);
         LifeCycleUtil.stop(eventLoopGroup);
     }

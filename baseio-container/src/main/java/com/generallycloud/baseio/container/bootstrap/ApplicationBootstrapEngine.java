@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.ConfigurationParser;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -40,7 +40,7 @@ public abstract class ApplicationBootstrapEngine implements BootstrapEngine {
     public void bootstrap(String rootPath, String mode) throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         Properties properties = FileUtil.readPropertiesByCls("server.properties");
-        ServerConfiguration cfg = new ServerConfiguration();
+        Configuration cfg = new Configuration();
         ConfigurationParser.parseConfiguration("SERVER", cfg, properties);
         SocketChannelContext context = new NioSocketChannelContext(cfg);
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);

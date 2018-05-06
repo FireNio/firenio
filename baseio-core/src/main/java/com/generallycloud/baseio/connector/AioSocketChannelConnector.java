@@ -61,7 +61,6 @@ public class AioSocketChannelConnector extends AbstractSocketChannelConnector {
                 connector.finishConnect((UnsafeSocketSession) getSession(), exc);
             }
         });
-
         wait4connect();
     }
 
@@ -76,6 +75,6 @@ public class AioSocketChannelConnector extends AbstractSocketChannelConnector {
     }
 
     @Override
-    protected void stop0() {}
+    protected void close0() {}
 
 }

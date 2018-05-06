@@ -29,7 +29,7 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -59,7 +59,7 @@ public class TestSimpleWebSocketClient {
             }
         };
 
-        ServerConfiguration configuration = new ServerConfiguration();
+        Configuration configuration = new Configuration();
         configuration.setSERVER_HOST("47.89.30.77");
         //		configuration.setSERVER_HOST("120.76.222.210");
         //		configuration.setSERVER_HOST("115.29.193.48");

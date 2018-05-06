@@ -18,7 +18,7 @@ package com.generallycloud.baseio.buffer;
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 
 public class PooledByteBufAllocatorManager extends AbstractLifeCycle
         implements ByteBufAllocatorManager {
@@ -34,88 +34,58 @@ public class PooledByteBufAllocatorManager extends AbstractLifeCycle
     }
 
     private void createByteBufAllocator(SocketChannelContext context) {
-
         if (allocators != null) {
             return;
         }
-
-        ServerConfiguration c = context.getServerConfiguration();
-
+        Configuration c = context.getConfiguration();
         int core = c.getSERVER_CORE_SIZE();
-
         int capacity = c.getSERVER_MEMORY_POOL_CAPACITY();
-
         int unitMemorySize = c.getSERVER_MEMORY_POOL_UNIT();
-
         boolean direct = c.isSERVER_ENABLE_MEMORY_POOL_DIRECT();
-
         this.allocators = new LinkAbleByteBufAllocator[core];
-
         for (int i = 0; i < allocators.length; i++) {
-
             //			ByteBufAllocator allocator = new SimplyByteBufAllocator(capacity, unitMemorySize, direct);
-
-            ByteBufAllocator allocator = new SimpleByteBufAllocator(capacity, unitMemorySize,
-                    direct);
-
+            ByteBufAllocator allocator = new SimpleByteBufAllocator(capacity, unitMemorySize, direct);
             //			ByteBufAllocator allocator = new UnpooledByteBufAllocator();
-
             allocators[i] = new LinkableByteBufAllocatorImpl(allocator, i);
         }
     }
 
     @Override
     protected void doStart() throws Exception {
-
         createByteBufAllocator(context);
-
         LinkAbleByteBufAllocator first = null;
         LinkAbleByteBufAllocator last = null;
-
         for (int i = 0; i < allocators.length; i++) {
-
             LinkAbleByteBufAllocator allocator = allocators[i];
-
             allocator.start();
-
             if (first == null) {
                 first = allocator;
                 last = allocator;
                 continue;
             }
-
             last.setNext(allocator);
-
             last = allocator;
         }
-
         last.setNext(first);
-
         this.allocator = first;
     }
 
     @Override
     protected void doStop() throws Exception {
-
         for (LinkAbleByteBufAllocator allocator : allocators) {
-
             if (allocator == null) {
                 continue;
             }
-
             LifeCycleUtil.stop(allocator);
         }
-
         this.allocator = null;
     }
 
     @Override
     public ByteBufAllocator getNextBufAllocator() {
-
         LinkAbleByteBufAllocator next = allocator.getNext();
-
         this.allocator = next;
-
         return next;
     }
 

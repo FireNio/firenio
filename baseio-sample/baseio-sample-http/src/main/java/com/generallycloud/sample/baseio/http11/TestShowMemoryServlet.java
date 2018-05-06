@@ -24,7 +24,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.container.http11.HtmlUtil;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptor;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
@@ -58,7 +58,7 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
             allocatorDes = ((PooledByteBufAllocatorManager) allocator).toDebugString();
         }
 
-        ServerConfiguration configuration = context.getServerConfiguration();
+        Configuration configuration = context.getConfiguration();
 
         int SERVER_CORE_SIZE = configuration.getSERVER_CORE_SIZE();
         int SERVER_MEMORY_POOL_CAPACITY = configuration.getSERVER_MEMORY_POOL_CAPACITY()

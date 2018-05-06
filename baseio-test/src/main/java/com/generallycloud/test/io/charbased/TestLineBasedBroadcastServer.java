@@ -23,7 +23,7 @@ import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestLineBasedBroadcastServer {
@@ -46,7 +46,7 @@ public class TestLineBasedBroadcastServer {
             }
         };
 
-        ServerConfiguration configuration = new ServerConfiguration();
+        Configuration configuration = new Configuration();
         configuration.setSERVER_PORT(8300);
         configuration.setSERVER_SESSION_IDLE_TIME(180000);
         configuration.setSERVER_MEMORY_POOL_CAPACITY(1024 * 512);

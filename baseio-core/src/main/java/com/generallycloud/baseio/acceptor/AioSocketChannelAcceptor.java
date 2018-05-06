@@ -89,7 +89,7 @@ public class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
     }
 
     @Override
-    protected void stop0() {
+    protected void unbind0() {
         CloseUtil.close(serverSocketChannel);
     }
 }

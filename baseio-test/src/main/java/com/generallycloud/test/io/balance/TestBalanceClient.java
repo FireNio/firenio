@@ -30,7 +30,7 @@ import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -54,7 +54,7 @@ public class TestBalanceClient {
             }
         };
 
-        ServerConfiguration configuration = new ServerConfiguration(8600);
+        Configuration configuration = new Configuration(8600);
         SocketChannelContext context = new NioSocketChannelContext(configuration);
         SocketChannelConnector connector = new SocketChannelConnector(context);
         context.setProtocolCodec(new ProtobaseCodec());

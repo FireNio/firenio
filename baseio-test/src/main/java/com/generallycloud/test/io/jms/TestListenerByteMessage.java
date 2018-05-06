@@ -20,7 +20,7 @@ import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
@@ -30,7 +30,7 @@ public class TestListenerByteMessage {
 
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
+        SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
 
         SocketChannelConnector connector = new SocketChannelConnector(context);
 

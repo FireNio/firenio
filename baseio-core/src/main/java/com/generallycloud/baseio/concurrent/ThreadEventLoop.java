@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -56,7 +56,7 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
     @Override
     protected void doStartup() throws Exception {
 
-        ServerConfiguration sc = context.getServerConfiguration();
+        Configuration sc = context.getConfiguration();
 
         int eventQueueSize = sc.getSERVER_WORK_EVENT_QUEUE_SIZE();
 

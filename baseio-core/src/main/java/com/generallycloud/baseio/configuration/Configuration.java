@@ -21,7 +21,7 @@ import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.component.SocketChannelContext;
 
 //FIXME 校验参数
-public class ServerConfiguration {
+public class Configuration {
 
     private int     SERVER_PORT;
     private String  SERVER_HOST                      = "localhost";
@@ -48,13 +48,13 @@ public class ServerConfiguration {
     private String  SERVER_CERT_KEY;
     private String  SERVER_SSL_KEYSTORE;
 
-    public ServerConfiguration() {}
+    public Configuration() {}
 
-    public ServerConfiguration(int SERVER_PORT) {
+    public Configuration(int SERVER_PORT) {
         this.SERVER_PORT = SERVER_PORT;
     }
 
-    public ServerConfiguration(String SERVER_HOST, int SERVER_PORT) {
+    public Configuration(String SERVER_HOST, int SERVER_PORT) {
         this.SERVER_PORT = SERVER_PORT;
         this.SERVER_HOST = SERVER_HOST;
     }

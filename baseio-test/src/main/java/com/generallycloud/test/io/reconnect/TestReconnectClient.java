@@ -23,7 +23,7 @@ import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.connector.ReconnectableConnector;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -40,7 +40,7 @@ public class TestReconnectClient {
         };
 
         SocketChannelContext context = new NioSocketChannelContext(
-                new ServerConfiguration("localhost", 8300));
+                new Configuration("localhost", 8300));
 
         ReconnectableConnector connector = new ReconnectableConnector(context);
 

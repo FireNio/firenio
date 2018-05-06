@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestLineBasedServer {
@@ -44,7 +44,7 @@ public class TestLineBasedServer {
             }
         };
 
-        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
+        SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);

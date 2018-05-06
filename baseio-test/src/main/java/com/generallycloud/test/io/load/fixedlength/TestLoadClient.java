@@ -29,7 +29,7 @@ import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -64,7 +64,7 @@ public class TestLoadClient {
 
         };
 
-        ServerConfiguration configuration = new ServerConfiguration(8300);
+        Configuration configuration = new Configuration(8300);
         
 //        SocketChannelContext context = new NioSocketChannelContext(configuration);
         SocketChannelContext context = new AioSocketChannelContext(configuration);
@@ -73,7 +73,7 @@ public class TestLoadClient {
         context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
         connector.getContext().setProtocolCodec(new FixedLengthCodec());
-        connector.getContext().getServerConfiguration().setSERVER_CORE_SIZE(1);
+        connector.getContext().getConfiguration().setSERVER_CORE_SIZE(1);
         SocketSession session = connector.connect();
         System.out.println("################## Test start ####################");
         long old = System.currentTimeMillis();

@@ -18,38 +18,55 @@ package com.generallycloud.baseio.connector;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
-import com.generallycloud.baseio.component.AbstractChannelService;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.UnsafeSocketSession;
 import com.generallycloud.baseio.concurrent.Waiter;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 
 /**
  * @author wangkai
  *
  */
-public abstract class AbstractSocketChannelConnector extends AbstractChannelService
-        implements ChannelConnector {
+public abstract class AbstractSocketChannelConnector implements ChannelConnector {
 
     private UnsafeSocketSession session;
-    private long                timeout          = 3000;
+    private long                timeout       = 3000;
     private Waiter              waiter;
+    protected InetSocketAddress serverAddress = null;
 
     @Override
     public synchronized void close() throws IOException {
         if (getSession() != null) {
             CloseUtil.close(getSession());
         }
-        stop();
+        close0();
+        LifeCycleUtil.stop(getContext());
     }
+
+    protected abstract void close0();
 
     @Override
     public synchronized SocketSession connect() throws IOException {
+        if (isActive()) {
+            return session;
+        }
+        if (getContext() == null) {
+            throw new NullPointerException("null context");
+        }
         this.session = null;
-        this.initialize();
+        LifeCycleUtil.stop(getContext());
+        getContext().setChannelService(this);
+        LifeCycleUtil.start(getContext());
+        Configuration cfg = getContext().getConfiguration();
+        String SERVER_HOST = cfg.getSERVER_HOST();
+        int SERVER_PORT = cfg.getSERVER_PORT();
+        this.waiter = new Waiter();
+        this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
+        this.connect(getServerSocketAddress());
         return getSession();
     }
 
@@ -67,7 +84,7 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelServ
         this.session = session;
         if (exception != null) {
             waiter.response(exception);
-        }else{
+        } else {
             waiter.response(session);
         }
         if (waiter.isTimeouted()) {
@@ -86,15 +103,6 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelServ
     }
 
     @Override
-    protected void initService(ServerConfiguration configuration) throws IOException {
-        String SERVER_HOST = configuration.getSERVER_HOST();
-        int SERVER_PORT = configuration.getSERVER_PORT();
-        this.waiter = new Waiter();
-        this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
-        this.connect(getServerSocketAddress());
-    }
-
-    @Override
     public boolean isActive() {
         return isConnected();
     }
@@ -109,8 +117,13 @@ public abstract class AbstractSocketChannelConnector extends AbstractChannelServ
         this.timeout = timeout;
     }
 
+    @Override
+    public InetSocketAddress getServerSocketAddress() {
+        return serverAddress;
+    }
+
     protected void wait4connect() throws IOException {
-        if(waiter.await(timeout)){
+        if (waiter.await(timeout)) {
             CloseUtil.close(this);
             throw new TimeoutException("connect to " + getServerSocketAddress() + " time out");
         }

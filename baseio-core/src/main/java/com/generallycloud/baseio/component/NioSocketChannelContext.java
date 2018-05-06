@@ -19,7 +19,7 @@ import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 import com.generallycloud.baseio.concurrent.LineEventLoopGroup;
 import com.generallycloud.baseio.concurrent.ThreadEventLoopGroup;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 
 public class NioSocketChannelContext extends AbstractSocketChannelContext {
 
@@ -29,21 +29,21 @@ public class NioSocketChannelContext extends AbstractSocketChannelContext {
 
     private NioGlobalSocketSessionManager sessionManager;
 
-    public NioSocketChannelContext(ServerConfiguration configuration) {
+    public NioSocketChannelContext(Configuration configuration) {
         super(configuration);
         this.sessionManager = new NioGlobalSocketSessionManager();
     }
 
     private FixedAtomicInteger createChannelIdsSequence() {
-        int core_size = getServerConfiguration().getSERVER_CORE_SIZE();
+        int core_size = getConfiguration().getSERVER_CORE_SIZE();
         int max = (Integer.MAX_VALUE / core_size) * core_size - 1;
         return new FixedAtomicInteger(0, max);
     }
 
     @Override
     protected ExecutorEventLoopGroup createExecutorEventLoopGroup() {
-        int eventLoopSize = getServerConfiguration().getSERVER_CORE_SIZE();
-        if (getServerConfiguration().isSERVER_ENABLE_WORK_EVENT_LOOP()) {
+        int eventLoopSize = getConfiguration().getSERVER_CORE_SIZE();
+        if (getConfiguration().isSERVER_ENABLE_WORK_EVENT_LOOP()) {
             return new ThreadEventLoopGroup(this, "event-process", eventLoopSize);
         } else {
             return new LineEventLoopGroup("event-process", eventLoopSize);

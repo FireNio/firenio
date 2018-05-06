@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -44,8 +44,8 @@ public class SimpleTestProtobaseClient {
         };
 
         SocketChannelContext context = new NioSocketChannelContext(
-                new ServerConfiguration("localhost", 8300));
-        context.getServerConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
+                new Configuration("localhost", 8300));
+        context.getConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
         SocketChannelConnector connector = new SocketChannelConnector(context);
         connector.setTimeout(99999999);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);

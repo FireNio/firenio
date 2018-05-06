@@ -29,7 +29,7 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionEventListener;
 import com.generallycloud.baseio.component.SocketSessionManager;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -82,7 +82,7 @@ public class SimpleTestFIxedLengthServerPush {
                 session.flush(future);
             }
         };
-        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
+        SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.addSessionEventListener(new SocketSessionEventListener() {

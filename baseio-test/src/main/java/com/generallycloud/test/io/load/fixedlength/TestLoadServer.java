@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.test.io.fixedlength.SetOptionListener;
 
@@ -48,7 +48,7 @@ public class TestLoadServer {
             }
         };
 
-        ServerConfiguration c = new ServerConfiguration(8300);
+        Configuration c = new Configuration(8300);
 
         c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
         c.setSERVER_MEMORY_POOL_UNIT(128);

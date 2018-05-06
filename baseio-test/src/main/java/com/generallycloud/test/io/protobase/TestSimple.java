@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -41,7 +41,7 @@ public class TestSimple {
                 System.out.println("________________________" + future);
             }
         };
-        SocketChannelContext context = new NioSocketChannelContext(new ServerConfiguration(8300));
+        SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
         SocketChannelConnector connector = new SocketChannelConnector(context);
         context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());

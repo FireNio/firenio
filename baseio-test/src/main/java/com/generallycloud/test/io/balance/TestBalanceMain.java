@@ -24,7 +24,7 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 
 public class TestBalanceMain {
 
@@ -32,8 +32,8 @@ public class TestBalanceMain {
 
         BalanceServerBootStrap f = new BalanceServerBootStrap();
 
-        ServerConfiguration fc = new ServerConfiguration();
-        ServerConfiguration rc = new ServerConfiguration();
+        Configuration fc = new Configuration();
+        Configuration rc = new Configuration();
         fc.setSERVER_PORT(8600);
         rc.setSERVER_PORT(8800);
 

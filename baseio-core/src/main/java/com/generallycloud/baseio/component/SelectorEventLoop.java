@@ -225,7 +225,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
         if (executorEventLoop instanceof LineEventLoop) {
             ((LineEventLoop) executorEventLoop).setMonitor(this);
         }
-        int readBuffer = context.getServerConfiguration().getSERVER_CHANNEL_READ_BUFFER();
+        int readBuffer = context.getConfiguration().getSERVER_CHANNEL_READ_BUFFER();
         this.buf = UnpooledByteBufAllocator.getHeap().allocate(readBuffer);
         this.rebuildSelector();
     }

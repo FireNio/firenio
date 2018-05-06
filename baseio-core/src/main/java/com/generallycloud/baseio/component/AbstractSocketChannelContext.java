@@ -32,7 +32,7 @@ import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -50,7 +50,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     private IoEventHandleAdaptor                 ioEventHandleAdaptor;
     private Logger                               logger      = LoggerFactory.getLogger(getClass());
     private ProtocolCodec                        protocolCodec;
-    private ServerConfiguration                  serverConfiguration;
+    private Configuration                        configuration;
     private SocketSessionFactory                 sessionFactory;
     private long                                 sessionIdleTime;
     private SimulateSocketChannel                simulateSocketChannel;
@@ -59,11 +59,11 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     private SslContext                           sslContext;
     private long                                 startupTime = System.currentTimeMillis();
 
-    public AbstractSocketChannelContext(ServerConfiguration configuration) {
+    public AbstractSocketChannelContext(Configuration configuration) {
         if (configuration == null) {
             throw new IllegalArgumentException("null configuration");
         }
-        this.serverConfiguration = configuration;
+        this.configuration = configuration;
         this.addLifeCycleListener(new ChannelContextListener());
         this.sessionIdleTime = configuration.getSERVER_SESSION_IDLE_TIME();
     }
@@ -107,14 +107,14 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         }
         if (!initialized) {
             initialized = true;
-            serverConfiguration.initializeDefault(this);
+            configuration.initializeDefault(this);
         }
-        int SERVER_CORE_SIZE = serverConfiguration.getSERVER_CORE_SIZE();
-        int server_port = serverConfiguration.getSERVER_PORT();
-        long session_idle = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
+        int SERVER_CORE_SIZE = configuration.getSERVER_CORE_SIZE();
+        int server_port = configuration.getSERVER_PORT();
+        long session_idle = configuration.getSERVER_SESSION_IDLE_TIME();
         String protocolId = protocolCodec.getProtocolId();
-        this.encoding = serverConfiguration.getSERVER_ENCODING();
-        this.sessionIdleTime = serverConfiguration.getSERVER_SESSION_IDLE_TIME();
+        this.encoding = configuration.getSERVER_ENCODING();
+        this.sessionIdleTime = configuration.getSERVER_SESSION_IDLE_TIME();
         this.initializeByteBufAllocator();
         LoggerUtil.prettyLog(logger,
                 "======================================= service begin to start =======================================");
@@ -124,10 +124,10 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSSL());
         LoggerUtil.prettyLog(logger, "session idle          :{ {} }", session_idle);
         LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", server_port);
-        if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
-            long SERVER_MEMORY_POOL_CAPACITY = serverConfiguration.getSERVER_MEMORY_POOL_CAPACITY()
+        if (configuration.isSERVER_ENABLE_MEMORY_POOL()) {
+            long SERVER_MEMORY_POOL_CAPACITY = configuration.getSERVER_MEMORY_POOL_CAPACITY()
                     * SERVER_CORE_SIZE;
-            long SERVER_MEMORY_POOL_UNIT = serverConfiguration.getSERVER_MEMORY_POOL_UNIT();
+            long SERVER_MEMORY_POOL_UNIT = configuration.getSERVER_MEMORY_POOL_UNIT();
             double MEMORY_POOL_SIZE = new BigDecimal(
                     SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
                             .divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
@@ -212,8 +212,8 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     }
     
     @Override
-    public ServerConfiguration getServerConfiguration() {
-        return serverConfiguration;
+    public Configuration getConfiguration() {
+        return configuration;
     }
 
     @Override
@@ -252,7 +252,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
 
     protected void initializeByteBufAllocator() {
         if (getByteBufAllocatorManager() == null) {
-            if (serverConfiguration.isSERVER_ENABLE_MEMORY_POOL()) {
+            if (configuration.isSERVER_ENABLE_MEMORY_POOL()) {
                 this.byteBufAllocatorManager = new PooledByteBufAllocatorManager(this);
             } else {
                 this.byteBufAllocatorManager = new UnpooledByteBufAllocatorManager(this);

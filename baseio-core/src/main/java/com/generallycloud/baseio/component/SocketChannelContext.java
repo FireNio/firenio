@@ -23,7 +23,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public interface SocketChannelContext extends Attributes, LifeCycle {
@@ -48,7 +48,7 @@ public interface SocketChannelContext extends Attributes, LifeCycle {
 
     ProtocolCodec getProtocolCodec();
 
-    ServerConfiguration getServerConfiguration();
+    Configuration getConfiguration();
 
     List<SocketSessionEventListener> getSessionEventListeners();
 

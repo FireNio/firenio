@@ -20,7 +20,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 
 public class TestBytebufAllocator {
 
@@ -32,7 +32,7 @@ public class TestBytebufAllocator {
 
     static void test() throws Exception {
 
-        ServerConfiguration configuration = new ServerConfiguration();
+        Configuration configuration = new Configuration();
 
         configuration.setSERVER_MEMORY_POOL_CAPACITY(10);
 

@@ -18,7 +18,7 @@ package com.generallycloud.baseio.buffer;
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 
 /**
  * @author wangkai
@@ -43,7 +43,7 @@ public class UnpooledByteBufAllocatorManager extends AbstractLifeCycle
     @Override
     protected void doStart() throws Exception {
 
-        ServerConfiguration c = context.getServerConfiguration();
+        Configuration c = context.getConfiguration();
 
         boolean isDirect = c.isSERVER_ENABLE_MEMORY_POOL_DIRECT();
 

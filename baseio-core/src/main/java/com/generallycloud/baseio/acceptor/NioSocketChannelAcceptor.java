@@ -29,7 +29,7 @@ import com.generallycloud.baseio.component.NioChannelService;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SelectorEventLoopGroup;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -55,7 +55,7 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
         this.selectableChannel.configureBlocking(false);
         this.serverSocket = ((ServerSocketChannel) selectableChannel).socket();
         NioSocketChannelContext context = (NioSocketChannelContext) getContext();
-        ServerConfiguration configuration = getContext().getServerConfiguration();
+        Configuration configuration = getContext().getConfiguration();
         String eventLoopName = "nio-process(tcp-" + server.getPort() + ")";
         int core_size = configuration.getSERVER_CORE_SIZE();
         this.selectorEventLoopGroup = new SelectorEventLoopGroup(context, eventLoopName, core_size);
@@ -77,7 +77,7 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
     }
 
     @Override
-    protected void stop0() {
+    protected void unbind0() {
         CloseUtil.close(serverSocket);
         CloseUtil.close(selectableChannel);
         LifeCycleUtil.stop(selectorEventLoopGroup);

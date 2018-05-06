@@ -37,15 +37,12 @@ public class LifeCycleUtil {
     }
 
     public static void start(LifeCycle lifeCycle) {
-
         if (lifeCycle == null) {
             return;
         }
-
         if (!lifeCycle.isStopped()) {
             return;
         }
-
         try {
             lifeCycle.start();
         } catch (Throwable e) {

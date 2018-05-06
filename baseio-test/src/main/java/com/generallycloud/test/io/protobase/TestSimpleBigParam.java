@@ -22,7 +22,7 @@ import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.protobase.FixedSession;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
@@ -33,7 +33,7 @@ public class TestSimpleBigParam {
 
         String serviceKey = "TestSimpleServlet";
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
-        ServerConfiguration configuration = new ServerConfiguration(8300);
+        Configuration configuration = new Configuration(8300);
         SocketChannelContext context = new NioSocketChannelContext(configuration);
         SocketChannelConnector connector = new SocketChannelConnector(context);
         context.setIoEventHandleAdaptor(eventHandle);

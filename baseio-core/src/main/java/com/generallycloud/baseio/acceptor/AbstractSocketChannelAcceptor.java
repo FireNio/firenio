@@ -18,19 +18,20 @@ package com.generallycloud.baseio.acceptor;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.component.AbstractChannelService;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
  */
-public abstract class AbstractSocketChannelAcceptor extends AbstractChannelService
-        implements ChannelAcceptor {
+public abstract class AbstractSocketChannelAcceptor implements ChannelAcceptor {
 
+    private boolean              active        = false;
+    private InetSocketAddress    serverAddress = null;
     private SocketChannelContext context;
 
     AbstractSocketChannelAcceptor(SocketChannelContext context) {
@@ -39,7 +40,19 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelServi
 
     @Override
     public synchronized void bind() throws IOException {
-        this.initialize();
+        if (isActive()) {
+            return;
+        }
+        if (context == null) {
+            throw new NullPointerException("null context");
+        }
+        LifeCycleUtil.stop(context);
+        Configuration cfg = context.getConfiguration();
+        context.setChannelService(this);
+        LifeCycleUtil.start(context);
+        this.serverAddress = new InetSocketAddress(cfg.getSERVER_PORT());
+        this.bind(getServerSocketAddress());
+        active = true;
     }
 
     protected abstract void bind(InetSocketAddress server) throws IOException;
@@ -55,14 +68,13 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelServi
     }
 
     @Override
-    public SocketChannelContext getContext() {
-        return context;
+    public InetSocketAddress getServerSocketAddress() {
+        return serverAddress;
     }
 
     @Override
-    protected void initService(ServerConfiguration configuration) throws IOException {
-        this.serverAddress = new InetSocketAddress(configuration.getSERVER_PORT());
-        this.bind(getServerSocketAddress());
+    public SocketChannelContext getContext() {
+        return context;
     }
 
     @Override
@@ -70,9 +82,13 @@ public abstract class AbstractSocketChannelAcceptor extends AbstractChannelServi
         return active;
     }
 
+    protected abstract void unbind0();
+
     @Override
     public synchronized void unbind() throws TimeoutException {
-        stop();
+        active = false;
+        unbind0();
+        LifeCycleUtil.stop(getContext());
     }
 
 }

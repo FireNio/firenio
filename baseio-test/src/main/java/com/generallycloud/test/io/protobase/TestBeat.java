@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionActiveIEListener;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Future;
@@ -45,7 +45,7 @@ public class TestBeat {
         };
 
         String serviceKey = "TestSimpleServlet";
-        ServerConfiguration configuration = new ServerConfiguration(8300);
+        Configuration configuration = new Configuration(8300);
         configuration.setSERVER_SESSION_IDLE_TIME(10);
         SocketChannelContext context = new NioSocketChannelContext(configuration);
         SocketChannelConnector connector = new SocketChannelConnector(context);

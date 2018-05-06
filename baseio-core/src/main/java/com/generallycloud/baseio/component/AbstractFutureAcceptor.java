@@ -65,7 +65,7 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
     }
 
     private void createHeartBeatLogger(SocketChannelContext context) {
-        if (context.getServerConfiguration().isSERVER_ENABLE_HEARTBEAT_LOG()) {
+        if (context.getConfiguration().isSERVER_ENABLE_HEARTBEAT_LOG()) {
             heartBeatLogger = new HeartBeatLogger() {
                 @Override
                 public void logRequest(SocketSession session) {

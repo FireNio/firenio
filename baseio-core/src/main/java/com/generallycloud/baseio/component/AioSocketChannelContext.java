@@ -23,7 +23,7 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.concurrent.AioLineEventLoopGroup;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.concurrent.ThreadEventLoopGroup;
-import com.generallycloud.baseio.configuration.ServerConfiguration;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -37,14 +37,14 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
     private ChannelService                   channelService;
     private Logger                           logger = LoggerFactory.getLogger(getClass());
 
-    public AioSocketChannelContext(ServerConfiguration configuration) {
+    public AioSocketChannelContext(Configuration configuration) {
         super(configuration);
     }
 
     @Override
     protected ExecutorEventLoopGroup createExecutorEventLoopGroup() {
-        int eventLoopSize = getServerConfiguration().getSERVER_CORE_SIZE();
-        if (getServerConfiguration().isSERVER_ENABLE_WORK_EVENT_LOOP()) {
+        int eventLoopSize = getConfiguration().getSERVER_CORE_SIZE();
+        if (getConfiguration().isSERVER_ENABLE_WORK_EVENT_LOOP()) {
             return new ThreadEventLoopGroup(this, "event-process", eventLoopSize);
         } else {
             return new AioLineEventLoopGroup("event-process", eventLoopSize);
@@ -55,7 +55,7 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
     protected void doStartModule() throws Exception {
         smEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 1, this);
         sessionManager = new AioSocketSessionManager(this);
-        ServerConfiguration sc = getServerConfiguration();
+        Configuration sc = getConfiguration();
         LifeCycleUtil.start(smEventLoopGroup);
         String threadName = "aio-process(tcp-" + sc.getSERVER_PORT() + ")";
         AsynchronousChannelProvider provider = AsynchronousChannelProvider.provider();
