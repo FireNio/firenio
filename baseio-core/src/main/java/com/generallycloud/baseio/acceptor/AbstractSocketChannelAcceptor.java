@@ -21,7 +21,6 @@ import java.net.InetSocketAddress;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -31,7 +30,7 @@ import com.generallycloud.baseio.protocol.Future;
 public abstract class AbstractSocketChannelAcceptor implements ChannelAcceptor {
 
     private boolean              active        = false;
-    private InetSocketAddress    serverAddress = null;
+    private InetSocketAddress    serverAddress;
     private SocketChannelContext context;
 
     AbstractSocketChannelAcceptor(SocketChannelContext context) {
@@ -46,11 +45,11 @@ public abstract class AbstractSocketChannelAcceptor implements ChannelAcceptor {
         if (context == null) {
             throw new NullPointerException("null context");
         }
-        LifeCycleUtil.stop(context);
-        Configuration cfg = context.getConfiguration();
-        context.setChannelService(this);
-        LifeCycleUtil.start(context);
-        this.serverAddress = new InetSocketAddress(cfg.getSERVER_PORT());
+        LifeCycleUtil.stop(getContext());
+        getContext().setChannelService(this);
+        LifeCycleUtil.start(getContext());
+        int port = getContext().getConfiguration().getSERVER_PORT();
+        this.serverAddress = new InetSocketAddress(port);
         this.bind(getServerSocketAddress());
         active = true;
     }

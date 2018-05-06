@@ -25,7 +25,6 @@ import com.generallycloud.baseio.common.MessageFormatter;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.UnsafeSocketSession;
 import com.generallycloud.baseio.concurrent.Waiter;
-import com.generallycloud.baseio.configuration.Configuration;
 
 /**
  * @author wangkai
@@ -34,9 +33,9 @@ import com.generallycloud.baseio.configuration.Configuration;
 public abstract class AbstractSocketChannelConnector implements ChannelConnector {
 
     private UnsafeSocketSession session;
-    private long                timeout       = 3000;
+    private long                timeout = 3000;
     private Waiter              waiter;
-    protected InetSocketAddress serverAddress = null;
+    private InetSocketAddress   serverAddress;
 
     @Override
     public synchronized void close() throws IOException {
@@ -60,10 +59,10 @@ public abstract class AbstractSocketChannelConnector implements ChannelConnector
         this.session = null;
         LifeCycleUtil.stop(getContext());
         getContext().setChannelService(this);
+        getContext().getConfiguration().setSERVER_CORE_SIZE(1);
         LifeCycleUtil.start(getContext());
-        Configuration cfg = getContext().getConfiguration();
-        String SERVER_HOST = cfg.getSERVER_HOST();
-        int SERVER_PORT = cfg.getSERVER_PORT();
+        String SERVER_HOST = getContext().getConfiguration().getSERVER_HOST();
+        int SERVER_PORT = getContext().getConfiguration().getSERVER_PORT();
         this.waiter = new Waiter();
         this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
         this.connect(getServerSocketAddress());
