@@ -83,13 +83,13 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     @Override
     protected void destroy(SocketChannelContext context) throws Exception {
         this.deploying = true;
-        this.destroyHandle(context);
+        this.destroyHandle(context, false);
         super.destroy(context);
     }
 
-    private void destroyHandle(SocketChannelContext context) throws Exception {
+    private void destroyHandle(SocketChannelContext context, boolean redeploy) throws Exception {
         classLoader.unloadClassLoader();
-        getFutureAcceptor().destroy(context);
+        getFutureAcceptor().destroy(context, redeploy);
     }
 
     @Override
@@ -157,12 +157,12 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         this.encoding = channelContext.getEncoding();
         this.appLocalAddres = FileUtil.getPrettyPath(getRootLocalAddress() + "app");
         LoggerUtil.prettyLog(logger, "application path      :{ {} }", appLocalAddres);
-        this.initializeHandle(context);
+        this.initializeHandle(context, false);
         this.deploying = false;
         super.initialize(context);
     }
 
-    private void initializeHandle(SocketChannelContext context) throws Exception {
+    private void initializeHandle(SocketChannelContext context, boolean redeploy) throws Exception {
         ClassLoader parent = getClass().getClassLoader();
         this.classLoader = ApplicationBootstrap.newClassLoader(parent, runtimeMode, true,
                 rootLocalAddress, ApplicationBootstrap.withDefault());
@@ -183,7 +183,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         }
         Class<?> clazz = classLoader.loadClass(configuration.getAPP_FUTURE_ACCEPTOR());
         futureAcceptor = (ContainerIoEventHandle) clazz.newInstance();
-        getFutureAcceptor().initialize(channelContext);
+        getFutureAcceptor().initialize(channelContext, redeploy);
     }
 
     private Object newInstanceFromClass(String className, Object defaultObj) throws Exception {
@@ -209,10 +209,10 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
                 "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  开始卸载服务  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         this.deploying = true;
         try {
-            destroyHandle(channelContext);
+            destroyHandle(channelContext, true);
             LoggerUtil.prettyLog(logger,
                     "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  开始加载服务  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-            initializeHandle(channelContext);
+            initializeHandle(channelContext, true);
             deploying = false;
             LoggerUtil.prettyLog(logger,
                     "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  加载服务完成  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");

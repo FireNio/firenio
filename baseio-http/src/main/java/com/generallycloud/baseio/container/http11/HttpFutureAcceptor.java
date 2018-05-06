@@ -26,7 +26,6 @@ import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpHeaderDateFormat;
 import com.generallycloud.baseio.codec.http11.HttpStatus;
 import com.generallycloud.baseio.codec.http11.ServerHttpFuture;
-import com.generallycloud.baseio.codec.http11.WebSocketSEListener;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
@@ -84,9 +83,9 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     }
 
     @Override
-    protected void destroy(SocketChannelContext context) throws Exception {
+    protected void destroy(SocketChannelContext context, boolean redeploy) throws Exception {
         LifeCycleUtil.stop(httpSessionManager);
-        super.destroy(context);
+        super.destroy(context, redeploy);
     }
 
     @Override
@@ -124,7 +123,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         session.flush(future);
     }
 
-    private ApplicationIoEventHandle geApplicationIoEventHandle(SocketChannelContext context) {
+    private ApplicationIoEventHandle getApplicationIoEventHandle(SocketChannelContext context) {
         return (ApplicationIoEventHandle) context.getIoEventHandleAdaptor();
     }
 
@@ -150,14 +149,14 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     }
 
     @Override
-    protected void initialize(SocketChannelContext context) throws Exception {
+    protected void initialize(SocketChannelContext context, boolean redeploy) throws Exception {
         initializeHtml(context);
         initializeSessionManager(context);
-        super.initialize(context);
+        super.initialize(context, redeploy);
     }
 
     private void initializeHtml(SocketChannelContext context) throws Exception {
-        ApplicationIoEventHandle handle = geApplicationIoEventHandle(context);
+        ApplicationIoEventHandle handle = getApplicationIoEventHandle(context);
         String rootPath = handle.getAppLocalAddress();
         File rootFile = new File(rootPath);
         Map<String, String> mapping = new HashMap<>();
@@ -179,14 +178,13 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     }
 
     private void initializeSessionManager(SocketChannelContext context) throws Exception {
-        ApplicationIoEventHandle handle = geApplicationIoEventHandle(context);
+        ApplicationIoEventHandle handle = getApplicationIoEventHandle(context);
         if (handle.getConfiguration().isAPP_ENABLE_HTTP_SESSION()) {
             httpSessionManager = new DefaultHttpSessionManager();
             httpSessionManager.startup("http-session-manager");
         } else {
             httpSessionManager = new FakeHttpSessionManager();
         }
-        context.addSessionEventListener(new WebSocketSEListener());
     }
 
     private void reloadEntity(HttpEntity entity, SocketChannelContext context, HttpStatus status)

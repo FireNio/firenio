@@ -21,7 +21,7 @@ import com.generallycloud.baseio.component.SocketSessionELAdapter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class WebSocketSEListener extends SocketSessionELAdapter {
+public class WebSocketSessionEListener extends SocketSessionELAdapter {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 

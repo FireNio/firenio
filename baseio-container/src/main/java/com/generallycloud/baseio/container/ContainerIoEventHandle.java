@@ -34,8 +34,8 @@ public abstract class ContainerIoEventHandle implements IoEventHandle {
     @Override
     public void futureSent(SocketSession session, Future future) {}
 
-    protected void initialize(SocketChannelContext context) throws Exception {}
+    protected void initialize(SocketChannelContext context, boolean redeploy) throws Exception {}
 
-    protected void destroy(SocketChannelContext context) throws Exception {}
+    protected void destroy(SocketChannelContext context, boolean redeploy) throws Exception {}
 
 }

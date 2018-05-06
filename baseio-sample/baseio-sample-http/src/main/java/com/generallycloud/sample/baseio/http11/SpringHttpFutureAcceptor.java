@@ -58,14 +58,14 @@ public class SpringHttpFutureAcceptor extends HttpFutureAcceptor {
     }
 
     @Override
-    protected void destroy(SocketChannelContext context) throws Exception {
+    protected void destroy(SocketChannelContext context, boolean redeploy) throws Exception {
         applicationContext.destroy();
-        super.destroy(context);
+        super.destroy(context, redeploy);
     }
 
     @Override
-    protected void initialize(SocketChannelContext context) throws Exception {
-        super.initialize(context);
+    protected void initialize(SocketChannelContext context, boolean redeploy) throws Exception {
+        super.initialize(context, redeploy);
         System.setProperty("org.apache.commons.logging.log", Sl4jLogger.class.getName());
         Thread.currentThread().setContextClassLoader(null); //for spring
         applicationContext = new ClassPathXmlApplicationContext("classpath:spring-core.xml");

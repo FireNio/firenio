@@ -46,8 +46,8 @@ public class SpringProtobaseFutureAcceptor extends ProtobaseFutureAcceptor{
     }
     
     @Override
-    protected void initialize(SocketChannelContext context) throws Exception {
-        super.initialize(context);
+    protected void initialize(SocketChannelContext context, boolean redeploy) throws Exception {
+        super.initialize(context, redeploy);
         Thread.currentThread().setContextClassLoader(null); // for spring
         System.setProperty("org.apache.commons.logging.log", Sl4jLogger.class.getName());
         applicationContext = new ClassPathXmlApplicationContext("classpath:spring-core.xml");
@@ -55,9 +55,9 @@ public class SpringProtobaseFutureAcceptor extends ProtobaseFutureAcceptor{
     }
     
     @Override
-    protected void destroy(SocketChannelContext context) throws Exception {
+    protected void destroy(SocketChannelContext context, boolean redeploy) throws Exception {
         applicationContext.destroy();
-        super.destroy(context);
+        super.destroy(context, redeploy);
     }
     
     public ApplicationContext getApplicationContext(){
