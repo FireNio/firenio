@@ -86,7 +86,7 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
     }
 
     @Override
-    protected InetSocketAddress getLocalSocketAddress0() throws IOException {
+    protected InetSocketAddress getLocalSocketAddress0() {
         throw new UnsupportedOperationException();
     }
 

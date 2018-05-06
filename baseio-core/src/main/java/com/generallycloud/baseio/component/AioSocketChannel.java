@@ -81,8 +81,12 @@ public class AioSocketChannel extends AbstractSocketChannel {
     }
 
     @Override
-    protected InetSocketAddress getLocalSocketAddress0() throws IOException {
-        return (InetSocketAddress) channel.getLocalAddress();
+    protected InetSocketAddress getLocalSocketAddress0() {
+        try {
+            return (InetSocketAddress) channel.getLocalAddress();
+        } catch (IOException e) {
+            return ERROR_SOCKET_ADDRESS;
+        }
     }
 
     private volatile boolean flushing;

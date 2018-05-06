@@ -144,7 +144,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         //FIXME ..如果这时候连接关闭了如何处理
         //请勿使用remote.getRemoteHost(),可能出现阻塞
         InetSocketAddress remote = getRemoteSocketAddress0();
-        InetSocketAddress local = getRemoteSocketAddress0();
+        InetSocketAddress local = getLocalSocketAddress0();
         remoteAddr = remote.getAddress().getHostAddress();
         remotePort = remote.getPort();
         remoteAddrPort = remoteAddr + ":" + remotePort;
@@ -267,7 +267,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         return localPort;
     }
 
-    protected abstract InetSocketAddress getLocalSocketAddress0() throws IOException;
+    protected abstract InetSocketAddress getLocalSocketAddress0();
 
     @Override
     public ProtocolCodec getProtocolCodec() {

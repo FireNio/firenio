@@ -112,8 +112,12 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
     }
 
     @Override
-    protected InetSocketAddress getLocalSocketAddress0() throws IOException {
-        return (InetSocketAddress) channel.getLocalAddress();
+    protected InetSocketAddress getLocalSocketAddress0() {
+        try {
+            return (InetSocketAddress) channel.getLocalAddress();
+        } catch (IOException e) {
+            return ERROR_SOCKET_ADDRESS;
+        }
     }
 
     @Override
