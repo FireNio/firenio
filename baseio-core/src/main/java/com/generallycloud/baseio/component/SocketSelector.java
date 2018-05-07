@@ -26,7 +26,7 @@ import java.util.Set;
 import com.generallycloud.baseio.acceptor.ChannelAcceptor;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
-import com.generallycloud.baseio.connector.AbstractSocketChannelConnector;
+import com.generallycloud.baseio.connector.AbstractChannelConnector;
 
 /**
  * @author wangkai
@@ -55,8 +55,8 @@ public class SocketSelector implements Closeable {
 
     public void finishConnect(UnsafeSocketSession session, Throwable e) {
         ChannelService service = context.getChannelService();
-        if (service instanceof AbstractSocketChannelConnector) {
-            ((AbstractSocketChannelConnector) service).finishConnect(session, e);
+        if (service instanceof AbstractChannelConnector) {
+            ((AbstractChannelConnector) service).finishConnect(session, e);
         }
     }
 

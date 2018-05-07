@@ -34,7 +34,7 @@ import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.LinkedQueue;
 import com.generallycloud.baseio.concurrent.ScspLinkedQueue;
-import com.generallycloud.baseio.connector.AbstractSocketChannelConnector;
+import com.generallycloud.baseio.connector.AbstractChannelConnector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
@@ -121,7 +121,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     @Override
     public void finishHandshake(Exception e) {
         if (getContext().getSslContext().isClient()) {
-            AbstractSocketChannelConnector connector = (AbstractSocketChannelConnector) getContext()
+            AbstractChannelConnector connector = (AbstractChannelConnector) getContext()
                     .getChannelService();
             connector.finishConnect(getSession(), e);
         }

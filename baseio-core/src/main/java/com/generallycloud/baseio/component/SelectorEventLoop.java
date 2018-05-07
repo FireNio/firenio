@@ -370,11 +370,11 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
     }
 
     private SocketSelector rebuildSelector0() throws IOException {
-        SocketChannelContext context = getChannelContext();
-        NioChannelService nioChannelService = (NioChannelService) context.getChannelService();
-        SelectableChannel channel = nioChannelService.getSelectableChannel();
+        NioSocketChannelContext context = getChannelContext();
+        SelectableChannel channel = context.getSelectableChannel();
         SocketSelector selector = openSelector(channel);
-        if (nioChannelService instanceof ChannelAcceptor) {
+        if (context.getChannelService() instanceof ChannelAcceptor) {
+            //FIXME 使用多eventLoop accept是否导致卡顿 是否要区分accept和read
             //            if (isMainEventLoop()) {
             channel.register(selector.getSelector(), SelectionKey.OP_ACCEPT);
             //            }

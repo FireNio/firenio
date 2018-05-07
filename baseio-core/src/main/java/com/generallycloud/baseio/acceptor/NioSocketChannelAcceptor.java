@@ -25,9 +25,7 @@ import java.nio.channels.ServerSocketChannel;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.component.NioChannelService;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
@@ -37,16 +35,16 @@ import com.generallycloud.baseio.log.LoggerFactory;
  * @author wangkai
  *
  */
-public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
-        implements NioChannelService {
+public class NioSocketChannelAcceptor extends AbstractChannelAcceptor {
 
-    private Logger                 logger                 = LoggerFactory.getLogger(getClass());
-    private ServerSocket           serverSocket           = null;
-    private SelectableChannel      selectableChannel      = null;
-    private SelectorEventLoopGroup selectorEventLoopGroup = null;
+    private Logger                  logger                 = LoggerFactory.getLogger(getClass());
+    private ServerSocket            serverSocket           = null;
+    private SelectableChannel       selectableChannel      = null;
+    private SelectorEventLoopGroup  selectorEventLoopGroup = null;
+    private NioSocketChannelContext context;
 
-    public NioSocketChannelAcceptor(SocketChannelContext context) {
-        super(context);
+    NioSocketChannelAcceptor(NioSocketChannelContext context) {
+        this.context = context;
     }
 
     @Override
@@ -54,12 +52,13 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
         this.selectableChannel = ServerSocketChannel.open();
         this.selectableChannel.configureBlocking(false);
         this.serverSocket = ((ServerSocketChannel) selectableChannel).socket();
-        NioSocketChannelContext context = (NioSocketChannelContext) getContext();
+        context.setSelectableChannel(selectableChannel);
         Configuration configuration = getContext().getConfiguration();
         String eventLoopName = "nio-process(tcp-" + server.getPort() + ")";
         int core_size = configuration.getSERVER_CORE_SIZE();
         this.selectorEventLoopGroup = new SelectorEventLoopGroup(context, eventLoopName, core_size);
         LifeCycleUtil.start(selectorEventLoopGroup);
+        context.setSelectorEventLoopGroup(selectorEventLoopGroup);
         context.getSessionManager().init(context);
         try {
             this.serverSocket.bind(server, 50);
@@ -77,20 +76,15 @@ public class NioSocketChannelAcceptor extends AbstractSocketChannelAcceptor
     }
 
     @Override
+    public NioSocketChannelContext getContext() {
+        return context;
+    }
+
+    @Override
     protected void unbind0() {
         CloseUtil.close(serverSocket);
         CloseUtil.close(selectableChannel);
         LifeCycleUtil.stop(selectorEventLoopGroup);
-    }
-
-    @Override
-    public SelectableChannel getSelectableChannel() {
-        return selectableChannel;
-    }
-
-    @Override
-    public SelectorEventLoopGroup getSelectorEventLoopGroup() {
-        return selectorEventLoopGroup;
     }
 
 }

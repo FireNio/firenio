@@ -36,12 +36,13 @@ import com.generallycloud.baseio.log.LoggerFactory;
  * @author wangkai
  *
  */
-public class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
-
+public class AioSocketChannelAcceptor extends AbstractChannelAcceptor {
+    
+    private AioSocketChannelContext context;
     private AsynchronousServerSocketChannel serverSocketChannel;
 
-    public AioSocketChannelAcceptor(AioSocketChannelContext context) {
-        super(context);
+    AioSocketChannelAcceptor(AioSocketChannelContext context) {
+        this.context = context;
     }
 
     private Logger logger = LoggerFactory.getLogger(getClass());
@@ -86,6 +87,11 @@ public class AioSocketChannelAcceptor extends AbstractSocketChannelAcceptor {
             }
         });
         LoggerUtil.prettyLog(logger, "server listening @{}", getServerSocketAddress());
+    }
+    
+    @Override
+    public AioSocketChannelContext getContext() {
+        return context;
     }
 
     @Override

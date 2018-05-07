@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.nio.channels.SelectableChannel;
+
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 import com.generallycloud.baseio.concurrent.LineEventLoopGroup;
@@ -24,10 +26,10 @@ import com.generallycloud.baseio.configuration.Configuration;
 public class NioSocketChannelContext extends AbstractSocketChannelContext {
 
     private FixedAtomicInteger            channelIds;
-
-    private NioChannelService             channelService;
-
+    private ChannelService                channelService;
     private NioGlobalSocketSessionManager sessionManager;
+    private SelectorEventLoopGroup        selectorEventLoopGroup;
+    private SelectableChannel             selectableChannel;
 
     public NioSocketChannelContext(Configuration configuration) {
         super(configuration);
@@ -56,12 +58,12 @@ public class NioSocketChannelContext extends AbstractSocketChannelContext {
         super.doStartModule();
     }
 
-    public FixedAtomicInteger getChannelIds() {
+    protected FixedAtomicInteger getChannelIds() {
         return channelIds;
     }
-    
+
     @Override
-    public NioChannelService getChannelService() {
+    public ChannelService getChannelService() {
         return channelService;
     }
 
@@ -72,7 +74,23 @@ public class NioSocketChannelContext extends AbstractSocketChannelContext {
 
     @Override
     public void setChannelService(ChannelService service) {
-        this.channelService = (NioChannelService) service;
+        this.channelService = service;
+    }
+
+    public SelectorEventLoopGroup getSelectorEventLoopGroup() {
+        return selectorEventLoopGroup;
+    }
+
+    public void setSelectorEventLoopGroup(SelectorEventLoopGroup selectorEventLoopGroup) {
+        this.selectorEventLoopGroup = selectorEventLoopGroup;
+    }
+
+    public SelectableChannel getSelectableChannel() {
+        return selectableChannel;
+    }
+
+    public void setSelectableChannel(SelectableChannel selectableChannel) {
+        this.selectableChannel = selectableChannel;
     }
 
 }

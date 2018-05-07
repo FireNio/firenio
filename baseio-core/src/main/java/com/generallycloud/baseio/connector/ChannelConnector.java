@@ -16,18 +16,20 @@
 package com.generallycloud.baseio.connector;
 
 import java.io.Closeable;
+import java.io.IOException;
 
 import com.generallycloud.baseio.component.ChannelService;
-import com.generallycloud.baseio.component.Connectable;
 import com.generallycloud.baseio.component.SocketSession;
 
-public interface ChannelConnector extends ChannelService, Connectable, Closeable {
+public interface ChannelConnector extends ChannelService, Closeable {
+    
+    SocketSession connect() throws IOException;
 
     SocketSession getSession();
 
-    boolean isConnected();
-
     long getTimeout();
+
+    boolean isConnected();
 
     void setTimeout(long timeout);
 

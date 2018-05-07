@@ -30,13 +30,13 @@ import com.generallycloud.baseio.protocol.Future;
  */
 public class SocketChannelAcceptor implements ChannelAcceptor {
 
-    private AbstractSocketChannelAcceptor _channelAcceptor;
+    private AbstractChannelAcceptor _channelAcceptor;
 
     public SocketChannelAcceptor(SocketChannelContext context) {
         this._channelAcceptor = buildConnector(context);
     }
 
-    private AbstractSocketChannelAcceptor unwrap() {
+    private AbstractChannelAcceptor unwrap() {
         return _channelAcceptor;
     }
 
@@ -70,9 +70,9 @@ public class SocketChannelAcceptor implements ChannelAcceptor {
         unwrap().broadcast(future);
     }
 
-    private AbstractSocketChannelAcceptor buildConnector(SocketChannelContext context) {
+    private AbstractChannelAcceptor buildConnector(SocketChannelContext context) {
         if (context instanceof NioSocketChannelContext) {
-            return new NioSocketChannelAcceptor(context);
+            return new NioSocketChannelAcceptor((NioSocketChannelContext) context);
         } else if (context instanceof AioSocketChannelContext) {
             return new AioSocketChannelAcceptor((AioSocketChannelContext) context);
         }

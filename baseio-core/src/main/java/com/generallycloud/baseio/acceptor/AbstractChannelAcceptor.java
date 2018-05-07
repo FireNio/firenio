@@ -20,29 +20,25 @@ import java.net.InetSocketAddress;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SocketSessionManager;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
  */
-public abstract class AbstractSocketChannelAcceptor implements ChannelAcceptor {
+public abstract class AbstractChannelAcceptor implements ChannelAcceptor {
 
     private boolean              active        = false;
     private InetSocketAddress    serverAddress;
-    private SocketChannelContext context;
-
-    AbstractSocketChannelAcceptor(SocketChannelContext context) {
-        this.context = context;
-    }
+    private SocketSessionManager sessionManager;
 
     @Override
     public synchronized void bind() throws IOException {
         if (isActive()) {
             return;
         }
-        if (context == null) {
+        if (getContext() == null) {
             throw new NullPointerException("null context");
         }
         LifeCycleUtil.stop(getContext());
@@ -51,29 +47,25 @@ public abstract class AbstractSocketChannelAcceptor implements ChannelAcceptor {
         int port = getContext().getConfiguration().getSERVER_PORT();
         this.serverAddress = new InetSocketAddress(port);
         this.bind(getServerSocketAddress());
-        active = true;
+        this.sessionManager = getContext().getSessionManager();
+        this.active = true;
     }
 
     protected abstract void bind(InetSocketAddress server) throws IOException;
 
     @Override
     public void broadcast(Future future) throws IOException {
-        context.getSessionManager().broadcast(future);
+        sessionManager.broadcast(future);
     }
 
     @Override
     public void broadcastChannelFuture(ChannelFuture future) throws IOException {
-        context.getSessionManager().broadcastChannelFuture(future);
+        sessionManager.broadcastChannelFuture(future);
     }
 
     @Override
     public InetSocketAddress getServerSocketAddress() {
         return serverAddress;
-    }
-
-    @Override
-    public SocketChannelContext getContext() {
-        return context;
     }
 
     @Override

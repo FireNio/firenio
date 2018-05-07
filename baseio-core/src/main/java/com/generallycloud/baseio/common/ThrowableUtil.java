@@ -15,6 +15,9 @@
  */
 package com.generallycloud.baseio.common;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 public class ThrowableUtil {
 
     private ThrowableUtil() {}
@@ -24,6 +27,18 @@ public class ThrowableUtil {
         cause.setStackTrace(new StackTraceElement[] {
                 new StackTraceElement(clazz.getName(), method, null, -1) });
         return cause;
+    }
+
+    public static String stackTraceToString(Throwable cause) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintStream pout = new PrintStream(out);
+        cause.printStackTrace(pout);
+        pout.flush();
+        try {
+            return new String(out.toByteArray());
+        } finally {
+            CloseUtil.close(out);
+        }
     }
 
 }

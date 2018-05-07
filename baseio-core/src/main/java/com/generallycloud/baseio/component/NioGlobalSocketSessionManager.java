@@ -31,19 +31,14 @@ import com.generallycloud.baseio.protocol.Future;
 public class NioGlobalSocketSessionManager implements SocketSessionManager {
 
     private Map<Integer, SocketSession> sessions         = new ConcurrentHashMap<>();
-
     private Map<Integer, SocketSession> readOnlySessions = Collections.unmodifiableMap(sessions);
-
     private SocketSessionManager[]      socketSessionManagers;
-
     private int                         managerLen;
-
     private NioSocketChannelContext     context;
 
     public void init(NioSocketChannelContext context) {
         this.context = context;
-        NioChannelService service = (NioChannelService) context.getChannelService();
-        SelectorEventLoopGroup group = service.getSelectorEventLoopGroup();
+        SelectorEventLoopGroup group = context.getSelectorEventLoopGroup();
         managerLen = group.getEventLoopSize();
         socketSessionManagers = new SocketSessionManager[managerLen];
         for (int i = 0; i < managerLen; i++) {

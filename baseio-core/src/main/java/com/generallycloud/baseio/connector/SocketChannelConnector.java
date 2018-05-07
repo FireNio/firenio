@@ -29,7 +29,7 @@ import com.generallycloud.baseio.component.SocketSession;
  */
 public class SocketChannelConnector implements ChannelConnector {
 
-    private AbstractSocketChannelConnector connector;
+    private AbstractChannelConnector connector;
 
     private SocketChannelContext           context;
 
@@ -38,7 +38,7 @@ public class SocketChannelConnector implements ChannelConnector {
         this.connector = buildConnector(context);
     }
 
-    private AbstractSocketChannelConnector unwrap() {
+    private AbstractChannelConnector unwrap() {
         return connector;
     }
 
@@ -87,7 +87,7 @@ public class SocketChannelConnector implements ChannelConnector {
         unwrap().setTimeout(timeout);
     }
 
-    private AbstractSocketChannelConnector buildConnector(SocketChannelContext context) {
+    private AbstractChannelConnector buildConnector(SocketChannelContext context) {
         if (context instanceof NioSocketChannelContext) {
             return new NioSocketChannelConnector((NioSocketChannelContext) context);
         } else if (context instanceof AioSocketChannelContext) {
@@ -99,7 +99,7 @@ public class SocketChannelConnector implements ChannelConnector {
     /**
      * @return the _connector
      */
-    public AbstractSocketChannelConnector getConnector() {
+    public AbstractChannelConnector getConnector() {
         return unwrap();
     }
 

@@ -23,8 +23,6 @@ import java.nio.channels.SocketChannel;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.component.NioChannelService;
-import com.generallycloud.baseio.component.NioGlobalSocketSessionManager;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.log.Logger;
@@ -34,8 +32,7 @@ import com.generallycloud.baseio.log.LoggerFactory;
  * @author wangkai
  *
  */
-public class NioSocketChannelConnector extends AbstractSocketChannelConnector
-        implements NioChannelService {
+public class NioSocketChannelConnector extends AbstractChannelConnector {
 
     private NioSocketChannelContext context;
     private SelectableChannel       selectableChannel = null;
@@ -57,11 +54,12 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
         LifeCycleUtil.stop(eventLoopGroup);
         selectableChannel = SocketChannel.open();
         selectableChannel.configureBlocking(false);
+        getContext().setSelectableChannel(selectableChannel);
         String eventLoopName = "nio-process(tcp-" + server.getPort() + ")";
         eventLoopGroup = new SelectorEventLoopGroup(getContext(), eventLoopName, 1);
         LifeCycleUtil.start(eventLoopGroup);
-        NioGlobalSocketSessionManager manager = getContext().getSessionManager();
-        manager.init(getContext());
+        getContext().setSelectorEventLoopGroup(eventLoopGroup);
+        getContext().getSessionManager().init(getContext());
         SocketChannel ch = (SocketChannel) selectableChannel;
         ch.connect(server);
         wait4connect();
@@ -73,18 +71,8 @@ public class NioSocketChannelConnector extends AbstractSocketChannelConnector
     }
 
     @Override
-    public SelectableChannel getSelectableChannel() {
-        return selectableChannel;
-    }
-
-    @Override
     protected void connected() {
         LoggerUtil.prettyLog(logger, "connected to server @{}", getServerSocketAddress());
-    }
-
-    @Override
-    public SelectorEventLoopGroup getSelectorEventLoopGroup() {
-        return eventLoopGroup;
     }
 
 }

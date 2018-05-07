@@ -30,7 +30,7 @@ import com.generallycloud.baseio.concurrent.Waiter;
  * @author wangkai
  *
  */
-public abstract class AbstractSocketChannelConnector implements ChannelConnector {
+public abstract class AbstractChannelConnector implements ChannelConnector {
 
     private UnsafeSocketSession session;
     private long                timeout = 3000;

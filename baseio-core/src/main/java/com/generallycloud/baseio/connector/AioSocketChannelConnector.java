@@ -33,12 +33,12 @@ import com.generallycloud.baseio.log.LoggerFactory;
  * @author wangkai
  *
  */
-public class AioSocketChannelConnector extends AbstractSocketChannelConnector {
+public class AioSocketChannelConnector extends AbstractChannelConnector {
 
     private AioSocketChannelContext context;
     private Logger                  logger = LoggerFactory.getLogger(getClass());
 
-    protected AioSocketChannelConnector(AioSocketChannelContext context) {
+    AioSocketChannelConnector(AioSocketChannelContext context) {
         this.context = context;
     }
 
