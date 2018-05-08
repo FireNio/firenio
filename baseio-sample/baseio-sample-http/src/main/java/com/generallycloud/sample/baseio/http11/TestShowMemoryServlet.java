@@ -24,6 +24,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.container.http11.HtmlUtil;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptor;
@@ -92,6 +93,12 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
         builder.append(rumpetrollMsgAdapter.getClientSize());
         builder.append("\n</BR>服务器当前连接数（io-session）：");
         builder.append(context.getSessionManager().getManagedSessionSize());
+        for(SocketSession s : context.getSessionManager().getManagedSessions().values()){
+            builder.append("\n</BR>");
+            builder.append(s);
+            builder.append(",opened:");
+            builder.append(s.isOpened());
+        }
         builder.append(";\n</BR>服务器当前会话数（http-session）：");
         builder.append(httpContext.getHttpSessionManager().getManagedSessionSize());
         builder.append(";\n</BR>服务运行时间：");
