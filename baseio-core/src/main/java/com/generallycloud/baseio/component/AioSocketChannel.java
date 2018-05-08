@@ -179,8 +179,16 @@ public class AioSocketChannel extends AbstractSocketChannel {
                 write(aioThread);
                 return;
             }
-            writeFutureLength(-f.getByteBufLimit());
-            onFutureSent(f);
+            try {
+                f.release();
+            } catch (Throwable e) {
+                logger.error(e.getMessage(), e);
+            }
+            try {
+                ioEventHandle.futureSent(session, f);
+            } catch (Throwable e) {
+                logger.debug(e.getMessage(), e);
+            }
             writeFuture = null;
             write(aioThread);
         } finally {

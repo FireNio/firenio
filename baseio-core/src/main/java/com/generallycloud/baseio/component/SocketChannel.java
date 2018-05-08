@@ -80,8 +80,6 @@ public interface SocketChannel extends Closeable {
 
     SslFuture getSslReadFuture();
 
-    int getWriteFutureLength();
-
     int getWriteFutureSize();
 
     boolean inSelectorLoop();

@@ -18,7 +18,6 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
@@ -70,7 +69,6 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     protected transient SslFuture            sslReadFuture;
     protected SocketChannelThreadContext     threadContext;
     protected transient ChannelFuture        writeFuture;
-    protected AtomicInteger                  writeFutureLength;
     protected LinkedQueue<ChannelFuture>     writeFutures;
 
     AbstractSocketChannel(SocketChannelThreadContext context, int channelId) {
@@ -85,7 +83,6 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         this.executorEventLoop = context.getExecutorEventLoop();
         this.session = context.getChannelContext().getSessionFactory().newUnsafeSession(this);
         this.writeFutures = new ScspLinkedQueue<>(f);
-        this.writeFutureLength = new AtomicInteger();
         this.ioEventHandle = socketChannelContext.getIoEventHandleAdaptor();
     }
 
@@ -205,11 +202,8 @@ public abstract class AbstractSocketChannel implements SocketChannel {
                 exceptionCaught(future, new ClosedChannelException(session.toString()));
                 return;
             }
+            // FIXME 该连接写入过多啦
             writeFutures.offer(future);
-            int length = writeFutureLength(future.getByteBufLimit());
-            if (length > 1024 * 1024 * 10) {
-                // FIXME 该连接写入过多啦
-            }
             // 如果write futures > 1 说明在offer之后至少有一个write future
             // event loop 在判断complete时返回false
             if (writeFutures.size() > 1) {
@@ -319,11 +313,6 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     }
 
     @Override
-    public int getWriteFutureLength() {
-        return writeFutureLength.get();
-    }
-
-    @Override
     public int getWriteFutureSize() {
         return writeFutures.size();
     }
@@ -342,15 +331,6 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     @Override
     public boolean isOpened() {
         return opened;
-    }
-
-    protected void onFutureSent(ChannelFuture future) {
-        ReleaseUtil.release(future);
-        try {
-            ioEventHandle.futureSent(session, future);
-        } catch (Throwable e) {
-            logger.debug(e.getMessage(), e);
-        }
     }
 
     protected abstract void physicalClose();
@@ -421,10 +401,6 @@ public abstract class AbstractSocketChannel implements SocketChannel {
             }
         }
         write(future.getByteBuf());
-    }
-    
-    protected int writeFutureLength(int len) {
-        return writeFutureLength.addAndGet(len);
     }
 
 }

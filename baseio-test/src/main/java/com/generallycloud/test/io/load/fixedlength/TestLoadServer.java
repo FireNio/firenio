@@ -50,17 +50,16 @@ public class TestLoadServer {
 
         Configuration c = new Configuration(8300);
 
-        c.setMemoryPoolCapacity(2560000);
+        c.setMemoryPoolCapacity(2560000 / 2);
         c.setMemoryPoolUnit(128);
         c.setEnableMemoryPoolDirect(true);
-        c.setCoreSize(4);
+        c.setCoreSize(6);
 
         SocketChannelContext context = new NioSocketChannelContext(c);
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
         context.setProtocolCodec(new FixedLengthCodec());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
-        context.addSessionEventListener(new SetOptionListener());
         acceptor.bind();
     }
     

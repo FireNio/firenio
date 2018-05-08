@@ -26,10 +26,14 @@ import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.concurrent.LinkedQueue;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class NioSocketChannel extends AbstractSocketChannel implements SelectorLoopEvent {
-
+    
+    
+    private static final Logger   logger = LoggerFactory.getLogger(NioSocketChannel.class);
     private SocketChannel           channel;
     private NioSocketChannelContext context;
     private SelectionKey            selectionKey;
@@ -95,8 +99,16 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                 interestWrite(selectionKey);
                 return;
             }
-            writeFutureLength(-future.getByteBufLimit());
-            onFutureSent(future);
+            try {
+                future.release();
+            } catch (Throwable e) {
+                logger.error(e.getMessage(), e);
+            }
+            try {
+                ioEventHandle.futureSent(session, future);
+            } catch (Throwable e) {
+                logger.debug(e.getMessage(), e);
+            }
             future = writeFutures.poll();
             if (future == null) {
                 break;
