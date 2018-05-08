@@ -78,17 +78,20 @@ public class ServerHttpCodec extends AbstractHttpCodec{
             buf.put(f.getStatus().getHeaderBinary());
             buf.put(SERVER_CL);
             buf.put(String.valueOf(length).getBytes());
-            buf.put(RN);
+            buf.putByte(R);
+            buf.putByte(N);
             writeHeaders(f, buf);
             List<Cookie> cookieList = f.getCookieList();
             if (cookieList != null) {
                 for (Cookie c : cookieList) {
                     writeBuf(buf, SET_COOKIE);
                     writeBuf(buf, c.toString().getBytes());
-                    writeBuf(buf, RN);
+                    writeBuf(buf, R);
+                    writeBuf(buf, N);
                 }
             }
-            writeBuf(buf, RN);
+            writeBuf(buf, R);
+            writeBuf(buf, N);
             if (length != 0) {
                 writeBuf(buf, array, 0, length);
             }

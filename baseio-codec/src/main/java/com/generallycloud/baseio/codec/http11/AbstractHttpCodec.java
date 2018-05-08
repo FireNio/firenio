@@ -28,9 +28,10 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  */
 public abstract class AbstractHttpCodec implements ProtocolCodec {
 
-    protected static final byte[] RN    = "\r\n".getBytes();
-    protected static final byte   COLON = ':';              //FIXME .... http header
-    protected static final byte   SPACE = ' ';
+    protected static final byte R     = '\r';
+    protected static final byte N     = '\n';
+    protected static final byte COLON = ':';
+    protected static final byte SPACE = ' ';
 
     protected void writeBuf(ByteBuf buf, byte[] array) {
         writeBuf(buf, array, 0, array.length);
@@ -53,20 +54,18 @@ public abstract class AbstractHttpCodec implements ProtocolCodec {
     }
 
     protected void writeHeaders(HttpFuture f, ByteBuf buf) {
-
         Map<String, String> headers = f.getResponseHeaders();
-
         if (headers == null) {
             return;
         }
-
         Set<Entry<String, String>> hs = headers.entrySet();
-
         for (Entry<String, String> header : hs) {
             writeBuf(buf, header.getKey().getBytes());
             writeBuf(buf, COLON);
+            writeBuf(buf, SPACE);
             writeBuf(buf, header.getValue().getBytes());
-            writeBuf(buf, RN);
+            writeBuf(buf, R);
+            writeBuf(buf, N);
         }
     }
 

@@ -86,7 +86,8 @@ public class ClientHttpCodec extends AbstractHttpCodec{
             }
             buf.position(buf.position() - 1);
         }
-        buf.put(RN);
+        buf.putByte(R);
+        buf.putByte(N);
         future.setByteBuf(buf.flip());
     }
     

@@ -35,8 +35,8 @@ public class HttpHeaderDateFormat {
     }
 
     private TimeZone GTM = TimeZone.getTimeZone("GTM");
-    
-    private int parseInt(char [] cs,int begin,int end){
+
+    private int parseInt(char[] cs, int begin, int end) {
         int sum = 0;
         for (int i = begin; i < end; i++) {
             sum = sum * 10 + (cs[i] - 48);
@@ -45,13 +45,13 @@ public class HttpHeaderDateFormat {
     }
 
     public Date parse(String source) {
-        char [] cs = StringUtil.stringToCharArray(source);
-        int day = parseInt(cs,6, 8);
-        int year = parseInt(cs,13, 17);
-        int hour = parseInt(cs,18, 20);
-        int minute = parseInt(cs,21, 23);
-        int second = parseInt(cs,24, 26);
-        int month = getMonth(source.substring(9, 12));
+        char[] cs = StringUtil.stringToCharArray(source);
+        int day = parseInt(cs, 5, 7);
+        int year = parseInt(cs, 12, 16);
+        int hour = parseInt(cs, 17, 19);
+        int minute = parseInt(cs, 20, 22);
+        int second = parseInt(cs, 23, 25);
+        int month = getMonth(source.substring(8, 11));
 
         Calendar calendar = Calendar.getInstance(GTM);
         calendar.set(Calendar.YEAR, year);
@@ -65,14 +65,12 @@ public class HttpHeaderDateFormat {
     }
 
     public static void main(String[] args) {
-
         Date d = new Date();
-        
         System.out.println(DateUtil.formatYyyy_MM_dd_HH_mm_ss(d));
-
-        System.out.println(getFormat().format(d.getTime()));
-        
-        
+        String str = getFormat().format(d.getTime());
+        System.out.println(str);
+        d = getFormat().parse(str);
+        System.out.println(DateUtil.formatYyyy_MM_dd_HH_mm_ss(d));
     }
 
     private int getMonth(String month) {
@@ -106,8 +104,8 @@ public class HttpHeaderDateFormat {
         }
     }
 
-    private String[] WEEK_DAYS = new String[] { "", " Sun", " Mon", " Tue", " Wed", " Thu", " Fri",
-            " Sat" };
+    private String[] WEEK_DAYS = new String[] { "", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri",
+            "Sat" };
 
     private String[] MONTHS    = new String[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
             "Aug", "Sep", "Oct", "Nov", "Dec" };
@@ -157,5 +155,5 @@ public class HttpHeaderDateFormat {
 
         return b.toString();
     }
-    
+
 }
