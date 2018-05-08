@@ -16,12 +16,14 @@
 package com.generallycloud.baseio.concurrent;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExecutorPoolEventLoop implements ExecutorEventLoop {
 
-    private int                    eventLoopSize;
+    private int                    coreEventLoopSize;
     private int                    maxEventLoopSize;
     private long                   keepAliveTime;
     private int                    maxEventQueueSize;
@@ -29,10 +31,10 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
     private boolean                running = false;
     private ExecutorEventLoopGroup eventLoopGroup;
 
-    public ExecutorPoolEventLoop(ExecutorEventLoopGroup eventLoopGroup, int eventLoopSize,
+    public ExecutorPoolEventLoop(ExecutorEventLoopGroup eventLoopGroup, int coreEventLoopSize,
             int maxEventLoopSize, int maxEventQueueSize, long keepAliveTime) {
         this.eventLoopGroup = eventLoopGroup;
-        this.eventLoopSize = eventLoopSize;
+        this.coreEventLoopSize = coreEventLoopSize;
         this.maxEventLoopSize = maxEventLoopSize;
         this.maxEventQueueSize = maxEventQueueSize;
         this.keepAliveTime = keepAliveTime;
@@ -47,13 +49,10 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
 
     @Override
     public void startup(String threadName) throws Exception {
-
         threadFactory = new NamedThreadFactory(threadName);
-
-        poolExecutor = new ThreadPoolExecutor(eventLoopSize, maxEventLoopSize, keepAliveTime,
+        poolExecutor = new ThreadPoolExecutor(coreEventLoopSize, maxEventLoopSize, keepAliveTime,
                 TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(maxEventQueueSize),
                 threadFactory);
-
         running = true;
     }
 
@@ -98,6 +97,44 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
     @Override
     public ExecutorEventLoopGroup getEventLoopGroup() {
         return eventLoopGroup;
+    }
+
+    class NamedThreadFactory implements ThreadFactory {
+
+        private final ThreadGroup   group;
+        private final AtomicInteger threadNumber = new AtomicInteger(1);
+        private final String        namePrefix;
+
+        public NamedThreadFactory(String namePrefix) {
+            SecurityManager s = System.getSecurityManager();
+            this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+            this.namePrefix = namePrefix;
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            String threadName = namePrefix + "-" + threadNumber.getAndIncrement();
+            Thread t = new PooledThread(group, r, threadName, 0);
+            if (t.isDaemon()) {
+                t.setDaemon(false);
+            }
+            if (t.getPriority() != Thread.NORM_PRIORITY) {
+                t.setPriority(Thread.NORM_PRIORITY);
+            }
+            return t;
+        }
+
+        public boolean inFactory(Thread thread) {
+            return thread instanceof PooledThread;
+        }
+
+        class PooledThread extends Thread {
+
+            public PooledThread(ThreadGroup group, Runnable r, String string, int i) {
+                super(group, r, string, i);
+            }
+        }
+
     }
 
 }

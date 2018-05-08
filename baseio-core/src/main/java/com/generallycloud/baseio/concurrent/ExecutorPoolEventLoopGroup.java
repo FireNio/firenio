@@ -23,24 +23,15 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
 
     private ExecutorEventLoop eventLoop;
     private String            eventLoopName;
-    private int               eventLoopSize;
-    private long              keepAliveTime;
-    private int               maxEventLoopSize;
-    private int               maxEventQueueSize;
 
-    public ExecutorPoolEventLoopGroup(String eventLoopName, int maxEventLoopSize,
-            int maxEventQueueSize, int eventLoopSize, long keepAliveTime) {
-        this.eventLoopName = eventLoopName;
-        this.maxEventLoopSize = maxEventLoopSize;
-        this.maxEventQueueSize = maxEventQueueSize;
-        this.eventLoopSize = eventLoopSize;
-        this.keepAliveTime = keepAliveTime;
+    public ExecutorPoolEventLoopGroup(String eventLoopName, int coreEventLoopSize,
+            int maxEventLoopSize, int maxEventQueueSize, long keepAliveTime) {
+        eventLoop = new ExecutorPoolEventLoop(this, coreEventLoopSize, maxEventLoopSize,
+                maxEventQueueSize, keepAliveTime);
     }
 
     @Override
     protected void doStart() throws Exception {
-        eventLoop = new ExecutorPoolEventLoop(this, eventLoopSize, maxEventLoopSize,
-                maxEventQueueSize, keepAliveTime);
         eventLoop.startup(eventLoopName);
     }
 

@@ -19,6 +19,7 @@ import com.generallycloud.baseio.codec.http11.ServerHttpCodec;
 import com.generallycloud.baseio.codec.http11.WebSocketSessionEListener;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.concurrent.ExecutorPoolEventLoopGroup;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrapEngine;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
@@ -39,6 +40,8 @@ public class HttpApplicationBootstrapEngine extends ApplicationBootstrapEngine {
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.addSessionEventListener(new WebSocketSessionEListener());
         context.setProtocolCodec(new ServerHttpCodec());
+        context.setExecutorEventLoopGroup(
+                new ExecutorPoolEventLoopGroup("http-event-processor", 16, 64, 1024 * 64, 1000 * 60 * 30));
     }
 
 }
