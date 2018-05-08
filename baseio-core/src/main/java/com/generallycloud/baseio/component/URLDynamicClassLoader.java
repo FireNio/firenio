@@ -26,7 +26,6 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.Vector;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -394,8 +394,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     
     @Override
     public void unloadClassLoader() {
-        Collection<ClassEntry> es = clazzEntries.values();
-        for (ClassEntry e : es) {
+        for (ClassEntry e : clazzEntries.values()) {
             e.certificates = null;
             e.classBinary = null;
             e.codeBase = null;
@@ -406,6 +405,8 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         for(List<URL> list : resourcesMap.values()){
             list.clear();
         }
+        this.resourcesMap.clear();
+        CloseUtil.close(this);
         try {
             Field field = ClassUtil.getDeclaredFieldFC(getClass(), "defaultDomain");
             if (field != null) {
@@ -418,7 +419,17 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
                 }
             }
         } catch (Throwable e) {}
-        CloseUtil.close(this);
+        try {
+            Field field = ClassUtil.getDeclaredFieldFC(getClass(), "classes");
+            if (field != null) {
+                field.setAccessible(true);
+                Vector<Class<?>> classes = (Vector<Class<?>>) field.get(this);
+                if (classes != null) {
+                    classes.clear();
+                }
+                field.set(this, null);
+            }
+        } catch (Throwable e) {}
     }
 
     class ClassEntry {
