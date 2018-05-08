@@ -41,7 +41,7 @@ public class SimpleTestFIxedLengthServer {
         SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
         //use java aio
         //		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(8300));
-        context.getConfiguration().setSERVER_CORE_SIZE(1);
+        context.getConfiguration().setCoreSize(1);
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);

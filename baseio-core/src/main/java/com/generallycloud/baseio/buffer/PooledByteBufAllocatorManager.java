@@ -38,10 +38,10 @@ public class PooledByteBufAllocatorManager extends AbstractLifeCycle
             return;
         }
         Configuration c = context.getConfiguration();
-        int core = c.getSERVER_CORE_SIZE();
-        int capacity = c.getSERVER_MEMORY_POOL_CAPACITY();
-        int unitMemorySize = c.getSERVER_MEMORY_POOL_UNIT();
-        boolean direct = c.isSERVER_ENABLE_MEMORY_POOL_DIRECT();
+        int core = c.getCoreSize();
+        int capacity = c.getMemoryPoolCapacity();
+        int unitMemorySize = c.getMemoryPoolUnit();
+        boolean direct = c.isEnableMemoryPoolDirect();
         this.allocators = new LinkAbleByteBufAllocator[core];
         for (int i = 0; i < allocators.length; i++) {
             //			ByteBufAllocator allocator = new SimplyByteBufAllocator(capacity, unitMemorySize, direct);

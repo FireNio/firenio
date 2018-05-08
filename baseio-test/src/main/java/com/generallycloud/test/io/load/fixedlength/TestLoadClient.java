@@ -73,7 +73,7 @@ public class TestLoadClient {
         context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
         connector.getContext().setProtocolCodec(new FixedLengthCodec());
-        connector.getContext().getConfiguration().setSERVER_CORE_SIZE(1);
+        connector.getContext().getConfiguration().setCoreSize(1);
         SocketSession session = connector.connect();
         System.out.println("################## Test start ####################");
         long old = System.currentTimeMillis();

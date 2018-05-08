@@ -28,7 +28,6 @@ public class UnpooledByteBufAllocatorManager extends AbstractLifeCycle
         implements ByteBufAllocatorManager {
 
     private SocketChannelContext           context = null;
-
     private UnpooledByteBufAllocator unpooledByteBufAllocator;
 
     public UnpooledByteBufAllocatorManager(SocketChannelContext context) {
@@ -42,13 +41,9 @@ public class UnpooledByteBufAllocatorManager extends AbstractLifeCycle
 
     @Override
     protected void doStart() throws Exception {
-
         Configuration c = context.getConfiguration();
-
-        boolean isDirect = c.isSERVER_ENABLE_MEMORY_POOL_DIRECT();
-
+        boolean isDirect = c.isEnableMemoryPoolDirect();
         unpooledByteBufAllocator = new UnpooledByteBufAllocator(isDirect);
-
         LifeCycleUtil.start(unpooledByteBufAllocator);
     }
 

@@ -15,10 +15,12 @@
  */
 package com.generallycloud.baseio.configuration;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 
+import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.Properties;
+import com.generallycloud.baseio.common.StringUtil;
 
 /**
  * @author wangkai
@@ -28,36 +30,48 @@ public class ConfigurationParser {
 
     public static void parseConfiguration(String prefix, Object cfg, Properties properties)
             throws Exception {
-        String setPrefix = "set" + prefix + "_";
-        String prefixDot = prefix + ".";
-        Method[] methods = cfg.getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            String name = method.getName();
-            if (!name.startsWith("set")) {
-                continue;
-            }
-            if (!method.isAccessible()) {
-                method.setAccessible(true);
-            }
-            Class<?> type = method.getParameterTypes()[0];
-            String temp = name.replace(setPrefix, prefixDot);
+        Field[] fs = cfg.getClass().getDeclaredFields();
+        for (Field f : fs) {
+            Class<?> type = f.getType();
+            String name = f.getName();
             if (type == String.class) {
-                method.invoke(cfg, properties.getProperty(temp));
+                String v = properties.getProperty(prefix + name);
+                if (StringUtil.isNullOrBlank(v)) {
+                    continue;
+                }
+                ClassUtil.trySetAccessible(f);
+                f.set(cfg, v);
             } else if (type == int.class) {
-                method.invoke(cfg, properties.getIntegerProperty(temp));
+                int v = properties.getIntegerProperty(prefix + name);
+                if (v == 0) {
+                    continue;
+                }
+                ClassUtil.trySetAccessible(f);
+                f.set(cfg, v);
             } else if (type == double.class) {
-                method.invoke(cfg, properties.getDoubleProperty(temp));
+                double v = properties.getDoubleProperty(prefix + name);
+                if (v == 0) {
+                    continue;
+                }
+                ClassUtil.trySetAccessible(f);
+                f.set(cfg, v);
             } else if (type == boolean.class) {
-                method.invoke(cfg, properties.getBooleanProperty(temp));
+                ClassUtil.trySetAccessible(f);
+                f.set(cfg, properties.getBooleanProperty(prefix + name));
             } else if (type == long.class) {
-                method.invoke(cfg, properties.getLongProperty(temp));
+                long v = properties.getLongProperty(prefix + name);
+                if (v == 0) {
+                    continue;
+                }
+                ClassUtil.trySetAccessible(f);
+                f.set(cfg, v);
             } else if (type == Charset.class) {
-                method.invoke(cfg, Charset.forName(properties.getProperty(temp, "GBK")));
+                ClassUtil.trySetAccessible(f);
+                f.set(cfg, Charset.forName(properties.getProperty(prefix + name, "GBK")));
             } else {
                 throw new Exception("unknow type " + type);
             }
         }
-
     }
 
 }

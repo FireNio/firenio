@@ -37,15 +37,15 @@ public class NioSocketChannelContext extends AbstractSocketChannelContext {
     }
 
     private FixedAtomicInteger createChannelIdsSequence() {
-        int core_size = getConfiguration().getSERVER_CORE_SIZE();
+        int core_size = getConfiguration().getCoreSize();
         int max = (Integer.MAX_VALUE / core_size) * core_size - 1;
         return new FixedAtomicInteger(0, max);
     }
 
     @Override
     protected ExecutorEventLoopGroup createExecutorEventLoopGroup() {
-        int eventLoopSize = getConfiguration().getSERVER_CORE_SIZE();
-        if (getConfiguration().isSERVER_ENABLE_WORK_EVENT_LOOP()) {
+        int eventLoopSize = getConfiguration().getCoreSize();
+        if (getConfiguration().isEnableWorkEventLoop()) {
             return new ThreadEventLoopGroup(this, "event-process", eventLoopSize);
         } else {
             return new LineEventLoopGroup("event-process", eventLoopSize);

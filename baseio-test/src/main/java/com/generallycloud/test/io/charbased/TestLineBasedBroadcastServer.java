@@ -47,10 +47,10 @@ public class TestLineBasedBroadcastServer {
         };
 
         Configuration configuration = new Configuration();
-        configuration.setSERVER_PORT(8300);
-        configuration.setSERVER_SESSION_IDLE_TIME(180000);
-        configuration.setSERVER_MEMORY_POOL_CAPACITY(1024 * 512);
-        configuration.setSERVER_MEMORY_POOL_UNIT(64);
+        configuration.setPort(8300);
+        configuration.setSessionIdleTime(180000);
+        configuration.setMemoryPoolCapacity(1024 * 512);
+        configuration.setMemoryPoolUnit(64);
         SocketChannelContext context = new NioSocketChannelContext(configuration);
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());

@@ -59,12 +59,12 @@ public abstract class AbstractChannelConnector implements ChannelConnector {
         this.session = null;
         LifeCycleUtil.stop(getContext());
         getContext().setChannelService(this);
-        getContext().getConfiguration().setSERVER_CORE_SIZE(1);
+        getContext().getConfiguration().setCoreSize(1);
         LifeCycleUtil.start(getContext());
-        String SERVER_HOST = getContext().getConfiguration().getSERVER_HOST();
-        int SERVER_PORT = getContext().getConfiguration().getSERVER_PORT();
+        String host = getContext().getConfiguration().getHost();
+        int port = getContext().getConfiguration().getPort();
         this.waiter = new Waiter();
-        this.serverAddress = new InetSocketAddress(SERVER_HOST, SERVER_PORT);
+        this.serverAddress = new InetSocketAddress(host, port);
         this.connect(getServerSocketAddress());
         return getSession();
     }

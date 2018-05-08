@@ -23,6 +23,7 @@ import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
+import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,6 +37,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.StringUtil;
@@ -356,7 +358,6 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     }
 
     private void unloadClass(Class<?> clazz) {
-        CloseUtil.close(this);
         if (clazz == null) {
             return;
         }
@@ -370,15 +371,24 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
             if (!Modifier.isStatic(field.getModifiers())) {
                 continue;
             }
-            if (!field.getType().isAssignableFrom(Object.class)) {
-                continue;
-            }
             try {
                 if (!field.isAccessible()) {
                     field.setAccessible(true);
                 }
                 field.set(null, null);
             } catch (Throwable e) {}
+            
+//            if (field.getType().isAssignableFrom(Object.class) 
+//                    || field.getType().isInterface()
+//                    || field.getType().isArray()
+//                    || field.getType().isAnonymousClass()) {
+//                try {
+//                    if (!field.isAccessible()) {
+//                        field.setAccessible(true);
+//                    }
+//                    field.set(null, null);
+//                } catch (Throwable e) {}
+//            }
         }
     }
     
@@ -386,8 +396,29 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     public void unloadClassLoader() {
         Collection<ClassEntry> es = clazzEntries.values();
         for (ClassEntry e : es) {
+            e.certificates = null;
+            e.classBinary = null;
+            e.codeBase = null;
             unloadClass(e.loadedClass);
         }
+        this.clazzEntries.clear();
+        this.resourceMap.clear();
+        for(List<URL> list : resourcesMap.values()){
+            list.clear();
+        }
+        try {
+            Field field = ClassUtil.getDeclaredFieldFC(getClass(), "defaultDomain");
+            if (field != null) {
+                field.setAccessible(true);
+                ProtectionDomain pd = (ProtectionDomain) field.get(this);
+                field = ClassUtil.getDeclaredFieldFC(pd.getClass(), "classloader");
+                if (field != null) {
+                    field.setAccessible(true);
+                    field.set(pd, null);
+                }
+            }
+        } catch (Throwable e) {}
+        CloseUtil.close(this);
     }
 
     class ClassEntry {

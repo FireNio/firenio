@@ -65,7 +65,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         }
         this.configuration = configuration;
         this.addLifeCycleListener(new ChannelContextListener());
-        this.sessionIdleTime = configuration.getSERVER_SESSION_IDLE_TIME();
+        this.sessionIdleTime = configuration.getSessionIdleTime();
     }
 
     @Override
@@ -109,31 +109,29 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
             initialized = true;
             configuration.initializeDefault(this);
         }
-        int SERVER_CORE_SIZE = configuration.getSERVER_CORE_SIZE();
-        int server_port = configuration.getSERVER_PORT();
-        long session_idle = configuration.getSERVER_SESSION_IDLE_TIME();
         String protocolId = protocolCodec.getProtocolId();
-        this.encoding = configuration.getSERVER_ENCODING();
-        this.sessionIdleTime = configuration.getSERVER_SESSION_IDLE_TIME();
+        int coreSize = configuration.getCoreSize();
+        int serverPort = configuration.getPort();
+        long sessionIdle = configuration.getSessionIdleTime();
+        this.encoding = configuration.getCharset();
+        this.sessionIdleTime = configuration.getSessionIdleTime();
         this.initializeByteBufAllocator();
         LoggerUtil.prettyLog(logger,
                 "======================================= service begin to start =======================================");
         LoggerUtil.prettyLog(logger, "encoding              :{ {} }", encoding);
         LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
-        LoggerUtil.prettyLog(logger, "cpu size              :{ cpu * {} }", SERVER_CORE_SIZE);
+        LoggerUtil.prettyLog(logger, "cpu size              :{ cpu * {} }", coreSize);
         LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSSL());
-        LoggerUtil.prettyLog(logger, "session idle          :{ {} }", session_idle);
-        LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", server_port);
-        if (configuration.isSERVER_ENABLE_MEMORY_POOL()) {
-            long SERVER_MEMORY_POOL_CAPACITY = configuration.getSERVER_MEMORY_POOL_CAPACITY()
-                    * SERVER_CORE_SIZE;
-            long SERVER_MEMORY_POOL_UNIT = configuration.getSERVER_MEMORY_POOL_UNIT();
-            double MEMORY_POOL_SIZE = new BigDecimal(
-                    SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
+        LoggerUtil.prettyLog(logger, "session idle          :{ {} }", sessionIdle);
+        LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", serverPort);
+        if (configuration.isEnableMemoryPool()) {
+            long memoryPoolCapacity = configuration.getMemoryPoolCapacity() * coreSize;
+            long memoryPoolUnit = configuration.getMemoryPoolUnit();
+            double memoryPoolSize = new BigDecimal( memoryPoolCapacity * memoryPoolUnit)
                             .divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
                             .doubleValue();
             LoggerUtil.prettyLog(logger, "memory pool cap       :{ {} * {} ≈ {} M }", new Object[] {
-                    SERVER_MEMORY_POOL_UNIT, SERVER_MEMORY_POOL_CAPACITY, MEMORY_POOL_SIZE });
+                    memoryPoolUnit, memoryPoolCapacity, memoryPoolSize });
         }
         protocolCodec.initialize(this);
         ioEventHandleAdaptor.initialize(this);
@@ -252,7 +250,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
 
     protected void initializeByteBufAllocator() {
         if (getByteBufAllocatorManager() == null) {
-            if (configuration.isSERVER_ENABLE_MEMORY_POOL()) {
+            if (configuration.isEnableMemoryPool()) {
                 this.byteBufAllocatorManager = new PooledByteBufAllocatorManager(this);
             } else {
                 this.byteBufAllocatorManager = new UnpooledByteBufAllocatorManager(this);

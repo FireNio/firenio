@@ -55,7 +55,7 @@ public class SpringProtobaseFutureAcceptor extends ProtobaseFutureAcceptor{
     }
     
     @Override
-    protected void destroy(SocketChannelContext context, boolean redeploy) throws Exception {
+    protected void destroy(SocketChannelContext context, boolean redeploy) {
         applicationContext.destroy();
         super.destroy(context, redeploy);
     }

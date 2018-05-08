@@ -63,10 +63,10 @@ public class TestHttpLoadClient extends ITestThread {
 
         Configuration c = new Configuration("localhost", 80);
 
-        c.setSERVER_MEMORY_POOL_CAPACITY(1280000);
-        c.setSERVER_MEMORY_POOL_UNIT(128);
-        c.setSERVER_CORE_SIZE(1);
-        c.setSERVER_HOST("192.168.0.180");
+        c.setMemoryPoolCapacity(1280000);
+        c.setMemoryPoolUnit(128);
+        c.setCoreSize(1);
+        c.setHost("192.168.0.180");
 
         SocketChannelContext context = new NioSocketChannelContext(c);
 

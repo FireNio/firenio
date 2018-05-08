@@ -43,25 +43,18 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 
     @Override
     protected void doLoop() throws InterruptedException {
-
         Runnable runnable = jobs.poll(32, TimeUnit.MILLISECONDS);
-
         if (runnable == null) {
             return;
         }
-
         runnable.run();
     }
 
     @Override
     protected void doStartup() throws Exception {
-
         Configuration sc = context.getConfiguration();
-
-        int eventQueueSize = sc.getSERVER_WORK_EVENT_QUEUE_SIZE();
-
+        int eventQueueSize = sc.getWorkEventQueueSize();
         this.jobs = new ArrayBlockingQueue<>(eventQueueSize);
-
         super.doStartup();
     }
 
@@ -75,13 +68,9 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 
     @Override
     protected void doStop() {
-
         boolean sleeped = false;
-
         for (;;) {
-
             Runnable runnable = jobs.poll();
-
             if (runnable == null) {
                 if (sleeped) {
                     break;
@@ -90,14 +79,12 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
                 sleeped = true;
                 continue;
             }
-
             try {
                 runnable.run();
             } catch (Throwable e) {
                 logger.error(e);
             }
         }
-
         super.doStop();
     }
 

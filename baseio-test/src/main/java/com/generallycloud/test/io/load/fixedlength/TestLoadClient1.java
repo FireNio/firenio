@@ -59,10 +59,10 @@ public class TestLoadClient1 extends ITestThread {
 
         Configuration configuration = new Configuration(8300);
 
-        configuration.setSERVER_MEMORY_POOL_CAPACITY(320000);
-        configuration.setSERVER_MEMORY_POOL_UNIT(128);
-        configuration.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-        configuration.setSERVER_ENABLE_MEMORY_POOL(true);
+        configuration.setMemoryPoolCapacity(320000);
+        configuration.setMemoryPoolUnit(128);
+        configuration.setEnableMemoryPoolDirect(true);
+        configuration.setEnableMemoryPool(true);
         //		c.setSERVER_HOST("192.168.0.180");
 
         SocketChannelContext context = new NioSocketChannelContext(configuration);

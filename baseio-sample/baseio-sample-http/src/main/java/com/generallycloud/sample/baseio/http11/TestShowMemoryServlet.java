@@ -60,10 +60,10 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
 
         Configuration configuration = context.getConfiguration();
 
-        int SERVER_CORE_SIZE = configuration.getSERVER_CORE_SIZE();
-        int SERVER_MEMORY_POOL_CAPACITY = configuration.getSERVER_MEMORY_POOL_CAPACITY()
+        int SERVER_CORE_SIZE = configuration.getCoreSize();
+        int SERVER_MEMORY_POOL_CAPACITY = configuration.getMemoryPoolCapacity()
                 * SERVER_CORE_SIZE;
-        int SERVER_MEMORY_POOL_UNIT = configuration.getSERVER_MEMORY_POOL_UNIT();
+        int SERVER_MEMORY_POOL_UNIT = configuration.getMemoryPoolUnit();
 
         double MEMORY_POOL_SIZE = new BigDecimal(
                 SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)

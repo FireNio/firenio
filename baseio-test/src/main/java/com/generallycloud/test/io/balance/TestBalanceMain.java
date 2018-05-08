@@ -34,8 +34,8 @@ public class TestBalanceMain {
 
         Configuration fc = new Configuration();
         Configuration rc = new Configuration();
-        fc.setSERVER_PORT(8600);
-        rc.setSERVER_PORT(8800);
+        fc.setPort(8600);
+        rc.setPort(8800);
 
         SocketChannelContext fcc = new NioSocketChannelContext(fc);
         SocketChannelContext rcc = new NioSocketChannelContext(rc);

@@ -47,8 +47,8 @@ public class SimpleTestProtobaseServer {
         };
 
         SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
-        context.getConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-        context.getConfiguration().setSERVER_SESSION_IDLE_TIME(60 * 60 * 1000);
+        context.getConfiguration().setEnableMemoryPoolDirect(true);
+        context.getConfiguration().setSessionIdleTime(60 * 60 * 1000);
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.addSessionIdleEventListener(new SocketSessionAliveIEListener());

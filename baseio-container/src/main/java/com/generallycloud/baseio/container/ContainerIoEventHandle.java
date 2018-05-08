@@ -36,6 +36,6 @@ public abstract class ContainerIoEventHandle implements IoEventHandle {
 
     protected void initialize(SocketChannelContext context, boolean redeploy) throws Exception {}
 
-    protected void destroy(SocketChannelContext context, boolean redeploy) throws Exception {}
+    protected void destroy(SocketChannelContext context, boolean redeploy) {}
 
 }

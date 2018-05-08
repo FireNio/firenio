@@ -43,8 +43,8 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 
     @Override
     protected ExecutorEventLoopGroup createExecutorEventLoopGroup() {
-        int eventLoopSize = getConfiguration().getSERVER_CORE_SIZE();
-        if (getConfiguration().isSERVER_ENABLE_WORK_EVENT_LOOP()) {
+        int eventLoopSize = getConfiguration().getCoreSize();
+        if (getConfiguration().isEnableWorkEventLoop()) {
             return new ThreadEventLoopGroup(this, "event-process", eventLoopSize);
         } else {
             return new AioLineEventLoopGroup("event-process", eventLoopSize);
@@ -57,12 +57,12 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
         sessionManager = new AioSocketSessionManager(this);
         Configuration sc = getConfiguration();
         LifeCycleUtil.start(smEventLoopGroup);
-        String threadName = "aio-process(tcp-" + sc.getSERVER_PORT() + ")";
+        String threadName = "aio-process(tcp-" + sc.getPort() + ")";
         AsynchronousChannelProvider provider = AsynchronousChannelProvider.provider();
         CachedAioThreadFactory cachedAioThreadFactory = new CachedAioThreadFactory(this,
                 threadName);
         this.asynchronousChannelGroup = provider
-                .openAsynchronousChannelGroup(sc.getSERVER_CORE_SIZE(), cachedAioThreadFactory);
+                .openAsynchronousChannelGroup(sc.getCoreSize(), cachedAioThreadFactory);
         super.doStartModule();
     }
 

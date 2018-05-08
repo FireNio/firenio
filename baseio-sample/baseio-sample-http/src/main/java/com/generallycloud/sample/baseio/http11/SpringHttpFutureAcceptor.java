@@ -27,9 +27,7 @@ import com.generallycloud.baseio.protocol.NamedFuture;
 public class SpringHttpFutureAcceptor extends HttpFutureAcceptor {
 
     private ClassPathXmlApplicationContext applicationContext;
-
     private boolean                        checkFilter = true;
-
     private FutureAcceptor                 filter;
 
     @Override
@@ -58,7 +56,7 @@ public class SpringHttpFutureAcceptor extends HttpFutureAcceptor {
     }
 
     @Override
-    protected void destroy(SocketChannelContext context, boolean redeploy) throws Exception {
+    protected void destroy(SocketChannelContext context, boolean redeploy) {
         applicationContext.destroy();
         super.destroy(context, redeploy);
     }

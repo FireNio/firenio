@@ -55,7 +55,7 @@ public class NioSocketChannelAcceptor extends AbstractChannelAcceptor {
         context.setSelectableChannel(selectableChannel);
         Configuration configuration = getContext().getConfiguration();
         String eventLoopName = "nio-process(tcp-" + server.getPort() + ")";
-        int core_size = configuration.getSERVER_CORE_SIZE();
+        int core_size = configuration.getCoreSize();
         this.selectorEventLoopGroup = new SelectorEventLoopGroup(context, eventLoopName, core_size);
         LifeCycleUtil.start(selectorEventLoopGroup);
         context.setSelectorEventLoopGroup(selectorEventLoopGroup);

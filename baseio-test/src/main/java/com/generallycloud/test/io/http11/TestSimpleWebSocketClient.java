@@ -60,11 +60,11 @@ public class TestSimpleWebSocketClient {
         };
 
         Configuration configuration = new Configuration();
-        configuration.setSERVER_HOST("47.89.30.77");
+        configuration.setHost("47.89.30.77");
         //		configuration.setSERVER_HOST("120.76.222.210");
         //		configuration.setSERVER_HOST("115.29.193.48");
         //		configuration.setSERVER_HOST("workerman.net");
-        configuration.setSERVER_PORT(7680);
+        configuration.setPort(7680);
         //		configuration.setSERVER_PORT(30005);
         //		configuration.setSERVER_PORT(29000);
         //		configuration.setSERVER_PORT(8280);

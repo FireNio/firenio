@@ -44,7 +44,7 @@ public abstract class AbstractChannelAcceptor implements ChannelAcceptor {
         LifeCycleUtil.stop(getContext());
         getContext().setChannelService(this);
         LifeCycleUtil.start(getContext());
-        int port = getContext().getConfiguration().getSERVER_PORT();
+        int port = getContext().getConfiguration().getPort();
         this.serverAddress = new InetSocketAddress(port);
         this.bind(getServerSocketAddress());
         this.sessionManager = getContext().getSessionManager();

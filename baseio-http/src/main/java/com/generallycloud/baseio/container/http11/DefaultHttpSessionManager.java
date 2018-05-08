@@ -95,6 +95,14 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
             }
         }
     }
+    
+    @Override
+    protected void doStop() {
+        for(HttpSession session : sessions.values()){
+           CloseUtil.close(session.getIoSession());
+        }
+        super.doStop();
+    }
 
     @Override
     public Map<String, HttpSession> getManagedSessions() {

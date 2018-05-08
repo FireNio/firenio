@@ -41,20 +41,20 @@ public abstract class ApplicationBootstrapEngine implements BootstrapEngine {
         ClassLoader classLoader = getClass().getClassLoader();
         Properties properties = FileUtil.readPropertiesByCls("server.properties");
         Configuration cfg = new Configuration();
-        ConfigurationParser.parseConfiguration("SERVER", cfg, properties);
+        ConfigurationParser.parseConfiguration("server.", cfg, properties);
         SocketChannelContext context = new NioSocketChannelContext(cfg);
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
         context.setIoEventHandleAdaptor(new ApplicationIoEventHandle(rootPath, mode));
         enrichSocketChannelContext(context);
         try {
-            if (cfg.isSERVER_ENABLE_SSL()) {
-                if (!StringUtil.isNullOrBlank(cfg.getSERVER_CERT_KEY())) {
-                    File certificate = FileUtil.readFileByCls(cfg.getSERVER_CERT_CRT(), classLoader);
-                    File privateKey = FileUtil.readFileByCls(cfg.getSERVER_CERT_KEY(), classLoader);
+            if (cfg.isEnableSsl()) {
+                if (!StringUtil.isNullOrBlank(cfg.getCertCrt())) {
+                    File certificate = FileUtil.readFileByCls(cfg.getCertCrt(), classLoader);
+                    File privateKey = FileUtil.readFileByCls(cfg.getCertKey(), classLoader);
                     SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
                     context.setSslContext(sslContext);
                 } else {
-                    String keystoreInfo = cfg.getSERVER_SSL_KEYSTORE();
+                    String keystoreInfo = cfg.getSslKeystore();
                     if (StringUtil.isNullOrBlank(keystoreInfo)) {
                         throw new IllegalArgumentException("ssl enabled,but no config for");
                     }
@@ -68,11 +68,11 @@ public abstract class ApplicationBootstrapEngine implements BootstrapEngine {
                     context.setSslContext(sslContext);
                 }
             }
-            int port = cfg.getSERVER_PORT();
+            int port = cfg.getPort();
             if (port == 0) {
-                port = cfg.isSERVER_ENABLE_SSL() ? 443 : 80;
+                port = cfg.isEnableSsl() ? 443 : 80;
             }
-            cfg.setSERVER_PORT(port);
+            cfg.setPort(port);
             acceptor.bind();
         } catch (Throwable e) {
             Logger logger = LoggerFactory.getLogger(getClass());

@@ -87,9 +87,9 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         super.destroy(context);
     }
 
-    private void destroyHandle(SocketChannelContext context, boolean redeploy) throws Exception {
+    private void destroyHandle(SocketChannelContext context, boolean redeploy) {
+        futureAcceptor.destroy(context, redeploy);
         classLoader.unloadClassLoader();
-        getFutureAcceptor().destroy(context, redeploy);
     }
 
     @Override
@@ -169,19 +169,19 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         this.applicationExtLoader.loadExts(this, classLoader);
         this.configuration = configurationLoader.loadConfiguration(classLoader);
         this.appOnRedeployService = (FutureAcceptor) newInstanceFromClass(
-                configuration.getAPP_ON_REDEPLOY_FUTURE_ACCEPTOR(), appOnRedeployService);
+                configuration.getOnRedeployFutureAcceptor(), appOnRedeployService);
         if (appOnRedeployService == null) {
             appOnRedeployService = new DefaultOnRedeployAcceptor();
         }
         this.ioExceptionCaughtHandle = (ExceptionCaughtHandle) newInstanceFromClass(
-                configuration.getAPP_IO_EXCEPTION_CAUGHT_HANDLE(), ioExceptionCaughtHandle);
+                configuration.getIoExceptionCaughtHandle(), ioExceptionCaughtHandle);
         if (ioExceptionCaughtHandle == null) {
             ioExceptionCaughtHandle = new LoggerExceptionCaughtHandle();
         }
-        if (StringUtil.isNullOrBlank(configuration.getAPP_FUTURE_ACCEPTOR())) {
+        if (StringUtil.isNullOrBlank(configuration.getFutureAcceptor())) {
             throw new IllegalArgumentException("APP_FUTURE_ACCEPTOR");
         }
-        Class<?> clazz = classLoader.loadClass(configuration.getAPP_FUTURE_ACCEPTOR());
+        Class<?> clazz = classLoader.loadClass(configuration.getFutureAcceptor());
         futureAcceptor = (ContainerIoEventHandle) clazz.newInstance();
         getFutureAcceptor().initialize(channelContext, redeploy);
     }
@@ -205,17 +205,19 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     // FIXME 考虑部署失败后如何再次部署
     // FIXME keep http session
     public synchronized boolean redeploy() {
-        LoggerUtil.prettyLog(logger,
-                "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  开始卸载服务  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         this.deploying = true;
         try {
+            LoggerUtil.prettyLog(logger,
+                    "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  开始卸载服务  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
             destroyHandle(channelContext, true);
+            
             LoggerUtil.prettyLog(logger,
                     "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  开始加载服务  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
             initializeHandle(channelContext, true);
             deploying = false;
             LoggerUtil.prettyLog(logger,
                     "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  加载服务完成  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+            System.gc();
             return true;
         } catch (Exception e) {
             classLoader.unloadClassLoader();

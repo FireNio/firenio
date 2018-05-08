@@ -83,7 +83,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     }
 
     @Override
-    protected void destroy(SocketChannelContext context, boolean redeploy) throws Exception {
+    protected void destroy(SocketChannelContext context, boolean redeploy) {
         LifeCycleUtil.stop(httpSessionManager);
         super.destroy(context, redeploy);
     }
@@ -179,7 +179,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
 
     private void initializeSessionManager(SocketChannelContext context) throws Exception {
         ApplicationIoEventHandle handle = getApplicationIoEventHandle(context);
-        if (handle.getConfiguration().isAPP_ENABLE_HTTP_SESSION()) {
+        if (handle.getConfiguration().isEnableHttpSession()) {
             httpSessionManager = new DefaultHttpSessionManager();
             httpSessionManager.startup("http-session-manager");
         } else {

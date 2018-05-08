@@ -58,12 +58,11 @@ public class TestHttpLoadServerAio {
 
         Configuration c = new Configuration(80);
 
-        c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
-        c.setSERVER_MEMORY_POOL_UNIT(256);
-        c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-        c.setSERVER_CORE_SIZE(4);
-        c.setSERVER_ENABLE_MEMORY_POOL(true);
-        c.setSERVER_MEMORY_POOL_CAPACITY_RATE(0.5);
+        c.setMemoryPoolCapacity(2560000);
+        c.setMemoryPoolUnit(256);
+        c.setEnableMemoryPoolDirect(true);
+        c.setCoreSize(4);
+        c.setEnableMemoryPool(true);
 
         SocketChannelContext context = new AioSocketChannelContext(c);
 

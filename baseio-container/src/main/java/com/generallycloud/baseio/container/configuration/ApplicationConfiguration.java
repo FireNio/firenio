@@ -17,64 +17,59 @@ package com.generallycloud.baseio.container.configuration;
 
 public class ApplicationConfiguration {
 
-    private boolean APP_ENABLE_HTTP_SESSION;
+    private boolean enableHttpSession;
+    private boolean enableRedeploy   = true;
+    private boolean enableStopServer = true;
+    private String  futureAcceptor;
+    private String  onRedeployFutureAcceptor;
+    private String  ioExceptionCaughtHandle;
 
-    private boolean APP_ENABLE_REDEPLOY   = true;
-
-    private boolean APP_ENABLE_STOPSERVER = true;
-
-    private String  APP_FUTURE_ACCEPTOR;
-
-    private String  APP_ON_REDEPLOY_FUTURE_ACCEPTOR;
-
-    private String  APP_IO_EXCEPTION_CAUGHT_HANDLE;
-
-    public String getAPP_FUTURE_ACCEPTOR() {
-        return APP_FUTURE_ACCEPTOR;
+    public boolean isEnableHttpSession() {
+        return enableHttpSession;
     }
 
-    public boolean isAPP_ENABLE_REDEPLOY() {
-        return APP_ENABLE_REDEPLOY;
+    public void setEnableHttpSession(boolean enableHttpSession) {
+        this.enableHttpSession = enableHttpSession;
     }
 
-    public boolean isAPP_ENABLE_STOPSERVER() {
-        return APP_ENABLE_STOPSERVER;
+    public boolean isEnableRedeploy() {
+        return enableRedeploy;
     }
 
-    public void setAPP_ENABLE_REDEPLOY(boolean APP_ENABLE_REDEPLOY) {
-        this.APP_ENABLE_REDEPLOY = APP_ENABLE_REDEPLOY;
+    public void setEnableRedeploy(boolean enableRedeploy) {
+        this.enableRedeploy = enableRedeploy;
     }
 
-    public void setAPP_ENABLE_STOPSERVER(boolean APP_ENABLE_STOPSERVER) {
-        this.APP_ENABLE_STOPSERVER = APP_ENABLE_STOPSERVER;
+    public boolean isEnableStopServer() {
+        return enableStopServer;
     }
 
-    public void setAPP_FUTURE_ACCEPTOR(String APP_FUTURE_ACCEPTOR) {
-        this.APP_FUTURE_ACCEPTOR = APP_FUTURE_ACCEPTOR;
+    public void setEnableStopServer(boolean enableStopServer) {
+        this.enableStopServer = enableStopServer;
     }
 
-    public boolean isAPP_ENABLE_HTTP_SESSION() {
-        return APP_ENABLE_HTTP_SESSION;
+    public String getFutureAcceptor() {
+        return futureAcceptor;
     }
 
-    public void setAPP_ENABLE_HTTP_SESSION(boolean APP_ENABLE_HTTP_SESSION) {
-        this.APP_ENABLE_HTTP_SESSION = APP_ENABLE_HTTP_SESSION;
+    public void setFutureAcceptor(String futureAcceptor) {
+        this.futureAcceptor = futureAcceptor;
     }
 
-    public String getAPP_ON_REDEPLOY_FUTURE_ACCEPTOR() {
-        return APP_ON_REDEPLOY_FUTURE_ACCEPTOR;
+    public String getOnRedeployFutureAcceptor() {
+        return onRedeployFutureAcceptor;
     }
 
-    public void setAPP_ON_REDEPLOY_FUTURE_ACCEPTOR(String APP_ON_REDEPLOY_FUTURE_ACCEPTOR) {
-        this.APP_ON_REDEPLOY_FUTURE_ACCEPTOR = APP_ON_REDEPLOY_FUTURE_ACCEPTOR;
+    public void setOnRedeployFutureAcceptor(String onRedeployFutureAcceptor) {
+        this.onRedeployFutureAcceptor = onRedeployFutureAcceptor;
     }
 
-    public String getAPP_IO_EXCEPTION_CAUGHT_HANDLE() {
-        return APP_IO_EXCEPTION_CAUGHT_HANDLE;
+    public String getIoExceptionCaughtHandle() {
+        return ioExceptionCaughtHandle;
     }
 
-    public void setAPP_IO_EXCEPTION_CAUGHT_HANDLE(String APP_IO_EXCEPTION_CAUGHT_HANDLE) {
-        this.APP_IO_EXCEPTION_CAUGHT_HANDLE = APP_IO_EXCEPTION_CAUGHT_HANDLE;
+    public void setIoExceptionCaughtHandle(String ioExceptionCaughtHandle) {
+        this.ioExceptionCaughtHandle = ioExceptionCaughtHandle;
     }
 
 }

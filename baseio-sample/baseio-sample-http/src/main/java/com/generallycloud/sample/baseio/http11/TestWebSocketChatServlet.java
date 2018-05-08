@@ -142,7 +142,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
     @PreDestroy
     public void destroy() throws Exception {
         LifeCycleUtil.stop(msgAdapter);
-        ThreadUtil.sleep(2000);
+//        ThreadUtil.sleep(2000);
     }
     
     public WebSocketMsgAdapter getMsgAdapter() {

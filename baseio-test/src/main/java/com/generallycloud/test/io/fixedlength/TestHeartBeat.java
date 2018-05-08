@@ -45,7 +45,7 @@ public class TestHeartBeat {
         };
 
         Configuration configuration = new Configuration(8300);
-        configuration.setSERVER_SESSION_IDLE_TIME(20);
+        configuration.setSessionIdleTime(20);
         SocketChannelContext context = new NioSocketChannelContext(configuration);
         SocketChannelConnector connector = new SocketChannelConnector(context);
         context.addSessionIdleEventListener(new SocketSessionActiveIEListener());

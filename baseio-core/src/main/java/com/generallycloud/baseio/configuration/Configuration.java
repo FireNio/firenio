@@ -23,226 +23,180 @@ import com.generallycloud.baseio.component.SocketChannelContext;
 //FIXME 校验参数
 public class Configuration {
 
-    private int     SERVER_PORT;
-    private String  SERVER_HOST                      = "localhost";
-    private int     SERVER_CORE_SIZE                 = Runtime.getRuntime().availableProcessors();
-    private Charset SERVER_ENCODING                  = Encoding.UTF8;
-    private long    SERVER_SESSION_IDLE_TIME         = 30 * 1000;
-    private int     SERVER_WORK_EVENT_QUEUE_SIZE     = 1024 * 256;
+    private int     port;
+    private String  host               = "127.0.0.1";
+    private int     coreSize           = Runtime.getRuntime().availableProcessors();
+    private Charset charset            = Encoding.UTF8;
+    private long    sessionIdleTime    = 30 * 1000;
+    private int     workEventQueueSize = 1024 * 256;
     //内存池单元大小
-    private int     SERVER_MEMORY_POOL_UNIT;
+    private int     memoryPoolUnit     = 512;
     //内存池是否使用启用堆外内存
-    private boolean SERVER_ENABLE_MEMORY_POOL_DIRECT;
-    private boolean SERVER_ENABLE_HEARTBEAT_LOG      = true;
-    private boolean SERVER_ENABLE_SSL;
+    private boolean enableMemoryPoolDirect;
+    private boolean enableHeartbeatLog = true;
+    private boolean enableSsl;
     //是否启用work event loop，如果启用，则future在work event loop中处理
-    private boolean SERVER_ENABLE_WORK_EVENT_LOOP;
-    private boolean SERVER_ENABLE_MEMORY_POOL        = true;
+    private boolean enableWorkEventLoop;
+    private boolean enableMemoryPool   = true;
     //内存池内存单元数量（单核）
-    private int     SERVER_MEMORY_POOL_CAPACITY;
-    private int     SERVER_CHANNEL_READ_BUFFER       = 1024 * 512;
-    //内存池内存单元数量百分比（单核），该配置影响"SERVER_MEMORY_POOL_CAPACITY"属性
-    private double  SERVER_MEMORY_POOL_CAPACITY_RATE = 1d;
-
-    private String  SERVER_CERT_CRT;
-    private String  SERVER_CERT_KEY;
-    private String  SERVER_SSL_KEYSTORE;
+    private int     memoryPoolCapacity;
+    private int     channelReadBuffer  = 1024 * 512;
+    private String  certCrt;
+    private String  certKey;
+    private String  sslKeystore;
 
     public Configuration() {}
 
-    public Configuration(int SERVER_PORT) {
-        this.SERVER_PORT = SERVER_PORT;
+    public Configuration(int port) {
+        this.port = port;
     }
 
-    public Configuration(String SERVER_HOST, int SERVER_PORT) {
-        this.SERVER_PORT = SERVER_PORT;
-        this.SERVER_HOST = SERVER_HOST;
+    public Configuration(String host, int port) {
+        this.port = port;
+        this.host = host;
     }
 
-    public int getSERVER_PORT() {
-        return SERVER_PORT;
+    public int getPort() {
+        return port;
     }
 
-    public void setSERVER_PORT(int SERVER_PORT) {
-        if (SERVER_PORT == 0) {
-            return;
-        }
-        this.SERVER_PORT = SERVER_PORT;
+    public void setPort(int port) {
+        this.port = port;
     }
 
-    public boolean isSERVER_ENABLE_SSL() {
-        return SERVER_ENABLE_SSL;
+    public String getHost() {
+        return host;
     }
 
-    public void setSERVER_ENABLE_SSL(boolean SERVER_ENABLE_SSL) {
-        this.SERVER_ENABLE_SSL = SERVER_ENABLE_SSL;
+    public void setHost(String host) {
+        this.host = host;
     }
 
-    public int getSERVER_CORE_SIZE() {
-        return SERVER_CORE_SIZE;
+    public int getCoreSize() {
+        return coreSize;
     }
 
-    public void setSERVER_CORE_SIZE(int SERVER_CORE_SIZE) {
-        if (SERVER_CORE_SIZE == 0) {
-            return;
-        }
-        this.SERVER_CORE_SIZE = SERVER_CORE_SIZE;
+    public void setCoreSize(int coreSize) {
+        this.coreSize = coreSize;
     }
 
-    public Charset getSERVER_ENCODING() {
-        return SERVER_ENCODING;
+    public Charset getCharset() {
+        return charset;
     }
 
-    public void setSERVER_ENCODING(Charset SERVER_ENCODING) {
-        this.SERVER_ENCODING = SERVER_ENCODING;
+    public void setCharset(Charset charset) {
+        this.charset = charset;
     }
 
-    public String getSERVER_HOST() {
-        return SERVER_HOST;
+    public long getSessionIdleTime() {
+        return sessionIdleTime;
     }
 
-    public void setSERVER_HOST(String SERVER_HOST) {
-        this.SERVER_HOST = SERVER_HOST;
+    public void setSessionIdleTime(long sessionIdleTime) {
+        this.sessionIdleTime = sessionIdleTime;
     }
 
-    public long getSERVER_SESSION_IDLE_TIME() {
-        return SERVER_SESSION_IDLE_TIME;
+    public int getWorkEventQueueSize() {
+        return workEventQueueSize;
     }
 
-    public void setSERVER_SESSION_IDLE_TIME(long SERVER_SESSION_IDLE_TIME) {
-
-        if (SERVER_SESSION_IDLE_TIME == 0) {
-            return;
-        }
-
-        this.SERVER_SESSION_IDLE_TIME = SERVER_SESSION_IDLE_TIME;
+    public void setWorkEventQueueSize(int workEventQueueSize) {
+        this.workEventQueueSize = workEventQueueSize;
     }
 
-    public int getSERVER_MEMORY_POOL_UNIT() {
-        return SERVER_MEMORY_POOL_UNIT;
+    public int getMemoryPoolUnit() {
+        return memoryPoolUnit;
     }
 
-    public void setSERVER_MEMORY_POOL_UNIT(int SERVER_MEMORY_POOL_UNIT) {
-        if (SERVER_MEMORY_POOL_UNIT == 0) {
-            return;
-        }
-        this.SERVER_MEMORY_POOL_UNIT = SERVER_MEMORY_POOL_UNIT;
+    public void setMemoryPoolUnit(int memoryPoolUnit) {
+        this.memoryPoolUnit = memoryPoolUnit;
     }
 
-    public int getSERVER_MEMORY_POOL_CAPACITY() {
-        return (int) (SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_CAPACITY_RATE);
+    public boolean isEnableMemoryPoolDirect() {
+        return enableMemoryPoolDirect;
     }
 
-    public void setSERVER_MEMORY_POOL_CAPACITY(int SERVER_MEMORY_POOL_CAPACITY) {
-        if (SERVER_MEMORY_POOL_CAPACITY == 0) {
-            return;
-        }
-        this.SERVER_MEMORY_POOL_CAPACITY = SERVER_MEMORY_POOL_CAPACITY;
+    public void setEnableMemoryPoolDirect(boolean enableMemoryPoolDirect) {
+        this.enableMemoryPoolDirect = enableMemoryPoolDirect;
     }
 
-    public int getSERVER_CHANNEL_READ_BUFFER() {
-        return SERVER_CHANNEL_READ_BUFFER;
+    public boolean isEnableHeartbeatLog() {
+        return enableHeartbeatLog;
     }
 
-    public void setSERVER_CHANNEL_READ_BUFFER(int SERVER_CHANNEL_READ_BUFFER) {
-        if (SERVER_CHANNEL_READ_BUFFER == 0) {
-            return;
-        }
-        this.SERVER_CHANNEL_READ_BUFFER = SERVER_CHANNEL_READ_BUFFER;
+    public void setEnableHeartbeatLog(boolean enableHeartbeatLog) {
+        this.enableHeartbeatLog = enableHeartbeatLog;
     }
 
-    public double getSERVER_MEMORY_POOL_CAPACITY_RATE() {
-        return SERVER_MEMORY_POOL_CAPACITY_RATE;
+    public boolean isEnableSsl() {
+        return enableSsl;
     }
 
-    public void setSERVER_MEMORY_POOL_CAPACITY_RATE(double SERVER_MEMORY_POOL_CAPACITY_RATE) {
-        if (SERVER_MEMORY_POOL_CAPACITY_RATE == 0) {
-            return;
-        }
-        this.SERVER_MEMORY_POOL_CAPACITY_RATE = SERVER_MEMORY_POOL_CAPACITY_RATE;
+    public void setEnableSsl(boolean enableSsl) {
+        this.enableSsl = enableSsl;
     }
 
-    public boolean isSERVER_ENABLE_MEMORY_POOL_DIRECT() {
-        return SERVER_ENABLE_MEMORY_POOL_DIRECT;
+    public boolean isEnableWorkEventLoop() {
+        return enableWorkEventLoop;
     }
 
-    public void setSERVER_ENABLE_MEMORY_POOL_DIRECT(boolean SERVER_ENABLE_MEMORY_POOL_DIRECT) {
-        this.SERVER_ENABLE_MEMORY_POOL_DIRECT = SERVER_ENABLE_MEMORY_POOL_DIRECT;
+    public void setEnableWorkEventLoop(boolean enableWorkEventLoop) {
+        this.enableWorkEventLoop = enableWorkEventLoop;
+    }
+
+    public boolean isEnableMemoryPool() {
+        return enableMemoryPool;
+    }
+
+    public void setEnableMemoryPool(boolean enableMemoryPool) {
+        this.enableMemoryPool = enableMemoryPool;
+    }
+
+    public int getMemoryPoolCapacity() {
+        return memoryPoolCapacity;
+    }
+
+    public void setMemoryPoolCapacity(int memoryPoolCapacity) {
+        this.memoryPoolCapacity = memoryPoolCapacity;
+    }
+
+    public int getChannelReadBuffer() {
+        return channelReadBuffer;
+    }
+
+    public void setChannelReadBuffer(int channelReadBuffer) {
+        this.channelReadBuffer = channelReadBuffer;
+    }
+
+    public String getCertCrt() {
+        return certCrt;
+    }
+
+    public void setCertCrt(String certCrt) {
+        this.certCrt = certCrt;
+    }
+
+    public String getCertKey() {
+        return certKey;
+    }
+
+    public void setCertKey(String certKey) {
+        this.certKey = certKey;
+    }
+
+    public String getSslKeystore() {
+        return sslKeystore;
+    }
+
+    public void setSslKeystore(String sslKeystore) {
+        this.sslKeystore = sslKeystore;
     }
 
     public void initializeDefault(SocketChannelContext context) {
-
-        if (SERVER_MEMORY_POOL_UNIT == 0) {
-            SERVER_MEMORY_POOL_UNIT = 512;
-        }
-
-        if (SERVER_MEMORY_POOL_CAPACITY == 0) {
-
+        if (memoryPoolCapacity == 0) {
             long total = Runtime.getRuntime().maxMemory();
-
-            SERVER_MEMORY_POOL_CAPACITY = (int) (total
-                    / (SERVER_MEMORY_POOL_UNIT * SERVER_CORE_SIZE * 16));
+            memoryPoolCapacity = (int) (total / (memoryPoolUnit * coreSize * 32));
         }
-
-    }
-
-    public boolean isSERVER_ENABLE_WORK_EVENT_LOOP() {
-        return SERVER_ENABLE_WORK_EVENT_LOOP;
-    }
-
-    public void setSERVER_ENABLE_WORK_EVENT_LOOP(boolean SERVER_ENABLE_WORK_EVENT_LOOP) {
-        this.SERVER_ENABLE_WORK_EVENT_LOOP = SERVER_ENABLE_WORK_EVENT_LOOP;
-    }
-
-    public boolean isSERVER_ENABLE_MEMORY_POOL() {
-        return SERVER_ENABLE_MEMORY_POOL;
-    }
-
-    public void setSERVER_ENABLE_MEMORY_POOL(boolean SERVER_ENABLE_MEMORY_POOL) {
-        this.SERVER_ENABLE_MEMORY_POOL = SERVER_ENABLE_MEMORY_POOL;
-    }
-
-    public boolean isSERVER_ENABLE_HEARTBEAT_LOG() {
-        return SERVER_ENABLE_HEARTBEAT_LOG;
-    }
-
-    public void setSERVER_ENABLE_HEARTBEAT_LOG(boolean SERVER_ENABLE_HEARTBEAT_LOG) {
-        this.SERVER_ENABLE_HEARTBEAT_LOG = SERVER_ENABLE_HEARTBEAT_LOG;
-    }
-
-    public int getSERVER_WORK_EVENT_QUEUE_SIZE() {
-        return SERVER_WORK_EVENT_QUEUE_SIZE;
-    }
-
-    public void setSERVER_WORK_EVENT_QUEUE_SIZE(int SERVER_WORK_EVENT_QUEUE_SIZE) {
-        if (SERVER_WORK_EVENT_QUEUE_SIZE == 0) {
-            return;
-        }
-        this.SERVER_WORK_EVENT_QUEUE_SIZE = SERVER_WORK_EVENT_QUEUE_SIZE;
-    }
-
-    public String getSERVER_CERT_CRT() {
-        return SERVER_CERT_CRT;
-    }
-
-    public void setSERVER_CERT_CRT(String SERVER_CERT_CRT) {
-        this.SERVER_CERT_CRT = SERVER_CERT_CRT;
-    }
-
-    public String getSERVER_CERT_KEY() {
-        return SERVER_CERT_KEY;
-    }
-
-    public void setSERVER_CERT_KEY(String SERVER_CERT_KEY) {
-        this.SERVER_CERT_KEY = SERVER_CERT_KEY;
-    }
-
-    public String getSERVER_SSL_KEYSTORE() {
-        return SERVER_SSL_KEYSTORE;
-    }
-
-    public void setSERVER_SSL_KEYSTORE(String SERVER_SSL_KEYSTORE) {
-        this.SERVER_SSL_KEYSTORE = SERVER_SSL_KEYSTORE;
     }
 
 }

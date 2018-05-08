@@ -48,11 +48,10 @@ public class TestHttpLoadServer {
         Configuration c = new Configuration(8080);
 
         //		c.setSERVER_MEMORY_POOL_CAPACITY(2560000);
-        c.setSERVER_MEMORY_POOL_UNIT(256);
-        c.setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
-        		c.setSERVER_CORE_SIZE(1);
-        c.setSERVER_ENABLE_MEMORY_POOL(true);
-        c.setSERVER_MEMORY_POOL_CAPACITY_RATE(1);
+        c.setMemoryPoolUnit(256);
+        c.setEnableMemoryPoolDirect(true);
+        c.setCoreSize(1);
+        c.setEnableMemoryPool(true);
 
         SocketChannelContext context = new NioSocketChannelContext(c);
 

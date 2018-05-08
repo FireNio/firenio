@@ -45,7 +45,7 @@ public class SimpleTestProtobaseClient {
 
         SocketChannelContext context = new NioSocketChannelContext(
                 new Configuration("localhost", 8300));
-        context.getConfiguration().setSERVER_ENABLE_MEMORY_POOL_DIRECT(true);
+        context.getConfiguration().setEnableMemoryPoolDirect(true);
         SocketChannelConnector connector = new SocketChannelConnector(context);
         connector.setTimeout(99999999);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);

@@ -34,9 +34,9 @@ public class TestBytebufAllocator {
 
         Configuration configuration = new Configuration();
 
-        configuration.setSERVER_MEMORY_POOL_CAPACITY(10);
+        configuration.setMemoryPoolCapacity(10);
 
-        configuration.setSERVER_MEMORY_POOL_UNIT(1);
+        configuration.setMemoryPoolUnit(1);
 
         SocketChannelContext context = new NioSocketChannelContext(configuration);
 

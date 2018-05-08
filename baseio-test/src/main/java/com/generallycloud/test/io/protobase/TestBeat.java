@@ -46,7 +46,7 @@ public class TestBeat {
 
         String serviceKey = "TestSimpleServlet";
         Configuration configuration = new Configuration(8300);
-        configuration.setSERVER_SESSION_IDLE_TIME(10);
+        configuration.setSessionIdleTime(10);
         SocketChannelContext context = new NioSocketChannelContext(configuration);
         SocketChannelConnector connector = new SocketChannelConnector(context);
         context.addSessionIdleEventListener(new SocketSessionActiveIEListener());
