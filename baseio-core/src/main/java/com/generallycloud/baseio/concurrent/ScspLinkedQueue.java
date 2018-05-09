@@ -31,6 +31,11 @@ public class ScspLinkedQueue<T> implements LinkedQueue<T> {
 
     @Override
     public void offer(Linkable linkable) {
+        linkable.setValidate(true);
+        if (linkable == tail) {
+            size.incrementAndGet();
+            return;
+        }
         tail.setNext(linkable);
         tail = linkable;
         size.incrementAndGet();
@@ -51,15 +56,14 @@ public class ScspLinkedQueue<T> implements LinkedQueue<T> {
             Linkable next = h.getNext();
             if (next == null) {
                 h.setValidate(false);
+                head = h;
             } else {
                 head = next;
             }
             this.size.decrementAndGet();
             return (T) h;
         } else {
-            Linkable next = h.getNext();
-            head = next;
-            return get(next);
+            return get(h.getNext());
         }
     }
 
@@ -67,5 +71,5 @@ public class ScspLinkedQueue<T> implements LinkedQueue<T> {
     public int size() {
         return size.get();
     }
-
+    
 }

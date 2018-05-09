@@ -102,5 +102,7 @@ public interface SocketSession extends Closeable {
     <T> void setOption(SocketOption<T> name, T value) throws IOException;
 
     void setProtocolCodec(ProtocolCodec protocolCodec);
+    
+    SocketChannel unsafe();
 
 }

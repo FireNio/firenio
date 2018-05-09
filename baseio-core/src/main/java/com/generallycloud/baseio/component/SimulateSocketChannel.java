@@ -18,6 +18,7 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketOption;
+import java.util.Set;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
@@ -35,7 +36,7 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
     private SelectorEventLoop selectorEventLoop;
 
     SimulateSocketChannel(final SocketChannelContext context) {
-        super(new SocketChannelThreadContext() {
+        super(new ChannelThreadContext() {
             
             @Override
             public boolean inEventLoop() {
@@ -65,6 +66,31 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
             @Override
             public ByteBufAllocator getByteBufAllocator() {
                 return UnpooledByteBufAllocator.getHeap();
+            }
+
+            @Override
+            public Object removeAttribute(Object key) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void setAttribute(Object key, Object value) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public Object getAttribute(Object key) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public Set<Object> getAttributeNames() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void clearAttributes() {
+                throw new UnsupportedOperationException();
             }
         } , -1);
         this.context = context;
@@ -101,7 +127,7 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
     }
 
     @Override
-    protected SocketChannelThreadContext getSocketChannelThreadContext() {
+    public ChannelThreadContext getChannelThreadContext() {
         return selectorEventLoop;
     }
 

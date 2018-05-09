@@ -18,6 +18,7 @@ package com.generallycloud.baseio.protocol;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.component.ChannelThreadContext;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Linkable;
@@ -117,6 +118,11 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     public void release() {
         ReleaseUtil.release(buf);
     }
+    
+    @Override
+    public void release(ChannelThreadContext context) {
+        release();
+    }
 
     @Override
     public void setByteBuf(ByteBuf buf) {
@@ -167,6 +173,16 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     @Override
     public void write(String text, SocketSession session) {
         write(text, session.getContext());
+    }
+    
+    protected ChannelFuture reset() {
+        this.flushed = false;
+        this.isHeartbeat = false;
+        this.isNeedSsl = false;
+        this.isSilent = false;
+        this.next = null;
+        this.writeSize = 0;
+        return this;
     }
 
 }

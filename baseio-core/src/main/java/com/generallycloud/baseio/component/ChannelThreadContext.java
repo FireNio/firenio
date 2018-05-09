@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 
@@ -23,7 +24,7 @@ import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
  * @author wangkai
  *
  */
-public interface SocketChannelThreadContext {
+public interface ChannelThreadContext extends Attributes{
 
     SocketChannelContext getChannelContext();
 

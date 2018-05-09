@@ -170,7 +170,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         mapping.put("jpeg", HttpFuture.CONTENT_TYPE_IMAGE_JPEG);
         mapping.put("gif", HttpFuture.CONTENT_TYPE_IMAGE_GIF);
         mapping.put("txt", HttpFuture.CONTENT_TYPE_TEXT_PLAIN);
-        mapping.put("ico", HttpFuture.CONTENT_TYPE_IMAGE_ICON);
+        mapping.put("ico", HttpFuture.CONTENT_TYPE_IMAGE_PNG);
 
         if (rootFile.exists()) {
             scanFolder(context, htmlCache, rootFile, rootPath, mapping, "");

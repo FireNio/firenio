@@ -18,6 +18,8 @@ package com.generallycloud.baseio.codec.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.collection.FixedThreadStack;
+import com.generallycloud.baseio.component.ChannelThreadContext;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
@@ -177,6 +179,34 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     @Override
     public String toString() {
         return getReadText();
+    }
+    
+    @Override
+    public void release(ChannelThreadContext context) {
+        super.release(context);
+        FixedThreadStack<WebSocketFutureImpl> stack = 
+                (FixedThreadStack<WebSocketFutureImpl>) context.getAttribute(WebSocketCodec.FUTURE_STACK_KEY);
+        if (stack != null) {
+            stack.push(this);
+        }
+    }
+
+    protected WebSocketFutureImpl reset(SocketChannel channel, ByteBuf buf, int limit){
+        this.byteArray = null;
+        this.eof = false;
+        this.hasMask = false;
+        this.length = 0;
+        this.mask = null;
+        this.readText = null;
+        this.remain_data_complete = false;
+        this.type = 0;
+        
+        this.limit = limit;
+        this.buf = buf;
+        this.setServiceName(channel.getSession());
+        
+        super.reset();
+        return this;
     }
 
 }

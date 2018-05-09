@@ -18,8 +18,10 @@ package com.generallycloud.baseio.codec.http11;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.generallycloud.baseio.collection.FixedThreadStack;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.ChannelThreadContext;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
 
@@ -72,6 +74,22 @@ public class ServerHttpFuture extends AbstractHttpFuture {
         setRequestURL(line.substring(index1 + 1, index2));
         setMethod(line.substring(0, index1));
         setVersion(line.substring(index2 + 1));
+    }
+    
+    @Override
+    public void release(ChannelThreadContext context) {
+        super.release(context);
+        FixedThreadStack<ServerHttpFuture> stack = 
+                (FixedThreadStack<ServerHttpFuture>) context.getAttribute(ServerHttpCodec.FUTURE_STACK_KEY);
+        if (stack != null) {
+            stack.push(this);
+        }
+    }
+    
+    public ServerHttpFuture reset(SocketChannel channel, int headerLimit, int bodyLimit) {
+        super.reset(channel, headerLimit, bodyLimit);
+        setDefaultResponseHeaders(getResponseHeaders());
+        return this;
     }
 
 }

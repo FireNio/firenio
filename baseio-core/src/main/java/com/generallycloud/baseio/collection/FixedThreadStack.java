@@ -19,8 +19,29 @@ package com.generallycloud.baseio.collection;
  * @author wangkai
  *
  */
-public interface ObjectPoolFactory<V> {
+public class FixedThreadStack<V> {
 
-    V newInstance();
+    private V[]                  vs;
+    private int                  size;
+
+    @SuppressWarnings("unchecked")
+    public FixedThreadStack(int capacity) {
+        this.size = 0;
+        this.vs = (V[]) new Object[capacity];
+    }
+
+    public V pop() {
+        if (size == 0) {
+            return null;
+        }
+        return vs[--size];
+    }
+
+    public void push(V v) {
+        if (size == vs.length) {
+            return;
+        }
+        vs[size++] = v;
+    }
 
 }

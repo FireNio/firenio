@@ -26,8 +26,10 @@ import java.nio.channels.spi.SelectorProvider;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.AbstractSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -55,24 +57,24 @@ import com.generallycloud.baseio.log.LoggerFactory;
  *
  */
 //FIXME 使用ThreadLocal
-public class SelectorEventLoop extends AbstractEventLoop implements SocketChannelThreadContext {
+public class SelectorEventLoop extends AbstractEventLoop implements ChannelThreadContext {
 
     private static final Logger                  logger             = LoggerFactory
             .getLogger(SelectorEventLoop.class);
+    private Map<Object, Object>                  attributes         = new HashMap<>();
     private ByteBuf                              buf                = null;
     private ByteBufAllocator                     byteBufAllocator   = null;
     private ChannelByteBufReader                 byteBufReader      = null;
     private NioSocketChannelContext              context            = null;
     private SelectorEventLoopGroup               eventLoopGroup     = null;
     private ExecutorEventLoop                    executorEventLoop  = null;
+    private volatile boolean                   hasTask            = false;
     private int                                  index;
     private AtomicBoolean                        selecting          = new AtomicBoolean();
     private SelectionKeySet                      selectionKeySet    = null;
     private SocketSelector                       selector           = null;
     private BufferedArrayList<SelectorLoopEvent> selectorLoopEvents = new BufferedArrayList<>();
-    private SocketSessionManager                 sessionManager     = null;
-    private SslHandler                           sslHandler         = null;
-    private volatile boolean                   hasTask;
+    private SocketSessionManager                 sessionManager     = null;    private SslHandler                           sslHandler         = null;
 
     SelectorEventLoop(SelectorEventLoopGroup group, int index) {
         this.index = index;
@@ -128,6 +130,11 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
             }
             closeSocketChannel(ch, e);
         }
+    }
+
+    @Override
+    public void clearAttributes() {
+        this.attributes.clear();
     }
 
     private void closeEvents(BufferedArrayList<SelectorLoopEvent> bufferedList) {
@@ -221,7 +228,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
     }
 
     @Override
-    public void doStartup() throws IOException {
+    protected void doStartup() throws IOException {
         if (executorEventLoop instanceof LineEventLoop) {
             ((LineEventLoop) executorEventLoop).setMonitor(this);
         }
@@ -238,6 +245,16 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
         LifeCycleUtil.stop(sessionManager);
         CloseUtil.close(selector);
         ReleaseUtil.release(buf);
+    }
+
+    @Override
+    public Object getAttribute(Object key) {
+        return this.attributes.get(key);
+    }
+
+    @Override
+    public Set<Object> getAttributeNames() {
+        return this.attributes.keySet();
     }
 
     @Override
@@ -384,6 +401,11 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
         return selector;
     }
 
+    @Override
+    public Object removeAttribute(Object key) {
+        return this.attributes.remove(key);
+    }
+
     protected void selectEmpty(long last_select) {
 
         long past = System.currentTimeMillis() - last_select;
@@ -402,6 +424,11 @@ public class SelectorEventLoop extends AbstractEventLoop implements SocketChanne
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void setAttribute(Object key, Object value) {
+        this.attributes.put(key, value);
     }
 
     // FIXME 会不会出现这种情况，数据已经接收到本地，但是还没有被EventLoop处理完

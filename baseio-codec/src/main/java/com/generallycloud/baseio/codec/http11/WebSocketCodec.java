@@ -19,7 +19,9 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.collection.FixedThreadStack;
 import com.generallycloud.baseio.common.MathUtil;
+import com.generallycloud.baseio.component.ChannelThreadContext;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
@@ -56,6 +58,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 */
 public class WebSocketCodec implements ProtocolCodec{
 
+    public static final String FUTURE_STACK_KEY = "FixedThreadStack_WebSocketFuture";
     public static final int PROTOCOL_HEADER = 2;
     public static final String PROTOCOL_ID = "WebSocket";
     public static final int TYPE_BINARY     = 2;
@@ -65,19 +68,18 @@ public class WebSocketCodec implements ProtocolCodec{
     public static final int TYPE_TEXT       = 1;
     public static WebSocketCodec WS_PROTOCOL_CODEC;
     
-    public static void init(SocketChannelContext context,int limit){
-        new WebSocketCodec(limit).initialize(context);
+    static void init(SocketChannelContext context,int limit,int futureStackSize){
+        WS_PROTOCOL_CODEC = new WebSocketCodec();
+        WS_PROTOCOL_CODEC.limit = limit;
+        WS_PROTOCOL_CODEC.futureStackSize = futureStackSize;
+        WS_PROTOCOL_CODEC.initialize(context);
     }
 
-    private int                limit;
-    final int MAX_UNSIGNED_SHORT = (1 << 16) - 1;
+    private int                limit                      = 1024 * 8;
+    private int                futureStackSize            = 1024 * 4;
+    final   int                MAX_UNSIGNED_SHORT         = (1 << 16) - 1;
     
     public WebSocketCodec() {
-        this(1024 * 8);
-    }
-    
-    public WebSocketCodec(int limit) {
-        this.limit = limit;
     }
     
     @Override
@@ -98,7 +100,19 @@ public class WebSocketCodec implements ProtocolCodec{
     
     @Override
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
-        return new WebSocketFutureImpl(channel,
+        ChannelThreadContext context = channel.getChannelThreadContext();
+        FixedThreadStack<WebSocketFutureImpl> stack = 
+                (FixedThreadStack<WebSocketFutureImpl>) context.getAttribute(FUTURE_STACK_KEY);
+        if (stack == null) {
+            stack = new FixedThreadStack<>(futureStackSize);
+            context.setAttribute(FUTURE_STACK_KEY, stack);
+        }
+        WebSocketFutureImpl future = stack.pop();
+        if (future == null) {
+            return new WebSocketFutureImpl(channel,
+                    channel.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
+        }
+        return future.reset(channel,
                 channel.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
     }
 
@@ -138,7 +152,6 @@ public class WebSocketCodec implements ProtocolCodec{
 
     @Override
     public void initialize(SocketChannelContext context) {
-        WS_PROTOCOL_CODEC = this;
     }
 
     //  public IOWriteFuture encodeWithMask(BaseContext context, IOReadFuture readFuture) throws IOException {

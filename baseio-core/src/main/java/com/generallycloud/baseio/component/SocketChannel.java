@@ -55,6 +55,8 @@ public interface SocketChannel extends Closeable {
     ExecutorEventLoop getExecutorEventLoop();
 
     long getLastAccessTime();
+    
+    ChannelThreadContext getChannelThreadContext();
 
     String getLocalAddr();
 
@@ -99,5 +101,5 @@ public interface SocketChannel extends Closeable {
     void setSslReadFuture(SslFuture future);
 
     void write(ByteBuf buf) throws IOException;
-
+    
 }

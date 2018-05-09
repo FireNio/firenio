@@ -67,11 +67,11 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     protected SSLEngine                      sslEngine;
     protected SslHandler                     sslHandler;
     protected transient SslFuture            sslReadFuture;
-    protected SocketChannelThreadContext     threadContext;
+    protected ChannelThreadContext     threadContext;
     protected transient ChannelFuture        writeFuture;
-    protected LinkedQueue<ChannelFuture>     writeFutures;
+    protected ScspLinkedQueue<ChannelFuture>     writeFutures;
 
-    AbstractSocketChannel(SocketChannelThreadContext context, int channelId) {
+    AbstractSocketChannel(ChannelThreadContext context, int channelId) {
         SocketChannelContext socketChannelContext = context.getChannelContext();
         DefaultChannelFuture f = new DefaultChannelFuture(EmptyByteBuf.get());
         // 认为在第一次Idle之前，连接都是畅通的
@@ -149,7 +149,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         localPort = local.getPort();
         SocketChannelContext context = getContext();
         if (context.isEnableSSL()) {
-            this.sslHandler = getSocketChannelThreadContext().getSslHandler();
+            this.sslHandler = getChannelThreadContext().getSslHandler();
             this.sslEngine = context.getSslContext().newEngine(remoteAddr, remotePort);
         }
         if (isEnableSSL() && context.getSslContext().isClient()) {
@@ -295,8 +295,6 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         return session;
     }
 
-    protected abstract SocketChannelThreadContext getSocketChannelThreadContext();
-
     @Override
     public SSLEngine getSSLEngine() {
         return sslEngine;
@@ -319,7 +317,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
 
     @Override
     public boolean inSelectorLoop() {
-        return getSocketChannelThreadContext().inEventLoop();
+        return getChannelThreadContext().inEventLoop();
     }
 
     @Override
@@ -402,5 +400,5 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         }
         write(future.getByteBuf());
     }
-
+    
 }

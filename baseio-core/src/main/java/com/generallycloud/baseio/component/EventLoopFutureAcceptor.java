@@ -23,11 +23,8 @@ public class EventLoopFutureAcceptor extends AbstractFutureAcceptor {
     @Override
     protected void accept(final IoEventHandle eventHandle, final SocketSession session,
             final ChannelFuture future) {
-
         ExecutorEventLoop eventLoop = session.getExecutorEventLoop();
-
         eventLoop.dispatch(new Runnable() {
-
             @Override
             public void run() {
                 try {
@@ -36,7 +33,6 @@ public class EventLoopFutureAcceptor extends AbstractFutureAcceptor {
                     eventHandle.exceptionCaught(session, future, e);
                 }
             }
-            
         });
     }
 

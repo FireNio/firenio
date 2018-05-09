@@ -17,11 +17,13 @@ package com.generallycloud.baseio.codec.http11;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.KMPUtil;
 import com.generallycloud.baseio.common.SHAUtil;
@@ -68,7 +70,6 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     private Map<String, String>    response_headers;
     private HttpStatus             status         = HttpStatus.C200;
     private boolean                updateWebSocketProtocol;
-
     private String                 version;
 
     public AbstractHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
@@ -463,5 +464,64 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     protected void setVersion(String version) {
         this.version = version;
     }
-
+    
+    protected void clear(Collection<?> coll){
+        if (coll == null) {
+            return;
+        }
+        coll.clear();
+    }
+    
+    protected void clear(Map<?,?> map){
+        if (map == null) {
+            return;
+        }
+        map.clear();
+    }
+    
+    protected HttpFuture reset(SocketChannel channel, int headerLimit, int bodyLimit) {
+        this.binaryBuffer = null;
+        this.bodyArray = null;
+        this.boundary = null;
+        this.contentLength = 0;
+        this.contentType = null;
+        this.clear(cookieList);
+        this.clear(cookies);
+        this.hasBodyContent = false;
+        this.header_complete = false;
+        this.headerLength = 0;
+        this.headerLimit = headerLimit;
+        this.host = null;
+        this.method = null;
+        this.parseFirstLine = true;
+        this.readText = null;
+        this.requestURI = null;
+        this.requestURL = null;
+        this.clear(response_headers);;
+        this.status         = HttpStatus.C200;
+        this.updateWebSocketProtocol = false;
+        this.version = null;
+        this.headerLimit = headerLimit;
+        this.bodyLimit = bodyLimit;
+        this.context = channel.getContext();
+        if (currentHeaderLine == null) {
+            currentHeaderLine = new StringBuilder();
+        }else{
+            currentHeaderLine.setLength(0);
+        }
+        if (request_headers == null) {
+            request_headers = new HashMap<>();
+        }else{
+            request_headers.clear();
+        }
+        if (params == null) {
+            params = new HashMap<>();
+        }else{
+            params.clear();
+        }
+        this.buf = EmptyByteBuf.get();
+        super.reset();
+        return this;
+    }
+    
 }

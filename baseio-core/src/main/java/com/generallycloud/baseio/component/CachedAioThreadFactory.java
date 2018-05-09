@@ -47,7 +47,7 @@ public class CachedAioThreadFactory implements ThreadFactory {
     }
 
     public boolean inFactory(Thread thread) {
-        return thread instanceof SocketChannelThreadContext;
+        return thread instanceof ChannelThreadContext;
     }
 
 }

@@ -93,14 +93,14 @@ public class AioSocketChannel extends AbstractSocketChannel {
 
     //当writeCompleteCallback时forceFlushing为true
     //此时可以再次write(writeFuture)
-    private void flush(SocketChannelThreadContext context) {
+    private void flush(ChannelThreadContext context) {
         if (flushing) {
             return;
         }
         write(context);
     }
     
-    private void write(SocketChannelThreadContext context) {
+    private void write(ChannelThreadContext context) {
         try {
             if (writeFuture == null) {
                 writeFuture = writeFutures.poll();
@@ -180,7 +180,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
                 return;
             }
             try {
-                f.release();
+                f.release(getChannelThreadContext());
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
@@ -206,7 +206,8 @@ public class AioSocketChannel extends AbstractSocketChannel {
     }
 
     @Override
-    protected SocketChannelThreadContext getSocketChannelThreadContext() {
+    public ChannelThreadContext getChannelThreadContext() {
         return aioThread;
     }
+    
 }

@@ -100,7 +100,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                 return;
             }
             try {
-                future.release();
+                future.release(getChannelThreadContext());
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
@@ -147,7 +147,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
     }
 
     @Override
-    protected SocketChannelThreadContext getSocketChannelThreadContext() {
+    public ChannelThreadContext getChannelThreadContext() {
         return eventLoop;
     }
 

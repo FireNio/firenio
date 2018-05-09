@@ -1,35 +1,50 @@
 package com.generallycloud.baseio.component;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 
-public class CachedAioThread extends Thread implements SocketChannelThreadContext {
+public class CachedAioThread extends Thread implements ChannelThreadContext {
 
-    public CachedAioThread(AioSocketChannelContext context, ThreadGroup group, Runnable r,
-            String string, int i) {
+    private Map<Object, Object>     attributes             = new HashMap<>();
+
+    private ByteBufAllocator        byteBufAllocator       = null;
+    private AioSocketChannelContext channelContext         = null;
+    private ExecutorEventLoop       executorEventLoop      = null;
+    private ReadCompletionHandler   readCompletionHandler  = null;
+    private SslHandler              sslHandler             = null;
+    private WriteCompletionHandler  writeCompletionHandler = null;
+
+    public CachedAioThread(AioSocketChannelContext context, 
+            ThreadGroup group, Runnable r, String string, int i) {
         super(group, r, string, i);
         this.channelContext = context;
         this.writeCompletionHandler = new WriteCompletionHandler();
         this.executorEventLoop = channelContext.getExecutorEventLoopGroup().getNext();
         this.byteBufAllocator = channelContext.getByteBufAllocatorManager().getNextBufAllocator();
-        this.readCompletionHandler = new ReadCompletionHandler(
-                channelContext.newChannelByteBufReader());
+        this.readCompletionHandler = new ReadCompletionHandler(channelContext.newChannelByteBufReader());
         if (context.isEnableSSL()) {
             sslHandler = context.getSslContext().newSslHandler();
         }
     }
 
-    private ExecutorEventLoop       executorEventLoop      = null;
-    private AioSocketChannelContext channelContext         = null;
-    private ByteBufAllocator        byteBufAllocator       = null;
-    private ReadCompletionHandler   readCompletionHandler  = null;
-    private WriteCompletionHandler  writeCompletionHandler = null;
-    private SslHandler              sslHandler             = null;
+    @Override
+    public void clearAttributes() {
+        this.attributes.clear();
+    }
 
     @Override
-    public AioSocketChannelContext getChannelContext() {
-        return channelContext;
+    public Object getAttribute(Object key) {
+        return this.attributes.get(key);
+    }
+
+    @Override
+    public Set<Object> getAttributeNames() {
+        return this.attributes.keySet();
     }
 
     @Override
@@ -38,21 +53,22 @@ public class CachedAioThread extends Thread implements SocketChannelThreadContex
     }
 
     @Override
-    public ExecutorEventLoop getExecutorEventLoop() {
-        return executorEventLoop;
+    public AioSocketChannelContext getChannelContext() {
+        return channelContext;
     }
 
     @Override
-    public boolean inEventLoop() {
-        return Thread.currentThread() == this;
+    public ExecutorEventLoop getExecutorEventLoop() {
+        return executorEventLoop;
     }
 
     public ReadCompletionHandler getReadCompletionHandler() {
         return readCompletionHandler;
     }
 
-    public WriteCompletionHandler getWriteCompletionHandler() {
-        return writeCompletionHandler;
+    @Override
+    public SocketSessionManager getSocketSessionManager() {
+        return channelContext.getSessionManager();
     }
 
     @Override
@@ -60,9 +76,23 @@ public class CachedAioThread extends Thread implements SocketChannelThreadContex
         return sslHandler;
     }
 
+    public WriteCompletionHandler getWriteCompletionHandler() {
+        return writeCompletionHandler;
+    }
+
     @Override
-    public SocketSessionManager getSocketSessionManager() {
-        return channelContext.getSessionManager();
+    public boolean inEventLoop() {
+        return Thread.currentThread() == this;
+    }
+
+    @Override
+    public Object removeAttribute(Object key) {
+        return this.attributes.remove(key);
+    }
+
+    @Override
+    public void setAttribute(Object key, Object value) {
+        this.attributes.put(key, value);
     }
 
 }

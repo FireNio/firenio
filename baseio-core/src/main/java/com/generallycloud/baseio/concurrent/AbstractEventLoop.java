@@ -48,8 +48,7 @@ public abstract class AbstractEventLoop implements EventLoop {
         }
     }
 
-    private static final Logger logger               = LoggerFactory
-            .getLogger(AbstractEventLoop.class);
+    private static final Logger logger               = LoggerFactory.getLogger(AbstractEventLoop.class);
 
     private Thread              monitor              = null;
 

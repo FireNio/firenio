@@ -46,7 +46,6 @@ public class AttributesImpl implements Attributes {
     @Override
     public void clearAttributes() {
         this.attributes.clear();
-
     }
 
 }

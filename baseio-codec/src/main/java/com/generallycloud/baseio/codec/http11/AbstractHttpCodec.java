@@ -37,12 +37,12 @@ public abstract class AbstractHttpCodec implements ProtocolCodec {
         writeBuf(buf, array, 0, array.length);
     }
 
-    protected void writeBuf(ByteBuf buf, byte[] array, int offset, int len) {
+    protected void writeBuf(ByteBuf buf, byte[] array, int off, int len) {
         if (buf.remaining() < len) {
             buf.reallocate(buf.position() + len, true);
             buf.limit(buf.capacity());
         }
-        buf.put(array);
+        buf.put(array,off,len);
     }
 
     protected void writeBuf(ByteBuf buf, byte b) {

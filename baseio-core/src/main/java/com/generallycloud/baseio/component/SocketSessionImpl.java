@@ -33,15 +33,15 @@ public class SocketSessionImpl implements SocketSession {
 
     protected Object                  attachment;
     protected HashMap<Object, Object> attributes = new HashMap<>();
-    protected SocketChannel channel;
+    protected SocketChannel           channel;
 
-    public SocketSessionImpl(SocketChannel channel) {
+    SocketSessionImpl(SocketChannel channel) {
         this.channel = channel;
     }
 
     @Override
     public void active() {
-        getSocketChannel().active();
+        unsafe().active();
     }
 
     @Override
@@ -51,17 +51,17 @@ public class SocketSessionImpl implements SocketSession {
 
     @Override
     public void close() {
-        CloseUtil.close(getSocketChannel());
+        CloseUtil.close(unsafe());
     }
 
     @Override
     public void flush(Future future) {
-        getSocketChannel().flush((ChannelFuture) future);
+        unsafe().flush((ChannelFuture) future);
     }
 
     @Override
     public void flushChannelFuture(ChannelFuture future) {
-        getSocketChannel().flushChannelFuture(future);
+        unsafe().flushChannelFuture(future);
     }
 
     @Override
@@ -81,90 +81,92 @@ public class SocketSessionImpl implements SocketSession {
 
     @Override
     public ByteBufAllocator getByteBufAllocator() {
-        return getSocketChannel().getByteBufAllocator();
+        return unsafe().getByteBufAllocator();
     }
 
     @Override
     public SocketChannelContext getContext() {
-        return getSocketChannel().getContext();
+        return unsafe().getContext();
     }
 
     @Override
     public long getCreationTime() {
-        return getSocketChannel().getCreationTime();
+        return unsafe().getCreationTime();
     }
 
     @Override
     public Charset getEncoding() {
-        return getSocketChannel().getEncoding();
+        return unsafe().getEncoding();
     }
 
     @Override
     public ExecutorEventLoop getExecutorEventLoop() {
-        return getSocketChannel().getExecutorEventLoop();
+        return unsafe().getExecutorEventLoop();
     }
-    
+
     @Override
     public long getLastAccessTime() {
-        return getSocketChannel().getLastAccessTime();
+        return unsafe().getLastAccessTime();
     }
+
     @Override
     public String getLocalAddr() {
-        return getSocketChannel().getLocalAddr();
+        return unsafe().getLocalAddr();
     }
 
     @Override
     public int getLocalPort() {
-        return getSocketChannel().getLocalPort();
+        return unsafe().getLocalPort();
     }
 
     @Override
     public <T> T getOption(SocketOption<T> name) throws IOException {
-        return getSocketChannel().getOption(name);
+        return unsafe().getOption(name);
     }
 
     @Override
     public ProtocolCodec getProtocolCodec() {
-        return getSocketChannel().getProtocolCodec();
+        return unsafe().getProtocolCodec();
     }
 
     @Override
     public String getProtocolId() {
-        return getSocketChannel().getProtocolCodec().getProtocolId();
+        return unsafe().getProtocolCodec().getProtocolId();
     }
 
     @Override
     public String getRemoteAddr() {
-        return getSocketChannel().getRemoteAddr();
+        return unsafe().getRemoteAddr();
     }
 
     @Override
     public String getRemoteAddrPort() {
-        return getSocketChannel().getRemoteAddrPort();
+        return unsafe().getRemoteAddrPort();
     }
 
     @Override
     public int getRemotePort() {
-        return getSocketChannel().getRemotePort();
+        return unsafe().getRemotePort();
     }
 
     @Override
     public int getSessionId() {
-        return getSocketChannel().getChannelId();
+        return unsafe().getChannelId();
     }
 
-    protected SocketChannel getSocketChannel() {
+    @Override
+    public SocketChannel unsafe() {
         return channel;
     }
 
     @Override
     public SSLEngine getSSLEngine() {
-        return getSocketChannel().getSSLEngine();
+        return unsafe().getSSLEngine();
     }
 
     @Override
     public boolean inSelectorLoop() {
-        return getSocketChannel().inSelectorLoop();
+        return unsafe().inSelectorLoop();
     }
 
     @Override
@@ -174,12 +176,12 @@ public class SocketSessionImpl implements SocketSession {
 
     @Override
     public boolean isEnableSSL() {
-        return getSocketChannel().isEnableSSL();
+        return unsafe().isEnableSSL();
     }
 
     @Override
     public boolean isOpened() {
-        return getSocketChannel().isOpened();
+        return unsafe().isOpened();
     }
 
     @Override
@@ -191,7 +193,7 @@ public class SocketSessionImpl implements SocketSession {
     public void setAttachment(Object attachment) {
         this.attachment = attachment;
     }
-    
+
     @Override
     public void setAttribute(Object key, Object value) {
         attributes.put(key, value);
@@ -199,17 +201,17 @@ public class SocketSessionImpl implements SocketSession {
 
     @Override
     public <T> void setOption(SocketOption<T> name, T value) throws IOException {
-        getSocketChannel().setOption(name, value);
+        unsafe().setOption(name, value);
     }
 
     @Override
     public void setProtocolCodec(ProtocolCodec protocolCodec) {
-        getSocketChannel().setProtocolCodec(protocolCodec);
+        unsafe().setProtocolCodec(protocolCodec);
     }
 
     @Override
     public String toString() {
-        return getSocketChannel().toString();
+        return unsafe().toString();
     }
 
 }

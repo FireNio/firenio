@@ -18,6 +18,7 @@ package com.generallycloud.baseio.protocol;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.component.ChannelThreadContext;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.concurrent.Linkable;
 
@@ -63,5 +64,7 @@ public interface ChannelFuture extends Future, Linkable {
     ChannelFuture setPONG();
 
     void setSilent(boolean isSilent);
+    
+    void release(ChannelThreadContext context);
 
 }
