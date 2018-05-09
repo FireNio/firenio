@@ -100,19 +100,23 @@ public class WebSocketCodec implements ProtocolCodec{
     
     @Override
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
-        ChannelThreadContext context = channel.getChannelThreadContext();
-        FixedThreadStack<WebSocketFutureImpl> stack = 
-                (FixedThreadStack<WebSocketFutureImpl>) context.getAttribute(FUTURE_STACK_KEY);
-        if (stack == null) {
-            stack = new FixedThreadStack<>(futureStackSize);
-            context.setAttribute(FUTURE_STACK_KEY, stack);
-        }
-        WebSocketFutureImpl future = stack.pop();
-        if (future == null) {
-            return new WebSocketFutureImpl(channel,
+        if (futureStackSize > 0) {
+            ChannelThreadContext context = channel.getChannelThreadContext();
+            FixedThreadStack<WebSocketFutureImpl> stack = 
+                    (FixedThreadStack<WebSocketFutureImpl>) context.getAttribute(FUTURE_STACK_KEY);
+            if (stack == null) {
+                stack = new FixedThreadStack<>(futureStackSize);
+                context.setAttribute(FUTURE_STACK_KEY, stack);
+            }
+            WebSocketFutureImpl future = stack.pop();
+            if (future == null) {
+                return new WebSocketFutureImpl(channel,
+                        channel.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
+            }
+            return future.reset(channel,
                     channel.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
         }
-        return future.reset(channel,
+        return new WebSocketFutureImpl(channel,
                 channel.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
     }
 
