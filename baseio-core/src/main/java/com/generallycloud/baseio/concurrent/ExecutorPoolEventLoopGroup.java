@@ -26,7 +26,8 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
 
     public ExecutorPoolEventLoopGroup(String eventLoopName, int coreEventLoopSize,
             int maxEventLoopSize, int maxEventQueueSize, long keepAliveTime) {
-        eventLoop = new ExecutorPoolEventLoop(this, coreEventLoopSize, maxEventLoopSize,
+        this.eventLoopName = eventLoopName;
+        this.eventLoop = new ExecutorPoolEventLoop(this, coreEventLoopSize, maxEventLoopSize,
                 maxEventQueueSize, keepAliveTime);
     }
 
