@@ -79,6 +79,7 @@ public class ServerHttpFuture extends AbstractHttpFuture {
     @Override
     public void release(ChannelThreadContext context) {
         super.release(context);
+        //FIXME ..final statck is null or not null
         FixedThreadStack<ServerHttpFuture> stack = 
                 (FixedThreadStack<ServerHttpFuture>) context.getAttribute(ServerHttpCodec.FUTURE_STACK_KEY);
         if (stack != null) {

@@ -44,6 +44,7 @@ public class Configuration {
     private String  certCrt;
     private String  certKey;
     private String  sslKeystore;
+    private int     memoryPoolRate     = 32;
 
     public Configuration() {}
 
@@ -191,11 +192,19 @@ public class Configuration {
     public void setSslKeystore(String sslKeystore) {
         this.sslKeystore = sslKeystore;
     }
+    
+    public int getMemoryPoolRate() {
+        return memoryPoolRate;
+    }
+
+    public void setMemoryPoolRate(int memoryPoolRate) {
+        this.memoryPoolRate = memoryPoolRate;
+    }
 
     public void initializeDefault(SocketChannelContext context) {
         if (memoryPoolCapacity == 0) {
             long total = Runtime.getRuntime().maxMemory();
-            memoryPoolCapacity = (int) (total / (memoryPoolUnit * coreSize * 32));
+            memoryPoolCapacity = (int) (total / (memoryPoolUnit * coreSize * memoryPoolRate));
         }
     }
 

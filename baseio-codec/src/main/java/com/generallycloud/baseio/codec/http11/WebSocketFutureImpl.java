@@ -184,6 +184,10 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     @Override
     public void release(ChannelThreadContext context) {
         super.release(context);
+        //FIXME ..final statck is null or not null
+        if (WebSocketCodec.WS_PROTOCOL_CODEC.getFutureStackSize() == 0) {
+            return;
+        }
         FixedThreadStack<WebSocketFutureImpl> stack = 
                 (FixedThreadStack<WebSocketFutureImpl>) context.getAttribute(WebSocketCodec.FUTURE_STACK_KEY);
         if (stack != null) {

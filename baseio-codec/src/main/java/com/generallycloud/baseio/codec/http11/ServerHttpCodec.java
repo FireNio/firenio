@@ -43,22 +43,25 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     private int                 bodyLimit                = 1024 * 512;
     private int                 headerLimit              = 1024 * 8;
     private int                 websocketLimit           = 1024 * 8;
-    private int                 httpFutureStackSize      = 0;
+    private final int          httpFutureStackSize;
     private int                 websocketFutureStackSize = 0;
 
-    public ServerHttpCodec() {}
+    public ServerHttpCodec() {
+        this.httpFutureStackSize = 0;
+    }
 
     public ServerHttpCodec(int headerLimit, int bodyLimit) {
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
+        this.httpFutureStackSize = 0;
     }
 
-    public ServerHttpCodec(int headerLimit, int bodyLimit, int websocketLimit) {
+    public ServerHttpCodec(int headerLimit, int bodyLimit, int httpFutureStackSize) {
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
-        this.websocketLimit = websocketLimit;
+        this.httpFutureStackSize = httpFutureStackSize;
     }
-
+    
     @Override
     public Future createPINGPacket(SocketSession session) {
         return null;
@@ -170,22 +173,17 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         return httpFutureStackSize;
     }
 
-    public void setHttpFutureStackSize(int httpFutureStackSize) {
-        if (httpFutureStackSize < 1) {
-            throw new IllegalArgumentException("httpFutureStackSize");
-        }
-        this.httpFutureStackSize = httpFutureStackSize;
-    }
-
     public int getWebsocketFutureStackSize() {
         return websocketFutureStackSize;
     }
 
+    public void setWebsocketLimit(int websocketLimit) {
+        this.websocketLimit = websocketLimit;
+    }
+
     public void setWebsocketFutureStackSize(int websocketFutureStackSize) {
-        if (websocketFutureStackSize < 1) {
-            throw new IllegalArgumentException("websocketFutureStackSize");
-        }
         this.websocketFutureStackSize = websocketFutureStackSize;
     }
+    
 
 }
