@@ -1,4 +1,4 @@
-lsof -ntP -i:443|xargs kill -9
+kill -9 $(ps -ef | grep java | grep -v grep | awk '{print $2}')
 
 CLASSPATH=""
 for i in lib/*.jar; do
