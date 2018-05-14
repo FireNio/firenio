@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
@@ -26,8 +28,7 @@ import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
 
-public class NioSocketSessionManager extends AbstractSessionManager
-        implements SocketSessionManager {
+public class NioSocketSessionManager extends AbstractSessionManager {
 
     private Logger                          logger   = LoggerFactory.getLogger(getClass());
     private SocketChannelContext            context  = null;
@@ -112,7 +113,17 @@ public class NioSocketSessionManager extends AbstractSessionManager
     }
 
     @Override
-    public Map<Integer, SocketSession> getManagedSessions() {
+    public void broadcast(Future future, Collection<SocketSession> sessions) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void broadcastChannelFuture(ChannelFuture future, Collection<SocketSession> sessions) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<Integer,SocketSession> getManagedSessions() {
         throw new UnsupportedOperationException();
     }
 

@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +29,7 @@ import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
 
-public class AioSocketSessionManager extends AbstractSessionManager
-        implements SocketSessionManager {
+public class AioSocketSessionManager extends AbstractSessionManager {
 
     private Logger                      logger           = LoggerFactory.getLogger(getClass());
     private SocketChannelContext        context          = null;
@@ -102,27 +102,41 @@ public class AioSocketSessionManager extends AbstractSessionManager
 
     @Override
     public void broadcast(Future future) throws IOException {
+        broadcast(future, sessions.values());
+    }
+
+    @Override
+    public void broadcastChannelFuture(ChannelFuture future) {
+        broadcastChannelFuture(future, sessions.values());
+    }
+
+    @Override
+    public void broadcast(Future future, Collection<SocketSession> sessions) throws IOException {
         if (getManagedSessionSize() == 0) {
             return;
         }
         SocketChannel channel = context.getSimulateSocketChannel();
         ChannelFuture f = (ChannelFuture) future;
         context.getProtocolCodec().encode(channel, f);
-        broadcastChannelFuture(f);
+        broadcastChannelFuture(f, sessions);
     }
 
     @Override
-    public void broadcastChannelFuture(ChannelFuture future) {
-        if (getManagedSessionSize() == 0) {
+    public void broadcastChannelFuture(ChannelFuture future, Collection<SocketSession> sessions) {
+        if (sessions.size() == 0) {
             return;
         }
-        for (SocketSession s : sessions.values()) {
+        for (SocketSession s : sessions) {
             s.flushChannelFuture(future.duplicate());
         }
     }
 
+    public Map<Integer, SocketSession> getManagedSessionsMap() {
+        return readOnlySessions;
+    }
+
     @Override
-    public Map<Integer, SocketSession> getManagedSessions() {
+    public Map<Integer,SocketSession> getManagedSessions() {
         return readOnlySessions;
     }
 

@@ -16,8 +16,10 @@
 package com.generallycloud.baseio.acceptor;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import com.generallycloud.baseio.component.ChannelService;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -30,5 +32,9 @@ public interface ChannelAcceptor extends ChannelService {
     void broadcast(Future future) throws IOException;
 
     void broadcastChannelFuture(ChannelFuture future) throws IOException;
+    
+    void broadcast(Future future, Collection<SocketSession> sessions) throws IOException;
+
+    void broadcastChannelFuture(ChannelFuture future, Collection<SocketSession> sessions);
 
 }

@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,11 +29,11 @@ import com.generallycloud.baseio.protocol.Future;
  * @author wangkai
  *
  */
-public class NioGlobalSocketSessionManager implements SocketSessionManager {
+public class RichNioSocketSessionManager implements SocketSessionManager {
 
     private Map<Integer, SocketSession> sessions         = new ConcurrentHashMap<>();
     private Map<Integer, SocketSession> readOnlySessions = Collections.unmodifiableMap(sessions);
-    private SocketSessionManager[]      socketSessionManagers;
+    private SocketSessionManager[]      managers;
     private int                         managerLen;
     private NioSocketChannelContext     context;
 
@@ -40,9 +41,9 @@ public class NioGlobalSocketSessionManager implements SocketSessionManager {
         this.context = context;
         SelectorEventLoopGroup group = context.getSelectorEventLoopGroup();
         managerLen = group.getEventLoopSize();
-        socketSessionManagers = new SocketSessionManager[managerLen];
+        managers = new SocketSessionManager[managerLen];
         for (int i = 0; i < managerLen; i++) {
-            socketSessionManagers[i] = group.getEventLoop(i).getSocketSessionManager();
+            managers[i] = group.getEventLoop(i).getSocketSessionManager();
         }
     }
 
@@ -55,19 +56,19 @@ public class NioGlobalSocketSessionManager implements SocketSessionManager {
 
     @Override
     public SocketSession getSession(int sessionId) {
-        return socketSessionManagers[sessionId % managerLen].getSession(sessionId);
+        return managers[sessionId % managerLen].getSession(sessionId);
     }
 
     @Override
     public void loop() {
-        for (SocketSessionManager m : socketSessionManagers) {
+        for (SocketSessionManager m : managers) {
             m.loop();
         }
     }
 
     @Override
     public void stop() {
-        for (SocketSessionManager m : socketSessionManagers) {
+        for (SocketSessionManager m : managers) {
             m.stop();
         }
     }
@@ -87,27 +88,37 @@ public class NioGlobalSocketSessionManager implements SocketSessionManager {
 
     @Override
     public void broadcast(Future future) throws IOException {
-        if (getManagedSessionSize() == 0) {
+        broadcast(future, sessions.values());
+    }
+
+    @Override
+    public void broadcastChannelFuture(ChannelFuture future) {
+        broadcastChannelFuture(future, sessions.values());
+    }
+
+    @Override
+    public void broadcast(Future future, Collection<SocketSession> sessions) throws IOException {
+        if (sessions.size() == 0) {
             return;
         }
         SocketChannel channel = context.getSimulateSocketChannel();
         ChannelFuture f = (ChannelFuture) future;
         context.getProtocolCodec().encode(channel, f);
-        broadcastChannelFuture(f);
+        broadcastChannelFuture(f, sessions);
     }
 
     @Override
-    public void broadcastChannelFuture(ChannelFuture future) {
-        if (getManagedSessionSize() == 0) {
+    public void broadcastChannelFuture(ChannelFuture future, Collection<SocketSession> sessions) {
+        if (sessions.size() == 0) {
             return;
         }
-        for (SocketSession s : sessions.values()) {
+        for (SocketSession s : sessions) {
             s.flushChannelFuture(future.duplicate());
         }
     }
 
     @Override
-    public Map<Integer, SocketSession> getManagedSessions() {
+    public Map<Integer,SocketSession> getManagedSessions() {
         return readOnlySessions;
     }
 

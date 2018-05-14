@@ -27,13 +27,13 @@ public class NioSocketChannelContext extends AbstractSocketChannelContext {
 
     private FixedAtomicInteger            channelIds;
     private ChannelService                channelService;
-    private NioGlobalSocketSessionManager sessionManager;
+    private RichNioSocketSessionManager sessionManager;
     private SelectorEventLoopGroup        selectorEventLoopGroup;
     private SelectableChannel             selectableChannel;
 
     public NioSocketChannelContext(Configuration configuration) {
         super(configuration);
-        this.sessionManager = new NioGlobalSocketSessionManager();
+        this.sessionManager = new RichNioSocketSessionManager();
     }
 
     private FixedAtomicInteger createChannelIdsSequence() {
@@ -68,7 +68,7 @@ public class NioSocketChannelContext extends AbstractSocketChannelContext {
     }
 
     @Override
-    public NioGlobalSocketSessionManager getSessionManager() {
+    public RichNioSocketSessionManager getSessionManager() {
         return sessionManager;
     }
 

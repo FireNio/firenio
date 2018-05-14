@@ -31,19 +31,13 @@ public abstract class AbstractSessionManager implements SocketSessionManager {
 
     @Override
     public void loop() {
-
         long current_time = System.currentTimeMillis();
-
         if (next_idle_time > current_time) {
             return;
         }
-
         this.last_idle_time = this.current_idle_time;
-
         this.current_idle_time = current_time;
-
         this.next_idle_time = current_idle_time + session_idle_time;
-
         sessionIdle(last_idle_time, current_time);
     }
 

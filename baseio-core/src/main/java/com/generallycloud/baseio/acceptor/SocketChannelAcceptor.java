@@ -17,10 +17,12 @@ package com.generallycloud.baseio.acceptor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Collection;
 
 import com.generallycloud.baseio.component.AioSocketChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -68,6 +70,16 @@ public class SocketChannelAcceptor implements ChannelAcceptor {
     @Override
     public void broadcast(Future future) throws IOException {
         unwrap().broadcast(future);
+    }
+    
+    @Override
+    public void broadcast(Future future, Collection<SocketSession> sessions) throws IOException {
+        unwrap().broadcast(future, sessions);
+    }
+
+    @Override
+    public void broadcastChannelFuture(ChannelFuture future, Collection<SocketSession> sessions) {
+        unwrap().broadcastChannelFuture(future, sessions);
     }
 
     private AbstractChannelAcceptor buildConnector(SocketChannelContext context) {
