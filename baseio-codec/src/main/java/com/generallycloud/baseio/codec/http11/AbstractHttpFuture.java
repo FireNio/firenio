@@ -42,7 +42,9 @@ import com.generallycloud.baseio.protocol.AbstractChannelFuture;
  *
  */
 public abstract class AbstractHttpFuture extends AbstractChannelFuture implements HttpFuture {
-
+    
+    private static final Map<String, String> REQ_MAPPING = HttpHeader.REQ_MAPPING;
+    
     protected static final KMPUtil KMP_BOUNDARY   = new KMPUtil("boundary=");
 
     private ByteArrayBuffer        binaryBuffer;
@@ -155,7 +157,11 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         if (StringUtil.isNullOrBlank(name)) {
             return null;
         }
-        return request_headers.get(name);
+        String _name = REQ_MAPPING.get(name);
+        if (_name == null) {
+            _name = name.toLowerCase();
+        }
+        return request_headers.get(_name);
     }
 
     @Override
@@ -280,14 +286,14 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
             if (!header_complete) {
                 return false;
             }
-            host = getRequestHeader("Host");
-            String contentLengthStr = getRequestHeader(HttpHeader.CONTENT_LENGTH);
+            host = getRequestHeader(HttpHeader.Req_Host);
+            String contentLengthStr = getRequestHeader(HttpHeader.Req_Content_Length);
             if (!StringUtil.isNullOrBlank(contentLengthStr)) {
                 this.contentLength = Integer.parseInt(contentLengthStr);
             }
-            String contentType = getRequestHeader(HttpHeader.CONTENT_TYPE);
+            String contentType = getRequestHeader(HttpHeader.Req_Content_Type);
             parseContentType(contentType);
-            String cookie = getRequestHeader("Cookie");
+            String cookie = getRequestHeader(HttpHeader.Req_Cookie);
             if (!StringUtil.isNullOrBlank(cookie)) {
                 parse_cookies(cookie);
             }
@@ -317,6 +323,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     }
 
     private void readHeader(ByteBuf buffer) throws IOException {
+        StringBuilder currentHeaderLine = this.currentHeaderLine;
         for (; buffer.hasRemaining();) {
             if (++headerLength > headerLimit) {
                 throw new IOException("max http header length " + headerLimit);
@@ -334,7 +341,6 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
                     } else {
                         int p = line.indexOf(":");
                         if (p == -1) {
-                            setRequestHeader(line, null);
                             continue;
                         }
                         String name = line.substring(0, p).trim();
@@ -359,7 +365,11 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         if (StringUtil.isNullOrBlank(name)) {
             return;
         }
-        request_headers.put(name, value);
+        String _name = REQ_MAPPING.get(name);
+        if (_name == null) {
+            _name = name.toLowerCase();
+        }
+        request_headers.put(_name, value);
     }
 
     @Override
@@ -414,12 +424,12 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
 
     @Override
     public String toString() {
-        return getReadText();
+        return getRequestURL();
     }
 
     @Override
     public void updateWebSocketProtocol() {
-        String Sec_WebSocket_Key = getRequestHeader("Sec-WebSocket-Key");
+        String Sec_WebSocket_Key = getRequestHeader(HttpHeader.Req_Sec_WebSocket_Key);
         if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key)) {
             //FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
             String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key
@@ -427,9 +437,9 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
             byte[] key_array = SHAUtil.SHA1(Sec_WebSocket_Key_Magic);
             String acceptKey = BASE64Util.byteArrayToBase64(key_array);
             setStatus(HttpStatus.C101);
-            setResponseHeader("Connection", "Upgrade");
-            setResponseHeader("Upgrade", "WebSocket");
-            setResponseHeader("Sec-WebSocket-Accept", acceptKey);
+            setResponseHeader(HttpHeader.Connection, "Upgrade");
+            setResponseHeader(HttpHeader.Upgrade, "WebSocket");
+            setResponseHeader(HttpHeader.Sec_WebSocket_Accept, acceptKey);
             updateWebSocketProtocol = true;
             return;
         }

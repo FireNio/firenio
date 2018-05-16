@@ -69,7 +69,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
             flush(session, f, entity);
             return;
         }
-        String ims = f.getRequestHeader(HttpHeader.IF_MODIFIED_SINCE);
+        String ims = f.getRequestHeader(HttpHeader.Req_If_Modified_Since);
         long imsTime = -1;
         if (!StringUtil.isNullOrBlank(ims)) {
             imsTime = HttpHeaderDateFormat.getFormat().parse(ims).getTime();
@@ -117,8 +117,8 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     }
 
     private void flush(SocketSession session, ServerHttpFuture future, HttpEntity entity) {
-        future.setResponseHeader(HttpHeader.CONTENT_TYPE, entity.getContentType());
-        future.setResponseHeader(HttpHeader.LAST_MODIFIED, entity.getLastModifyGTM());
+        future.setResponseHeader(HttpHeader.Content_Type, entity.getContentType());
+        future.setResponseHeader(HttpHeader.Last_Modified, entity.getLastModifyGTM());
         future.write(entity.getBinary());
         session.flush(future);
     }

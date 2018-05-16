@@ -39,11 +39,11 @@ public class ServerHttpFuture extends AbstractHttpFuture {
     @Override
     protected void setDefaultResponseHeaders(Map<String, String> headers) {
         if (getContext().getEncoding() == Encoding.GBK) {
-            headers.put("Content-Type", "text/plain;charset=gbk");
+            headers.put(HttpHeader.Content_Type, "text/plain;charset=gbk");
         } else {
-            headers.put("Content-Type", "text/plain;charset=utf-8");
+            headers.put(HttpHeader.Content_Type, "text/plain;charset=utf-8");
         }
-        headers.put("Connection", "keep-alive"); // or close
+        headers.put(HttpHeader.Connection, "keep-alive"); // or close
     }
 
     @Override

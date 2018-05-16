@@ -67,9 +67,9 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     protected SSLEngine                      sslEngine;
     protected SslHandler                     sslHandler;
     protected transient SslFuture            sslReadFuture;
-    protected ChannelThreadContext     threadContext;
+    protected ChannelThreadContext           threadContext;
     protected transient ChannelFuture        writeFuture;
-    protected ScspLinkedQueue<ChannelFuture>     writeFutures;
+    protected LinkedQueue<ChannelFuture>     writeFutures;
 
     AbstractSocketChannel(ChannelThreadContext context, int channelId) {
         SocketChannelContext socketChannelContext = context.getChannelContext();
