@@ -37,5 +37,9 @@ public interface ChannelThreadContext extends Attributes{
     boolean inEventLoop();
 
     SslHandler getSslHandler();
+    
+    boolean isEnableSsl();
+    
+    IoEventHandle getIoEventHandle();
 
 }

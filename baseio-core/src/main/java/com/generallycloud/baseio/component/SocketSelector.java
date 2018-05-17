@@ -176,7 +176,7 @@ public class SocketSelector implements Closeable {
                     throw new IOException("connect failed");
                 }
                 SocketChannel channel = regist(jdkChannel, eventLoop, 1);
-                if (channel.isEnableSSL()) {
+                if (channel.isEnableSsl()) {
                     return;
                 }
                 finishConnect(channel.getSession(), null);

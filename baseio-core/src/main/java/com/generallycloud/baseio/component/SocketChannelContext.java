@@ -66,7 +66,7 @@ public interface SocketChannelContext extends Attributes, LifeCycle {
 
     long getStartupTime();
 
-    boolean isEnableSSL();
+    boolean isEnableSsl();
 
     void setByteBufAllocatorManager(ByteBufAllocatorManager byteBufAllocatorManager);
 

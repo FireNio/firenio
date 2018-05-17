@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,7 +23,6 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.baseio.ClosedChannelException;
-import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
@@ -44,16 +42,13 @@ import com.generallycloud.baseio.protocol.SslFuture;
 
 public abstract class AbstractSocketChannel implements SocketChannel {
 
+    private static final Logger              logger               = LoggerFactory.getLogger(AbstractSocketChannel.class);
     protected static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
-    private static final Logger              logger               = LoggerFactory
-            .getLogger(AbstractSocketChannel.class);
     protected ByteBufAllocator               byteBufAllocator;
     protected String                         channelDesc;
     protected int                            channelId;
     protected ReentrantLock                  closeLock            = new ReentrantLock();
     protected long                           creationTime         = System.currentTimeMillis();
-    protected ExecutorEventLoop              executorEventLoop;
-    protected IoEventHandle                  ioEventHandle;
     protected long                           lastAccess;
     protected String                         localAddr;
     protected int                            localPort;
@@ -65,10 +60,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     protected int                            remotePort;
     protected UnsafeSocketSession            session;
     protected SSLEngine                      sslEngine;
-    protected SslHandler                     sslHandler;
-    protected transient SslFuture            sslReadFuture;
-    protected ChannelThreadContext           threadContext;
-    protected transient ChannelFuture        writeFuture;
+    protected transient SslFuture           sslReadFuture;
     protected LinkedQueue<ChannelFuture>     writeFutures;
 
     AbstractSocketChannel(ChannelThreadContext context, int channelId) {
@@ -76,14 +68,11 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         DefaultChannelFuture f = new DefaultChannelFuture(EmptyByteBuf.get());
         // 认为在第一次Idle之前，连接都是畅通的
         this.channelId = channelId;
-        this.threadContext = context;
         this.byteBufAllocator = context.getByteBufAllocator();
         this.lastAccess = creationTime + socketChannelContext.getSessionIdleTime();
         this.protocolCodec = socketChannelContext.getProtocolCodec();
-        this.executorEventLoop = context.getExecutorEventLoop();
         this.session = context.getChannelContext().getSessionFactory().newUnsafeSession(this);
         this.writeFutures = new ScspLinkedQueue<>(f);
-        this.ioEventHandle = socketChannelContext.getIoEventHandleAdaptor();
     }
 
     @Override
@@ -92,7 +81,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     }
 
     protected void closeSSL() {
-        if (isEnableSSL()) {
+        if (isEnableSsl()) {
             sslEngine.closeOutbound();
             if (getContext().getSslContext().isClient()) {
                 writeFutures.offer(new DefaultChannelFuture(EmptyByteBuf.get(), true));
@@ -108,7 +97,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     protected void exceptionCaught(Future future, Exception ex) {
         ReleaseUtil.release(future);
         try {
-            ioEventHandle.exceptionCaught(getSession(), future, ex);
+            getChannelThreadContext().getIoEventHandle().exceptionCaught(getSession(), future, ex);
         } catch (Throwable e) {
             logger.error(ex.getMessage(), ex);
             logger.error(e.getMessage(), e);
@@ -125,7 +114,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     }
 
     protected void fireClosed() {
-        threadContext.getSocketSessionManager().removeSession(session);
+        getChannelThreadContext().getSocketSessionManager().removeSession(session);
         UnsafeSocketSession session = getSession();
         for (SocketSessionEventListener l : getContext().getSessionEventListeners()) {
             try {
@@ -148,16 +137,15 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         localAddr = local.getAddress().getHostAddress();
         localPort = local.getPort();
         SocketChannelContext context = getContext();
-        if (context.isEnableSSL()) {
-            this.sslHandler = getChannelThreadContext().getSslHandler();
+        if (context.isEnableSsl()) {
             this.sslEngine = context.getSslContext().newEngine(remoteAddr, remotePort);
         }
-        if (isEnableSSL() && context.getSslContext().isClient()) {
+        if (isEnableSsl() && context.getSslContext().isClient()) {
             flushChannelFuture(new DefaultChannelFuture(EmptyByteBuf.get(), true));
         }
         UnsafeSocketSession session = getSession();
         if (!session.isClosed()) {
-            threadContext.getSocketSessionManager().putSession(session);
+            getChannelThreadContext().getSocketSessionManager().putSession(session);
             for (SocketSessionEventListener l : getContext().getSessionEventListeners()) {
                 try {
                     l.sessionOpened(session);
@@ -179,7 +167,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
             return;
         }
         try {
-            future.setNeedSsl(getContext().isEnableSSL());
+            future.setNeedSsl(getContext().isEnableSsl());
             ProtocolCodec codec = getProtocolCodec();
             codec.encode(this, future);
             flushChannelFuture(future);
@@ -243,7 +231,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
 
     @Override
     public ExecutorEventLoop getExecutorEventLoop() {
-        return executorEventLoop;
+        return getChannelThreadContext().getExecutorEventLoop();
     }
 
     @Override
@@ -302,7 +290,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
 
     @Override
     public SslHandler getSslHandler() {
-        return sslHandler;
+        return getChannelThreadContext().getSslHandler();
     }
 
     @Override
@@ -321,8 +309,8 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     }
 
     @Override
-    public boolean isEnableSSL() {
-        return getContext().isEnableSSL();
+    public boolean isEnableSsl() {
+        return getChannelThreadContext().isEnableSsl();
     }
 
     // FIXME 是否使用channel.isOpen()
@@ -331,16 +319,11 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         return opened;
     }
 
-    protected abstract void physicalClose();
+    protected abstract void close0();
 
-    protected void releaseFutures() {
+    protected void releaseFutures(ClosedChannelException e) {
         ReleaseUtil.release(readFuture);
         ReleaseUtil.release(sslReadFuture);
-        ClosedChannelException e = null;
-        if (writeFuture != null && !writeFuture.isReleased()) {
-            e = new ClosedChannelException(session.toString());
-            exceptionCaught(writeFuture, e);
-        }
         LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
         if (writeFutures.size() == 0) {
             return;
@@ -384,21 +367,4 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         return channelDesc;
     }
 
-    protected void write(ChannelFuture future) throws IOException {
-        if (future.isNeedSsl()) {
-            future.setNeedSsl(false);
-            // FIXME 部分情况下可以不在业务线程做wrapssl
-            ByteBuf old = future.getByteBuf();
-            SslHandler handler = getSslHandler();
-            try {
-                ByteBuf newBuf = handler.wrap(this, old);
-                newBuf.nioBuffer();
-                future.setByteBuf(newBuf);
-            } finally {
-                ReleaseUtil.release(old);
-            }
-        }
-        write(future.getByteBuf());
-    }
-    
 }

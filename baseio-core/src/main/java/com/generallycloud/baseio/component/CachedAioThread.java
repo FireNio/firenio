@@ -11,24 +11,27 @@ import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 public class CachedAioThread extends Thread implements ChannelThreadContext {
 
     private Map<Object, Object>     attributes             = new HashMap<>();
-
     private ByteBufAllocator        byteBufAllocator       = null;
     private AioSocketChannelContext channelContext         = null;
     private ExecutorEventLoop       executorEventLoop      = null;
     private ReadCompletionHandler   readCompletionHandler  = null;
     private SslHandler              sslHandler             = null;
     private WriteCompletionHandler  writeCompletionHandler = null;
+    private boolean                isEnableSsl;
+    private IoEventHandleAdaptor    ioEventHandle;
 
     public CachedAioThread(AioSocketChannelContext context, 
             ThreadGroup group, Runnable r, String string, int i) {
         super(group, r, string, i);
         this.channelContext = context;
+        this.ioEventHandle = context.getIoEventHandleAdaptor();
         this.writeCompletionHandler = new WriteCompletionHandler();
         this.executorEventLoop = channelContext.getExecutorEventLoopGroup().getNext();
         this.byteBufAllocator = channelContext.getByteBufAllocatorManager().getNextBufAllocator();
         this.readCompletionHandler = new ReadCompletionHandler(channelContext.newChannelByteBufReader());
-        if (context.isEnableSSL()) {
-            sslHandler = context.getSslContext().newSslHandler();
+        if (context.isEnableSsl()) {
+            this.isEnableSsl = context.isEnableSsl();
+            this.sslHandler = context.getSslContext().newSslHandler();
         }
     }
 
@@ -61,6 +64,11 @@ public class CachedAioThread extends Thread implements ChannelThreadContext {
     public ExecutorEventLoop getExecutorEventLoop() {
         return executorEventLoop;
     }
+    
+    @Override
+    public IoEventHandle getIoEventHandle() {
+        return ioEventHandle;
+    }
 
     public ReadCompletionHandler getReadCompletionHandler() {
         return readCompletionHandler;
@@ -83,6 +91,11 @@ public class CachedAioThread extends Thread implements ChannelThreadContext {
     @Override
     public boolean inEventLoop() {
         return Thread.currentThread() == this;
+    }
+    
+    @Override
+    public boolean isEnableSsl() {
+        return isEnableSsl;
     }
 
     @Override

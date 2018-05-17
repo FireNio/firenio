@@ -89,7 +89,7 @@ public interface SocketSession extends Closeable {
 
     boolean isClosed();
 
-    boolean isEnableSSL();
+    boolean isEnableSsl();
 
     boolean isOpened();
 

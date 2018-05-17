@@ -45,6 +45,8 @@ public class Configuration {
     private String  certKey;
     private String  sslKeystore;
     private int     memoryPoolRate     = 32;
+    //单条连接write(srcs)的数量
+    private int     writeBuffers       = 8;
 
     public Configuration() {}
 
@@ -192,13 +194,21 @@ public class Configuration {
     public void setSslKeystore(String sslKeystore) {
         this.sslKeystore = sslKeystore;
     }
-    
+
     public int getMemoryPoolRate() {
         return memoryPoolRate;
     }
 
     public void setMemoryPoolRate(int memoryPoolRate) {
         this.memoryPoolRate = memoryPoolRate;
+    }
+    
+    public int getWriteBuffers() {
+        return writeBuffers;
+    }
+
+    public void setWriteBuffers(int writeBuffers) {
+        this.writeBuffers = writeBuffers;
     }
 
     public void initializeDefault(SocketChannelContext context) {

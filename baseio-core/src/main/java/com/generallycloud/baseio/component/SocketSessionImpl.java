@@ -175,8 +175,8 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public boolean isEnableSSL() {
-        return unsafe().isEnableSSL();
+    public boolean isEnableSsl() {
+        return unsafe().isEnableSsl();
     }
 
     @Override

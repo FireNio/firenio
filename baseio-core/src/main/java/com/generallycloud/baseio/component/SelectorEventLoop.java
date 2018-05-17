@@ -18,6 +18,7 @@ package com.generallycloud.baseio.component;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
@@ -28,7 +29,6 @@ import java.security.PrivilegedAction;
 import java.util.AbstractSet;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -49,6 +49,7 @@ import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.LineEventLoop;
+import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -59,8 +60,7 @@ import com.generallycloud.baseio.log.LoggerFactory;
 //FIXME 使用ThreadLocal
 public class SelectorEventLoop extends AbstractEventLoop implements ChannelThreadContext {
 
-    private static final Logger                  logger             = LoggerFactory
-            .getLogger(SelectorEventLoop.class);
+    private static final Logger                 logger            = LoggerFactory.getLogger(SelectorEventLoop.class);
     private Map<Object, Object>                  attributes         = new HashMap<>();
     private ByteBuf                              buf                = null;
     private ByteBufAllocator                     byteBufAllocator   = null;
@@ -73,20 +73,25 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     private AtomicBoolean                        selecting          = new AtomicBoolean();
     private SelectionKeySet                      selectionKeySet    = null;
     private SocketSelector                       selector           = null;
-    private BufferedArrayList<SelectorLoopEvent> selectorLoopEvents = new BufferedArrayList<>();
-    private SocketSessionManager                 sessionManager     = null;    private SslHandler                           sslHandler         = null;
+    private BufferedArrayList<SelectorLoopEvent> events             = new BufferedArrayList<>();
+    private SocketSessionManager                 sessionManager     = null;    
+    private SslHandler                           sslHandler         = null;
+    private ByteBuffer []                        writeBuffers       = null;
+    private boolean                             isEnableSsl;
+    private IoEventHandleAdaptor                 ioEventHandle;
 
     SelectorEventLoop(SelectorEventLoopGroup group, int index) {
         this.index = index;
         this.eventLoopGroup = group;
         this.context = group.getChannelContext();
+        this.ioEventHandle = context.getIoEventHandleAdaptor();
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
         this.byteBufReader = context.newChannelByteBufReader();
-        this.sessionManager = context.getSessionManager();
         this.sessionManager = new NioSocketSessionManager(context);
         this.byteBufAllocator = context.getByteBufAllocatorManager().getNextBufAllocator();
-        if (context.isEnableSSL()) {
-            sslHandler = context.getSslContext().newSslHandler();
+        if (context.isEnableSsl()) {
+            this.isEnableSsl = context.isEnableSsl();
+            this.sslHandler = context.getSslContext().newSslHandler();
         }
     }
 
@@ -108,7 +113,11 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             return;
         }
         if (k.isWritable()) {
-            write(ch);
+            try {
+                ch.write(this);
+            } catch (Throwable e) {
+                closeSocketChannel(ch, e);
+            }
             return;
         }
         try {
@@ -137,9 +146,8 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         this.attributes.clear();
     }
 
-    private void closeEvents(BufferedArrayList<SelectorLoopEvent> bufferedList) {
-        List<SelectorLoopEvent> events = bufferedList.getBuffer();
-        for (SelectorLoopEvent event : events) {
+    private void closeEvents(BufferedArrayList<SelectorLoopEvent> events) {
+        for (SelectorLoopEvent event : events.getBuffer()) {
             CloseUtil.close(event);
         }
     }
@@ -163,7 +171,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             CloseUtil.close(event);
             return;
         }
-        selectorLoopEvents.offer(event);
+        events.offer(event);
 
         // 这里再次判断一下，防止判断isRunning为true后的线程切换停顿
         // 如果切换停顿，这里判断可以确保event要么被close了，要么被执行了
@@ -182,9 +190,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
 
     @Override
     protected void doLoop() throws IOException {
-
         SocketSelector selector = getSelector();
-
         int selected;
         //		long last_select = System.currentTimeMillis();
         if (selecting.compareAndSet(false, true)) {
@@ -202,7 +208,6 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             selected = selector.selectNow();
             hasTask = false;
         }
-
         if (selected > 0) {
             if (selectionKeySet != null) {
                 SelectionKeySet keySet = selectionKeySet;
@@ -221,9 +226,9 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         } else {
             //			selectEmpty(last_select);
         }
-
-        handleEvents(selectorLoopEvents.getBuffer());
-
+        for (SelectorLoopEvent event : events.getBuffer()) {
+            handleEvent(event);
+        }
         sessionManager.loop();
     }
 
@@ -232,7 +237,9 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         if (executorEventLoop instanceof LineEventLoop) {
             ((LineEventLoop) executorEventLoop).setMonitor(this);
         }
-        int readBuffer = context.getConfiguration().getChannelReadBuffer();
+        Configuration cfg = context.getConfiguration();
+        int readBuffer = cfg.getChannelReadBuffer();
+        this.writeBuffers = new ByteBuffer[cfg.getWriteBuffers()];
         this.buf = UnpooledByteBufAllocator.getHeap().allocate(readBuffer);
         this.rebuildSelector();
     }
@@ -240,8 +247,8 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     @Override
     protected void doStop() {
         ThreadUtil.sleep(8);
-        closeEvents(selectorLoopEvents);
-        closeEvents(selectorLoopEvents);
+        closeEvents(events);
+        closeEvents(events);
         LifeCycleUtil.stop(sessionManager);
         CloseUtil.close(selector);
         ReleaseUtil.release(buf);
@@ -276,11 +283,16 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     public ExecutorEventLoop getExecutorEventLoop() {
         return executorEventLoop;
     }
-
+    
     public int getIndex() {
         return index;
     }
 
+    @Override
+    public IoEventHandle getIoEventHandle() {
+        return ioEventHandle;
+    }
+    
     protected SocketSelector getSelector() {
         return selector;
     }
@@ -295,6 +307,10 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         return sslHandler;
     }
 
+    public ByteBuffer[] getWriteBuffers() {
+        return writeBuffers;
+    }
+
     private void handleEvent(SelectorLoopEvent event) {
         try {
             event.fireEvent(this);
@@ -302,11 +318,10 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             CloseUtil.close(event);
         }
     }
-
-    private void handleEvents(List<SelectorLoopEvent> eventBuffer) {
-        for (SelectorLoopEvent event : eventBuffer) {
-            handleEvent(event);
-        }
+    
+    @Override
+    public boolean isEnableSsl() {
+        return isEnableSsl;
     }
 
     @SuppressWarnings("rawtypes")
@@ -405,20 +420,16 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     public Object removeAttribute(Object key) {
         return this.attributes.remove(key);
     }
-
+    
     protected void selectEmpty(long last_select) {
-
         long past = System.currentTimeMillis() - last_select;
-
         if (past > 0 || !isRunning()) {
             return;
         }
-
         // JDK bug fired ?
         IOException be = new IOException("JDK bug fired ?");
         logger.error(be.getMessage(), be);
         logger.info("last={},past={}", last_select, past);
-
         try {
             rebuildSelector();
         } catch (IOException e) {
@@ -435,24 +446,13 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     // 执行stop的时候如果确保不会再有数据进来
     @Override
     public void wakeup() {
-
         hasTask = true;
         if (selecting.compareAndSet(false, true)) {
             selecting.set(false);
             return;
         }
-
         getSelector().wakeup();
-
         super.wakeup();
-    }
-
-    private void write(NioSocketChannel channel) {
-        try {
-            channel.write(this);
-        } catch (Throwable e) {
-            closeSocketChannel(channel, e);
-        }
     }
 
     class SelectionKeySet extends AbstractSet<SelectionKey> {

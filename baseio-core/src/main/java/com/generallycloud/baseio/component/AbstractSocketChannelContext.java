@@ -42,7 +42,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
 
     private Map<Object, Object>                  attributes  = new HashMap<>();
     private ByteBufAllocatorManager              byteBufAllocatorManager;
-    private boolean                              enableSSL;
+    private boolean                              enableSsl;
     private Charset                              encoding;
     private ExecutorEventLoopGroup               executorEventLoopGroup;
     private ForeFutureAcceptor                   foreReadFutureAcceptor;
@@ -121,7 +121,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         LoggerUtil.prettyLog(logger, "encoding              :{ {} }", encoding);
         LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
         LoggerUtil.prettyLog(logger, "cpu size              :{ cpu * {} }", coreSize);
-        LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSSL());
+        LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSsl());
         LoggerUtil.prettyLog(logger, "session idle          :{ {} }", sessionIdle);
         LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", serverPort);
         if (configuration.isEnableMemoryPool()) {
@@ -259,14 +259,14 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     }
 
     @Override
-    public boolean isEnableSSL() {
-        return enableSSL;
+    public boolean isEnableSsl() {
+        return enableSsl;
     }
 
     @Override
     public ChannelByteBufReader newChannelByteBufReader() {
         IoLimitChannelByteBufReader reader = new IoLimitChannelByteBufReader();
-        if (enableSSL) {
+        if (enableSsl) {
             ClassUtil.setValueOfLast(reader, new SslChannelByteBufReader(), "next");
         }
         ClassUtil.setValueOfLast(reader, new TransparentByteBufReader(this), "next");
@@ -320,7 +320,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
             throw new IllegalArgumentException("null sslContext");
         }
         this.sslContext = sslContext;
-        this.enableSSL = true;
+        this.enableSsl = true;
     }
 
 }

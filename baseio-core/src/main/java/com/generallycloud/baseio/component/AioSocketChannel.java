@@ -25,6 +25,8 @@ import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
@@ -37,6 +39,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
     private WriteCompletionHandler    writeCompletionHandler;
     private ByteBuf                   readCache;
     private CachedAioThread           aioThread;
+    private transient ChannelFuture        writeFuture;
 
     private static final Logger       logger = LoggerFactory.getLogger(AioSocketChannel.class);
 
@@ -114,7 +117,20 @@ public class AioSocketChannel extends AbstractSocketChannel {
                 return;
             }
             flushing = true;
-            write(writeFuture);
+            if (writeFuture.isNeedSsl()) {
+                writeFuture.setNeedSsl(false);
+                // FIXME 部分情况下可以不在业务线程做wrapssl
+                ByteBuf old = writeFuture.getByteBuf();
+                SslHandler handler = context.getSslHandler();
+                try {
+                    ByteBuf newBuf = handler.wrap(this, old);
+                    newBuf.nioBuffer();
+                    writeFuture.setByteBuf(newBuf);
+                } finally {
+                    ReleaseUtil.release(old);
+                }
+            }
+            channel.write(writeFuture.getByteBuf().nioBuffer(), this, writeCompletionHandler);
         } catch (IOException e) {
             exceptionCaught(writeFuture, e);
         }
@@ -122,12 +138,17 @@ public class AioSocketChannel extends AbstractSocketChannel {
 
     // FIXME 这里有问题
     @Override
-    protected void physicalClose() {
+    protected void close0() {
         this.opened = false;
         this.closeSSL();
         // 最后一轮 //FIXME once
         this.flush(aioThread);
-        this.releaseFutures();
+        ClosedChannelException ce = null;
+        if (writeFuture != null && !writeFuture.isReleased()) {
+            ce = new ClosedChannelException(session.toString());
+            exceptionCaught(writeFuture, ce);
+        }
+        this.releaseFutures(ce);
         try {
             channel.shutdownOutput();
         } catch (IOException e) {
@@ -147,20 +168,14 @@ public class AioSocketChannel extends AbstractSocketChannel {
     }
 
     @Override
-    public void write(ByteBuf buf) {
-        channel.write(buf.nioBuffer(), this, writeCompletionHandler);
-    }
-
-    @Override
     public void close() throws IOException {
         ReentrantLock lock = getCloseLock();
         lock.lock();
         try {
             if (!isOpened()) {
-                releaseFutures();
                 return;
             }
-            physicalClose();
+            close0();
         } finally {
             lock.unlock();
         }
@@ -185,7 +200,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
                 logger.error(e.getMessage(), e);
             }
             try {
-                ioEventHandle.futureSent(session, f);
+                aioThread.getIoEventHandle().futureSent(session, f);
             } catch (Throwable e) {
                 logger.debug(e.getMessage(), e);
             }

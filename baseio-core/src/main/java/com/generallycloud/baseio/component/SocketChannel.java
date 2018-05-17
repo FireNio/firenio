@@ -22,7 +22,6 @@ import java.nio.charset.Charset;
 
 import javax.net.ssl.SSLEngine;
 
-import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
@@ -88,7 +87,7 @@ public interface SocketChannel extends Closeable {
 
     boolean isBlocking();
 
-    boolean isEnableSSL();
+    boolean isEnableSsl();
 
     boolean isOpened();
 
@@ -100,6 +99,4 @@ public interface SocketChannel extends Closeable {
 
     void setSslReadFuture(SslFuture future);
 
-    void write(ByteBuf buf) throws IOException;
-    
 }

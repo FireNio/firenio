@@ -20,7 +20,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.util.Set;
 
-import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.component.ssl.SslHandler;
@@ -59,6 +58,11 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
             }
             
             @Override
+            public IoEventHandle getIoEventHandle() {
+                return context.getIoEventHandleAdaptor();
+            }
+            
+            @Override
             public SocketChannelContext getChannelContext() {
                 return context;
             }
@@ -91,6 +95,11 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
             @Override
             public void clearAttributes() {
                 throw new UnsupportedOperationException();
+            }
+            
+            @Override
+            public boolean isEnableSsl() {
+                return context.isEnableSsl();
             }
         } , -1);
         this.context = context;
@@ -137,17 +146,12 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
     }
 
     @Override
-    protected void physicalClose() {
+    protected void close0() {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public <T> void setOption(SocketOption<T> name, T value) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void write(ByteBuf buf) throws IOException {
         throw new UnsupportedOperationException();
     }
 
