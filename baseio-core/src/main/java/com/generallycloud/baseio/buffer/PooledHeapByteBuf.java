@@ -46,12 +46,13 @@ public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByte
     }
 
     @Override
-    public PooledHeapByteBuf produce(int begin, int end, int newLimit) {
+    public PooledHeapByteBuf produce(int begin, int end, int newLimit,long version) {
         this.offset = begin * allocator.getUnitMemorySize();
         this.capacity = (end - begin) * allocator.getUnitMemorySize();
         this.limit = newLimit;
         this.position = 0;
         this.beginUnit = begin;
+        this.releaseVersion = version;
         this.referenceCount = 1;
         this.released = false;
         return this;

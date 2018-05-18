@@ -17,7 +17,7 @@ package com.generallycloud.baseio.buffer;
 
 import java.nio.ByteBuffer;
 
-public class DirectByteBufFactory implements ByteBufFactory {
+public class DirectByteBufFactory extends AbstractByteBufFactory {
 
     private ByteBuffer memory = null;
 
@@ -27,7 +27,7 @@ public class DirectByteBufFactory implements ByteBufFactory {
     }
 
     @Override
-    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+    PooledByteBuf newByteBuf0(ByteBufAllocator allocator) {
         return new PooledDirectByteBuf(allocator, memory.duplicate());
     }
 

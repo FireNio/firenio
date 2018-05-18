@@ -47,7 +47,7 @@ public class SimpleByteBufAllocator extends AbstractPooledByteBufAllocator {
                 unitStart.blockEnd = blockEnd;
                 unitEnd.free = false;
                 mask = blockEnd;
-                return byteBufNew.newByteBuf(this).produce(start, blockEnd, limit);
+                return byteBufNew.newByteBuf(this).produce(start, blockEnd, limit,bufVersions++);
             }
             start++;
         }
@@ -67,14 +67,21 @@ public class SimpleByteBufAllocator extends AbstractPooledByteBufAllocator {
 
     @Override
     public void release(ByteBuf buf) {
+        release((PooledByteBuf) buf,true);
+    }
+    
+    protected void release(PooledByteBuf buf,boolean recycle) {
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
             ByteBufUnit[] units = getUnits();
-            ByteBufUnit memoryStart = units[((PooledByteBuf) buf).getBeginUnit()];
+            ByteBufUnit memoryStart = units[buf.getBeginUnit()];
             ByteBufUnit memoryEnd = units[memoryStart.blockEnd - 1];
             memoryStart.free = true;
             memoryEnd.free = true;
+            if (recycle) {
+                bufFactory.freeBuf(buf);
+            }
         } finally {
             lock.unlock();
         }

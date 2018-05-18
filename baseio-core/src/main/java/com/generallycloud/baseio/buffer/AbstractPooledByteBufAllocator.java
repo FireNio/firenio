@@ -30,19 +30,13 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllocator {
 
     protected int               capacity;
-
     protected int               mask;
-
     protected int               unitMemorySize;
-
     protected ByteBufFactory    bufFactory;
-
     protected ReentrantLock     lock;
-
+    protected long              bufVersions = 1;
     protected List<ByteBufUnit> busyUnit = new ArrayList<>();
-
-    protected Logger            logger   = LoggerFactory
-            .getLogger(AbstractPooledByteBufAllocator.class);
+    protected Logger            logger   = LoggerFactory.getLogger(AbstractPooledByteBufAllocator.class);
 
     public AbstractPooledByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
         super(isDirect);
@@ -88,7 +82,7 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
                 throw new BufferException("reallocate failed");
             }
             newBuf.read(buf.flip());
-            ReleaseUtil.release(buf,buf.getReleaseVersion());
+            release((PooledByteBuf) buf, false);
             return buf.newByteBuf(this).produce(newBuf);
         }
         ReleaseUtil.release(buf,buf.getReleaseVersion());
@@ -120,6 +114,7 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
             bufs[i] = buf;
         }
     }
+    protected abstract void release(PooledByteBuf buf,boolean recycle);
 
     protected abstract ByteBufUnit[] createUnits(int capacity);
 

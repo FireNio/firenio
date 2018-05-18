@@ -15,12 +15,31 @@
  */
 package com.generallycloud.baseio.buffer;
 
-public interface ByteBufFactory extends ByteBufNew {
+/**
+ * @author wangkai
+ *
+ */
+public abstract class AbstractByteBufFactory implements ByteBufFactory{
 
-    void freeMemory();
+    private int             bufIndex = 0;
+    private PooledByteBuf[] bufs     = new PooledByteBuf[1024 * 8];
+
+    @Override
+    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+        if (bufIndex == 0) {
+            return newByteBuf0(allocator);
+        }
+        return bufs[--bufIndex];
+    }
     
-    void freeBuf(PooledByteBuf buf);
+    abstract PooledByteBuf newByteBuf0(ByteBufAllocator allocator) ;
 
-    void initializeMemory(int capacity);
-
+    @Override
+    public void freeBuf(PooledByteBuf buf) {
+        if (bufIndex == bufs.length) {
+            return;
+        }
+        bufs[bufIndex++] = buf;
+    }
+    
 }

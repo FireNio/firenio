@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.buffer;
 
-public class HeapByteBufFactory implements ByteBufFactory {
+public class HeapByteBufFactory extends AbstractByteBufFactory {
 
     private byte[] memory = null;
 
@@ -33,15 +33,12 @@ public class HeapByteBufFactory implements ByteBufFactory {
         this.memory = new byte[capacity];
     }
 
-    /**
-     * @return the memory
-     */
     public byte[] getMemory() {
         return memory;
     }
 
     @Override
-    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+    PooledByteBuf newByteBuf0(ByteBufAllocator allocator) {
         return new PooledHeapByteBuf(allocator, memory);
     }
 
