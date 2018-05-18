@@ -48,6 +48,8 @@ public class TestFIxedLengthServer {
         SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
         SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
+        context.getConfiguration().setEnableMemoryPool(true);
+        context.getConfiguration().setMemoryPoolRate(16);
         //		context.addSessionEventListener(new SocketSessionAliveSEListener());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.setProtocolCodec(new FixedLengthCodec());

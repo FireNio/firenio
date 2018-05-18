@@ -29,11 +29,11 @@ import com.generallycloud.baseio.component.SocketChannel;
 public class DefaultChannelFuture extends AbstractChannelFuture {
 
     public DefaultChannelFuture(ByteBuf buf) {
-        this.buf = buf;
+        setByteBuf(buf);
     }
     
     public DefaultChannelFuture(ByteBuf buf,boolean isNeedSsl) {
-        this.buf = buf;
+        setByteBuf(buf);
         this.setNeedSsl(isNeedSsl);
     }
 

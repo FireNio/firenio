@@ -251,7 +251,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         closeEvents(events);
         LifeCycleUtil.stop(sessionManager);
         CloseUtil.close(selector);
-        ReleaseUtil.release(buf);
+        ReleaseUtil.release(buf,buf.getReleaseVersion());
     }
 
     @Override

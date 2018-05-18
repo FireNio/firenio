@@ -121,13 +121,14 @@ public class AioSocketChannel extends AbstractSocketChannel {
                 writeFuture.setNeedSsl(false);
                 // FIXME 部分情况下可以不在业务线程做wrapssl
                 ByteBuf old = writeFuture.getByteBuf();
+                long version = old.getReleaseVersion(); 
                 SslHandler handler = context.getSslHandler();
                 try {
                     ByteBuf newBuf = handler.wrap(this, old);
                     newBuf.nioBuffer();
                     writeFuture.setByteBuf(newBuf);
                 } finally {
-                    ReleaseUtil.release(old);
+                    ReleaseUtil.release(old,version);
                 }
             }
             channel.write(writeFuture.getByteBuf().nioBuffer(), this, writeCompletionHandler);

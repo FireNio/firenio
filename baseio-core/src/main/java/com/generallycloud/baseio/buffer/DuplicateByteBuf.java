@@ -368,12 +368,13 @@ public class DuplicateByteBuf implements ByteBuf {
     }
 
     @Override
-    public void release() {
-        if (released) {
-            return;
-        }
-        released = true;
-        ReleaseUtil.release(prototype);
+    public void release(long version) {
+        ReleaseUtil.release(prototype, version);
+    }
+
+    @Override
+    public long getReleaseVersion() {
+        return unwrap().getReleaseVersion();
     }
 
     @Override

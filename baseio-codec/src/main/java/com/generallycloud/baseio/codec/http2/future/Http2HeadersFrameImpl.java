@@ -24,7 +24,6 @@ import com.generallycloud.baseio.component.SocketChannel;
 
 public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2HeadersFrame {
 
-    private boolean        isComplete;
     private byte           padLength;
     private boolean        e;
     private int            streamDependency;
@@ -34,7 +33,7 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 
     public Http2HeadersFrameImpl(ByteBuf buf, Http2FrameHeader header) {
         super(header);
-        this.buf = buf;
+        this.setByteBuf(buf);
     }
 
     private void doComplete(SocketChannel channel, ByteBuf buf) throws IOException {
@@ -57,15 +56,12 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-        if (!isComplete) {
-            ByteBuf buf = this.buf;
-            buf.read(buffer);
-            if (buf.hasRemaining()) {
-                return false;
-            }
-            this.isComplete = true;
-            doComplete(channel, buf.flip());
+        ByteBuf buf = getByteBuf();
+        buf.read(buffer);
+        if (buf.hasRemaining()) {
+            return false;
         }
+        doComplete(channel, buf.flip());
         return true;
     }
 

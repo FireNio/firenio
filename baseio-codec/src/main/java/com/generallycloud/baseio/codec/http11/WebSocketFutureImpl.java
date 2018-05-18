@@ -44,7 +44,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
 
     public WebSocketFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
         this.limit = limit;
-        this.buf = buf;
+        this.setByteBuf(buf);
         this.setServiceName(channel.getSession());
     }
 
@@ -85,7 +85,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-        ByteBuf buf = this.buf;
+        ByteBuf buf = getByteBuf();
         if (type == 0) {
             buf.read(buffer);
             if (buf.hasRemaining()) {
@@ -206,7 +206,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
         this.type = 0;
         
         this.limit = limit;
-        this.buf = buf;
+        this.setByteBuf(buf);
         this.setServiceName(channel.getSession());
         
         super.reset();

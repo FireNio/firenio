@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.MathUtil;
-import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.component.ChannelThreadContext;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
@@ -34,7 +34,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
     private SocketHttp2Frame frame;
 
     public Http2FrameHeaderImpl(ByteBuf buf) {
-        this.buf = buf;
+        setByteBuf(buf);
     }
 
     public Http2FrameHeaderImpl() {
@@ -53,7 +53,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-        ByteBuf buf = this.buf;
+        ByteBuf buf = getByteBuf();
         if (!header_complete) {
             buf.read(buffer);
             if (buf.hasRemaining()) {
@@ -68,12 +68,6 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
     @Override
     public byte getFlags() {
         return flags;
-    }
-
-    @Override
-    public void release() {
-        super.release();
-        ReleaseUtil.release(frame);
     }
 
     @Override
@@ -127,10 +121,16 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
     private SocketHttp2Frame genFrame(SocketChannel channel, int type, int length) {
         return genFrame(channel, Http2FrameType.getValue(type), length);
     }
-
+    
+    @Override
+    public void release(ChannelThreadContext context) {
+        super.release(context);
+        frame.release(context);
+    }
+    
     @Override
     public boolean isReleased() {
-        return frame.isReleased() && buf.isReleased();
+        return frame.isReleased() && getByteBuf().isReleased();
     }
 
 }

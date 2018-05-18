@@ -21,7 +21,6 @@ import java.util.List;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.collection.FixedThreadStack;
-import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
 import com.generallycloud.baseio.component.ChannelThreadContext;
 import com.generallycloud.baseio.component.SocketChannel;
@@ -117,7 +116,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
                 writeBuf(buf, array, 0, length);
             }
         } catch (Exception e) {
-            ReleaseUtil.release(buf);
+            buf.release(buf.getReleaseVersion());
             throw e;
         }
         f.setByteBuf(buf.flip());

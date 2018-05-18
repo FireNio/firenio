@@ -51,7 +51,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     public ProtobaseFutureImpl() {}
 
     public ProtobaseFutureImpl(ByteBuf buf) {
-        this.buf = buf;
+        this.setByteBuf(buf);
     }
 
     public ProtobaseFutureImpl(int futureId, String futureName) {
@@ -130,7 +130,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-        ByteBuf buf = this.buf;
+        ByteBuf buf = getByteBuf();
         if (futureNameLength == 0) {
             buf.read(buffer);
             if (buf.hasRemaining()) {

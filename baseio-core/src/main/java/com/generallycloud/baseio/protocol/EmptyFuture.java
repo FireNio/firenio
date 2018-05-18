@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
+import com.generallycloud.baseio.component.ChannelThreadContext;
 import com.generallycloud.baseio.component.SocketChannel;
 
 public class EmptyFuture extends AbstractChannelFuture {
@@ -26,7 +27,7 @@ public class EmptyFuture extends AbstractChannelFuture {
     private final static EmptyFuture INSTANCE = new EmptyFuture();
 
     public EmptyFuture(){
-        this.buf = EmptyByteBuf.get();
+        this.setByteBuf(EmptyByteBuf.get());
     }
     
     public static EmptyFuture get() {
@@ -34,7 +35,7 @@ public class EmptyFuture extends AbstractChannelFuture {
     }
 
     @Override
-    public void release() {}
+    public void release(ChannelThreadContext context) {}
 
     @Override
     public boolean isReleased() {

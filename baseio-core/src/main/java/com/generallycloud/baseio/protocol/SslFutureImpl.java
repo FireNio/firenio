@@ -28,14 +28,14 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
     private int     limit;
 
     public SslFutureImpl(ByteBuf buf, int limit) {
-        this.buf = buf;
+        this.setByteBuf(buf);
         this.limit = limit;
     }
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
         if (!header_complete) {
-            ByteBuf buf = this.buf;
+            ByteBuf buf = getByteBuf();
             buf.read(buffer);
             if (buf.hasRemaining()) {
                 return false;
@@ -56,7 +56,7 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
             }
             buf.reallocate(packetLength + 5, limit, true);
         }
-        ByteBuf buf = this.buf;
+        ByteBuf buf = getByteBuf();
         buf.read(buffer);
         if (buf.hasRemaining()) {
             return false;
@@ -68,7 +68,7 @@ public class SslFutureImpl extends AbstractChannelFuture implements SslFuture {
     @Override
     public SslFuture reset() {
         this.header_complete = false;
-        buf.clear().limit(SSL_RECORD_HEADER_LENGTH);
+        getByteBuf().clear().limit(SSL_RECORD_HEADER_LENGTH);
         return this;
     }
 

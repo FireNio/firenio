@@ -27,8 +27,6 @@ import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 
 public class Http2PrefaceFuture extends AbstractChannelFuture {
 
-    private boolean        isComplete;
-
     private static byte[]  PREFACE_BINARY = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n".getBytes();
 
     private static ByteBuf PREFACE_BUF;
@@ -38,7 +36,7 @@ public class Http2PrefaceFuture extends AbstractChannelFuture {
     }
 
     public Http2PrefaceFuture(ByteBuf buf) {
-        this.buf = buf;
+        this.setByteBuf(buf);
     }
 
     @Override
@@ -56,39 +54,25 @@ public class Http2PrefaceFuture extends AbstractChannelFuture {
     }
 
     private boolean isPreface(ByteBuf buf) {
-
         if (PREFACE_BINARY.length > buf.remaining()) {
             return false;
         }
-
         for (int i = 0; i < PREFACE_BINARY.length; i++) {
-
             if (PREFACE_BINARY[i] != buf.getByte()) {
                 return false;
             }
         }
-
         return true;
     }
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-
-        ByteBuf buf = this.buf;
-
-        if (!isComplete) {
-
-            buf.read(buffer);
-
-            if (buf.hasRemaining()) {
-                return false;
-            }
-
-            this.isComplete = true;
-
-            doComplete(channel, buf.flip());
+        ByteBuf buf = getByteBuf();
+        buf.read(buffer);
+        if (buf.hasRemaining()) {
+            return false;
         }
-
+        doComplete(channel, buf.flip());
         return true;
     }
 

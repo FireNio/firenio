@@ -68,7 +68,7 @@ public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
     }
 
     @Override
-    public void release() {}
+    public void release(long version) {}
 
     @Override
     protected void doRelease() {}

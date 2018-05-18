@@ -105,13 +105,14 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                     future.setNeedSsl(false);
                     // FIXME 部分情况下可以不在业务线程做wrapssl
                     ByteBuf old = future.getByteBuf();
+                    long version = old.getReleaseVersion(); 
                     SslHandler handler = eventLoop.getSslHandler();
                     try {
                         ByteBuf newBuf = handler.wrap(this, old);
                         newBuf.nioBuffer();
                         future.setByteBuf(newBuf);
                     } finally {
-                        ReleaseUtil.release(old);
+                        ReleaseUtil.release(old,version);
                     }
                 }
                 writeBuffers[i] = future.getByteBuf().nioBuffer();
@@ -146,7 +147,13 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                     ChannelFuture future = currentWriteFutures[i];
                     if (writeBuffers[i].hasRemaining()) {
                         int remain = currentWriteFuturesLen - i;
-                        System.arraycopy(currentWriteFutures, i, currentWriteFutures, 0, remain);
+                        if (remain > 16) {
+                            System.arraycopy(currentWriteFutures, i, currentWriteFutures, 0, remain);
+                        }else{
+                            for (int j = 0; j < remain; j++) {
+                                currentWriteFutures[j] = currentWriteFutures[i+j];
+                            }
+                        }
                         for (int j = currentWriteFuturesLen - i; j < maxLen; j++) {
                             currentWriteFutures[j] = null;
                         }

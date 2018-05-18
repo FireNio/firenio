@@ -17,6 +17,7 @@ package com.generallycloud.test.io.http11;
 
 import com.generallycloud.baseio.codec.http11.ClientHttpFuture;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.WebSocketFuture;
 import com.generallycloud.baseio.codec.http11.WebSocketFutureImpl;
 import com.generallycloud.baseio.codec.http11.WebSocketUpgradeRequestFuture;
@@ -43,13 +44,11 @@ public class TestSimpleWebSocketClient {
             public void accept(SocketSession session, Future future) throws Exception {
                 if (future instanceof ClientHttpFuture) {
                     ClientHttpFuture f = (ClientHttpFuture) future;
-                    if (f.getRequestHeader("Sec-WebSocket-Accept") != null) {
+                    if (f.getRequestHeader(HttpHeader.Req_Sec_WebSocket_Key) != null) {
                         f.updateWebSocketProtocol();
                         WebSocketFuture f2 = new WebSocketFutureImpl();
                         f2.write("{action: \"add-user\", username: \"火星人\"}",session);
-                        //						f2.write("{\"action\":999}");
                         session.flush(f2);
-
                     }
                     System.out.println(f.getRequestHeaders());
                 } else {

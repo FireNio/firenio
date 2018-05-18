@@ -52,11 +52,17 @@ public class SimpleTestFIxedLengthClient {
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
         
-        
         SocketSession session = connector.connect();
-        FixedLengthFuture future = new FixedLengthFutureImpl();
-        future.write("hello server!",session);
-        session.flush(future);
+        StringBuilder sb = new StringBuilder(1024 * 6);
+        for (int i = 0; i < 1024 * 80; i++) {
+            sb.append("hello!");
+        }
+        
+        for (int i = 0; i < 20; i++) {
+            FixedLengthFuture future = new FixedLengthFutureImpl();
+            future.write(sb.toString(),session);
+            session.flush(future);
+        }
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);
     }

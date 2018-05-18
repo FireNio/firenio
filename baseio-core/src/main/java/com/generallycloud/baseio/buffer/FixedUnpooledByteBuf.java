@@ -23,8 +23,8 @@ import com.generallycloud.baseio.common.ReleaseUtil;
  * @author wangkai
  *
  */
-public class FixedUnpooledByteBuf implements ByteBuf{
-    
+public class FixedUnpooledByteBuf implements ByteBuf {
+
     private ByteBuf byteBuf;
 
     private boolean released;
@@ -351,6 +351,11 @@ public class FixedUnpooledByteBuf implements ByteBuf{
     public ByteBuf reallocate(int limit) {
         return reallocate(limit, false);
     }
+    
+    @Override
+    public long getReleaseVersion() {
+        return 0;
+    }
 
     @Override
     public ByteBuf reallocate(int limit, boolean copyOld) {
@@ -381,12 +386,8 @@ public class FixedUnpooledByteBuf implements ByteBuf{
     }
 
     @Override
-    public void release() {
-        if (released) {
-            return;
-        }
-        released = true;
-        ReleaseUtil.release(byteBuf);
+    public void release(long version) {
+        ReleaseUtil.release(byteBuf, version);
     }
 
     @Override
@@ -409,7 +410,7 @@ public class FixedUnpooledByteBuf implements ByteBuf{
     private ByteBuf unwrap() {
         return byteBuf;
     }
-    
+
     @Override
     public ByteBuf markP() {
         unwrap().markP();

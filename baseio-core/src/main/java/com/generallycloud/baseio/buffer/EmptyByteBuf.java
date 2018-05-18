@@ -28,9 +28,7 @@ public class EmptyByteBuf extends UnpooledHeapByteBuf {
     }
 
     @Override
-    public void release() {
-
-    }
+    public void release(long version) {}
 
     @Override
     public ByteBuf duplicate() {

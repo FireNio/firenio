@@ -27,18 +27,18 @@ import com.generallycloud.baseio.component.SocketChannel;
  */
 public interface SslFuture extends ChannelFuture {
 
-    public static final int SSL_CONTENT_TYPE_ALERT              = 21;
+    int SSL_CONTENT_TYPE_ALERT              = 21;
 
-    public static final int SSL_CONTENT_TYPE_APPLICATION_DATA   = 23;
+    int SSL_CONTENT_TYPE_APPLICATION_DATA   = 23;
 
-    public static final int SSL_CONTENT_TYPE_CHANGE_CIPHER_SPEC = 20;
+    int SSL_CONTENT_TYPE_CHANGE_CIPHER_SPEC = 20;
 
-    public static final int SSL_CONTENT_TYPE_HANDSHAKE          = 22;
+    int SSL_CONTENT_TYPE_HANDSHAKE          = 22;
 
-    public static final int SSL_RECORD_HEADER_LENGTH            = 5;
-    
+    int SSL_RECORD_HEADER_LENGTH            = 5;
+
     SslFuture reset();
-    
+
     SslFuture copy(SocketChannel channel);
-    
+
 }

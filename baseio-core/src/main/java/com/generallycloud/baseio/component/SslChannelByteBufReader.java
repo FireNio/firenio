@@ -56,7 +56,7 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
                     return;
                 }
             } catch (Throwable e) {
-                ReleaseUtil.release(future);
+                ReleaseUtil.release(future,channel.getChannelThreadContext());
                 channel.setSslReadFuture(null);
                 if (e instanceof IOException) {
                     throw (IOException) e;
@@ -71,7 +71,7 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
             try {
                 product = sslHandler.unwrap(channel, future.getByteBuf());
             } finally {
-                ReleaseUtil.release(future);
+                ReleaseUtil.release(future,channel.getChannelThreadContext());
             }
             if (product == null) {
                 continue;

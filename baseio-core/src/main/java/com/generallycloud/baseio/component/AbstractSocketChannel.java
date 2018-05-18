@@ -95,7 +95,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     protected abstract void doFlush0();
 
     protected void exceptionCaught(Future future, Exception ex) {
-        ReleaseUtil.release(future);
+        ReleaseUtil.release((ChannelFuture)future,getChannelThreadContext());
         try {
             getChannelThreadContext().getIoEventHandle().exceptionCaught(getSession(), future, ex);
         } catch (Throwable e) {
@@ -322,8 +322,9 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     protected abstract void close0();
 
     protected void releaseFutures(ClosedChannelException e) {
-        ReleaseUtil.release(readFuture);
-        ReleaseUtil.release(sslReadFuture);
+        ChannelThreadContext context = getChannelThreadContext();
+        ReleaseUtil.release(readFuture,context);
+        ReleaseUtil.release(sslReadFuture,context);
         LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
         if (writeFutures.size() == 0) {
             return;
@@ -335,7 +336,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         }
         for (; future != null;) {
             exceptionCaught(future, e);
-            ReleaseUtil.release(future);
+            ReleaseUtil.release(future,context);
             future = writeFutures.poll();
         }
     }

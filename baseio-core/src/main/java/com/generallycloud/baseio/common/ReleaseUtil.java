@@ -15,23 +15,35 @@
  */
 package com.generallycloud.baseio.common;
 
+import com.generallycloud.baseio.component.ChannelThreadContext;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class ReleaseUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(ReleaseUtil.class);
 
-    public static void release(Releasable releasable) {
-
-        if (releasable == null || releasable.isReleased()) {
+    public static void release(Releasable releasable, long version) {
+        if (releasable == null) {
             return;
         }
-
         try {
-            releasable.release();
+            releasable.release(version);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
     }
+    
+    public static void release(ChannelFuture future, ChannelThreadContext context) {
+        if (future == null) {
+            return;
+        }
+        try {
+            future.release(context);
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+    
 }

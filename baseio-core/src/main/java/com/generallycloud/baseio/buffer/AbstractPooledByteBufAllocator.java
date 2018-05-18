@@ -88,10 +88,10 @@ public abstract class AbstractPooledByteBufAllocator extends AbstractByteBufAllo
                 throw new BufferException("reallocate failed");
             }
             newBuf.read(buf.flip());
-            ReleaseUtil.release(buf);
+            ReleaseUtil.release(buf,buf.getReleaseVersion());
             return buf.newByteBuf(this).produce(newBuf);
         }
-        ReleaseUtil.release(buf);
+        ReleaseUtil.release(buf,buf.getReleaseVersion());
         ByteBuf newBuf = allocate(buf, limit);
         if (newBuf == null) {
             throw new BufferException("reallocate failed");

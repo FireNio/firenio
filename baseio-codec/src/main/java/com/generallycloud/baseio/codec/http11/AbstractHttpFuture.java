@@ -302,9 +302,10 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
             } else {
                 hasBodyContent = true;
                 // FIXME 写入临时文件
-                buf = allocate(channel, contentLength, bodyLimit);
+                setByteBuf(allocate(channel, contentLength, bodyLimit));
             }
         }
+        ByteBuf buf = getByteBuf();
         buf.read(buffer);
         if (buf.hasRemaining()) {
             return false;
@@ -529,7 +530,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         }else{
             params.clear();
         }
-        this.buf = EmptyByteBuf.get();
+        setByteBuf(EmptyByteBuf.get());
         super.reset();
         return this;
     }

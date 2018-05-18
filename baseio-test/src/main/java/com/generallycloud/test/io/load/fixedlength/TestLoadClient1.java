@@ -63,6 +63,7 @@ public class TestLoadClient1 extends ITestThread {
         configuration.setMemoryPoolUnit(128);
         configuration.setEnableMemoryPoolDirect(true);
         configuration.setEnableMemoryPool(true);
+        configuration.setWriteBuffers(32);
 
         SocketChannelContext context = new NioSocketChannelContext(configuration);
 
@@ -84,7 +85,7 @@ public class TestLoadClient1 extends ITestThread {
 
         int time = 128 * 10000;
 
-        int core_size = 16;
+        int core_size = 8;
 
         ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
     }

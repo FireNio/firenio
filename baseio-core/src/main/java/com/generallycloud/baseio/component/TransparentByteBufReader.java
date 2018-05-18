@@ -18,7 +18,6 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class TransparentByteBufReader extends LinkableChannelByteBufReader {
@@ -49,7 +48,7 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
                     return;
                 }
             } catch (Throwable e) {
-                ReleaseUtil.release(future);
+                future.release(channel.getChannelThreadContext());
                 if (e instanceof IOException) {
                     throw (IOException) e;
                 }
@@ -58,7 +57,7 @@ public class TransparentByteBufReader extends LinkableChannelByteBufReader {
             if (setFutureNull) {
                 channel.setReadFuture(null);
             }
-            ReleaseUtil.release(future);
+            future.release(channel.getChannelThreadContext());
             foreReadFutureAcceptor.accept(channel.getSession(), future);
         }
     }

@@ -21,7 +21,6 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.FixedUnpooledByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
-import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class TransparentByteBufReader2 extends LinkableChannelByteBufReader {
@@ -44,14 +43,11 @@ public class TransparentByteBufReader2 extends LinkableChannelByteBufReader {
                 return;
             }
             ChannelFuture future = channel.getReadFuture();
-            boolean setFutureNull = true;
-            if (future == null) {
-//                future = channel.getProtocolDecoder().decode(channel, buffer,temporary.clear());
-                setFutureNull = false;
-            }
+            boolean futureNotNull = future != null;
             try {
                 if (!future.read(channel, buffer)) {
-                    if (!setFutureNull) {
+                    //read future is null in channel
+                    if (!futureNotNull) {
                         if (future.getByteBuf() == this.temporary) {
                             ByteBuf src = future.getByteBuf();
                             ByteBuf buf = allocate(channel, src.limit());
@@ -63,16 +59,15 @@ public class TransparentByteBufReader2 extends LinkableChannelByteBufReader {
                     return;
                 }
             } catch (Throwable e) {
-                ReleaseUtil.release(future);
                 if (e instanceof IOException) {
                     throw (IOException) e;
                 }
                 throw new IOException("exception occurred when do decode," + e.getMessage(), e);
             }
-            if (setFutureNull) {
+            // read future is not null in channel
+            if (futureNotNull) {
                 channel.setReadFuture(null);
             }
-            ReleaseUtil.release(future);
             foreReadFutureAcceptor.accept(channel.getSession(), future);
         }
     }

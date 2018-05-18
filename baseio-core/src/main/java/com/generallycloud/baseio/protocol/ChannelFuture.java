@@ -40,6 +40,8 @@ public interface ChannelFuture extends Future, Linkable {
 
     boolean isPONG();
     
+    boolean isReleased();
+
     boolean isSilent();
 
     boolean isWriteCompleted();
@@ -53,18 +55,18 @@ public interface ChannelFuture extends Future, Linkable {
      */
     boolean read(SocketChannel channel, ByteBuf src) throws IOException;
 
+    void release(ChannelThreadContext context);
+    
     void setByteBuf(ByteBuf buf);
 
     void setHeartbeat(boolean isPing);
-    
+
     void setNeedSsl(boolean needSsl);
 
     ChannelFuture setPING();
-
-    ChannelFuture setPONG();
-
-    void setSilent(boolean isSilent);
     
-    void release(ChannelThreadContext context);
+    ChannelFuture setPONG();
+    
+    void setSilent(boolean isSilent);
 
 }

@@ -26,14 +26,15 @@ import com.generallycloud.baseio.concurrent.Linkable;
 public abstract class AbstractChannelFuture extends AbstractFuture implements ChannelFuture {
 
     //FIXME isX 使用 byte & x ?
-    protected ByteBuf buf        = EmptyByteBuf.get();
-    private boolean   flushed;
-    private boolean   isHeartbeat;
-    private boolean   isNeedSsl;
-    private boolean   isPING;
-    private boolean   isSilent;
-    private boolean   isValidate = true;
-    private Linkable  next;
+    private ByteBuf  buf        = EmptyByteBuf.get();
+    private long     bufReleaseVersion;
+    private boolean  flushed;
+    private boolean  isHeartbeat;
+    private boolean  isNeedSsl;
+    private boolean  isPING;
+    private boolean  isSilent;
+    private boolean  isValidate = true;
+    private Linkable next;
 
     protected ByteBuf allocate(SocketChannel channel, int capacity) {
         return channel.getByteBufAllocator().allocate(capacity);
@@ -115,19 +116,15 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     }
 
     @Override
-    public void release() {
-        ReleaseUtil.release(buf);
-    }
-    
-    @Override
     public void release(ChannelThreadContext context) {
-        release();
+        ReleaseUtil.release(buf, bufReleaseVersion);
     }
 
     @Override
     public void setByteBuf(ByteBuf buf) {
         buf.nioBuffer();
         this.buf = buf;
+        this.bufReleaseVersion = buf.getReleaseVersion();
     }
 
     @Override
@@ -174,7 +171,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     public void write(String text, SocketSession session) {
         write(text, session.getContext());
     }
-    
+
     protected ChannelFuture reset() {
         this.flushed = false;
         this.isHeartbeat = false;
@@ -182,6 +179,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
         this.isSilent = false;
         this.next = null;
         this.writeSize = 0;
+        this.bufReleaseVersion = 0;
         return this;
     }
 

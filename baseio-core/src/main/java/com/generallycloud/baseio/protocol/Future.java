@@ -17,11 +17,10 @@ package com.generallycloud.baseio.protocol;
 
 import java.nio.charset.Charset;
 
-import com.generallycloud.baseio.common.Releasable;
 import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 
-public interface Future extends Releasable {
+public interface Future {
 
     boolean flushed();
 

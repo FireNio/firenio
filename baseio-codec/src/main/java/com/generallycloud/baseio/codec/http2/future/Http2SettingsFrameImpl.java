@@ -23,13 +23,11 @@ import com.generallycloud.baseio.component.SocketChannel;
 
 public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2SettingsFrame {
 
-    private boolean isComplete;
-
     private long[]  settings;  //FIXME delete
 
     public Http2SettingsFrameImpl(ByteBuf buf, Http2FrameHeader header) {
         super(header);
-        this.buf = buf;
+        this.setByteBuf(buf);
     }
 
     private void doComplete(SocketChannel channel, ByteBuf buf) throws IOException {
@@ -46,15 +44,12 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
 
     @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-        if (!isComplete) {
-            ByteBuf buf = this.buf;
-            buf.read(buffer);
-            if (buf.hasRemaining()) {
-                return false;
-            }
-            isComplete = true;
-            doComplete(channel, buf.flip());
+        ByteBuf buf = getByteBuf();
+        buf.read(buffer);
+        if (buf.hasRemaining()) {
+            return false;
         }
+        doComplete(channel, buf.flip());
         return true;
     }
 
