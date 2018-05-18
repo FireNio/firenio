@@ -32,7 +32,7 @@ public abstract class LinkableChannelByteBufReader implements ChannelByteBufRead
     }
 
     protected ByteBuf allocate(SocketChannel channel, int capacity) {
-        return channel.getByteBufAllocator().allocate(capacity);
+        return channel.allocator().allocate(capacity);
     }
 
     protected void nextAccept(SocketChannel channel, ByteBuf buffer) throws Exception {

@@ -90,7 +90,7 @@ public class FixedLengthCodec implements ProtocolCodec {
 
     @Override
     public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
-        ByteBufAllocator allocator = channel.getByteBufAllocator();
+        ByteBufAllocator allocator = channel.allocator();
         if (future.isHeartbeat()) {
             ByteBuf buf = future.isPING() ? PING.duplicate() : PONG.duplicate();
             future.setByteBuf(buf);

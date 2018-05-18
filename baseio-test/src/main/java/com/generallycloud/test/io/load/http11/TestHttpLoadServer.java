@@ -45,7 +45,7 @@ public class TestHttpLoadServer {
 
         };
 
-        Configuration c = new Configuration(8080);
+        Configuration c = new Configuration(8087);
         c.setMemoryPoolCapacity(1024 * 1024 * 2 / 8);
         c.setMemoryPoolUnit(256);
         c.setEnableMemoryPoolDirect(true);

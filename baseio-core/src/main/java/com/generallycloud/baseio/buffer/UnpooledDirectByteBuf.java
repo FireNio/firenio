@@ -67,7 +67,7 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
         }
         //请勿移除此行，DirectByteBuffer需要手动回收，doRelease要确保被执行
         addReferenceCount();
-        return new DuplicateByteBuf(new UnpooledDirectByteBuf(allocator, memory.duplicate()),this);
+        return new DuplicatedByteBuf(new UnpooledDirectByteBuf(allocator, memory.duplicate()),this);
     }
 
     @Override

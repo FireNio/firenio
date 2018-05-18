@@ -44,7 +44,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
 
     private static final Logger              logger               = LoggerFactory.getLogger(AbstractSocketChannel.class);
     protected static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
-    protected ByteBufAllocator               byteBufAllocator;
+    protected ByteBufAllocator               allocator;
     protected String                         channelDesc;
     protected int                            channelId;
     protected ReentrantLock                  closeLock            = new ReentrantLock();
@@ -68,7 +68,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         DefaultChannelFuture f = new DefaultChannelFuture(EmptyByteBuf.get());
         // 认为在第一次Idle之前，连接都是畅通的
         this.channelId = channelId;
-        this.byteBufAllocator = context.getByteBufAllocator();
+        this.allocator = context.allocator();
         this.lastAccess = creationTime + socketChannelContext.getSessionIdleTime();
         this.protocolCodec = socketChannelContext.getProtocolCodec();
         this.session = context.getChannelContext().getSessionFactory().newUnsafeSession(this);
@@ -206,8 +206,8 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     }
 
     @Override
-    public ByteBufAllocator getByteBufAllocator() {
-        return byteBufAllocator;
+    public ByteBufAllocator allocator() {
+        return allocator;
     }
 
     @Override

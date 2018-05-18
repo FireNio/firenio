@@ -66,7 +66,7 @@ public class CharBasedCodec implements ProtocolCodec {
 
     @Override
     public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
-        ByteBufAllocator allocator = channel.getByteBufAllocator();
+        ByteBufAllocator allocator = channel.allocator();
         CharBasedFuture f = (CharBasedFuture) future;
         int writeSize = f.getWriteSize();
         if (writeSize == 0) {

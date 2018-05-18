@@ -265,7 +265,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     }
 
     @Override
-    public ByteBufAllocator getByteBufAllocator() {
+    public ByteBufAllocator allocator() {
         return byteBufAllocator;
     }
 

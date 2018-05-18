@@ -51,7 +51,7 @@ public class CachedAioThread extends Thread implements ChannelThreadContext {
     }
 
     @Override
-    public ByteBufAllocator getByteBufAllocator() {
+    public ByteBufAllocator allocator() {
         return byteBufAllocator;
     }
 

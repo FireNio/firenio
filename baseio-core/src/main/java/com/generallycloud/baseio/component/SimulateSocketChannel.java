@@ -68,7 +68,7 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
             }
             
             @Override
-            public ByteBufAllocator getByteBufAllocator() {
+            public ByteBufAllocator allocator() {
                 return UnpooledByteBufAllocator.getHeap();
             }
 

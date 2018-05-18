@@ -67,7 +67,7 @@ public class ClientHttpCodec extends AbstractHttpCodec{
     
     @Override
     public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
-        ByteBufAllocator allocator = channel.getByteBufAllocator();
+        ByteBufAllocator allocator = channel.allocator();
         HttpFuture f = (HttpFuture) future;
         ByteBuf buf = allocator.allocate(256);
         buf.put(f.getMethod().getBytes());

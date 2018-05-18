@@ -26,20 +26,20 @@ import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
  */
 public interface ChannelThreadContext extends Attributes{
 
-    SocketChannelContext getChannelContext();
+    ByteBufAllocator allocator();
 
-    ByteBufAllocator getByteBufAllocator();
+    SocketChannelContext getChannelContext();
 
     ExecutorEventLoop getExecutorEventLoop();
 
-    SocketSessionManager getSocketSessionManager();
+    IoEventHandle getIoEventHandle();
 
-    boolean inEventLoop();
+    SocketSessionManager getSocketSessionManager();
 
     SslHandler getSslHandler();
     
-    boolean isEnableSsl();
+    boolean inEventLoop();
     
-    IoEventHandle getIoEventHandle();
+    boolean isEnableSsl();
 
 }

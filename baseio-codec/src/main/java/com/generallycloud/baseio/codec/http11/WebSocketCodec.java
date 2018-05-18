@@ -111,18 +111,18 @@ public class WebSocketCodec implements ProtocolCodec {
             WebSocketFutureImpl future = stack.pop();
             if (future == null) {
                 return new WebSocketFutureImpl(channel,
-                        channel.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
+                        channel.allocator().allocate(PROTOCOL_HEADER), limit);
             }
-            return future.reset(channel, channel.getByteBufAllocator().allocate(PROTOCOL_HEADER),
+            return future.reset(channel, channel.allocator().allocate(PROTOCOL_HEADER),
                     limit);
         }
         return new WebSocketFutureImpl(channel,
-                channel.getByteBufAllocator().allocate(PROTOCOL_HEADER), limit);
+                channel.allocator().allocate(PROTOCOL_HEADER), limit);
     }
 
     @Override
     public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
-        ByteBufAllocator allocator = channel.getByteBufAllocator();
+        ByteBufAllocator allocator = channel.allocator();
         WebSocketFuture f = (WebSocketFuture) future;
         byte[] header;
         byte[] data = f.getWriteBuffer();

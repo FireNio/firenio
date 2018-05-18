@@ -53,7 +53,7 @@ public interface SocketSession extends Closeable {
 
     Map<Object, Object> getAttributes();
 
-    ByteBufAllocator getByteBufAllocator();
+    ByteBufAllocator allocator();
 
     SocketChannelContext getContext();
 

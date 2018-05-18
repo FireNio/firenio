@@ -41,7 +41,7 @@ public class PooledDirectByteBuf extends AbstractDirectByteBuf implements Pooled
             throw new ReleasedException("released");
         }
         addReferenceCount();
-        return new DuplicateByteBuf(new PooledDirectByteBuf(allocator, memory.duplicate()).produce(this), this);
+        return new DuplicatedByteBuf(new PooledDirectByteBuf(allocator, memory.duplicate()).produce(this), this);
     }
 
     @Override

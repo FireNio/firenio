@@ -108,7 +108,7 @@ public class Http2Codec implements ProtocolCodec{
     private Http2HeadersEncoder http2HeadersEncoder = new DefaultHttp2HeadersEncoder();
 
     private ByteBuf allocate(SocketChannel channel, int capacity) {
-        return channel.getByteBufAllocator().allocate(capacity);
+        return channel.allocator().allocate(capacity);
     }
     
     @Override
@@ -132,7 +132,7 @@ public class Http2Codec implements ProtocolCodec{
 
     @Override
     public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
-        ByteBufAllocator allocator = channel.getByteBufAllocator();
+        ByteBufAllocator allocator = channel.allocator();
         Http2Frame frame = (Http2Frame) future;
         Http2FrameType frameType = frame.getHttp2FrameType();
         byte[] payload = null;

@@ -37,11 +37,11 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     private Linkable next;
 
     protected ByteBuf allocate(SocketChannel channel, int capacity) {
-        return channel.getByteBufAllocator().allocate(capacity);
+        return channel.allocator().allocate(capacity);
     }
 
     protected ByteBuf allocate(SocketChannel channel, int capacity, int maxLimit) {
-        return channel.getByteBufAllocator().allocate(capacity, maxLimit);
+        return channel.allocator().allocate(capacity, maxLimit);
     }
 
     @Override

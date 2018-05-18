@@ -52,7 +52,7 @@ public class ParamedProtobaseCodec extends ProtobaseCodec {
 
     @Override
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
-        ByteBufAllocator allocator = channel.getByteBufAllocator();
+        ByteBufAllocator allocator = channel.allocator();
         ByteBuf buf = allocator.allocate(2);
         return new ParamedProtobaseFutureImpl(buf);
     }

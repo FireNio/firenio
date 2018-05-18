@@ -124,7 +124,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
 
     @Override
     public void encode(SocketChannel channel, ChannelFuture readFuture) throws IOException {
-        ByteBufAllocator allocator = channel.getByteBufAllocator();
+        ByteBufAllocator allocator = channel.allocator();
         ServerHttpFuture f = (ServerHttpFuture) readFuture;
         if (f.isUpdateWebSocketProtocol()) {
             channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);

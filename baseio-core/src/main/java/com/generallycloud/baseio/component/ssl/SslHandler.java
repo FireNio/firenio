@@ -51,7 +51,7 @@ public class SslHandler {
     }
 
     private ByteBuf allocate(SocketChannel channel, int capacity) {
-        return channel.getByteBufAllocator().allocate(capacity);
+        return channel.allocator().allocate(capacity);
     }
 
     public ByteBuf wrap(SocketChannel channel, ByteBuf src) throws IOException {

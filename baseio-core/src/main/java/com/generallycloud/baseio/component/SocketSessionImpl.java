@@ -80,8 +80,8 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public ByteBufAllocator getByteBufAllocator() {
-        return unsafe().getByteBufAllocator();
+    public ByteBufAllocator allocator() {
+        return unsafe().allocator();
     }
 
     @Override

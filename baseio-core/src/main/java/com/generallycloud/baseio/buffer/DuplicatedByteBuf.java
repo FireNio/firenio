@@ -20,13 +20,13 @@ import java.nio.ByteBuffer;
 import com.generallycloud.baseio.common.ReleaseUtil;
 
 //FIXME 需要增加UnsupportedOperation // rm byteBuf 
-public class DuplicateByteBuf implements ByteBuf {
+public class DuplicatedByteBuf implements ByteBuf {
 
     private ByteBuf byteBuf;
 
     private ByteBuf prototype;
 
-    public DuplicateByteBuf(ByteBuf byteBuf, ByteBuf prototype) {
+    public DuplicatedByteBuf(ByteBuf byteBuf, ByteBuf prototype) {
         this.byteBuf = byteBuf;
         this.prototype = prototype;
     }

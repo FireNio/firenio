@@ -41,7 +41,7 @@ public interface SocketChannel extends Closeable {
 
     void flushChannelFuture(ChannelFuture future);
 
-    ByteBufAllocator getByteBufAllocator();
+    ByteBufAllocator allocator();
     
     int getChannelId();
     
