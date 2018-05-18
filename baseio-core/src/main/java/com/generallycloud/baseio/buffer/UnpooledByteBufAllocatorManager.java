@@ -27,8 +27,8 @@ import com.generallycloud.baseio.configuration.Configuration;
 public class UnpooledByteBufAllocatorManager extends AbstractLifeCycle
         implements ByteBufAllocatorManager {
 
-    private SocketChannelContext           context = null;
-    private UnpooledByteBufAllocator unpooledByteBufAllocator;
+    private SocketChannelContext context;
+    private ByteBufAllocator     allocator;
 
     public UnpooledByteBufAllocatorManager(SocketChannelContext context) {
         this.context = context;
@@ -36,20 +36,22 @@ public class UnpooledByteBufAllocatorManager extends AbstractLifeCycle
 
     @Override
     public ByteBufAllocator getNextBufAllocator() {
-        return unpooledByteBufAllocator;
+        return allocator;
     }
 
     @Override
     protected void doStart() throws Exception {
         Configuration c = context.getConfiguration();
-        boolean isDirect = c.isEnableMemoryPoolDirect();
-        unpooledByteBufAllocator = new UnpooledByteBufAllocator(isDirect);
-        LifeCycleUtil.start(unpooledByteBufAllocator);
+        if (c.isEnableMemoryPoolDirect()) {
+            allocator = UnpooledByteBufAllocator.getDirect();
+        } else {
+            allocator = UnpooledByteBufAllocator.getHeap();
+        }
     }
 
     @Override
     protected void doStop() throws Exception {
-        LifeCycleUtil.stop(unpooledByteBufAllocator);
+        LifeCycleUtil.stop(allocator);
     }
 
 }

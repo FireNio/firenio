@@ -19,42 +19,29 @@ import java.nio.ByteBuffer;
 
 public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 
-    private static UnpooledByteBufAllocator heapAllocator;
+    private static UnpooledByteBufAllocator heap = new UnpooledByteBufAllocator(false);
+    private static UnpooledByteBufAllocator direct = new UnpooledByteBufAllocator(true);
 
-    private static UnpooledByteBufAllocator directAllocator;
-
-    static {
-
-        heapAllocator = new UnpooledByteBufAllocator(false);
-        directAllocator = new UnpooledByteBufAllocator(true);
-
-        heapAllocator.initialize();
-        directAllocator.initialize();
-    }
-
-    public UnpooledByteBufAllocator(boolean isDirect) {
+    private UnpooledByteBufAllocator(boolean isDirect) {
         super(isDirect);
     }
 
-    private UnpooledByteBufFactory unpooledByteBufferFactory;
-
     public static UnpooledByteBufAllocator getHeap() {
-        return heapAllocator;
+        return heap;
     }
 
     //FIXME 回收机制
-    /**
-     * 不稳定，待改进
-     * @return
-     */
-    @Deprecated
     public static UnpooledByteBufAllocator getDirect() {
-        return directAllocator;
+        return direct;
     }
 
     @Override
     public ByteBuf allocate(int capacity) {
-        return unpooledByteBufferFactory.allocate(this, capacity);
+        if (isDirect) {
+            return new UnpooledDirectByteBuf(this, ByteBuffer.allocateDirect(capacity));
+        }else{
+            return new UnpooledHeapByteBuf(this, new byte[capacity]);
+        }
     }
 
     public ByteBuf wrap(ByteBuffer buffer) {
@@ -65,17 +52,7 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
     }
 
     @Override
-    protected void doStart() throws Exception {
-        initialize();
-    }
-
-    private void initialize() {
-        if (isDirect) {
-            this.unpooledByteBufferFactory = new UnpooledDirectByteBufferFactory();
-            return;
-        }
-        this.unpooledByteBufferFactory = new UnpooledHeapByteBufferFactory();
-    }
+    protected void doStart() throws Exception {}
 
     public ByteBuf wrap(byte[] data) {
         return wrap(data, 0, data.length);
@@ -103,9 +80,7 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
     public void freeMemory() {}
 
     @Override
-    protected void doStop() throws Exception {
-        freeMemory();
-    }
+    protected void doStop() throws Exception {}
 
     @Override
     public int getCapacity() {
@@ -115,24 +90,6 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
     @Override
     public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
         throw new UnsupportedOperationException();
-    }
-
-    interface UnpooledByteBufFactory {
-        abstract ByteBuf allocate(ByteBufAllocator allocator, int capacity);
-    }
-
-    class UnpooledHeapByteBufferFactory implements UnpooledByteBufFactory {
-        @Override
-        public ByteBuf allocate(ByteBufAllocator allocator, int capacity) {
-            return new UnpooledHeapByteBuf(allocator, new byte[capacity]);
-        }
-    }
-
-    class UnpooledDirectByteBufferFactory implements UnpooledByteBufFactory {
-        @Override
-        public ByteBuf allocate(ByteBufAllocator allocator, int capacity) {
-            return new UnpooledDirectByteBuf(allocator, ByteBuffer.allocateDirect(capacity));
-        }
     }
 
 }

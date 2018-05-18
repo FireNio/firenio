@@ -58,7 +58,6 @@ public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
         this.memory = newMemory;
         this.capacity = limit;
         this.limit = limit;
-        this.referenceCount = 1;
         return this;
     }
 

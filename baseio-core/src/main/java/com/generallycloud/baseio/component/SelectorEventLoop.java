@@ -240,7 +240,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         Configuration cfg = context.getConfiguration();
         int readBuffer = cfg.getChannelReadBuffer();
         this.writeBuffers = new ByteBuffer[cfg.getWriteBuffers()];
-        this.buf = UnpooledByteBufAllocator.getHeap().allocate(readBuffer);
+        this.buf = UnpooledByteBufAllocator.getDirect().allocate(readBuffer);
         this.rebuildSelector();
     }
 
@@ -407,9 +407,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         SocketSelector selector = openSelector(channel);
         if (context.getChannelService() instanceof ChannelAcceptor) {
             //FIXME 使用多eventLoop accept是否导致卡顿 是否要区分accept和read
-            //            if (isMainEventLoop()) {
             channel.register(selector.getSelector(), SelectionKey.OP_ACCEPT);
-            //            }
         } else {
             channel.register(selector.getSelector(), SelectionKey.OP_CONNECT);
         }

@@ -15,6 +15,7 @@
  */
 package com.generallycloud.test.io;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.generallycloud.baseio.common.Encoding;
@@ -29,13 +30,56 @@ public class Test {
     
     
     public static void main(String[] args) throws Exception {
+        int max = 8;
+        List<String> list = getList(max);
+        System.out.println();
+        long startTime = System.currentTimeMillis();
         
-
-        
-        test();
-        
+        for (int i = 0; i < 1024 * 512; i++) {
+//          testForI(list,max);
+//          testForI2(list,max);
+          testForeach(list, max);
+        }
+        long endTime = System.currentTimeMillis();
+        System.out.println("Time:"+(endTime - startTime));
         
     }
+    
+    static boolean testForeach(List<String> list ,int max){
+        for (String i : list) {
+            if ("test".equals(i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    static boolean testForI(List<String> list ,int max){
+        for (int i = 0; i < list.size(); i++) {
+            if ("test".equals(list.get(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    static boolean testForI2(List<String> list ,int max){
+        for (int i = 0; i < max; i++) {
+            if ("test".equals(list.get(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    static List<String> getList(int max){
+        List<String> list = new ArrayList<>(max);
+        for (int i = 0; i < max; i++) {
+            list.add(String.valueOf(i));
+        }
+        return list;
+    }
+    
     
     static void test() throws Exception{
         
