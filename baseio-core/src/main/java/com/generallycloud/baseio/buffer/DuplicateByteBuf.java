@@ -19,14 +19,12 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.baseio.common.ReleaseUtil;
 
-//FIXME 需要增加UnsupportedOperation
+//FIXME 需要增加UnsupportedOperation // rm byteBuf 
 public class DuplicateByteBuf implements ByteBuf {
 
     private ByteBuf byteBuf;
 
     private ByteBuf prototype;
-
-    private boolean released;
 
     public DuplicateByteBuf(ByteBuf byteBuf, ByteBuf prototype) {
         this.byteBuf = byteBuf;
@@ -232,7 +230,7 @@ public class DuplicateByteBuf implements ByteBuf {
 
     @Override
     public boolean isReleased() {
-        return released;
+        return prototype.isReleased();
     }
 
     @Override

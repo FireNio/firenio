@@ -35,14 +35,11 @@ public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByte
 
     @Override
     public ByteBuf duplicate() {
-        synchronized (this) {
-            if (released) {
-                throw new ReleasedException("released");
-            }
-            this.referenceCount++;
-            return new DuplicateByteBuf(new PooledHeapByteBuf(allocator, memory).produce(this),
-                    this);
+        if (isReleased()) {
+            throw new ReleasedException("released");
         }
+        addReferenceCount();
+        return new DuplicateByteBuf(new PooledHeapByteBuf(allocator, memory).produce(this),this);
     }
 
     @Override
@@ -54,13 +51,7 @@ public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByte
         this.beginUnit = begin;
         this.releaseVersion = version;
         this.referenceCount = 1;
-        this.released = false;
         return this;
-    }
-
-    @Override
-    protected void doRelease() {
-        allocator.release(this);
     }
 
     @Override
@@ -71,7 +62,6 @@ public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByte
         this.position = buf.position();
         this.beginUnit = buf.getBeginUnit();
         this.referenceCount = 1;
-        this.released = false;
         return this;
     }
 

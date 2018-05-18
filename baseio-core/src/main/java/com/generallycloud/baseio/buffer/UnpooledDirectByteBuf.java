@@ -62,20 +62,41 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
 
     @Override
     public ByteBuf duplicate() {
-        synchronized (this) {
-            if (released) {
-                throw new ReleasedException("released");
-            }
-            //请勿移除此行，DirectByteBuffer需要手动回收，doRelease要确保被执行
-            this.referenceCount++;
-            return new DuplicateByteBuf(new UnpooledDirectByteBuf(allocator, memory.duplicate()),
-                    this);
+        if (isReleased()) {
+            throw new ReleasedException("released");
         }
+        //请勿移除此行，DirectByteBuffer需要手动回收，doRelease要确保被执行
+        addReferenceCount();
+        return new DuplicateByteBuf(new UnpooledDirectByteBuf(allocator, memory.duplicate()),this);
     }
 
     @Override
-    public void doRelease() {
-        ByteBufferUtil.release(memory);
+    public void release(long version) {
+        if (releaseVersion != version) {
+            return;
+        }
+        int referenceCount = this.referenceCount;
+        if (referenceCount < 1) {
+            return;
+        }
+        if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount - 1)) {
+            if (referenceCount == 1) {
+                ByteBufferUtil.release(memory);
+                return;
+            }
+        }
+        for (;;) {
+            referenceCount = this.referenceCount;
+            if (referenceCount < 1) {
+                return;
+            }
+            if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount - 1)) {
+                if (referenceCount == 1) {
+                    ByteBufferUtil.release(memory);
+                    return;
+                }
+            }
+        }
     }
 
     @Override

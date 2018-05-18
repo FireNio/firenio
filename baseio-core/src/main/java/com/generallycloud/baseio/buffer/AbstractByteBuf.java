@@ -16,16 +16,22 @@
 package com.generallycloud.baseio.buffer;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 public abstract class AbstractByteBuf implements ByteBuf {
+
+    static final AtomicIntegerFieldUpdater<AbstractByteBuf> refCntUpdater;
+
+    static {
+        refCntUpdater = AtomicIntegerFieldUpdater.newUpdater(AbstractByteBuf.class,"referenceCount");
+    }
 
     protected ByteBufAllocator allocator;
     protected int              offset;
     protected int              capacity;
-    protected boolean          released;
     protected int              markLimit;
     protected long             releaseVersion;
-    protected int              referenceCount = 0;
+    protected volatile int     referenceCount = 0;
 
     protected AbstractByteBuf(ByteBufAllocator allocator) {
         this.allocator = allocator;
@@ -139,31 +145,54 @@ public abstract class AbstractByteBuf implements ByteBuf {
 
     @Override
     public void release(long version) {
-        if (released || releaseVersion != version) {
+        if (releaseVersion != version) {
             return;
         }
-        synchronized (this) {
-            if (released) {
+        int referenceCount = this.referenceCount;
+        if (referenceCount < 1) {
+            return;
+        }
+        if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount - 1)) {
+            if (referenceCount == 1) {
+                allocator.release(this);
                 return;
             }
-            if (--referenceCount != 0) {
+        }
+        for (;;) {
+            referenceCount = this.referenceCount;
+            if (referenceCount < 1) {
                 return;
             }
-            released = true;
-            doRelease();
+            if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount - 1)) {
+                if (referenceCount == 1) {
+                    allocator.release(this);
+                    return;
+                }
+            }
         }
     }
-    
+
+    protected void addReferenceCount() {
+        int referenceCount = this.referenceCount;
+        if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
+            return;
+        }
+        for (;;) {
+            referenceCount = this.referenceCount;
+            if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
+                break;
+            }
+        }
+    }
+
     @Override
     public long getReleaseVersion() {
         return releaseVersion;
     }
 
-    protected abstract void doRelease();
-
     @Override
     public boolean isReleased() {
-        return released;
+        return referenceCount < 1;
     }
 
     @Override
@@ -183,12 +212,12 @@ public abstract class AbstractByteBuf implements ByteBuf {
         b.append("]");
         return b.toString();
     }
-    
+
     @Override
     public ByteBuf markPL() {
         markP();
         markLimit = limit();
         return this;
     }
-    
+
 }
