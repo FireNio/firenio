@@ -137,26 +137,28 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
 
     @Override
     public int read0(ByteBuffer src, int srcRemaining, int remaining) {
-        if (remaining > srcRemaining) {
+        if (srcRemaining > remaining) {
+            src.get(memory, ix(position), remaining);
+            position(limit);
+            return remaining;
+        }else{
             src.get(memory, ix(position), srcRemaining);
             skipBytes(srcRemaining);
             return srcRemaining;
         }
-        src.get(memory, ix(position), remaining);
-        position(limit);
-        return remaining;
     }
 
     @Override
     public int read0(ByteBuf src, int srcRemaining, int remaining) {
-        if (remaining > srcRemaining) {
+        if (srcRemaining > remaining) {
+            src.get(memory, ix(position), remaining);
+            position(limit);
+            return remaining;
+        }else{
             src.get(memory, ix(position), srcRemaining);
             skipBytes(srcRemaining);
             return srcRemaining;
         }
-        src.get(memory, ix(position), remaining);
-        position(limit);
-        return remaining;
     }
 
     @Override

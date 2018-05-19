@@ -74,54 +74,57 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 
     @Override
     protected int read0(ByteBuffer src, int srcRemaining, int remaining) {
-        if (remaining > srcRemaining) {
+        if (srcRemaining > remaining) {
+            if (src.hasArray()) {
+                put(src.array(), src.position(), remaining);
+                src.position(src.position() + remaining);
+                return remaining;
+            }else{
+                int oldLimit = src.limit();
+                int oldPos = src.position();
+                src.limit(oldPos + remaining);
+                memory.put(src);
+                src.limit(oldLimit);
+                return remaining;
+            }
+        }else{
             if (src.hasArray()) {
                 put(src.array(), src.position(), srcRemaining);
                 src.position(src.limit());
                 return srcRemaining;
-            }
-            ByteBuffer buf = this.memory;
-            for (int i = 0; i < srcRemaining; i++) {
-                buf.put(src.get());
-            }
-            return srcRemaining;
-        }
-        if (src.hasArray()) {
-            put(src.array(), src.position(), remaining);
-            src.position(src.position() + remaining);
-            return remaining;
-        }
-        ByteBuffer buf = this.memory;
-        for (int i = 0; i < remaining; i++) {
-            buf.put(src.get());
-        }
-        return remaining;
-    }
-
-    @Override
-    protected int read0(ByteBuf src, int srcRemaining, int remaining) {
-        if (remaining > srcRemaining) {
-            if (src.hasArray()) {
-                put(src.array(), src.offset() + src.position(), srcRemaining);
-                src.position(src.limit());
+            }else{
+                memory.put(src);
                 return srcRemaining;
             }
-            ByteBuffer _this = this.memory;
-            for (int i = 0; i < srcRemaining; i++) {
-                _this.put(src.getByte());
+        }
+    }
+    
+    @Override
+    protected int read0(ByteBuf src, int srcRemaining, int remaining) {
+        if (srcRemaining > remaining) {
+            if (src.hasArray()) {
+                put(src.array(), src.position(), remaining);
+                src.position(src.position() + remaining);
+                return remaining;
+            }else{
+                ByteBuffer srcBuf = src.nioBuffer();
+                int oldLimit = srcBuf.limit();
+                int oldPos = srcBuf.position();
+                srcBuf.limit(oldPos + remaining);
+                memory.put(srcBuf);
+                srcBuf.limit(oldLimit);
+                return remaining;
             }
-            return srcRemaining;
+        }else{
+            if (src.hasArray()) {
+                put(src.array(), src.position(), srcRemaining);
+                src.position(src.limit());
+                return srcRemaining;
+            }else{
+                memory.put(src.nioBuffer());
+                return srcRemaining;
+            }
         }
-        if (src.hasArray()) {
-            put(src.array(), src.offset() + src.position(), remaining);
-            src.skipBytes(remaining);
-            return remaining;
-        }
-        ByteBuffer _this = this.memory;
-        for (int i = 0; i < remaining; i++) {
-            _this.put(src.getByte());
-        }
-        return remaining;
     }
 
     @Override

@@ -26,6 +26,7 @@ import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpHeaderDateFormat;
 import com.generallycloud.baseio.codec.http11.HttpStatus;
 import com.generallycloud.baseio.codec.http11.ServerHttpFuture;
+import com.generallycloud.baseio.codec.http11.WebSocketFuture;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
@@ -91,6 +92,11 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     @Override
     public void exceptionCaught(SocketSession session, Future future, Exception ex) {
         logger.error(ex.getMessage(), ex);
+        if (future instanceof WebSocketFuture) {
+            future.write(String.valueOf(ex.getMessage()), session);
+            session.flush(future);
+            return;
+        }
         ServerHttpFuture f = new ServerHttpFuture(session.getContext());
         StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
         builder.append("        <div style=\"margin-left:20px;\">\n");

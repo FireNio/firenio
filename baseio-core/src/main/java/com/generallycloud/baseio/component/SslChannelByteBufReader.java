@@ -29,6 +29,8 @@ public class SslChannelByteBufReader extends LinkableChannelByteBufReader {
     private SslFuture temporary;
 
     public SslChannelByteBufReader() {
+        //FIXME ..这里需要使用heap，使用direct总是到jvm崩溃，尚未找到原因
+//        ByteBuf buf = UnpooledByteBufAllocator.getDirect().allocate(1024 * 64);
         ByteBuf buf = UnpooledByteBufAllocator.getHeap().allocate(1024 * 64);
         temporary = new SslFutureImpl(buf, 1024 * 64);
     }

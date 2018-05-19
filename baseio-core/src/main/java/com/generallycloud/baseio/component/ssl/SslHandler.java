@@ -42,7 +42,7 @@ public class SslHandler {
                 if (tempDst != null) {
                     return tempDst;
                 }
-                ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeap();
+                ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
                 int packetBufferSize = engine.getSession().getPacketBufferSize();
                 tempDst = allocator.allocate(packetBufferSize);
             }
