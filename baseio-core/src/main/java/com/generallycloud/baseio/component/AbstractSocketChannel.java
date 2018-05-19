@@ -92,7 +92,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         }
     }
 
-    protected abstract void doFlush0();
+    protected abstract void doFlush();
 
     protected void exceptionCaught(Future future, Exception ex) {
         ReleaseUtil.release((ChannelFuture)future,getChannelThreadContext());
@@ -184,25 +184,24 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         ReentrantLock lock = getCloseLock();
         lock.lock();
         try {
-            // 这里最好使用isClosing()判断更合适，但是使用isOpened()判断也没问题
-            // 因为doFlush与Close互斥
             if (!isOpened()) {
                 exceptionCaught(future, new ClosedChannelException(session.toString()));
                 return;
             }
             // FIXME 该连接写入过多啦
             writeFutures.offer(future);
-            // 如果write futures > 1 说明在offer之后至少有一个write future
-            // event loop 在判断complete时返回false
+            // 如果write futures > 1 说明在offer之后至少有2个write future
+            // 说明之前的尚未写入完整，或者正在写入，此时无需dispatch
             if (writeFutures.size() > 1) {
                 return;
             }
-            doFlush0();
         } catch (Exception e) {
             exceptionCaught(future, e);
+            return;
         } finally {
             lock.unlock();
         }
+        doFlush();
     }
 
     @Override

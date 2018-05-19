@@ -70,6 +70,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     private ExecutorEventLoop                    executorEventLoop  = null;
     private volatile boolean                   hasTask            = false;
     private int                                  index;
+    private AtomicBoolean                        wakener            = new AtomicBoolean(); // true eventLooper, false offerer
     private AtomicBoolean                        selecting          = new AtomicBoolean();
     private SelectionKeySet                      selectionKeySet    = null;
     private SocketSelector                       selector           = null;
@@ -172,9 +173,6 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             return;
         }
         events.offer(event);
-
-        // 这里再次判断一下，防止判断isRunning为true后的线程切换停顿
-        // 如果切换停顿，这里判断可以确保event要么被close了，要么被执行了
 
         /* ----------------------------------------------------------------- */
         // 这里不需要再次判断了，因为close方法会延迟执行，
@@ -444,13 +442,16 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     // 执行stop的时候如果确保不会再有数据进来
     @Override
     public void wakeup() {
-        hasTask = true;
-        if (selecting.compareAndSet(false, true)) {
-            selecting.set(false);
-            return;
+        if (wakener.compareAndSet(false, true)) {
+            hasTask = true;
+            if (selecting.compareAndSet(false, true)) {
+                selecting.set(false);
+            }else{
+                getSelector().wakeup();
+                super.wakeup();
+            }
+            wakener.set(false);
         }
-        getSelector().wakeup();
-        super.wakeup();
     }
 
     class SelectionKeySet extends AbstractSet<SelectionKey> {

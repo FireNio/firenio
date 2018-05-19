@@ -68,7 +68,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
     }
 
     @Override
-    protected void doFlush0() {
+    protected void doFlush() {
         eventLoop.dispatch(this);
     }
 

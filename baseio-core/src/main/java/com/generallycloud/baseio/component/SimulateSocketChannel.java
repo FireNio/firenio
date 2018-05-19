@@ -111,7 +111,7 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
     }
 
     @Override
-    protected void doFlush0() {
+    protected void doFlush() {
         throw new UnsupportedOperationException();
     }
 
