@@ -22,6 +22,7 @@ package com.generallycloud.baseio.buffer;
 public abstract class AbstractByteBufFactory implements ByteBufFactory{
 
     private int             bufIndex = 0;
+    //FIXME config me
     private PooledByteBuf[] bufs     = new PooledByteBuf[1024 * 8];
 
     @Override

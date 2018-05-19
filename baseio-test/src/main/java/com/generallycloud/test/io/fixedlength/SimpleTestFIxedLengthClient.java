@@ -54,7 +54,7 @@ public class SimpleTestFIxedLengthClient {
         
         SocketSession session = connector.connect();
         StringBuilder sb = new StringBuilder(1024 * 6);
-        for (int i = 0; i < 1024 * 80; i++) {
+        for (int i = 0; i < 1; i++) {
             sb.append("hello!");
         }
         

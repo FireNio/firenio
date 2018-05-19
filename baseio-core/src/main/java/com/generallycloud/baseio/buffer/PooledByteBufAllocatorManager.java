@@ -44,10 +44,8 @@ public class PooledByteBufAllocatorManager extends AbstractLifeCycle
         boolean direct = c.isEnableMemoryPoolDirect();
         this.allocators = new LinkAbleByteBufAllocator[core];
         for (int i = 0; i < allocators.length; i++) {
-            //			ByteBufAllocator allocator = new SimplyByteBufAllocator(capacity, unitMemorySize, direct);
             ByteBufAllocator allocator = new SimpleByteBufAllocator(capacity, unitMemorySize, direct);
-            //			ByteBufAllocator allocator = new UnpooledByteBufAllocator();
-            allocators[i] = new LinkableByteBufAllocatorImpl(allocator, i);
+            allocators[i] = new LinkAbleByteBufAllocator(allocator, i);
         }
     }
 
@@ -87,13 +85,6 @@ public class PooledByteBufAllocatorManager extends AbstractLifeCycle
         LinkAbleByteBufAllocator next = allocator.getNext();
         this.allocator = next;
         return next;
-    }
-
-    public void printBusy() {
-        for (LinkAbleByteBufAllocator allocator : allocators) {
-            SimpleByteBufAllocator a = (SimpleByteBufAllocator) allocator.unwrap();
-            a.printBusy();
-        }
     }
 
     public String toDebugString() {

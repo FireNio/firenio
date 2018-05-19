@@ -17,7 +17,13 @@ package com.generallycloud.baseio.buffer;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-public class SimplyByteBufAllocator extends AbstractPooledByteBufAllocator {
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
+
+@Deprecated
+public class SimplyByteBufAllocator extends PooledByteBufAllocator {
+    
+    private static final Logger logger = LoggerFactory.getLogger(SimplyByteBufAllocator.class);
 
     protected ByteBufUnit2[] units;
 
@@ -29,7 +35,6 @@ public class SimplyByteBufAllocator extends AbstractPooledByteBufAllocator {
         return Thread.currentThread().getName();
     }
 
-    @Override
     protected ByteBufUnit2[] getUnits() {
         return units;
     }
@@ -110,8 +115,7 @@ public class SimplyByteBufAllocator extends AbstractPooledByteBufAllocator {
         return null;
     }
 
-    @Override
-    protected ByteBufUnit2[] createUnits(int capacity) {
+    protected ByteBufUnit2[] createUnits1(int capacity) {
         this.units = new ByteBufUnit2[capacity];
         return units;
     }
