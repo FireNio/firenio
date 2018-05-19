@@ -127,6 +127,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                     return;
                 }else{
                     ChannelFuture future = currentWriteFutures[0];
+                    currentWriteFutures[0] = null;
                     try {
                         future.release(getChannelThreadContext());
                     } catch (Throwable e) {
@@ -173,6 +174,9 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                             logger.debug(e.getMessage(), e);
                         }
                     }
+                }
+                for (int j = 0; j < currentWriteFuturesLen; j++) {
+                    currentWriteFutures[j] = null;
                 }
                 if (currentWriteFuturesLen != maxLen) {
                     currentWriteFuturesLen = 0;
