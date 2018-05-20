@@ -17,6 +17,7 @@ package com.generallycloud.baseio.component;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
@@ -25,6 +26,7 @@ import javax.net.ssl.SSLException;
 import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
+import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ssl.SslHandler;
@@ -179,8 +181,6 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     @Override
     public void flushChannelFuture(ChannelFuture future) {
         UnsafeSocketSession session = getSession();
-        //这里需要加锁，因为当多个线程同时flush时，判断(writeFutures.size() > 1)
-        //会产生误差，导致无法或者延迟触发doFlush操作
         ReentrantLock lock = getCloseLock();
         lock.lock();
         try {
@@ -190,13 +190,79 @@ public abstract class AbstractSocketChannel implements SocketChannel {
             }
             // FIXME 该连接写入过多啦
             writeFutures.offer(future);
-            // 如果write futures > 1 说明在offer之后至少有2个write future
+            // 如果write futures != 1 说明在offer之后至少有2个write future(或者没了)
             // 说明之前的尚未写入完整，或者正在写入，此时无需dispatch
-            if (writeFutures.size() > 1) {
+            if (writeFutures.size() != 1) {
                 return;
             }
         } catch (Exception e) {
             exceptionCaught(future, e);
+            return;
+        } finally {
+            lock.unlock();
+        }
+        doFlush();
+    }
+    
+    @Override
+    public void flush(Collection<ChannelFuture> futures) {
+        if (futures == null || futures.isEmpty()) {
+            return;
+        }
+        if (!isOpened()) {
+            Exception e = new ClosedChannelException(session.toString());
+            for (ChannelFuture future : futures) {
+                exceptionCaught(future, e);
+            }
+            return;
+        }
+        try {
+            for (ChannelFuture future : futures) {
+                future.flush();
+                future.setNeedSsl(getContext().isEnableSsl());
+                ProtocolCodec codec = getProtocolCodec();
+                codec.encode(this, future);
+            }
+        } catch (Exception e) {
+            for (ChannelFuture future : futures) {
+                exceptionCaught(future, e);
+            }
+            CloseUtil.close(this);
+            return;
+        }
+        flushChannelFuture(futures);
+    }
+
+    @Override
+    public void flushChannelFuture(Collection<ChannelFuture> futures) {
+        if (futures == null || futures.isEmpty()) {
+            return;
+        }
+        UnsafeSocketSession session = getSession();
+        ReentrantLock lock = getCloseLock();
+        lock.lock();
+        try {
+            if (!isOpened()) {
+                Exception e = new ClosedChannelException(session.toString());
+                for(ChannelFuture future:futures){
+                    if (!isOpened()) {
+                        exceptionCaught(future, e);
+                        continue;
+                    }
+                }
+                return;
+            }
+            for(ChannelFuture future:futures){
+                writeFutures.offer(future);
+            }
+            if (writeFutures.size() != futures.size()) {
+                return;
+            }
+        } catch (Exception e) {
+            //will happen ?
+            for(ChannelFuture future:futures){
+                exceptionCaught(future, e);
+            }
             return;
         } finally {
             lock.unlock();

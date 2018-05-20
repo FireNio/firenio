@@ -25,7 +25,7 @@ public abstract class AbstractEventLoop implements EventLoop {
 
     private class SingleEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
 
-        private EventLoop   eventLoop;
+        private EventLoop eventLoop;
 
         public SingleEventLoopGroup(EventLoop eventLoop) {
             this.eventLoop = eventLoop;
@@ -48,31 +48,34 @@ public abstract class AbstractEventLoop implements EventLoop {
         }
     }
 
-    private static final Logger logger               = LoggerFactory.getLogger(AbstractEventLoop.class);
+    private static final Logger logger  = LoggerFactory.getLogger(AbstractEventLoop.class);
 
-    private Thread              monitor              = null;
+    private Thread              monitor = null;
 
-    private volatile boolean    running              = false;
+    private volatile boolean    running = false;
 
-    private volatile boolean    stopped              = false;
+    private volatile boolean    stopped = false;
 
-    private Object              runLock              = new Object();
+    private Object              runLock = new Object();
 
-    private EventLoopGroup      singleEventLoopGroup = new SingleEventLoopGroup(this);
+    private EventLoopGroup      defaultEventLoopGroup;
 
     protected abstract void doLoop() throws Exception;
 
     protected void doStartup() throws Exception {
-        LoggerUtil.prettyLog(logger, "event looper {} inited",this);
+        LoggerUtil.prettyLog(logger, "event looper {} inited", this);
     }
 
     protected void doStop() {
-        LoggerUtil.prettyLog(logger, "event looper {} stopped",this);
+        LoggerUtil.prettyLog(logger, "event looper {} stopped", this);
     }
 
     @Override
     public EventLoopGroup getEventLoopGroup() {
-        return singleEventLoopGroup;
+        if (defaultEventLoopGroup == null) {
+            defaultEventLoopGroup = new SingleEventLoopGroup(this);
+        }
+        return defaultEventLoopGroup;
     }
 
     @Override
@@ -97,14 +100,11 @@ public abstract class AbstractEventLoop implements EventLoop {
 
     @Override
     public void loop() {
-
         for (;;) {
-
             if (!running) {
                 stopped = true;
                 return;
             }
-
             try {
                 doLoop();
             } catch (Throwable e) {
@@ -115,52 +115,38 @@ public abstract class AbstractEventLoop implements EventLoop {
 
     @Override
     public void startup(String threadName) throws Exception {
-
         synchronized (runLock) {
-
             if (running) {
                 return;
             }
-
             running = true;
-
             stopped = false;
-
             this.monitor = new Thread(new Runnable() {
-
                 @Override
                 public void run() {
                     loop();
                 }
             }, threadName);
-
             this.doStartup();
-
             this.monitor.start();
         }
     }
 
     @Override
     public void stop() {
-
         synchronized (runLock) {
-
             if (!running) {
                 return;
             }
-
             running = false;
-
             try {
                 wakeup();
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
-
             for (; !isStopped();) {
                 ThreadUtil.sleep(4);
             }
-
             try {
                 doStop();
             } catch (Throwable e) {

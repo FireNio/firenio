@@ -18,6 +18,7 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 import java.net.SocketOption;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.HashMap;
 
 import javax.net.ssl.SSLEngine;
@@ -62,6 +63,16 @@ public class SocketSessionImpl implements SocketSession {
     @Override
     public void flushChannelFuture(ChannelFuture future) {
         unsafe().flushChannelFuture(future);
+    }
+    
+    @Override
+    public void flush(Collection<ChannelFuture> futures) {
+        unsafe().flush(futures);
+    }
+
+    @Override
+    public void flushChannelFuture(Collection<ChannelFuture> futures) {
+        unsafe().flushChannelFuture(futures);
     }
 
     @Override

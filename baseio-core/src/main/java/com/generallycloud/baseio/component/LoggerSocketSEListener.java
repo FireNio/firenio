@@ -24,7 +24,13 @@ public class LoggerSocketSEListener implements SocketSessionEventListener {
 
     @Override
     public void sessionOpened(SocketSession session) {
-        logger.info("session opened:{}", session);
+//        ChannelThreadContext context = session.unsafe().getChannelThreadContext();
+//        if (context instanceof SelectorEventLoop) {
+//            SelectorEventLoop eventLoop = (SelectorEventLoop) context;
+//            logger.info("session opened:{},{}", session, eventLoop.getIndex());
+//        }else{
+            logger.info("session opened:{}", session);
+//        }
     }
 
     @Override

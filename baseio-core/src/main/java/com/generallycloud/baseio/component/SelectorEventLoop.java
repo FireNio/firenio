@@ -185,26 +185,31 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
 
         wakeup();
     }
-
+    
     @Override
-    protected void doLoop() throws IOException {
+    public void doLoop() throws IOException {
         SocketSelector selector = getSelector();
         int selected;
-        //		long last_select = System.currentTimeMillis();
-        if (selecting.compareAndSet(false, true)) {
-            // Im not sure selectorLoopEvent.size if visible immediately by other thread ?
-            // can we use selectorLoopEvents.getBufferSize() > 0 ?
-            if (hasTask) {
-                selected = selector.selectNow();
-            }else{
-                // FIXME try
-                selected = selector.select(16);
-            }
-            hasTask = false;
-            selecting.set(false);
-        } else {
+        //      long last_select = System.currentTimeMillis();
+        if (hasTask) {
             selected = selector.selectNow();
             hasTask = false;
+        }else{
+            if (selecting.compareAndSet(false, true)) {
+                // Im not sure selectorLoopEvent.size if visible immediately by other thread ?
+                // can we use selectorLoopEvents.getBufferSize() > 0 ?
+                if (hasTask) {
+                    selected = selector.selectNow();
+                }else{
+                    // FIXME try
+                    selected = selector.select(1024);
+                }
+                hasTask = false;
+                selecting.set(false);
+            } else {
+                selected = selector.selectNow();
+                hasTask = false;
+            }
         }
         if (selected > 0) {
             if (selectionKeySet != null) {
@@ -222,7 +227,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
                 sks.clear();
             }
         } else {
-            //			selectEmpty(last_select);
+            //          selectEmpty(last_select);
         }
         for (SelectorLoopEvent event : events.getBuffer()) {
             handleEvent(event);

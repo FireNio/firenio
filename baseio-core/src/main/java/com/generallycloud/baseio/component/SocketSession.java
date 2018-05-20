@@ -19,6 +19,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.SocketOption;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.net.ssl.SSLEngine;
@@ -46,6 +47,10 @@ public interface SocketSession extends Closeable {
      * @param future
      */
     void flushChannelFuture(ChannelFuture future);
+    
+    void flush(Collection<ChannelFuture> futures);
+
+    void flushChannelFuture(Collection<ChannelFuture> futures);
     
     Object getAttachment();
 
