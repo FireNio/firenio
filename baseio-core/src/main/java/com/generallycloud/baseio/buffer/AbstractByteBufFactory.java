@@ -19,11 +19,14 @@ package com.generallycloud.baseio.buffer;
  * @author wangkai
  *
  */
-public abstract class AbstractByteBufFactory implements ByteBufFactory{
+public abstract class AbstractByteBufFactory implements ByteBufFactory {
 
     private int             bufIndex = 0;
-    //FIXME config me
-    private PooledByteBuf[] bufs     = new PooledByteBuf[1024 * 8];
+    private PooledByteBuf[] bufs;
+
+    AbstractByteBufFactory(int bufs) {
+        this.bufs = new PooledByteBuf[bufs];
+    }
 
     @Override
     public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
@@ -32,8 +35,8 @@ public abstract class AbstractByteBufFactory implements ByteBufFactory{
         }
         return bufs[--bufIndex];
     }
-    
-    abstract PooledByteBuf newByteBuf0(ByteBufAllocator allocator) ;
+
+    abstract PooledByteBuf newByteBuf0(ByteBufAllocator allocator);
 
     @Override
     public void freeBuf(PooledByteBuf buf) {
@@ -42,5 +45,5 @@ public abstract class AbstractByteBufFactory implements ByteBufFactory{
         }
         bufs[bufIndex++] = buf;
     }
-    
+
 }

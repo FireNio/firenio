@@ -47,6 +47,7 @@ public class Configuration {
     private int     memoryPoolRate     = 32;
     //单条连接write(srcs)的数量
     private int     writeBuffers       = 8;
+    private int     bufRecycleSize     = 1024 * 4;
 
     public Configuration() {}
 
@@ -202,9 +203,17 @@ public class Configuration {
     public void setMemoryPoolRate(int memoryPoolRate) {
         this.memoryPoolRate = memoryPoolRate;
     }
-    
+
     public int getWriteBuffers() {
         return writeBuffers;
+    }
+    
+    public int getBufRecycleSize() {
+        return bufRecycleSize;
+    }
+
+    public void setBufRecycleSize(int bufRecycleSize) {
+        this.bufRecycleSize = bufRecycleSize;
     }
 
     public void setWriteBuffers(int writeBuffers) {

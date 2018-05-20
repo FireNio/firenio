@@ -20,6 +20,10 @@ import java.nio.ByteBuffer;
 public class DirectByteBufFactory extends AbstractByteBufFactory {
 
     private ByteBuffer memory = null;
+    
+    DirectByteBufFactory(int bufs) {
+        super(bufs);
+    }
 
     @Override
     public void initializeMemory(int capacity) {

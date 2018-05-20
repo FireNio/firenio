@@ -25,19 +25,22 @@ import com.generallycloud.baseio.common.ReleaseUtil;
  */
 public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
 
-    protected ByteBufFactory bufFactory;
-    protected long           bufVersions = 1;
-    protected int            capacity;
-    protected ReentrantLock  lock        = new ReentrantLock();
-    protected int            mask;
-    protected int            unitMemorySize;
+    protected ByteBufFactory         bufFactory;
+    protected long                   bufVersions = 1;
+    protected int                    capacity;
+    protected ReentrantLock          lock        = new ReentrantLock();
+    protected int                    mask;
+    protected int                    unitMemorySize;
+    protected int                    bufRecycleSize;
+    protected PooledByteBufAllocator next;
 
-    public PooledByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
+    public PooledByteBufAllocator(int capacity, int unitMemorySize
+            ,int bufRecycleSize, boolean isDirect) {
         super(isDirect);
         this.capacity = capacity;
         this.unitMemorySize = unitMemorySize;
     }
-
+    
     private PooledByteBuf allocate(ByteBufNew byteBufNew, int limit) {
         int size = (limit + unitMemorySize - 1) / unitMemorySize;
         ReentrantLock lock = this.lock;
@@ -57,18 +60,30 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
         }
     }
 
-    protected abstract PooledByteBuf allocate(ByteBufNew byteBufNew, int limit, int start, int end,
-            int size);
+    abstract PooledByteBuf allocate(ByteBufNew byteBufNew, int limit, int start, int end, int size);
 
     @Override
     public ByteBuf allocate(int limit) {
-        return allocate(bufFactory, limit);
+        return allocate(limit, this);
     }
-
+    
+    protected ByteBuf allocate(int limit, PooledByteBufAllocator allocator) {
+        if (allocator == this) {
+            //FIXME 是否申请java内存
+            return UnpooledByteBufAllocator.getHeap().allocate(limit);
+        }
+        ByteBuf buf = allocate(bufFactory, limit);
+        if (buf == null) {
+            return next.allocate(limit, allocator);
+        }
+        return buf;
+    }
+    
     @Override
     protected void doStart() throws Exception {
         if (bufFactory == null) {
-            bufFactory = isDirect ? new DirectByteBufFactory() : new HeapByteBufFactory();
+            bufFactory = isDirect 
+                    ? new DirectByteBufFactory(bufRecycleSize) : new HeapByteBufFactory(bufRecycleSize);
         }
         bufFactory.initializeMemory(capacity * unitMemorySize);
     }
@@ -125,5 +140,13 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
     }
 
     protected abstract void release(PooledByteBuf buf, boolean recycle);
+
+    protected void setNext(PooledByteBufAllocator allocator) {
+        this.next = allocator;
+    }
+
+    public PooledByteBufAllocator getNext() {
+        return next;
+    }
 
 }

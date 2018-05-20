@@ -27,8 +27,9 @@ public class SimplyByteBufAllocator extends PooledByteBufAllocator {
 
     protected ByteBufUnit2[] units;
 
-    public SimplyByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
-        super(capacity, unitMemorySize, isDirect);
+    public SimplyByteBufAllocator(int capacity, int unitMemorySize
+            ,int bufRecycleSize, boolean isDirect) {
+        super(capacity, unitMemorySize, bufRecycleSize, isDirect);
     }
 
     private String tName() {

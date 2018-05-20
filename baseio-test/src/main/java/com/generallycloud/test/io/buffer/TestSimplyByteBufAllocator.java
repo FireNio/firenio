@@ -31,9 +31,10 @@ public class TestSimplyByteBufAllocator {
 
         int capacity = 100;
         int unit = 1;
+        int bufRecycleSize = 1024 * 8;
         int max = unit * capacity / 5;
 
-        allocator = new SimplyByteBufAllocator(capacity, unit, false);
+        allocator = new SimplyByteBufAllocator(capacity, unit, bufRecycleSize, false);
         //		 allocator = new SimpleByteBufAllocator(capacity, unit, false);
 
         allocator.start();

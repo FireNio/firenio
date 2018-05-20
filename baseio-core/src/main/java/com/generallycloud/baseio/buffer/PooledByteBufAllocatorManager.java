@@ -23,45 +23,34 @@ import com.generallycloud.baseio.configuration.Configuration;
 public class PooledByteBufAllocatorManager extends AbstractLifeCycle
         implements ByteBufAllocatorManager {
 
-    private LinkAbleByteBufAllocator[] allocators = null;
-
-    private LinkAbleByteBufAllocator   allocator  = null;
-
-    private SocketChannelContext             context    = null;
+    private PooledByteBufAllocator[] allocators = null;
+    private PooledByteBufAllocator   allocator  = null;
+    private SocketChannelContext     context    = null;
 
     public PooledByteBufAllocatorManager(SocketChannelContext context) {
         this.context = context;
     }
 
-    private void createByteBufAllocator(SocketChannelContext context) {
-        if (allocators != null) {
-            return;
-        }
-        Configuration c = context.getConfiguration();
-        int core = c.getCoreSize();
-        int capacity = c.getMemoryPoolCapacity();
-        int unitMemorySize = c.getMemoryPoolUnit();
-        boolean direct = c.isEnableMemoryPoolDirect();
-        this.allocators = new LinkAbleByteBufAllocator[core];
-        for (int i = 0; i < allocators.length; i++) {
-            ByteBufAllocator allocator = new SimpleByteBufAllocator(capacity, unitMemorySize, direct);
-            allocators[i] = new LinkAbleByteBufAllocator(allocator, i);
-        }
-    }
-
     @Override
     protected void doStart() throws Exception {
-        createByteBufAllocator(context);
-        LinkAbleByteBufAllocator first = null;
-        LinkAbleByteBufAllocator last = null;
-        for (int i = 0; i < allocators.length; i++) {
-            LinkAbleByteBufAllocator allocator = allocators[i];
-            allocator.start();
-            if (first == null) {
-                first = allocator;
-                last = allocator;
-                continue;
+        if (allocators == null) {
+            Configuration c = context.getConfiguration();
+            int core = c.getCoreSize();
+            int capacity = c.getMemoryPoolCapacity();
+            int unitMemorySize = c.getMemoryPoolUnit();
+            int bufRecycleSize = c.getBufRecycleSize();
+            boolean direct = c.isEnableMemoryPoolDirect();
+            this.allocators = new PooledByteBufAllocator[core];
+            for (int i = 0; i < allocators.length; i++) {
+                allocators[i] = new SimpleByteBufAllocator(capacity, unitMemorySize,
+                        bufRecycleSize, direct);
             }
+        }
+        PooledByteBufAllocator first = allocators[0];
+        PooledByteBufAllocator last = allocators[0];
+        for (int i = 1; i < allocators.length; i++) {
+            PooledByteBufAllocator allocator = allocators[i];
+            allocator.start();
             last.setNext(allocator);
             last = allocator;
         }
@@ -71,7 +60,7 @@ public class PooledByteBufAllocatorManager extends AbstractLifeCycle
 
     @Override
     protected void doStop() throws Exception {
-        for (LinkAbleByteBufAllocator allocator : allocators) {
+        for (PooledByteBufAllocator allocator : allocators) {
             if (allocator == null) {
                 continue;
             }
@@ -82,7 +71,7 @@ public class PooledByteBufAllocatorManager extends AbstractLifeCycle
 
     @Override
     public ByteBufAllocator getNextBufAllocator() {
-        LinkAbleByteBufAllocator next = allocator.getNext();
+        PooledByteBufAllocator next = allocator.getNext();
         this.allocator = next;
         return next;
     }

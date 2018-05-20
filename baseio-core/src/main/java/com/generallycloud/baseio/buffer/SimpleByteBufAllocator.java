@@ -20,8 +20,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SimpleByteBufAllocator extends PooledByteBufAllocator {
 
-    public SimpleByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
-        super(capacity, unitMemorySize, isDirect);
+    public SimpleByteBufAllocator(int capacity, int unitMemorySize
+            ,int bufRecycleSize, boolean isDirect) {
+        super(capacity, unitMemorySize, bufRecycleSize, isDirect);
     }
 
     private int[]           blockEnds;
@@ -29,7 +30,7 @@ public class SimpleByteBufAllocator extends PooledByteBufAllocator {
 
     //FIXME 判断余下的是否足够，否则退出循环
     @Override
-    protected PooledByteBuf allocate(ByteBufNew byteBufNew, int limit, int start, int end,int size) {
+    PooledByteBuf allocate(ByteBufNew byteBufNew, int limit, int start, int end,int size) {
         int freeSize = 0;
         for (; start < end;) {
             int blockEnd = start;
