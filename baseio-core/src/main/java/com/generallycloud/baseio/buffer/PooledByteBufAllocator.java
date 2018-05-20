@@ -37,6 +37,7 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
     public PooledByteBufAllocator(int capacity, int unitMemorySize
             ,int bufRecycleSize, boolean isDirect) {
         super(isDirect);
+        this.bufRecycleSize = bufRecycleSize;
         this.capacity = capacity;
         this.unitMemorySize = unitMemorySize;
     }
@@ -64,7 +65,11 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
 
     @Override
     public ByteBuf allocate(int limit) {
-        return allocate(limit, this);
+        ByteBuf buf = allocate(bufFactory, limit);
+        if (buf == null) {
+            return next.allocate(limit, this);
+        }
+        return buf;
     }
     
     protected ByteBuf allocate(int limit, PooledByteBufAllocator allocator) {

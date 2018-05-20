@@ -48,11 +48,11 @@ public class PooledByteBufAllocatorManager extends AbstractLifeCycle
         }
         PooledByteBufAllocator first = allocators[0];
         PooledByteBufAllocator last = allocators[0];
+        LifeCycleUtil.start(first);
         for (int i = 1; i < allocators.length; i++) {
-            PooledByteBufAllocator allocator = allocators[i];
-            allocator.start();
-            last.setNext(allocator);
-            last = allocator;
+            LifeCycleUtil.start(allocators[i]);
+            last.setNext(allocators[i]);
+            last = allocators[i];
         }
         last.setNext(first);
         this.allocator = first;
