@@ -53,8 +53,8 @@ public class AioSocketChannelContext extends AbstractSocketChannelContext {
 
     @Override
     protected void doStartModule() throws Exception {
-        smEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 1, this);
         sessionManager = new AioSocketSessionManager(this);
+        smEventLoopGroup = new AioSessionManangerEventLoopGroup("session-manager", 1, this);
         Configuration sc = getConfiguration();
         LifeCycleUtil.start(smEventLoopGroup);
         String threadName = "aio-process(tcp-" + sc.getPort() + ")";
