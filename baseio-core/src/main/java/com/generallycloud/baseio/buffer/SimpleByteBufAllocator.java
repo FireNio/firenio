@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.buffer;
 
-import java.util.Arrays;
+import java.util.BitSet;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SimpleByteBufAllocator extends PooledByteBufAllocator {
@@ -26,7 +26,7 @@ public class SimpleByteBufAllocator extends PooledByteBufAllocator {
     }
 
     private int[]           blockEnds;
-    private boolean[]       frees; // try bitmap
+    private BitSet          frees;
 
     //FIXME 判断余下的是否足够，否则退出循环
     @Override
@@ -34,7 +34,7 @@ public class SimpleByteBufAllocator extends PooledByteBufAllocator {
         int freeSize = 0;
         for (; start < end;) {
             int blockEnd = start;
-            if (!frees[blockEnd]) {
+            if (!frees.get(blockEnd)) {
                 start = blockEnds[blockEnd];
                 freeSize = 0;
                 continue;
@@ -42,7 +42,7 @@ public class SimpleByteBufAllocator extends PooledByteBufAllocator {
             if (++freeSize == size) {
                 int blockEnd1 = blockEnd + 1; //blockEnd1=blockEnd+1
                 int blockStart = blockEnd1 - size;
-                frees[blockStart] = false;
+                frees.set(blockStart, false);
                 blockEnds[blockStart] = blockEnd1;
                 mask = blockEnd1;
                 return byteBufNew.newByteBuf(this).produce(blockStart, blockEnd1, limit, bufVersions++);
@@ -56,8 +56,8 @@ public class SimpleByteBufAllocator extends PooledByteBufAllocator {
     protected void doStart() throws Exception {
         super.doStart();
         this.blockEnds = new int[capacity];
-        this.frees = new boolean[capacity];
-        Arrays.fill(frees, true);
+        this.frees = new BitSet(capacity);
+        this.frees.set(0, capacity, true);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class SimpleByteBufAllocator extends PooledByteBufAllocator {
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            frees[buf.getBeginUnit()] = true;
+            frees.set(buf.getBeginUnit());
             if (recycle) {
                 bufFactory.freeBuf(buf);
             }
@@ -81,8 +81,8 @@ public class SimpleByteBufAllocator extends PooledByteBufAllocator {
     //FIXME ..not correct
     private int fillBusy() {
         int free = 0;
-        for(boolean f : frees){
-            if (f) {
+        for (int i = 0; i < capacity; i++) {
+            if (frees.get(i)) {
                 free++;
             }
         }
