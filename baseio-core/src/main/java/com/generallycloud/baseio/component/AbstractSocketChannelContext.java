@@ -28,7 +28,6 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocatorManager;
-import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
@@ -261,16 +260,6 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     @Override
     public boolean isEnableSsl() {
         return enableSsl;
-    }
-
-    @Override
-    public ChannelByteBufReader newChannelByteBufReader() {
-        IoLimitChannelByteBufReader reader = new IoLimitChannelByteBufReader();
-        if (enableSsl) {
-            ClassUtil.setValueOfLast(reader, new SslChannelByteBufReader(), "next");
-        }
-        ClassUtil.setValueOfLast(reader, new TransparentByteBufReader(this), "next");
-        return reader;
     }
 
     @Override

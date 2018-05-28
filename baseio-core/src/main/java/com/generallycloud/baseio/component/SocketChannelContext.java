@@ -34,8 +34,6 @@ public interface SocketChannelContext extends Attributes, LifeCycle {
 
     ByteBufAllocatorManager getByteBufAllocatorManager();
 
-    ChannelByteBufReader newChannelByteBufReader();
-
     ChannelService getChannelService();
 
     Charset getEncoding();

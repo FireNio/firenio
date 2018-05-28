@@ -37,12 +37,11 @@ public class AioSocketSessionManager extends AbstractSessionManager {
     private Map<Integer, SocketSession> readOnlySessions = Collections.unmodifiableMap(sessions);
 
     public AioSocketSessionManager(SocketChannelContext context) {
-        super(context.getSessionIdleTime());
         this.context = context;
     }
 
     @Override
-    protected void sessionIdle(long lastIdleTime, long currentTime) {
+    protected void sessionIdle0(long lastIdleTime, long currentTime) {
         Map<Integer, SocketSession> sessions = this.sessions;
         if (sessions.size() == 0) {
             return;

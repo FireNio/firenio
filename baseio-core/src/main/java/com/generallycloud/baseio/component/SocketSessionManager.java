@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
 
-import com.generallycloud.baseio.concurrent.Looper;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -28,7 +27,7 @@ import com.generallycloud.baseio.protocol.Future;
  * @author wangkai
  *
  */
-public interface SocketSessionManager extends Looper {
+public interface SocketSessionManager {
 
     void broadcast(Future future) throws IOException;
 
@@ -47,5 +46,9 @@ public interface SocketSessionManager extends Looper {
     void putSession(SocketSession session) throws RejectedExecutionException;
 
     void removeSession(SocketSession session);
+
+    void sessionIdle(long currentTime);
+
+    void stop();
 
 }

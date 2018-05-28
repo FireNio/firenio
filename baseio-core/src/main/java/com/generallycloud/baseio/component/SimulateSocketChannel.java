@@ -20,10 +20,12 @@ import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.util.Set;
 
+import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
+import com.generallycloud.baseio.protocol.SslFuture;
 
 /**
  * @author wangkai
@@ -101,6 +103,12 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
             public boolean isEnableSsl() {
                 return context.isEnableSsl();
             }
+
+            @Override
+            public SslFuture getSslTemporary() {
+                throw new UnsupportedOperationException();
+            }
+            
         } , -1);
         this.context = context;
         this.channelDesc = getClass().getSimpleName()+"@"+hashCode();
@@ -161,6 +169,16 @@ public class SimulateSocketChannel extends AbstractSocketChannel{
 
     @Override
     public void fireOpend() {
+    }
+
+    @Override
+    public ByteBuf getRemainingBuf() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setRemainingBuf(ByteBuf remainingBuf) {
+        throw new UnsupportedOperationException();
     }
 
 }

@@ -58,11 +58,11 @@ public class RichNioSocketSessionManager implements SocketSessionManager {
     public SocketSession getSession(int sessionId) {
         return managers[sessionId % managerLen].getSession(sessionId);
     }
-
+    
     @Override
-    public void loop() {
+    public void sessionIdle(long currentTime) {
         for (SocketSessionManager m : managers) {
-            m.loop();
+            m.sessionIdle(currentTime);
         }
     }
 

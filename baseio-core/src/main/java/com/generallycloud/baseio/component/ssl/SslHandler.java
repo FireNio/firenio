@@ -32,7 +32,7 @@ import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 
 public class SslHandler {
 
-    private ChannelFuture forgeFuture = new DefaultChannelFuture(EmptyByteBuf.get(),true);
+    private ChannelFuture forgeFuture = new DefaultChannelFuture(EmptyByteBuf.get(), true);
 
     private ByteBuf       tempDst;
 
@@ -44,7 +44,7 @@ public class SslHandler {
                 }
                 ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
                 int packetBufferSize = engine.getSession().getPacketBufferSize();
-                tempDst = allocator.allocate(packetBufferSize);
+                tempDst = allocator.allocate(packetBufferSize * 2);
             }
         }
         return tempDst;
@@ -68,7 +68,22 @@ public class SslHandler {
                 if (status == Status.CLOSED) {
                     return gc(channel, dst.flip());
                 }
-                if (handshakeStatus != HandshakeStatus.NOT_HANDSHAKING) {
+                if (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING) {
+                    if (src.hasRemaining()) {
+                        if (out == null) {
+                            int outLength = ((src.limit() / src.position()) + 1)
+                                    * (dst.position() - src.position()) + src.limit();
+                            out = allocate(channel, outLength);
+                        }
+                        out.read(dst.flip());
+                        continue;
+                    }
+                    if (out != null) {
+                        out.read(dst.flip());
+                        return out.flip();
+                    }
+                    return gc(channel, dst.flip());
+                } else {
                     if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
                         if (out != null) {
                             out.read(dst.flip());
@@ -90,20 +105,6 @@ public class SslHandler {
                         continue;
                     }
                 }
-                if (src.hasRemaining()) {
-                    if (out == null) {
-                        int outLength = ((src.limit() / src.position()) + 1)
-                                * (dst.position() - src.position()) + src.limit();
-                        out = allocate(channel, outLength);
-                    }
-                    out.read(dst.flip());
-                    continue;
-                }
-                if (out != null) {
-                    out.read(dst.flip());
-                    return out.flip();
-                }
-                return gc(channel, dst.flip());
             }
         } catch (Throwable e) {
             if (out != null) {
@@ -133,10 +134,18 @@ public class SslHandler {
         ByteBuf dst = getTempDst(sslEngine);
         for (;;) {
             dst.clear();
+            ByteBuf remainingBuf = channel.getRemainingBuf();
+            if(remainingBuf != null &&
+                    sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING){
+                dst.read(remainingBuf);
+            }
             SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
             HandshakeStatus handshakeStatus = result.getHandshakeStatus();
-            synchByteBuf(result, src, dst);
-            if (handshakeStatus != HandshakeStatus.NOT_HANDSHAKING) {
+            if (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING) {
+                synchByteBuf(result, src, dst);
+                return dst.flip();
+            } else {
+                synchByteBuf(result, src, dst);
                 if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
                     channel.flushChannelFuture(forgeFuture.duplicate());
                     return null;
@@ -150,7 +159,6 @@ public class SslHandler {
                     return null;
                 }
             }
-            return dst.flip();
         }
     }
 

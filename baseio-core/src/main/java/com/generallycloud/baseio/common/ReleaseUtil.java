@@ -35,6 +35,17 @@ public class ReleaseUtil {
         }
     }
     
+    public static void release(Releasable releasable) {
+        if (releasable == null) {
+            return;
+        }
+        try {
+            releasable.release(releasable.getReleaseVersion());
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+    
     public static void release(ChannelFuture future, ChannelThreadContext context) {
         if (future == null) {
             return;

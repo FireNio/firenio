@@ -35,7 +35,8 @@ public class AioSessionManagerEventLoop extends ThreadEventLoop {
     @Override
     protected void doLoop() throws InterruptedException {
         super.doLoop();
-        sessionManager.loop();
+        //FIXME ...aio session manager loop
+        sessionManager.sessionIdle(System.currentTimeMillis());
     }
 
     /**

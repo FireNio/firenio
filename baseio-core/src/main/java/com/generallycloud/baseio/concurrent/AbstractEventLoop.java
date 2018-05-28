@@ -52,15 +52,15 @@ public abstract class AbstractEventLoop implements EventLoop {
 
     private Thread              monitor = null;
 
-    private volatile boolean    running = false;
+    protected volatile boolean    running = false;
 
-    private volatile boolean    stopped = false;
+    protected volatile boolean    stopped = false;
 
     private Object              runLock = new Object();
 
     private EventLoopGroup      defaultEventLoopGroup;
 
-    protected abstract void doLoop() throws Exception;
+    protected void doLoop()throws Exception {}
 
     protected void doStartup() throws Exception {
         LoggerUtil.prettyLog(logger, "event looper {} inited", this);

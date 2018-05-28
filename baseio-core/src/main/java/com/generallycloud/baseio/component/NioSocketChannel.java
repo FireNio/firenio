@@ -270,12 +270,8 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         }
     }
 
-    protected int read(ByteBuf buf) throws IOException {
-        int length = channel.read(buf.getNioBuffer());
-        if (length > 0) {
-            buf.reverse();
-        }
-        return length;
+    protected SocketChannel javaChannel(){
+        return channel;
     }
 
     @Override

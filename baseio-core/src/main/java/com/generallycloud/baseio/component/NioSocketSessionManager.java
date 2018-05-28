@@ -36,13 +36,12 @@ public class NioSocketSessionManager extends AbstractSessionManager {
     private IntObjectHashMap<SocketSession> sessions = new IntObjectHashMap<>();
 
     public NioSocketSessionManager(SocketChannelContext context) {
-        super(context.getSessionIdleTime());
         this.context = context;
         this.parent = context.getSessionManager();
     }
 
     @Override
-    protected void sessionIdle(long lastIdleTime, long currentTime) {
+    protected void sessionIdle0(long lastIdleTime, long currentTime) {
         IntObjectHashMap<SocketSession> sessions = this.sessions;
         if (sessions.size() == 0) {
             return;

@@ -59,21 +59,16 @@ public class MathUtil {
     }
 
     public static int byte2Int(byte[] bytes, int offset) {
-
         checkLength(bytes, 4, offset);
-
         int v3 = (bytes[offset + 0] & 0xff) << 8 * 3;
         int v2 = (bytes[offset + 1] & 0xff) << 8 * 2;
         int v1 = (bytes[offset + 2] & 0xff) << 8 * 1;
         int v0 = (bytes[offset + 3] & 0xff);
         return v0 | v1 | v2 | v3;
-
     }
 
     public static int byte2Int31(byte[] bytes, int offset) {
-
         checkLength(bytes, 4, offset);
-
         int v3 = (bytes[offset + 0] & 0x7f) << 8 * 3;
         int v2 = (bytes[offset + 1] & 0xff) << 8 * 2;
         int v1 = (bytes[offset + 2] & 0xff) << 8 * 1;
@@ -82,21 +77,16 @@ public class MathUtil {
     }
 
     public static int byte2Int31LE(byte[] bytes, int offset) {
-
         checkLength(bytes, 4, offset);
-
         int v0 = (bytes[offset + 0] & 0xff);
         int v1 = (bytes[offset + 1] & 0xff) << 8 * 1;
         int v2 = (bytes[offset + 2] & 0xff) << 8 * 2;
         int v3 = (bytes[offset + 3] & 0x7f) << 8 * 3;
         return v0 | v1 | v2 | v3;
-
     }
 
     public static int byte2IntLE(byte[] bytes, int offset) {
-
         checkLength(bytes, 4, offset);
-
         int v0 = (bytes[offset + 0] & 0xff);
         int v1 = (bytes[offset + 1] & 0xff) << 8 * 1;
         int v2 = (bytes[offset + 2] & 0xff) << 8 * 2;
@@ -105,9 +95,7 @@ public class MathUtil {
     }
 
     public static long byte2Long(byte[] bytes, int offset) {
-
         checkLength(bytes, 8, offset);
-
         long v7 = (long) (bytes[offset + 0] & 0xff) << 8 * 7;
         long v6 = (long) (bytes[offset + 1] & 0xff) << 8 * 6;
         long v5 = (long) (bytes[offset + 2] & 0xff) << 8 * 5;
@@ -117,13 +105,10 @@ public class MathUtil {
         long v1 = (long) (bytes[offset + 6] & 0xff) << 8 * 1;
         long v0 = bytes[offset + 7] & 0xff;
         return (v0 | v1 | v2 | v3 | v4 | v5 | v6 | v7);
-
     }
 
     public static long byte2LongLE(byte[] bytes, int offset) {
-
         checkLength(bytes, 8, offset);
-
         long v0 = bytes[offset + 0] & 0xff;
         long v1 = (long) (bytes[offset + 1] & 0xff) << 8 * 1;
         long v2 = (long) (bytes[offset + 2] & 0xff) << 8 * 2;
@@ -136,65 +121,49 @@ public class MathUtil {
     }
 
     public static short byte2Short(byte[] bytes, int offset) {
-
         checkLength(bytes, 2, offset);
-
         int v1 = ((bytes[offset + 0] & 0xff) << 8 * 1);
         int v0 = (bytes[offset + 1] & 0xff);
         return (short) (v0 | v1);
     }
 
     public static short byte2ShortLE(byte[] bytes, int offset) {
-
         checkLength(bytes, 2, offset);
-
         int v0 = (bytes[offset + 0] & 0xff);
         int v1 = ((bytes[offset + 1] & 0xff) << 8 * 1);
         return (short) (v0 | v1);
     }
 
     public static long byte2UnsignedInt(byte[] bytes, int offset) {
-
         checkLength(bytes, 4, offset);
-
         long v3 = (long) (bytes[offset + 0] & 0xff) << 8 * 3;
         int v2 = (bytes[offset + 1] & 0xff) << 8 * 2;
         int v1 = (bytes[offset + 2] & 0xff) << 8 * 1;
         int v0 = (bytes[offset + 3] & 0xff);
         return v0 | v1 | v2 | v3;
-
     }
 
     public static long byte2UnsignedIntLE(byte[] bytes, int offset) {
-
         checkLength(bytes, 4, offset);
-
         int v0 = (bytes[offset + 0] & 0xff);
         int v1 = (bytes[offset + 1] & 0xff) << 8 * 1;
         int v2 = (bytes[offset + 2] & 0xff) << 8 * 2;
         long v3 = (long) (bytes[offset + 3] & 0xff) << 8 * 3;
         return v0 | v1 | v2 | v3;
-
     }
 
     public static int byte2UnsignedShort(byte[] bytes, int offset) {
-
         checkLength(bytes, 2, offset);
-
         int v1 = (bytes[offset + 0] & 0xff) << 8 * 1;
         int v0 = (bytes[offset + 1] & 0xff);
         return v0 | v1;
-
     }
 
     public static int byte2UnsignedShortLE(byte[] bytes, int offset) {
-
         checkLength(bytes, 2, offset);
-
         int v0 = (bytes[offset + 0] & 0xff);
         int v1 = (bytes[offset + 1] & 0xff) << 8 * 1;
         return v0 | v1;
-
     }
 
     public static String int2HexString(int value) {
@@ -275,7 +244,6 @@ public class MathUtil {
     }
 
     private static void checkLength(byte[] bytes, int length, int offset) {
-
         //		if (bytes == null) {
         //			throw new IllegalArgumentException("null");
         //		}
@@ -313,9 +281,7 @@ public class MathUtil {
     }
 
     public static void int2Byte(byte[] bytes, int value, int offset) {
-
         checkLength(bytes, 4, offset);
-
         bytes[offset + 0] = (byte) (value >> 8 * 3);
         bytes[offset + 1] = (byte) (value >> 8 * 2);
         bytes[offset + 2] = (byte) (value >> 8 * 1);
@@ -323,9 +289,7 @@ public class MathUtil {
     }
 
     public static void int2ByteLE(byte[] bytes, int value, int offset) {
-
         checkLength(bytes, 4, offset);
-
         bytes[offset + 0] = (byte) (value);
         bytes[offset + 1] = (byte) (value >> 8 * 1);
         bytes[offset + 2] = (byte) (value >> 8 * 2);
@@ -333,9 +297,7 @@ public class MathUtil {
     }
 
     public static void unsignedInt2Byte(byte[] bytes, long value, int offset) {
-
         checkLength(bytes, 4, offset);
-
         bytes[offset + 0] = (byte) (value >> 8 * 3);
         bytes[offset + 1] = (byte) (value >> 8 * 2);
         bytes[offset + 2] = (byte) (value >> 8 * 1);
@@ -343,9 +305,7 @@ public class MathUtil {
     }
 
     public static void unsignedInt2ByteLE(byte[] bytes, long value, int offset) {
-
         checkLength(bytes, 4, offset);
-
         bytes[offset + 0] = (byte) (value);
         bytes[offset + 1] = (byte) (value >> 8 * 1);
         bytes[offset + 2] = (byte) (value >> 8 * 2);
@@ -362,9 +322,7 @@ public class MathUtil {
     }
 
     public static void long2Byte(byte[] bytes, long value, int offset) {
-
         checkLength(bytes, 8, offset);
-
         bytes[offset + 0] = (byte) (value >> 8 * 7);
         bytes[offset + 1] = (byte) (value >> 8 * 6);
         bytes[offset + 2] = (byte) (value >> 8 * 5);
@@ -373,13 +331,10 @@ public class MathUtil {
         bytes[offset + 5] = (byte) (value >> 8 * 2);
         bytes[offset + 6] = (byte) (value >> 8 * 1);
         bytes[offset + 7] = (byte) (value);
-
     }
 
     public static void long2ByteLE(byte[] bytes, long value, int offset) {
-
         checkLength(bytes, 8, offset);
-
         bytes[offset + 0] = (byte) (value);
         bytes[offset + 1] = (byte) (value >> 8 * 1);
         bytes[offset + 2] = (byte) (value >> 8 * 2);
@@ -388,7 +343,6 @@ public class MathUtil {
         bytes[offset + 5] = (byte) (value >> 8 * 5);
         bytes[offset + 6] = (byte) (value >> 8 * 6);
         bytes[offset + 7] = (byte) (value >> 8 * 7);
-
     }
 
     /*----------------------------------------------------------------------------*/
@@ -399,33 +353,25 @@ public class MathUtil {
     }
 
     public static void short2Byte(byte[] bytes, short value, int offset) {
-
         checkLength(bytes, 2, offset);
-
         bytes[offset + 0] = (byte) (value >> 8 * 1);
         bytes[offset + 1] = (byte) (value);
     }
 
     public static void short2ByteLE(byte[] bytes, short value, int offset) {
-
         checkLength(bytes, 2, offset);
-
         bytes[offset + 0] = (byte) (value);
         bytes[offset + 1] = (byte) (value >> 8 * 1);
     }
 
     public static void unsignedShort2Byte(byte[] bytes, int value, int offset) {
-
         checkLength(bytes, 2, offset);
-
         bytes[offset + 0] = (byte) (value >> 8 * 1);
         bytes[offset + 1] = (byte) (value);
     }
 
     public static void unsignedShort2ByteLE(byte[] bytes, int value, int offset) {
-
         checkLength(bytes, 2, offset);
-
         bytes[offset + 0] = (byte) (value);
         bytes[offset + 1] = (byte) (value >> 8 * 1);
     }

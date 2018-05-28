@@ -39,7 +39,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
     private WriteCompletionHandler    writeCompletionHandler;
     private ByteBuf                   readCache;
     private CachedAioThread           aioThread;
-    private transient ChannelFuture        writeFuture;
+    private transient ChannelFuture   writeFuture;
 
     private static final Logger       logger = LoggerFactory.getLogger(AioSocketChannel.class);
 
@@ -75,7 +75,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
     }
 
     @Override
-    protected InetSocketAddress getRemoteSocketAddress0()  {
+    protected InetSocketAddress getRemoteSocketAddress0() {
         try {
             return (InetSocketAddress) channel.getRemoteAddress();
         } catch (Exception e) {
@@ -102,7 +102,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
         }
         write(context);
     }
-    
+
     private void write(ChannelThreadContext context) {
         try {
             if (writeFuture == null) {
@@ -121,14 +121,14 @@ public class AioSocketChannel extends AbstractSocketChannel {
                 writeFuture.setNeedSsl(false);
                 // FIXME 部分情况下可以不在业务线程做wrapssl
                 ByteBuf old = writeFuture.getByteBuf();
-                long version = old.getReleaseVersion(); 
+                long version = old.getReleaseVersion();
                 SslHandler handler = context.getSslHandler();
                 try {
                     ByteBuf newBuf = handler.wrap(this, old);
                     newBuf.nioBuffer();
                     writeFuture.setByteBuf(newBuf);
                 } finally {
-                    ReleaseUtil.release(old,version);
+                    ReleaseUtil.release(old, version);
                 }
             }
             channel.write(writeFuture.getByteBuf().nioBuffer(), this, writeCompletionHandler);
@@ -211,7 +211,7 @@ public class AioSocketChannel extends AbstractSocketChannel {
             lock.unlock();
         }
     }
-    
+
     @Override
     public boolean isBlocking() {
         return false;
@@ -222,8 +222,8 @@ public class AioSocketChannel extends AbstractSocketChannel {
     }
 
     @Override
-    public ChannelThreadContext getChannelThreadContext() {
+    public CachedAioThread getChannelThreadContext() {
         return aioThread;
     }
-    
+
 }

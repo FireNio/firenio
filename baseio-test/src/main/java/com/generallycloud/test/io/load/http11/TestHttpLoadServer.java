@@ -18,7 +18,9 @@ package com.generallycloud.test.io.load.http11;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
+import com.generallycloud.baseio.codec.http11.HttpStatus;
 import com.generallycloud.baseio.codec.http11.ServerHttpCodec;
+import com.generallycloud.baseio.codec.http11.ServerHttpFuture;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
@@ -39,6 +41,7 @@ public class TestHttpLoadServer {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 future.write("hello world!8080",session.getContext());
+                ServerHttpFuture f= (ServerHttpFuture) future;
                 session.flush(future);
                 //				System.out.println("req======================"+req.getAndIncrement());
             }

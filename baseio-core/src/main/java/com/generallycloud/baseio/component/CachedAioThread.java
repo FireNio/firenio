@@ -7,6 +7,7 @@ import java.util.Set;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
+import com.generallycloud.baseio.protocol.SslFuture;
 
 public class CachedAioThread extends Thread implements ChannelThreadContext {
 
@@ -19,6 +20,7 @@ public class CachedAioThread extends Thread implements ChannelThreadContext {
     private WriteCompletionHandler  writeCompletionHandler = null;
     private boolean                isEnableSsl;
     private IoEventHandleAdaptor    ioEventHandle;
+    private SslFuture                            sslTemporary;
 
     public CachedAioThread(AioSocketChannelContext context, 
             ThreadGroup group, Runnable r, String string, int i) {
@@ -28,7 +30,7 @@ public class CachedAioThread extends Thread implements ChannelThreadContext {
         this.writeCompletionHandler = new WriteCompletionHandler();
         this.executorEventLoop = channelContext.getExecutorEventLoopGroup().getNext();
         this.byteBufAllocator = channelContext.getByteBufAllocatorManager().getNextBufAllocator();
-        this.readCompletionHandler = new ReadCompletionHandler(channelContext.newChannelByteBufReader());
+        this.readCompletionHandler = new ReadCompletionHandler(context.getForeReadFutureAcceptor());
         if (context.isEnableSsl()) {
             this.isEnableSsl = context.isEnableSsl();
             this.sslHandler = context.getSslContext().newSslHandler();
@@ -106,6 +108,11 @@ public class CachedAioThread extends Thread implements ChannelThreadContext {
     @Override
     public void setAttribute(Object key, Object value) {
         this.attributes.put(key, value);
+    }
+    
+    @Override
+    public SslFuture getSslTemporary() {
+        return sslTemporary;
     }
 
 }

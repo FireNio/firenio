@@ -23,6 +23,7 @@ import java.util.Collection;
 
 import javax.net.ssl.SSLEngine;
 
+import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
@@ -34,22 +35,24 @@ public interface SocketChannel extends Closeable {
 
     void active();
 
+    ByteBufAllocator allocator();
+
     void finishHandshake(Exception e);
 
     void fireOpend();
 
     void flush(ChannelFuture future);
 
-    void flushChannelFuture(ChannelFuture future);
-    
     void flush(Collection<ChannelFuture> futures);
+
+    void flushChannelFuture(ChannelFuture future);
 
     void flushChannelFuture(Collection<ChannelFuture> futures);
 
-    ByteBufAllocator allocator();
-    
     int getChannelId();
-    
+
+    ChannelThreadContext getChannelThreadContext();
+
     SocketChannelContext getContext();
 
     long getCreationTime();
@@ -59,8 +62,6 @@ public interface SocketChannel extends Closeable {
     ExecutorEventLoop getExecutorEventLoop();
 
     long getLastAccessTime();
-    
-    ChannelThreadContext getChannelThreadContext();
 
     String getLocalAddr();
 
@@ -71,6 +72,8 @@ public interface SocketChannel extends Closeable {
     ProtocolCodec getProtocolCodec();
 
     ChannelFuture getReadFuture();
+
+    ByteBuf getRemainingBuf();
 
     String getRemoteAddr();
 
@@ -101,6 +104,8 @@ public interface SocketChannel extends Closeable {
     void setProtocolCodec(ProtocolCodec protocolCodec);
 
     void setReadFuture(ChannelFuture future);
+
+    void setRemainingBuf(ByteBuf remainingBuf);
 
     void setSslReadFuture(SslFuture future);
 

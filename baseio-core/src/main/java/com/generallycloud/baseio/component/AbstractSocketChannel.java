@@ -24,6 +24,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.baseio.ClosedChannelException;
+import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
@@ -62,8 +63,9 @@ public abstract class AbstractSocketChannel implements SocketChannel {
     protected int                            remotePort;
     protected UnsafeSocketSession            session;
     protected SSLEngine                      sslEngine;
-    protected transient SslFuture           sslReadFuture;
+    protected transient SslFuture            sslReadFuture;
     protected LinkedQueue<ChannelFuture>     writeFutures;
+    protected ByteBuf                        remainingBuf;
 
     AbstractSocketChannel(ChannelThreadContext context, int channelId) {
         SocketChannelContext socketChannelContext = context.getChannelContext();
@@ -390,6 +392,7 @@ public abstract class AbstractSocketChannel implements SocketChannel {
         ChannelThreadContext context = getChannelThreadContext();
         ReleaseUtil.release(readFuture,context);
         ReleaseUtil.release(sslReadFuture,context);
+        ReleaseUtil.release(remainingBuf);
         LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
         if (writeFutures.size() == 0) {
             return;
@@ -431,6 +434,16 @@ public abstract class AbstractSocketChannel implements SocketChannel {
                     .append(getLocalPort()).append("]").toString();
         }
         return channelDesc;
+    }
+    
+    @Override
+    public ByteBuf getRemainingBuf() {
+        return remainingBuf;
+    }
+
+    @Override
+    public void setRemainingBuf(ByteBuf remainingBuf) {
+        this.remainingBuf = remainingBuf;
     }
 
 }
