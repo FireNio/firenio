@@ -19,6 +19,12 @@ public class HelloClient extends ChannelInboundHandlerAdapter {
 
         //		System.out.println(msg);
     }
+    
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        // TODO Auto-generated method stub
+         System.out.println("channelActive>>>>>>>>");
+    }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {

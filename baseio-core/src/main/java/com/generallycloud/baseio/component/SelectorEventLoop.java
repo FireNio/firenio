@@ -23,6 +23,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -48,8 +49,10 @@ import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
+import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 import com.generallycloud.baseio.concurrent.LineEventLoop;
 import com.generallycloud.baseio.configuration.Configuration;
+import com.generallycloud.baseio.connector.AbstractChannelConnector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
@@ -67,6 +70,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     private ByteBufAllocator                     allocator;
     private Map<Object, Object>                  attributes = new HashMap<>();
     private ByteBuf                              buf;
+    protected ChannelBuilder                     channelBuilder;
     private NioSocketChannelContext              context;
     private SelectorEventLoopGroup               eventLoopGroup;
     private BufferedArrayList<SelectorLoopEvent> events     = new BufferedArrayList<>();
@@ -78,7 +82,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     private final boolean                        isEnableSsl;
     private AtomicBoolean                        selecting  = new AtomicBoolean();
     private SelectionKeySet                      selectionKeySet;
-    private SocketSelector                       selector;
+    private Selector                             selector;
     private SocketSessionManager                 sessionManager;
     private SslHandler                           sslHandler;
     private SslFuture                            sslTemporary;
@@ -108,7 +112,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         if (ch == null) {
             // channel为空说明该链接未打开
             try {
-                selector.buildChannel(this, k);
+                buildChannel(this, k);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -185,7 +189,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             }
         } catch (Throwable e) {
             if (e instanceof SSLHandshakeException) {
-                getSelector().finishConnect(ch.getSession(), e);
+                finishConnect(ch.getSession(), e);
             }
             closeSocketChannel(ch, e);
         }
@@ -241,9 +245,17 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         return allocator;
     }
 
+    public void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException {
+        channelBuilder.buildChannel(eventLoop, k);
+    }
+
     @Override
     public void clearAttributes() {
         this.attributes.clear();
+    }
+
+    public void close() throws IOException {
+        CloseUtil.close(selector);
     }
 
     private void closeEvents(BufferedArrayList<SelectorLoopEvent> events) {
@@ -312,6 +324,13 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         ReleaseUtil.release(buf, buf.getReleaseVersion());
     }
 
+    public void finishConnect(UnsafeSocketSession session, Throwable e) {
+        ChannelService service = context.getChannelService();
+        if (service instanceof AbstractChannelConnector) {
+            ((AbstractChannelConnector) service).finishConnect(session, e);
+        }
+    }
+
     @Override
     public Object getAttribute(Object key) {
         return this.attributes.get(key);
@@ -344,10 +363,6 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     @Override
     public IoEventHandle getIoEventHandle() {
         return ioEventHandle;
-    }
-
-    protected SocketSelector getSelector() {
-        return selector;
     }
 
     @Override
@@ -385,7 +400,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     @Override
     public void loop() {
         final long idle = context.getConfiguration().getSessionIdleTime();
-        final SocketSelector selector = getSelector();
+        final Selector selector = this.selector;
         long nextIdle = 0;
         long selectTime = idle;
         for (;;) {
@@ -423,6 +438,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
                             keySet.keys[i] = null;
                             accept(k);
                         }
+                        selectionKeySet.reset();
                     } else {
                         Set<SelectionKey> sks = selector.selectedKeys();
                         for (SelectionKey k : sks) {
@@ -453,8 +469,19 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         }
     }
 
+    private ChannelBuilder newChannelBuilder(SelectorEventLoop selectorEventLoop,
+            SelectableChannel channel) {
+        NioSocketChannelContext context = selectorEventLoop.getChannelContext();
+        if (context.getChannelService() instanceof ChannelAcceptor) {
+            return new AcceptorChannelBuilder((ServerSocketChannel) channel,
+                    selectorEventLoop.getEventLoopGroup());
+        } else {
+            return new ConnectorChannelBuilder((java.nio.channels.SocketChannel) channel);
+        }
+    }
+
     @SuppressWarnings("rawtypes")
-    private SocketSelector openSelector(SelectableChannel channel) throws IOException {
+    private Selector openSelector(SelectableChannel channel) throws IOException {
         SelectorProvider provider = SelectorProvider.provider();
         Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
@@ -467,8 +494,9 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             }
         });
         final Selector selector = provider.openSelector();
+        this.channelBuilder = newChannelBuilder(this, channel);
         if (res instanceof Throwable) {
-            return new SocketSelector(this, channel, selector);
+            return selector;
         }
         final Class selectorImplClass = (Class) res;
         final SelectionKeySet keySet = new SelectionKeySet();
@@ -498,18 +526,18 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             }
         });
         if (res instanceof Throwable) {
-            return new SocketSelector(this, channel, selector);
+            return selector;
         }
         selectionKeySet = keySet;
-        return new SelectionKeySocketSelector(this, channel, selector, keySet);
+        return selector;
     }
 
     private void rebuildSelector() throws IOException {
-        SocketSelector oldSelector = this.selector;
-        SocketSelector newSelector = rebuildSelector0();
+        Selector oldSelector = this.selector;
+        Selector newSelector = rebuildSelector0();
         if (oldSelector != null) {
-            Selector oldSel = oldSelector.getSelector();
-            Selector newSel = newSelector.getSelector();
+            Selector oldSel = this.selector;
+            Selector newSel = newSelector;
             Set<SelectionKey> sks = oldSel.keys();
             for (SelectionKey sk : sks) {
                 if (!sk.isValid() || sk.attachment() == null) {
@@ -530,17 +558,35 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         this.selector = newSelector;
     }
 
-    private SocketSelector rebuildSelector0() throws IOException {
+    private Selector rebuildSelector0() throws IOException {
         NioSocketChannelContext context = getChannelContext();
         SelectableChannel channel = context.getSelectableChannel();
-        SocketSelector selector = openSelector(channel);
+        Selector selector = openSelector(channel);
         if (context.getChannelService() instanceof ChannelAcceptor) {
             //FIXME 使用多eventLoop accept是否导致卡顿 是否要区分accept和read
-            channel.register(selector.getSelector(), SelectionKey.OP_ACCEPT);
+            channel.register(selector, SelectionKey.OP_ACCEPT);
         } else {
-            channel.register(selector.getSelector(), SelectionKey.OP_CONNECT);
+            channel.register(selector, SelectionKey.OP_CONNECT);
         }
         return selector;
+    }
+    
+    
+    
+    protected NioSocketChannel regist(java.nio.channels.SocketChannel channel,
+            SelectorEventLoop selectorLoop, int channelId) throws IOException {
+        Selector nioSelector = selectorLoop.selector;
+        SelectionKey sk = channel.register(nioSelector, SelectionKey.OP_READ);
+        // 绑定SocketChannel到SelectionKey
+        NioSocketChannel socketChannel = (NioSocketChannel) sk.attachment();
+        if (socketChannel != null) {
+            return socketChannel;
+        }
+        socketChannel = new NioSocketChannel(selectorLoop, sk, channelId);
+        sk.attach(socketChannel);
+        // fire session open event
+        socketChannel.fireOpend();
+        return socketChannel;
     }
 
     @Override
@@ -578,10 +624,85 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             if (selecting.compareAndSet(false, true)) {
                 selecting.set(false);
             } else {
-                getSelector().wakeup();
+                selector.wakeup();
                 super.wakeup();
             }
             wakener.set(false);
+        }
+    }
+
+    class AcceptorChannelBuilder implements ChannelBuilder {
+
+        private FixedAtomicInteger     channelIdGenerator;
+        private SelectorEventLoopGroup eventLoopGroup;
+        private ServerSocketChannel    serverSocketChannel;
+
+        public AcceptorChannelBuilder(ServerSocketChannel serverSocketChannel,
+                SelectorEventLoopGroup selectorEventLoopGroup) {
+            this.serverSocketChannel = serverSocketChannel;
+            this.eventLoopGroup = selectorEventLoopGroup;
+            this.channelIdGenerator = context.getChannelIds();
+        }
+
+        public void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException {
+            if (serverSocketChannel.getLocalAddress() == null) {
+                return;
+            }
+            final java.nio.channels.SocketChannel channel = serverSocketChannel.accept();
+            if (channel == null) {
+                return;
+            }
+            final int channelId = channelIdGenerator.getAndIncrement();
+            int eventLoopIndex = channelId % eventLoopGroup.getEventLoopSize();
+            SelectorEventLoop targetEventLoop = eventLoopGroup.getEventLoop(eventLoopIndex);
+            // 配置为非阻塞
+            channel.configureBlocking(false);
+            // 注册到selector，等待连接
+            if (eventLoop == targetEventLoop) {
+                regist(channel, targetEventLoop, channelId);
+                return;
+            }
+            targetEventLoop.dispatch(new SelectorLoopEvent() {
+
+                public void close() throws IOException {}
+
+                public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
+                    regist(channel, selectLoop, channelId);
+                }
+            });
+            targetEventLoop.wakeup();
+        }
+
+    }
+
+    interface ChannelBuilder {
+        void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException;
+    }
+
+    class ConnectorChannelBuilder implements ChannelBuilder {
+
+        private java.nio.channels.SocketChannel jdkChannel;
+
+        public ConnectorChannelBuilder(java.nio.channels.SocketChannel jdkChannel) {
+            this.jdkChannel = jdkChannel;
+        }
+
+        public void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException {
+            try {
+                if (!jdkChannel.isConnectionPending()) {
+                    return;
+                }
+                if (!jdkChannel.finishConnect()) {
+                    throw new IOException("connect failed");
+                }
+                SocketChannel channel = regist(jdkChannel, eventLoop, 1);
+                if (channel.isEnableSsl()) {
+                    return;
+                }
+                finishConnect(channel.getSession(), null);
+            } catch (IOException e) {
+                finishConnect(null, e);
+            }
         }
     }
 

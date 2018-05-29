@@ -25,7 +25,7 @@ public class TcpServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         // TODO Auto-generated method stub
-        // System.out.println("channelActive>>>>>>>>");
+         System.out.println("channelActive>>>>>>>>");
     }
 
     @Override
