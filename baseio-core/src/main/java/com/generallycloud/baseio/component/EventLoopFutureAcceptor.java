@@ -21,7 +21,7 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
 public class EventLoopFutureAcceptor extends AbstractFutureAcceptor {
 
     @Override
-    protected void accept(final IoEventHandle eventHandle, final SocketSession session,
+    void accept(final IoEventHandle eventHandle, final SocketSession session,
             final ChannelFuture future) {
         ExecutorEventLoop eventLoop = session.getExecutorEventLoop();
         eventLoop.dispatch(new Runnable() {

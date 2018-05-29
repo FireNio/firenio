@@ -44,8 +44,12 @@ public class BufferedArrayList<T> {
         }
     }
 
-    public int getBufferSize() {
+    public int sizeAll() {
         return list1.size() + list2.size();
+    }
+    
+    public int size(){
+        return buffer.size();
     }
 
     public ReentrantLock getReentrantLock() {

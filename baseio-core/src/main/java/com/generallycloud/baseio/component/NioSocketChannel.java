@@ -28,25 +28,26 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.ssl.SslHandler;
+import com.generallycloud.baseio.concurrent.LinkedQueue;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
 public class NioSocketChannel extends AbstractSocketChannel implements SelectorLoopEvent {
-    
-    private static final Logger   logger = LoggerFactory.getLogger(NioSocketChannel.class);
-    private SocketChannel           channel;
-    private SelectionKey            selectionKey;
-    private SelectorEventLoop       eventLoop;
-    private ChannelFuture []        currentWriteFutures;
-    private int                     currentWriteFuturesLen;
+
+    private static final Logger logger = LoggerFactory.getLogger(NioSocketChannel.class);
+    private SocketChannel       channel;
+    private SelectionKey        selectionKey;
+    private SelectorEventLoop   eventLoop;
+    private ChannelFuture[]     currentWriteFutures;
+    private int                 currentWriteFuturesLen;
 
     NioSocketChannel(SelectorEventLoop eventLoop, SelectionKey selectionKey, int channelId) {
         super(eventLoop, channelId);
         int wbs = eventLoop.getChannelContext().getConfiguration().getWriteBuffers();
         this.eventLoop = eventLoop;
         this.selectionKey = selectionKey;
-        this.currentWriteFutures  = new ChannelFuture[wbs];
+        this.currentWriteFutures = new ChannelFuture[wbs];
         this.channel = (SocketChannel) selectionKey.channel();
     }
 
@@ -56,10 +57,10 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
             return;
         }
         eventLoop.dispatch(new SelectorLoopEvent() {
-            
+
             @Override
-            public void close() throws IOException { }
-            
+            public void close() throws IOException {}
+
             @Override
             public void fireEvent(SelectorEventLoop selectorLoop) {
                 NioSocketChannel.this.close0();
@@ -81,11 +82,13 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
     }
 
     protected void write(SelectorEventLoop eventLoop) throws IOException {
-        ChannelFuture [] currentWriteFutures = this.currentWriteFutures;
+        ChannelFuture[] currentWriteFutures = this.currentWriteFutures;
+        LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
+        ByteBuffer[] writeBuffers = eventLoop.getWriteBuffers();
         int maxLen = currentWriteFutures.length;
-        for(;;){
+        for (;;) {
             int i = currentWriteFuturesLen;
-            for(;i< maxLen ; i ++){
+            for (; i < maxLen; i++) {
                 ChannelFuture future = writeFutures.poll();
                 if (future == null) {
                     break;
@@ -98,21 +101,20 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                 return;
             }
             //FIXME ...是否要清空buffers
-            ByteBuffer [] writeBuffers = eventLoop.getWriteBuffers();
             for (i = 0; i < currentWriteFuturesLen; i++) {
                 ChannelFuture future = currentWriteFutures[i];
                 if (future.isNeedSsl()) {
                     future.setNeedSsl(false);
                     // FIXME 部分情况下可以不在业务线程做wrapssl
                     ByteBuf old = future.getByteBuf();
-                    long version = old.getReleaseVersion(); 
+                    long version = old.getReleaseVersion();
                     SslHandler handler = eventLoop.getSslHandler();
                     try {
                         ByteBuf newBuf = handler.wrap(this, old);
                         newBuf.nioBuffer();
                         future.setByteBuf(newBuf);
                     } finally {
-                        ReleaseUtil.release(old,version);
+                        ReleaseUtil.release(old, version);
                     }
                 }
                 writeBuffers[i] = future.getByteBuf().nioBuffer();
@@ -125,7 +127,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                     currentWriteFutures[0].getByteBuf().reverse();
                     interestWrite(selectionKey);
                     return;
-                }else{
+                } else {
                     ChannelFuture future = currentWriteFutures[0];
                     currentWriteFutures[0] = null;
                     try {
@@ -142,17 +144,18 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                     interestRead(selectionKey);
                     return;
                 }
-            }else{
+            } else {
                 channel.write(writeBuffers, 0, currentWriteFuturesLen);
                 for (i = 0; i < currentWriteFuturesLen; i++) {
                     ChannelFuture future = currentWriteFutures[i];
                     if (writeBuffers[i].hasRemaining()) {
                         int remain = currentWriteFuturesLen - i;
                         if (remain > 16) {
-                            System.arraycopy(currentWriteFutures, i, currentWriteFutures, 0, remain);
-                        }else{
+                            System.arraycopy(currentWriteFutures, i, currentWriteFutures, 0,
+                                    remain);
+                        } else {
                             for (int j = 0; j < remain; j++) {
-                                currentWriteFutures[j] = currentWriteFutures[i+j];
+                                currentWriteFutures[j] = currentWriteFutures[i + j];
                             }
                         }
                         for (int j = currentWriteFuturesLen - i; j < maxLen; j++) {
@@ -162,7 +165,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
                         currentWriteFuturesLen = remain;
                         interestWrite(selectionKey);
                         return;
-                    }else{
+                    } else {
                         try {
                             future.release(getChannelThreadContext());
                         } catch (Throwable e) {
@@ -211,8 +214,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
     protected InetSocketAddress getRemoteSocketAddress0() {
         try {
             return (InetSocketAddress) channel.getRemoteAddress();
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
         return ERROR_SOCKET_ADDRESS;
     }
 
@@ -270,7 +272,7 @@ public class NioSocketChannel extends AbstractSocketChannel implements SelectorL
         }
     }
 
-    protected SocketChannel javaChannel(){
+    protected SocketChannel javaChannel() {
         return channel;
     }
 

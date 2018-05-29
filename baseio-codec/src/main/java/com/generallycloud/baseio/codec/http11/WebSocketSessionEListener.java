@@ -35,7 +35,7 @@ public class WebSocketSessionEListener extends SocketSessionELAdapter {
         future.setType(WebSocketCodec.TYPE_CLOSE);
         future.setServiceName(session);
         try {
-            context.getForeReadFutureAcceptor().accept(session, future);
+            context.getForeFutureAcceptor().accept(session, future);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

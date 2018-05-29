@@ -94,6 +94,27 @@ public abstract class AbstractByteBuf implements ByteBuf {
         }
         return read0(src, srcRemaining, remaining);
     }
+    
+    @Override
+    public int read(ByteBuffer src, int length) {
+        int srcRemaining = src.remaining();
+        if (srcRemaining == 0) {
+            return 0;
+        }
+        int remaining = this.remaining();
+        if (remaining == 0) {
+            return 0;
+        }
+        if (srcRemaining > length) {
+            int oldLimit = src.limit();
+            src.limit(src.position()+length);
+            int len = read0(src, length, remaining);
+            src.limit(oldLimit);
+            return len;
+        }else{
+            return read0(src, srcRemaining, remaining);
+        }
+    }
 
     protected abstract int read0(ByteBuffer src, int srcRemaining, int remaining);
 
@@ -108,6 +129,27 @@ public abstract class AbstractByteBuf implements ByteBuf {
             return 0;
         }
         return read0(src, srcRemaining, remaining);
+    }
+    
+    @Override
+    public int read(ByteBuf src, int length) {
+        int srcRemaining = src.remaining();
+        if (srcRemaining == 0) {
+            return 0;
+        }
+        int remaining = this.remaining();
+        if (remaining == 0) {
+            return 0;
+        }
+        if (srcRemaining > length) {
+            int oldLimit = src.limit();
+            src.limit(src.position()+length);
+            int len = read0(src, length, remaining);
+            src.limit(oldLimit);
+            return len;
+        }else{
+            return read0(src, srcRemaining, remaining);
+        }
     }
 
     protected abstract int read0(ByteBuf src, int srcRemaining, int remaining);

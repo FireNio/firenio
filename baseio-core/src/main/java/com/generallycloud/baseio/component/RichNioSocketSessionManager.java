@@ -56,7 +56,7 @@ public class RichNioSocketSessionManager implements SocketSessionManager {
 
     @Override
     public SocketSession getSession(int sessionId) {
-        return managers[sessionId % managerLen].getSession(sessionId);
+        return sessions.get(sessionId);
     }
     
     @Override

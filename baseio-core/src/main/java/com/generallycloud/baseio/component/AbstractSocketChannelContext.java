@@ -44,7 +44,7 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     private boolean                              enableSsl;
     private Charset                              encoding;
     private ExecutorEventLoopGroup               executorEventLoopGroup;
-    private ForeFutureAcceptor                   foreReadFutureAcceptor;
+    private ForeFutureAcceptor                   foreFutureAcceptor;
     private boolean                              initialized;
     private IoEventHandleAdaptor                 ioEventHandleAdaptor;
     private Logger                               logger      = LoggerFactory.getLogger(getClass());
@@ -137,10 +137,10 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
         if (executorEventLoopGroup == null) {
             this.executorEventLoopGroup = createExecutorEventLoopGroup();
         }
-        if (foreReadFutureAcceptor == null) {
-            foreReadFutureAcceptor = new EventLoopFutureAcceptor();
+        if (foreFutureAcceptor == null) {
+            foreFutureAcceptor = new EventLoopFutureAcceptor();
         }
-        foreReadFutureAcceptor.initialize(this);
+        foreFutureAcceptor.initialize(this);
         if (sessionFactory == null) {
             sessionFactory = new SocketSessionFactoryImpl();
         }
@@ -194,8 +194,8 @@ public abstract class AbstractSocketChannelContext extends AbstractLifeCycle
     }
 
     @Override
-    public ForeFutureAcceptor getForeReadFutureAcceptor() {
-        return foreReadFutureAcceptor;
+    public ForeFutureAcceptor getForeFutureAcceptor() {
+        return foreFutureAcceptor;
     }
 
     @Override

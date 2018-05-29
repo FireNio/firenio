@@ -40,7 +40,7 @@ public interface SocketChannelContext extends Attributes, LifeCycle {
 
     ExecutorEventLoopGroup getExecutorEventLoopGroup();
 
-    ForeFutureAcceptor getForeReadFutureAcceptor();
+    ForeFutureAcceptor getForeFutureAcceptor();
 
     IoEventHandleAdaptor getIoEventHandleAdaptor();
 

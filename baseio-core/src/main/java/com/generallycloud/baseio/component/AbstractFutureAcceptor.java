@@ -47,8 +47,7 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
         accept(eventHandle, session, f);
     }
 
-    protected abstract void accept(IoEventHandle eventHandle, SocketSession session,
-            ChannelFuture future);
+    abstract void accept(IoEventHandle eventHandle, SocketSession session, ChannelFuture future);
 
     private void acceptHeartBeat(final SocketSession session, final ChannelFuture future) {
         if (future.isPING()) {

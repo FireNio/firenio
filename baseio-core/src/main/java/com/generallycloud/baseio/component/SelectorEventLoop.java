@@ -29,6 +29,7 @@ import java.security.PrivilegedAction;
 import java.util.AbstractSet;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -62,27 +63,27 @@ import com.generallycloud.baseio.protocol.SslFuture;
 //FIXME 使用ThreadLocal
 public class SelectorEventLoop extends AbstractEventLoop implements ChannelThreadContext {
 
-    private static final Logger                 logger            = LoggerFactory.getLogger(SelectorEventLoop.class);
-    private Map<Object, Object>                  attributes         = new HashMap<>();
-    private ByteBuf                              buf                = null;
+    private static final Logger                  logger     = LoggerFactory.getLogger(SelectorEventLoop.class);
     private ByteBufAllocator                     allocator;
-    private NioSocketChannelContext              context            = null;
-    private SelectorEventLoopGroup               eventLoopGroup     = null;
-    private ExecutorEventLoop                    executorEventLoop  = null;
-    private volatile boolean                   hasTask            = false;
-    private final int                           index;
-    private AtomicBoolean                        wakener            = new AtomicBoolean(); // true eventLooper, false offerer
-    private AtomicBoolean                        selecting          = new AtomicBoolean();
-    private SelectionKeySet                      selectionKeySet    = null;
-    private SocketSelector                       selector           = null;
-    private BufferedArrayList<SelectorLoopEvent> events             = new BufferedArrayList<>();
-    private SocketSessionManager                 sessionManager    = null;
-    private SslHandler                           sslHandler        = null;
-    private ByteBuffer[]                         writeBuffers      = null;
-    private final boolean                        isEnableSsl;
+    private Map<Object, Object>                  attributes = new HashMap<>();
+    private ByteBuf                              buf;
+    private NioSocketChannelContext              context;
+    private SelectorEventLoopGroup               eventLoopGroup;
+    private BufferedArrayList<SelectorLoopEvent> events     = new BufferedArrayList<>();
+    private ExecutorEventLoop                    executorEventLoop;
+    private final ForeFutureAcceptor             foreFutureAcceptor;
+    private volatile boolean                     hasTask    = false;
+    private final int                            index;
     private IoEventHandleAdaptor                 ioEventHandle;
+    private final boolean                        isEnableSsl;
+    private AtomicBoolean                        selecting  = new AtomicBoolean();
+    private SelectionKeySet                      selectionKeySet;
+    private SocketSelector                       selector;
+    private SocketSessionManager                 sessionManager;
+    private SslHandler                           sslHandler;
     private SslFuture                            sslTemporary;
-    private final ForeFutureAcceptor             foreReadFutureAcceptor;
+    private AtomicBoolean                        wakener    = new AtomicBoolean();      // true eventLooper, false offerer
+    private ByteBuffer[]                         writeBuffers;
 
     SelectorEventLoop(SelectorEventLoopGroup group, int index) {
         this.index = index;
@@ -91,7 +92,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         this.ioEventHandle = context.getIoEventHandleAdaptor();
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
         this.sessionManager = new NioSocketSessionManager(context);
-        this.foreReadFutureAcceptor = context.getForeReadFutureAcceptor();
+        this.foreFutureAcceptor = context.getForeFutureAcceptor();
         this.allocator = context.getByteBufAllocatorManager().getNextBufAllocator();
         this.isEnableSsl = context.isEnableSsl();
         if (isEnableSsl) {
@@ -189,7 +190,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             closeSocketChannel(ch, e);
         }
     }
-    
+
     private void accept(SocketChannel ch, ByteBuf buffer) throws Exception {
         ProtocolCodec codec = ch.getProtocolCodec();
         for (;;) {
@@ -208,7 +209,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
                         ch.setReadFuture(future);
                     }
                     ByteBuf remainingBuf = ch.getRemainingBuf();
-                    if (remainingBuf !=null) {
+                    if (remainingBuf != null) {
                         remainingBuf.release(remainingBuf.getReleaseVersion());
                         ch.setRemainingBuf(null);
                     }
@@ -231,8 +232,13 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
                 ch.setReadFuture(null);
             }
             future.release(ch.getChannelThreadContext());
-            foreReadFutureAcceptor.accept(ch.getSession(), future);
+            foreFutureAcceptor.accept(ch.getSession(), future);
         }
+    }
+
+    @Override
+    public ByteBufAllocator allocator() {
+        return allocator;
     }
 
     @Override
@@ -278,7 +284,104 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
 
         wakeup();
     }
-    
+
+    @Override
+    protected void doStartup() throws IOException {
+        if (executorEventLoop instanceof LineEventLoop) {
+            ((LineEventLoop) executorEventLoop).setMonitor(this);
+        }
+        Configuration cfg = context.getConfiguration();
+        int readBuffer = cfg.getChannelReadBuffer();
+        this.writeBuffers = new ByteBuffer[cfg.getWriteBuffers()];
+        this.buf = UnpooledByteBufAllocator.getDirect().allocate(readBuffer);
+        if (isEnableSsl) {
+            ByteBuf buf = UnpooledByteBufAllocator.getHeap().allocate(1024 * 64);
+            this.sslTemporary = new SslFuture(buf, 1024 * 64);
+        }
+        this.rebuildSelector();
+    }
+
+    @Override
+    protected void doStop() {
+        ThreadUtil.sleep(8);
+        closeEvents(events);
+        closeEvents(events);
+        sessionManager.stop();
+        CloseUtil.close(selector);
+        ReleaseUtil.release(sslTemporary, this);
+        ReleaseUtil.release(buf, buf.getReleaseVersion());
+    }
+
+    @Override
+    public Object getAttribute(Object key) {
+        return this.attributes.get(key);
+    }
+
+    @Override
+    public Set<Object> getAttributeNames() {
+        return this.attributes.keySet();
+    }
+
+    @Override
+    public NioSocketChannelContext getChannelContext() {
+        return context;
+    }
+
+    @Override
+    public SelectorEventLoopGroup getEventLoopGroup() {
+        return eventLoopGroup;
+    }
+
+    @Override
+    public ExecutorEventLoop getExecutorEventLoop() {
+        return executorEventLoop;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    @Override
+    public IoEventHandle getIoEventHandle() {
+        return ioEventHandle;
+    }
+
+    protected SocketSelector getSelector() {
+        return selector;
+    }
+
+    @Override
+    public SocketSessionManager getSocketSessionManager() {
+        return sessionManager;
+    }
+
+    @Override
+    public SslHandler getSslHandler() {
+        return sslHandler;
+    }
+
+    @Override
+    public SslFuture getSslTemporary() {
+        return sslTemporary;
+    }
+
+    public ByteBuffer[] getWriteBuffers() {
+        return writeBuffers;
+    }
+
+    private void handleEvent(SelectorLoopEvent event) {
+        try {
+            event.fireEvent(this);
+        } catch (Throwable e) {
+            CloseUtil.close(event);
+        }
+    }
+
+    @Override
+    public boolean isEnableSsl() {
+        return isEnableSsl;
+    }
+
     @Override
     public void loop() {
         final long idle = context.getConfiguration().getSessionIdleTime();
@@ -292,17 +395,16 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             }
             try {
                 int selected;
-                //      long last_select = System.currentTimeMillis();
                 if (hasTask) {
                     selected = selector.selectNow();
                     hasTask = false;
-                }else{
+                } else {
                     if (selecting.compareAndSet(false, true)) {
                         // Im not sure selectorLoopEvent.size if visible immediately by other thread ?
                         // can we use selectorLoopEvents.getBufferSize() > 0 ?
                         if (hasTask) {
                             selected = selector.selectNow();
-                        }else{
+                        } else {
                             // FIXME try
                             selected = selector.select(selectTime);
                         }
@@ -331,118 +433,24 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
                 } else {
                     //          selectEmpty(last_select);
                 }
-                for (SelectorLoopEvent event : events.getBuffer()) {
-                    handleEvent(event);
+                if (events.size() > 0) {
+                    List<SelectorLoopEvent> es = events.getBuffer();
+                    for (int i = 0; i < es.size(); i++) {
+                        handleEvent(es.get(i));
+                    }
                 }
                 long now = System.currentTimeMillis();
                 if (now >= nextIdle) {
                     sessionManager.sessionIdle(now);
                     nextIdle = now + idle;
                     selectTime = idle;
-                }else{
+                } else {
                     selectTime = nextIdle - now;
                 }
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
         }
-    }
-    
-    @Override
-    protected void doStartup() throws IOException {
-        if (executorEventLoop instanceof LineEventLoop) {
-            ((LineEventLoop) executorEventLoop).setMonitor(this);
-        }
-        Configuration cfg = context.getConfiguration();
-        int readBuffer = cfg.getChannelReadBuffer();
-        this.writeBuffers = new ByteBuffer[cfg.getWriteBuffers()];
-        this.buf = UnpooledByteBufAllocator.getDirect().allocate(readBuffer);
-        if (isEnableSsl) {
-            ByteBuf buf = UnpooledByteBufAllocator.getHeap().allocate(1024 * 64);
-            this.sslTemporary = new SslFuture(buf, 1024 * 64);
-        }
-        this.rebuildSelector();
-    }
-
-    @Override
-    protected void doStop() {
-        ThreadUtil.sleep(8);
-        closeEvents(events);
-        closeEvents(events);
-        sessionManager.stop();
-        CloseUtil.close(selector);
-        ReleaseUtil.release(sslTemporary, this);
-        ReleaseUtil.release(buf,buf.getReleaseVersion());
-    }
-
-    @Override
-    public Object getAttribute(Object key) {
-        return this.attributes.get(key);
-    }
-
-    @Override
-    public Set<Object> getAttributeNames() {
-        return this.attributes.keySet();
-    }
-
-    @Override
-    public ByteBufAllocator allocator() {
-        return allocator;
-    }
-
-    @Override
-    public NioSocketChannelContext getChannelContext() {
-        return context;
-    }
-
-    @Override
-    public SelectorEventLoopGroup getEventLoopGroup() {
-        return eventLoopGroup;
-    }
-
-    @Override
-    public ExecutorEventLoop getExecutorEventLoop() {
-        return executorEventLoop;
-    }
-    
-    public int getIndex() {
-        return index;
-    }
-
-    @Override
-    public IoEventHandle getIoEventHandle() {
-        return ioEventHandle;
-    }
-    
-    protected SocketSelector getSelector() {
-        return selector;
-    }
-
-    @Override
-    public SocketSessionManager getSocketSessionManager() {
-        return sessionManager;
-    }
-
-    @Override
-    public SslHandler getSslHandler() {
-        return sslHandler;
-    }
-
-    public ByteBuffer[] getWriteBuffers() {
-        return writeBuffers;
-    }
-
-    private void handleEvent(SelectorLoopEvent event) {
-        try {
-            event.fireEvent(this);
-        } catch (Throwable e) {
-            CloseUtil.close(event);
-        }
-    }
-    
-    @Override
-    public boolean isEnableSsl() {
-        return isEnableSsl;
     }
 
     @SuppressWarnings("rawtypes")
@@ -539,7 +547,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     public Object removeAttribute(Object key) {
         return this.attributes.remove(key);
     }
-    
+
     protected void selectEmpty(long last_select) {
         long past = System.currentTimeMillis() - last_select;
         if (past > 0 || !isRunning()) {
@@ -569,17 +577,12 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             hasTask = true;
             if (selecting.compareAndSet(false, true)) {
                 selecting.set(false);
-            }else{
+            } else {
                 getSelector().wakeup();
                 super.wakeup();
             }
             wakener.set(false);
         }
-    }
-    
-    @Override
-    public SslFuture getSslTemporary() {
-        return sslTemporary;
     }
 
     class SelectionKeySet extends AbstractSet<SelectionKey> {

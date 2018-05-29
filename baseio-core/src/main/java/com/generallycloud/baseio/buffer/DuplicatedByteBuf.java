@@ -414,4 +414,14 @@ public class DuplicatedByteBuf implements ByteBuf {
         return this;
     }
 
+    @Override
+    public int read(ByteBuf src, int length) {
+        return unwrap().read(src, length);
+    }
+
+    @Override
+    public int read(ByteBuffer src, int length) {
+        return unwrap().read(src, length);
+    }
+
 }

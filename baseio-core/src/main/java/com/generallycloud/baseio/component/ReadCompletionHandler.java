@@ -17,12 +17,12 @@ import com.generallycloud.baseio.protocol.SslFuture;
 
 public class ReadCompletionHandler implements CompletionHandler<Integer, AioSocketChannel> {
 
-    private Logger             logger = LoggerFactory.getLogger(getClass());
+    private Logger                   logger = LoggerFactory.getLogger(getClass());
 
-    private final ForeFutureAcceptor foreReadFutureAcceptor;
+    private final ForeFutureAcceptor foreFutureAcceptor;
 
-    public ReadCompletionHandler(ForeFutureAcceptor foreReadFutureAcceptor) {
-        this.foreReadFutureAcceptor = foreReadFutureAcceptor;
+    public ReadCompletionHandler(ForeFutureAcceptor foreFutureAcceptor) {
+        this.foreFutureAcceptor = foreFutureAcceptor;
     }
 
     @Override
@@ -114,7 +114,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, AioSock
                         ch.setReadFuture(future);
                     }
                     ByteBuf remainingBuf = ch.getRemainingBuf();
-                    if (remainingBuf !=null) {
+                    if (remainingBuf != null) {
                         remainingBuf.release(remainingBuf.getReleaseVersion());
                         ch.setRemainingBuf(null);
                     }
@@ -137,7 +137,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, AioSock
                 ch.setReadFuture(null);
             }
             future.release(ch.getChannelThreadContext());
-            foreReadFutureAcceptor.accept(ch.getSession(), future);
+            foreFutureAcceptor.accept(ch.getSession(), future);
         }
     }
 

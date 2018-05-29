@@ -104,7 +104,7 @@ public interface ByteBuf extends ByteBufNew, Releasable {
     ByteBuf limit(int limit);
 
     ByteBuf markP();
-    
+
     ByteBuf markPL();
 
     ByteBuffer nioBuffer();
@@ -143,7 +143,11 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 
     int read(ByteBuf src);
 
-    int read(ByteBuffer buffer);
+    int read(ByteBuf src, int length);
+
+    int read(ByteBuffer src);
+
+    int read(ByteBuffer src, int length);
 
     ByteBuf reallocate(int limit);
 
@@ -156,9 +160,9 @@ public interface ByteBuf extends ByteBufNew, Releasable {
     int remaining();
 
     ByteBuf reset();
-    
+
     ByteBuf reverse();
-    
+
     ByteBuf skipBytes(int length);
 
 }

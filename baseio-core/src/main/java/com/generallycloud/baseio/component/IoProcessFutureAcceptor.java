@@ -20,7 +20,7 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
 public class IoProcessFutureAcceptor extends AbstractFutureAcceptor {
 
     @Override
-    protected void accept(IoEventHandle eventHandle, SocketSession session, ChannelFuture future) {
+    void accept(IoEventHandle eventHandle, SocketSession session, ChannelFuture future) {
         try {
             eventHandle.accept(session, future);
         } catch (Exception e) {

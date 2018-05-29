@@ -18,19 +18,19 @@ public class CachedAioThread extends Thread implements ChannelThreadContext {
     private ReadCompletionHandler   readCompletionHandler  = null;
     private SslHandler              sslHandler             = null;
     private WriteCompletionHandler  writeCompletionHandler = null;
-    private boolean                isEnableSsl;
+    private boolean                 isEnableSsl;
     private IoEventHandleAdaptor    ioEventHandle;
-    private SslFuture                            sslTemporary;
+    private SslFuture               sslTemporary;
 
-    public CachedAioThread(AioSocketChannelContext context, 
-            ThreadGroup group, Runnable r, String string, int i) {
+    public CachedAioThread(AioSocketChannelContext context, ThreadGroup group, Runnable r,
+            String string, int i) {
         super(group, r, string, i);
         this.channelContext = context;
         this.ioEventHandle = context.getIoEventHandleAdaptor();
         this.writeCompletionHandler = new WriteCompletionHandler();
         this.executorEventLoop = channelContext.getExecutorEventLoopGroup().getNext();
         this.byteBufAllocator = channelContext.getByteBufAllocatorManager().getNextBufAllocator();
-        this.readCompletionHandler = new ReadCompletionHandler(context.getForeReadFutureAcceptor());
+        this.readCompletionHandler = new ReadCompletionHandler(context.getForeFutureAcceptor());
         if (context.isEnableSsl()) {
             this.isEnableSsl = context.isEnableSsl();
             this.sslHandler = context.getSslContext().newSslHandler();
@@ -66,7 +66,7 @@ public class CachedAioThread extends Thread implements ChannelThreadContext {
     public ExecutorEventLoop getExecutorEventLoop() {
         return executorEventLoop;
     }
-    
+
     @Override
     public IoEventHandle getIoEventHandle() {
         return ioEventHandle;
@@ -94,7 +94,7 @@ public class CachedAioThread extends Thread implements ChannelThreadContext {
     public boolean inEventLoop() {
         return Thread.currentThread() == this;
     }
-    
+
     @Override
     public boolean isEnableSsl() {
         return isEnableSsl;
@@ -109,7 +109,7 @@ public class CachedAioThread extends Thread implements ChannelThreadContext {
     public void setAttribute(Object key, Object value) {
         this.attributes.put(key, value);
     }
-    
+
     @Override
     public SslFuture getSslTemporary() {
         return sslTemporary;
