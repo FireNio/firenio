@@ -52,7 +52,7 @@ public class ChannelContextListener extends AbstractLifeCycleListener implements
 
     @Override
     public void lifeCycleStopping(LifeCycle lifeCycle) {
-        SocketChannelContext context = (SocketChannelContext) lifeCycle;
+        ChannelContext context = (ChannelContext) lifeCycle;
 
         if (context == null) {
             LoggerUtil.prettyLog(logger, "service start failed, prepare to stop ...");

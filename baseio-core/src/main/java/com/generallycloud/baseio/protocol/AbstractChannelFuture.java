@@ -18,7 +18,7 @@ package com.generallycloud.baseio.protocol;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.component.ChannelThreadContext;
+import com.generallycloud.baseio.component.SelectorEventLoop;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Linkable;
@@ -116,7 +116,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     }
 
     @Override
-    public void release(ChannelThreadContext context) {
+    public void release(SelectorEventLoop eventLoop) {
         ReleaseUtil.release(buf, bufReleaseVersion);
     }
 

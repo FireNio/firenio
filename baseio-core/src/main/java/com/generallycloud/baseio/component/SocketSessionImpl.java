@@ -36,7 +36,7 @@ public class SocketSessionImpl implements SocketSession {
     protected HashMap<Object, Object> attributes = new HashMap<>();
     protected SocketChannel           channel;
 
-    SocketSessionImpl(SocketChannel channel) {
+    protected SocketSessionImpl(SocketChannel channel) {
         this.channel = channel;
     }
 
@@ -64,7 +64,7 @@ public class SocketSessionImpl implements SocketSession {
     public void flushChannelFuture(ChannelFuture future) {
         unsafe().flushChannelFuture(future);
     }
-    
+
     @Override
     public void flush(Collection<ChannelFuture> futures) {
         unsafe().flush(futures);
@@ -96,7 +96,7 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public SocketChannelContext getContext() {
+    public ChannelContext getContext() {
         return unsafe().getContext();
     }
 
@@ -161,7 +161,7 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public int getSessionId() {
+    public Integer getSessionId() {
         return unsafe().getChannelId();
     }
 

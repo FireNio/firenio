@@ -27,12 +27,12 @@ import com.generallycloud.baseio.component.URLDynamicClassLoader;
 import com.generallycloud.baseio.log.DebugUtil;
 
 public class ApplicationBootstrap {
-    
-    public static final String RUNTIME_DEV = "dev";
+
+    public static final String RUNTIME_DEV  = "dev";
     public static final String RUNTIME_PROD = "prod";
-    
+
     public static void startup(Class<?> clazz) throws Exception {
-        Assert.notNull(clazz,"clazz");
+        Assert.notNull(clazz, "clazz");
         startup(clazz.getName());
     }
 
@@ -48,8 +48,9 @@ public class ApplicationBootstrap {
             }
         }));
     }
-    
-    public static void startup(String className, List<ClassPathScaner> classPathScaners)throws Exception {
+
+    public static void startup(String className, List<ClassPathScaner> classPathScaners)
+            throws Exception {
         String rootPath = URLDecoder.decode(FileUtil.getCurrentPath(), "UTF-8");
         String runtime = System.getProperty("container.runtime");
         startup(className, runtime, rootPath, classPathScaners);
@@ -57,21 +58,21 @@ public class ApplicationBootstrap {
 
     public static void startup(String className, String mode, String rootPath,
             List<ClassPathScaner> classPathScaners) throws Exception {
-        Assert.notNull(className,"className");
-        Assert.notNull(rootPath,"rootPath");
-        Assert.notNull(classPathScaners,"classPathScaners");
+        Assert.notNull(className, "className");
+        Assert.notNull(rootPath, "rootPath");
+        Assert.notNull(classPathScaners, "classPathScaners");
         LoggerUtil.prettyLog(DebugUtil.getLogger(), "RUNTIME_MODE: {}", mode);
         LoggerUtil.prettyLog(DebugUtil.getLogger(), "ROOT_PATH: {}", rootPath);
         ClassLoader parent = ApplicationBootstrap.class.getClassLoader();
-        URLDynamicClassLoader classLoader = 
-                newClassLoader(parent, mode, isRuntimeDevMode(mode), rootPath, classPathScaners);
+        URLDynamicClassLoader classLoader = newClassLoader(parent, mode, isRuntimeDevMode(mode),
+                rootPath, classPathScaners);
         Class<?> bootClass = classLoader.loadClass(className);
         Thread.currentThread().setContextClassLoader(classLoader);
         BootstrapEngine engine = (BootstrapEngine) bootClass.newInstance();
         engine.bootstrap(rootPath, mode);
     }
-    
-    public static boolean isRuntimeDevMode(String mode){
+
+    public static boolean isRuntimeDevMode(String mode) {
         return !RUNTIME_PROD.equalsIgnoreCase(mode);
     }
 
@@ -112,8 +113,8 @@ public class ApplicationBootstrap {
     }
 
     public interface ClassPathScaner {
-        void scanClassPaths(URLDynamicClassLoader classLoader, String mode,
-                String rootLocalAddress) throws IOException;
+        void scanClassPaths(URLDynamicClassLoader classLoader, String mode, String rootLocalAddress)
+                throws IOException;
     }
 
     static class DefaultClassPathScaner implements ClassPathScaner {
@@ -129,5 +130,5 @@ public class ApplicationBootstrap {
             }
         }
     }
-    
+
 }

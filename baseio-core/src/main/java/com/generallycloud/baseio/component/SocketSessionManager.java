@@ -17,8 +17,10 @@ package com.generallycloud.baseio.component;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -27,28 +29,66 @@ import com.generallycloud.baseio.protocol.Future;
  * @author wangkai
  *
  */
-public interface SocketSessionManager {
+public class SocketSessionManager {
 
-    void broadcast(Future future) throws IOException;
+    private Map<Integer, SocketSession> sessions         = new ConcurrentHashMap<>();
+    private Map<Integer, SocketSession> readOnlySessions = Collections.unmodifiableMap(sessions);
+    private ChannelContext              context;
 
-    void broadcast(Future future, Collection<SocketSession> sessions) throws IOException;
+    public SocketSessionManager(ChannelContext context) {
+        this.context = context;
+    }
 
-    void broadcastChannelFuture(ChannelFuture future);
+    private AtomicInteger managedSessionSize = new AtomicInteger();
 
-    void broadcastChannelFuture(ChannelFuture future, Collection<SocketSession> sessions);
+    public int getManagedSessionSize() {
+        return managedSessionSize.get();
+    }
 
-    Map<Integer, SocketSession> getManagedSessions();
+    public SocketSession getSession(int sessionId) {
+        return sessions.get(sessionId);
+    }
 
-    int getManagedSessionSize();
+    public void putSession(SocketSession session) {
+        sessions.put(session.getSessionId(), session);
+        managedSessionSize.incrementAndGet();
+    }
 
-    SocketSession getSession(int sessionId);
+    public void removeSession(SocketSession session) {
+        if (sessions.remove(session.getSessionId()) != null) {
+            managedSessionSize.decrementAndGet();
+        }
+    }
 
-    void putSession(SocketSession session) throws RejectedExecutionException;
+    public void broadcast(Future future) throws IOException {
+        broadcast(future, sessions.values());
+    }
 
-    void removeSession(SocketSession session);
+    public void broadcastChannelFuture(ChannelFuture future) {
+        broadcastChannelFuture(future, sessions.values());
+    }
 
-    void sessionIdle(long currentTime);
+    public void broadcast(Future future, Collection<SocketSession> sessions) throws IOException {
+        if (sessions.size() == 0) {
+            return;
+        }
+        SocketChannel channel = context.getSimulateSocketChannel();
+        ChannelFuture f = (ChannelFuture) future;
+        context.getProtocolCodec().encode(channel, f);
+        broadcastChannelFuture(f, sessions);
+    }
 
-    void stop();
+    public void broadcastChannelFuture(ChannelFuture future, Collection<SocketSession> sessions) {
+        if (sessions.size() == 0) {
+            return;
+        }
+        for (SocketSession s : sessions) {
+            s.flushChannelFuture(future.duplicate());
+        }
+    }
+
+    public Map<Integer, SocketSession> getManagedSessions() {
+        return readOnlySessions;
+    }
 
 }

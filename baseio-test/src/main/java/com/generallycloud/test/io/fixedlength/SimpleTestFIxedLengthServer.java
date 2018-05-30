@@ -15,13 +15,13 @@
  */
 package com.generallycloud.test.io.fixedlength;
 
-import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
@@ -33,20 +33,18 @@ public class SimpleTestFIxedLengthServer {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:",session.getEncoding());
-                future.write(f.getReadText(),session.getEncoding());
+                future.write("yes server already accept your message:", session.getEncoding());
+                future.write(f.getReadText(), session.getEncoding());
                 session.flush(future);
             }
         };
-        SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
-        //use java aio
-        //		SocketChannelContext context = new AioSocketChannelContext(new ServerConfiguration(8300));
-        context.getConfiguration().setCoreSize(1);
-        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+        SelectorEventLoopGroup group = new SelectorEventLoopGroup();
+        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.setProtocolCodec(new FixedLengthCodec());
         acceptor.bind();
     }
-    
+
 }

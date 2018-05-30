@@ -16,13 +16,13 @@
 package com.generallycloud.baseio.codec.http2;
 
 import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionFactory;
-import com.generallycloud.baseio.component.UnsafeSocketSession;
 
 public class Http2SessionFactory implements SocketSessionFactory {
 
     @Override
-    public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
+    public SocketSession newUnsafeSession(SocketChannel channel) {
         return new Http2SocketSessionImpl(channel);
     }
 }

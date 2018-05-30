@@ -31,8 +31,8 @@ public class DefaultChannelFuture extends AbstractChannelFuture {
     public DefaultChannelFuture(ByteBuf buf) {
         setByteBuf(buf);
     }
-    
-    public DefaultChannelFuture(ByteBuf buf,boolean isNeedSsl) {
+
+    public DefaultChannelFuture(ByteBuf buf, boolean isNeedSsl) {
         setByteBuf(buf);
         this.setNeedSsl(isNeedSsl);
     }

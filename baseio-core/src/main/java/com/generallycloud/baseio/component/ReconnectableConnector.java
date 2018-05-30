@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.connector;
+package com.generallycloud.baseio.component;
 
 import java.io.Closeable;
 
@@ -22,21 +22,30 @@ import org.slf4j.LoggerFactory;
 
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
-import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionELAdapter;
 
 public class ReconnectableConnector implements Closeable {
 
     private Logger                 logger                 = LoggerFactory.getLogger(getClass());
-    private SocketChannelConnector realConnector          = null;
+    private ChannelConnector       realConnector          = null;
     private long                   retryTime              = 15000;
-    private volatile boolean       reconnect             = true;
+    private volatile boolean       reconnect              = true;
     private ReconnectableConnector reconnectableConnector = null;
 
-    public ReconnectableConnector(SocketChannelContext context) {
-        context.addSessionEventListener(getReconnectSEListener());
-        this.realConnector = new SocketChannelConnector(context);
+    public ReconnectableConnector(ChannelContext context) {
+        context.addSessionEventListener(newReconnectSEListener());
+        this.realConnector = new ChannelConnector(context);
+        this.reconnectableConnector = this;
+    }
+    
+    public ReconnectableConnector(ChannelContext context, SelectorEventLoop eventLoop) {
+        context.addSessionEventListener(newReconnectSEListener());
+        this.realConnector = new ChannelConnector(context, eventLoop);
+        this.reconnectableConnector = this;
+    }
+
+    public ReconnectableConnector(ChannelContext context, SelectorEventLoopGroup group) {
+        context.addSessionEventListener(newReconnectSEListener());
+        this.realConnector = new ChannelConnector(context, group);
         this.reconnectableConnector = this;
     }
 
@@ -58,7 +67,7 @@ public class ReconnectableConnector implements Closeable {
         logger.info("begin try to connect");
         for (;;) {
             if (session != null && session.isOpened()) {
-                logger.error("reconnect failed,try reconnect later on {} milliseconds",retryTime);
+                logger.error("reconnect failed,try reconnect later on {} milliseconds", retryTime);
                 ThreadUtil.sleep(retryTime);
                 continue;
             }
@@ -68,12 +77,12 @@ public class ReconnectableConnector implements Closeable {
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
-            logger.error("reconnect failed,try reconnect later on {} milliseconds",retryTime);
+            logger.error("reconnect failed,try reconnect later on {} milliseconds", retryTime);
             ThreadUtil.sleep(retryTime);
         }
     }
 
-    private SocketSessionELAdapter getReconnectSEListener() {
+    private SocketSessionELAdapter newReconnectSEListener() {
         return new SocketSessionELAdapter() {
             @Override
             public void sessionClosed(SocketSession session) {
@@ -106,10 +115,7 @@ public class ReconnectableConnector implements Closeable {
         this.retryTime = retryTime;
     }
 
-    /**
-     * @return the realConnector
-     */
-    public SocketChannelConnector getRealConnector() {
+    public ChannelConnector getRealConnector() {
         return realConnector;
     }
 

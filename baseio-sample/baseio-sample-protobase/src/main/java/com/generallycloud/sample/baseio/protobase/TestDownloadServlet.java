@@ -44,7 +44,7 @@ public class TestDownloadServlet extends ProtobaseFutureAcceptorService {
     private void fileNotFound(SocketSession session, ProtobaseFuture future, String msg)
             throws IOException {
         RESMessage message = new RESMessage(404, msg);
-        future.write(message.toString(),session);
+        future.write(message.toString(), session);
         session.flush(future);
     }
 }

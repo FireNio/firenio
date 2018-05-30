@@ -20,14 +20,13 @@ import java.util.Random;
 import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.UnsafeSocketSessionImpl;
+import com.generallycloud.baseio.component.SocketSessionImpl;
 
-public class FacadeSocketSessionImpl extends UnsafeSocketSessionImpl
-        implements FacadeSocketSession {
+public class FacadeSocketSessionImpl extends SocketSessionImpl implements FacadeSocketSession {
 
-    private int                         msg_size;
+    private int                  msg_size;
 
-    private long                        next_check_time;
+    private long                 next_check_time;
 
     private ReverseSocketSession reverseSocketSession;
 

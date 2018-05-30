@@ -51,7 +51,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
         o.put("type", "welcome");
         o.put("id", ioSession.getSessionId());
         WebSocketFuture f = new WebSocketFutureImpl();
-        f.write(o.toJSONString(),session.getEncoding());
+        f.write(o.toJSONString(), session.getEncoding());
         session.flush(f);
     }
 
@@ -87,8 +87,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
                 o.put("y", Double.valueOf(o.getString("x")));
                 o.put("momentum", Double.valueOf(o.getString("momentum")));
                 o.put("angle", Double.valueOf(o.getString("angle")));
-            } else if ("message".equals(type)) {
-            }
+            } else if ("message".equals(type)) {}
             msgAdapter.sendMsg(o.toJSONString());
         }
     }
@@ -102,12 +101,12 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
     public void destroy() throws Exception {
         LifeCycleUtil.stop(msgAdapter);
     }
-    
+
     /**
      * @return the msgAdapter
      */
     public WebSocketMsgAdapter getMsgAdapter() {
         return msgAdapter;
     }
-    
+
 }

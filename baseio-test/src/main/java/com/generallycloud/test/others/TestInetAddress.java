@@ -30,7 +30,7 @@ public class TestInetAddress {
         InetSocketAddress address = new InetSocketAddress("192.168.1.100", 80);
 
         InetAddress address2 = address.getAddress();
-        
+
         Field holderField = InetAddress.class.getDeclaredField("holder");
 
         Object o = holderField.get(address2);

@@ -18,7 +18,7 @@ package com.generallycloud.baseio.common;
 import java.io.Closeable;
 import java.nio.channels.Selector;
 
-import com.generallycloud.baseio.acceptor.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.log.DebugUtil;
 
 public class CloseUtil {
@@ -33,7 +33,7 @@ public class CloseUtil {
             DebugUtil.debug(e);
         }
     }
-    
+
     public static void close(AutoCloseable closeable) {
         if (closeable == null) {
             return;

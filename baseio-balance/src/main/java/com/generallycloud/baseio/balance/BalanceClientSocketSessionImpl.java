@@ -16,13 +16,13 @@
 package com.generallycloud.baseio.balance;
 
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.UnsafeSocketSessionImpl;
+import com.generallycloud.baseio.component.SocketSessionImpl;
 
 /**
  * @author wangkai
  *
  */
-public class BalanceClientSocketSessionImpl extends UnsafeSocketSessionImpl
+public class BalanceClientSocketSessionImpl extends SocketSessionImpl
         implements BalanceClientSocketSession {
 
     public BalanceClientSocketSessionImpl(SocketChannel channel) {

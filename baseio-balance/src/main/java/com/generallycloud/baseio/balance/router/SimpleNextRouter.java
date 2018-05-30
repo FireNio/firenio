@@ -25,8 +25,8 @@ import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleNextRouter extends AbstractBalanceRouter {
 
-    private int                               index      = 0;
-    private ReentrantLock                     lock       = new ReentrantLock();
+    private int                        index      = 0;
+    private ReentrantLock              lock       = new ReentrantLock();
     private List<ReverseSocketSession> routerList = new ArrayList<>();
 
     private ReverseSocketSession getNextRouterSession() {
@@ -61,8 +61,7 @@ public class SimpleNextRouter extends AbstractBalanceRouter {
     }
 
     @Override
-    public ReverseSocketSession getRouterSession(FacadeSocketSession session,
-            Future future) {
+    public ReverseSocketSession getRouterSession(FacadeSocketSession session, Future future) {
         ReverseSocketSession router_session = getRouterSession(session);
         if (router_session == null) {
             return getRouterSessionFresh(session);

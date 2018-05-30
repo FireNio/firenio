@@ -20,8 +20,8 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.redis.RedisFuture.RedisCommand;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -37,7 +37,7 @@ public class RedisCodec implements ProtocolCodec {
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
         return new RedisFutureImpl();
     }
-    
+
     @Override
     public Future createPINGPacket(SocketSession session) {
         RedisCmdFuture f = new RedisCmdFuture();
@@ -71,6 +71,6 @@ public class RedisCodec implements ProtocolCodec {
     }
 
     @Override
-    public void initialize(SocketChannelContext context) {}
+    public void initialize(ChannelContext context) {}
 
 }

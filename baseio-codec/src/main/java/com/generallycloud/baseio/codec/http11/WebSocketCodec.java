@@ -21,9 +21,9 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.collection.FixedThreadStack;
 import com.generallycloud.baseio.common.MathUtil;
-import com.generallycloud.baseio.component.ChannelThreadContext;
+import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.SelectorEventLoop;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -68,7 +68,7 @@ public class WebSocketCodec implements ProtocolCodec {
     public static final int      TYPE_TEXT        = 1;
     public static WebSocketCodec WS_PROTOCOL_CODEC;
 
-    static void init(SocketChannelContext context, int limit, int futureStackSize) {
+    static void init(ChannelContext context, int limit, int futureStackSize) {
         WS_PROTOCOL_CODEC = new WebSocketCodec(futureStackSize);
         WS_PROTOCOL_CODEC.limit = limit;
         WS_PROTOCOL_CODEC.initialize(context);
@@ -101,23 +101,22 @@ public class WebSocketCodec implements ProtocolCodec {
     @Override
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
         if (futureStackSize > 0) {
-            ChannelThreadContext context = channel.getChannelThreadContext();
-            FixedThreadStack<WebSocketFutureImpl> stack = (FixedThreadStack<WebSocketFutureImpl>) context
+            SelectorEventLoop eventLoop = channel.getEventLoop();
+            FixedThreadStack<WebSocketFutureImpl> stack = (FixedThreadStack<WebSocketFutureImpl>) eventLoop
                     .getAttribute(FUTURE_STACK_KEY);
             if (stack == null) {
                 stack = new FixedThreadStack<>(futureStackSize);
-                context.setAttribute(FUTURE_STACK_KEY, stack);
+                eventLoop.setAttribute(FUTURE_STACK_KEY, stack);
             }
             WebSocketFutureImpl future = stack.pop();
             if (future == null) {
                 return new WebSocketFutureImpl(channel,
                         channel.allocator().allocate(PROTOCOL_HEADER), limit);
             }
-            return future.reset(channel, channel.allocator().allocate(PROTOCOL_HEADER),
-                    limit);
+            return future.reset(channel, channel.allocator().allocate(PROTOCOL_HEADER), limit);
         }
-        return new WebSocketFutureImpl(channel,
-                channel.allocator().allocate(PROTOCOL_HEADER), limit);
+        return new WebSocketFutureImpl(channel, channel.allocator().allocate(PROTOCOL_HEADER),
+                limit);
     }
 
     @Override
@@ -148,7 +147,7 @@ public class WebSocketCodec implements ProtocolCodec {
         buf.put(data, 0, size);
         future.setByteBuf(buf.flip());
     }
-    
+
     public int getFutureStackSize() {
         return futureStackSize;
     }
@@ -159,7 +158,7 @@ public class WebSocketCodec implements ProtocolCodec {
     }
 
     @Override
-    public void initialize(SocketChannelContext context) {}
+    public void initialize(ChannelContext context) {}
 
     //  public IOWriteFuture encodeWithMask(BaseContext context, IOReadFuture readFuture) throws IOException {
     //      

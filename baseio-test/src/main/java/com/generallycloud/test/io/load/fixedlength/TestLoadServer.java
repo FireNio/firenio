@@ -15,27 +15,20 @@
  */
 package com.generallycloud.test.io.load.fixedlength;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.test.io.fixedlength.SetOptionListener;
 
 public class TestLoadServer {
 
     public static void main(String[] args) throws Exception {
-
-        final AtomicInteger res = new AtomicInteger();
-        final AtomicInteger req = new AtomicInteger();
-
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
@@ -44,24 +37,21 @@ public class TestLoadServer {
                 String res = "yes server already accept your message" + f.getReadText();
                 f.write(res, session);
                 session.flush(future);
-                //				System.out.println("req======================"+req.getAndIncrement());
             }
         };
 
+        SelectorEventLoopGroup group = new SelectorEventLoopGroup(6);
+        group.setMemoryPoolCapacity(2560000 / 2);
+        group.setMemoryPoolUnit(128);
+        group.setEnableMemoryPoolDirect(true);
+        group.setWriteBuffers(32);
         Configuration c = new Configuration(8300);
-
-        c.setMemoryPoolCapacity(2560000 / 2);
-        c.setMemoryPoolUnit(128);
-        c.setEnableMemoryPoolDirect(true);
-        c.setCoreSize(6);
-        c.setWriteBuffers(32);
-
-        SocketChannelContext context = new NioSocketChannelContext(c);
-        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+        ChannelContext context = new ChannelContext(c);
+        ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setProtocolCodec(new FixedLengthCodec());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         acceptor.bind();
     }
-    
+
 }

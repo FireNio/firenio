@@ -24,6 +24,6 @@ import java.io.IOException;
  */
 public interface SelectorLoopEvent extends Closeable {
 
-    void fireEvent(SelectorEventLoop selectorLoop) throws IOException;
+    void fireEvent(SelectorEventLoop eventLoop) throws IOException;
 
 }

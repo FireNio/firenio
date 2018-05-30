@@ -21,20 +21,20 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import com.generallycloud.baseio.common.ThreadUtil;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventLoop {
 
-    private SocketChannelContext   context;
+    private ChannelContext         context;
 
     private static Logger          logger = LoggerFactory.getLogger(ThreadEventLoop.class);
 
     private ExecutorEventLoopGroup executorEventLoopGroup;
 
-    public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, SocketChannelContext context) {
+    public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, ChannelContext context) {
         this.executorEventLoopGroup = eventLoopGroup;
         this.context = context;
     }

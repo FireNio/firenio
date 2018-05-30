@@ -19,18 +19,17 @@ import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.component.AioSocketChannelContext;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -65,22 +64,21 @@ public class TestLoadClient {
         };
 
         Configuration configuration = new Configuration(8300);
-        
-//        SocketChannelContext context = new NioSocketChannelContext(configuration);
-        SocketChannelContext context = new AioSocketChannelContext(configuration);
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+
+        //        SocketChannelContext context = new NioSocketChannelContext(configuration);
+        ChannelContext context = new ChannelContext(configuration);
+        ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
         connector.getContext().setProtocolCodec(new FixedLengthCodec());
-        connector.getContext().getConfiguration().setCoreSize(1);
         SocketSession session = connector.connect();
         System.out.println("################## Test start ####################");
         long old = System.currentTimeMillis();
 
         for (int i = 0; i < time; i++) {
             FixedLengthFuture future = new FixedLengthFutureImpl();
-            future.write("hello server!",session);
+            future.write("hello server!", session);
             session.flush(future);
         }
 

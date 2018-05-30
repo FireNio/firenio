@@ -22,9 +22,9 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.collection.FixedThreadStack;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.component.ChannelThreadContext;
+import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.SelectorEventLoop;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -37,12 +37,13 @@ public class ServerHttpCodec extends AbstractHttpCodec {
 
     public static final String  FUTURE_STACK_KEY         = "FixedThreadStack_ServerHttpFuture";
     private static final byte[] PROTOCOL                 = "HTTP/1.1 ".getBytes();
-    private static final byte[] SERVER_CL                = "\r\nServer: baseio/0.0.1\r\nContent-Length: ".getBytes();
+    private static final byte[] SERVER_CL                = "\r\nServer: baseio/0.0.1\r\nContent-Length: "
+            .getBytes();
     private static final byte[] SET_COOKIE               = "Set-Cookie:".getBytes();
     private int                 bodyLimit                = 1024 * 512;
     private int                 headerLimit              = 1024 * 8;
     private int                 websocketLimit           = 1024 * 8;
-    private final int          httpFutureStackSize;
+    private final int           httpFutureStackSize;
     private int                 websocketFutureStackSize = 0;
 
     public ServerHttpCodec() {
@@ -60,7 +61,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         this.bodyLimit = bodyLimit;
         this.httpFutureStackSize = httpFutureStackSize;
     }
-    
+
     @Override
     public Future createPINGPacket(SocketSession session) {
         return null;
@@ -74,12 +75,12 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     @Override
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
         if (httpFutureStackSize > 0) {
-            ChannelThreadContext context = channel.getChannelThreadContext();
-            FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) context
+            SelectorEventLoop eventLoop = channel.getEventLoop();
+            FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
                     .getAttribute(FUTURE_STACK_KEY);
             if (stack == null) {
                 stack = new FixedThreadStack<>(httpFutureStackSize);
-                context.setAttribute(FUTURE_STACK_KEY, stack);
+                eventLoop.setAttribute(FUTURE_STACK_KEY, stack);
             }
             ServerHttpFuture future = stack.pop();
             if (future == null) {
@@ -152,7 +153,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     }
 
     @Override
-    public void initialize(SocketChannelContext context) {
+    public void initialize(ChannelContext context) {
         WebSocketCodec.init(context, websocketLimit, websocketFutureStackSize);
     }
 
@@ -183,6 +184,5 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     public void setWebsocketFutureStackSize(int websocketFutureStackSize) {
         this.websocketFutureStackSize = websocketFutureStackSize;
     }
-    
 
 }

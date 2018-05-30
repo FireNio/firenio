@@ -17,8 +17,8 @@ package com.generallycloud.sample.baseio.http11;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptor;
 import com.generallycloud.baseio.protocol.Future;
@@ -56,13 +56,13 @@ public class SpringHttpFutureAcceptor extends HttpFutureAcceptor {
     }
 
     @Override
-    protected void destroy(SocketChannelContext context, boolean redeploy) {
+    protected void destroy(ChannelContext context, boolean redeploy) {
         applicationContext.destroy();
         super.destroy(context, redeploy);
     }
 
     @Override
-    protected void initialize(SocketChannelContext context, boolean redeploy) throws Exception {
+    protected void initialize(ChannelContext context, boolean redeploy) throws Exception {
         super.initialize(context, redeploy);
         System.setProperty("org.apache.commons.logging.log", Sl4jLogger.class.getName());
         Thread.currentThread().setContextClassLoader(null); //for spring

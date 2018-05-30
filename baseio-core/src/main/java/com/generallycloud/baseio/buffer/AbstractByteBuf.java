@@ -23,7 +23,8 @@ public abstract class AbstractByteBuf implements ByteBuf {
     static final AtomicIntegerFieldUpdater<AbstractByteBuf> refCntUpdater;
 
     static {
-        refCntUpdater = AtomicIntegerFieldUpdater.newUpdater(AbstractByteBuf.class,"referenceCount");
+        refCntUpdater = AtomicIntegerFieldUpdater.newUpdater(AbstractByteBuf.class,
+                "referenceCount");
     }
 
     protected ByteBufAllocator allocator;
@@ -94,7 +95,7 @@ public abstract class AbstractByteBuf implements ByteBuf {
         }
         return read0(src, srcRemaining, remaining);
     }
-    
+
     @Override
     public int read(ByteBuffer src, int length) {
         int srcRemaining = src.remaining();
@@ -107,11 +108,11 @@ public abstract class AbstractByteBuf implements ByteBuf {
         }
         if (srcRemaining > length) {
             int oldLimit = src.limit();
-            src.limit(src.position()+length);
+            src.limit(src.position() + length);
             int len = read0(src, length, remaining);
             src.limit(oldLimit);
             return len;
-        }else{
+        } else {
             return read0(src, srcRemaining, remaining);
         }
     }
@@ -130,7 +131,7 @@ public abstract class AbstractByteBuf implements ByteBuf {
         }
         return read0(src, srcRemaining, remaining);
     }
-    
+
     @Override
     public int read(ByteBuf src, int length) {
         int srcRemaining = src.remaining();
@@ -143,11 +144,11 @@ public abstract class AbstractByteBuf implements ByteBuf {
         }
         if (srcRemaining > length) {
             int oldLimit = src.limit();
-            src.limit(src.position()+length);
+            src.limit(src.position() + length);
             int len = read0(src, length, remaining);
             src.limit(oldLimit);
             return len;
-        }else{
+        } else {
             return read0(src, srcRemaining, remaining);
         }
     }

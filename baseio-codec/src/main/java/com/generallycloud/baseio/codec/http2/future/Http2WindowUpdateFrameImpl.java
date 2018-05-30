@@ -24,7 +24,7 @@ import com.generallycloud.baseio.component.SocketChannel;
 public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame
         implements Http2WindowUpdateFrame {
 
-    private int     updateValue;
+    private int updateValue;
 
     public Http2WindowUpdateFrameImpl(ByteBuf buf, Http2FrameHeader header) {
         super(header);
@@ -43,7 +43,7 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame
         if (buf.hasRemaining()) {
             return false;
         }
-        doComplete((SocketChannel) channel, buf.flip());
+        doComplete(channel, buf.flip());
         return true;
     }
 

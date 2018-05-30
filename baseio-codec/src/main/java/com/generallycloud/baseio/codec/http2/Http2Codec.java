@@ -28,8 +28,8 @@ import com.generallycloud.baseio.codec.http2.future.Http2SettingsFrame;
 import com.generallycloud.baseio.codec.http2.hpack.DefaultHttp2HeadersEncoder;
 import com.generallycloud.baseio.codec.http2.hpack.Http2HeadersEncoder;
 import com.generallycloud.baseio.common.MathUtil;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -99,18 +99,18 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  * 
  */
 //http://httpwg.org/specs/rfc7540.html
-public class Http2Codec implements ProtocolCodec{
+public class Http2Codec implements ProtocolCodec {
 
-    public static final int PROTOCOL_HEADER         = 9;
-    public static final int PROTOCOL_PING           = -1;
-    public static final int PROTOCOL_PONG           = -2;
-    public static final int PROTOCOL_PREFACE_HEADER = 24;
-    private Http2HeadersEncoder http2HeadersEncoder = new DefaultHttp2HeadersEncoder();
+    public static final int     PROTOCOL_HEADER         = 9;
+    public static final int     PROTOCOL_PING           = -1;
+    public static final int     PROTOCOL_PONG           = -2;
+    public static final int     PROTOCOL_PREFACE_HEADER = 24;
+    private Http2HeadersEncoder http2HeadersEncoder     = new DefaultHttp2HeadersEncoder();
 
     private ByteBuf allocate(SocketChannel channel, int capacity) {
         return channel.allocator().allocate(capacity);
     }
-    
+
     @Override
     public Future createPINGPacket(SocketSession session) {
         return null;
@@ -197,6 +197,6 @@ public class Http2Codec implements ProtocolCodec{
     }
 
     @Override
-    public void initialize(SocketChannelContext context) {}
-    
+    public void initialize(ChannelContext context) {}
+
 }

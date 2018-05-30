@@ -17,32 +17,30 @@ package com.generallycloud.baseio.buffer;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
-import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.configuration.Configuration;
+import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 
 /**
  * @author wangkai
  *
  */
-public class UnpooledByteBufAllocatorManager extends AbstractLifeCycle
-        implements ByteBufAllocatorManager {
+public class UnpooledByteBufAllocatorGroup extends AbstractLifeCycle
+        implements ByteBufAllocatorGroup {
 
-    private SocketChannelContext context;
-    private ByteBufAllocator     allocator;
+    private SelectorEventLoopGroup group;
+    private ByteBufAllocator       allocator;
 
-    public UnpooledByteBufAllocatorManager(SocketChannelContext context) {
-        this.context = context;
+    public UnpooledByteBufAllocatorGroup(SelectorEventLoopGroup group) {
+        this.group = group;
     }
 
     @Override
-    public ByteBufAllocator getNextBufAllocator() {
+    public ByteBufAllocator getNext() {
         return allocator;
     }
 
     @Override
     protected void doStart() throws Exception {
-        Configuration c = context.getConfiguration();
-        if (c.isEnableMemoryPoolDirect()) {
+        if (group.isEnableMemoryPoolDirect()) {
             allocator = UnpooledByteBufAllocator.getDirect();
         } else {
             allocator = UnpooledByteBufAllocator.getHeap();

@@ -20,12 +20,12 @@ import java.math.RoundingMode;
 
 import org.springframework.stereotype.Service;
 
-import com.generallycloud.baseio.buffer.ByteBufAllocatorManager;
-import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
+import com.generallycloud.baseio.buffer.ByteBufAllocatorGroup;
+import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.container.http11.HtmlUtil;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptor;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
@@ -44,27 +44,27 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
         WebSocketMsgAdapter chatMsgAdapter = chatServlet.getMsgAdapter();
         WebSocketMsgAdapter rumpetrollMsgAdapter = rumpetrollServlet.getMsgAdapter();
 
-        SocketChannelContext context = session.getIoSession().getContext();
+        SocketSession socketSession = session.getIoSession();
+        ChannelContext context = session.getIoSession().getContext();
         HttpFutureAcceptor httpContext = session.getContext();
 
         BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
         BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
         BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
 
-        ByteBufAllocatorManager allocator = context.getByteBufAllocatorManager();
+        SelectorEventLoopGroup group = socketSession.unsafe().getEventLoop().getEventLoopGroup();
+
+        ByteBufAllocatorGroup allocator = group.getAllocatorGroup();
 
         String allocatorDes = "unpooled";
 
-        if (allocator instanceof PooledByteBufAllocatorManager) {
-            allocatorDes = ((PooledByteBufAllocatorManager) allocator).toDebugString();
+        if (allocator instanceof PooledByteBufAllocatorGroup) {
+            allocatorDes = ((PooledByteBufAllocatorGroup) allocator).toDebugString();
         }
 
-        Configuration configuration = context.getConfiguration();
-
-        int SERVER_CORE_SIZE = configuration.getCoreSize();
-        int SERVER_MEMORY_POOL_CAPACITY = configuration.getMemoryPoolCapacity()
-                * SERVER_CORE_SIZE;
-        int SERVER_MEMORY_POOL_UNIT = configuration.getMemoryPoolUnit();
+        int eventLoopSize = group.getEventLoopSize();
+        int SERVER_MEMORY_POOL_CAPACITY = group.getMemoryPoolCapacity() * eventLoopSize;
+        int SERVER_MEMORY_POOL_UNIT = group.getMemoryPoolUnit();
 
         double MEMORY_POOL_SIZE = new BigDecimal(
                 SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
@@ -93,7 +93,7 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
         builder.append(rumpetrollMsgAdapter.getClientSize());
         builder.append("\n</BR>服务器当前连接数（io-session）：");
         builder.append(context.getSessionManager().getManagedSessionSize());
-        for(SocketSession s : context.getSessionManager().getManagedSessions().values()){
+        for (SocketSession s : context.getSessionManager().getManagedSessions().values()) {
             builder.append("\n</BR>");
             builder.append(s);
             builder.append(",opened:");
@@ -108,7 +108,7 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
         builder.append(HtmlUtil.HTML_POWER_BY);
         builder.append(HtmlUtil.HTML_BOTTOM);
 
-        future.write(builder.toString(),session.getEncoding());
+        future.write(builder.toString(), session.getEncoding());
 
         future.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
 

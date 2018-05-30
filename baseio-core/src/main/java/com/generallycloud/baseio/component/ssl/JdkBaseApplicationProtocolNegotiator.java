@@ -24,10 +24,10 @@ import javax.net.ssl.SSLHandshakeException;
 
 class JdkBaseApplicationProtocolNegotiator implements JdkApplicationProtocolNegotiator {
 
-    static final ProtocolSelectionListenerFactory FAIL_SELECTION_LISTENER_FACTORY    = new FAIL_SELECTION_LISTENER_FACTORY();
-    static final ProtocolSelectorFactory          FAIL_SELECTOR_FACTORY              = new FAIL_SELECTOR_FACTORY();
-    static final ProtocolSelectionListenerFactory NO_FAIL_SELECTION_LISTENER_FACTORY = new NO_FAIL_SELECTION_LISTENER_FACTORY();
-    static final ProtocolSelectorFactory          NO_FAIL_SELECTOR_FACTORY           = new NO_FAIL_SELECTOR_FACTORY();
+    static final ProtocolSelectionListenerFactory  FAIL_SELECTION_LISTENER_FACTORY    = new FAIL_SELECTION_LISTENER_FACTORY();
+    static final ProtocolSelectorFactory           FAIL_SELECTOR_FACTORY              = new FAIL_SELECTOR_FACTORY();
+    static final ProtocolSelectionListenerFactory  NO_FAIL_SELECTION_LISTENER_FACTORY = new NO_FAIL_SELECTION_LISTENER_FACTORY();
+    static final ProtocolSelectorFactory           NO_FAIL_SELECTOR_FACTORY           = new NO_FAIL_SELECTOR_FACTORY();
     private final ProtocolSelectionListenerFactory listenerFactory;
     private final List<String>                     protocols;
     private final ProtocolSelectorFactory          selectorFactory;
@@ -46,14 +46,17 @@ class JdkBaseApplicationProtocolNegotiator implements JdkApplicationProtocolNego
     public ProtocolSelectionListenerFactory protocolListenerFactory() {
         return listenerFactory;
     }
+
     @Override
     public List<String> protocols() {
         return protocols;
     }
+
     @Override
     public ProtocolSelectorFactory protocolSelectorFactory() {
         return selectorFactory;
     }
+
     @Override
     public SslEngineWrapperFactory wrapperFactory() {
         return wrapperFactory;

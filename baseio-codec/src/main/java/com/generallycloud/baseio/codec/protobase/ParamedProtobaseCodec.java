@@ -39,7 +39,7 @@ public class ParamedProtobaseCodec extends ProtobaseCodec {
     public ParamedProtobaseCodec(int limit) {
         this.limit = limit;
     }
-    
+
     @Override
     public Future createPINGPacket(SocketSession session) {
         return new ParamedProtobaseFutureImpl().setPING();

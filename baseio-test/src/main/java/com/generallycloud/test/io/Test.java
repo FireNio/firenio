@@ -27,25 +27,24 @@ import com.generallycloud.baseio.common.MessageFormatter;
  *
  */
 public class Test {
-    
-    
+
     public static void main(String[] args) throws Exception {
         int max = 8;
         List<String> list = getList(max);
         System.out.println();
         long startTime = System.currentTimeMillis();
-        
+
         for (int i = 0; i < 1024 * 512; i++) {
-//          testForI(list,max);
-//          testForI2(list,max);
-          testForeach(list, max);
+            //          testForI(list,max);
+            //          testForI2(list,max);
+            testForeach(list, max);
         }
         long endTime = System.currentTimeMillis();
-        System.out.println("Time:"+(endTime - startTime));
-        
+        System.out.println("Time:" + (endTime - startTime));
+
     }
-    
-    static boolean testForeach(List<String> list ,int max){
+
+    static boolean testForeach(List<String> list, int max) {
         for (String i : list) {
             if ("test".equals(i)) {
                 return true;
@@ -53,8 +52,8 @@ public class Test {
         }
         return false;
     }
-    
-    static boolean testForI(List<String> list ,int max){
+
+    static boolean testForI(List<String> list, int max) {
         for (int i = 0; i < list.size(); i++) {
             if ("test".equals(list.get(i))) {
                 return true;
@@ -62,8 +61,8 @@ public class Test {
         }
         return false;
     }
-    
-    static boolean testForI2(List<String> list ,int max){
+
+    static boolean testForI2(List<String> list, int max) {
         for (int i = 0; i < max; i++) {
             if ("test".equals(list.get(i))) {
                 return true;
@@ -71,43 +70,43 @@ public class Test {
         }
         return false;
     }
-    
-    static List<String> getList(int max){
+
+    static List<String> getList(int max) {
         List<String> list = new ArrayList<>(max);
         for (int i = 0; i < max; i++) {
             list.add(String.valueOf(i));
         }
         return list;
     }
-    
-    
-    static void test() throws Exception{
-        
-        List<String> ls = FileUtil.readLines(FileUtil.readInputStreamByCls("test.txt"),Encoding.UTF8);
+
+    static void test() throws Exception {
+
+        List<String> ls = FileUtil.readLines(FileUtil.readInputStreamByCls("test.txt"),
+                Encoding.UTF8);
         boolean req = true;
-        for(String l : ls){
+        for (String l : ls) {
             l = l.trim();
             if (l.length() == 0) {
                 req = false;
                 continue;
             }
             int idx = l.indexOf(" ");
-            String key = l.substring(0,idx);
-            String desc = l.substring(idx+1);
+            String key = l.substring(0, idx);
+            String desc = l.substring(idx + 1);
             String key1;
             String key2;
             if (req) {
                 key1 = "Req_" + key.replace("-", "_");
                 key2 = key.toLowerCase();
-            }else{
+            } else {
                 key1 = key.replace("-", "_");
                 key2 = key;
             }
-            String  s = MessageFormatter.format("public static final String {} = \"{}\";", key1, key2);
-            System.out.println("//"+desc.trim());
+            String s = MessageFormatter.format("public static final String {} = \"{}\";", key1,
+                    key2);
+            System.out.println("//" + desc.trim());
             System.out.println(s);
-            
-            
+
         }
     }
 

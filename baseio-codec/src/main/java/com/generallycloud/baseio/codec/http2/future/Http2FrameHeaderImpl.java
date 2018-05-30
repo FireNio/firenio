@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.MathUtil;
-import com.generallycloud.baseio.component.ChannelThreadContext;
+import com.generallycloud.baseio.component.SelectorEventLoop;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
@@ -37,8 +37,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
         setByteBuf(buf);
     }
 
-    public Http2FrameHeaderImpl() {
-    }
+    public Http2FrameHeaderImpl() {}
 
     private void doHeaderComplete(SocketChannel channel, ByteBuf buf) {
         byte b0 = buf.getByte();
@@ -121,13 +120,13 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
     private SocketHttp2Frame genFrame(SocketChannel channel, int type, int length) {
         return genFrame(channel, Http2FrameType.getValue(type), length);
     }
-    
+
     @Override
-    public void release(ChannelThreadContext context) {
-        super.release(context);
-        frame.release(context);
+    public void release(SelectorEventLoop eventLoop) {
+        super.release(eventLoop);
+        frame.release(eventLoop);
     }
-    
+
     @Override
     public boolean isReleased() {
         return frame.isReleased() && getByteBuf().isReleased();

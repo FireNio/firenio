@@ -27,10 +27,10 @@ import java.util.List;
 public class StringUtil {
 
     private static String[] ZEROS;
-    
-    private static Field stringValueField;
-    
-    private static boolean enableGetStringValueField;
+
+    private static Field    stringValueField;
+
+    private static boolean  enableGetStringValueField;
 
     static {
         int max = 15;
@@ -100,8 +100,8 @@ public class StringUtil {
         }
         return args[index];
     }
-    
-    public static int lastIndexOf(String str,char ch,int length){
+
+    public static int lastIndexOf(String str, char ch, int length) {
         int end = -1;
         if (str.length() > length) {
             end = str.length() - length - 1;
@@ -113,11 +113,11 @@ public class StringUtil {
         }
         return -1;
     }
-    
+
     public static List<String> toList(String... protocols) {
         return toList(16, protocols);
     }
-    
+
     public static List<String> toList(int initialListSize, String... protocols) {
         if (protocols == null) {
             return null;
@@ -134,8 +134,8 @@ public class StringUtil {
         }
         return result;
     }
-    
-    public static char[] stringToCharArray(String str){
+
+    public static char[] stringToCharArray(String str) {
         if (!enableGetStringValueField) {
             return str.toCharArray();
         }
@@ -145,9 +145,9 @@ public class StringUtil {
             return str.toCharArray();
         }
     }
-    
-    public static boolean isTrueValue(String value){
+
+    public static boolean isTrueValue(String value) {
         return "true".equals(value) || "1".equals(value);
     }
-    
+
 }

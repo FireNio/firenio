@@ -21,9 +21,8 @@ import com.generallycloud.baseio.balance.BalanceServerBootStrap;
 import com.generallycloud.baseio.balance.FacadeInterceptorImpl;
 import com.generallycloud.baseio.balance.router.HashedBalanceRouter;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.Configuration;
 
 public class TestBalanceMain {
@@ -37,8 +36,8 @@ public class TestBalanceMain {
         fc.setPort(8600);
         rc.setPort(8800);
 
-        SocketChannelContext fcc = new NioSocketChannelContext(fc);
-        SocketChannelContext rcc = new NioSocketChannelContext(rc);
+        ChannelContext fcc = new ChannelContext(fc);
+        ChannelContext rcc = new ChannelContext(rc);
 
         fcc.setProtocolCodec(new ProtobaseCodec());
         rcc.setProtocolCodec(new ProtobaseCodec());

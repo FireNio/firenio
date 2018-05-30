@@ -23,13 +23,12 @@ import com.generallycloud.baseio.codec.http11.HttpClient;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 
 /**
  * @author wangkai
@@ -37,19 +36,18 @@ import com.generallycloud.baseio.connector.SocketChannelConnector;
  */
 public class TestSimpleHttpClient2 {
 
-    
     public static void main(String[] args) throws IOException {
-        
+
         String host = "www.baidu.com";
         host = "generallycloud.com";
         host = "127.0.0.1";
         int port = 443;
         port = 8080;
-        
+
         HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
         Configuration c = new Configuration(host, port);
-        SocketChannelContext context = new NioSocketChannelContext(c);
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        ChannelContext context = new ChannelContext(c);
+        ChannelConnector connector = new ChannelConnector(context);
         context.setProtocolCodec(new ClientHttpCodec());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
@@ -59,16 +57,12 @@ public class TestSimpleHttpClient2 {
         SocketSession session = connector.connect();
         HttpClient client = new HttpClient(session);
         HttpFuture future = new ClientHttpFuture(context, "/");
-        HttpFuture res = client.request(future,99990000);
+        HttpFuture res = client.request(future, 99990000);
         System.out.println();
         System.out.println(new String(res.getBodyContent()));
         System.out.println();
-        
+
         CloseUtil.close(connector);
-        
-        
-        
-        
-        
+
     }
 }

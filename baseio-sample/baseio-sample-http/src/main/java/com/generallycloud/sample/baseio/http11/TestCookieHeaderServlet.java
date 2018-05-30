@@ -43,8 +43,8 @@ public class TestCookieHeaderServlet extends HttpFutureAcceptorService {
         c.setMaxAge(999999);
         future.addCookie(c);
         future.setResponseHeader(name, value);
-        future.write(res,session.getEncoding());
+        future.write(res, session.getEncoding());
         session.flush(future);
     }
-    
+
 }

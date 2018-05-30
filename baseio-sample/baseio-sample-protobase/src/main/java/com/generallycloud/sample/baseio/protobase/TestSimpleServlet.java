@@ -40,9 +40,9 @@ public class TestSimpleServlet extends ProtobaseFutureAcceptorService {
         if (StringUtil.isNullOrBlank(test)) {
             test = "test";
         }
-        future.write(simple1.dynamic(),session);
-        future.write(test,session);
-        future.write("$",session);
+        future.write(simple1.dynamic(), session);
+        future.write(test, session);
+        future.write("$", session);
         session.flush(future);
 
         //		System.out.println("=============================="+size.incrementAndGet());

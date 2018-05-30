@@ -24,6 +24,6 @@ import com.generallycloud.baseio.container.implementation.SystemRedeployServlet;
  *
  */
 @Service("/system-redeploy")
-public class HttpSystemRedeployServlet extends SystemRedeployServlet{
+public class HttpSystemRedeployServlet extends SystemRedeployServlet {
 
 }

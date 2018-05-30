@@ -71,5 +71,5 @@ public class ScspLinkedQueue<T> implements LinkedQueue<T> {
     public int size() {
         return size.get();
     }
-    
+
 }

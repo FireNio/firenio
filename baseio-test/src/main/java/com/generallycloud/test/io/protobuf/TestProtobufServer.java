@@ -15,14 +15,13 @@
  */
 package com.generallycloud.test.io.protobuf;
 
-import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
+import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
@@ -58,9 +57,9 @@ public class TestProtobufServer {
             }
         };
 
-        SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(new Configuration(8300));
 
-        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+        ChannelAcceptor acceptor = new ChannelAcceptor(context);
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 

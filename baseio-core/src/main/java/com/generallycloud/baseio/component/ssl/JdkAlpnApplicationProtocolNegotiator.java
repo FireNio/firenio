@@ -58,7 +58,7 @@ public final class JdkAlpnApplicationProtocolNegotiator
                 JdkApplicationProtocolNegotiator applicationNegotiator, boolean isServer) {
             return new JdkAlpnSslEngine(engine, applicationNegotiator, isServer);
         }
-        
+
         private static boolean available;
 
         private static boolean isAvailable() {
@@ -68,8 +68,7 @@ public final class JdkAlpnApplicationProtocolNegotiator
             try {
                 Class.forName("sun.security.ssl.ALPNExtension", true, null);
                 available = true;
-            } catch (Exception ignore) {
-            }
+            } catch (Exception ignore) {}
             return available;
         }
 

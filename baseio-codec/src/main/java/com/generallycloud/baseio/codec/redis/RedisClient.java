@@ -19,17 +19,17 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.codec.redis.RedisFuture.RedisCommand;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Waiter;
 
 //FIXME check null
 public class RedisClient {
 
-    private SocketChannelContext context;
-    private SocketSession        session;
-    private RedisIOEventHandle   ioEventHandle;
-    private long                 timeout;
+    private ChannelContext     context;
+    private SocketSession      session;
+    private RedisIOEventHandle ioEventHandle;
+    private long               timeout;
 
     public RedisClient(SocketSession session) {
         this(session, 3000);

@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.common;
 
-import com.generallycloud.baseio.component.ChannelThreadContext;
+import com.generallycloud.baseio.component.SelectorEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
@@ -34,7 +34,7 @@ public class ReleaseUtil {
             logger.error(e.getMessage(), e);
         }
     }
-    
+
     public static void release(Releasable releasable) {
         if (releasable == null) {
             return;
@@ -45,16 +45,16 @@ public class ReleaseUtil {
             logger.error(e.getMessage(), e);
         }
     }
-    
-    public static void release(ChannelFuture future, ChannelThreadContext context) {
+
+    public static void release(ChannelFuture future, SelectorEventLoop eventLoop) {
         if (future == null) {
             return;
         }
         try {
-            future.release(context);
+            future.release(eventLoop);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
     }
-    
+
 }

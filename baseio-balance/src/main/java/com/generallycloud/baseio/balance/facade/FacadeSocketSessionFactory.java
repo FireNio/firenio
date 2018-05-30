@@ -16,13 +16,13 @@
 package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionFactoryImpl;
-import com.generallycloud.baseio.component.UnsafeSocketSession;
 
 public class FacadeSocketSessionFactory extends SocketSessionFactoryImpl {
 
     @Override
-    public UnsafeSocketSession newUnsafeSession(SocketChannel channel) {
+    public SocketSession newUnsafeSession(SocketChannel channel) {
         return new FacadeSocketSessionImpl(channel);
     }
 

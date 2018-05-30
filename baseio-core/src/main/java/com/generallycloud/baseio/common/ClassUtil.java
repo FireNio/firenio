@@ -76,13 +76,13 @@ public class ClassUtil {
             return e;
         }
     }
-    
+
     public static Field getDeclaredField(Class<?> clazz, String name) {
         if (clazz == null) {
             return null;
         }
         Field[] fs = clazz.getDeclaredFields();
-        for(Field f : fs){
+        for (Field f : fs) {
             if (f.getName().equals(name)) {
                 return f;
             }

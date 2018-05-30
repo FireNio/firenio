@@ -21,8 +21,8 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -45,20 +45,20 @@ import com.generallycloud.baseio.protocol.ProtocolException;
  *  
  * </pre>
  */
-public class ProtobaseCodec implements ProtocolCodec{
-    
+public class ProtobaseCodec implements ProtocolCodec {
+
     private static final ByteBuf PING;
-    
+
     private static final ByteBuf PONG;
 
-    static{
+    static {
         ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeap();
         PING = allocator.allocate(2);
         PONG = allocator.allocate(2);
-        PING.putByte((byte)0b10000000);
-        PING.putByte((byte)0b00000000);
-        PONG.putByte((byte)0b11000000);
-        PONG.putByte((byte)0b00000000);
+        PING.putByte((byte) 0b10000000);
+        PING.putByte((byte) 0b00000000);
+        PONG.putByte((byte) 0b11000000);
+        PONG.putByte((byte) 0b00000000);
         PING.flip();
         PONG.flip();
     }
@@ -72,7 +72,7 @@ public class ProtobaseCodec implements ProtocolCodec{
     public ProtobaseCodec(int limit) {
         this.limit = limit;
     }
-    
+
     @Override
     public Future createPINGPacket(SocketSession session) {
         return new ProtobaseFutureImpl().setPING();
@@ -82,14 +82,14 @@ public class ProtobaseCodec implements ProtocolCodec{
     public Future createPONGPacket(SocketSession session, ChannelFuture ping) {
         return ping.setPONG();
     }
-    
+
     @Override
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         ByteBuf buf = allocator.allocate(2);
         return new ProtobaseFutureImpl(buf);
     }
-    
+
     @Override
     public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
@@ -103,7 +103,7 @@ public class ProtobaseCodec implements ProtocolCodec{
         if (StringUtil.isNullOrBlank(futureName)) {
             throw new ProtocolException("future name is empty");
         }
-        byte [] futureNameBytes = futureName.getBytes(channel.getEncoding());
+        byte[] futureNameBytes = futureName.getBytes(channel.getEncoding());
         if (futureNameBytes.length > Byte.MAX_VALUE) {
             throw new ProtocolException("future name max length 127");
         }
@@ -165,8 +165,8 @@ public class ProtobaseCodec implements ProtocolCodec{
     public String getProtocolId() {
         return "Protobase";
     }
-    
+
     @Override
-    public void initialize(SocketChannelContext context) {}
+    public void initialize(ChannelContext context) {}
 
 }

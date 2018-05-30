@@ -56,7 +56,7 @@ public class TestSimplyByteBufAllocator {
 
                 ThreadUtil.sleep(new Random().nextInt(20));
 
-                ReleaseUtil.release(buf,buf.getReleaseVersion());
+                ReleaseUtil.release(buf, buf.getReleaseVersion());
 
                 //				String des = allocator.toString();
                 //				

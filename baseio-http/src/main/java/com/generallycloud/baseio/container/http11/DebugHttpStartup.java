@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.container.http11;
 
 import com.generallycloud.baseio.common.ThreadUtil;
-import com.generallycloud.baseio.container.http11.HttpStartup;
 import com.generallycloud.baseio.log.DebugUtil;
 
 /**
@@ -28,7 +27,7 @@ public class DebugHttpStartup {
     public static void main(String[] args) throws Exception {
         DebugUtil.info("start debug ^^^^^^^^^^^^^^^^^^^^^^^^");
         boolean test = true;
-        for(;test;){
+        for (; test;) {
             ThreadUtil.sleep(100);
         }
         HttpStartup.main(args);

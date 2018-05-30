@@ -17,5 +17,5 @@ package com.generallycloud.baseio.component;
 
 public interface ForeFutureAcceptor extends FutureAcceptor {
 
-    void initialize(SocketChannelContext channelContext) throws Exception;
+    void initialize(ChannelContext channelContext) throws Exception;
 }

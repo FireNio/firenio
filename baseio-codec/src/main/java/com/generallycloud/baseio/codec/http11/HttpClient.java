@@ -18,15 +18,15 @@ package com.generallycloud.baseio.codec.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Waiter;
 
 public class HttpClient {
 
-    private SocketChannelContext context;
-    private SocketSession        session;
-    private HttpIOEventHandle    ioEventHandle;
+    private ChannelContext    context;
+    private SocketSession     session;
+    private HttpIOEventHandle ioEventHandle;
 
     public HttpClient(SocketSession session) {
         this.session = session;

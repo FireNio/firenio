@@ -23,7 +23,7 @@ import com.generallycloud.baseio.component.SocketChannel;
 
 public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2SettingsFrame {
 
-    private long[]  settings;  //FIXME delete
+    private long[] settings; //FIXME delete
 
     public Http2SettingsFrameImpl(ByteBuf buf, Http2FrameHeader header) {
         super(header);

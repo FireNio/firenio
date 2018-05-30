@@ -34,8 +34,8 @@ final class JdkAlpnSslEngine extends JdkSslEngine {
 
         if (server) {
             final ProtocolSelector protocolSelector = applicationNegotiator
-                    .protocolSelectorFactory().newSelector(this,
-                            new LinkedHashSet<>(applicationNegotiator.protocols()));
+                    .protocolSelectorFactory()
+                    .newSelector(this, new LinkedHashSet<>(applicationNegotiator.protocols()));
             ALPN.put(engine, new ServerProvider() {
                 @Override
                 public String select(List<String> protocols) throws SSLException {

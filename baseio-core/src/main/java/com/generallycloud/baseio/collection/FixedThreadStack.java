@@ -21,8 +21,8 @@ package com.generallycloud.baseio.collection;
  */
 public class FixedThreadStack<V> {
 
-    private V[]                  vs;
-    private int                  size;
+    private V[] vs;
+    private int size;
 
     @SuppressWarnings("unchecked")
     public FixedThreadStack(int capacity) {

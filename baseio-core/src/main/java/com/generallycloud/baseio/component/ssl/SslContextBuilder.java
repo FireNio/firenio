@@ -312,7 +312,8 @@ public final class SslContextBuilder {
         if (keyInputStream == null) {
             return null;
         }
-        return getPrivateKeyFromByteBuffer(PemReader.readCertificates(keyInputStream).get(0), keyPassword);
+        return getPrivateKeyFromByteBuffer(PemReader.readCertificates(keyInputStream).get(0),
+                keyPassword);
     }
 
     private X509Certificate[] toX509Certificates(InputStream in) throws CertificateException {
@@ -394,7 +395,8 @@ public final class SslContextBuilder {
             if (keyPassword == null) {
                 keyPassword = "";
             }
-            this.keyManagerFactory = buildKeyManagerFactory(keystore, StringUtil.stringToCharArray(keyPassword));
+            this.keyManagerFactory = buildKeyManagerFactory(keystore,
+                    StringUtil.stringToCharArray(keyPassword));
             return this;
         } catch (Exception e) {
             throw new SSLException(e);

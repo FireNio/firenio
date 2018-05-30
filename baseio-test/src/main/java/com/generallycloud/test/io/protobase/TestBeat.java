@@ -19,14 +19,14 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionActiveIEListener;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -45,10 +45,10 @@ public class TestBeat {
         };
 
         String serviceKey = "TestSimpleServlet";
-        Configuration configuration = new Configuration(8300);
-        configuration.setSessionIdleTime(10);
-        SocketChannelContext context = new NioSocketChannelContext(configuration);
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        SelectorEventLoopGroup group = new SelectorEventLoopGroup();
+        group.setIdleTime(10);
+        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelConnector connector = new ChannelConnector(context,group);
         context.addSessionIdleEventListener(new SocketSessionActiveIEListener());
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new ProtobaseCodec());
@@ -58,7 +58,7 @@ public class TestBeat {
         long old = System.currentTimeMillis();
         for (int i = 0; i < 5; i++) {
             Future future = new ProtobaseFutureImpl(serviceKey);
-            future.write(param,context);
+            future.write(param, context);
             session.flush(future);
             ThreadUtil.sleep(300);
         }

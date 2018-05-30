@@ -15,13 +15,12 @@
  */
 package com.generallycloud.test.io.protobase;
 
-import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionAliveIEListener;
 import com.generallycloud.baseio.configuration.Configuration;
@@ -40,21 +39,19 @@ public class SimpleTestProtobaseServer {
             public void accept(SocketSession session, Future future) throws Exception {
                 ProtobaseFuture f = (ProtobaseFuture) future;
                 DebugUtil.debug("receive:" + f.getReadText());
-                future.write("yes server already accept your message:",session);
-                future.write(f.getReadText(),session);
+                future.write("yes server already accept your message:", session);
+                future.write(f.getReadText(), session);
                 session.flush(future);
             }
         };
 
-        SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
-        context.getConfiguration().setEnableMemoryPoolDirect(true);
-        context.getConfiguration().setSessionIdleTime(60 * 60 * 1000);
-        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelAcceptor acceptor = new ChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.addSessionIdleEventListener(new SocketSessionAliveIEListener());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());
         acceptor.bind();
     }
-    
+
 }

@@ -45,7 +45,7 @@ public interface DynamicClassLoader extends Closeable {
     void clearAssertionStatus();
 
     Class<?> loadClass(String name) throws ClassNotFoundException;
-    
+
     void scan(String file) throws IOException;
 
     void scan(File file) throws IOException;
@@ -57,7 +57,7 @@ public interface DynamicClassLoader extends Closeable {
     void addExcludePath(String path);
 
     void removeExcludePath(String path);
-    
+
     class DuplicateClassException extends IOException {
 
         private static final long serialVersionUID = 1L;

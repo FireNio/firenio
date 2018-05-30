@@ -17,7 +17,7 @@ package com.generallycloud.baseio.log;
 
 public class DebugUtil {
 
-    private static DebugLogger logger     = new DebugLogger(DebugUtil.class);
+    private static DebugLogger logger      = new DebugLogger(DebugUtil.class);
 
     private static boolean     enableDebug = false;
 
@@ -87,7 +87,7 @@ public class DebugUtil {
     public static boolean isEnableDebug() {
         return enableDebug;
     }
-    
+
     public static DebugLogger getLogger() {
         return logger;
     }

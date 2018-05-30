@@ -21,14 +21,13 @@ import com.generallycloud.baseio.codec.http11.HttpClient;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 
 public class TestSimpleHttpClient {
 
@@ -39,11 +38,11 @@ public class TestSimpleHttpClient {
         //		ServerConfiguration c = new ServerConfiguration("localhost",80);
 
         Configuration c = new Configuration("generallycloud.com", 443);
-        
-        SocketChannelContext context = new NioSocketChannelContext(c);
 
-        SocketChannelConnector connector = new SocketChannelConnector(context);
-        
+        ChannelContext context = new ChannelContext(c);
+
+        ChannelConnector connector = new ChannelConnector(context);
+
         SslContext sslContext = SSLUtil.initClient(true);
 
         context.setProtocolCodec(new ClientHttpCodec());
@@ -57,11 +56,11 @@ public class TestSimpleHttpClient {
 
         HttpFuture future = new ClientHttpFuture(context, "/test-show-memory");
 
-        HttpFuture res = client.request(future,10000);
+        HttpFuture res = client.request(future, 10000);
         System.out.println();
         System.out.println(new String(res.getBodyContent()));
         System.out.println();
-        
+
         CloseUtil.close(connector);
 
     }

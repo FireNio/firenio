@@ -23,7 +23,7 @@ public class TestUDPConnector1 {
         //
         //		SimpleIOEventHandle eventHandle = new SimpleIOEventHandle();
         //
-        //		SocketChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
+        //		ChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
         //
         //		FixedSession session = new FixedSession(connector.connect());
         //

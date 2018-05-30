@@ -17,15 +17,14 @@ package com.generallycloud.test.io.fixedlength;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
@@ -39,28 +38,28 @@ public class SimpleTestFIxedLengthBroadcastServer {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:",session);
-                future.write(f.getReadText(),session);
+                future.write("yes server already accept your message:", session);
+                future.write(f.getReadText(), session);
                 session.flush(f);
             }
         };
 
-        SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
-        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelAcceptor acceptor = new ChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.addSessionEventListener(new SetOptionListener());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.setProtocolCodec(new FixedLengthCodec());
         acceptor.bind();
-        
+
         ThreadUtil.exec(new Runnable() {
-            
+
             @Override
             public void run() {
-                for(;;){
+                for (;;) {
                     ThreadUtil.sleep(1000);
                     FixedLengthFuture future = new FixedLengthFutureImpl();
-                    future.write("broadcast msg .........................",context);
+                    future.write("broadcast msg .........................", context);
                     try {
                         acceptor.broadcast(future);
                     } catch (IOException e) {

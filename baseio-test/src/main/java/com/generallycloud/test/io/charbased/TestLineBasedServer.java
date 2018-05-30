@@ -17,13 +17,12 @@ package com.generallycloud.test.io.charbased;
 
 import java.io.File;
 
-import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
 import com.generallycloud.baseio.common.FileUtil;
+import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
@@ -39,13 +38,13 @@ public class TestLineBasedServer {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 String res = "yes server already accept your message:" + future;
-                future.write(res,session.getEncoding());
+                future.write(res, session.getEncoding());
                 session.flush(future);
             }
         };
 
-        SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
-        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelAcceptor acceptor = new ChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.setProtocolCodec(new CharBasedCodec());
@@ -54,6 +53,6 @@ public class TestLineBasedServer {
         SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
         context.setSslContext(sslContext);
         acceptor.bind();
-        
+
     }
 }

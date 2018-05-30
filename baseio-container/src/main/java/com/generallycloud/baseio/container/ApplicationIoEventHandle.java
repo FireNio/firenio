@@ -21,12 +21,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.DynamicClassLoader;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.SocketSessionEventListener;
 import com.generallycloud.baseio.component.URLDynamicClassLoader;
@@ -43,7 +43,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     private ApplicationExtLoader           applicationExtLoader;
     private String                         appLocalAddres;
     private FutureAcceptor                 appOnRedeployService;
-    private SocketChannelContext           channelContext;
+    private ChannelContext                 channelContext;
     private URLDynamicClassLoader          classLoader;
     private ApplicationConfiguration       configuration;
     private ApplicationConfigurationLoader configurationLoader;
@@ -81,13 +81,13 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     }
 
     @Override
-    protected void destroy(SocketChannelContext context) throws Exception {
+    protected void destroy(ChannelContext context) throws Exception {
         this.deploying = true;
         this.destroyHandle(context, false);
         super.destroy(context);
     }
 
-    private void destroyHandle(SocketChannelContext context, boolean redeploy) {
+    private void destroyHandle(ChannelContext context, boolean redeploy) {
         futureAcceptor.destroy(context, redeploy);
         classLoader.unloadClassLoader();
     }
@@ -105,7 +105,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         return appLocalAddres;
     }
 
-    public SocketChannelContext getChannelContext() {
+    public ChannelContext getChannelContext() {
         return channelContext;
     }
 
@@ -142,7 +142,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     }
 
     @Override
-    protected void initialize(SocketChannelContext context) throws Exception {
+    protected void initialize(ChannelContext context) throws Exception {
         this.channelContext = context;
         if (StringUtil.isNullOrBlank(rootLocalAddress)) {
             throw new IllegalArgumentException("rootLocalAddress");
@@ -162,7 +162,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         super.initialize(context);
     }
 
-    private void initializeHandle(SocketChannelContext context, boolean redeploy) throws Exception {
+    private void initializeHandle(ChannelContext context, boolean redeploy) throws Exception {
         ClassLoader parent = getClass().getClassLoader();
         this.classLoader = ApplicationBootstrap.newClassLoader(parent, runtimeMode, true,
                 rootLocalAddress, ApplicationBootstrap.withDefault());
@@ -210,7 +210,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
             LoggerUtil.prettyLog(logger,
                     "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  开始卸载服务  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
             destroyHandle(channelContext, true);
-            
+
             LoggerUtil.prettyLog(logger,
                     "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  开始加载服务  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
             initializeHandle(channelContext, true);
@@ -237,7 +237,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         this.applicationExtLoader = applicationExtLoader;
     }
 
-    public void setChannelContext(SocketChannelContext context) {
+    public void setChannelContext(ChannelContext context) {
         this.channelContext = context;
     }
 

@@ -35,12 +35,12 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public final class SslContext {
 
-    private static final Logger logger = LoggerFactory.getLogger(SslContext.class);
+    private static final Logger  logger = LoggerFactory.getLogger(SslContext.class);
     private static final boolean openSslAvailable;
 
-    static final List<String>   ENABLED_CIPHERS;
-    static final String[]       ENABLED_PROTOCOLS;
-    static final Set<String>    SUPPORTED_CIPHERS;
+    static final List<String>    ENABLED_CIPHERS;
+    static final String[]        ENABLED_PROTOCOLS;
+    static final Set<String>     SUPPORTED_CIPHERS;
 
     static {
         try {
@@ -50,7 +50,8 @@ public final class SslContext {
         }
         boolean testOpenSsl = false;
         try {
-            String enableOpenSsl = System.getProperty("com.generallycloud.baseio.ssl.enableOpenSsl");
+            String enableOpenSsl = System
+                    .getProperty("com.generallycloud.baseio.ssl.enableOpenSsl");
             if ("true".equals(enableOpenSsl)) {
                 Class.forName("org.wildfly.openssl.OpenSSLProvider");
                 org.wildfly.openssl.OpenSSLProvider.register();
@@ -122,7 +123,7 @@ public final class SslContext {
                 Arrays.asList(ENABLED_PROTOCOLS));
         LoggerUtil.prettyLog(logger, "Default cipher suites (JDK): {}", ENABLED_CIPHERS);
     }
-    
+
     private static void addIfSupported(Set<String> supported, List<String> enabled,
             String... names) {
         for (String n : names) {
@@ -131,6 +132,7 @@ public final class SslContext {
             }
         }
     }
+
     static SSLContext getSSLContext() throws NoSuchAlgorithmException {
         if (isOpenSslAvailable()) {
             return SSLContext.getInstance("openssl.TLS");
@@ -138,6 +140,7 @@ public final class SslContext {
             return SSLContext.getInstance("TLS");
         }
     }
+
     public static boolean isOpenSslAvailable() {
         return openSslAvailable;
     }
@@ -149,6 +152,7 @@ public final class SslContext {
     private final boolean                          isClient;
     private final SSLContext                       sslContext;
     private final List<String>                     unmodifiableCipherSuites;
+
     protected SslContext(SSLContext sslContext, boolean isClient, List<String> ciphers,
             JdkApplicationProtocolNegotiator apn, ClientAuth clientAuth) {
         this.apn = apn;
@@ -158,6 +162,7 @@ public final class SslContext {
         this.sslContext = sslContext;
         this.isClient = isClient;
     }
+
     public final JdkApplicationProtocolNegotiator applicationProtocolNegotiator() {
         return apn;
     }

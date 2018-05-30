@@ -19,6 +19,6 @@ import java.util.EventListener;
 
 public interface SocketSessionIdleEventListener extends EventListener {
 
-    void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) ;
+    void sessionIdled(SocketSession session, long lastIdleTime, long currentTime);
 
 }

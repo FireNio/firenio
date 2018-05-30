@@ -34,14 +34,14 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
     protected int                    bufRecycleSize;
     protected PooledByteBufAllocator next;
 
-    public PooledByteBufAllocator(int capacity, int unitMemorySize
-            ,int bufRecycleSize, boolean isDirect) {
+    public PooledByteBufAllocator(int capacity, int unitMemorySize, int bufRecycleSize,
+            boolean isDirect) {
         super(isDirect);
         this.bufRecycleSize = bufRecycleSize;
         this.capacity = capacity;
         this.unitMemorySize = unitMemorySize;
     }
-    
+
     private PooledByteBuf allocate(ByteBufNew byteBufNew, int limit) {
         int size = (limit + unitMemorySize - 1) / unitMemorySize;
         ReentrantLock lock = this.lock;
@@ -71,7 +71,7 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
         }
         return buf;
     }
-    
+
     protected ByteBuf allocate(int limit, PooledByteBufAllocator allocator) {
         if (allocator == this) {
             //FIXME 是否申请java内存
@@ -83,12 +83,12 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
         }
         return buf;
     }
-    
+
     @Override
     protected void doStart() throws Exception {
         if (bufFactory == null) {
-            bufFactory = isDirect 
-                    ? new DirectByteBufFactory(bufRecycleSize) : new HeapByteBufFactory(bufRecycleSize);
+            bufFactory = isDirect ? new DirectByteBufFactory(bufRecycleSize)
+                    : new HeapByteBufFactory(bufRecycleSize);
         }
         bufFactory.initializeMemory(capacity * unitMemorySize);
     }

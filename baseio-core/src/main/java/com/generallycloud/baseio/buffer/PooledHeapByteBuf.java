@@ -39,11 +39,11 @@ public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByte
             throw new ReleasedException("released");
         }
         addReferenceCount();
-        return new DuplicatedByteBuf(new PooledHeapByteBuf(allocator, memory).produce(this),this);
+        return new DuplicatedByteBuf(new PooledHeapByteBuf(allocator, memory).produce(this), this);
     }
 
     @Override
-    public PooledHeapByteBuf produce(int begin, int end, int newLimit,long version) {
+    public PooledHeapByteBuf produce(int begin, int end, int newLimit, long version) {
         this.offset = begin * allocator.getUnitMemorySize();
         this.capacity = (end - begin) * allocator.getUnitMemorySize();
         this.limit = newLimit;

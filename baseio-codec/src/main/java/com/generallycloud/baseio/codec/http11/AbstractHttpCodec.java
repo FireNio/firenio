@@ -16,8 +16,8 @@
 package com.generallycloud.baseio.codec.http11;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -42,7 +42,7 @@ public abstract class AbstractHttpCodec implements ProtocolCodec {
             buf.reallocate(buf.position() + len, true);
             buf.limit(buf.capacity());
         }
-        buf.put(array,off,len);
+        buf.put(array, off, len);
     }
 
     protected void writeBuf(ByteBuf buf, byte b) {

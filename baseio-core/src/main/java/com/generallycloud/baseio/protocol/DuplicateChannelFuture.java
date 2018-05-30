@@ -26,17 +26,17 @@ public class DuplicateChannelFuture extends DefaultChannelFuture {
 
     private ChannelFuture prototype;
 
-    public DuplicateChannelFuture(ByteBuf buf,ChannelFuture prototype) {
+    public DuplicateChannelFuture(ByteBuf buf, ChannelFuture prototype) {
         super(buf);
         this.prototype = prototype;
-//        this.flushed = prototype.flushed();
-//        this.isHeartbeat = prototype.isHeartbeat();
+        //        this.flushed = prototype.flushed();
+        //        this.isHeartbeat = prototype.isHeartbeat();
         this.setNeedSsl(prototype.isNeedSsl());
-//        this.isPING = prototype.isPING();
-//        this.isSilent = prototype.isSilent();
-//        this.readText = prototype.getReadText();
-//        this.writeBuffer = prototype.getWriteBuffer();
-//        this.writeSize = prototype.getWriteSize();
+        //        this.isPING = prototype.isPING();
+        //        this.isSilent = prototype.isSilent();
+        //        this.readText = prototype.getReadText();
+        //        this.writeBuffer = prototype.getWriteBuffer();
+        //        this.writeSize = prototype.getWriteSize();
         //FIXME 放开这段代码
     }
 
@@ -53,7 +53,7 @@ public class DuplicateChannelFuture extends DefaultChannelFuture {
     public int getWriteSize() {
         return unwrap().getWriteSize();
     }
-    
+
     @Override
     public byte[] getWriteBuffer() {
         return unwrap().getWriteBuffer();

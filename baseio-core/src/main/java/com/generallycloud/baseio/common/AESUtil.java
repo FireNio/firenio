@@ -91,19 +91,18 @@ public class AESUtil {
         byte[] res = decrypt(contentBytes, passowrdBytes);
         return new String(res, charset);
     }
-    
+
     public static void main(String[] args) throws Exception {
-        
+
         String text = "test";
         String key = "key";
-        System.out.println("TEXT:"+text);
-        System.out.println("KEY:"+key);
+        System.out.println("TEXT:" + text);
+        System.out.println("KEY:" + key);
         String mi = encrypt(text, key);
-        System.out.println("MI:"+mi);
+        System.out.println("MI:" + mi);
         text = decrypt(mi, key);
-        System.out.println("TEXT:"+text);
-        
+        System.out.println("TEXT:" + text);
+
     }
-    
 
 }

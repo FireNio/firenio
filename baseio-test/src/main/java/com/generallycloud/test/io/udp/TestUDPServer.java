@@ -21,29 +21,29 @@ public class TestUDPServer {
 
     public static void main(String[] args) throws IOException {
 
-//        DatagramPacketAcceptor datagramPacketAcceptor = new DatagramPacketAcceptor() {
-//
-//            @Override
-//            public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
-//                String req = packet.getDataString(Encoding.UTF8);
-//
-//                DebugUtil.debug(req);
-//
-//                byte[] resMsg = ("yes ," + req).getBytes(Encoding.UTF8);
-//
-//                DatagramPacket res = DatagramPacket.createSendPacket(resMsg);
-//
-//                session.sendPacket(res);
-//            }
-//        };
-//
-//        DatagramChannelContext context = new DatagramChannelContext(new ServerConfiguration(18500));
-//
-//        context.setDatagramPacketAcceptor(datagramPacketAcceptor);
-//
-//        DatagramChannelAcceptor acceptor = new DatagramChannelAcceptor(context);
-//
-//        acceptor.bind();
+        //        DatagramPacketAcceptor datagramPacketAcceptor = new DatagramPacketAcceptor() {
+        //
+        //            @Override
+        //            public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
+        //                String req = packet.getDataString(Encoding.UTF8);
+        //
+        //                DebugUtil.debug(req);
+        //
+        //                byte[] resMsg = ("yes ," + req).getBytes(Encoding.UTF8);
+        //
+        //                DatagramPacket res = DatagramPacket.createSendPacket(resMsg);
+        //
+        //                session.sendPacket(res);
+        //            }
+        //        };
+        //
+        //        DatagramChannelContext context = new DatagramChannelContext(new ServerConfiguration(18500));
+        //
+        //        context.setDatagramPacketAcceptor(datagramPacketAcceptor);
+        //
+        //        DatagramChannelAcceptor acceptor = new DatagramChannelAcceptor(context);
+        //
+        //        acceptor.bind();
     }
 
 }

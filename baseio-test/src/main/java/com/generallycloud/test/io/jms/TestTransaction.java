@@ -17,72 +17,72 @@ package com.generallycloud.test.io.jms;
 
 public class TestTransaction {
 
-//    public static void main(String[] args) throws Exception {
-//
-//        LoggerFactory.configure();
-//
-//        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
-//
-//        ServerConfiguration configuration = new ServerConfiguration(8300);
-//
-//        SocketChannelContext context = new NioSocketChannelContext(configuration);
-//
-//        SocketChannelConnector connector = new SocketChannelConnector(context);
-//
-//        context.setIoEventHandleAdaptor(eventHandle);
-//
-//        context.setProtocolCodec(new ProtobaseCodec());
-//
-//        context.addSessionEventListener(new LoggerSocketSEListener());
-//
-//        FixedSession session = new FixedSession(connector.connect());
-//
-//        MessageConsumer consumer = new DefaultMessageConsumer(session);
-//
-//        rollback(consumer);
-//
-//        //		commit(consumer);
-//
-//        connector.close();
-//
-//    }
-//
-//    static void commit(MessageConsumer consumer) throws MQException {
-//        long old = System.currentTimeMillis();
-//
-//        consumer.beginTransaction();
-//
-//        consumer.receive(new OnMessage() {
-//
-//            @Override
-//            public void onReceive(Message message) {
-//                System.out.println(message);
-//            }
-//        });
-//
-//        consumer.commit();
-//
-//        System.out.println("Time:" + (System.currentTimeMillis() - old));
-//
-//    }
-//
-//    static void rollback(MessageConsumer consumer) throws MQException {
-//        long old = System.currentTimeMillis();
-//
-//        consumer.beginTransaction();
-//
-//        consumer.receive(new OnMessage() {
-//
-//            @Override
-//            public void onReceive(Message message) {
-//
-//                System.out.println(message);
-//            }
-//        });
-//
-//        consumer.rollback();
-//
-//        System.out.println("Time:" + (System.currentTimeMillis() - old));
-//    }
+    //    public static void main(String[] args) throws Exception {
+    //
+    //        LoggerFactory.configure();
+    //
+    //        SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
+    //
+    //        ServerConfiguration configuration = new ServerConfiguration(8300);
+    //
+    //        SocketChannelContext context = new NioSocketChannelContext(configuration);
+    //
+    //        ChannelConnector connector = new ChannelConnector(context);
+    //
+    //        context.setIoEventHandleAdaptor(eventHandle);
+    //
+    //        context.setProtocolCodec(new ProtobaseCodec());
+    //
+    //        context.addSessionEventListener(new LoggerSocketSEListener());
+    //
+    //        FixedSession session = new FixedSession(connector.connect());
+    //
+    //        MessageConsumer consumer = new DefaultMessageConsumer(session);
+    //
+    //        rollback(consumer);
+    //
+    //        //		commit(consumer);
+    //
+    //        connector.close();
+    //
+    //    }
+    //
+    //    static void commit(MessageConsumer consumer) throws MQException {
+    //        long old = System.currentTimeMillis();
+    //
+    //        consumer.beginTransaction();
+    //
+    //        consumer.receive(new OnMessage() {
+    //
+    //            @Override
+    //            public void onReceive(Message message) {
+    //                System.out.println(message);
+    //            }
+    //        });
+    //
+    //        consumer.commit();
+    //
+    //        System.out.println("Time:" + (System.currentTimeMillis() - old));
+    //
+    //    }
+    //
+    //    static void rollback(MessageConsumer consumer) throws MQException {
+    //        long old = System.currentTimeMillis();
+    //
+    //        consumer.beginTransaction();
+    //
+    //        consumer.receive(new OnMessage() {
+    //
+    //            @Override
+    //            public void onReceive(Message message) {
+    //
+    //                System.out.println(message);
+    //            }
+    //        });
+    //
+    //        consumer.rollback();
+    //
+    //        System.out.println("Time:" + (System.currentTimeMillis() - old));
+    //    }
 
 }

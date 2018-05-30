@@ -95,11 +95,11 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
             }
         }
     }
-    
+
     @Override
     protected void doStop() {
-        for(HttpSession session : sessions.values()){
-           CloseUtil.close(session.getIoSession());
+        for (HttpSession session : sessions.values()) {
+            CloseUtil.close(session.getIoSession());
         }
         super.doStop();
     }
@@ -121,5 +121,5 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
     public int getManagedSessionSize() {
         return sessions.size();
     }
-    
+
 }

@@ -35,8 +35,8 @@ public class ReverseLogger {
 
     public void logPush(SocketSession session, SocketSession response, Future future,
             Logger logger) {
-        logger.info("reply msg: F:[{}], T:[{}], msg: {}", new Object[] {
-                session.getRemoteAddrPort(), response.getRemoteAddrPort(), future });
+        logger.info("reply msg: F:[{}], T:[{}], msg: {}",
+                new Object[] { session.getRemoteAddrPort(), response.getRemoteAddrPort(), future });
     }
 
     public void logPush(SocketSession response, Future future, Logger logger) {

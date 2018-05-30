@@ -20,15 +20,14 @@ import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -47,9 +46,8 @@ public class TestFIxedLengthClient {
         };
 
         SslContext sslContext = SSLUtil.initClient(true);
-        SocketChannelContext context = new NioSocketChannelContext(
-                new Configuration("localhost", 8300));
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        ChannelContext context = new ChannelContext(new Configuration("localhost", 8300));
+        ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         //		context.addSessionEventListener(new SessionActiveSEListener());
@@ -57,7 +55,7 @@ public class TestFIxedLengthClient {
         context.setSslContext(sslContext);
         SocketSession session = connector.connect();
         FixedLengthFuture future = new FixedLengthFutureImpl();
-        future.write("hello server!",session);
+        future.write("hello server!", session);
         session.flush(future);
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);

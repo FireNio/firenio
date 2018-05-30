@@ -21,13 +21,12 @@ package com.generallycloud.test.others.asm;
  */
 public class AopInteceptor {
 
-    public static void before(){
+    public static void before() {
         System.out.println(".......before().......");
     }
-    
-    public static void after(){
+
+    public static void after() {
         System.out.println(".......after().......");
     }
-    
-    
+
 }

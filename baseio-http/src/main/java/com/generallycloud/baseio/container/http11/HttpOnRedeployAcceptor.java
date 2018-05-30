@@ -25,7 +25,7 @@ import com.generallycloud.baseio.protocol.Future;
  * @author wangkai
  *
  */
-public class HttpOnRedeployAcceptor extends DefaultOnRedeployAcceptor{
+public class HttpOnRedeployAcceptor extends DefaultOnRedeployAcceptor {
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
@@ -35,5 +35,5 @@ public class HttpOnRedeployAcceptor extends DefaultOnRedeployAcceptor{
         }
         super.accept(session, future);
     }
-    
+
 }

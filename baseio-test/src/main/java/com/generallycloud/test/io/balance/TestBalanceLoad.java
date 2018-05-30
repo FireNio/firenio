@@ -15,16 +15,15 @@
  */
 package com.generallycloud.test.io.balance;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestBalanceLoad {
@@ -44,7 +43,7 @@ public class TestBalanceLoad {
                     System.out.println("收到报文：" + future.toString());
                     String res = "_____________" + f.getReadText();
                     System.out.println("处理报文：" + res);
-                    f.write(res,session.getContext());
+                    f.write(res, session.getContext());
                     session.flush(future);
                 }
             }
@@ -52,9 +51,9 @@ public class TestBalanceLoad {
 
         Configuration configuration = new Configuration(8800);
 
-        SocketChannelContext context = new NioSocketChannelContext(configuration);
+        ChannelContext context = new ChannelContext(configuration);
 
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        ChannelConnector connector = new ChannelConnector(context);
 
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
 

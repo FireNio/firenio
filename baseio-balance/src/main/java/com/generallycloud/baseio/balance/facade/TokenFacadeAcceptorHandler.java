@@ -23,8 +23,7 @@ import com.generallycloud.baseio.protocol.Future;
 public abstract class TokenFacadeAcceptorHandler extends FacadeAcceptorHandler {
 
     @Override
-    protected void doAccept(FacadeSocketSession fs, ReverseSocketSession rs,
-            BalanceFuture future) {
+    protected void doAccept(FacadeSocketSession fs, ReverseSocketSession rs, BalanceFuture future) {
         TokenBalanceFuture f = (TokenBalanceFuture) future;
         if (f.getToken() == 0) {
             fs.flush(createTokenPacket(fs));

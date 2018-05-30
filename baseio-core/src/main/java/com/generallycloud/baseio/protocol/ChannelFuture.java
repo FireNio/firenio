@@ -18,7 +18,7 @@ package com.generallycloud.baseio.protocol;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.ChannelThreadContext;
+import com.generallycloud.baseio.component.SelectorEventLoop;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.concurrent.Linkable;
 
@@ -33,13 +33,13 @@ public interface ChannelFuture extends Future, Linkable {
     int getByteBufLimit();
 
     boolean isHeartbeat();
-    
+
     boolean isNeedSsl();
 
     boolean isPING();
 
     boolean isPONG();
-    
+
     boolean isReleased();
 
     boolean isSilent();
@@ -55,8 +55,8 @@ public interface ChannelFuture extends Future, Linkable {
      */
     boolean read(SocketChannel channel, ByteBuf src) throws IOException;
 
-    void release(ChannelThreadContext context);
-    
+    void release(SelectorEventLoop loop);
+
     void setByteBuf(ByteBuf buf);
 
     void setHeartbeat(boolean isPing);
@@ -64,9 +64,9 @@ public interface ChannelFuture extends Future, Linkable {
     void setNeedSsl(boolean needSsl);
 
     ChannelFuture setPING();
-    
+
     ChannelFuture setPONG();
-    
+
     void setSilent(boolean isSilent);
 
 }

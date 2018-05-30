@@ -18,8 +18,8 @@ package com.generallycloud.sample.baseio.protobase;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptor;
 import com.generallycloud.baseio.protocol.Future;
@@ -29,39 +29,39 @@ import com.generallycloud.baseio.protocol.NamedFuture;
  * @author wangkai
  *
  */
-public class SpringProtobaseFutureAcceptor extends ProtobaseFutureAcceptor{
+public class SpringProtobaseFutureAcceptor extends ProtobaseFutureAcceptor {
 
     private ClassPathXmlApplicationContext applicationContext;
-    
+
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
         NamedFuture f = (NamedFuture) future;
         FutureAcceptor acceptor = (FutureAcceptor) ContextUtil.getBean(f.getFutureName());
         if (acceptor == null) {
-            future.write("404",session);
+            future.write("404", session);
             session.flush(future);
             return;
         }
         acceptor.accept(session, future);
     }
-    
+
     @Override
-    protected void initialize(SocketChannelContext context, boolean redeploy) throws Exception {
+    protected void initialize(ChannelContext context, boolean redeploy) throws Exception {
         super.initialize(context, redeploy);
         Thread.currentThread().setContextClassLoader(null); // for spring
         System.setProperty("org.apache.commons.logging.log", Sl4jLogger.class.getName());
         applicationContext = new ClassPathXmlApplicationContext("classpath:spring-core.xml");
         applicationContext.start();
     }
-    
+
     @Override
-    protected void destroy(SocketChannelContext context, boolean redeploy) {
+    protected void destroy(ChannelContext context, boolean redeploy) {
         applicationContext.destroy();
         super.destroy(context, redeploy);
     }
-    
-    public ApplicationContext getApplicationContext(){
+
+    public ApplicationContext getApplicationContext() {
         return applicationContext;
     }
-    
+
 }

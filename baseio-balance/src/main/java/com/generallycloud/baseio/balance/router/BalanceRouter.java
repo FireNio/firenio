@@ -27,8 +27,7 @@ public interface BalanceRouter {
 
     public abstract FacadeSocketSession getClientSession(Object key);
 
-    public abstract ReverseSocketSession getRouterSession(
-            FacadeSocketSession session);
+    public abstract ReverseSocketSession getRouterSession(FacadeSocketSession session);
 
     public abstract ReverseSocketSession getRouterSession(FacadeSocketSession session,
             Future future);

@@ -16,10 +16,9 @@
 package com.generallycloud.baseio.balance.reverse;
 
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.UnsafeSocketSessionImpl;
+import com.generallycloud.baseio.component.SocketSessionImpl;
 
-public class ReverseSocketSessionImpl extends UnsafeSocketSessionImpl
-        implements ReverseSocketSession {
+public class ReverseSocketSessionImpl extends SocketSessionImpl implements ReverseSocketSession {
 
     public ReverseSocketSessionImpl(SocketChannel channel) {
         super(channel);

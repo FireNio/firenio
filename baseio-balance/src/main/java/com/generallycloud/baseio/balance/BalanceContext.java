@@ -15,9 +15,9 @@
  */
 package com.generallycloud.baseio.balance;
 
-import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.balance.reverse.ReverseLogger;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
+import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.SilentExceptionCaughtHandle;
 
@@ -28,13 +28,13 @@ public class BalanceContext {
 
     private BalanceRouter            balanceRouter;
     private ChannelLostFutureFactory channelLostReadFutureFactory;
-    private SocketChannelAcceptor    facadeAcceptor;
+    private ChannelAcceptor          facadeAcceptor;
     private ExceptionCaughtHandle    facadeExceptionCaughtHandle  = new SilentExceptionCaughtHandle();
     private FacadeInterceptor        facadeInterceptor;
     private NoneLoadFutureAcceptor   noneLoadReadFutureAcceptor;
-    private SocketChannelAcceptor    reverseAcceptor;
+    private ChannelAcceptor          reverseAcceptor;
     private ExceptionCaughtHandle    reverseExceptionCaughtHandle = facadeExceptionCaughtHandle;
-    private ReverseLogger     reverseLogger;
+    private ReverseLogger            reverseLogger;
 
     public BalanceRouter getBalanceRouter() {
         return balanceRouter;
@@ -44,7 +44,7 @@ public class BalanceContext {
         return channelLostReadFutureFactory;
     }
 
-    public SocketChannelAcceptor getFacadeAcceptor() {
+    public ChannelAcceptor getFacadeAcceptor() {
         return facadeAcceptor;
     }
 
@@ -60,7 +60,7 @@ public class BalanceContext {
         return noneLoadReadFutureAcceptor;
     }
 
-    public SocketChannelAcceptor getReverseAcceptor() {
+    public ChannelAcceptor getReverseAcceptor() {
         return reverseAcceptor;
     }
 
@@ -81,7 +81,7 @@ public class BalanceContext {
         this.channelLostReadFutureFactory = channelLostReadFutureFactory;
     }
 
-    public void setFacadeAcceptor(SocketChannelAcceptor facadeAcceptor) {
+    public void setFacadeAcceptor(ChannelAcceptor facadeAcceptor) {
         this.facadeAcceptor = facadeAcceptor;
     }
 
@@ -97,7 +97,7 @@ public class BalanceContext {
         this.noneLoadReadFutureAcceptor = noneLoadReadFutureAcceptor;
     }
 
-    public void setReverseAcceptor(SocketChannelAcceptor reverseAcceptor) {
+    public void setReverseAcceptor(ChannelAcceptor reverseAcceptor) {
         this.reverseAcceptor = reverseAcceptor;
     }
 

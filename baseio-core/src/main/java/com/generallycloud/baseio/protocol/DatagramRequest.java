@@ -38,10 +38,10 @@ public class DatagramRequest {
     }
 
     public static DatagramRequest create(DatagramPacket packet, Object context) {
-//        if (packet.getTimestamp() == 0) {
-//            String param = new String(packet.getData(), context.getEncoding());
-//            return new DatagramRequest(param);
-//        }
+        //        if (packet.getTimestamp() == 0) {
+        //            String param = new String(packet.getData(), context.getEncoding());
+        //            return new DatagramRequest(param);
+        //        }
         return null;
     }
 

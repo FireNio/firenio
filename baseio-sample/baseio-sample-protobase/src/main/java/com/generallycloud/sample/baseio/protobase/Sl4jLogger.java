@@ -44,12 +44,9 @@ public class Sl4jLogger implements Log {
     // discovery will continue.
     // ------------------------------------------------------------
 
-    
     // ------------------------------------------------------------ Constructor
 
-    public Sl4jLogger() {
-    }
-
+    public Sl4jLogger() {}
 
     /**
      * Base constructor.
@@ -64,11 +61,10 @@ public class Sl4jLogger implements Log {
     public Sl4jLogger(Logger logger) {
         if (logger == null) {
             throw new IllegalArgumentException(
-                "Warning - null logger in constructor; possible log4j misconfiguration.");
+                    "Warning - null logger in constructor; possible log4j misconfiguration.");
         }
-        this.logger=logger;
+        this.logger = logger;
     }
-
 
     // --------------------------------------------------------- 
     // Implementation
@@ -87,7 +83,6 @@ public class Sl4jLogger implements Log {
     // version 1.2 of log4j.
     // --------------------------------------------------------- 
 
-
     /**
      * Logs a message with <code>org.apache.log4j.Priority.TRACE</code>.
      * When using a log4j version that does not support the <code>TRACE</code>
@@ -96,10 +91,10 @@ public class Sl4jLogger implements Log {
      * @param message to log
      * @see org.apache.commons.logging.Log#trace(Object)
      */
+    @Override
     public void trace(Object message) {
         getLogger().trace(String.valueOf(message));
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.TRACE</code>.
@@ -110,10 +105,10 @@ public class Sl4jLogger implements Log {
      * @param t log this cause
      * @see org.apache.commons.logging.Log#trace(Object, Throwable)
      */
+    @Override
     public void trace(Object message, Throwable t) {
         getLogger().trace(String.valueOf(message), t);
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.DEBUG</code>.
@@ -121,6 +116,7 @@ public class Sl4jLogger implements Log {
      * @param message to log
      * @see org.apache.commons.logging.Log#debug(Object)
      */
+    @Override
     public void debug(Object message) {
         getLogger().debug(String.valueOf(message));
     }
@@ -132,10 +128,10 @@ public class Sl4jLogger implements Log {
      * @param t log this cause
      * @see org.apache.commons.logging.Log#debug(Object, Throwable)
      */
+    @Override
     public void debug(Object message, Throwable t) {
         getLogger().debug(String.valueOf(message), t);
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.INFO</code>.
@@ -143,10 +139,10 @@ public class Sl4jLogger implements Log {
      * @param message to log
      * @see org.apache.commons.logging.Log#info(Object)
      */
+    @Override
     public void info(Object message) {
         getLogger().info(String.valueOf(message));
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.INFO</code>.
@@ -155,10 +151,10 @@ public class Sl4jLogger implements Log {
      * @param t log this cause
      * @see org.apache.commons.logging.Log#info(Object, Throwable)
      */
+    @Override
     public void info(Object message, Throwable t) {
-        getLogger().info(String.valueOf(message),t);
+        getLogger().info(String.valueOf(message), t);
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.WARN</code>.
@@ -166,10 +162,10 @@ public class Sl4jLogger implements Log {
      * @param message to log
      * @see org.apache.commons.logging.Log#warn(Object)
      */
+    @Override
     public void warn(Object message) {
         getLogger().warn(String.valueOf(message));
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.WARN</code>.
@@ -178,10 +174,10 @@ public class Sl4jLogger implements Log {
      * @param t log this cause
      * @see org.apache.commons.logging.Log#warn(Object, Throwable)
      */
+    @Override
     public void warn(Object message, Throwable t) {
-        getLogger().warn(String.valueOf(message),t);
+        getLogger().warn(String.valueOf(message), t);
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.ERROR</code>.
@@ -189,10 +185,10 @@ public class Sl4jLogger implements Log {
      * @param message to log
      * @see org.apache.commons.logging.Log#error(Object)
      */
+    @Override
     public void error(Object message) {
         getLogger().error(String.valueOf(message));
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.ERROR</code>.
@@ -201,10 +197,10 @@ public class Sl4jLogger implements Log {
      * @param t log this cause
      * @see org.apache.commons.logging.Log#error(Object, Throwable)
      */
+    @Override
     public void error(Object message, Throwable t) {
-        getLogger().error(String.valueOf(message),t);
+        getLogger().error(String.valueOf(message), t);
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.FATAL</code>.
@@ -212,10 +208,10 @@ public class Sl4jLogger implements Log {
      * @param message to log
      * @see org.apache.commons.logging.Log#fatal(Object)
      */
+    @Override
     public void fatal(Object message) {
         getLogger().error(String.valueOf(message));
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.FATAL</code>.
@@ -224,14 +220,14 @@ public class Sl4jLogger implements Log {
      * @param t log this cause
      * @see org.apache.commons.logging.Log#fatal(Object, Throwable)
      */
+    @Override
     public void fatal(Object message, Throwable t) {
-        getLogger().error(String.valueOf(message),t);
-    }
-    
-    private Logger getLogger(){
-        return logger;
+        getLogger().error(String.valueOf(message), t);
     }
 
+    private Logger getLogger() {
+        return logger;
+    }
 
     /**
      * Return the native Logger instance we are using.
@@ -242,7 +238,7 @@ public class Sl4jLogger implements Log {
         }
         return (this.logger);
     }
-    
+
     public Logger getLogger(Class<?> clazz) {
         if (logger == null) {
             logger = LoggerFactory.getLogger(clazz);
@@ -250,44 +246,44 @@ public class Sl4jLogger implements Log {
         return (this.logger);
     }
 
-
     /**
      * Check whether the Log4j Logger used is enabled for <code>DEBUG</code> priority.
      */
+    @Override
     public boolean isDebugEnabled() {
         return getLogger().isDebugEnabled();
     }
 
-
-     /**
-     * Check whether the Log4j Logger used is enabled for <code>ERROR</code> priority.
-     */
+    /**
+    * Check whether the Log4j Logger used is enabled for <code>ERROR</code> priority.
+    */
+    @Override
     public boolean isErrorEnabled() {
         return getLogger().isErrorEnabled();
     }
 
-
     /**
      * Check whether the Log4j Logger used is enabled for <code>FATAL</code> priority.
      */
+    @Override
     public boolean isFatalEnabled() {
         return getLogger().isErrorEnabled();
     }
 
-
     /**
      * Check whether the Log4j Logger used is enabled for <code>INFO</code> priority.
      */
+    @Override
     public boolean isInfoEnabled() {
         return getLogger().isInfoEnabled();
     }
-
 
     /**
      * Check whether the Log4j Logger used is enabled for <code>TRACE</code> priority.
      * When using a log4j version that does not support the TRACE level, this call
      * will report whether <code>DEBUG</code> is enabled or not.
      */
+    @Override
     public boolean isTraceEnabled() {
         return getLogger().isTraceEnabled();
     }
@@ -295,6 +291,7 @@ public class Sl4jLogger implements Log {
     /**
      * Check whether the Log4j Logger used is enabled for <code>WARN</code> priority.
      */
+    @Override
     public boolean isWarnEnabled() {
         return getLogger().isWarnEnabled();
     }

@@ -26,7 +26,6 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.codec.http11.WebSocketFuture;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
@@ -128,7 +127,7 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
                 String msg1 = obj.toJSONString();
                 msgAdapter.sendMsg(msg1);
             } else {
-                f.write("no action matched:" + action,session);
+                f.write("no action matched:" + action, session);
                 session.flush(f);
             }
         }
@@ -142,11 +141,11 @@ public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
     @PreDestroy
     public void destroy() throws Exception {
         LifeCycleUtil.stop(msgAdapter);
-//        ThreadUtil.sleep(2000);
+        //        ThreadUtil.sleep(2000);
     }
-    
+
     public WebSocketMsgAdapter getMsgAdapter() {
         return msgAdapter;
     }
-    
+
 }

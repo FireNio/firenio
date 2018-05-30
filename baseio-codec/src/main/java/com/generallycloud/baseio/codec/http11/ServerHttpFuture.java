@@ -21,18 +21,18 @@ import java.util.Map;
 import com.generallycloud.baseio.collection.FixedThreadStack;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.ChannelThreadContext;
+import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.SelectorEventLoop;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 
 public class ServerHttpFuture extends AbstractHttpFuture {
 
     public ServerHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
         super(channel, bodyLimit, bodyLimit);
-        setRequestParams(new HashMap<String,String>());
+        setRequestParams(new HashMap<String, String>());
     }
 
-    public ServerHttpFuture(SocketChannelContext context) {
+    public ServerHttpFuture(ChannelContext context) {
         super(context);
     }
 
@@ -75,18 +75,19 @@ public class ServerHttpFuture extends AbstractHttpFuture {
         setMethod(line.substring(0, index1));
         setVersion(line.substring(index2 + 1));
     }
-    
+
     @Override
-    public void release(ChannelThreadContext context) {
-        super.release(context);
+    public void release(SelectorEventLoop eventLoop) {
+        super.release(eventLoop);
         //FIXME ..final statck is null or not null
-        FixedThreadStack<ServerHttpFuture> stack = 
-                (FixedThreadStack<ServerHttpFuture>) context.getAttribute(ServerHttpCodec.FUTURE_STACK_KEY);
+        FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
+                .getAttribute(ServerHttpCodec.FUTURE_STACK_KEY);
         if (stack != null) {
             stack.push(this);
         }
     }
-    
+
+    @Override
     public ServerHttpFuture reset(SocketChannel channel, int headerLimit, int bodyLimit) {
         super.reset(channel, headerLimit, bodyLimit);
         setDefaultResponseHeaders(getResponseHeaders());

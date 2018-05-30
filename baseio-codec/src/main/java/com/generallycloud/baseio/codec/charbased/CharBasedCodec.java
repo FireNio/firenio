@@ -19,8 +19,8 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -48,7 +48,7 @@ public class CharBasedCodec implements ProtocolCodec {
         this.limit = limit;
         this.splitor = splitor;
     }
-    
+
     @Override
     public Future createPINGPacket(SocketSession session) {
         throw new UnsupportedOperationException();
@@ -84,6 +84,6 @@ public class CharBasedCodec implements ProtocolCodec {
     }
 
     @Override
-    public void initialize(SocketChannelContext context) {}
+    public void initialize(ChannelContext context) {}
 
 }

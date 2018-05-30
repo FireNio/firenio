@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component;
+package com.generallycloud.baseio.buffer;
 
-public class UnsafeSocketSessionImpl extends SocketSessionImpl implements UnsafeSocketSession {
+import com.generallycloud.baseio.LifeCycle;
 
-    public UnsafeSocketSessionImpl(SocketChannel channel) {
-        super(channel);
-    }
+/**
+ * @author wangkai
+ *
+ */
+public interface ByteBufAllocatorGroup extends LifeCycle {
 
-    @Override
-    public SocketChannel getSocketChannel() {
-        return channel;
-    }
+    ByteBufAllocator getNext();
 
 }

@@ -18,13 +18,13 @@ package com.generallycloud.baseio.codec.http11;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -33,13 +33,13 @@ import com.generallycloud.baseio.protocol.Future;
  * @author wangkai
  *
  */
-public class ClientHttpCodec extends AbstractHttpCodec{
-    
+public class ClientHttpCodec extends AbstractHttpCodec {
+
     private static final byte[] COOKIE    = "Cookie:".getBytes();
     private static final byte[] PROTOCOL  = " HTTP/1.1\r\n".getBytes();
     private static final byte   SEMICOLON = ';';
-    private int bodyLimit;
-    private int headerLimit;
+    private int                 bodyLimit;
+    private int                 headerLimit;
 
     public ClientHttpCodec() {
         this(1024 * 8, 1024 * 512);
@@ -49,7 +49,7 @@ public class ClientHttpCodec extends AbstractHttpCodec{
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
     }
-    
+
     @Override
     public Future createPINGPacket(SocketSession session) {
         return null;
@@ -64,7 +64,7 @@ public class ClientHttpCodec extends AbstractHttpCodec{
     public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
         return new ClientHttpFuture(channel, headerLimit, bodyLimit);
     }
-    
+
     @Override
     public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
@@ -90,7 +90,7 @@ public class ClientHttpCodec extends AbstractHttpCodec{
         buf.putByte(N);
         future.setByteBuf(buf.flip());
     }
-    
+
     @Override
     public String getProtocolId() {
         return "HTTP11";
@@ -115,6 +115,6 @@ public class ClientHttpCodec extends AbstractHttpCodec{
     }
 
     @Override
-    public void initialize(SocketChannelContext context) {}
+    public void initialize(ChannelContext context) {}
 
 }

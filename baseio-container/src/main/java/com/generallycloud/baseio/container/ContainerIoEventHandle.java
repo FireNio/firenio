@@ -15,8 +15,8 @@
  */
 package com.generallycloud.baseio.container;
 
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -34,8 +34,8 @@ public abstract class ContainerIoEventHandle implements IoEventHandle {
     @Override
     public void futureSent(SocketSession session, Future future) {}
 
-    protected void initialize(SocketChannelContext context, boolean redeploy) throws Exception {}
+    protected void initialize(ChannelContext context, boolean redeploy) throws Exception {}
 
-    protected void destroy(SocketChannelContext context, boolean redeploy) {}
+    protected void destroy(ChannelContext context, boolean redeploy) {}
 
 }

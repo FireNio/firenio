@@ -20,7 +20,7 @@
 //import com.generallycloud.baseio.component.NioSocketChannelContext;
 //import com.generallycloud.baseio.component.SocketChannelContext;
 //import com.generallycloud.baseio.configuration.ServerConfiguration;
-//import com.generallycloud.baseio.connector.SocketChannelConnector;
+//import com.generallycloud.baseio.connector.ChannelConnector;
 //import com.generallycloud.baseio.container.FixedSession;
 //import com.generallycloud.baseio.container.SimpleIoEventHandle;
 //import com.generallycloud.baseio.container.jms.Message;
@@ -39,7 +39,7 @@
 //
 //        SocketChannelContext context = new NioSocketChannelContext(configuration);
 //
-//        SocketChannelConnector connector = new SocketChannelConnector(context);
+//        ChannelConnector connector = new ChannelConnector(context);
 //
 //        context.setIoEventHandleAdaptor(eventHandle);
 //

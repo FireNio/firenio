@@ -22,8 +22,7 @@ import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 public class SessionIdFacadeAcceptorHandler extends FacadeAcceptorHandler {
 
     @Override
-    protected void doAccept(FacadeSocketSession fs, ReverseSocketSession rs,
-            BalanceFuture future) {
+    protected void doAccept(FacadeSocketSession fs, ReverseSocketSession rs, BalanceFuture future) {
         SessionIdBalanceFuture f = (SessionIdBalanceFuture) future;
         f.setSessionId(fs.getSessionId());
         rs.flush(f.translate(rs));

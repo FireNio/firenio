@@ -22,16 +22,16 @@ import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 
 public class FixedSession {
 
-    private SocketChannelContext context     = null;
-    private boolean              logined     = false;
-    private SocketSession        session     = null;
-    private long                 timeout     = 50000;
-    private SimpleIoEventHandle  eventHandle = null;
+    private ChannelContext      context     = null;
+    private boolean             logined     = false;
+    private SocketSession       session     = null;
+    private long                timeout     = 50000;
+    private SimpleIoEventHandle eventHandle = null;
 
     public FixedSession(SocketSession session) {
         update(session);
@@ -49,7 +49,7 @@ public class FixedSession {
         return timeout;
     }
 
-    public SocketChannelContext getContext() {
+    public ChannelContext getContext() {
         return context;
     }
 
@@ -69,7 +69,7 @@ public class FixedSession {
             throws IOException {
         ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(serviceName);
         if (!StringUtil.isNullOrBlank(content)) {
-            future.write(content,session.getEncoding());
+            future.write(content, session.getEncoding());
         }
         if (binary != null) {
             future.writeBinary(binary);
@@ -110,7 +110,7 @@ public class FixedSession {
     public void write(String serviceName, String content, byte[] binary) throws IOException {
         ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(serviceName);
         if (!StringUtil.isNullOrBlank(content)) {
-            future.write(content,session.getEncoding());
+            future.write(content, session.getEncoding());
         }
         if (binary != null) {
             future.writeBinary(binary);

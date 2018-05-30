@@ -22,13 +22,13 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 @Deprecated
 public class SimplyByteBufAllocator extends PooledByteBufAllocator {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(SimplyByteBufAllocator.class);
 
-    protected ByteBufUnit2[] units;
+    protected ByteBufUnit2[]    units;
 
-    public SimplyByteBufAllocator(int capacity, int unitMemorySize
-            ,int bufRecycleSize, boolean isDirect) {
+    public SimplyByteBufAllocator(int capacity, int unitMemorySize, int bufRecycleSize,
+            boolean isDirect) {
         super(capacity, unitMemorySize, bufRecycleSize, isDirect);
     }
 
@@ -87,7 +87,8 @@ public class SimplyByteBufAllocator extends PooledByteBufAllocator {
 
                 mask = blockEnd;
 
-                return byteBufNew.newByteBuf(this).produce(blockBegin, blockEnd, limit,bufVersions++);
+                return byteBufNew.newByteBuf(this).produce(blockBegin, blockEnd, limit,
+                        bufVersions++);
             }
 
             unitBegin = units[blockBegin];
@@ -110,7 +111,7 @@ public class SimplyByteBufAllocator extends PooledByteBufAllocator {
 
             mask = buf2.index;
 
-            return byteBufNew.newByteBuf(this).produce(blockBegin, blockEnd, limit,bufVersions++);
+            return byteBufNew.newByteBuf(this).produce(blockBegin, blockEnd, limit, bufVersions++);
         }
 
         return null;
@@ -194,8 +195,9 @@ public class SimplyByteBufAllocator extends PooledByteBufAllocator {
     public void release(ByteBuf buf) {
         release((PooledByteBuf) buf, true);
     }
-    
-    protected void release(PooledByteBuf buf,boolean recycle) {
+
+    @Override
+    protected void release(PooledByteBuf buf, boolean recycle) {
         ReentrantLock lock = this.lock;
         lock.lock();
         try {

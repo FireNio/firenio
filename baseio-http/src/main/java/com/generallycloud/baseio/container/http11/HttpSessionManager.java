@@ -31,7 +31,8 @@ public interface HttpSessionManager extends EventLoop {
 
     void removeSession(String sessionId);
 
-    HttpSession getHttpSession(HttpFutureAcceptor context, SocketSession ioSession, HttpFuture future);
+    HttpSession getHttpSession(HttpFutureAcceptor context, SocketSession ioSession,
+            HttpFuture future);
 
     Map<String, HttpSession> getManagedSessions();
 

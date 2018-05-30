@@ -25,14 +25,13 @@ import java.nio.ByteOrder;
 public class TestTemp {
 
     public static void main(String[] args) {
-        
+
         ByteBuffer buffer = ByteBuffer.allocate(1024);
-        
+
         System.out.println(buffer.order());
-        
+
         System.out.println(ByteOrder.nativeOrder());
-        
-        
+
     }
-    
+
 }

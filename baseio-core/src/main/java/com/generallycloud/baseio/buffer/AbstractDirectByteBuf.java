@@ -79,7 +79,7 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
                 put(src.array(), src.position(), remaining);
                 src.position(src.position() + remaining);
                 return remaining;
-            }else{
+            } else {
                 int oldLimit = src.limit();
                 int oldPos = src.position();
                 src.limit(oldPos + remaining);
@@ -87,18 +87,18 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
                 src.limit(oldLimit);
                 return remaining;
             }
-        }else{
+        } else {
             if (src.hasArray()) {
                 put(src.array(), src.position(), srcRemaining);
                 src.position(src.limit());
                 return srcRemaining;
-            }else{
+            } else {
                 memory.put(src);
                 return srcRemaining;
             }
         }
     }
-    
+
     @Override
     protected int read0(ByteBuf src, int srcRemaining, int remaining) {
         if (srcRemaining > remaining) {
@@ -106,7 +106,7 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
                 put(src.array(), src.position(), remaining);
                 src.position(src.position() + remaining);
                 return remaining;
-            }else{
+            } else {
                 ByteBuffer srcBuf = src.nioBuffer();
                 int oldLimit = srcBuf.limit();
                 int oldPos = srcBuf.position();
@@ -115,12 +115,12 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
                 srcBuf.limit(oldLimit);
                 return remaining;
             }
-        }else{
+        } else {
             if (src.hasArray()) {
                 put(src.array(), src.position(), srcRemaining);
                 src.position(src.limit());
                 return srcRemaining;
-            }else{
+            } else {
                 memory.put(src.nioBuffer());
                 return srcRemaining;
             }
@@ -428,18 +428,18 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     public ByteBuf reverse() {
         return this;
     }
-    
+
     @Override
     public ByteBuf markP() {
         memory.mark();
         return this;
     }
-    
+
     @Override
     public ByteBuf reset() {
         limit(markLimit);
         memory.reset();
         return this;
     }
-    
+
 }

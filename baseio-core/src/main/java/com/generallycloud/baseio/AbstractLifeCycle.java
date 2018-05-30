@@ -81,7 +81,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
                         logger.error(e.getMessage(), e);
                     }
                 }
-            }else if(event == FAILED){
+            } else if (event == FAILED) {
                 for (LifeCycleListener listener : lifeCycleListeners) {
                     try {
                         listener.lifeCycleFailure(this, exception);

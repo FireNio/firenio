@@ -17,24 +17,24 @@ package com.generallycloud.baseio.container.bootstrap;
 
 import java.io.File;
 
-import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
-import com.generallycloud.baseio.configuration.ConfigurationParser;
 import com.generallycloud.baseio.configuration.Configuration;
+import com.generallycloud.baseio.configuration.ConfigurationParser;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class ApplicationBootstrapEngine implements BootstrapEngine {
 
-    protected abstract void enrichSocketChannelContext(SocketChannelContext context);
+    protected abstract void enrichSocketChannelContext(ChannelContext context);
 
     @Override
     public void bootstrap(String rootPath, String mode) throws Exception {
@@ -42,12 +42,12 @@ public abstract class ApplicationBootstrapEngine implements BootstrapEngine {
         Properties properties = FileUtil.readPropertiesByCls("server.properties");
         Configuration cfg = new Configuration();
         ConfigurationParser.parseConfiguration("server.", cfg, properties);
-        SocketChannelContext context = new NioSocketChannelContext(cfg);
-        SocketChannelAcceptor acceptor = new SocketChannelAcceptor(context);
+        ChannelContext context = new ChannelContext(cfg);
+        ChannelAcceptor acceptor = new ChannelAcceptor(context, new SelectorEventLoopGroup());
         context.setIoEventHandleAdaptor(new ApplicationIoEventHandle(rootPath, mode));
-        enrichSocketChannelContext(context);
         try {
             if (cfg.isEnableSsl()) {
+                context.getSelectorEventLoopGroup().setEnableSsl(true);
                 if (!StringUtil.isNullOrBlank(cfg.getCertCrt())) {
                     File certificate = FileUtil.readFileByCls(cfg.getCertCrt(), classLoader);
                     File privateKey = FileUtil.readFileByCls(cfg.getCertKey(), classLoader);
@@ -63,11 +63,12 @@ public abstract class ApplicationBootstrapEngine implements BootstrapEngine {
                         throw new IllegalArgumentException("SERVER_SSL_KEYSTORE config error");
                     }
                     File storeFile = FileUtil.readFileByCls(params[0], classLoader);
-                    SslContext sslContext = SSLUtil.initServer(
-                            storeFile, params[1], params[2], params[3]);
+                    SslContext sslContext = SSLUtil.initServer(storeFile, params[1], params[2],
+                            params[3]);
                     context.setSslContext(sslContext);
                 }
             }
+            enrichSocketChannelContext(context);
             int port = cfg.getPort();
             if (port == 0) {
                 port = cfg.isEnableSsl() ? 443 : 80;

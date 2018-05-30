@@ -34,8 +34,7 @@ public class FacadeInterceptorImpl implements FacadeInterceptor {
     }
 
     @Override
-    public boolean intercept(FacadeSocketSession session, BalanceFuture future)
-            throws Exception {
+    public boolean intercept(FacadeSocketSession session, BalanceFuture future) throws Exception {
 
         long now = System.currentTimeMillis();
 

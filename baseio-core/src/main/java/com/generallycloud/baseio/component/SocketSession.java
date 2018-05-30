@@ -47,11 +47,11 @@ public interface SocketSession extends Closeable {
      * @param future
      */
     void flushChannelFuture(ChannelFuture future);
-    
+
     void flush(Collection<ChannelFuture> futures);
 
     void flushChannelFuture(Collection<ChannelFuture> futures);
-    
+
     Object getAttachment();
 
     Object getAttribute(Object key);
@@ -60,7 +60,7 @@ public interface SocketSession extends Closeable {
 
     ByteBufAllocator allocator();
 
-    SocketChannelContext getContext();
+    ChannelContext getContext();
 
     long getCreationTime();
 
@@ -73,7 +73,7 @@ public interface SocketSession extends Closeable {
     String getLocalAddr();
 
     int getLocalPort();
-    
+
     <T> T getOption(SocketOption<T> name) throws IOException;
 
     ProtocolCodec getProtocolCodec();
@@ -83,10 +83,10 @@ public interface SocketSession extends Closeable {
     String getRemoteAddr();
 
     String getRemoteAddrPort();
-    
+
     int getRemotePort();
 
-    int getSessionId();
+    Integer getSessionId();
 
     SSLEngine getSSLEngine();
 
@@ -107,7 +107,7 @@ public interface SocketSession extends Closeable {
     <T> void setOption(SocketOption<T> name, T value) throws IOException;
 
     void setProtocolCodec(ProtocolCodec protocolCodec);
-    
+
     SocketChannel unsafe();
 
 }

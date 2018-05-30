@@ -19,13 +19,12 @@
 package com.generallycloud.test.io.undertow;
 
 import java.io.IOException;
-import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jboss.logging.Logger;
@@ -37,7 +36,6 @@ import org.xnio.OptionMap;
 import org.xnio.Options;
 import org.xnio.Xnio;
 import org.xnio.XnioWorker;
-import org.xnio.channels.AcceptingChannel;
 import org.xnio.channels.BoundChannel;
 import org.xnio.channels.Channels;
 import org.xnio.channels.ConnectedStreamChannel;
@@ -51,20 +49,20 @@ import org.xnio.channels.ConnectedStreamChannel;
 @SuppressWarnings("deprecation")
 public class NioTcpChannelTestCase {
 
-    protected static final Logger log = Logger.getLogger("TEST");
+    protected static final Logger log             = Logger.getLogger("TEST");
 
-    private final List<Throwable> problems = new CopyOnWriteArrayList<Throwable>();
+    private final List<Throwable> problems        = new CopyOnWriteArrayList<>();
 
-    protected static final int SERVER_PORT = 12345;
+    protected static final int    SERVER_PORT     = 12345;
 
-    private OptionMap serverOptionMap = OptionMap.create(Options.REUSE_ADDRESSES, Boolean.TRUE); // any random map
+    private OptionMap             serverOptionMap = OptionMap.create(Options.REUSE_ADDRESSES,
+            Boolean.TRUE);                                                                   // any random map
 
-    private OptionMap clientOptionMap = OptionMap.EMPTY;
+    private OptionMap             clientOptionMap = OptionMap.EMPTY;
 
-    private int threads = 1;
-    
-    
-    public static void main(String []args) throws Exception {
+    private int                   threads         = 1;
+
+    public static void main(String[] args) throws Exception {
         log.info("Test: acceptor");
         final CountDownLatch ioLatch = new CountDownLatch(4);
         final CountDownLatch closeLatch = new CountDownLatch(2);
@@ -80,82 +78,100 @@ public class NioTcpChannelTestCase {
         final AtomicBoolean serverWriteOK = new AtomicBoolean();
         final byte[] bytes = "Ummagumma!".getBytes("UTF-8");
         final Xnio xnio = Xnio.getInstance("nio");
-        final XnioWorker worker = xnio.createWorker(OptionMap.create(Options.WORKER_WRITE_THREADS, 2, Options.WORKER_READ_THREADS, 2));
+        final XnioWorker worker = xnio.createWorker(
+                OptionMap.create(Options.WORKER_WRITE_THREADS, 2, Options.WORKER_READ_THREADS, 2));
         try {
-            final FutureResult<InetSocketAddress> futureAddressResult = new FutureResult<InetSocketAddress>();
+            final FutureResult<InetSocketAddress> futureAddressResult = new FutureResult<>();
             final IoFuture<InetSocketAddress> futureAddress = futureAddressResult.getIoFuture();
-            worker.acceptStream(new InetSocketAddress(Inet4Address.getByAddress(new byte[] { 127, 0, 0, 1 }), 0), new ChannelListener<ConnectedStreamChannel>() {
-                private final ByteBuffer inboundBuf = ByteBuffer.allocate(512);
-                private int readCnt = 0;
-                private final ByteBuffer outboundBuf = ByteBuffer.wrap(bytes);
+            worker.acceptStream(
+                    new InetSocketAddress(InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 }), 0),
+                    new ChannelListener<ConnectedStreamChannel>() {
+                        private final ByteBuffer inboundBuf  = ByteBuffer.allocate(512);
+                        private int      readCnt     = 0;
+                        private final ByteBuffer outboundBuf = ByteBuffer.wrap(bytes);
 
-                public void handleEvent(final ConnectedStreamChannel channel) {
-                    channel.getCloseSetter().set(new ChannelListener<ConnectedStreamChannel>() {
+                        @Override
                         public void handleEvent(final ConnectedStreamChannel channel) {
-                            closeLatch.countDown();
+                            channel.getCloseSetter()
+                                    .set(new ChannelListener<ConnectedStreamChannel>() {
+                                        @Override
+                                        public void handleEvent(
+                                                final ConnectedStreamChannel channel) {
+                                            closeLatch.countDown();
+                                        }
+                                    });
+                            channel.getReadSetter()
+                                    .set(new ChannelListener<ConnectedStreamChannel>() {
+                                        @Override
+                                        public void handleEvent(
+                                                final ConnectedStreamChannel channel) {
+                                            try {
+                                                final int res = channel.read(inboundBuf);
+                                                if (res == -1) {
+                                                    serverReadDoneOK.set(true);
+                                                    ioLatch.countDown();
+                                                    channel.shutdownReads();
+                                                } else if (res > 0) {
+                                                    final int ttl = readCnt += res;
+                                                    if (ttl == bytes.length) {
+                                                        serverReadOnceOK.set(true);
+                                                    } else if (ttl > bytes.length) {
+                                                        serverReadTooMuch.set(true);
+                                                        IoUtils.safeClose(channel);
+                                                        return;
+                                                    }
+                                                }
+                                            } catch (IOException e) {
+                                                log.errorf(e, "Server read failed");
+                                                IoUtils.safeClose(channel);
+                                            }
+                                        }
+                                    });
+                            channel.getWriteSetter()
+                                    .set(new ChannelListener<ConnectedStreamChannel>() {
+                                        @Override
+                                        public void handleEvent(
+                                                final ConnectedStreamChannel channel) {
+                                            try {
+                                                channel.write(outboundBuf);
+                                                if (!outboundBuf.hasRemaining()) {
+                                                    serverWriteOK.set(true);
+                                                    Channels.shutdownWritesBlocking(channel);
+                                                    ioLatch.countDown();
+                                                }
+                                            } catch (IOException e) {
+                                                log.errorf(e, "Server write failed");
+                                                IoUtils.safeClose(channel);
+                                            }
+                                        }
+                                    });
+                            channel.resumeReads();
+                            channel.resumeWrites();
+                            serverOpened.set(true);
                         }
-                    });
-                    channel.getReadSetter().set(new ChannelListener<ConnectedStreamChannel>() {
-                        public void handleEvent(final ConnectedStreamChannel channel) {
-                            try {
-                                final int res = channel.read(inboundBuf);
-                                if (res == -1) {
-                                    serverReadDoneOK.set(true);
-                                    ioLatch.countDown();
-                                    channel.shutdownReads();
-                                } else if (res > 0) {
-                                    final int ttl = readCnt += res;
-                                    if (ttl == bytes.length) {
-                                        serverReadOnceOK.set(true);
-                                    } else if (ttl > bytes.length) {
-                                        serverReadTooMuch.set(true);
-                                        IoUtils.safeClose(channel);
-                                        return;
-                                    }
-                                }
-                            } catch (IOException e) {
-                                log.errorf(e, "Server read failed");
-                                IoUtils.safeClose(channel);
-                            }
+                    }, new ChannelListener<BoundChannel>() {
+                        @Override
+                        public void handleEvent(final BoundChannel channel) {
+                            futureAddressResult
+                                    .setResult(channel.getLocalAddress(InetSocketAddress.class));
                         }
-                    });
-                    channel.getWriteSetter().set(new ChannelListener<ConnectedStreamChannel>() {
-                        public void handleEvent(final ConnectedStreamChannel channel) {
-                            try {
-                                channel.write(outboundBuf);
-                                if (!outboundBuf.hasRemaining()) {
-                                    serverWriteOK.set(true);
-                                    Channels.shutdownWritesBlocking(channel);
-                                    ioLatch.countDown();
-                                }
-                            } catch (IOException e) {
-                                log.errorf(e, "Server write failed");
-                                IoUtils.safeClose(channel);
-                            }
-                        }
-                    });
-                    channel.resumeReads();
-                    channel.resumeWrites();
-                    serverOpened.set(true);
-                }
-            }, new ChannelListener<BoundChannel>() {
-                public void handleEvent(final BoundChannel channel) {
-                    futureAddressResult.setResult(channel.getLocalAddress(InetSocketAddress.class));
-                }
-            }, OptionMap.create(Options.REUSE_ADDRESSES, Boolean.TRUE));
+                    }, OptionMap.create(Options.REUSE_ADDRESSES, Boolean.TRUE));
             final InetSocketAddress localAddress = futureAddress.get();
             worker.connectStream(localAddress, new ChannelListener<ConnectedStreamChannel>() {
-                private final ByteBuffer inboundBuf = ByteBuffer.allocate(512);
-                private int readCnt = 0;
+                private final ByteBuffer inboundBuf  = ByteBuffer.allocate(512);
+                private int              readCnt     = 0;
                 private final ByteBuffer outboundBuf = ByteBuffer.wrap(bytes);
 
+                @Override
                 public void handleEvent(final ConnectedStreamChannel channel) {
                     channel.getCloseSetter().set(new ChannelListener<ConnectedStreamChannel>() {
+                        @Override
                         public void handleEvent(final ConnectedStreamChannel channel) {
                             closeLatch.countDown();
                         }
                     });
                     channel.getReadSetter().set(new ChannelListener<ConnectedStreamChannel>() {
+                        @Override
                         public void handleEvent(final ConnectedStreamChannel channel) {
                             try {
                                 final int res = channel.read(inboundBuf);
@@ -180,6 +196,7 @@ public class NioTcpChannelTestCase {
                         }
                     });
                     channel.getWriteSetter().set(new ChannelListener<ConnectedStreamChannel>() {
+                        @Override
                         public void handleEvent(final ConnectedStreamChannel channel) {
                             try {
                                 channel.write(outboundBuf);
@@ -199,16 +216,16 @@ public class NioTcpChannelTestCase {
                     clientOpened.set(true);
                 }
             }, null, OptionMap.EMPTY);
-//            assertTrue("Read timed out", ioLatch.await(500L, TimeUnit.MILLISECONDS));
-//            assertTrue("Close timed out", closeLatch.await(500L, TimeUnit.MILLISECONDS));
-//            assertFalse("Client read too much", clientReadTooMuch.get());
-//            assertTrue("Client read OK", clientReadOnceOK.get());
-//            assertTrue("Client read done", clientReadDoneOK.get());
-//            assertTrue("Client write OK", clientWriteOK.get());
-//            assertFalse("Server read too much", serverReadTooMuch.get());
-//            assertTrue("Server read OK", serverReadOnceOK.get());
-//            assertTrue("Server read done", serverReadDoneOK.get());
-//            assertTrue("Server write OK", serverWriteOK.get());
+            //            assertTrue("Read timed out", ioLatch.await(500L, TimeUnit.MILLISECONDS));
+            //            assertTrue("Close timed out", closeLatch.await(500L, TimeUnit.MILLISECONDS));
+            //            assertFalse("Client read too much", clientReadTooMuch.get());
+            //            assertTrue("Client read OK", clientReadOnceOK.get());
+            //            assertTrue("Client read done", clientReadDoneOK.get());
+            //            assertTrue("Client write OK", clientWriteOK.get());
+            //            assertFalse("Server read too much", serverReadTooMuch.get());
+            //            assertTrue("Server read OK", serverReadOnceOK.get());
+            //            assertTrue("Server read done", serverReadDoneOK.get());
+            //            assertTrue("Server write OK", serverWriteOK.get());
         } finally {
             worker.shutdown();
         }

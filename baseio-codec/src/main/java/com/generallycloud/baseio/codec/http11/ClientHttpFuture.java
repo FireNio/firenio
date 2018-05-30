@@ -18,20 +18,20 @@ package com.generallycloud.baseio.codec.http11;
 import java.util.Map;
 
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.UnsafeSocketSession;
-import com.generallycloud.baseio.connector.ChannelConnector;
+import com.generallycloud.baseio.component.SocketSession;
 
 public class ClientHttpFuture extends AbstractHttpFuture {
-    
-    public ClientHttpFuture(SocketChannelContext context, String url, String method) {
+
+    public ClientHttpFuture(ChannelContext context, String url, String method) {
         super(context);
         this.setMethod(method);
         this.setRequestURL(url);
     }
-    
-    public ClientHttpFuture(SocketChannelContext context, String url) {
+
+    public ClientHttpFuture(ChannelContext context, String url) {
         this(context, url, "GET");
     }
 
@@ -47,8 +47,8 @@ public class ClientHttpFuture extends AbstractHttpFuture {
     @Override
     public void updateWebSocketProtocol() {
         ChannelConnector connector = (ChannelConnector) getContext().getChannelService();
-        UnsafeSocketSession session = (UnsafeSocketSession) connector.getSession();
-        SocketChannel channel = session.getSocketChannel();
+        SocketSession session = connector.getSession();
+        SocketChannel channel = session.unsafe();
         channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
     }
 

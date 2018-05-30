@@ -25,7 +25,8 @@ public class FileSystemACLoader implements ApplicationConfigurationLoader {
     @Override
     public ApplicationConfiguration loadConfiguration(ClassLoader classLoader) throws Exception {
         ApplicationConfiguration configuration = new ApplicationConfiguration();
-        Properties properties = FileUtil.readPropertiesByCls("app.properties", Encoding.UTF8, classLoader);
+        Properties properties = FileUtil.readPropertiesByCls("app.properties", Encoding.UTF8,
+                classLoader);
         ConfigurationParser.parseConfiguration("app.", configuration, properties);
         return configuration;
     }

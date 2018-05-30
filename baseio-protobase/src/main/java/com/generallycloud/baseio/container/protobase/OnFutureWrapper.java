@@ -25,8 +25,7 @@ public class OnFutureWrapper implements OnFuture {
 
     private OnFuture                      listener = null;
 
-    private BlockingQueue<WaiterOnFuture> waiters  = new ArrayBlockingQueue<>(
-            1024 * 8);
+    private BlockingQueue<WaiterOnFuture> waiters  = new ArrayBlockingQueue<>(1024 * 8);
 
     @Override
     public void onResponse(final SocketSession session, final Future future) {

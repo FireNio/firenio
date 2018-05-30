@@ -31,13 +31,16 @@ public class AopMethodVisitor extends MethodVisitor implements Opcodes {
     @Override
     public void visitCode() {
         super.visitCode();
-        this.visitMethodInsn(INVOKESTATIC, "com/generallycloud/test/others/asm/AopInteceptor", "before", "()V", false);
+        this.visitMethodInsn(INVOKESTATIC, "com/generallycloud/test/others/asm/AopInteceptor",
+                "before", "()V", false);
     }
 
     @Override
     public void visitInsn(int opcode) {
-        if (opcode >= IRETURN && opcode <= RETURN)// 在返回之前安插after 代码。
-            this.visitMethodInsn(INVOKESTATIC, "com/generallycloud/test/others/asm/AopInteceptor", "after", "()V", false);
+        if (opcode >= IRETURN && opcode <= RETURN) {
+            this.visitMethodInsn(INVOKESTATIC, "com/generallycloud/test/others/asm/AopInteceptor",
+                    "after", "()V", false);
+        }
         super.visitInsn(opcode);
     }
 

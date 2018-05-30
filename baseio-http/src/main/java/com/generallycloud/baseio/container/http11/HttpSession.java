@@ -36,7 +36,7 @@ public interface HttpSession {
     String getSessionId();
 
     boolean isValidate();
-    
+
     Charset getEncoding();
 
     HttpFutureAcceptor getContext();

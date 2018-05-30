@@ -39,18 +39,21 @@ public class TestUndertow {
         FormParserFactory formParserFactory = builder.build();
         Undertow server = Undertow.builder().addHttpListener(8080, "localhost")
                 .setHandler(new HttpHandler() { //设置HttpHandler回调方法  
-                    
+
                     private boolean hasBody(HttpServerExchange exchange) {
                         int length = (int) exchange.getRequestContentLength();
-                        if (length == 0) return false;  // if body is empty, skip reading
+                        if (length == 0) {
+                            return false; // if body is empty, skip reading
+                        }
 
                         HttpString method = exchange.getRequestMethod();
-                        return Methods.POST.equals(method) || Methods.PUT.equals(method) || Methods.PATCH.equals(method);
+                        return Methods.POST.equals(method) || Methods.PUT.equals(method)
+                                || Methods.PATCH.equals(method);
                     }
-                    
+
                     @Override
                     public void handleRequest(final HttpServerExchange exchange) throws Exception {
-                        if (hasBody(exchange)) {    // parse body early, not process until body is read (e.g. for chunked), to save one blocking thread during read
+                        if (hasBody(exchange)) { // parse body early, not process until body is read (e.g. for chunked), to save one blocking thread during read
                             FormDataParser parser = formParserFactory.createParser(exchange);
                             if (parser == null) {
                                 return;

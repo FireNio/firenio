@@ -72,10 +72,10 @@ public class SLF4JLogger implements Logger {
     public void debug(String message, Object... param) {
         logger.debug(message, param);
     }
-    
+
     @Override
     public void error(String message, Object param) {
-        logger.error(message,param);
+        logger.error(message, param);
     }
 
     @Override

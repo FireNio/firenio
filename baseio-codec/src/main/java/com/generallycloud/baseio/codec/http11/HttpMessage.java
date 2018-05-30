@@ -22,6 +22,6 @@ import com.generallycloud.baseio.protocol.TextFuture;
  * @author wangkai
  *
  */
-public interface HttpMessage extends NamedFuture, TextFuture{
+public interface HttpMessage extends NamedFuture, TextFuture {
 
 }

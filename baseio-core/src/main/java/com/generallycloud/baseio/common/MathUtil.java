@@ -188,7 +188,7 @@ public class MathUtil {
         }
         return builder.toString();
     }
-    
+
     public static byte[] hexString2bytes(char[] data) {
         int len = data.length;
         if ((len & 0x01) != 0) {
@@ -204,25 +204,25 @@ public class MathUtil {
             int t = i >> 1;
             int ch0 = hex2Digit(data[i], i++);
             int ch1 = hex2Digit(data[i], i++);
-            out[t] = (byte)(ch0 << 4 | ch1);
+            out[t] = (byte) (ch0 << 4 | ch1);
         }
         return out;
     }
-    
-    private static int hex2Digit(char ch,int index){
+
+    private static int hex2Digit(char ch, int index) {
         if (ch < 48) {
             throw new RuntimeException("Illegal hexadecimal charcter " + ch + " at index " + index);
-        }else if(ch < 58){
+        } else if (ch < 58) {
             return ch - 48;
-        }else if(ch < 65){
+        } else if (ch < 65) {
             throw new RuntimeException("Illegal hexadecimal charcter " + ch + " at index " + index);
-        }else if(ch < 71){
+        } else if (ch < 71) {
             return ch - 55;
-        }else if(ch < 97){
+        } else if (ch < 97) {
             throw new RuntimeException("Illegal hexadecimal charcter " + ch + " at index " + index);
-        }else if(ch < 103){
+        } else if (ch < 103) {
             return ch - 87;
-        }else{
+        } else {
             throw new RuntimeException("Illegal hexadecimal charcter " + ch + " at index " + index);
         }
     }
@@ -397,16 +397,14 @@ public class MathUtil {
 
         System.out.println(v1);
         System.out.println(v1 == v);
-        
-        System.out.println('0'+1);
-        System.out.println('9'+1);
-        System.out.println('a'+1);
-        System.out.println('f'+1);
-        System.out.println('A'+1);
-        System.out.println('F'+1);
-        
-        
-        
+
+        System.out.println('0' + 1);
+        System.out.println('9' + 1);
+        System.out.println('a' + 1);
+        System.out.println('f' + 1);
+        System.out.println('A' + 1);
+        System.out.println('F' + 1);
+
     }
 
     private static String[] HEXS = new String[] { "00", "01", "02", "03", "04", "05", "06", "07",

@@ -15,12 +15,12 @@
  */
 package com.generallycloud.baseio.container.implementation;
 
-import com.generallycloud.baseio.acceptor.ChannelAcceptor;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -32,7 +32,7 @@ public class SystemStopServerServlet implements FutureAcceptor {
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
-        SocketChannelContext context = session.getContext();
+        ChannelContext context = session.getContext();
         future.write("server is stopping", session.getEncoding());
         session.flush(future);
         ThreadUtil.exec(new StopServer(context));
@@ -40,9 +40,9 @@ public class SystemStopServerServlet implements FutureAcceptor {
 
     private class StopServer implements Runnable {
 
-        private SocketChannelContext context = null;
+        private ChannelContext context = null;
 
-        public StopServer(SocketChannelContext context) {
+        public StopServer(ChannelContext context) {
             this.context = context;
         }
 

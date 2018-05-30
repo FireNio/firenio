@@ -17,24 +17,24 @@ package com.generallycloud.test.io.load.fixedlength;
 
 import java.io.IOException;
 
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
 public class TestLoadClient1 extends ITestThread {
 
-    private SocketChannelConnector connector = null;
+    private ChannelConnector connector = null;
 
     @Override
     public void run() {
@@ -42,7 +42,7 @@ public class TestLoadClient1 extends ITestThread {
         SocketSession session = connector.getSession();
         for (int i = 0; i < time1; i++) {
             FixedLengthFuture future = new FixedLengthFutureImpl();
-            future.write("hello server!",session);
+            future.write("hello server!", session);
             session.flush(future);
         }
     }
@@ -57,22 +57,18 @@ public class TestLoadClient1 extends ITestThread {
             }
         };
 
-        Configuration configuration = new Configuration(8300);
-
-        configuration.setMemoryPoolCapacity(320000);
-        configuration.setMemoryPoolUnit(128);
-        configuration.setEnableMemoryPoolDirect(true);
-        configuration.setEnableMemoryPool(true);
-        configuration.setWriteBuffers(32);
-
-        SocketChannelContext context = new NioSocketChannelContext(configuration);
-
-        connector = new SocketChannelConnector(context);
-
+        SelectorEventLoopGroup group = new SelectorEventLoopGroup(1);
+        group.setMemoryPoolCapacity(320000);
+        group.setMemoryPoolUnit(128);
+        group.setEnableMemoryPoolDirect(true);
+        group.setEnableMemoryPool(true);
+        group.setWriteBuffers(32);
+        Configuration c = new Configuration(8300);
+        ChannelContext context = new ChannelContext(c);
+        connector = new ChannelConnector(context, group);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
-
         connector.connect();
     }
 

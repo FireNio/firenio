@@ -20,8 +20,8 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -64,7 +64,7 @@ public class FixedLengthCodec implements ProtocolCodec {
         PONG.flip();
     }
     private int limit;
-    
+
     public FixedLengthCodec() {
         this(1024 * 8);
     }
@@ -72,7 +72,7 @@ public class FixedLengthCodec implements ProtocolCodec {
     public FixedLengthCodec(int limit) {
         this.limit = limit;
     }
-    
+
     @Override
     public Future createPINGPacket(SocketSession session) {
         return new FixedLengthFutureImpl().setPING();
@@ -113,6 +113,6 @@ public class FixedLengthCodec implements ProtocolCodec {
     }
 
     @Override
-    public void initialize(SocketChannelContext context) {}
+    public void initialize(ChannelContext context) {}
 
 }

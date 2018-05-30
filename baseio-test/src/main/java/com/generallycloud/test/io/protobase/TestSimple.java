@@ -15,18 +15,17 @@
  */
 package com.generallycloud.test.io.protobase;
 
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
-import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestSimple {
@@ -41,17 +40,17 @@ public class TestSimple {
                 System.out.println("________________________" + future);
             }
         };
-        SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelConnector connector = new ChannelConnector(context);
         context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setIoEventHandleAdaptor(eventHandle);
         SocketSession session = connector.connect();
         ProtobaseFuture f = new ProtobaseFutureImpl(serviceKey);
-        f.write(param,session);
+        f.write(param, session);
         session.flush(f);
         ThreadUtil.sleep(500);
         CloseUtil.close(connector);
     }
-    
+
 }

@@ -106,9 +106,9 @@ public class Properties extends java.util.Properties {
     }
 
     class PropertiesException extends Exception {
-       
+
         private static final long serialVersionUID = 1L;
-        
+
         public PropertiesException() {}
 
         public PropertiesException(String message) {

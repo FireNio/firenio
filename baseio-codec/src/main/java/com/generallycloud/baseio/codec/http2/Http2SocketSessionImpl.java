@@ -18,9 +18,9 @@ package com.generallycloud.baseio.codec.http2;
 import com.generallycloud.baseio.codec.http2.hpack.Http2Headers;
 import com.generallycloud.baseio.codec.http2.hpack.Http2HeadersImpl;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.UnsafeSocketSessionImpl;
+import com.generallycloud.baseio.component.SocketSessionImpl;
 
-public class Http2SocketSessionImpl extends UnsafeSocketSessionImpl implements Http2SocketSession {
+public class Http2SocketSessionImpl extends SocketSessionImpl implements Http2SocketSession {
 
     public Http2SocketSessionImpl(SocketChannel channel) {
         super(channel);

@@ -36,18 +36,18 @@ public class TestUnsafe {
         long startTime = System.currentTimeMillis();
         int time = 1024 * 16;
 
-//        		testPutIntDirectByteBuffer(time, buffer); //5600
+        //        		testPutIntDirectByteBuffer(time, buffer); //5600
         //		testPutIntHeapBuffer(time, heapBuffer); //9700
-//              testPutIntUnsafe(time, buffer); //1700
+        //              testPutIntUnsafe(time, buffer); //1700
         //		testPutIntByteArray(time, bb); //7000
-              
-//              testGetIntDirectByteBuffer(time, buffer);
-              testGetIntUnsafe(time, buffer);
 
-//        		testReadByteUnsafe(time, bb); //7000
-//        		testReadByteByteArray(time, bb); //80
-//        		testRadByteUnsafeDirectByteBuffer(time, buffer); //11500
-//        		testReadByteDirectByteBuffer(time, buffer); //80
+        //              testGetIntDirectByteBuffer(time, buffer);
+        testGetIntUnsafe(time, buffer);
+
+        //        		testReadByteUnsafe(time, bb); //7000
+        //        		testReadByteByteArray(time, bb); //80
+        //        		testRadByteUnsafeDirectByteBuffer(time, buffer); //11500
+        //        		testReadByteDirectByteBuffer(time, buffer); //80
 
         //		testWriteByteByteArray(time, bb); //820
         //		testWriteByteUnsafe(time, bb); //11250
@@ -140,7 +140,7 @@ public class TestUnsafe {
             }
         }
     }
-    
+
     static void testGetIntDirectByteBuffer(int time, ByteBuffer buffer) {
         buffer.order(ByteOrder.BIG_ENDIAN);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -184,7 +184,7 @@ public class TestUnsafe {
             }
         }
     }
-    
+
     static void testGetIntUnsafe(int time, ByteBuffer buffer) {
         long address = UnsafeUtil.addressOffset(buffer);
         long end = address + buffer.capacity();

@@ -18,13 +18,12 @@ package com.generallycloud.test.io.reconnect;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.ReconnectableConnector;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.ReconnectableConnector;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestReconnectClient {
@@ -39,8 +38,7 @@ public class TestReconnectClient {
             }
         };
 
-        SocketChannelContext context = new NioSocketChannelContext(
-                new Configuration("localhost", 8300));
+        ChannelContext context = new ChannelContext(new Configuration("localhost", 8300));
 
         ReconnectableConnector connector = new ReconnectableConnector(context);
 

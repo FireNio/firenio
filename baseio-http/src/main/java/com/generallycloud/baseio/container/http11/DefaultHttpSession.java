@@ -74,7 +74,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
     public String getSessionId() {
         return sessionId;
     }
-    
+
     @Override
     public Charset getEncoding() {
         return ioSession.getEncoding();

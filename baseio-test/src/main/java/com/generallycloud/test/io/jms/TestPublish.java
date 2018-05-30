@@ -16,11 +16,10 @@
 package com.generallycloud.test.io.jms;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseCodec;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
 public class TestPublish {
@@ -29,15 +28,15 @@ public class TestPublish {
 
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
         Configuration configuration = new Configuration(8300);
-        SocketChannelContext context = new NioSocketChannelContext(configuration);
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        ChannelContext context = new ChannelContext(configuration);
+        ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandleAdaptor(eventHandle);
         context.setProtocolCodec(new ParamedProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
-//        FixedSession session = new FixedSession(connector.connect());
-//        MessageProducer producer = new DefaultMessageProducer(session);
-//        TextMessage message = new TextMessage("msgId", "qName", "你好！");
-//        producer.publish(message);
+        //        FixedSession session = new FixedSession(connector.connect());
+        //        MessageProducer producer = new DefaultMessageProducer(session);
+        //        TextMessage message = new TextMessage("msgId", "qName", "你好！");
+        //        producer.publish(message);
         connector.close();
     }
 

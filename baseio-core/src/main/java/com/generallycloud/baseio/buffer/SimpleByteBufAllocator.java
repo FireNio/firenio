@@ -20,17 +20,17 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SimpleByteBufAllocator extends PooledByteBufAllocator {
 
-    public SimpleByteBufAllocator(int capacity, int unitMemorySize
-            ,int bufRecycleSize, boolean isDirect) {
+    public SimpleByteBufAllocator(int capacity, int unitMemorySize, int bufRecycleSize,
+            boolean isDirect) {
         super(capacity, unitMemorySize, bufRecycleSize, isDirect);
     }
 
-    private int[]           blockEnds;
-    private BitSet          frees;
+    private int[]  blockEnds;
+    private BitSet frees;
 
     //FIXME 判断余下的是否足够，否则退出循环
     @Override
-    PooledByteBuf allocate(ByteBufNew byteBufNew, int limit, int start, int end,int size) {
+    PooledByteBuf allocate(ByteBufNew byteBufNew, int limit, int start, int end, int size) {
         int freeSize = 0;
         for (; start < end;) {
             int blockEnd = start;
@@ -45,13 +45,14 @@ public class SimpleByteBufAllocator extends PooledByteBufAllocator {
                 frees.set(blockStart, false);
                 blockEnds[blockStart] = blockEnd1;
                 mask = blockEnd1;
-                return byteBufNew.newByteBuf(this).produce(blockStart, blockEnd1, limit, bufVersions++);
+                return byteBufNew.newByteBuf(this).produce(blockStart, blockEnd1, limit,
+                        bufVersions++);
             }
             start++;
         }
         return null;
     }
-    
+
     @Override
     protected void doStart() throws Exception {
         super.doStart();
@@ -65,6 +66,7 @@ public class SimpleByteBufAllocator extends PooledByteBufAllocator {
         release((PooledByteBuf) buf, true);
     }
 
+    @Override
     protected void release(PooledByteBuf buf, boolean recycle) {
         ReentrantLock lock = this.lock;
         lock.lock();

@@ -21,6 +21,6 @@ import com.generallycloud.baseio.protocol.ParametersFuture;
  * @author wangkai
  *
  */
-public interface ParamedProtobaseFuture extends ProtobaseFuture,ParametersFuture{
+public interface ParamedProtobaseFuture extends ProtobaseFuture, ParametersFuture {
 
 }

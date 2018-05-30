@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
 
 public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 
-    private static UnpooledByteBufAllocator heap = new UnpooledByteBufAllocator(false);
+    private static UnpooledByteBufAllocator heap   = new UnpooledByteBufAllocator(false);
     private static UnpooledByteBufAllocator direct = new UnpooledByteBufAllocator(true);
 
     private UnpooledByteBufAllocator(boolean isDirect) {
@@ -39,7 +39,7 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
     public ByteBuf allocate(int capacity) {
         if (isDirect) {
             return new UnpooledDirectByteBuf(this, ByteBuffer.allocateDirect(capacity));
-        }else{
+        } else {
             return new UnpooledHeapByteBuf(this, new byte[capacity]);
         }
     }

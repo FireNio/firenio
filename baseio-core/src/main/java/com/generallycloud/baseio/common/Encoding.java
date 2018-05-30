@@ -24,5 +24,5 @@ public class Encoding {
     public static Charset GBK   = Charset.forName("GBK");
 
     public static Charset ASCII = Charset.forName("ASCII");
-    
+
 }

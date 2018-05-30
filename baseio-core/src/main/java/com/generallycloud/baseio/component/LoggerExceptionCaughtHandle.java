@@ -29,7 +29,7 @@ public class LoggerExceptionCaughtHandle implements ExceptionCaughtHandle {
 
     @Override
     public void exceptionCaught(SocketSession session, Future future, Exception ex) {
-        logger.error(ex.getMessage(),ex);
+        logger.error(ex.getMessage(), ex);
     }
 
 }

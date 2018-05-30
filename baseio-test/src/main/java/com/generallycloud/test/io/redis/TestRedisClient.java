@@ -16,24 +16,23 @@
 package com.generallycloud.test.io.redis;
 
 import com.generallycloud.baseio.codec.redis.RedisClient;
-import com.generallycloud.baseio.codec.redis.RedisIOEventHandle;
 import com.generallycloud.baseio.codec.redis.RedisCodec;
+import com.generallycloud.baseio.codec.redis.RedisIOEventHandle;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 
 public class TestRedisClient {
 
     public static void main(String[] args) throws Exception {
 
-        SocketChannelContext context = new NioSocketChannelContext(new Configuration(6379));
+        ChannelContext context = new ChannelContext(new Configuration(6379));
 
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        ChannelConnector connector = new ChannelConnector(context);
 
         context.setIoEventHandleAdaptor(new RedisIOEventHandle());
 

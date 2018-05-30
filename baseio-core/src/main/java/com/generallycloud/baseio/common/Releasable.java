@@ -18,9 +18,9 @@ package com.generallycloud.baseio.common;
 public interface Releasable {
 
     void release(long version);
-    
+
     long getReleaseVersion();
 
     boolean isReleased();
-    
+
 }

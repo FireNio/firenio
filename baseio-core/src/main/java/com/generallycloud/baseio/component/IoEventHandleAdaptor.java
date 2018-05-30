@@ -31,8 +31,8 @@ public abstract class IoEventHandleAdaptor implements IoEventHandle {
     @Override
     public void futureSent(SocketSession session, Future future) {}
 
-    protected void initialize(SocketChannelContext context) throws Exception {}
+    protected void initialize(ChannelContext context) throws Exception {}
 
-    protected void destroy(SocketChannelContext context) throws Exception {}
+    protected void destroy(ChannelContext context) throws Exception {}
 
 }

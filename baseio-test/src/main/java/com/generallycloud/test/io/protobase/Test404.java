@@ -19,14 +19,12 @@ import com.generallycloud.baseio.codec.protobase.ParamedProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.protobase.FixedSession;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
-import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
 
 public class Test404 {
@@ -39,9 +37,9 @@ public class Test404 {
 
         Configuration configuration = new Configuration(8300);
 
-        SocketChannelContext context = new NioSocketChannelContext(configuration);
+        ChannelContext context = new ChannelContext(configuration);
 
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        ChannelConnector connector = new ChannelConnector(context);
 
         context.setIoEventHandleAdaptor(eventHandle);
 

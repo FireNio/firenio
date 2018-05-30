@@ -15,13 +15,13 @@
  */
 package com.generallycloud.baseio.balance.reverse;
 
-import com.generallycloud.baseio.acceptor.SocketChannelAcceptor;
 import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
+import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -31,12 +31,12 @@ public class ReverseAcceptorHandler extends IoEventHandleAdaptor {
 
     private Logger                logger = LoggerFactory.getLogger(getClass());
     private BalanceRouter         balanceRouter;
-    private SocketChannelAcceptor facadeAcceptor;
+    private ChannelAcceptor       facadeAcceptor;
     private ExceptionCaughtHandle exceptionCaughtHandle;
     private ReverseLogger         reverseLogger;
 
     @Override
-    protected void initialize(SocketChannelContext context) throws Exception {
+    protected void initialize(ChannelContext context) throws Exception {
         BalanceContext balanceContext = (BalanceContext) context
                 .getAttribute(BalanceContext.BALANCE_CONTEXT_KEY);
         this.balanceRouter = balanceContext.getBalanceRouter();

@@ -23,11 +23,11 @@ import com.generallycloud.baseio.protocol.Future;
  * @author wangkai
  *
  */
-public class ProtobaseFutureAcceptor extends ContainerIoEventHandle{
+public class ProtobaseFutureAcceptor extends ContainerIoEventHandle {
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
-        
+
     }
-    
+
 }

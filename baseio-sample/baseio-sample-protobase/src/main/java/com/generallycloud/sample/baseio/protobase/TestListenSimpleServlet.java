@@ -32,13 +32,14 @@ public class TestListenSimpleServlet extends ProtobaseFutureAcceptorService {
         if (StringUtil.isNullOrBlank(test)) {
             test = "test";
         }
-        future.write(test,session.getContext());
-        future.write("$",session.getContext());
+        future.write(test, session.getContext());
+        future.write("$", session.getContext());
         session.flush(future);
         for (int i = 0; i < 5; i++) {
-            ProtobaseFuture f = new ProtobaseFutureImpl(future.getFutureId(),future.getFutureName());
-            f.write(test,session);
-            f.write("$",session);
+            ProtobaseFuture f = new ProtobaseFutureImpl(future.getFutureId(),
+                    future.getFutureName());
+            f.write(test, session);
+            f.write("$", session);
             session.flush(f);
         }
 

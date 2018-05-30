@@ -17,7 +17,7 @@ package com.generallycloud.baseio.protocol;
 
 import java.nio.charset.Charset;
 
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 
 public interface Future {
@@ -32,7 +32,7 @@ public interface Future {
 
     void write(String text, SocketSession session);
 
-    void write(String text, SocketChannelContext context);
+    void write(String text, ChannelContext context);
 
     void write(byte b);
 

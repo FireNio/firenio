@@ -82,14 +82,14 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
             SocketSession session = msg.session;
             if (session != null) {
                 WebSocketFuture f = new WebSocketFutureImpl();
-                f.write(msg.msg,session);
+                f.write(msg.msg, session);
                 session.flush(f);
-            }else{
+            } else {
                 for (int i = 0; i < clients.size(); i++) {
                     SocketSession s = clients.get(i);
                     if (s.isOpened()) {
                         WebSocketFuture f = new WebSocketFutureImpl();
-                        f.write(msg.msg,s);
+                        f.write(msg.msg, s);
                         s.flush(f);
                     } else {
                         removeClient(s);

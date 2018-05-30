@@ -43,6 +43,7 @@ public class ParamedProtobaseFutureImpl extends ProtobaseFutureImpl
 
     private Parameters parameters;
 
+    @Override
     public Parameters getParameters() {
         if (parameters == null) {
             parameters = new JsonParameters(getReadText());

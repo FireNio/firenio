@@ -18,7 +18,7 @@ package com.generallycloud.baseio.protocol;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.ChannelContext;
 
 public abstract class AbstractFuture implements Future {
 
@@ -44,7 +44,7 @@ public abstract class AbstractFuture implements Future {
         if (newcount > writeBuffer.length) {
             writeBuffer = Arrays.copyOf(writeBuffer, writeBuffer.length << 1);
         }
-        writeBuffer[writeSize] = (byte) b;
+        writeBuffer[writeSize] = b;
         writeSize = newcount;
     }
 
@@ -78,9 +78,9 @@ public abstract class AbstractFuture implements Future {
     public void write(String text, Charset charset) {
         write(text.getBytes(charset));
     }
-    
+
     @Override
-    public void write(String text, SocketChannelContext context) {
+    public void write(String text, ChannelContext context) {
         write(text, context.getEncoding());
     }
 

@@ -28,7 +28,7 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
     private HeartBeatLogger heartBeatLogger;
 
     @Override
-    public void initialize(SocketChannelContext channelContext) throws Exception {
+    public void initialize(ChannelContext channelContext) throws Exception {
         createHeartBeatLogger(channelContext);
     }
 
@@ -42,7 +42,7 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
             acceptHeartBeat(session, f);
             return;
         }
-        SocketChannelContext context = session.getContext();
+        ChannelContext context = session.getContext();
         IoEventHandle eventHandle = context.getIoEventHandleAdaptor();
         accept(eventHandle, session, f);
     }
@@ -53,7 +53,7 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
         if (future.isPING()) {
             heartBeatLogger.logRequest(session);
             ProtocolCodec codec = session.getProtocolCodec();
-            Future f = codec.createPONGPacket(session,future);
+            Future f = codec.createPONGPacket(session, future);
             if (f == null) {
                 return;
             }
@@ -63,13 +63,14 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
         }
     }
 
-    private void createHeartBeatLogger(SocketChannelContext context) {
+    private void createHeartBeatLogger(ChannelContext context) {
         if (context.getConfiguration().isEnableHeartbeatLog()) {
             heartBeatLogger = new HeartBeatLogger() {
                 @Override
                 public void logRequest(SocketSession session) {
                     logger.info("heart beat request from: {}", session);
                 }
+
                 @Override
                 public void logResponse(SocketSession session) {
                     logger.info("heart beat response from: {}", session);
@@ -81,6 +82,7 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
                 public void logRequest(SocketSession session) {
                     logger.debug("heart beat request from: {}", session);
                 }
+
                 @Override
                 public void logResponse(SocketSession session) {
                     logger.debug("heart beat response from: {}", session);
@@ -90,7 +92,7 @@ public abstract class AbstractFutureAcceptor implements ForeFutureAcceptor {
     }
 
     private interface HeartBeatLogger {
-        
+
         void logRequest(SocketSession session);
 
         void logResponse(SocketSession session);

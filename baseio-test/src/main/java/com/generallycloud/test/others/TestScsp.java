@@ -37,10 +37,10 @@ public class TestScsp {
         long h = UnsafeUtil.objectFieldOffset(head);
 
         long t = UnsafeUtil.objectFieldOffset(tail);
-        
+
         System.out.println(h);
         System.out.println(t);
-        
+
         System.out.println(t - h);
 
     }

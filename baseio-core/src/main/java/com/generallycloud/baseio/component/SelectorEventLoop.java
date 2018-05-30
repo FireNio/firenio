@@ -15,11 +15,9 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -33,14 +31,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import com.generallycloud.baseio.acceptor.ChannelAcceptor;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
@@ -48,15 +48,8 @@ import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
-import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
-import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
-import com.generallycloud.baseio.concurrent.LineEventLoop;
-import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.AbstractChannelConnector;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ChannelFuture;
-import com.generallycloud.baseio.protocol.ProtocolCodec;
 import com.generallycloud.baseio.protocol.SslFuture;
 
 /**
@@ -64,189 +57,196 @@ import com.generallycloud.baseio.protocol.SslFuture;
  *
  */
 //FIXME 使用ThreadLocal
-public class SelectorEventLoop extends AbstractEventLoop implements ChannelThreadContext {
+public class SelectorEventLoop extends AbstractEventLoop implements Attributes {
 
-    private static final Logger                  logger     = LoggerFactory.getLogger(SelectorEventLoop.class);
+    private static final Logger                  logger           = LoggerFactory
+            .getLogger(SelectorEventLoop.class);
     private ByteBufAllocator                     allocator;
-    private Map<Object, Object>                  attributes = new HashMap<>();
+    private Map<Object, Object>                  attributes       = new HashMap<>();
     private ByteBuf                              buf;
-    protected ChannelBuilder                     channelBuilder;
-    private NioSocketChannelContext              context;
-    private SelectorEventLoopGroup               eventLoopGroup;
-    private BufferedArrayList<SelectorLoopEvent> events     = new BufferedArrayList<>();
-    private ExecutorEventLoop                    executorEventLoop;
-    private final ForeFutureAcceptor             foreFutureAcceptor;
-    private volatile boolean                     hasTask    = false;
+    private BufferedArrayList<SelectorLoopEvent> events           = new BufferedArrayList<>();
+    private SelectorEventLoopGroup               group;
+    private volatile boolean                     hasTask          = false;
     private final int                            index;
-    private IoEventHandleAdaptor                 ioEventHandle;
-    private final boolean                        isEnableSsl;
-    private AtomicBoolean                        selecting  = new AtomicBoolean();
+    private long                                lastIdleTime     = 0;
+    private AtomicBoolean                        selecting        = new AtomicBoolean();
     private SelectionKeySet                      selectionKeySet;
     private Selector                             selector;
-    private SocketSessionManager                 sessionManager;
-    private SslHandler                           sslHandler;
+    private Map<Integer, SocketSession>          sessions;
+    private final int                            sessionSizeLimit = 1024 * 64;
     private SslFuture                            sslTemporary;
-    private AtomicBoolean                        wakener    = new AtomicBoolean();      // true eventLooper, false offerer
+    private AtomicBoolean                        wakener          = new AtomicBoolean();      // true eventLooper, false offerer
     private ByteBuffer[]                         writeBuffers;
+    private final boolean                        sharable;
+    private ChannelContext                       context;                                     // use when not sharable 
+    private final boolean                        isAcceptor;
 
-    SelectorEventLoop(SelectorEventLoopGroup group, int index) {
-        this.index = index;
-        this.eventLoopGroup = group;
-        this.context = group.getChannelContext();
-        this.ioEventHandle = context.getIoEventHandleAdaptor();
-        this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
-        this.sessionManager = new NioSocketSessionManager(context);
-        this.foreFutureAcceptor = context.getForeFutureAcceptor();
-        this.allocator = context.getByteBufAllocatorManager().getNextBufAllocator();
-        this.isEnableSsl = context.isEnableSsl();
-        if (isEnableSsl) {
-            this.sslHandler = context.getSslContext().newSslHandler();
+    SelectorEventLoop(SelectorEventLoopGroup group, int index, boolean isAcceptor) {
+        if (group.isSharable()) {
+            this.sessions = new ConcurrentHashMap<>(); 
+        }else{
+            this.context = group.getContext();
+            this.sessions = new HashMap<>();
         }
+        this.index = index;
+        this.group = group;
+        this.isAcceptor = isAcceptor;
+        this.sharable = group.isSharable();
+        this.allocator = group.getAllocatorGroup().getNext();
     }
 
     private void accept(SelectionKey k) {
         if (!k.isValid()) {
+            k.cancel();
             return;
         }
-        NioSocketChannel ch = (NioSocketChannel) k.attachment();
-        if (ch == null) {
-            // channel为空说明该链接未打开
-            try {
-                buildChannel(this, k);
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-            return;
-        }
-        if (!ch.isOpened()) {
-            return;
-        }
-        if (k.isWritable()) {
-            try {
-                ch.write(this);
-            } catch (Throwable e) {
-                closeSocketChannel(ch, e);
-            }
-            return;
-        }
-        try {
-            ByteBuf buf = this.buf;
-            buf.clear();
-            if (!isEnableSsl) {
-                ByteBuf remainingBuf = ch.getRemainingBuf();
-                if (remainingBuf != null) {
-                    buf.read(remainingBuf);
-                }
-            }
-            java.nio.channels.SocketChannel javaChannel = ch.javaChannel();
-            int length = javaChannel.read(buf.nioBuffer());
-            if (length < 1) {
-                if (length == -1) {
-                    CloseUtil.close(ch);
-                }
-                return;
-            }
-            buf.reverse();
-            buf.flip();
-            ch.active();
-            if (isEnableSsl) {
-                for (;;) {
-                    if (!buf.hasRemaining()) {
-                        return;
-                    }
-                    SslFuture future = ch.getSslReadFuture();
-                    boolean setFutureNull = true;
-                    if (future == null) {
-                        future = this.sslTemporary.reset();
-                        setFutureNull = false;
-                    }
-                    if (!future.read(ch, buf)) {
-                        if (!setFutureNull) {
-                            if (future == this.sslTemporary) {
-                                future = future.copy(ch);
-                            }
-                            ch.setSslReadFuture(future);
-                        }
-                        return;
-                    }
-                    if (setFutureNull) {
-                        ch.setSslReadFuture(null);
-                    }
-                    SslHandler sslHandler = ch.getSslHandler();
-                    ByteBuf product;
+        int readyOps = k.readyOps();
+        if (sharable) {
+            if (isAcceptor) {
+                if ((readyOps & SelectionKey.OP_CONNECT) != 0
+                        || (readyOps & SelectionKey.OP_ACCEPT) != 0) {
+                    // 说明该链接未打开
                     try {
-                        product = sslHandler.unwrap(ch, future.getByteBuf());
-                    } finally {
-                        ReleaseUtil.release(future, ch.getChannelThreadContext());
-                    }
-                    if (product == null) {
-                        continue;
-                    }
-                    accept(ch, product);
-                }
-            } else {
-                accept(ch, buf);
-            }
-        } catch (Throwable e) {
-            if (e instanceof SSLHandshakeException) {
-                finishConnect(ch.getSession(), e);
-            }
-            closeSocketChannel(ch, e);
-        }
-    }
-
-    private void accept(SocketChannel ch, ByteBuf buffer) throws Exception {
-        ProtocolCodec codec = ch.getProtocolCodec();
-        for (;;) {
-            if (!buffer.hasRemaining()) {
-                return;
-            }
-            ChannelFuture future = ch.getReadFuture();
-            boolean setFutureNull = true;
-            if (future == null) {
-                future = codec.decode(ch, buffer);
-                setFutureNull = false;
-            }
-            try {
-                if (!future.read(ch, buffer)) {
-                    if (!setFutureNull) {
-                        ch.setReadFuture(future);
-                    }
-                    ByteBuf remainingBuf = ch.getRemainingBuf();
-                    if (remainingBuf != null) {
-                        remainingBuf.release(remainingBuf.getReleaseVersion());
-                        ch.setRemainingBuf(null);
-                    }
-                    if (buffer.hasRemaining()) {
-                        ByteBuf remaining = allocator.allocate(buffer.remaining());
-                        remaining.read(buffer);
-                        remaining.flip();
-                        ch.setRemainingBuf(remaining);
+                        buildChannel(k);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
                     }
                     return;
                 }
-            } catch (Throwable e) {
-                future.release(ch.getChannelThreadContext());
-                if (e instanceof IOException) {
-                    throw (IOException) e;
+            } else {
+                SocketChannel ch = (SocketChannel) k.attachment();
+                if (ch == null || !ch.isOpened()) {
+                    return;
                 }
-                throw new IOException("exception occurred when do decode," + e.getMessage(), e);
+                if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+                    try {
+                        ch.write(this);
+                    } catch (Throwable e) {
+                        closeSocketChannel(ch, e);
+                    }
+                    return;
+                }
+                try {
+                    ch.read(this, this.buf);
+                } catch (Throwable e) {
+                    if (e instanceof SSLHandshakeException) {
+                        finishConnect(ch.getSession(), e);
+                    }
+                    closeSocketChannel(ch, e);
+                }
             }
-            if (setFutureNull) {
-                ch.setReadFuture(null);
+        } else {
+            if ((readyOps & SelectionKey.OP_CONNECT) != 0
+                    || (readyOps & SelectionKey.OP_ACCEPT) != 0) {
+                // 说明该链接未打开
+                try {
+                    buildChannel(k);
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+                return;
             }
-            future.release(ch.getChannelThreadContext());
-            foreFutureAcceptor.accept(ch.getSession(), future);
+            SocketChannel ch = (SocketChannel) k.attachment();
+            if (ch == null || !ch.isOpened()) {
+                return;
+            }
+            if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+                try {
+                    ch.write(this);
+                } catch (Throwable e) {
+                    closeSocketChannel(ch, e);
+                }
+                return;
+            }
+            try {
+                ch.read(this, this.buf);
+            } catch (Throwable e) {
+                if (e instanceof SSLHandshakeException) {
+                    finishConnect(ch.getSession(), e);
+                }
+                closeSocketChannel(ch, e);
+            }
         }
     }
 
-    @Override
     public ByteBufAllocator allocator() {
         return allocator;
     }
 
-    public void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException {
-        channelBuilder.buildChannel(eventLoop, k);
+    public void buildChannel(SelectionKey k) throws IOException {
+        final ChannelContext context = (ChannelContext) k.attachment();
+        final ChannelService channelService = context.getChannelService();
+        final SelectorEventLoop thisEventLoop = this;
+        if (channelService instanceof ChannelAcceptor) {
+            ServerSocketChannel serverSocketChannel = (ServerSocketChannel) channelService
+                    .getSelectableChannel();
+            if (serverSocketChannel.getLocalAddress() == null) {
+                return;
+            }
+            final java.nio.channels.SocketChannel channel = serverSocketChannel.accept();
+            if (channel == null) {
+                return;
+            }
+            final int channelId = group.getChannelIds().getAndIncrement();
+            int eventLoopIndex = channelId % group.getEventLoopSize();
+            SelectorEventLoop targetEventLoop = group.getEventLoop(eventLoopIndex);
+            // 配置为非阻塞
+            channel.configureBlocking(false);
+            // 注册到selector，等待连接
+            if (thisEventLoop == targetEventLoop) {
+                regist(channel, targetEventLoop, context, channelId);
+            }else{
+                targetEventLoop.dispatch(new SelectorLoopEvent() {
+                    
+                    @Override
+                    public void close() throws IOException {}
+                    
+                    @Override
+                    public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
+                        regist(channel, selectLoop, context, channelId);
+                    }
+                });
+            }
+        } else {
+            final java.nio.channels.SocketChannel jdkChannel = 
+                    (java.nio.channels.SocketChannel) channelService.getSelectableChannel();
+            try {
+                if (!jdkChannel.isConnectionPending()) {
+                    return;
+                }
+                if (!jdkChannel.finishConnect()) {
+                    throw new IOException("connect failed");
+                }
+                ChannelConnector connector = (ChannelConnector) context.getChannelService();
+                SelectorEventLoop targetEventLoop = connector.getEventLoop();
+                if (targetEventLoop == null) {
+                    targetEventLoop = group.getEventLoop(0);
+                }
+                jdkChannel.keyFor(selector).cancel();
+                if (thisEventLoop == targetEventLoop) {
+                    SocketChannel channel = regist(jdkChannel, targetEventLoop, context, 0);
+                    if (channel.isEnableSsl()) {
+                        return;
+                    }
+                    finishConnect(channel.getSession(), null);
+                }else{
+                    targetEventLoop.dispatch(new SelectorLoopEvent() {
+                        @Override
+                        public void close() throws IOException {}
+                        @Override
+                        public void fireEvent(SelectorEventLoop eventLoop) throws IOException {
+                            SocketChannel channel = regist(jdkChannel, eventLoop, context, 0);
+                            if (channel.isEnableSsl()) {
+                                return;
+                            }
+                            finishConnect(channel.getSession(), null);
+                        }
+                    });
+                }
+            } catch (IOException e) {
+                finishConnect(context, e);
+            }
+        }
     }
 
     @Override
@@ -261,6 +261,12 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     private void closeEvents(BufferedArrayList<SelectorLoopEvent> events) {
         for (SelectorLoopEvent event : events.getBuffer()) {
             CloseUtil.close(event);
+        }
+    }
+
+    private void closeSessions() {
+        for (SocketSession session : sessions.values()) {
+            CloseUtil.close(session);
         }
     }
 
@@ -299,18 +305,13 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
 
     @Override
     protected void doStartup() throws IOException {
-        if (executorEventLoop instanceof LineEventLoop) {
-            ((LineEventLoop) executorEventLoop).setMonitor(this);
-        }
-        Configuration cfg = context.getConfiguration();
-        int readBuffer = cfg.getChannelReadBuffer();
-        this.writeBuffers = new ByteBuffer[cfg.getWriteBuffers()];
-        this.buf = UnpooledByteBufAllocator.getDirect().allocate(readBuffer);
-        if (isEnableSsl) {
+        this.writeBuffers = new ByteBuffer[group.getWriteBuffers()];
+        this.buf = UnpooledByteBufAllocator.getDirect().allocate(group.getChannelReadBuffer());
+        if (group.isEnableSsl()) {
             ByteBuf buf = UnpooledByteBufAllocator.getHeap().allocate(1024 * 64);
             this.sslTemporary = new SslFuture(buf, 1024 * 64);
         }
-        this.rebuildSelector();
+        this.selector = openSelector();
     }
 
     @Override
@@ -318,16 +319,24 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         ThreadUtil.sleep(8);
         closeEvents(events);
         closeEvents(events);
-        sessionManager.stop();
+        closeSessions();
         CloseUtil.close(selector);
         ReleaseUtil.release(sslTemporary, this);
         ReleaseUtil.release(buf, buf.getReleaseVersion());
     }
 
-    public void finishConnect(UnsafeSocketSession session, Throwable e) {
+    public void finishConnect(SocketSession session, Throwable e) {
+        ChannelContext context = session.getContext();
         ChannelService service = context.getChannelService();
-        if (service instanceof AbstractChannelConnector) {
-            ((AbstractChannelConnector) service).finishConnect(session, e);
+        if (service instanceof ChannelConnector) {
+            ((ChannelConnector) service).finishConnect(session, e);
+        }
+    }
+    
+    public void finishConnect(ChannelContext context, Throwable e) {
+        ChannelService service = context.getChannelService();
+        if (service instanceof ChannelConnector) {
+            ((ChannelConnector) service).finishConnect(null, e);
         }
     }
 
@@ -342,40 +351,22 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     }
 
     @Override
-    public NioSocketChannelContext getChannelContext() {
-        return context;
-    }
-
-    @Override
     public SelectorEventLoopGroup getEventLoopGroup() {
-        return eventLoopGroup;
-    }
-
-    @Override
-    public ExecutorEventLoop getExecutorEventLoop() {
-        return executorEventLoop;
+        return group;
     }
 
     public int getIndex() {
         return index;
     }
 
-    @Override
-    public IoEventHandle getIoEventHandle() {
-        return ioEventHandle;
+    public Selector getSelector() {
+        return selector;
     }
 
-    @Override
-    public SocketSessionManager getSocketSessionManager() {
-        return sessionManager;
-    }
-
-    @Override
     public SslHandler getSslHandler() {
-        return sslHandler;
+        return (SslHandler) attributes.get(SslHandler.SSL_HANDlER_EVENT_LOOP_KEY);
     }
 
-    @Override
     public SslFuture getSslTemporary() {
         return sslTemporary;
     }
@@ -393,13 +384,8 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
     }
 
     @Override
-    public boolean isEnableSsl() {
-        return isEnableSsl;
-    }
-
-    @Override
     public void loop() {
-        final long idle = context.getConfiguration().getSessionIdleTime();
+        final long idle = group.getIdleTime();
         final Selector selector = this.selector;
         long nextIdle = 0;
         long selectTime = idle;
@@ -438,7 +424,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
                             keySet.keys[i] = null;
                             accept(k);
                         }
-                        selectionKeySet.reset();
+                        keySet.reset();
                     } else {
                         Set<SelectionKey> sks = selector.selectedKeys();
                         for (SelectionKey k : sks) {
@@ -446,8 +432,6 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
                         }
                         sks.clear();
                     }
-                } else {
-                    //          selectEmpty(last_select);
                 }
                 if (events.size() > 0) {
                     List<SelectorLoopEvent> es = events.getBuffer();
@@ -457,7 +441,7 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
                 }
                 long now = System.currentTimeMillis();
                 if (now >= nextIdle) {
-                    sessionManager.sessionIdle(now);
+                    sessionIdle(now);
                     nextIdle = now + idle;
                     selectTime = idle;
                 } else {
@@ -469,19 +453,8 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         }
     }
 
-    private ChannelBuilder newChannelBuilder(SelectorEventLoop selectorEventLoop,
-            SelectableChannel channel) {
-        NioSocketChannelContext context = selectorEventLoop.getChannelContext();
-        if (context.getChannelService() instanceof ChannelAcceptor) {
-            return new AcceptorChannelBuilder((ServerSocketChannel) channel,
-                    selectorEventLoop.getEventLoopGroup());
-        } else {
-            return new ConnectorChannelBuilder((java.nio.channels.SocketChannel) channel);
-        }
-    }
-
     @SuppressWarnings("rawtypes")
-    private Selector openSelector(SelectableChannel channel) throws IOException {
+    private Selector openSelector() throws IOException {
         SelectorProvider provider = SelectorProvider.provider();
         Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
@@ -494,7 +467,6 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
             }
         });
         final Selector selector = provider.openSelector();
-        this.channelBuilder = newChannelBuilder(this, channel);
         if (res instanceof Throwable) {
             return selector;
         }
@@ -532,61 +504,89 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         return selector;
     }
 
-    private void rebuildSelector() throws IOException {
-        Selector oldSelector = this.selector;
-        Selector newSelector = rebuildSelector0();
-        if (oldSelector != null) {
-            Selector oldSel = this.selector;
-            Selector newSel = newSelector;
-            Set<SelectionKey> sks = oldSel.keys();
-            for (SelectionKey sk : sks) {
-                if (!sk.isValid() || sk.attachment() == null) {
-                    continue;
-                }
-                try {
-                    sk.channel().register(newSel, SelectionKey.OP_READ);
-                } catch (ClosedChannelException e) {
-                    Object atta = sk.attachment();
-                    if (atta instanceof Closeable) {
-                        CloseUtil.close((Closeable) atta);
-                    }
-                }
-
-            }
-            CloseUtil.close(oldSelector);
+    public void putSession(SocketSession session) throws RejectedExecutionException {
+        Map<Integer, SocketSession> sessions = this.sessions;
+        int sessionId = session.getSessionId();
+        SocketSession old = sessions.get(sessionId);
+        if (old != null) {
+            CloseUtil.close(old);
         }
-        this.selector = newSelector;
+        if (sessions.size() >= sessionSizeLimit) {
+            throw new RejectedExecutionException(
+                    "session size limit:" + sessionSizeLimit + ",current:" + sessions.size());
+        }
+        sessions.put(sessionId, session);
+        session.getContext().getSessionManager().putSession(session);
     }
 
-    private Selector rebuildSelector0() throws IOException {
-        NioSocketChannelContext context = getChannelContext();
-        SelectableChannel channel = context.getSelectableChannel();
-        Selector selector = openSelector(channel);
-        if (context.getChannelService() instanceof ChannelAcceptor) {
-            //FIXME 使用多eventLoop accept是否导致卡顿 是否要区分accept和read
-            channel.register(selector, SelectionKey.OP_ACCEPT);
-        } else {
-            channel.register(selector, SelectionKey.OP_CONNECT);
-        }
-        return selector;
-    }
-    
-    
-    
-    protected NioSocketChannel regist(java.nio.channels.SocketChannel channel,
-            SelectorEventLoop selectorLoop, int channelId) throws IOException {
-        Selector nioSelector = selectorLoop.selector;
-        SelectionKey sk = channel.register(nioSelector, SelectionKey.OP_READ);
+    private SocketChannel regist(java.nio.channels.SocketChannel channel,
+            SelectorEventLoop eventLoop, ChannelContext context, int channelId) throws IOException {
+        SelectionKey sk = channel.register(eventLoop.selector, SelectionKey.OP_READ);
         // 绑定SocketChannel到SelectionKey
-        NioSocketChannel socketChannel = (NioSocketChannel) sk.attachment();
+        SocketChannel socketChannel = (SocketChannel) sk.attachment();
         if (socketChannel != null) {
             return socketChannel;
         }
-        socketChannel = new NioSocketChannel(selectorLoop, sk, channelId);
+        socketChannel = new SocketChannel(eventLoop, sk, context, channelId);
         sk.attach(socketChannel);
         // fire session open event
         socketChannel.fireOpend();
         return socketChannel;
+    }
+
+    private SelectionKey registSelector0(ChannelContext context) throws IOException {
+        ChannelService channelService = context.getChannelService();
+        SelectableChannel channel = channelService.getSelectableChannel();
+        if (context.isEnableSsl()) {
+            setAttribute(SslHandler.SSL_HANDlER_EVENT_LOOP_KEY,
+                    context.getSslContext().newSslHandler());
+        }
+        if (channelService instanceof ChannelAcceptor) {
+            //FIXME 使用多eventLoop accept是否导致卡顿 是否要区分accept和read
+            return channel.register(selector, SelectionKey.OP_ACCEPT, context);
+        } else {
+            return channel.register(selector, SelectionKey.OP_CONNECT, context);
+        }
+
+    }
+
+    public void registSelector(final ChannelContext context) throws IOException {
+        if (sharable && !isAcceptor) {
+            throw new IOException("not acceptor event loop");
+        }
+        if (inEventLoop()) {
+            registSelector0(context);
+        } else {
+            dispatch(new SelectorLoopEvent() {
+                @Override
+                public void close() throws IOException {}
+
+                @Override
+                public void fireEvent(SelectorEventLoop selectorLoop) throws IOException {
+                    registSelector0(context);
+                }
+            });
+        }
+        //        if (oldSelector != null) {
+        //            Selector oldSel = this.selector;
+        //            Selector newSel = newSelector;
+        //            Set<SelectionKey> sks = oldSel.keys();
+        //            for (SelectionKey sk : sks) {
+        //                if (!sk.isValid() || sk.attachment() == null) {
+        //                    continue;
+        //                }
+        //                try {
+        //                    sk.channel().register(newSel, SelectionKey.OP_READ);
+        //                } catch (ClosedChannelException e) {
+        //                    Object atta = sk.attachment();
+        //                    if (atta instanceof Closeable) {
+        //                        CloseUtil.close((Closeable) atta);
+        //                    }
+        //                }
+        //            }
+        //            CloseUtil.close(oldSelector);
+        //        }
+        //        this.selector = newSelector;
     }
 
     @Override
@@ -594,19 +594,45 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
         return this.attributes.remove(key);
     }
 
-    protected void selectEmpty(long last_select) {
-        long past = System.currentTimeMillis() - last_select;
-        if (past > 0 || !isRunning()) {
+    public void removeSession(SocketSession session) {
+        sessions.remove(session.getSessionId());
+        session.getContext().getSessionManager().removeSession(session);
+    }
+
+    private void sessionIdle(long currentTime) {
+        long lastIdleTime = this.lastIdleTime;
+        this.lastIdleTime = currentTime;
+        Map<Integer, SocketSession> sessions = this.sessions;
+        if (sessions.size() == 0) {
             return;
         }
-        // JDK bug fired ?
-        IOException be = new IOException("JDK bug fired ?");
-        logger.error(be.getMessage(), be);
-        logger.info("last={},past={}", last_select, past);
-        try {
-            rebuildSelector();
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+        if (sharable) {
+            for (SocketSession session : sessions.values()) {
+                ChannelContext context = session.getContext();
+                List<SocketSessionIdleEventListener> ls = context.getSessionIdleEventListeners();
+                if (ls.size() == 1) {
+                    try {
+                        ls.get(0).sessionIdled(session, lastIdleTime, currentTime);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                } else {
+                    for (SocketSessionIdleEventListener l : ls) {
+                        try {
+                            l.sessionIdled(session, lastIdleTime, currentTime);
+                        } catch (Exception e) {
+                            logger.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            }
+        } else {
+            List<SocketSessionIdleEventListener> ls = context.getSessionIdleEventListeners();
+            for (SocketSessionIdleEventListener l : ls) {
+                for (SocketSession session : sessions.values()) {
+                    l.sessionIdled(session, lastIdleTime, currentTime);
+                }
+            }
         }
     }
 
@@ -628,81 +654,6 @@ public class SelectorEventLoop extends AbstractEventLoop implements ChannelThrea
                 super.wakeup();
             }
             wakener.set(false);
-        }
-    }
-
-    class AcceptorChannelBuilder implements ChannelBuilder {
-
-        private FixedAtomicInteger     channelIdGenerator;
-        private SelectorEventLoopGroup eventLoopGroup;
-        private ServerSocketChannel    serverSocketChannel;
-
-        public AcceptorChannelBuilder(ServerSocketChannel serverSocketChannel,
-                SelectorEventLoopGroup selectorEventLoopGroup) {
-            this.serverSocketChannel = serverSocketChannel;
-            this.eventLoopGroup = selectorEventLoopGroup;
-            this.channelIdGenerator = context.getChannelIds();
-        }
-
-        public void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException {
-            if (serverSocketChannel.getLocalAddress() == null) {
-                return;
-            }
-            final java.nio.channels.SocketChannel channel = serverSocketChannel.accept();
-            if (channel == null) {
-                return;
-            }
-            final int channelId = channelIdGenerator.getAndIncrement();
-            int eventLoopIndex = channelId % eventLoopGroup.getEventLoopSize();
-            SelectorEventLoop targetEventLoop = eventLoopGroup.getEventLoop(eventLoopIndex);
-            // 配置为非阻塞
-            channel.configureBlocking(false);
-            // 注册到selector，等待连接
-            if (eventLoop == targetEventLoop) {
-                regist(channel, targetEventLoop, channelId);
-                return;
-            }
-            targetEventLoop.dispatch(new SelectorLoopEvent() {
-
-                public void close() throws IOException {}
-
-                public void fireEvent(SelectorEventLoop selectLoop) throws IOException {
-                    regist(channel, selectLoop, channelId);
-                }
-            });
-            targetEventLoop.wakeup();
-        }
-
-    }
-
-    interface ChannelBuilder {
-        void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException;
-    }
-
-    class ConnectorChannelBuilder implements ChannelBuilder {
-
-        private java.nio.channels.SocketChannel jdkChannel;
-
-        public ConnectorChannelBuilder(java.nio.channels.SocketChannel jdkChannel) {
-            this.jdkChannel = jdkChannel;
-        }
-
-        public void buildChannel(SelectorEventLoop eventLoop, SelectionKey k) throws IOException {
-            try {
-                if (!jdkChannel.isConnectionPending()) {
-                    return;
-                }
-                if (!jdkChannel.finishConnect()) {
-                    throw new IOException("connect failed");
-                }
-                SocketChannel channel = regist(jdkChannel, eventLoop, 1);
-                if (channel.isEnableSsl()) {
-                    return;
-                }
-                finishConnect(channel.getSession(), null);
-            } catch (IOException e) {
-                finishConnect(null, e);
-            }
         }
     }
 

@@ -347,7 +347,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
             return null;
         }
         if (clazzEntries.containsKey(className)) {
-//            throw new DuplicateClassException(className);
+            //            throw new DuplicateClassException(className);
         }
         byte[] binaryContent = FileUtil.inputStream2ByteArray(inputStream);
         ClassEntry classEntry = new ClassEntry();
@@ -377,21 +377,21 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
                 }
                 field.set(null, null);
             } catch (Throwable e) {}
-            
-//            if (field.getType().isAssignableFrom(Object.class) 
-//                    || field.getType().isInterface()
-//                    || field.getType().isArray()
-//                    || field.getType().isAnonymousClass()) {
-//                try {
-//                    if (!field.isAccessible()) {
-//                        field.setAccessible(true);
-//                    }
-//                    field.set(null, null);
-//                } catch (Throwable e) {}
-//            }
+
+            //            if (field.getType().isAssignableFrom(Object.class) 
+            //                    || field.getType().isInterface()
+            //                    || field.getType().isArray()
+            //                    || field.getType().isAnonymousClass()) {
+            //                try {
+            //                    if (!field.isAccessible()) {
+            //                        field.setAccessible(true);
+            //                    }
+            //                    field.set(null, null);
+            //                } catch (Throwable e) {}
+            //            }
         }
     }
-    
+
     @Override
     public void unloadClassLoader() {
         for (ClassEntry e : clazzEntries.values()) {
@@ -402,7 +402,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         }
         this.clazzEntries.clear();
         this.resourceMap.clear();
-        for(List<URL> list : resourcesMap.values()){
+        for (List<URL> list : resourcesMap.values()) {
             list.clear();
         }
         this.resourcesMap.clear();

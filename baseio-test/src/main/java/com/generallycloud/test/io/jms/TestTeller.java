@@ -16,11 +16,10 @@
 package com.generallycloud.test.io.jms;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseCodec;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
 public class TestTeller {
@@ -29,9 +28,9 @@ public class TestTeller {
 
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-        SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(new Configuration(8300));
 
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        ChannelConnector connector = new ChannelConnector(context);
 
         context.setIoEventHandleAdaptor(eventHandle);
 
@@ -39,23 +38,23 @@ public class TestTeller {
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 
-//        FixedSession session = new FixedSession(connector.connect());
-//
-//        MessageProducer producer = new DefaultMessageProducer(session);
-//
-//        TextMessage message = new TextMessage("msgId", "uuid", "你好！");
-//
-//        MapMessage mapMessage = new MapMessage("msgId", "uuid");
-//
-//        mapMessage.put("test", "test111111111111111111111");
-//
-//        long old = System.currentTimeMillis();
-//
-//        producer.offer(message);
-//
-//        producer.offer(mapMessage);
-//
-//        System.out.println("Time:" + (System.currentTimeMillis() - old));
+        //        FixedSession session = new FixedSession(connector.connect());
+        //
+        //        MessageProducer producer = new DefaultMessageProducer(session);
+        //
+        //        TextMessage message = new TextMessage("msgId", "uuid", "你好！");
+        //
+        //        MapMessage mapMessage = new MapMessage("msgId", "uuid");
+        //
+        //        mapMessage.put("test", "test111111111111111111111");
+        //
+        //        long old = System.currentTimeMillis();
+        //
+        //        producer.offer(message);
+        //
+        //        producer.offer(mapMessage);
+        //
+        //        System.out.println("Time:" + (System.currentTimeMillis() - old));
 
         connector.close();
 

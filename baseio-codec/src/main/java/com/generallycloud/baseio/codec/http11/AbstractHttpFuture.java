@@ -30,8 +30,8 @@ import com.generallycloud.baseio.common.SHAUtil;
 import com.generallycloud.baseio.common.StringLexer;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayBuffer;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketChannel;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 //FIXME 改进header parser
@@ -42,37 +42,37 @@ import com.generallycloud.baseio.protocol.AbstractChannelFuture;
  *
  */
 public abstract class AbstractHttpFuture extends AbstractChannelFuture implements HttpFuture {
-    
-    private static final Map<String, String> REQ_MAPPING = HttpHeader.REQ_MAPPING;
-    
-    protected static final KMPUtil KMP_BOUNDARY   = new KMPUtil("boundary=");
 
-    private ByteArrayBuffer        binaryBuffer;
-    private byte[]                 bodyArray;
-    private int                    bodyLimit;
-    private String                 boundary;
-    private int                    contentLength;
-    private String                 contentType;
-    private SocketChannelContext   context;
-    private List<Cookie>           cookieList;
-    private Map<String, String>    cookies;
-    private StringBuilder          currentHeaderLine;
-    private boolean                hasBodyContent;
-    private boolean                header_complete;
-    private int                    headerLength;
-    private int                    headerLimit;
-    private String                 host;
-    private String                 method;
-    private Map<String, String>    params;
-    private boolean                parseFirstLine = true;
-    private String                 readText;
-    private Map<String, String>    request_headers;
-    private String                 requestURI;
-    private String                 requestURL;
-    private Map<String, String>    response_headers;
-    private HttpStatus             status         = HttpStatus.C200;
-    private boolean                updateWebSocketProtocol;
-    private String                 version;
+    private static final Map<String, String> REQ_MAPPING    = HttpHeader.REQ_MAPPING;
+
+    protected static final KMPUtil           KMP_BOUNDARY   = new KMPUtil("boundary=");
+
+    private ByteArrayBuffer                  binaryBuffer;
+    private byte[]                           bodyArray;
+    private int                              bodyLimit;
+    private String                           boundary;
+    private int                              contentLength;
+    private String                           contentType;
+    private ChannelContext                   context;
+    private List<Cookie>                     cookieList;
+    private Map<String, String>              cookies;
+    private StringBuilder                    currentHeaderLine;
+    private boolean                          hasBodyContent;
+    private boolean                          header_complete;
+    private int                              headerLength;
+    private int                              headerLimit;
+    private String                           host;
+    private String                           method;
+    private Map<String, String>              params;
+    private boolean                          parseFirstLine = true;
+    private String                           readText;
+    private Map<String, String>              request_headers;
+    private String                           requestURI;
+    private String                           requestURL;
+    private Map<String, String>              response_headers;
+    private HttpStatus                       status         = HttpStatus.C200;
+    private boolean                          updateWebSocketProtocol;
+    private String                           version;
 
     public AbstractHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
         this.context = channel.getContext();
@@ -82,7 +82,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         this.currentHeaderLine = new StringBuilder();
     }
 
-    public AbstractHttpFuture(SocketChannelContext context) {
+    public AbstractHttpFuture(ChannelContext context) {
         this.context = context;
     }
 
@@ -460,7 +460,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         this.method = method;
     }
 
-    protected SocketChannelContext getContext() {
+    protected ChannelContext getContext() {
         return context;
     }
 
@@ -475,21 +475,21 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     protected void setVersion(String version) {
         this.version = version;
     }
-    
-    protected void clear(Collection<?> coll){
+
+    protected void clear(Collection<?> coll) {
         if (coll == null) {
             return;
         }
         coll.clear();
     }
-    
-    protected void clear(Map<?,?> map){
+
+    protected void clear(Map<?, ?> map) {
         if (map == null) {
             return;
         }
         map.clear();
     }
-    
+
     protected HttpFuture reset(SocketChannel channel, int headerLimit, int bodyLimit) {
         this.binaryBuffer = null;
         this.bodyArray = null;
@@ -508,8 +508,9 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         this.readText = null;
         this.requestURI = null;
         this.requestURL = null;
-        this.clear(response_headers);;
-        this.status         = HttpStatus.C200;
+        this.clear(response_headers);
+        ;
+        this.status = HttpStatus.C200;
         this.updateWebSocketProtocol = false;
         this.version = null;
         this.headerLimit = headerLimit;
@@ -517,22 +518,22 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         this.context = channel.getContext();
         if (currentHeaderLine == null) {
             currentHeaderLine = new StringBuilder();
-        }else{
+        } else {
             currentHeaderLine.setLength(0);
         }
         if (request_headers == null) {
             request_headers = new HashMap<>();
-        }else{
+        } else {
             request_headers.clear();
         }
         if (params == null) {
             params = new HashMap<>();
-        }else{
+        } else {
             params.clear();
         }
         setByteBuf(EmptyByteBuf.get());
         super.reset();
         return this;
     }
-    
+
 }

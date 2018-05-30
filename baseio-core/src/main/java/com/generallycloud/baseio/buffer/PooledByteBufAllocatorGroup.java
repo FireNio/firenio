@@ -17,33 +17,31 @@ package com.generallycloud.baseio.buffer;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
-import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.configuration.Configuration;
+import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 
-public class PooledByteBufAllocatorManager extends AbstractLifeCycle
-        implements ByteBufAllocatorManager {
+public class PooledByteBufAllocatorGroup extends AbstractLifeCycle
+        implements ByteBufAllocatorGroup {
 
     private PooledByteBufAllocator[] allocators = null;
     private PooledByteBufAllocator   allocator  = null;
-    private SocketChannelContext     context    = null;
+    private SelectorEventLoopGroup   group;
 
-    public PooledByteBufAllocatorManager(SocketChannelContext context) {
-        this.context = context;
+    public PooledByteBufAllocatorGroup(SelectorEventLoopGroup group) {
+        this.group = group;
     }
 
     @Override
     protected void doStart() throws Exception {
         if (allocators == null) {
-            Configuration c = context.getConfiguration();
-            int core = c.getCoreSize();
-            int capacity = c.getMemoryPoolCapacity();
-            int unitMemorySize = c.getMemoryPoolUnit();
-            int bufRecycleSize = c.getBufRecycleSize();
-            boolean direct = c.isEnableMemoryPoolDirect();
+            int core = group.getEventLoopSize();
+            int capacity = group.getMemoryPoolCapacity();
+            int unitMemorySize = group.getMemoryPoolUnit();
+            int bufRecycleSize = group.getBufRecycleSize();
+            boolean direct = group.isEnableMemoryPoolDirect();
             this.allocators = new PooledByteBufAllocator[core];
             for (int i = 0; i < allocators.length; i++) {
-                allocators[i] = new SimpleByteBufAllocator(capacity, unitMemorySize,
-                        bufRecycleSize, direct);
+                allocators[i] = new SimpleByteBufAllocator(capacity, unitMemorySize, bufRecycleSize,
+                        direct);
             }
         }
         PooledByteBufAllocator first = allocators[0];
@@ -70,7 +68,7 @@ public class PooledByteBufAllocatorManager extends AbstractLifeCycle
     }
 
     @Override
-    public ByteBufAllocator getNextBufAllocator() {
+    public ByteBufAllocator getNext() {
         PooledByteBufAllocator next = allocator.getNext();
         this.allocator = next;
         return next;

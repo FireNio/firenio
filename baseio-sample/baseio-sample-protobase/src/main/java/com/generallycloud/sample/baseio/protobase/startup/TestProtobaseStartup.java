@@ -26,7 +26,7 @@ public class TestProtobaseStartup {
     public static void main(String[] args) throws Exception {
 
         ProtobaseStartup.main(args);
-        
+
     }
 
 }

@@ -18,7 +18,7 @@ package com.generallycloud.baseio.buffer;
 public class HeapByteBufFactory extends AbstractByteBufFactory {
 
     private byte[] memory = null;
-    
+
     HeapByteBufFactory(int bufs) {
         super(bufs);
     }

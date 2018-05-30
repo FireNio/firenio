@@ -17,11 +17,10 @@ package com.generallycloud.test.io.jms;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
 public class TestListenerByteMessage {
@@ -30,9 +29,9 @@ public class TestListenerByteMessage {
 
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-        SocketChannelContext context = new NioSocketChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(new Configuration(8300));
 
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        ChannelConnector connector = new ChannelConnector(context);
 
         context.setIoEventHandleAdaptor(eventHandle);
 
@@ -40,25 +39,25 @@ public class TestListenerByteMessage {
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 
-//        FixedSession session = new FixedSession(connector.connect());
-//
-//        MessageConsumer consumer = new DefaultMessageConsumer(session);
-//
-//        final long old = System.currentTimeMillis();
-//
-//        consumer.receive(new OnMessage() {
-//
-//            @Override
-//            public void onReceive(Message message) {
-//                System.out.println(message);
-//                if (message.getMsgType() == Message.TYPE_TEXT_BYTE) {
-//                    TextByteMessage _Message = (TextByteMessage) message;
-//                    System.out.println(new String(_Message.getByteArray(), Encoding.UTF8));
-//                }
-//
-//                System.out.println("Time:" + (System.currentTimeMillis() - old));
-//            }
-//        });
+        //        FixedSession session = new FixedSession(connector.connect());
+        //
+        //        MessageConsumer consumer = new DefaultMessageConsumer(session);
+        //
+        //        final long old = System.currentTimeMillis();
+        //
+        //        consumer.receive(new OnMessage() {
+        //
+        //            @Override
+        //            public void onReceive(Message message) {
+        //                System.out.println(message);
+        //                if (message.getMsgType() == Message.TYPE_TEXT_BYTE) {
+        //                    TextByteMessage _Message = (TextByteMessage) message;
+        //                    System.out.println(new String(_Message.getByteArray(), Encoding.UTF8));
+        //                }
+        //
+        //                System.out.println("Time:" + (System.currentTimeMillis() - old));
+        //            }
+        //        });
 
         ThreadUtil.sleep(30000000);
 

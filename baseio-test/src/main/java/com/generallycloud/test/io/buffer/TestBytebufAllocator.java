@@ -17,10 +17,8 @@ package com.generallycloud.test.io.buffer;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.buffer.PooledByteBufAllocatorManager;
-import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.configuration.Configuration;
+import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
+import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 
 public class TestBytebufAllocator {
 
@@ -32,19 +30,14 @@ public class TestBytebufAllocator {
 
     static void test() throws Exception {
 
-        Configuration configuration = new Configuration();
-
-        configuration.setMemoryPoolCapacity(10);
-
-        configuration.setMemoryPoolUnit(1);
-
-        SocketChannelContext context = new NioSocketChannelContext(configuration);
-
-        PooledByteBufAllocatorManager allocator = new PooledByteBufAllocatorManager(context);
+        SelectorEventLoopGroup group = new SelectorEventLoopGroup();
+        group.setMemoryPoolCapacity(10);
+        group.setMemoryPoolUnit(1);
+        PooledByteBufAllocatorGroup allocator = new PooledByteBufAllocatorGroup(group);
 
         allocator.start();
 
-        ByteBufAllocator allocator2 = allocator.getNextBufAllocator();
+        ByteBufAllocator allocator2 = allocator.getNext();
 
         ByteBuf buf = allocator2.allocate(15);
 

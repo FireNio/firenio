@@ -30,7 +30,7 @@ import com.generallycloud.baseio.codec.http11.WebSocketFuture;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.container.ContainerIoEventHandle;
@@ -84,7 +84,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     }
 
     @Override
-    protected void destroy(SocketChannelContext context, boolean redeploy) {
+    protected void destroy(ChannelContext context, boolean redeploy) {
         LifeCycleUtil.stop(httpSessionManager);
         super.destroy(context, redeploy);
     }
@@ -100,9 +100,11 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         ServerHttpFuture f = new ServerHttpFuture(session.getContext());
         StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
         builder.append("        <div style=\"margin-left:20px;\">\n");
-        builder.append("            <div>oops, server threw an inner exception, the stack trace is :</div>\n");
+        builder.append(
+                "            <div>oops, server threw an inner exception, the stack trace is :</div>\n");
         builder.append("            <div style=\"font-family:serif;color:#5c5c5c;\">\n");
-        builder.append("            -------------------------------------------------------</BR>\n");
+        builder.append(
+                "            -------------------------------------------------------</BR>\n");
         builder.append("            ");
         builder.append(ex.toString());
         builder.append("</BR>\n");
@@ -116,7 +118,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         builder.append("        </div>\n");
         builder.append(HtmlUtil.HTML_POWER_BY);
         builder.append(HtmlUtil.HTML_BOTTOM);
-        f.write(builder.toString(),session.getEncoding());
+        f.write(builder.toString(), session.getEncoding());
         f.setStatus(HttpStatus.C500);
         f.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
         session.flush(f);
@@ -129,7 +131,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         session.flush(future);
     }
 
-    private ApplicationIoEventHandle getApplicationIoEventHandle(SocketChannelContext context) {
+    private ApplicationIoEventHandle getApplicationIoEventHandle(ChannelContext context) {
         return (ApplicationIoEventHandle) context.getIoEventHandleAdaptor();
     }
 
@@ -155,13 +157,13 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     }
 
     @Override
-    protected void initialize(SocketChannelContext context, boolean redeploy) throws Exception {
+    protected void initialize(ChannelContext context, boolean redeploy) throws Exception {
         initializeHtml(context);
         initializeSessionManager(context);
         super.initialize(context, redeploy);
     }
 
-    private void initializeHtml(SocketChannelContext context) throws Exception {
+    private void initializeHtml(ChannelContext context) throws Exception {
         ApplicationIoEventHandle handle = getApplicationIoEventHandle(context);
         String rootPath = handle.getAppLocalAddress();
         File rootFile = new File(rootPath);
@@ -183,7 +185,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         }
     }
 
-    private void initializeSessionManager(SocketChannelContext context) throws Exception {
+    private void initializeSessionManager(ChannelContext context) throws Exception {
         ApplicationIoEventHandle handle = getApplicationIoEventHandle(context);
         if (handle.getConfiguration().isEnableHttpSession()) {
             httpSessionManager = new DefaultHttpSessionManager();
@@ -193,15 +195,15 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         }
     }
 
-    private void reloadEntity(HttpEntity entity, SocketChannelContext context, HttpStatus status)
+    private void reloadEntity(HttpEntity entity, ChannelContext context, HttpStatus status)
             throws IOException {
         File file = entity.getFile();
         entity.setBinary(FileUtil.readBytesByFile(file));
         entity.setLastModify(file.lastModified());
     }
-    
-    private void scanFolder(SocketChannelContext context, Map<String, HttpEntity> htmlCache,
-            File file, String root, Map<String, String> mapping, String path) throws IOException {
+
+    private void scanFolder(ChannelContext context, Map<String, HttpEntity> htmlCache, File file,
+            String root, Map<String, String> mapping, String path) throws IOException {
         if (file.isFile()) {
             String contentType = getContentType(file.getName(), mapping);
             HttpEntity entity = new HttpEntity();

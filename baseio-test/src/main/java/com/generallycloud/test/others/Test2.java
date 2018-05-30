@@ -19,13 +19,13 @@ public class Test2 {
 
     public static void main(String[] args) throws Exception {
 
-       System.out.println(-1 & 0x3f);
-       
-       System.out.println(0x3f);
-       
-       System.out.println(255 * 255);
-       
-       System.out.println(256 * 256 -1);
+        System.out.println(-1 & 0x3f);
+
+        System.out.println(0x3f);
+
+        System.out.println(255 * 255);
+
+        System.out.println(256 * 256 - 1);
 
     }
 

@@ -20,18 +20,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.balance.BalanceClientSocketSession;
 import com.generallycloud.baseio.balance.BalanceClientSocketSessionFactory;
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
-import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestBalanceClient {
@@ -46,8 +45,9 @@ public class TestBalanceClient {
             public void accept(SocketSession session, Future future) throws Exception {
                 ProtobaseFuture f = (ProtobaseFuture) future;
                 if (f.hasReadBinary()) {
-                    System.out.println(f.getReadText() + new String(f.getReadBinary()) + "______R:" + System.currentTimeMillis());
-                }else{
+                    System.out.println(f.getReadText() + new String(f.getReadBinary()) + "______R:"
+                            + System.currentTimeMillis());
+                } else {
                     System.out.println(f.getReadText() + "______R:" + System.currentTimeMillis());
                 }
                 res.incrementAndGet();
@@ -55,8 +55,8 @@ public class TestBalanceClient {
         };
 
         Configuration configuration = new Configuration(8600);
-        SocketChannelContext context = new NioSocketChannelContext(configuration);
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        ChannelContext context = new ChannelContext(configuration);
+        ChannelConnector connector = new ChannelConnector(context);
         context.setProtocolCodec(new ProtobaseCodec());
         context.setSocketSessionFactory(new BalanceClientSocketSessionFactory());
         context.addSessionEventListener(new LoggerSocketSEListener());
@@ -66,7 +66,7 @@ public class TestBalanceClient {
         for (int i = 0; i < 100; i++) {
             int fid = Math.abs(new Random().nextInt());
             ProtobaseFuture future = new ProtobaseFutureImpl("future-name");
-            future.write("你好！",session);
+            future.write("你好！", session);
             future.setHashCode(fid);
             session.flush(future);
         }

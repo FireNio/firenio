@@ -16,13 +16,16 @@
 package com.generallycloud.baseio.component;
 
 import java.net.InetSocketAddress;
+import java.nio.channels.SelectableChannel;
 
 public interface ChannelService {
 
-    SocketChannelContext getContext();
+    ChannelContext getContext();
 
     InetSocketAddress getServerSocketAddress();
 
     boolean isActive();
-    
+
+    SelectableChannel getSelectableChannel();
+
 }

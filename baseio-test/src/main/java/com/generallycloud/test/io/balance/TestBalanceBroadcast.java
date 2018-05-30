@@ -15,18 +15,17 @@
  */
 package com.generallycloud.test.io.balance;
 
+import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
-import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestBalanceBroadcast {
@@ -44,15 +43,15 @@ public class TestBalanceBroadcast {
                     System.out.println("~~~~~~收到报文：" + future.toString());
                     String res = "(***" + f.getReadText() + "***)";
                     System.out.println("~~~~~~处理报文：" + res);
-                    f.write(res,session.getContext());
+                    f.write(res, session.getContext());
                     session.flush(future);
                 }
             }
         };
 
         Configuration configuration = new Configuration(8800);
-        SocketChannelContext context = new NioSocketChannelContext(configuration);
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        ChannelContext context = new ChannelContext(configuration);
+        ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
@@ -62,7 +61,7 @@ public class TestBalanceBroadcast {
             ProtobaseFuture future = new ProtobaseFutureImpl("broadcast");
             future.setBroadcast(true);
             String msg = "broadcast msg___S:" + System.currentTimeMillis();
-            future.write(msg,context);
+            future.write(msg, context);
             future.writeBinary("__^^^binary^^^__".getBytes());
             session.flush(future);
             ThreadUtil.sleep(10);

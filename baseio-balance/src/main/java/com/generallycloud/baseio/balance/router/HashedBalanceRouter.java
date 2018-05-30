@@ -39,8 +39,7 @@ public class HashedBalanceRouter extends AbstractBalanceRouter {
     }
 
     @Override
-    public ReverseSocketSession getRouterSession(FacadeSocketSession session,
-            Future future) {
+    public ReverseSocketSession getRouterSession(FacadeSocketSession session, Future future) {
 
         HashedBalanceFuture f = (HashedBalanceFuture) future;
 

@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.collection.FixedThreadStack;
-import com.generallycloud.baseio.component.ChannelThreadContext;
+import com.generallycloud.baseio.component.SelectorEventLoop;
 import com.generallycloud.baseio.component.SocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
@@ -180,22 +180,22 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     public String toString() {
         return getReadText();
     }
-    
+
     @Override
-    public void release(ChannelThreadContext context) {
-        super.release(context);
+    public void release(SelectorEventLoop eventLoop) {
+        super.release(eventLoop);
         //FIXME ..final statck is null or not null
         if (WebSocketCodec.WS_PROTOCOL_CODEC.getFutureStackSize() == 0) {
             return;
         }
-        FixedThreadStack<WebSocketFutureImpl> stack = 
-                (FixedThreadStack<WebSocketFutureImpl>) context.getAttribute(WebSocketCodec.FUTURE_STACK_KEY);
+        FixedThreadStack<WebSocketFutureImpl> stack = (FixedThreadStack<WebSocketFutureImpl>) eventLoop
+                .getAttribute(WebSocketCodec.FUTURE_STACK_KEY);
         if (stack != null) {
             stack.push(this);
         }
     }
 
-    protected WebSocketFutureImpl reset(SocketChannel channel, ByteBuf buf, int limit){
+    protected WebSocketFutureImpl reset(SocketChannel channel, ByteBuf buf, int limit) {
         this.byteArray = null;
         this.eof = false;
         this.hasMask = false;
@@ -204,11 +204,11 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
         this.readText = null;
         this.remain_data_complete = false;
         this.type = 0;
-        
+
         this.limit = limit;
         this.setByteBuf(buf);
         this.setServiceName(channel.getSession());
-        
+
         super.reset();
         return this;
     }

@@ -17,11 +17,11 @@ package com.generallycloud.baseio.codec.http11;
 
 import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.UUIDGenerator;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.ChannelContext;
 
 public class WebSocketUpgradeRequestFuture extends ClientHttpFuture {
 
-    public WebSocketUpgradeRequestFuture(SocketChannelContext context, String url) {
+    public WebSocketUpgradeRequestFuture(ChannelContext context, String url) {
 
         super(context, url, "GET");
 

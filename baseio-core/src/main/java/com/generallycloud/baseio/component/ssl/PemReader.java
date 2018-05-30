@@ -47,14 +47,14 @@ final class PemReader {
     static List<byte[]> readCertificates(InputStream in) throws CertificateException {
         List<String> ls;
         try {
-            ls = FileUtil.readLines(in,Encoding.UTF8);
+            ls = FileUtil.readLines(in, Encoding.UTF8);
         } catch (IOException e) {
             throw new CertificateException("failed to read certificate input stream", e);
         }
         List<byte[]> certs = new ArrayList<>();
         StringBuilder b = new StringBuilder();
         int readEnd = 0;
-        
+
         for (String s : ls) {
             if (s.startsWith("----")) {
                 readEnd++;
@@ -73,7 +73,7 @@ final class PemReader {
         }
         return certs;
     }
-    
+
     public static void main(String[] args) throws CertificateException {
         List<byte[]> res = readCertificates(FileUtil.readInputStreamByCls("full_chain.pem"));
         System.out.println(res);

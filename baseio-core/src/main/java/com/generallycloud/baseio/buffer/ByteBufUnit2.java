@@ -17,10 +17,10 @@ package com.generallycloud.baseio.buffer;
 
 public class ByteBufUnit2 {
 
-    protected int     index    = 0;
-    protected int     blockEnd = 0;
-    protected boolean free     = true;
-    protected int blockBegin = 0;
+    protected int     index      = 0;
+    protected int     blockEnd   = 0;
+    protected boolean free       = true;
+    protected int     blockBegin = 0;
 
     @Override
     public String toString() {

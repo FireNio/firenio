@@ -155,7 +155,7 @@ public class InternalLogger implements Logger {
     public void setEnableDebug(boolean enable) {
         LoggerFactory.setEnableDebug(enable);
     }
-    
+
     @Override
     public void error(String message, Object param) {
         error0(message, param);
@@ -170,13 +170,14 @@ public class InternalLogger implements Logger {
     public void error(String message, Object... params) {
         error0(message, params);
     }
-    
+
     private void error0(String message) {
         printer.errPrintln(getTimeFormat() + errorClassName + message);
     }
 
     private void error0(String message, Object param) {
-        printer.errPrintln(getTimeFormat() + errorClassName + MessageFormatter.format(message, param));
+        printer.errPrintln(
+                getTimeFormat() + errorClassName + MessageFormatter.format(message, param));
     }
 
     private void error0(String message, Object param, Object param1) {
@@ -185,7 +186,8 @@ public class InternalLogger implements Logger {
     }
 
     private void error0(String message, Object... param) {
-        printer.errPrintln(getTimeFormat() + errorClassName + MessageFormatter.arrayFormat(message, param));
+        printer.errPrintln(
+                getTimeFormat() + errorClassName + MessageFormatter.arrayFormat(message, param));
     }
 
     @Override

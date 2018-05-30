@@ -15,18 +15,18 @@
  */
 package com.generallycloud.test.io.fixedlength;
 
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
+import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleTestFIxedLengthClient {
@@ -40,31 +40,32 @@ public class SimpleTestFIxedLengthClient {
                 System.out.println("____________________" + f.getReadText());
                 System.out.println();
             }
-            
+
             @Override
             public void futureSent(SocketSession session, Future future) {
                 System.out.println("_______________________sent ..........");
             }
         };
-        SocketChannelContext context = new NioSocketChannelContext(new Configuration("localhost", 8300));
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        SelectorEventLoopGroup group = new SelectorEventLoopGroup(1);
+        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelConnector connector = new ChannelConnector(context, group);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
-        
+
         SocketSession session = connector.connect();
         StringBuilder sb = new StringBuilder(1024 * 6);
         for (int i = 0; i < 1; i++) {
             sb.append("hello!");
         }
-        
+
         for (int i = 0; i < 20; i++) {
             FixedLengthFuture future = new FixedLengthFutureImpl();
-            future.write(sb.toString(),session);
+            future.write(sb.toString(), session);
             session.flush(future);
         }
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);
     }
-    
+
 }

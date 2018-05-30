@@ -50,6 +50,7 @@ public class SslFuture extends AbstractChannelFuture {
         this.limit = limit;
     }
 
+    @Override
     public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
         if (!header_complete) {
             ByteBuf buf = getByteBuf();
@@ -82,6 +83,7 @@ public class SslFuture extends AbstractChannelFuture {
         return true;
     }
 
+    @Override
     public SslFuture reset() {
         this.header_complete = false;
         getByteBuf().clear().limit(SSL_RECORD_HEADER_LENGTH);

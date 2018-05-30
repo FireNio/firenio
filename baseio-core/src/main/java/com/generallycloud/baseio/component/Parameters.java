@@ -38,5 +38,5 @@ public interface Parameters {
     String getParameter(String key, String defaultValue);
 
     int size();
-    
+
 }

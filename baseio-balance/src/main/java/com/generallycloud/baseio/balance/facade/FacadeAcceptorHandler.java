@@ -22,9 +22,9 @@ import com.generallycloud.baseio.balance.NoneLoadFutureAcceptor;
 import com.generallycloud.baseio.balance.reverse.ReverseLogger;
 import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -40,7 +40,7 @@ public abstract class FacadeAcceptorHandler extends IoEventHandleAdaptor {
     private NoneLoadFutureAcceptor noneLoadReadFutureAcceptor;
 
     @Override
-    protected void initialize(SocketChannelContext context) throws Exception {
+    protected void initialize(ChannelContext context) throws Exception {
         BalanceContext balanceContext = (BalanceContext) context
                 .getAttribute(BalanceContext.BALANCE_CONTEXT_KEY);
         this.balanceRouter = balanceContext.getBalanceRouter();

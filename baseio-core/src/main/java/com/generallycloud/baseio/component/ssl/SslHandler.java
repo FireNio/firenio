@@ -31,6 +31,8 @@ import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 
 public class SslHandler {
+    
+    public static final String SSL_HANDlER_EVENT_LOOP_KEY = "SSL_HANDlER_EVENT_LOOP_KEY";
 
     private ChannelFuture forgeFuture = new DefaultChannelFuture(EmptyByteBuf.get(), true);
 
@@ -135,8 +137,8 @@ public class SslHandler {
         for (;;) {
             dst.clear();
             ByteBuf remainingBuf = channel.getRemainingBuf();
-            if(remainingBuf != null &&
-                    sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING){
+            if (remainingBuf != null
+                    && sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING) {
                 dst.read(remainingBuf);
             }
             SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());

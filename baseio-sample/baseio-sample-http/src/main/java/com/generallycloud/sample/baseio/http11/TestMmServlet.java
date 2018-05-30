@@ -40,14 +40,14 @@ public class TestMmServlet extends HttpFutureAcceptorService {
         }
         String k = future.getRequestParam("p");
         if (StringUtil.isNullOrBlank(k)) {
-            future.write("input your p :)",session.getIoSession().getContext());
+            future.write("input your p :)", session.getIoSession().getContext());
             session.flush(future);
             return;
         }
         String v = mm.remove(k);
         if (StringUtil.isNullOrBlank(v)) {
             if (k.length() == 32) {
-                future.write("input your p :)",session.getIoSession().getContext());
+                future.write("input your p :)", session.getIoSession().getContext());
                 session.flush(future);
                 return;
             }
@@ -57,10 +57,10 @@ public class TestMmServlet extends HttpFutureAcceptorService {
                 mm.put(rk, k);
                 mm_reverse.put(k, rk);
             }
-            future.write(url + "?p=" + rk,session.getIoSession().getContext());
+            future.write(url + "?p=" + rk, session.getIoSession().getContext());
         } else {
             mm_reverse.remove(v);
-            future.write(v,session.getIoSession().getContext());
+            future.write(v, session.getIoSession().getContext());
         }
         session.flush(future);
     }

@@ -141,7 +141,7 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
             src.get(memory, ix(position), remaining);
             position(limit);
             return remaining;
-        }else{
+        } else {
             src.get(memory, ix(position), srcRemaining);
             skipBytes(srcRemaining);
             return srcRemaining;
@@ -154,7 +154,7 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
             src.get(memory, ix(position), remaining);
             position(limit);
             return remaining;
-        }else{
+        } else {
             src.get(memory, ix(position), srcRemaining);
             skipBytes(srcRemaining);
             return srcRemaining;
@@ -380,13 +380,13 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
         position = nioBuffer.position() - offset;
         return this;
     }
-    
+
     @Override
     public ByteBuf markP() {
         markPos = position;
         return this;
     }
-    
+
     @Override
     public ByteBuf reset() {
         limit(markLimit);

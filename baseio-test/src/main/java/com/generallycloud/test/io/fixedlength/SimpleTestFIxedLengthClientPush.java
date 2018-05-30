@@ -17,18 +17,17 @@ package com.generallycloud.test.io.fixedlength;
 
 import java.util.Scanner;
 
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.NioSocketChannelContext;
-import com.generallycloud.baseio.component.SocketChannelContext;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.connector.SocketChannelConnector;
 import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleTestFIxedLengthClientPush {
@@ -41,14 +40,14 @@ public class SimpleTestFIxedLengthClientPush {
                 System.out.println(">msg from server: " + future);
             }
         };
-        SocketChannelContext context = new NioSocketChannelContext(new Configuration("localhost", 8300));
-        SocketChannelConnector connector = new SocketChannelConnector(context);
+        ChannelContext context = new ChannelContext(new Configuration("localhost", 8300));
+        ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
         SocketSession session = connector.connect();
         ThreadUtil.exec(new Runnable() {
-            
+
             @Override
             public void run() {
                 System.out.println("************************************************");
@@ -61,7 +60,7 @@ public class SimpleTestFIxedLengthClientPush {
                 System.out.println("仅用于演示，msg请勿包含空格");
                 System.out.println("************************************************");
                 Scanner scanner = new Scanner(System.in);
-                for(;;) {
+                for (;;) {
                     System.out.println(">");
                     String line = scanner.nextLine();
                     if ("exit".equals(line)) {
@@ -69,11 +68,11 @@ public class SimpleTestFIxedLengthClientPush {
                         break;
                     }
                     FixedLengthFuture future = new FixedLengthFutureImpl();
-                    future.write(line,context);
+                    future.write(line, context);
                     session.flush(future);
                 }
             }
         });
     }
-    
+
 }
