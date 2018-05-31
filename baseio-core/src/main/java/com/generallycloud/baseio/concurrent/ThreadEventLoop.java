@@ -89,7 +89,7 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
     }
 
     @Override
-    public ExecutorEventLoopGroup getEventLoopGroup() {
+    public ExecutorEventLoopGroup getGroup() {
         return executorEventLoopGroup;
     }
 

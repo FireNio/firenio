@@ -39,25 +39,25 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class ChannelContext extends AbstractLifeCycle {
 
-    private Map<Object, Object>                  attributes  = new HashMap<>();
-    private ChannelService                       channelService;
-    private Configuration                        configuration;
-    private boolean                              enableSsl;
-    private Charset                              encoding;
-    private ExecutorEventLoopGroup               executorEventLoopGroup;
-    private ForeFutureAcceptor                   foreFutureAcceptor;
-    private boolean                              initialized;
-    private IoEventHandleAdaptor                 ioEventHandleAdaptor;
-    private Logger                               logger      = LoggerFactory.getLogger(getClass());
-    private ProtocolCodec                        protocolCodec;
-    private NioEventLoopGroup                    nioEventLoopGroup;
-    private SocketSessionFactory                 sessionFactory;
-    private SocketSessionManager                 sessionManager;
+    private Map<Object, Object>            attributes  = new HashMap<>();
+    private ChannelService                 channelService;
+    private Configuration                  configuration;
+    private boolean                        enableSsl;
+    private Charset                        encoding;
+    private ExecutorEventLoopGroup         executorEventLoopGroup;
+    private ForeFutureAcceptor             foreFutureAcceptor;
+    private boolean                        initialized;
+    private IoEventHandleAdaptor           ioEventHandleAdaptor;
+    private Logger                         logger      = LoggerFactory.getLogger(getClass());
+    private ProtocolCodec                  protocolCodec;
+    private NioEventLoopGroup              nioEventLoopGroup;
+    private SocketSessionFactory           sessionFactory;
+    private SocketSessionManager           sessionManager;
     private List<SessionEventListener>     ssels       = new ArrayList<>();
     private List<SessionIdleEventListener> ssiels      = new ArrayList<>();
-    private SslContext                           sslContext;
-    private NioSocketChannel                     simulateSocketChannel;
-    private long                                 startupTime = System.currentTimeMillis();
+    private SslContext                     sslContext;
+    private NioSocketChannel               simulateSocketChannel;
+    private long                           startupTime = System.currentTimeMillis();
 
     public ChannelContext(Configuration configuration) {
         this.configuration = configuration;
@@ -77,15 +77,6 @@ public class ChannelContext extends AbstractLifeCycle {
     private void checkNotRunning() {
         if (isRunning()) {
             throw new UnsupportedOperationException("starting or running");
-        }
-    }
-
-    protected ExecutorEventLoopGroup createExecutorEventLoopGroup() {
-        int eventLoopSize = nioEventLoopGroup.getEventLoopSize();
-        if (getConfiguration().isEnableWorkEventLoop()) {
-            return new ThreadEventLoopGroup(this, "event-process", eventLoopSize);
-        } else {
-            return new LineEventLoopGroup("event-process", eventLoopSize);
         }
     }
 
@@ -111,8 +102,7 @@ public class ChannelContext extends AbstractLifeCycle {
         LoggerUtil.prettyLog(logger, "session idle          :{ {} }", sessionIdle);
         LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", serverPort);
         if (nioEventLoopGroup.isEnableMemoryPool()) {
-            long memoryPoolCapacity = nioEventLoopGroup.getMemoryPoolCapacity()
-                    * eventLoopSize;
+            long memoryPoolCapacity = nioEventLoopGroup.getMemoryPoolCapacity() * eventLoopSize;
             long memoryPoolUnit = nioEventLoopGroup.getMemoryPoolUnit();
             double memoryPoolSize = new BigDecimal(memoryPoolCapacity * memoryPoolUnit)
                     .divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -123,16 +113,16 @@ public class ChannelContext extends AbstractLifeCycle {
         protocolCodec.initialize(this);
         ioEventHandleAdaptor.initialize(this);
         if (executorEventLoopGroup == null) {
-            this.executorEventLoopGroup = createExecutorEventLoopGroup();
+            if (getConfiguration().isEnableWorkEventLoop()) {
+                executorEventLoopGroup = new ThreadEventLoopGroup(this, "event-process", eventLoopSize);
+            } else {
+                executorEventLoopGroup = new LineEventLoopGroup("event-process", eventLoopSize);
+            }
         }
         if (foreFutureAcceptor == null) {
-            if (getConfiguration().isEnableWorkEventLoop()) {
-                foreFutureAcceptor = new EventLoopFutureAcceptor();
-            } else {
-                foreFutureAcceptor = new IoProcessFutureAcceptor();
-            }
-            foreFutureAcceptor.initialize(this);
+            foreFutureAcceptor = new ForeFutureAcceptor(getConfiguration().isEnableWorkEventLoop());
         }
+        foreFutureAcceptor.initialize(this);
         if (sessionFactory == null) {
             sessionFactory = new SocketSessionFactoryImpl();
         }
@@ -267,6 +257,10 @@ public class ChannelContext extends AbstractLifeCycle {
 
     public NioSocketChannel getSimulateSocketChannel() {
         return simulateSocketChannel;
+    }
+    
+    public void setForeFutureAcceptor(ForeFutureAcceptor foreFutureAcceptor) {
+        this.foreFutureAcceptor = foreFutureAcceptor;
     }
 
 }

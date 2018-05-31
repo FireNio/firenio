@@ -71,7 +71,7 @@ public abstract class AbstractEventLoop implements EventLoop {
     }
 
     @Override
-    public EventLoopGroup getEventLoopGroup() {
+    public EventLoopGroup getGroup() {
         if (defaultEventLoopGroup == null) {
             defaultEventLoopGroup = new SingleEventLoopGroup(this);
         }

@@ -26,5 +26,5 @@ public interface ExecutorEventLoop extends EventLoop {
     void dispatch(Runnable job) throws RejectedExecutionException;
 
     @Override
-    ExecutorEventLoopGroup getEventLoopGroup();
+    ExecutorEventLoopGroup getGroup();
 }

@@ -52,7 +52,7 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
         BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
         BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
 
-        NioEventLoopGroup group = socketSession.unsafe().getEventLoop().getEventLoopGroup();
+        NioEventLoopGroup group = socketSession.unsafe().getEventLoop().getGroup();
 
         ByteBufAllocatorGroup allocator = group.getAllocatorGroup();
 

@@ -15,7 +15,116 @@
  */
 package com.generallycloud.baseio.component;
 
-public interface ForeFutureAcceptor extends FutureAcceptor {
+import java.util.List;
 
-    void initialize(ChannelContext channelContext) throws Exception;
+import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
+import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.ProtocolCodec;
+
+public class ForeFutureAcceptor {
+
+    private Logger          logger = LoggerFactory.getLogger(getClass());
+
+    protected HeartBeatLogger heartBeatLogger;
+
+    protected final boolean   enableWorkEventLoop;
+
+    public ForeFutureAcceptor(boolean enableWorkEventLoop) {
+        this.enableWorkEventLoop = enableWorkEventLoop;
+    }
+
+    public void initialize(ChannelContext channelContext) throws Exception {
+        createHeartBeatLogger(channelContext);
+    }
+
+    public void accept(final SocketSession session, List<ChannelFuture> futures) {
+        if (futures.isEmpty()) {
+            return;
+        }
+        final ChannelContext context = session.getContext();
+        final IoEventHandle eventHandle = context.getIoEventHandleAdaptor();
+        for (int i = 0; i < futures.size(); i++) {
+            final ChannelFuture future = futures.get(i);
+            if (future.isSilent()) {
+                continue;
+            }
+            if (future.isHeartbeat()) {
+                acceptHeartBeat(session, future);
+                continue;
+            }
+            if (enableWorkEventLoop) {
+                ExecutorEventLoop eventLoop = session.getExecutorEventLoop();
+                eventLoop.dispatch(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            eventHandle.accept(session, future);
+                        } catch (Exception e) {
+                            eventHandle.exceptionCaught(session, future, e);
+                        }
+                    }
+                });
+            } else {
+                try {
+                    eventHandle.accept(session, future);
+                } catch (Exception e) {
+                    eventHandle.exceptionCaught(session, future, e);
+                }
+            }
+        }
+        futures.clear();
+    }
+
+    protected void acceptHeartBeat(final SocketSession session, final ChannelFuture future) {
+        if (future.isPING()) {
+            heartBeatLogger.logRequest(session);
+            ProtocolCodec codec = session.getProtocolCodec();
+            Future f = codec.createPONGPacket(session, future);
+            if (f == null) {
+                return;
+            }
+            session.flush(f);
+        } else {
+            heartBeatLogger.logResponse(session);
+        }
+    }
+
+    protected void createHeartBeatLogger(ChannelContext context) {
+        if (context.getConfiguration().isEnableHeartbeatLog()) {
+            heartBeatLogger = new HeartBeatLogger() {
+                @Override
+                public void logRequest(SocketSession session) {
+                    logger.info("heart beat request from: {}", session);
+                }
+
+                @Override
+                public void logResponse(SocketSession session) {
+                    logger.info("heart beat response from: {}", session);
+                }
+            };
+        } else {
+            heartBeatLogger = new HeartBeatLogger() {
+                @Override
+                public void logRequest(SocketSession session) {
+                    logger.debug("heart beat request from: {}", session);
+                }
+
+                @Override
+                public void logResponse(SocketSession session) {
+                    logger.debug("heart beat response from: {}", session);
+                }
+            };
+        }
+    }
+
+    private interface HeartBeatLogger {
+
+        void logRequest(SocketSession session);
+
+        void logResponse(SocketSession session);
+    }
+
 }

@@ -17,7 +17,7 @@ package com.generallycloud.baseio.concurrent;
 
 public interface EventLoop extends Looper {
 
-    EventLoopGroup getEventLoopGroup();
+    EventLoopGroup getGroup();
 
     Thread getMonitor();
 

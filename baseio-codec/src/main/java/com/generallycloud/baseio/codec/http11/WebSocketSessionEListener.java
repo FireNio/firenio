@@ -35,7 +35,7 @@ public class WebSocketSessionEListener extends SessionEventListenerAdapter {
         future.setType(WebSocketCodec.TYPE_CLOSE);
         future.setServiceName(session);
         try {
-            context.getForeFutureAcceptor().accept(session, future);
+            context.getIoEventHandleAdaptor().accept(session, future);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

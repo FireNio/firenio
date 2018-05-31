@@ -95,7 +95,7 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
     }
 
     @Override
-    public ExecutorEventLoopGroup getEventLoopGroup() {
+    public ExecutorEventLoopGroup getGroup() {
         return eventLoopGroup;
     }
 

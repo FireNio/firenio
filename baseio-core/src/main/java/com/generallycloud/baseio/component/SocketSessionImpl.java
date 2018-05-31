@@ -66,13 +66,13 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public void flush(Collection<ChannelFuture> futures) {
-        unsafe().flush(futures);
+    public void flushFutures(Collection<ChannelFuture> futures) {
+        unsafe().flushFutures(futures);
     }
 
     @Override
-    public void flushChannelFuture(Collection<ChannelFuture> futures) {
-        unsafe().flushChannelFuture(futures);
+    public void flushChannelFutures(Collection<ChannelFuture> futures) {
+        unsafe().flushChannelFutures(futures);
     }
 
     @Override

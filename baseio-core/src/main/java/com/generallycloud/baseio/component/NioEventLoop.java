@@ -27,6 +27,7 @@ import java.nio.channels.spi.SelectorProvider;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.AbstractSet;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -51,6 +52,7 @@ import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.SslFuture;
 
 /**
@@ -78,6 +80,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
     private SslFuture                           sslTemporary;
     private AtomicBoolean                       wakener          = new AtomicBoolean();      // true eventLooper, false offerer
     private ByteBuffer[]                        writeBuffers;
+    private List<ChannelFuture>                 readFutures;
     private final boolean                       sharable;
     private ChannelContext                      context;                                     // use when not sharable 
     private final boolean                       isAcceptor;
@@ -121,14 +124,14 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
                 }
                 if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                     try {
-                        ch.write(this);
+                        ch.write();
                     } catch (Throwable e) {
                         closeSocketChannel(ch, e);
                     }
                     return;
                 }
                 try {
-                    ch.read(this, this.buf);
+                    ch.read(buf);
                 } catch (Throwable e) {
                     if (e instanceof SSLHandshakeException) {
                         finishConnect(ch.getSession(), e);
@@ -153,14 +156,14 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
             }
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                 try {
-                    ch.write(this);
+                    ch.write();
                 } catch (Throwable e) {
                     closeSocketChannel(ch, e);
                 }
                 return;
             }
             try {
-                ch.read(this, this.buf);
+                ch.read(buf);
             } catch (Throwable e) {
                 if (e instanceof SSLHandshakeException) {
                     finishConnect(ch.getSession(), e);
@@ -307,6 +310,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
     @Override
     protected void doStartup() throws IOException {
         this.writeBuffers = new ByteBuffer[group.getWriteBuffers()];
+        this.readFutures = new ArrayList<>(group.getReadFutures());
         this.buf = UnpooledByteBufAllocator.getDirect().allocate(group.getChannelReadBuffer());
         if (group.isEnableSsl()) {
             ByteBuf buf = UnpooledByteBufAllocator.getHeap().allocate(1024 * 64);
@@ -352,7 +356,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
     }
 
     @Override
-    public NioEventLoopGroup getEventLoopGroup() {
+    public NioEventLoopGroup getGroup() {
         return group;
     }
 
@@ -656,6 +660,10 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
             }
             wakener.set(false);
         }
+    }
+    
+    public List<ChannelFuture> getReadFutures() {
+        return readFutures;
     }
 
     class SelectionKeySet extends AbstractSet<SelectionKey> {

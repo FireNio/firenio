@@ -23,6 +23,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
@@ -82,7 +83,7 @@ public class NioSocketChannel implements NioEventLoopTask {
 
     NioSocketChannel(NioEventLoop eventLoop, SelectionKey selectionKey, ChannelContext context,
             int channelId) {
-        NioEventLoopGroup group = eventLoop.getEventLoopGroup();
+        NioEventLoopGroup group = eventLoop.getGroup();
         int wbs = group.getWriteBuffers();
         this.eventLoop = eventLoop;
         this.context = context;
@@ -107,50 +108,62 @@ public class NioSocketChannel implements NioEventLoopTask {
         this.allocator = allocator;
     }
 
-    private void accept(NioSocketChannel ch, ByteBuf buffer) throws Exception {
-        ProtocolCodec codec = ch.getProtocolCodec();
-        ForeFutureAcceptor acceptor = ch.getContext().getForeFutureAcceptor();
+    private void accept(ByteBuf buffer) throws Exception {
+        final ProtocolCodec codec = getProtocolCodec();
+        final ForeFutureAcceptor acceptor = getContext().getForeFutureAcceptor();
+        final NioEventLoop eventLoop = this.eventLoop;
+        final ByteBufAllocator allocator = this.allocator;
+        final List<ChannelFuture> readFutures = eventLoop.getReadFutures();
+        final int maxReadFuture = eventLoop.getGroup().getReadFutures();
         for (;;) {
             if (!buffer.hasRemaining()) {
-                return;
+                break;
             }
-            ChannelFuture future = ch.getReadFuture();
+            ChannelFuture future = getReadFuture();
             boolean setFutureNull = true;
             if (future == null) {
-                future = codec.decode(ch, buffer);
+                future = codec.decode(this, buffer);
                 setFutureNull = false;
             }
             try {
-                if (!future.read(ch, buffer)) {
+                if (!future.read(this, buffer)) {
                     if (!setFutureNull) {
-                        ch.setReadFuture(future);
+                        setReadFuture(future);
                     }
-                    ByteBuf remainingBuf = ch.getRemainingBuf();
+                    ByteBuf remainingBuf = getRemainingBuf();
                     if (remainingBuf != null) {
                         remainingBuf.release(remainingBuf.getReleaseVersion());
-                        ch.setRemainingBuf(null);
+                        setRemainingBuf(null);
                     }
                     if (buffer.hasRemaining()) {
                         ByteBuf remaining = allocator.allocate(buffer.remaining());
                         remaining.read(buffer);
                         remaining.flip();
-                        ch.setRemainingBuf(remaining);
+                        setRemainingBuf(remaining);
                     }
-                    return;
+                    break;
                 }
             } catch (Throwable e) {
-                future.release(ch.eventLoop);
+                future.release(eventLoop);
+                acceptor.accept(session, readFutures);
+                readFutures.clear();
                 if (e instanceof IOException) {
                     throw (IOException) e;
                 }
                 throw new IOException("exception occurred when do decode," + e.getMessage(), e);
             }
             if (setFutureNull) {
-                ch.setReadFuture(null);
+                setReadFuture(null);
             }
-            future.release(ch.eventLoop);
-            acceptor.accept(ch.getSession(), future);
+            future.release(eventLoop);
+            readFutures.add(future);
+            if (readFutures.size() == maxReadFuture) {
+                acceptor.accept(session, readFutures);
+                readFutures.clear();
+            }
         }
+        acceptor.accept(session, readFutures);
+        readFutures.clear();
     }
 
     public void active() {
@@ -191,7 +204,7 @@ public class NioSocketChannel implements NioEventLoopTask {
         try {
             closeSSL();
             try {
-                write(eventLoop);
+                write();
             } catch (Exception e) {}
             ClosedChannelException e = null;
             if (currentWriteFuturesLen > 0) {
@@ -261,7 +274,7 @@ public class NioSocketChannel implements NioEventLoopTask {
         if (!isOpened()) {
             throw new ClosedChannelException("closed");
         }
-        write(eventLoop);
+        write();
     }
 
     public void fireOpend() {
@@ -313,19 +326,26 @@ public class NioSocketChannel implements NioEventLoopTask {
         }
     }
 
-    public void flush(Collection<ChannelFuture> futures) {
+    //FIXME ..处理silent
+    public void flushFutures(Collection<ChannelFuture> futures) {
         if (futures == null || futures.isEmpty()) {
             return;
         }
         if (!isOpened()) {
             Exception e = new ClosedChannelException(session.toString());
             for (ChannelFuture future : futures) {
+                if (future.isHeartbeat()) {
+                    continue;
+                }
                 exceptionCaught(future, e);
             }
             return;
         }
         try {
             for (ChannelFuture future : futures) {
+                if (future.isHeartbeat()) {
+                    continue;
+                }
                 future.flush();
                 future.setNeedSsl(getContext().isEnableSsl());
                 ProtocolCodec codec = getProtocolCodec();
@@ -333,12 +353,15 @@ public class NioSocketChannel implements NioEventLoopTask {
             }
         } catch (Exception e) {
             for (ChannelFuture future : futures) {
+                if (future.isHeartbeat()) {
+                    continue;
+                }
                 exceptionCaught(future, e);
             }
             CloseUtil.close(this);
             return;
         }
-        flushChannelFuture(futures);
+        flushChannelFutures(futures);
     }
 
     public void flushChannelFuture(ChannelFuture future) {
@@ -366,7 +389,7 @@ public class NioSocketChannel implements NioEventLoopTask {
         doFlush();
     }
 
-    public void flushChannelFuture(Collection<ChannelFuture> futures) {
+    public void flushChannelFutures(Collection<ChannelFuture> futures) {
         if (futures == null || futures.isEmpty()) {
             return;
         }
@@ -377,22 +400,27 @@ public class NioSocketChannel implements NioEventLoopTask {
             if (!isOpened()) {
                 Exception e = new ClosedChannelException(session.toString());
                 for (ChannelFuture future : futures) {
-                    if (!isOpened()) {
-                        exceptionCaught(future, e);
-                        continue;
-                    }
+                     exceptionCaught(future, e);
                 }
                 return;
             }
+            int size = 0;
             for (ChannelFuture future : futures) {
+                if (future.isHeartbeat()) {
+                    continue;
+                }
+                size++;
                 writeFutures.offer(future);
             }
-            if (writeFutures.size() != futures.size()) {
+            if (writeFutures.size() != size) {
                 return;
             }
         } catch (Exception e) {
             //will happen ?
             for (ChannelFuture future : futures) {
+                if (future.isHeartbeat()) {
+                    continue;
+                }
                 exceptionCaught(future, e);
             }
             return;
@@ -536,7 +564,7 @@ public class NioSocketChannel implements NioEventLoopTask {
         return opened;
     }
 
-    protected void read(NioEventLoop eventLoop, ByteBuf buf) throws Exception {
+    protected void read(ByteBuf buf) throws Exception {
         buf.clear();
         if (!isEnableSsl()) {
             ByteBuf remainingBuf = getRemainingBuf();
@@ -589,10 +617,10 @@ public class NioSocketChannel implements NioEventLoopTask {
                 if (product == null) {
                     continue;
                 }
-                accept(this, product);
+                accept(product);
             }
         } else {
-            accept(this, buf);
+            accept(buf);
         }
     }
 
@@ -651,11 +679,12 @@ public class NioSocketChannel implements NioEventLoopTask {
         return channelDesc;
     }
 
-    protected void write(NioEventLoop eventLoop) throws IOException {
-        ChannelFuture[] currentWriteFutures = this.currentWriteFutures;
-        LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
-        ByteBuffer[] writeBuffers = eventLoop.getWriteBuffers();
-        int maxLen = currentWriteFutures.length;
+    protected void write() throws IOException {
+        final NioEventLoop eventLoop = this.eventLoop;
+        final ChannelFuture[] currentWriteFutures = this.currentWriteFutures;
+        final LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
+        final ByteBuffer[] writeBuffers = eventLoop.getWriteBuffers();
+        final int maxLen = currentWriteFutures.length;
         for (;;) {
             int i = currentWriteFuturesLen;
             for (; i < maxLen; i++) {

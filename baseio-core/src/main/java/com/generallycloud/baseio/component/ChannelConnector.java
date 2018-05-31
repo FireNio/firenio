@@ -52,7 +52,7 @@ public class ChannelConnector implements ChannelService, Closeable {
         Assert.notNull(eventLoop, "null eventLoop");
         this.context = context;
         this.eventLoop = eventLoop;
-        this.group = eventLoop.getEventLoopGroup();
+        this.group = eventLoop.getGroup();
         this.group.setContext(context);
         this.context.setNioEventLoopGroup(group);
     }
@@ -163,7 +163,7 @@ public class ChannelConnector implements ChannelService, Closeable {
 
     public void setEventLoop(NioEventLoop eventLoop) {
         this.eventLoop = eventLoop;
-        this.group = eventLoop.getEventLoopGroup();
+        this.group = eventLoop.getGroup();
     }
 
     public void setTimeout(long timeout) {

@@ -48,9 +48,9 @@ public interface SocketSession extends Closeable {
      */
     void flushChannelFuture(ChannelFuture future);
 
-    void flush(Collection<ChannelFuture> futures);
+    void flushFutures(Collection<ChannelFuture> futures);
 
-    void flushChannelFuture(Collection<ChannelFuture> futures);
+    void flushChannelFutures(Collection<ChannelFuture> futures);
 
     Object getAttachment();
 

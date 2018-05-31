@@ -29,11 +29,9 @@ public class LineEventLoop implements ExecutorEventLoop {
 
     @Override
     public void dispatch(Runnable job) throws RejectedExecutionException {
-
         if (job == null) {
             return;
         }
-
         job.run();
     }
 
@@ -82,7 +80,7 @@ public class LineEventLoop implements ExecutorEventLoop {
     }
 
     @Override
-    public ExecutorEventLoopGroup getEventLoopGroup() {
+    public ExecutorEventLoopGroup getGroup() {
         return eventLoopGroup;
     }
 

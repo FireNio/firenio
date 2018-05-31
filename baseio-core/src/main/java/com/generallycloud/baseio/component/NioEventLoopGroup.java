@@ -42,14 +42,15 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private int                   memoryPoolRate         = 32;
     //内存池单元大小
     private int                   memoryPoolUnit         = 512;
-    private NioEventLoop[]   eventLoops;
+    private NioEventLoop[]        eventLoops;
     //单条连接write(srcs)的数量
     private int                   writeBuffers           = 8;
+    private int                   readFutures            = 8;
     private FixedAtomicInteger    channelIds;
     private boolean               enableSsl;
     private boolean               sharable;
     private ChannelContext        context;
-    private NioEventLoop     acceptorEventLoop;
+    private NioEventLoop          acceptorEventLoop;
 
     public NioEventLoopGroup() {
         this(Runtime.getRuntime().availableProcessors());
@@ -231,6 +232,14 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     public void setContext(ChannelContext context) {
         this.context = context;
+    }
+
+    public int getReadFutures() {
+        return readFutures;
+    }
+
+    public void setReadFutures(int readFutures) {
+        this.readFutures = readFutures;
     }
 
 }
