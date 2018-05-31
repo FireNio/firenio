@@ -23,29 +23,29 @@ import java.util.Arrays;
 import com.generallycloud.baseio.common.Encoding;
 
 //FIXME 用到这里的检查是否需要实例化
-public class ByteArrayBuffer extends OutputStream {
+public class ByteArrayOutputStream extends OutputStream {
 
     private byte cache[];
     private int  count;
 
-    public ByteArrayBuffer() {
+    public ByteArrayOutputStream() {
         this(128);
     }
 
-    public ByteArrayBuffer(byte[] buffer) {
+    public ByteArrayOutputStream(byte[] buffer) {
         this(buffer, 0);
     }
 
-    public ByteArrayBuffer(byte[] buffer, int count) {
+    public ByteArrayOutputStream(byte[] buffer, int count) {
         this.cache = buffer;
         this.count = count;
     }
 
-    public ByteArrayBuffer(int size) {
+    public ByteArrayOutputStream(int size) {
         this(size, 0);
     }
 
-    public ByteArrayBuffer(int size, int count) {
+    public ByteArrayOutputStream(int size, int count) {
         this(new byte[size], count);
     }
 

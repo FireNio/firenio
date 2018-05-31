@@ -22,7 +22,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionAliveIEListener;
+import com.generallycloud.baseio.component.SessionAliveIdleEventListener;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Future;
@@ -48,7 +48,7 @@ public class SimpleTestProtobaseServer {
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelAcceptor acceptor = new ChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
-        context.addSessionIdleEventListener(new SocketSessionAliveIEListener());
+        context.addSessionIdleEventListener(new SessionAliveIdleEventListener());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());
         acceptor.bind();

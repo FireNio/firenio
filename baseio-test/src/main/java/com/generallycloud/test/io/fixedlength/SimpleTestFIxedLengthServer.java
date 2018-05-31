@@ -21,7 +21,7 @@ import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SelectorEventLoopGroup;
+import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
@@ -38,7 +38,7 @@ public class SimpleTestFIxedLengthServer {
                 session.flush(future);
             }
         };
-        SelectorEventLoopGroup group = new SelectorEventLoopGroup();
+        NioEventLoopGroup group = new NioEventLoopGroup();
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.addSessionEventListener(new LoggerSocketSEListener());

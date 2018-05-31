@@ -18,12 +18,12 @@ package com.generallycloud.baseio.codec.redis;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class RedisCmdFuture extends AbstractRedisFuture {
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         return true;
     }
 

@@ -26,7 +26,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 
@@ -52,11 +52,11 @@ public class SslHandler {
         return tempDst;
     }
 
-    private ByteBuf allocate(SocketChannel channel, int capacity) {
+    private ByteBuf allocate(NioSocketChannel channel, int capacity) {
         return channel.allocator().allocate(capacity);
     }
 
-    public ByteBuf wrap(SocketChannel channel, ByteBuf src) throws IOException {
+    public ByteBuf wrap(NioSocketChannel channel, ByteBuf src) throws IOException {
         SSLEngine engine = channel.getSSLEngine();
         ByteBuf dst = getTempDst(engine);
         ByteBuf out = null;
@@ -120,7 +120,7 @@ public class SslHandler {
     }
 
     //FIXME 部分buf不需要gc
-    private ByteBuf gc(SocketChannel channel, ByteBuf buf) throws IOException {
+    private ByteBuf gc(NioSocketChannel channel, ByteBuf buf) throws IOException {
         ByteBuf out = allocate(channel, buf.limit());
         try {
             out.read(buf);
@@ -131,7 +131,7 @@ public class SslHandler {
         return out.flip();
     }
 
-    public ByteBuf unwrap(SocketChannel channel, ByteBuf src) throws IOException {
+    public ByteBuf unwrap(NioSocketChannel channel, ByteBuf src) throws IOException {
         SSLEngine sslEngine = channel.getSSLEngine();
         ByteBuf dst = getTempDst(sslEngine);
         for (;;) {

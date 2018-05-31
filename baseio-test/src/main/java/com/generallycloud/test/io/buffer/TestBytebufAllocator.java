@@ -18,7 +18,7 @@ package com.generallycloud.test.io.buffer;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
-import com.generallycloud.baseio.component.SelectorEventLoopGroup;
+import com.generallycloud.baseio.component.NioEventLoopGroup;
 
 public class TestBytebufAllocator {
 
@@ -30,7 +30,7 @@ public class TestBytebufAllocator {
 
     static void test() throws Exception {
 
-        SelectorEventLoopGroup group = new SelectorEventLoopGroup();
+        NioEventLoopGroup group = new NioEventLoopGroup();
         group.setMemoryPoolCapacity(10);
         group.setMemoryPoolUnit(1);
         PooledByteBufAllocatorGroup allocator = new PooledByteBufAllocatorGroup(group);

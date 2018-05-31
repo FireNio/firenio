@@ -41,7 +41,7 @@ public class ChannelAcceptor implements ChannelService {
 
     private boolean                active = false;
     private ChannelContext         context;
-    private SelectorEventLoopGroup group;
+    private NioEventLoopGroup group;
     private Logger                 logger = LoggerFactory.getLogger(getClass());
     private SelectableChannel      selectableChannel;
     private InetSocketAddress      serverAddress;
@@ -49,16 +49,16 @@ public class ChannelAcceptor implements ChannelService {
     private SocketSessionManager   sessionManager;
 
     public ChannelAcceptor(ChannelContext context) {
-        this(context, new SelectorEventLoopGroup());
+        this(context, new NioEventLoopGroup());
     }
 
-    public ChannelAcceptor(ChannelContext context, SelectorEventLoopGroup group) {
+    public ChannelAcceptor(ChannelContext context, NioEventLoopGroup group) {
         Assert.notNull(context, "null context");
         Assert.notNull(group, "null group");
         this.context = context;
         this.group = group;
         this.group.setContext(context);
-        this.context.setSelectorEventLoopGroup(group);
+        this.context.setNioEventLoopGroup(group);
     }
 
     public synchronized void bind() throws IOException {

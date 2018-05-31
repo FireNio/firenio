@@ -23,7 +23,7 @@ import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SelectorEventLoopGroup;
+import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.Configuration;
@@ -43,11 +43,11 @@ public abstract class ApplicationBootstrapEngine implements BootstrapEngine {
         Configuration cfg = new Configuration();
         ConfigurationParser.parseConfiguration("server.", cfg, properties);
         ChannelContext context = new ChannelContext(cfg);
-        ChannelAcceptor acceptor = new ChannelAcceptor(context, new SelectorEventLoopGroup());
+        ChannelAcceptor acceptor = new ChannelAcceptor(context, new NioEventLoopGroup());
         context.setIoEventHandleAdaptor(new ApplicationIoEventHandle(rootPath, mode));
         try {
             if (cfg.isEnableSsl()) {
-                context.getSelectorEventLoopGroup().setEnableSsl(true);
+                context.getNioEventLoopGroup().setEnableSsl(true);
                 if (!StringUtil.isNullOrBlank(cfg.getCertCrt())) {
                     File certificate = FileUtil.readFileByCls(cfg.getCertCrt(), classLoader);
                     File privateKey = FileUtil.readFileByCls(cfg.getCertKey(), classLoader);

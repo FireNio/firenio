@@ -24,7 +24,7 @@ import java.util.Set;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -61,12 +61,12 @@ public class ClientHttpCodec extends AbstractHttpCodec {
     }
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public ChannelFuture decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         return new ClientHttpFuture(channel, headerLimit, bodyLimit);
     }
 
     @Override
-    public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
+    public void encode(NioSocketChannel channel, ChannelFuture future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         HttpFuture f = (HttpFuture) future;
         ByteBuf buf = allocator.allocate(256);

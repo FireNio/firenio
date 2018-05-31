@@ -23,9 +23,9 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SelectorEventLoopGroup;
+import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionActiveIEListener;
+import com.generallycloud.baseio.component.SessionActiveIdleEventListener;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Future;
@@ -44,11 +44,11 @@ public class TestHeartBeat {
             }
         };
 
-        SelectorEventLoopGroup group = new SelectorEventLoopGroup();
+        NioEventLoopGroup group = new NioEventLoopGroup();
         group.setIdleTime(20);
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelConnector connector = new ChannelConnector(context,group);
-        context.addSessionIdleEventListener(new SocketSessionActiveIEListener());
+        context.addSessionIdleEventListener(new SessionActiveIdleEventListener());
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
         context.setIoEventHandleAdaptor(eventHandleAdaptor);

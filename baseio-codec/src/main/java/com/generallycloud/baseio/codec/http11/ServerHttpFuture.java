@@ -22,12 +22,12 @@ import com.generallycloud.baseio.collection.FixedThreadStack;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SelectorEventLoop;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioEventLoop;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class ServerHttpFuture extends AbstractHttpFuture {
 
-    public ServerHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
+    public ServerHttpFuture(NioSocketChannel channel, int headerLimit, int bodyLimit) {
         super(channel, bodyLimit, bodyLimit);
         setRequestParams(new HashMap<String, String>());
     }
@@ -77,7 +77,7 @@ public class ServerHttpFuture extends AbstractHttpFuture {
     }
 
     @Override
-    public void release(SelectorEventLoop eventLoop) {
+    public void release(NioEventLoop eventLoop) {
         super.release(eventLoop);
         //FIXME ..final statck is null or not null
         FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
@@ -88,7 +88,7 @@ public class ServerHttpFuture extends AbstractHttpFuture {
     }
 
     @Override
-    public ServerHttpFuture reset(SocketChannel channel, int headerLimit, int bodyLimit) {
+    public ServerHttpFuture reset(NioSocketChannel channel, int headerLimit, int bodyLimit) {
         super.reset(channel, headerLimit, bodyLimit);
         setDefaultResponseHeaders(getResponseHeaders());
         return this;

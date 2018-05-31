@@ -18,7 +18,7 @@ package com.generallycloud.baseio.protocol;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 /**
  * @author wangkai
@@ -38,7 +38,7 @@ public class DefaultChannelFuture extends AbstractChannelFuture {
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf src) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
         throw new UnsupportedOperationException();
     }
 

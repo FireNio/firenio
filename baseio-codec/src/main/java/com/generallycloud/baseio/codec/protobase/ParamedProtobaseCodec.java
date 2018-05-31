@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -51,7 +51,7 @@ public class ParamedProtobaseCodec extends ProtobaseCodec {
     }
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public ChannelFuture decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         ByteBuf buf = allocator.allocate(2);
         return new ParamedProtobaseFutureImpl(buf);

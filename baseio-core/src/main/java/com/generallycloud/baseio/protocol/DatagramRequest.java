@@ -15,8 +15,8 @@
  */
 package com.generallycloud.baseio.protocol;
 
-import com.generallycloud.baseio.component.JsonParameters;
-import com.generallycloud.baseio.component.Parameters;
+import com.generallycloud.baseio.collection.JsonParameters;
+import com.generallycloud.baseio.collection.Parameters;
 
 public class DatagramRequest {
 

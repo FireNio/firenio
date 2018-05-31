@@ -19,8 +19,8 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.MathUtil;
-import com.generallycloud.baseio.component.SelectorEventLoop;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioEventLoop;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2FrameHeader {
@@ -39,7 +39,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
 
     public Http2FrameHeaderImpl() {}
 
-    private void doHeaderComplete(SocketChannel channel, ByteBuf buf) {
+    private void doHeaderComplete(NioSocketChannel channel, ByteBuf buf) {
         byte b0 = buf.getByte();
         byte b1 = buf.getByte();
         byte b2 = buf.getByte();
@@ -51,7 +51,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBuf buf = getByteBuf();
         if (!header_complete) {
             buf.read(buffer);
@@ -89,7 +89,7 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
         return frame;
     }
 
-    private SocketHttp2Frame genFrame(SocketChannel channel, Http2FrameType type, int length) {
+    private SocketHttp2Frame genFrame(NioSocketChannel channel, Http2FrameType type, int length) {
         switch (type) {
             case FRAME_TYPE_CONTINUATION:
                 break;
@@ -117,12 +117,12 @@ public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2
         throw new IllegalArgumentException(type.toString());
     }
 
-    private SocketHttp2Frame genFrame(SocketChannel channel, int type, int length) {
+    private SocketHttp2Frame genFrame(NioSocketChannel channel, int type, int length) {
         return genFrame(channel, Http2FrameType.getValue(type), length);
     }
 
     @Override
-    public void release(SelectorEventLoop eventLoop) {
+    public void release(NioEventLoop eventLoop) {
         super.release(eventLoop);
         frame.release(eventLoop);
     }

@@ -21,10 +21,10 @@ import java.util.List;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.collection.FixedThreadStack;
-import com.generallycloud.baseio.component.ByteArrayBuffer;
+import com.generallycloud.baseio.component.ByteArrayOutputStream;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SelectorEventLoop;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioEventLoop;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -73,9 +73,9 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     }
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public ChannelFuture decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         if (httpFutureStackSize > 0) {
-            SelectorEventLoop eventLoop = channel.getEventLoop();
+            NioEventLoop eventLoop = channel.getEventLoop();
             FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
                     .getAttribute(FUTURE_STACK_KEY);
             if (stack == null) {
@@ -124,7 +124,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     }
 
     @Override
-    public void encode(SocketChannel channel, ChannelFuture readFuture) throws IOException {
+    public void encode(NioSocketChannel channel, ChannelFuture readFuture) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         ServerHttpFuture f = (ServerHttpFuture) readFuture;
         if (f.isUpdateWebSocketProtocol()) {
@@ -134,7 +134,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         }
         f.setResponseHeader("Date",
                 HttpHeaderDateFormat.getFormat().format(System.currentTimeMillis()));
-        ByteArrayBuffer os = f.getBinaryBuffer();
+        ByteArrayOutputStream os = f.getBinaryBuffer();
         if (os != null) {
             encode(allocator, f, os.size(), os.array());
             return;

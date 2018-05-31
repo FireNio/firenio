@@ -20,7 +20,7 @@ import java.io.IOException;
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 /**
  * <pre>
@@ -51,7 +51,7 @@ public class SslFuture extends AbstractChannelFuture {
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         if (!header_complete) {
             ByteBuf buf = getByteBuf();
             buf.read(buffer);
@@ -90,7 +90,7 @@ public class SslFuture extends AbstractChannelFuture {
         return this;
     }
 
-    public SslFuture copy(SocketChannel channel) {
+    public SslFuture copy(NioSocketChannel channel) {
         ByteBuf src = getByteBuf();
         ByteBuf buf = allocate(channel, src.limit());
         buf.read(src.flip());

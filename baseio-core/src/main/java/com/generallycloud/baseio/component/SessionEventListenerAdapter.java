@@ -15,15 +15,12 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.io.Closeable;
-import java.io.IOException;
+public class SessionEventListenerAdapter implements SessionEventListener {
 
-/**
- * @author wangkai
- *
- */
-public interface SelectorLoopEvent extends Closeable {
+    @Override
+    public void sessionOpened(SocketSession session) throws Exception {}
 
-    void fireEvent(SelectorEventLoop eventLoop) throws IOException;
+    @Override
+    public void sessionClosed(SocketSession session) {}
 
 }

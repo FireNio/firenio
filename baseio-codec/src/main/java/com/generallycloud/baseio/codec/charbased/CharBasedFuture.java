@@ -15,11 +15,11 @@
  */
 package com.generallycloud.baseio.codec.charbased;
 
-import com.generallycloud.baseio.component.ByteArrayBuffer;
+import com.generallycloud.baseio.component.ByteArrayOutputStream;
 import com.generallycloud.baseio.protocol.TextFuture;
 
 public interface CharBasedFuture extends TextFuture {
 
-    public abstract ByteArrayBuffer getLineOutputStream();
+    public abstract ByteArrayOutputStream getLineOutputStream();
 
 }

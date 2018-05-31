@@ -29,7 +29,7 @@ import com.generallycloud.baseio.codec.http2.hpack.DefaultHttp2HeadersEncoder;
 import com.generallycloud.baseio.codec.http2.hpack.Http2HeadersEncoder;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -107,7 +107,7 @@ public class Http2Codec implements ProtocolCodec {
     public static final int     PROTOCOL_PREFACE_HEADER = 24;
     private Http2HeadersEncoder http2HeadersEncoder     = new DefaultHttp2HeadersEncoder();
 
-    private ByteBuf allocate(SocketChannel channel, int capacity) {
+    private ByteBuf allocate(NioSocketChannel channel, int capacity) {
         return channel.allocator().allocate(capacity);
     }
 
@@ -122,7 +122,7 @@ public class Http2Codec implements ProtocolCodec {
     }
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public ChannelFuture decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         Http2SocketSession http2UnsafeSession = (Http2SocketSession) channel.getSession();
         if (http2UnsafeSession.isPrefaceRead()) {
             return new Http2PrefaceFuture(allocate(channel, PROTOCOL_PREFACE_HEADER));
@@ -131,7 +131,7 @@ public class Http2Codec implements ProtocolCodec {
     }
 
     @Override
-    public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
+    public void encode(NioSocketChannel channel, ChannelFuture future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         Http2Frame frame = (Http2Frame) future;
         Http2FrameType frameType = frame.getHttp2FrameType();

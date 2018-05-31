@@ -72,7 +72,7 @@ public class SocketSessionManager {
         if (sessions.size() == 0) {
             return;
         }
-        SocketChannel channel = context.getSimulateSocketChannel();
+        NioSocketChannel channel = context.getSimulateSocketChannel();
         ChannelFuture f = (ChannelFuture) future;
         context.getProtocolCodec().encode(channel, f);
         broadcastChannelFuture(f, sessions);

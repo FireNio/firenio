@@ -34,9 +34,9 @@ public class SocketSessionImpl implements SocketSession {
 
     protected Object                  attachment;
     protected HashMap<Object, Object> attributes = new HashMap<>();
-    protected SocketChannel           channel;
+    protected NioSocketChannel           channel;
 
-    protected SocketSessionImpl(SocketChannel channel) {
+    protected SocketSessionImpl(NioSocketChannel channel) {
         this.channel = channel;
     }
 
@@ -166,7 +166,7 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public SocketChannel unsafe() {
+    public NioSocketChannel unsafe() {
         return channel;
     }
 
@@ -176,8 +176,8 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public boolean inSelectorLoop() {
-        return unsafe().inSelectorLoop();
+    public boolean inEventLoop() {
+        return unsafe().inEventLoop();
     }
 
     @Override

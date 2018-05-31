@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.balance;
 
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSessionImpl;
 
 /**
@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.SocketSessionImpl;
 public class BalanceClientSocketSessionImpl extends SocketSessionImpl
         implements BalanceClientSocketSession {
 
-    public BalanceClientSocketSessionImpl(SocketChannel channel) {
+    public BalanceClientSocketSessionImpl(NioSocketChannel channel) {
         super(channel);
     }
 

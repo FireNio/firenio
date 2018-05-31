@@ -20,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
@@ -46,13 +47,13 @@ import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 import com.generallycloud.baseio.protocol.SslFuture;
 
-public class SocketChannel implements SelectorLoopEvent {
+public class NioSocketChannel implements NioEventLoopTask {
 
     private static final InetSocketAddress  ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
     private static final Logger             logger               = LoggerFactory
-            .getLogger(SocketChannel.class);
+            .getLogger(NioSocketChannel.class);
     private ByteBufAllocator                allocator;
-    private java.nio.channels.SocketChannel channel;
+    private SocketChannel                   channel;
     private String                          channelDesc;
     private Integer                         channelId;
     private ReentrantLock                   closeLock            = new ReentrantLock();
@@ -61,7 +62,7 @@ public class SocketChannel implements SelectorLoopEvent {
     private ChannelFuture[]                 currentWriteFutures;
     private int                             currentWriteFuturesLen;
     private boolean                         enableSsl;
-    private SelectorEventLoop               eventLoop;
+    private NioEventLoop                    eventLoop;
     private long                            lastAccess;
     private String                          localAddr;
     private int                             localPort;
@@ -79,9 +80,9 @@ public class SocketChannel implements SelectorLoopEvent {
     private LinkedQueue<ChannelFuture>      writeFutures;
     private ExecutorEventLoop               executorEventLoop;
 
-    SocketChannel(SelectorEventLoop eventLoop, SelectionKey selectionKey, ChannelContext context,
+    NioSocketChannel(NioEventLoop eventLoop, SelectionKey selectionKey, ChannelContext context,
             int channelId) {
-        SelectorEventLoopGroup group = eventLoop.getEventLoopGroup();
+        NioEventLoopGroup group = eventLoop.getEventLoopGroup();
         int wbs = group.getWriteBuffers();
         this.eventLoop = eventLoop;
         this.context = context;
@@ -89,7 +90,7 @@ public class SocketChannel implements SelectorLoopEvent {
         this.selectionKey = selectionKey;
         this.currentWriteFutures = new ChannelFuture[wbs];
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
-        this.channel = (java.nio.channels.SocketChannel) selectionKey.channel();
+        this.channel = (SocketChannel) selectionKey.channel();
         DefaultChannelFuture f = new DefaultChannelFuture(EmptyByteBuf.get());
         // 认为在第一次Idle之前，连接都是畅通的
         this.channelId = channelId;
@@ -100,13 +101,13 @@ public class SocketChannel implements SelectorLoopEvent {
         this.writeFutures = new ScspLinkedQueue<>(f);
     }
 
-    SocketChannel(ChannelContext context, ByteBufAllocator allocator) {
+    NioSocketChannel(ChannelContext context, ByteBufAllocator allocator) {
         this.context = context;
         // 认为在第一次Idle之前，连接都是畅通的
         this.allocator = allocator;
     }
 
-    private void accept(SocketChannel ch, ByteBuf buffer) throws Exception {
+    private void accept(NioSocketChannel ch, ByteBuf buffer) throws Exception {
         ProtocolCodec codec = ch.getProtocolCodec();
         ForeFutureAcceptor acceptor = ch.getContext().getForeFutureAcceptor();
         for (;;) {
@@ -165,16 +166,20 @@ public class SocketChannel implements SelectorLoopEvent {
         if (!isOpened()) {
             return;
         }
-        eventLoop.dispatch(new SelectorLoopEvent() {
+        if (inEventLoop()) {
+            close0();
+        } else {
+            eventLoop.dispatch(new NioEventLoopTask() {
 
-            @Override
-            public void close() throws IOException {}
+                @Override
+                public void close() throws IOException {}
 
-            @Override
-            public void fireEvent(SelectorEventLoop selectorLoop) {
-                SocketChannel.this.close0();
-            }
-        });
+                @Override
+                public void fireEvent(NioEventLoop eventLoop) {
+                    NioSocketChannel.this.close0();
+                }
+            });
+        }
     }
 
     private void close0() {
@@ -242,7 +247,7 @@ public class SocketChannel implements SelectorLoopEvent {
     private void fireClosed() {
         eventLoop.removeSession(session);
         SocketSession session = getSession();
-        for (SocketSessionEventListener l : getContext().getSessionEventListeners()) {
+        for (SessionEventListener l : getContext().getSessionEventListeners()) {
             try {
                 l.sessionClosed(session);
             } catch (Exception e) {
@@ -252,7 +257,7 @@ public class SocketChannel implements SelectorLoopEvent {
     }
 
     @Override
-    public void fireEvent(SelectorEventLoop eventLoop) throws IOException {
+    public void fireEvent(NioEventLoop eventLoop) throws IOException {
         if (!isOpened()) {
             throw new ClosedChannelException("closed");
         }
@@ -279,7 +284,7 @@ public class SocketChannel implements SelectorLoopEvent {
         SocketSession session = getSession();
         if (!session.isClosed()) {
             eventLoop.putSession(session);
-            for (SocketSessionEventListener l : getContext().getSessionEventListeners()) {
+            for (SessionEventListener l : getContext().getSessionEventListeners()) {
                 try {
                     l.sessionOpened(session);
                 } catch (Exception e) {
@@ -417,7 +422,7 @@ public class SocketChannel implements SelectorLoopEvent {
         return getContext().getEncoding();
     }
 
-    public SelectorEventLoop getEventLoop() {
+    public NioEventLoop getEventLoop() {
         return eventLoop;
     }
 
@@ -502,7 +507,7 @@ public class SocketChannel implements SelectorLoopEvent {
         return writeFutures.size();
     }
 
-    public boolean inSelectorLoop() {
+    public boolean inEventLoop() {
         return eventLoop.inEventLoop();
     }
 
@@ -531,7 +536,7 @@ public class SocketChannel implements SelectorLoopEvent {
         return opened;
     }
 
-    protected void read(SelectorEventLoop eventLoop, ByteBuf buf) throws Exception {
+    protected void read(NioEventLoop eventLoop, ByteBuf buf) throws Exception {
         buf.clear();
         if (!isEnableSsl()) {
             ByteBuf remainingBuf = getRemainingBuf();
@@ -539,7 +544,7 @@ public class SocketChannel implements SelectorLoopEvent {
                 buf.read(remainingBuf);
             }
         }
-        java.nio.channels.SocketChannel javaChannel = javaChannel();
+        SocketChannel javaChannel = javaChannel();
         int length = javaChannel.read(buf.nioBuffer());
         if (length < 1) {
             if (length == -1) {
@@ -592,7 +597,7 @@ public class SocketChannel implements SelectorLoopEvent {
     }
 
     private void releaseFutures(ClosedChannelException e) {
-        SelectorEventLoop eventLoop = this.eventLoop;
+        NioEventLoop eventLoop = this.eventLoop;
         ReleaseUtil.release(readFuture, eventLoop);
         ReleaseUtil.release(sslReadFuture, eventLoop);
         ReleaseUtil.release(remainingBuf);
@@ -646,7 +651,7 @@ public class SocketChannel implements SelectorLoopEvent {
         return channelDesc;
     }
 
-    protected void write(SelectorEventLoop eventLoop) throws IOException {
+    protected void write(NioEventLoop eventLoop) throws IOException {
         ChannelFuture[] currentWriteFutures = this.currentWriteFutures;
         LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;
         ByteBuffer[] writeBuffers = eventLoop.getWriteBuffers();
@@ -756,7 +761,7 @@ public class SocketChannel implements SelectorLoopEvent {
         }
     }
 
-    protected java.nio.channels.SocketChannel javaChannel() {
+    protected SocketChannel javaChannel() {
         return channel;
     }
 

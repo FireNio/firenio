@@ -20,7 +20,7 @@ import java.nio.charset.CharsetDecoder;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolException;
 
@@ -42,7 +42,7 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf src) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
         ByteBuf buf = getByteBuf();
         if (buf == EmptyByteBuf.get()) {
             if (src.remaining() >= 4) {

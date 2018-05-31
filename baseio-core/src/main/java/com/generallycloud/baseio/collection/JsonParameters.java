@@ -13,31 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component;
+package com.generallycloud.baseio.collection;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.common.StringUtil;
 
-public class MapParameters implements Parameters {
+public class JsonParameters implements Parameters {
 
-    private Map map;
+    private JSONObject jsonObject;
 
-    public MapParameters(Map object) {
-        this.map = object;
+    private String     json;
+
+    public JsonParameters(String json) {
+        if (!StringUtil.isNullOrBlank(json)) {
+            try {
+                jsonObject = JSON.parseObject(json);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(json, e);
+            }
+            this.json = json;
+        } else {
+            this.jsonObject = new JSONObject();
+        }
     }
 
-    public MapParameters() {
-        this(new HashMap<>());
+    public JsonParameters(JSONObject object) {
+        this.jsonObject = object;
+    }
+
+    public JsonParameters() {
+        this(new JSONObject());
     }
 
     @Override
     public boolean getBooleanParameter(String key) {
-        if (map == null) {
+        if (jsonObject == null) {
             return false;
         }
-        return (boolean) map.get(key);
+        return jsonObject.getBooleanValue(key);
     }
 
     @Override
@@ -47,11 +62,11 @@ public class MapParameters implements Parameters {
 
     @Override
     public int getIntegerParameter(String key, int defaultValue) {
-        if (map == null) {
+        if (jsonObject == null) {
             return defaultValue;
         }
-        Integer value = (Integer) map.get(key);
-        if (value == null) {
+        int value = jsonObject.getIntValue(key);
+        if (value == 0) {
             return defaultValue;
         }
         return value;
@@ -64,11 +79,11 @@ public class MapParameters implements Parameters {
 
     @Override
     public long getLongParameter(String key, long defaultValue) {
-        if (map == null) {
+        if (jsonObject == null) {
             return defaultValue;
         }
-        Long value = (Long) map.get(key);
-        if (value == null) {
+        long value = jsonObject.getLongValue(key);
+        if (value == 0) {
             return defaultValue;
         }
         return value;
@@ -76,10 +91,10 @@ public class MapParameters implements Parameters {
 
     @Override
     public Object getObjectParameter(String key) {
-        if (map == null) {
+        if (jsonObject == null) {
             return null;
         }
-        return map.get(key);
+        return jsonObject.get(key);
     }
 
     @Override
@@ -89,10 +104,10 @@ public class MapParameters implements Parameters {
 
     @Override
     public String getParameter(String key, String defaultValue) {
-        if (map == null) {
+        if (jsonObject == null) {
             return defaultValue;
         }
-        String value = (String) map.get(key);
+        String value = jsonObject.getString(key);
         if (StringUtil.isNullOrBlank(value)) {
             return defaultValue;
         }
@@ -100,13 +115,29 @@ public class MapParameters implements Parameters {
     }
 
     @Override
-    public int size() {
-        return map.size();
+    public JSONObject getMap() {
+        return jsonObject;
     }
 
     @Override
-    public Map getMap() {
-        return map;
+    public int size() {
+        return jsonObject.size();
+    }
+
+    @Override
+    public String toString() {
+        if (json == null) {
+            json = jsonObject.toJSONString();
+        }
+        return json;
+    }
+
+    public JSONObject getJSONObject(String key) {
+        return jsonObject.getJSONObject(key);
+    }
+
+    public JSONArray getJSONArray(String key) {
+        return jsonObject.getJSONArray(key);
     }
 
 }

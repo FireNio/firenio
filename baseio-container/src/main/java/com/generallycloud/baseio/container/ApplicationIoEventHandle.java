@@ -28,7 +28,7 @@ import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionEventListener;
+import com.generallycloud.baseio.component.SessionEventListener;
 import com.generallycloud.baseio.component.URLDynamicClassLoader;
 import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
@@ -76,7 +76,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         }
     }
 
-    public void addSessionEventListener(SocketSessionEventListener listener) {
+    public void addSessionEventListener(SessionEventListener listener) {
         channelContext.addSessionEventListener(listener);
     }
 

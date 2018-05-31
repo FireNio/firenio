@@ -19,8 +19,8 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.collection.FixedThreadStack;
-import com.generallycloud.baseio.component.SelectorEventLoop;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioEventLoop;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.ChannelFuture;
@@ -42,7 +42,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
         this.type = WebSocketCodec.TYPE_TEXT;
     }
 
-    public WebSocketFutureImpl(SocketChannel channel, ByteBuf buf, int limit) {
+    public WebSocketFutureImpl(NioSocketChannel channel, ByteBuf buf, int limit) {
         this.limit = limit;
         this.setByteBuf(buf);
         this.setServiceName(channel.getSession());
@@ -84,7 +84,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBuf buf = getByteBuf();
         if (type == 0) {
             buf.read(buffer);
@@ -182,7 +182,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     }
 
     @Override
-    public void release(SelectorEventLoop eventLoop) {
+    public void release(NioEventLoop eventLoop) {
         super.release(eventLoop);
         //FIXME ..final statck is null or not null
         if (WebSocketCodec.WS_PROTOCOL_CODEC.getFutureStackSize() == 0) {
@@ -195,7 +195,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
         }
     }
 
-    protected WebSocketFutureImpl reset(SocketChannel channel, ByteBuf buf, int limit) {
+    protected WebSocketFutureImpl reset(NioSocketChannel channel, ByteBuf buf, int limit) {
         this.byteArray = null;
         this.eof = false;
         this.hasMask = false;

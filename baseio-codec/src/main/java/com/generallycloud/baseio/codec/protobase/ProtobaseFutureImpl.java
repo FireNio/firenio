@@ -23,7 +23,7 @@ import java.util.Arrays;
 import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
@@ -129,7 +129,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBuf buf = getByteBuf();
         if (futureNameLength == 0) {
             buf.read(buffer);

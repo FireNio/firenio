@@ -19,8 +19,8 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
-import com.generallycloud.baseio.component.SelectorEventLoop;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioEventLoop;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class EmptyFuture extends AbstractChannelFuture {
 
@@ -35,7 +35,7 @@ public class EmptyFuture extends AbstractChannelFuture {
     }
 
     @Override
-    public void release(SelectorEventLoop eventLoop) {}
+    public void release(NioEventLoop eventLoop) {}
 
     @Override
     public boolean isReleased() {
@@ -53,7 +53,7 @@ public class EmptyFuture extends AbstractChannelFuture {
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf src) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
         throw new UnsupportedOperationException();
     }
 

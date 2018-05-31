@@ -15,15 +15,14 @@
  */
 package com.generallycloud.test.others;
 
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
-import com.generallycloud.baseio.component.ByteArrayBuffer;
+import com.generallycloud.baseio.component.ByteArrayOutputStream;
 
 public class TempTest {
 
-    private static ByteArrayBuffer writeBinaryBuffer;
+    private static ByteArrayOutputStream writeBinaryBuffer;
 
     private static long[]          ls  = new long[10];
     private static Long[]          ls2 = new Long[10];

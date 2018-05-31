@@ -19,7 +19,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class SocketSessionAliveIEListener implements SocketSessionIdleEventListener {
+public class SessionAliveIdleEventListener implements SessionIdleEventListener {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 

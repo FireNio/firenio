@@ -19,7 +19,7 @@ import java.util.Random;
 
 import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 import com.generallycloud.baseio.common.MathUtil;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSessionImpl;
 
 public class FacadeSocketSessionImpl extends SocketSessionImpl implements FacadeSocketSession {
@@ -30,7 +30,7 @@ public class FacadeSocketSessionImpl extends SocketSessionImpl implements Facade
 
     private ReverseSocketSession reverseSocketSession;
 
-    public FacadeSocketSessionImpl(SocketChannel channel) {
+    public FacadeSocketSessionImpl(NioSocketChannel channel) {
         super(channel);
     }
 

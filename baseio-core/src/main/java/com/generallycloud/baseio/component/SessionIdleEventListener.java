@@ -15,28 +15,10 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.util.Map;
+import java.util.EventListener;
 
-public interface Parameters {
+public interface SessionIdleEventListener extends EventListener {
 
-    boolean getBooleanParameter(String key);
-
-    int getIntegerParameter(String key);
-
-    int getIntegerParameter(String key, int defaultValue);
-
-    Map getMap();
-
-    long getLongParameter(String key);
-
-    long getLongParameter(String key, long defaultValue);
-
-    Object getObjectParameter(String key);
-
-    String getParameter(String key);
-
-    String getParameter(String key, String defaultValue);
-
-    int size();
+    void sessionIdled(SocketSession session, long lastIdleTime, long currentTime);
 
 }

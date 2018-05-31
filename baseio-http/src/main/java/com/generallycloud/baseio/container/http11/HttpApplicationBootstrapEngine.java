@@ -19,7 +19,7 @@ import com.generallycloud.baseio.codec.http11.ServerHttpCodec;
 import com.generallycloud.baseio.codec.http11.WebSocketSessionEListener;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSessionAliveIEListener;
+import com.generallycloud.baseio.component.SessionAliveIdleEventListener;
 import com.generallycloud.baseio.concurrent.ExecutorPoolEventLoopGroup;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrapEngine;
@@ -39,8 +39,8 @@ public class HttpApplicationBootstrapEngine extends ApplicationBootstrapEngine {
         handle.setApplicationConfigurationLoader(new FileSystemACLoader());
         handle.setAppOnRedeployService(new HttpOnRedeployAcceptor());
         context.addSessionEventListener(new LoggerSocketSEListener());
-        context.getSelectorEventLoopGroup().setIdleTime(1000 * 60 * 30);
-        context.addSessionIdleEventListener(new SocketSessionAliveIEListener());
+        context.getNioEventLoopGroup().setIdleTime(1000 * 60 * 30);
+        context.addSessionIdleEventListener(new SessionAliveIdleEventListener());
         context.addSessionEventListener(new WebSocketSessionEListener());
         context.setProtocolCodec(new ServerHttpCodec());
         context.setExecutorEventLoopGroup(new ExecutorPoolEventLoopGroup("http-event-processor", 16,

@@ -18,7 +18,7 @@ package com.generallycloud.baseio.component;
 public class SocketSessionFactoryImpl implements SocketSessionFactory {
 
     @Override
-    public SocketSession newUnsafeSession(SocketChannel channel) {
+    public SocketSession newUnsafeSession(NioSocketChannel channel) {
         return new SocketSessionImpl(channel);
     }
 

@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.protocol;
 
-import com.generallycloud.baseio.component.Parameters;
+import com.generallycloud.baseio.collection.Parameters;
 
 public interface ParametersFuture extends Future {
 

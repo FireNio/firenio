@@ -13,46 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component;
+package com.generallycloud.baseio.collection;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.generallycloud.baseio.common.StringUtil;
 
-public class JsonParameters implements Parameters {
+public class MapParameters implements Parameters {
 
-    private JSONObject jsonObject;
+    private Map map;
 
-    private String     json;
-
-    public JsonParameters(String json) {
-        if (!StringUtil.isNullOrBlank(json)) {
-            try {
-                jsonObject = JSON.parseObject(json);
-            } catch (Exception e) {
-                throw new IllegalArgumentException(json, e);
-            }
-            this.json = json;
-        } else {
-            this.jsonObject = new JSONObject();
-        }
+    public MapParameters(Map object) {
+        this.map = object;
     }
 
-    public JsonParameters(JSONObject object) {
-        this.jsonObject = object;
-    }
-
-    public JsonParameters() {
-        this(new JSONObject());
+    public MapParameters() {
+        this(new HashMap<>());
     }
 
     @Override
     public boolean getBooleanParameter(String key) {
-        if (jsonObject == null) {
+        if (map == null) {
             return false;
         }
-        return jsonObject.getBooleanValue(key);
+        return (boolean) map.get(key);
     }
 
     @Override
@@ -62,11 +47,11 @@ public class JsonParameters implements Parameters {
 
     @Override
     public int getIntegerParameter(String key, int defaultValue) {
-        if (jsonObject == null) {
+        if (map == null) {
             return defaultValue;
         }
-        int value = jsonObject.getIntValue(key);
-        if (value == 0) {
+        Integer value = (Integer) map.get(key);
+        if (value == null) {
             return defaultValue;
         }
         return value;
@@ -79,11 +64,11 @@ public class JsonParameters implements Parameters {
 
     @Override
     public long getLongParameter(String key, long defaultValue) {
-        if (jsonObject == null) {
+        if (map == null) {
             return defaultValue;
         }
-        long value = jsonObject.getLongValue(key);
-        if (value == 0) {
+        Long value = (Long) map.get(key);
+        if (value == null) {
             return defaultValue;
         }
         return value;
@@ -91,10 +76,10 @@ public class JsonParameters implements Parameters {
 
     @Override
     public Object getObjectParameter(String key) {
-        if (jsonObject == null) {
+        if (map == null) {
             return null;
         }
-        return jsonObject.get(key);
+        return map.get(key);
     }
 
     @Override
@@ -104,10 +89,10 @@ public class JsonParameters implements Parameters {
 
     @Override
     public String getParameter(String key, String defaultValue) {
-        if (jsonObject == null) {
+        if (map == null) {
             return defaultValue;
         }
-        String value = jsonObject.getString(key);
+        String value = (String) map.get(key);
         if (StringUtil.isNullOrBlank(value)) {
             return defaultValue;
         }
@@ -115,29 +100,13 @@ public class JsonParameters implements Parameters {
     }
 
     @Override
-    public JSONObject getMap() {
-        return jsonObject;
-    }
-
-    @Override
     public int size() {
-        return jsonObject.size();
+        return map.size();
     }
 
     @Override
-    public String toString() {
-        if (json == null) {
-            json = jsonObject.toJSONString();
-        }
-        return json;
-    }
-
-    public JSONObject getJSONObject(String key) {
-        return jsonObject.getJSONObject(key);
-    }
-
-    public JSONArray getJSONArray(String key) {
-        return jsonObject.getJSONArray(key);
+    public Map getMap() {
+        return map;
     }
 
 }

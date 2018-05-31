@@ -21,7 +21,7 @@ import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SelectorEventLoopGroup;
+import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
@@ -40,7 +40,7 @@ public class TestLoadServer {
             }
         };
 
-        SelectorEventLoopGroup group = new SelectorEventLoopGroup(6);
+        NioEventLoopGroup group = new NioEventLoopGroup(6);
         group.setMemoryPoolCapacity(2560000 / 2);
         group.setMemoryPoolUnit(128);
         group.setEnableMemoryPoolDirect(true);

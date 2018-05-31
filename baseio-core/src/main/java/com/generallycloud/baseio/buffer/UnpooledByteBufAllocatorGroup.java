@@ -17,7 +17,7 @@ package com.generallycloud.baseio.buffer;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
-import com.generallycloud.baseio.component.SelectorEventLoopGroup;
+import com.generallycloud.baseio.component.NioEventLoopGroup;
 
 /**
  * @author wangkai
@@ -26,10 +26,10 @@ import com.generallycloud.baseio.component.SelectorEventLoopGroup;
 public class UnpooledByteBufAllocatorGroup extends AbstractLifeCycle
         implements ByteBufAllocatorGroup {
 
-    private SelectorEventLoopGroup group;
+    private NioEventLoopGroup group;
     private ByteBufAllocator       allocator;
 
-    public UnpooledByteBufAllocatorGroup(SelectorEventLoopGroup group) {
+    public UnpooledByteBufAllocatorGroup(NioEventLoopGroup group) {
         this.group = group;
     }
 

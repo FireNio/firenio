@@ -23,9 +23,9 @@ import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import com.generallycloud.baseio.codec.http11.HttpMessage;
+import com.generallycloud.baseio.collection.Parameters;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;

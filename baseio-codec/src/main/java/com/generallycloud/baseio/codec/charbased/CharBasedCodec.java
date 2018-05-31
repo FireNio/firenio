@@ -20,7 +20,7 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -60,12 +60,12 @@ public class CharBasedCodec implements ProtocolCodec {
     }
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public ChannelFuture decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         return new CharBasedFutureImpl(limit, splitor);
     }
 
     @Override
-    public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
+    public void encode(NioSocketChannel channel, ChannelFuture future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         CharBasedFuture f = (CharBasedFuture) future;
         int writeSize = f.getWriteSize();

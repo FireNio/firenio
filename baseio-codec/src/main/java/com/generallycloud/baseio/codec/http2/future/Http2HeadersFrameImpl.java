@@ -20,7 +20,7 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.http2.Http2SocketSession;
 import com.generallycloud.baseio.codec.http2.hpack.Decoder;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2HeadersFrame {
 
@@ -36,7 +36,7 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
         this.setByteBuf(buf);
     }
 
-    private void doComplete(SocketChannel channel, ByteBuf buf) throws IOException {
+    private void doComplete(NioSocketChannel channel, ByteBuf buf) throws IOException {
         Http2SocketSession session = (Http2SocketSession) channel.getSession();
         byte flags = getHeader().getFlags();
         this.endStream = (flags & FLAG_END_STREAM) > 0;
@@ -55,7 +55,7 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBuf buf = getByteBuf();
         buf.read(buffer);
         if (buf.hasRemaining()) {

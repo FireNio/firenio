@@ -16,8 +16,8 @@
 package com.generallycloud.baseio.codec.protobase;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.JsonParameters;
-import com.generallycloud.baseio.component.Parameters;
+import com.generallycloud.baseio.collection.JsonParameters;
+import com.generallycloud.baseio.collection.Parameters;
 
 /**
  * @author wangkai

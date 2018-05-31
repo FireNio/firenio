@@ -17,6 +17,6 @@ package com.generallycloud.baseio.component;
 
 public interface SocketSessionFactory {
 
-    SocketSession newUnsafeSession(SocketChannel channel);
+    SocketSession newUnsafeSession(NioSocketChannel channel);
 
 }

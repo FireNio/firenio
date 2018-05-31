@@ -29,9 +29,9 @@ import com.generallycloud.baseio.common.KMPUtil;
 import com.generallycloud.baseio.common.SHAUtil;
 import com.generallycloud.baseio.common.StringLexer;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.ByteArrayBuffer;
+import com.generallycloud.baseio.component.ByteArrayOutputStream;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 //FIXME 改进header parser
@@ -47,7 +47,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
 
     protected static final KMPUtil           KMP_BOUNDARY   = new KMPUtil("boundary=");
 
-    private ByteArrayBuffer                  binaryBuffer;
+    private ByteArrayOutputStream                  binaryBuffer;
     private byte[]                           bodyArray;
     private int                              bodyLimit;
     private String                           boundary;
@@ -74,7 +74,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     private boolean                          updateWebSocketProtocol;
     private String                           version;
 
-    public AbstractHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
+    public AbstractHttpFuture(NioSocketChannel channel, int headerLimit, int bodyLimit) {
         this.context = channel.getContext();
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
@@ -95,7 +95,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     }
 
     @Override
-    public ByteArrayBuffer getBinaryBuffer() {
+    public ByteArrayOutputStream getBinaryBuffer() {
         return binaryBuffer;
     }
 
@@ -280,7 +280,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         if (!header_complete) {
             readHeader(buffer);
             if (!header_complete) {
@@ -450,7 +450,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     @Override
     public void writeBinary(byte[] binary) {
         if (binaryBuffer == null) {
-            binaryBuffer = new ByteArrayBuffer(binary);
+            binaryBuffer = new ByteArrayOutputStream(binary);
             return;
         }
         binaryBuffer.write(binary);
@@ -490,7 +490,7 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
         map.clear();
     }
 
-    protected HttpFuture reset(SocketChannel channel, int headerLimit, int bodyLimit) {
+    protected HttpFuture reset(NioSocketChannel channel, int headerLimit, int bodyLimit) {
         this.binaryBuffer = null;
         this.bodyArray = null;
         this.boundary = null;

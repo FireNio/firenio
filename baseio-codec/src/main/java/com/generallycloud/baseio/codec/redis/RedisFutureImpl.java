@@ -18,7 +18,7 @@ package com.generallycloud.baseio.codec.redis;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 //FIXME 完善心跳
 //FIXME limit
@@ -40,7 +40,7 @@ public class RedisFutureImpl extends AbstractRedisFuture {
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         if (complete) {
             return true;
         }

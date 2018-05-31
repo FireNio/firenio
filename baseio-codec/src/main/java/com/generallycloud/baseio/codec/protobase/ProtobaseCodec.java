@@ -22,7 +22,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -84,14 +84,14 @@ public class ProtobaseCodec implements ProtocolCodec {
     }
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public ChannelFuture decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         ByteBuf buf = allocator.allocate(2);
         return new ProtobaseFutureImpl(buf);
     }
 
     @Override
-    public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
+    public void encode(NioSocketChannel channel, ChannelFuture future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         if (future.isHeartbeat()) {
             ByteBuf buf = future.isPING() ? PING.duplicate() : PONG.duplicate();

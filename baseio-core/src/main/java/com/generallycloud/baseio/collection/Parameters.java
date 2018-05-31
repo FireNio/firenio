@@ -13,14 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component;
+package com.generallycloud.baseio.collection;
 
-import java.util.EventListener;
+import java.util.Map;
 
-public interface SocketSessionEventListener extends EventListener {
+public interface Parameters {
 
-    void sessionOpened(SocketSession session) throws Exception;
+    boolean getBooleanParameter(String key);
 
-    void sessionClosed(SocketSession session);
+    int getIntegerParameter(String key);
+
+    int getIntegerParameter(String key, int defaultValue);
+
+    Map getMap();
+
+    long getLongParameter(String key);
+
+    long getLongParameter(String key, long defaultValue);
+
+    Object getObjectParameter(String key);
+
+    String getParameter(String key);
+
+    String getParameter(String key, String defaultValue);
+
+    int size();
 
 }

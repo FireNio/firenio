@@ -37,13 +37,13 @@ public class ReconnectableConnector implements Closeable {
         this.reconnectableConnector = this;
     }
     
-    public ReconnectableConnector(ChannelContext context, SelectorEventLoop eventLoop) {
+    public ReconnectableConnector(ChannelContext context, NioEventLoop eventLoop) {
         context.addSessionEventListener(newReconnectSEListener());
         this.realConnector = new ChannelConnector(context, eventLoop);
         this.reconnectableConnector = this;
     }
 
-    public ReconnectableConnector(ChannelContext context, SelectorEventLoopGroup group) {
+    public ReconnectableConnector(ChannelContext context, NioEventLoopGroup group) {
         context.addSessionEventListener(newReconnectSEListener());
         this.realConnector = new ChannelConnector(context, group);
         this.reconnectableConnector = this;
@@ -82,8 +82,8 @@ public class ReconnectableConnector implements Closeable {
         }
     }
 
-    private SocketSessionELAdapter newReconnectSEListener() {
-        return new SocketSessionELAdapter() {
+    private SessionEventListenerAdapter newReconnectSEListener() {
+        return new SessionEventListenerAdapter() {
             @Override
             public void sessionClosed(SocketSession session) {
                 reconnect(reconnectableConnector);

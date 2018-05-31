@@ -18,13 +18,13 @@ package com.generallycloud.test.io.fixedlength;
 import java.net.StandardSocketOptions;
 
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionEventListener;
+import com.generallycloud.baseio.component.SessionEventListener;
 
 /**
  * @author wangkai
  *
  */
-public class SetOptionListener implements SocketSessionEventListener {
+public class SetOptionListener implements SessionEventListener {
 
     /*
      * (non-Javadoc)

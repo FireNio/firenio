@@ -21,9 +21,9 @@ import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
-public class SocketSessionActiveIEListener implements SocketSessionIdleEventListener {
+public class SessionActiveIdleEventListener implements SessionIdleEventListener {
 
-    private Logger logger = LoggerFactory.getLogger(SocketSessionActiveIEListener.class);
+    private Logger logger = LoggerFactory.getLogger(SessionActiveIdleEventListener.class);
 
     @Override
     public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {

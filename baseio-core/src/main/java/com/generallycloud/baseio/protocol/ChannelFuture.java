@@ -18,8 +18,8 @@ package com.generallycloud.baseio.protocol;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.SelectorEventLoop;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioEventLoop;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.Linkable;
 
 public interface ChannelFuture extends Future, Linkable {
@@ -53,9 +53,9 @@ public interface ChannelFuture extends Future, Linkable {
      * @return
      * @throws IOException
      */
-    boolean read(SocketChannel channel, ByteBuf src) throws IOException;
+    boolean read(NioSocketChannel channel, ByteBuf src) throws IOException;
 
-    void release(SelectorEventLoop loop);
+    void release(NioEventLoop loop);
 
     void setByteBuf(ByteBuf buf);
 

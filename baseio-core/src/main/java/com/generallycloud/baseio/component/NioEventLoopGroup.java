@@ -28,7 +28,7 @@ import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
  * @author wangkai
  *
  */
-public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
+public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     private int                   bufRecycleSize         = 1024 * 4;
     private ByteBufAllocatorGroup allocatorGroup;
@@ -42,20 +42,20 @@ public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
     private int                   memoryPoolRate         = 32;
     //内存池单元大小
     private int                   memoryPoolUnit         = 512;
-    private SelectorEventLoop[]   eventLoops;
+    private NioEventLoop[]   eventLoops;
     //单条连接write(srcs)的数量
     private int                   writeBuffers           = 8;
     private FixedAtomicInteger    channelIds;
     private boolean               enableSsl;
     private boolean               sharable;
     private ChannelContext        context;
-    private SelectorEventLoop     acceptorEventLoop;
+    private NioEventLoop     acceptorEventLoop;
 
-    public SelectorEventLoopGroup() {
+    public NioEventLoopGroup() {
         this(Runtime.getRuntime().availableProcessors());
     }
 
-    public SelectorEventLoopGroup(int eventLoopSize) {
+    public NioEventLoopGroup(int eventLoopSize) {
         super("nio-process", eventLoopSize);
     }
 
@@ -75,7 +75,7 @@ public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
         }
         this.initializeByteBufAllocator();
         if (sharable) {
-            acceptorEventLoop = new SelectorEventLoop(this, -1, true);
+            acceptorEventLoop = new NioEventLoop(this, -1, true);
             acceptorEventLoop.startup("nio-acceptor");
         }
         super.doStart();
@@ -111,7 +111,7 @@ public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     @Override
-    public SelectorEventLoop getEventLoop(int index) {
+    public NioEventLoop getEventLoop(int index) {
         return eventLoops[index];
     }
 
@@ -132,7 +132,7 @@ public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     @Override
-    public SelectorEventLoop getNext() {
+    public NioEventLoop getNext() {
         return eventLoops[getNextEventLoopIndex()];
     }
 
@@ -141,8 +141,8 @@ public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     @Override
-    protected SelectorEventLoop[] initEventLoops() {
-        eventLoops = new SelectorEventLoop[getEventLoopSize()];
+    protected NioEventLoop[] initEventLoops() {
+        eventLoops = new NioEventLoop[getEventLoopSize()];
         return eventLoops;
     }
 
@@ -155,8 +155,8 @@ public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     @Override
-    protected SelectorEventLoop newEventLoop(int index) {
-        return new SelectorEventLoop(this, index, false);
+    protected NioEventLoop newEventLoop(int index) {
+        return new NioEventLoop(this, index, false);
     }
 
     public void setBufRecycleSize(int bufRecycleSize) {
@@ -211,7 +211,7 @@ public class SelectorEventLoopGroup extends AbstractEventLoopGroup {
         if (sharable) {
             acceptorEventLoop.registSelector(context);
         } else {
-            for (SelectorEventLoop eventLoop : eventLoops) {
+            for (NioEventLoop eventLoop : eventLoops) {
                 eventLoop.registSelector(context);
             }
         }

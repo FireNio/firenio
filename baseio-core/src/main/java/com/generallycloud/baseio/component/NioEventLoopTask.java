@@ -15,16 +15,15 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import java.io.Closeable;
+import java.io.IOException;
 
 /**
  * @author wangkai
  *
  */
-public class SimulateSocketChannel extends SocketChannel {
+public interface NioEventLoopTask extends Closeable {
 
-    SimulateSocketChannel(ChannelContext context, ByteBufAllocator allocator) {
-        super(context, allocator);
-    }
+    void fireEvent(NioEventLoop eventLoop) throws IOException;
 
 }

@@ -20,7 +20,7 @@ import java.util.Map;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 
 public class ClientHttpFuture extends AbstractHttpFuture {
@@ -35,7 +35,7 @@ public class ClientHttpFuture extends AbstractHttpFuture {
         this(context, url, "GET");
     }
 
-    public ClientHttpFuture(SocketChannel channel, int headerLimit, int bodyLimit) {
+    public ClientHttpFuture(NioSocketChannel channel, int headerLimit, int bodyLimit) {
         super(channel, headerLimit, bodyLimit);
     }
 
@@ -48,7 +48,7 @@ public class ClientHttpFuture extends AbstractHttpFuture {
     public void updateWebSocketProtocol() {
         ChannelConnector connector = (ChannelConnector) getContext().getChannelService();
         SocketSession session = connector.getSession();
-        SocketChannel channel = session.unsafe();
+        NioSocketChannel channel = session.unsafe();
         channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
     }
 

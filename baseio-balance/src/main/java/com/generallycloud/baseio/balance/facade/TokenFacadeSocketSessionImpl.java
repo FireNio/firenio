@@ -17,7 +17,7 @@ package com.generallycloud.baseio.balance.facade;
 
 import java.util.Random;
 
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 /**
  * @author wangkai
@@ -26,7 +26,7 @@ import com.generallycloud.baseio.component.SocketChannel;
 public class TokenFacadeSocketSessionImpl extends FacadeSocketSessionImpl
         implements TokenFacadeSocketSession {
 
-    public TokenFacadeSocketSessionImpl(SocketChannel channel) {
+    public TokenFacadeSocketSessionImpl(NioSocketChannel channel) {
         super(channel);
         this.token = generateToken();
     }

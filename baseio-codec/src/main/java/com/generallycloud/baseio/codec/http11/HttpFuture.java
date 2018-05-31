@@ -18,7 +18,7 @@ package com.generallycloud.baseio.codec.http11;
 import java.util.List;
 import java.util.Map;
 
-import com.generallycloud.baseio.component.ByteArrayBuffer;
+import com.generallycloud.baseio.component.ByteArrayOutputStream;
 
 public abstract interface HttpFuture extends HttpMessage {
 
@@ -111,5 +111,5 @@ public abstract interface HttpFuture extends HttpMessage {
 
     public abstract void writeBinary(byte[] binary);
 
-    public abstract ByteArrayBuffer getBinaryBuffer();
+    public abstract ByteArrayOutputStream getBinaryBuffer();
 }

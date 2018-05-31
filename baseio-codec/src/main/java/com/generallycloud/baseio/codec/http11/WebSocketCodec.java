@@ -22,8 +22,8 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.collection.FixedThreadStack;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SelectorEventLoop;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioEventLoop;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -99,9 +99,9 @@ public class WebSocketCodec implements ProtocolCodec {
     }
 
     @Override
-    public ChannelFuture decode(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public ChannelFuture decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         if (futureStackSize > 0) {
-            SelectorEventLoop eventLoop = channel.getEventLoop();
+            NioEventLoop eventLoop = channel.getEventLoop();
             FixedThreadStack<WebSocketFutureImpl> stack = (FixedThreadStack<WebSocketFutureImpl>) eventLoop
                     .getAttribute(FUTURE_STACK_KEY);
             if (stack == null) {
@@ -120,7 +120,7 @@ public class WebSocketCodec implements ProtocolCodec {
     }
 
     @Override
-    public void encode(SocketChannel channel, ChannelFuture future) throws IOException {
+    public void encode(NioSocketChannel channel, ChannelFuture future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         WebSocketFuture f = (WebSocketFuture) future;
         byte[] header;

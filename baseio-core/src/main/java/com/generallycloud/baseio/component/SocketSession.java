@@ -90,7 +90,7 @@ public interface SocketSession extends Closeable {
 
     SSLEngine getSSLEngine();
 
-    boolean inSelectorLoop();
+    boolean inEventLoop();
 
     boolean isClosed();
 
@@ -108,6 +108,6 @@ public interface SocketSession extends Closeable {
 
     void setProtocolCodec(ProtocolCodec protocolCodec);
 
-    SocketChannel unsafe();
+    NioSocketChannel unsafe();
 
 }

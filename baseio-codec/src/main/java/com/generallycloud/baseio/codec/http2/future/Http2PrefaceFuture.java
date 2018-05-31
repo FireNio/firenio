@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.http2.Http2SocketSession;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 
@@ -44,7 +44,7 @@ public class Http2PrefaceFuture extends AbstractChannelFuture {
         return true;
     }
 
-    private void doComplete(SocketChannel channel, ByteBuf buf) throws IOException {
+    private void doComplete(NioSocketChannel channel, ByteBuf buf) throws IOException {
         Http2SocketSession session = (Http2SocketSession) channel.getSession();
         session.setPrefaceRead(false);
         if (!isPreface(buf)) {
@@ -66,7 +66,7 @@ public class Http2PrefaceFuture extends AbstractChannelFuture {
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBuf buf = getByteBuf();
         buf.read(buffer);
         if (buf.hasRemaining()) {

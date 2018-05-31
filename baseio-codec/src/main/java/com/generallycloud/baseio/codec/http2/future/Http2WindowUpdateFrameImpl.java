@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.MathUtil;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame
         implements Http2WindowUpdateFrame {
@@ -31,13 +31,13 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame
         this.setByteBuf(buf);
     }
 
-    private void doComplete(SocketChannel channel, ByteBuf buf) throws IOException {
+    private void doComplete(NioSocketChannel channel, ByteBuf buf) throws IOException {
 
         this.updateValue = MathUtil.int2int31(buf.getInt());
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBuf buf = getByteBuf();
         buf.read(buffer);
         if (buf.hasRemaining()) {

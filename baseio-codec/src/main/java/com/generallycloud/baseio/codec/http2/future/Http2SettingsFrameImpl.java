@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.http2.Http2SocketSession;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2SettingsFrame {
 
@@ -30,7 +30,7 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
         this.setByteBuf(buf);
     }
 
-    private void doComplete(SocketChannel channel, ByteBuf buf) throws IOException {
+    private void doComplete(NioSocketChannel channel, ByteBuf buf) throws IOException {
         Http2SocketSession session = (Http2SocketSession) channel.getSession();
         int settings = buf.limit() / 6;
         for (int i = 0; i < settings; i++) {
@@ -43,7 +43,7 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBuf buf = getByteBuf();
         buf.read(buffer);
         if (buf.hasRemaining()) {

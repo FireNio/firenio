@@ -24,7 +24,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocatorGroup;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SelectorEventLoopGroup;
+import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.container.http11.HtmlUtil;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptor;
@@ -52,7 +52,7 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
         BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
         BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
 
-        SelectorEventLoopGroup group = socketSession.unsafe().getEventLoop().getEventLoopGroup();
+        NioEventLoopGroup group = socketSession.unsafe().getEventLoop().getEventLoopGroup();
 
         ByteBufAllocatorGroup allocator = group.getAllocatorGroup();
 

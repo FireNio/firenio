@@ -19,13 +19,13 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.ByteArrayBuffer;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.ByteArrayOutputStream;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 
 public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBasedFuture {
 
-    private ByteArrayBuffer cache = new ByteArrayBuffer();
+    private ByteArrayOutputStream cache = new ByteArrayOutputStream();
     private int             limit;
     private String          readText;
     private byte            splitor;
@@ -38,7 +38,7 @@ public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBa
     }
 
     @Override
-    public ByteArrayBuffer getLineOutputStream() {
+    public ByteArrayOutputStream getLineOutputStream() {
         return cache;
     }
 
@@ -48,8 +48,8 @@ public class CharBasedFutureImpl extends AbstractChannelFuture implements CharBa
     }
 
     @Override
-    public boolean read(SocketChannel channel, ByteBuf buffer) throws IOException {
-        ByteArrayBuffer cache = this.cache;
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+        ByteArrayOutputStream cache = this.cache;
         Charset charset = channel.getEncoding();
         for (; buffer.hasRemaining();) {
             byte b = buffer.getByte();

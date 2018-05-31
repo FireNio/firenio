@@ -38,8 +38,8 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public class ChannelConnector implements ChannelService, Closeable {
 
     private ChannelContext         context;
-    private SelectorEventLoop      eventLoop;
-    private SelectorEventLoopGroup group;
+    private NioEventLoop      eventLoop;
+    private NioEventLoopGroup group;
     private Logger                 logger  = LoggerFactory.getLogger(getClass());
     private SelectableChannel      selectableChannel;
     private InetSocketAddress      serverAddress;
@@ -47,26 +47,26 @@ public class ChannelConnector implements ChannelService, Closeable {
     private long                   timeout = 3000;
     private Waiter                 waiter;
 
-    public ChannelConnector(ChannelContext context, SelectorEventLoop eventLoop) {
+    public ChannelConnector(ChannelContext context, NioEventLoop eventLoop) {
         Assert.notNull(context, "null context");
         Assert.notNull(eventLoop, "null eventLoop");
         this.context = context;
         this.eventLoop = eventLoop;
         this.group = eventLoop.getEventLoopGroup();
         this.group.setContext(context);
-        this.context.setSelectorEventLoopGroup(group);
+        this.context.setNioEventLoopGroup(group);
     }
 
     public ChannelConnector(ChannelContext context) {
-        this(context, new SelectorEventLoopGroup(1));
+        this(context, new NioEventLoopGroup(1));
     }
 
-    public ChannelConnector(ChannelContext context, SelectorEventLoopGroup group) {
+    public ChannelConnector(ChannelContext context, NioEventLoopGroup group) {
         Assert.notNull(context, "null context");
         Assert.notNull(group, "null group");
         this.context = context;
         this.group = group;
-        this.context.setSelectorEventLoopGroup(group);
+        this.context.setNioEventLoopGroup(group);
         this.group.setContext(context);
         this.group.setEventLoopSize(1);
     }
@@ -130,7 +130,7 @@ public class ChannelConnector implements ChannelService, Closeable {
         return context;
     }
 
-    public SelectorEventLoop getEventLoop() {
+    public NioEventLoop getEventLoop() {
         return eventLoop;
     }
 
@@ -161,7 +161,7 @@ public class ChannelConnector implements ChannelService, Closeable {
         return getSession() != null && getSession().isOpened();
     }
 
-    public void setEventLoop(SelectorEventLoop eventLoop) {
+    public void setEventLoop(NioEventLoop eventLoop) {
         this.eventLoop = eventLoop;
         this.group = eventLoop.getEventLoopGroup();
     }

@@ -17,8 +17,10 @@ package com.generallycloud.baseio.component;
 
 import java.util.EventListener;
 
-public interface SocketSessionIdleEventListener extends EventListener {
+public interface SessionEventListener extends EventListener {
 
-    void sessionIdled(SocketSession session, long lastIdleTime, long currentTime);
+    void sessionOpened(SocketSession session) throws Exception;
+
+    void sessionClosed(SocketSession session);
 
 }

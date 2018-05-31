@@ -20,8 +20,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.collection.Parameters;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;

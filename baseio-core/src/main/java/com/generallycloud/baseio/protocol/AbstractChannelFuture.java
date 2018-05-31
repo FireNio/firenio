@@ -18,8 +18,8 @@ package com.generallycloud.baseio.protocol;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.component.SelectorEventLoop;
-import com.generallycloud.baseio.component.SocketChannel;
+import com.generallycloud.baseio.component.NioEventLoop;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Linkable;
 
@@ -36,11 +36,11 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     private boolean  isValidate = true;
     private Linkable next;
 
-    protected ByteBuf allocate(SocketChannel channel, int capacity) {
+    protected ByteBuf allocate(NioSocketChannel channel, int capacity) {
         return channel.allocator().allocate(capacity);
     }
 
-    protected ByteBuf allocate(SocketChannel channel, int capacity, int maxLimit) {
+    protected ByteBuf allocate(NioSocketChannel channel, int capacity, int maxLimit) {
         return channel.allocator().allocate(capacity, maxLimit);
     }
 
@@ -116,7 +116,7 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     }
 
     @Override
-    public void release(SelectorEventLoop eventLoop) {
+    public void release(NioEventLoop eventLoop) {
         ReleaseUtil.release(buf, bufReleaseVersion);
     }
 

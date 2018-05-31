@@ -18,19 +18,13 @@ package com.generallycloud.baseio.component;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class LoggerSocketSEListener implements SocketSessionEventListener {
+public class LoggerSocketSEListener implements SessionEventListener {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
     public void sessionOpened(SocketSession session) {
-        //        ChannelThreadContext context = session.unsafe().getChannelThreadContext();
-        //        if (context instanceof SelectorEventLoop) {
-        //            SelectorEventLoop eventLoop = (SelectorEventLoop) context;
-        //            logger.info("session opened:{},{}", session, eventLoop.getIndex());
-        //        }else{
         logger.info("session opened:{}", session);
-        //        }
     }
 
     @Override
