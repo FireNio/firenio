@@ -18,7 +18,7 @@ package com.generallycloud.baseio.concurrent;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScspLinkedQueue<T> implements LinkedQueue<T> {
-
+    
     protected AtomicInteger size = new AtomicInteger();
     protected Linkable      head = null;               // volatile ?
     protected Linkable      tail = null;               // volatile ?
@@ -71,5 +71,9 @@ public class ScspLinkedQueue<T> implements LinkedQueue<T> {
     public int size() {
         return size.get();
     }
-
+    
+    // not sure if this useful
+    long p00, p01, p02, p03, p04, p05, p06, p07;
+    long p10, p11, p12, p13, p14, p15, p16, p17;
+    
 }
