@@ -166,10 +166,6 @@ public class NioSocketChannel implements NioEventLoopTask {
         readFutures.clear();
     }
 
-    public void active() {
-        this.lastAccess = System.currentTimeMillis();
-    }
-
     public ByteBufAllocator allocator() {
         return allocator;
     }
@@ -565,6 +561,7 @@ public class NioSocketChannel implements NioEventLoopTask {
     }
 
     protected void read(ByteBuf buf) throws Exception {
+        lastAccess = System.currentTimeMillis();
         buf.clear();
         if (!isEnableSsl()) {
             ByteBuf remainingBuf = getRemainingBuf();
@@ -582,7 +579,6 @@ public class NioSocketChannel implements NioEventLoopTask {
         }
         buf.reverse();
         buf.flip();
-        active();
         SslFuture sslTemporary = eventLoop.getSslTemporary();
         if (isEnableSsl()) {
             for (;;) {

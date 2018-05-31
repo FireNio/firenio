@@ -32,8 +32,6 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public interface SocketSession extends Closeable {
 
-    void active();
-
     void clearAttributes();
 
     /**

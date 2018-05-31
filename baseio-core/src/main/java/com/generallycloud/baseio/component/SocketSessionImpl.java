@@ -41,11 +41,6 @@ public class SocketSessionImpl implements SocketSession {
     }
 
     @Override
-    public void active() {
-        unsafe().active();
-    }
-
-    @Override
     public void clearAttributes() {
         attributes.clear();
     }

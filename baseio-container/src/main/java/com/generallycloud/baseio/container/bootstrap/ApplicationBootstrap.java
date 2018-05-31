@@ -30,6 +30,10 @@ public class ApplicationBootstrap {
 
     public static final String RUNTIME_DEV  = "dev";
     public static final String RUNTIME_PROD = "prod";
+    
+    public static void startup() throws Exception {
+        startup(System.getProperty("container.class"));
+    }
 
     public static void startup(Class<?> clazz) throws Exception {
         Assert.notNull(clazz, "clazz");
@@ -42,7 +46,7 @@ public class ApplicationBootstrap {
             @Override
             public void scanClassPaths(URLDynamicClassLoader classLoader, String mode,
                     String rootLocalAddress) throws IOException {
-                if (RUNTIME_PROD.equalsIgnoreCase(mode)) {
+                if (!isRuntimeDevMode(mode)) {
                     classLoader.scan(rootLocalAddress + "/lib");
                 }
             }
@@ -71,9 +75,13 @@ public class ApplicationBootstrap {
         BootstrapEngine engine = (BootstrapEngine) bootClass.newInstance();
         engine.bootstrap(rootPath, mode);
     }
+    
+    public static boolean isRuntimeProdMode(String mode) {
+        return RUNTIME_PROD.equalsIgnoreCase(mode);
+    }
 
     public static boolean isRuntimeDevMode(String mode) {
-        return !RUNTIME_PROD.equalsIgnoreCase(mode);
+        return RUNTIME_DEV.equalsIgnoreCase(mode);
     }
 
     public static URLDynamicClassLoader newClassLoader(ClassLoader parent, String mode,
