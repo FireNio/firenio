@@ -25,18 +25,12 @@ public abstract class HttpFutureAcceptorService implements FutureAcceptor {
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
-
-        ApplicationIoEventHandle appHandle = (ApplicationIoEventHandle) session.getContext()
-                .getIoEventHandleAdaptor();
-
-        HttpFutureAcceptor containerHandle = (HttpFutureAcceptor) appHandle.getFutureAcceptor();
-
+        ApplicationIoEventHandle handle = (ApplicationIoEventHandle) session.getContext()
+                .getIoEventHandle();
+        HttpFutureAcceptor containerHandle = (HttpFutureAcceptor) handle.getFutureAcceptor();
         HttpSessionManager manager = containerHandle.getHttpSessionManager();
-
         HttpFuture httpReadFuture = (HttpFuture) future;
-
         HttpSession httpSession = manager.getHttpSession(containerHandle, session, httpReadFuture);
-
         doAccept(httpSession, httpReadFuture);
     }
 

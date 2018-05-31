@@ -69,7 +69,7 @@ public class TestSimpleWebSocketClient {
 
         ChannelContext context = new ChannelContext(configuration);
         ChannelConnector connector = new ChannelConnector(context);
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setSslContext(SSLUtil.initClient(true));

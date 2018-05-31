@@ -33,7 +33,7 @@ public class SystemRedeployServlet implements FutureAcceptor {
     @Override
     public void accept(SocketSession session, Future future) throws IOException {
         ApplicationIoEventHandle applicationIoEventHandle = (ApplicationIoEventHandle) session
-                .getContext().getIoEventHandleAdaptor();
+                .getContext().getIoEventHandle();
         AtomicInteger redeployTime = applicationIoEventHandle.getRedeployTime();
         long startTime = System.currentTimeMillis();
         Charset charset = session.getEncoding();

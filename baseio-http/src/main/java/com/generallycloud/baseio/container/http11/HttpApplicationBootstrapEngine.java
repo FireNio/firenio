@@ -33,8 +33,7 @@ public class HttpApplicationBootstrapEngine extends ApplicationBootstrapEngine {
 
     @Override
     protected void enrichSocketChannelContext(ChannelContext context) {
-        ApplicationIoEventHandle handle = (ApplicationIoEventHandle) context
-                .getIoEventHandleAdaptor();
+        ApplicationIoEventHandle handle = (ApplicationIoEventHandle) context.getIoEventHandle();
         handle.setApplicationExtLoader(new HttpExtLoader());
         handle.setApplicationConfigurationLoader(new FileSystemACLoader());
         handle.setAppOnRedeployService(new HttpOnRedeployAcceptor());

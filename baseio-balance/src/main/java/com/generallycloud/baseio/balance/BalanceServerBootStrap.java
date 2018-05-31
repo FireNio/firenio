@@ -175,11 +175,11 @@ public class BalanceServerBootStrap {
         balanceContext.setFacadeAcceptor(new ChannelAcceptor(facadeChannelContext));
         balanceContext.setReverseAcceptor(new ChannelAcceptor(reverseChannelContext));
         facadeChannelContext.setAttribute(BalanceContext.BALANCE_CONTEXT_KEY, balanceContext);
-        facadeChannelContext.setIoEventHandleAdaptor(facadeAcceptorHandler);
+        facadeChannelContext.setIoEventHandle(facadeAcceptorHandler);
         facadeChannelContext.addSessionEventListener(new FacadeAcceptorSEListener(balanceContext));
         facadeChannelContext.setSocketSessionFactory(new FacadeSocketSessionFactory());
         reverseChannelContext.setAttribute(BalanceContext.BALANCE_CONTEXT_KEY, balanceContext);
-        reverseChannelContext.setIoEventHandleAdaptor(reverseAcceptorHandler);
+        reverseChannelContext.setIoEventHandle(reverseAcceptorHandler);
         reverseChannelContext
                 .addSessionEventListener(new ReverseAcceptorSEListener(balanceContext));
         reverseChannelContext.setSocketSessionFactory(new ReverseSocketSessionFactory());

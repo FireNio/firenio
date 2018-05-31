@@ -65,7 +65,7 @@ public class TestProtobufServer {
 
         //		context.addSessionEventListener(new SessionAliveSEListener());
 
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
 
         //		context.setBeatFutureFactory(new NIOBeatFutureFactory());
 

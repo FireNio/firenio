@@ -45,7 +45,7 @@ public class SimpleTestProtobaseClient {
         ChannelContext context = new ChannelContext(new Configuration("localhost", 8300));
         ChannelConnector connector = new ChannelConnector(context);
         connector.setTimeout(99999999);
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new ProtobaseCodec());
         SocketSession session = connector.connect();

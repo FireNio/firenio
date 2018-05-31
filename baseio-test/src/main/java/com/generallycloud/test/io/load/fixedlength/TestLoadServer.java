@@ -49,7 +49,7 @@ public class TestLoadServer {
         ChannelContext context = new ChannelContext(c);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setProtocolCodec(new FixedLengthCodec());
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         acceptor.bind();
     }

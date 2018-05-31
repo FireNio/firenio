@@ -31,7 +31,7 @@ public class HttpClient {
     public HttpClient(SocketSession session) {
         this.session = session;
         this.context = session.getContext();
-        this.ioEventHandle = (HttpIOEventHandle) context.getIoEventHandleAdaptor();
+        this.ioEventHandle = (HttpIOEventHandle) context.getIoEventHandle();
     }
 
     public synchronized HttpFuture request(HttpFuture future, long timeout) throws IOException {

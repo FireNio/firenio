@@ -52,7 +52,7 @@ public class TestBeat {
         context.addSessionIdleEventListener(new SessionActiveIdleEventListener());
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new ProtobaseCodec());
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         SocketSession session = connector.connect();
         String param = "tttt";
         long old = System.currentTimeMillis();

@@ -27,7 +27,7 @@ public class TestListener {
         //
         //        ChannelConnector connector = new ChannelConnector(context);
         //
-        //        context.setIoEventHandleAdaptor(eventHandle);
+        //        context.setIoEventHandle(eventHandle);
         //
         //        context.setProtocolCodec(new ParamedProtobaseCodec());
         //

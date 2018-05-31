@@ -132,7 +132,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     }
 
     private ApplicationIoEventHandle getApplicationIoEventHandle(ChannelContext context) {
-        return (ApplicationIoEventHandle) context.getIoEventHandleAdaptor();
+        return (ApplicationIoEventHandle) context.getIoEventHandle();
     }
 
     private String getContentType(String fileName, Map<String, String> mapping) {

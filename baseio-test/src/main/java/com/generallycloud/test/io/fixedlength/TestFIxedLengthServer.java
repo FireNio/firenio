@@ -48,7 +48,7 @@ public class TestFIxedLengthServer {
         ChannelAcceptor acceptor = new ChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         //		context.addSessionEventListener(new SocketSessionAliveSEListener());
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new FixedLengthCodec());
         File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
         File privateKey = FileUtil.readFileByCls("generallycloud.com.key");

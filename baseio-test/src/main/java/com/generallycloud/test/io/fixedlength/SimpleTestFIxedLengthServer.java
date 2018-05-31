@@ -42,7 +42,7 @@ public class SimpleTestFIxedLengthServer {
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.addSessionEventListener(new LoggerSocketSEListener());
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new FixedLengthCodec());
         acceptor.bind();
     }

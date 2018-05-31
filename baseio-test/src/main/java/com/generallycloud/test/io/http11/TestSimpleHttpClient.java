@@ -46,7 +46,7 @@ public class TestSimpleHttpClient {
         SslContext sslContext = SSLUtil.initClient(true);
 
         context.setProtocolCodec(new ClientHttpCodec());
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setSslContext(sslContext);
 

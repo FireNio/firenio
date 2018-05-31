@@ -49,7 +49,7 @@ public class SimpleTestProtobaseServer {
         ChannelAcceptor acceptor = new ChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.addSessionIdleEventListener(new SessionAliveIdleEventListener());
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());
         acceptor.bind();
     }

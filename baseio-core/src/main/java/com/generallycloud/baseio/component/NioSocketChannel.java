@@ -243,7 +243,7 @@ public class NioSocketChannel implements NioEventLoopTask {
     private void exceptionCaught(Future future, Exception ex) {
         ReleaseUtil.release((ChannelFuture) future, eventLoop);
         try {
-            getContext().getIoEventHandleAdaptor().exceptionCaught(getSession(), future, ex);
+            getContext().getIoEventHandle().exceptionCaught(getSession(), future, ex);
         } catch (Throwable e) {
             logger.error(ex.getMessage(), ex);
             logger.error(e.getMessage(), e);
@@ -718,7 +718,7 @@ public class NioSocketChannel implements NioEventLoopTask {
                 }
                 writeBuffers[i] = future.getByteBuf().nioBuffer();
             }
-            IoEventHandle ioEventHandle = context.getIoEventHandleAdaptor();
+            IoEventHandle ioEventHandle = context.getIoEventHandle();
             if (currentWriteFuturesLen == 1) {
                 ByteBuffer nioBuf = writeBuffers[0];
                 channel.write(nioBuf);

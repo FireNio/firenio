@@ -52,7 +52,7 @@ public class TestBalanceBroadcast {
         Configuration configuration = new Configuration(8800);
         ChannelContext context = new ChannelContext(configuration);
         ChannelConnector connector = new ChannelConnector(context);
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
         SocketSession session = connector.connect();

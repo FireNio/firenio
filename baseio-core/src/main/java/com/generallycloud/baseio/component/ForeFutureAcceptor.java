@@ -45,7 +45,7 @@ public class ForeFutureAcceptor {
             return;
         }
         final ChannelContext context = session.getContext();
-        final IoEventHandle eventHandle = context.getIoEventHandleAdaptor();
+        final IoEventHandle eventHandle = context.getIoEventHandle();
         for (int i = 0; i < futures.size(); i++) {
             final ChannelFuture future = futures.get(i);
             if (future.isSilent()) {

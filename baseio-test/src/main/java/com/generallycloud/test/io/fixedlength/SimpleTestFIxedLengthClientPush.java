@@ -42,7 +42,7 @@ public class SimpleTestFIxedLengthClientPush {
         };
         ChannelContext context = new ChannelContext(new Configuration("localhost", 8300));
         ChannelConnector connector = new ChannelConnector(context);
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
         SocketSession session = connector.connect();

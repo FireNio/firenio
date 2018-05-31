@@ -46,7 +46,7 @@ public class TestLineBasedServer {
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelAcceptor acceptor = new ChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new CharBasedCodec());
         File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
         File privateKey = FileUtil.readFileByCls("generallycloud.com.key");

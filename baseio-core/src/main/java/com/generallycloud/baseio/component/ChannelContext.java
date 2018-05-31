@@ -39,7 +39,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class ChannelContext extends AbstractLifeCycle {
 
-    private Map<Object, Object>            attributes  = new HashMap<>();
+    private Map<Object, Object>            attributes    = new HashMap<>();
     private ChannelService                 channelService;
     private Configuration                  configuration;
     private boolean                        enableSsl;
@@ -47,17 +47,17 @@ public class ChannelContext extends AbstractLifeCycle {
     private ExecutorEventLoopGroup         executorEventLoopGroup;
     private ForeFutureAcceptor             foreFutureAcceptor;
     private boolean                        initialized;
-    private IoEventHandleAdaptor           ioEventHandleAdaptor;
-    private Logger                         logger      = LoggerFactory.getLogger(getClass());
+    private IoEventHandleAdaptor           ioEventHandle = new DefaultIoEventHandle();
+    private Logger                         logger        = LoggerFactory.getLogger(getClass());
     private ProtocolCodec                  protocolCodec;
     private NioEventLoopGroup              nioEventLoopGroup;
     private SocketSessionFactory           sessionFactory;
     private SocketSessionManager           sessionManager;
-    private List<SessionEventListener>     ssels       = new ArrayList<>();
-    private List<SessionIdleEventListener> ssiels      = new ArrayList<>();
+    private List<SessionEventListener>     ssels         = new ArrayList<>();
+    private List<SessionIdleEventListener> ssiels        = new ArrayList<>();
     private SslContext                     sslContext;
     private NioSocketChannel               simulateSocketChannel;
-    private long                           startupTime = System.currentTimeMillis();
+    private long                           startupTime   = System.currentTimeMillis();
 
     public ChannelContext(Configuration configuration) {
         this.configuration = configuration;
@@ -83,7 +83,7 @@ public class ChannelContext extends AbstractLifeCycle {
     @Override
     protected void doStart() throws Exception {
         Assert.notNull(configuration, "null configuration");
-        Assert.notNull(ioEventHandleAdaptor, "null ioEventHandleAdaptor");
+        Assert.notNull(ioEventHandle, "null ioEventHandleAdaptor");
         Assert.notNull(protocolCodec, "null protocolCodec");
         if (!initialized) {
             initialized = true;
@@ -111,10 +111,11 @@ public class ChannelContext extends AbstractLifeCycle {
         }
         sessionManager = new SocketSessionManager(this);
         protocolCodec.initialize(this);
-        ioEventHandleAdaptor.initialize(this);
+        ioEventHandle.initialize(this);
         if (executorEventLoopGroup == null) {
             if (getConfiguration().isEnableWorkEventLoop()) {
-                executorEventLoopGroup = new ThreadEventLoopGroup(this, "event-process", eventLoopSize);
+                executorEventLoopGroup = new ThreadEventLoopGroup(this, "event-process",
+                        eventLoopSize);
             } else {
                 executorEventLoopGroup = new LineEventLoopGroup("event-process", eventLoopSize);
             }
@@ -135,7 +136,7 @@ public class ChannelContext extends AbstractLifeCycle {
     protected void doStop() throws Exception {
         LifeCycleUtil.stop(executorEventLoopGroup);
         try {
-            ioEventHandleAdaptor.destroy(this);
+            ioEventHandle.destroy(this);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -170,8 +171,8 @@ public class ChannelContext extends AbstractLifeCycle {
         return foreFutureAcceptor;
     }
 
-    public IoEventHandleAdaptor getIoEventHandleAdaptor() {
-        return ioEventHandleAdaptor;
+    public IoEventHandle getIoEventHandle() {
+        return ioEventHandle;
     }
 
     public ProtocolCodec getProtocolCodec() {
@@ -227,9 +228,9 @@ public class ChannelContext extends AbstractLifeCycle {
         this.executorEventLoopGroup = executorEventLoopGroup;
     }
 
-    public void setIoEventHandleAdaptor(IoEventHandleAdaptor ioEventHandleAdaptor) {
+    public void setIoEventHandle(IoEventHandleAdaptor ioEventHandleAdaptor) {
         checkNotRunning();
-        this.ioEventHandleAdaptor = ioEventHandleAdaptor;
+        this.ioEventHandle = ioEventHandleAdaptor;
     }
 
     public void setProtocolCodec(ProtocolCodec protocolCodec) {
@@ -258,7 +259,7 @@ public class ChannelContext extends AbstractLifeCycle {
     public NioSocketChannel getSimulateSocketChannel() {
         return simulateSocketChannel;
     }
-    
+
     public void setForeFutureAcceptor(ForeFutureAcceptor foreFutureAcceptor) {
         this.foreFutureAcceptor = foreFutureAcceptor;
     }

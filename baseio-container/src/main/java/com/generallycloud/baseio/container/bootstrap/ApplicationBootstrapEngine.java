@@ -44,7 +44,7 @@ public abstract class ApplicationBootstrapEngine implements BootstrapEngine {
         ConfigurationParser.parseConfiguration("server.", cfg, properties);
         ChannelContext context = new ChannelContext(cfg);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, new NioEventLoopGroup());
-        context.setIoEventHandleAdaptor(new ApplicationIoEventHandle(rootPath, mode));
+        context.setIoEventHandle(new ApplicationIoEventHandle(rootPath, mode));
         try {
             if (cfg.isEnableSsl()) {
                 context.getNioEventLoopGroup().setEnableSsl(true);

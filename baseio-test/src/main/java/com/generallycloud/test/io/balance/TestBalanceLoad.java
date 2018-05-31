@@ -55,7 +55,7 @@ public class TestBalanceLoad {
 
         ChannelConnector connector = new ChannelConnector(context);
 
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
 
         context.setProtocolCodec(new ProtobaseCodec());
 

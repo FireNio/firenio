@@ -49,7 +49,7 @@ public class TestLineBasedBroadcastServer {
         ChannelContext context = new ChannelContext(configuration);
         ChannelAcceptor acceptor = new ChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new CharBasedCodec());
         acceptor.bind();
     }

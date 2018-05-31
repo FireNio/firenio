@@ -44,7 +44,7 @@ public class TestReconnectClient {
 
         connector.setRetryTime(5000);
 
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 

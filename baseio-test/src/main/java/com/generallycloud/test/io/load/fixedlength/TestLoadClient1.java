@@ -66,7 +66,7 @@ public class TestLoadClient1 extends ITestThread {
         Configuration c = new Configuration(8300);
         ChannelContext context = new ChannelContext(c);
         connector = new ChannelConnector(context, group);
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
         connector.connect();

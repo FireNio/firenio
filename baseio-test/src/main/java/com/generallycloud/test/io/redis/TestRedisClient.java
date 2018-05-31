@@ -34,7 +34,7 @@ public class TestRedisClient {
 
         ChannelConnector connector = new ChannelConnector(context);
 
-        context.setIoEventHandleAdaptor(new RedisIOEventHandle());
+        context.setIoEventHandle(new RedisIOEventHandle());
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 

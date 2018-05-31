@@ -44,7 +44,7 @@ public class TestSimple {
         ChannelConnector connector = new ChannelConnector(context);
         context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
-        context.setIoEventHandleAdaptor(eventHandle);
+        context.setIoEventHandle(eventHandle);
         SocketSession session = connector.connect();
         ProtobaseFuture f = new ProtobaseFutureImpl(serviceKey);
         f.write(param, session);

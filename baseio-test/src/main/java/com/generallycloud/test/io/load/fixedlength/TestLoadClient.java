@@ -68,7 +68,7 @@ public class TestLoadClient {
         //        SocketChannelContext context = new NioSocketChannelContext(configuration);
         ChannelContext context = new ChannelContext(configuration);
         ChannelConnector connector = new ChannelConnector(context);
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
         connector.getContext().setProtocolCodec(new FixedLengthCodec());

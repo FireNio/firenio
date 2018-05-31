@@ -35,7 +35,7 @@ public class TestRedeploy {
         Configuration configuration = new Configuration(8300);
         ChannelContext context = new ChannelContext(configuration);
         ChannelConnector connector = new ChannelConnector(context);
-        context.setIoEventHandleAdaptor(eventHandle);
+        context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
         FixedSession session = new FixedSession(connector.connect());

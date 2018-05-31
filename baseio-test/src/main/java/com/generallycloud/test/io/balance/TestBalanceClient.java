@@ -60,7 +60,7 @@ public class TestBalanceClient {
         context.setProtocolCodec(new ProtobaseCodec());
         context.setSocketSessionFactory(new BalanceClientSocketSessionFactory());
         context.addSessionEventListener(new LoggerSocketSEListener());
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         BalanceClientSocketSession session = (BalanceClientSocketSession) connector.connect();
 
         for (int i = 0; i < 100; i++) {

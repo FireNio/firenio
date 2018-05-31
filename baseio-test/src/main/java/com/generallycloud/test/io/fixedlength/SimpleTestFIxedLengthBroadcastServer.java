@@ -48,7 +48,7 @@ public class SimpleTestFIxedLengthBroadcastServer {
         ChannelAcceptor acceptor = new ChannelAcceptor(context);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.addSessionEventListener(new SetOptionListener());
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new FixedLengthCodec());
         acceptor.bind();
 

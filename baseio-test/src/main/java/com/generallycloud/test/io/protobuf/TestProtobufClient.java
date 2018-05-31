@@ -59,7 +59,7 @@ public class TestProtobufClient {
 
         ChannelConnector connector = new ChannelConnector(context);
 
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
 
         context.addSessionEventListener(new LoggerSocketSEListener());
 

@@ -49,7 +49,7 @@ public class TestSimpleHttpClient2 {
         ChannelContext context = new ChannelContext(c);
         ChannelConnector connector = new ChannelConnector(context);
         context.setProtocolCodec(new ClientHttpCodec());
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         if (port == 443) {
             context.setSslContext(SSLUtil.initClient(true));

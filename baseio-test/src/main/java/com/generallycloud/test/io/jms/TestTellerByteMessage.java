@@ -32,7 +32,7 @@ public class TestTellerByteMessage {
 
         ChannelConnector connector = new ChannelConnector(context);
 
-        context.setIoEventHandleAdaptor(eventHandle);
+        context.setIoEventHandle(eventHandle);
 
         context.setProtocolCodec(new ProtobaseCodec());
 

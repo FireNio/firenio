@@ -49,7 +49,7 @@ public class SimpleTestFIxedLengthClient {
         NioEventLoopGroup group = new NioEventLoopGroup(1);
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelConnector connector = new ChannelConnector(context, group);
-        context.setIoEventHandleAdaptor(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
 

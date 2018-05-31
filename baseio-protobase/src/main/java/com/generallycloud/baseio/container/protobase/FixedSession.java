@@ -88,7 +88,7 @@ public class FixedSession {
     public void update(SocketSession session) {
         this.session = session;
         this.context = session.getContext();
-        this.eventHandle = (SimpleIoEventHandle) context.getIoEventHandleAdaptor();
+        this.eventHandle = (SimpleIoEventHandle) context.getIoEventHandle();
     }
 
     private void waiterListen(String serviceName, WaiterOnFuture onReadFuture) throws IOException {
