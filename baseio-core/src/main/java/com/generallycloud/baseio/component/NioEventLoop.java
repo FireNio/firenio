@@ -135,7 +135,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
                     ch.read(buf);
                 } catch (Throwable e) {
                     if (e instanceof SSLHandshakeException) {
-                        finishConnect(ch.getSession(), e);
+                        finishRegistChannel(ch.getSession(), e);
                     }
                     closeSocketChannel(ch, e);
                 }
@@ -167,7 +167,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
                 ch.read(buf);
             } catch (Throwable e) {
                 if (e instanceof SSLHandshakeException) {
-                    finishConnect(ch.getSession(), e);
+                    finishRegistChannel(ch.getSession(), e);
                 }
                 closeSocketChannel(ch, e);
             }
@@ -182,19 +182,20 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
         final ChannelContext context = (ChannelContext) k.attachment();
         final ChannelService channelService = context.getChannelService();
         final NioEventLoop thisEventLoop = this;
+        final int channelId = group.getChannelIds().getAndIncrement();
         if (channelService instanceof ChannelAcceptor) {
-            ServerSocketChannel serverSocketChannel = (ServerSocketChannel) channelService
+            ServerSocketChannel serverChannel = (ServerSocketChannel) channelService
                     .getSelectableChannel();
-            if (serverSocketChannel.getLocalAddress() == null) {
+            //有时候还未regist selector，但是却能selector到sk
+            //如果getLocalAddress为空则不处理该sk
+            if (serverChannel.getLocalAddress() == null) {
                 return;
             }
-            final SocketChannel channel = serverSocketChannel.accept();
+            final SocketChannel channel = serverChannel.accept();
             if (channel == null) {
                 return;
             }
-            final int channelId = group.getChannelIds().getAndIncrement();
-            int eventLoopIndex = channelId % group.getEventLoopSize();
-            NioEventLoop targetEventLoop = group.getEventLoop(eventLoopIndex);
+            NioEventLoop targetEventLoop = group.getNext();
             // 配置为非阻塞
             channel.configureBlocking(false);
             // 注册到selector，等待连接
@@ -213,46 +214,38 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
                 });
             }
         } else {
-            final SocketChannel jdkChannel = (SocketChannel) channelService.getSelectableChannel();
+            final SocketChannel javaChannel = (SocketChannel) channelService.getSelectableChannel();
             try {
-                if (!jdkChannel.isConnectionPending()) {
+                if (!javaChannel.isConnectionPending()) {
                     return;
                 }
-                if (!jdkChannel.finishConnect()) {
+                if (!javaChannel.finishConnect()) {
                     throw new IOException("connect failed");
                 }
                 ChannelConnector connector = (ChannelConnector) context.getChannelService();
-                NioEventLoop targetEventLoop = connector.getEventLoop();
-                if (targetEventLoop == null) {
-                    targetEventLoop = group.getEventLoop(0);
+                NioEventLoop targetEL = connector.getEventLoop();
+                if (targetEL == null) {
+                    targetEL = group.getEventLoop(0);
                 }
                 if (sharable) {
-                    // why do this ?
-                    SelectionKey sk = jdkChannel.keyFor(selector);
+                    //我也不知道为什么要这么做，如果不这么做当eventLoopGroup为共享时
+                    //且acceptor eventLoop同时注册了accept和connect时，selector.select()会
+                    //立刻返回但是selected却为0，导致CPU100%
+                    SelectionKey sk = javaChannel.keyFor(selector);
                     if (sk != null) {
                         sk.cancel();
                     }
                 }
-                if (thisEventLoop == targetEventLoop) {
-                    NioSocketChannel channel = registChannel(jdkChannel, targetEventLoop, context,
-                            0);
-                    if (channel.isEnableSsl()) {
-                        return;
-                    }
-                    finishConnect(channel.getSession(), null);
+                if (thisEventLoop == targetEL) {
+                    registChannel(javaChannel, targetEL, context, channelId);
                 } else {
-                    targetEventLoop.dispatch(new NioEventLoopTask() {
+                    targetEL.dispatch(new NioEventLoopTask() {
                         @Override
                         public void close() throws IOException {}
 
                         @Override
                         public void fireEvent(NioEventLoop eventLoop) throws IOException {
-                            NioSocketChannel channel = registChannel(jdkChannel, eventLoop, context,
-                                    0);
-                            if (channel.isEnableSsl()) {
-                                return;
-                            }
-                            finishConnect(channel.getSession(), null);
+                            registChannel(javaChannel, eventLoop, context, channelId);
                         }
                     });
                 }
@@ -339,7 +332,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
         ReleaseUtil.release(buf, buf.getReleaseVersion());
     }
 
-    public void finishConnect(SocketSession session, Throwable e) {
+    public void finishRegistChannel(SocketSession session, Throwable e) {
         ChannelContext context = session.getContext();
         ChannelService service = context.getChannelService();
         if (service instanceof ChannelConnector) {
@@ -518,9 +511,9 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
         return selector;
     }
 
-    public void putSession(SocketSession session) throws RejectedExecutionException {
+    protected void putSession(SocketSession session) throws RejectedExecutionException {
         Map<Integer, SocketSession> sessions = this.sessions;
-        int sessionId = session.getSessionId();
+        Integer sessionId = session.getSessionId();
         SocketSession old = sessions.get(sessionId);
         if (old != null) {
             CloseUtil.close(old);
@@ -533,19 +526,22 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
         session.getContext().getSessionManager().putSession(session);
     }
 
-    private NioSocketChannel registChannel(SocketChannel channel, NioEventLoop eventLoop,
+    private NioSocketChannel registChannel(SocketChannel javaChannel, NioEventLoop eventLoop,
             ChannelContext context, int channelId) throws IOException {
-        SelectionKey sk = channel.register(eventLoop.selector, SelectionKey.OP_READ);
+        SelectionKey sk = javaChannel.register(eventLoop.selector, SelectionKey.OP_READ);
         // 绑定SocketChannel到SelectionKey
-        NioSocketChannel socketChannel = (NioSocketChannel) sk.attachment();
-        if (socketChannel != null) {
-            return socketChannel;
+        NioSocketChannel channel = (NioSocketChannel) sk.attachment();
+        if (channel != null) {
+            return channel;
         }
-        socketChannel = new NioSocketChannel(eventLoop, sk, context, channelId);
-        sk.attach(socketChannel);
+        channel = new NioSocketChannel(eventLoop, sk, context, channelId);
+        sk.attach(channel);
         // fire session open event
-        socketChannel.fireOpend();
-        return socketChannel;
+        channel.fireOpend();
+        if (!channel.isEnableSsl()) {
+            finishRegistChannel(channel.getSession(), null);
+        }
+        return channel;
     }
 
     private SelectionKey registSelector(NioEventLoop eventLoop, ChannelContext context)
@@ -620,7 +616,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
         return this.attributes.remove(key);
     }
 
-    public void removeSession(SocketSession session) {
+    protected void removeSession(SocketSession session) {
         sessions.remove(session.getSessionId());
         session.getContext().getSessionManager().removeSession(session);
     }

@@ -50,62 +50,61 @@ import com.generallycloud.baseio.protocol.SslFuture;
 
 public class NioSocketChannel implements NioEventLoopTask {
 
-    private static final InetSocketAddress  ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
-    private static final Logger             logger               = LoggerFactory
+    private static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
+    private static final Logger            logger               = LoggerFactory
             .getLogger(NioSocketChannel.class);
-    private ByteBufAllocator                allocator;
-    private SocketChannel                   channel;
-    private String                          channelDesc;
-    private Integer                         channelId;
-    private ReentrantLock                   closeLock            = new ReentrantLock();
-    private ChannelContext                  context;
-    private long                            creationTime         = System.currentTimeMillis();
-    private ChannelFuture[]                 currentWriteFutures;
-    private int                             currentWriteFuturesLen;
-    private boolean                         enableSsl;
-    private NioEventLoop                    eventLoop;
-    private long                            lastAccess;
-    private String                          localAddr;
-    private int                             localPort;
-    private boolean                         opened               = true;
-    private ProtocolCodec                   protocolCodec;
-    private transient ChannelFuture         readFuture;
-    private ByteBuf                         remainingBuf;
-    private String                          remoteAddr;
-    private String                          remoteAddrPort;
-    private int                             remotePort;
-    private SelectionKey                    selectionKey;
-    private SocketSession                   session;
-    private SSLEngine                       sslEngine;
-    private transient SslFuture             sslReadFuture;
-    private LinkedQueue<ChannelFuture>      writeFutures;
-    private ExecutorEventLoop               executorEventLoop;
+    private ByteBufAllocator               allocator;
+    private SocketChannel                  channel;
+    private String                         channelDesc;
+    private Integer                        channelId;
+    private ReentrantLock                  closeLock            = new ReentrantLock();
+    private ChannelContext                 context;
+    private long                           creationTime         = System.currentTimeMillis();
+    private ChannelFuture[]                currentWriteFutures;
+    private int                            currentWriteFuturesLen;
+    private final boolean                 enableSsl;
+    private final NioEventLoop             eventLoop;
+    private long                           lastAccess;
+    private String                         localAddr;
+    private int                            localPort;
+    private boolean                        opened               = true;
+    private ProtocolCodec                  protocolCodec;
+    private transient ChannelFuture        readFuture;
+    private ByteBuf                        remainingBuf;
+    private String                         remoteAddr;
+    private String                         remoteAddrPort;
+    private int                            remotePort;
+    private final SelectionKey             selectionKey;
+    private SocketSession                  session;
+    private SSLEngine                      sslEngine;
+    private transient SslFuture            sslReadFuture;
+    private LinkedQueue<ChannelFuture>     writeFutures;
+    private ExecutorEventLoop              executorEventLoop;
 
     NioSocketChannel(NioEventLoop eventLoop, SelectionKey selectionKey, ChannelContext context,
             int channelId) {
         NioEventLoopGroup group = eventLoop.getGroup();
-        int wbs = group.getWriteBuffers();
         this.eventLoop = eventLoop;
         this.context = context;
-        this.enableSsl = context.isEnableSsl();
+        this.channelId = channelId;
         this.selectionKey = selectionKey;
-        this.currentWriteFutures = new ChannelFuture[wbs];
+        this.enableSsl = context.isEnableSsl();
+        this.allocator = eventLoop.allocator();
+        this.protocolCodec = context.getProtocolCodec();
+        this.currentWriteFutures = new ChannelFuture[group.getWriteBuffers()];
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
         this.channel = (SocketChannel) selectionKey.channel();
-        DefaultChannelFuture f = new DefaultChannelFuture(EmptyByteBuf.get());
-        // 认为在第一次Idle之前，连接都是畅通的
-        this.channelId = channelId;
-        this.allocator = eventLoop.allocator();
         this.lastAccess = creationTime + group.getIdleTime();
-        this.protocolCodec = context.getProtocolCodec();
         this.session = context.getSessionFactory().newUnsafeSession(this);
-        this.writeFutures = new ScspLinkedQueue<>(f);
+        this.writeFutures = new ScspLinkedQueue<>(new DefaultChannelFuture(EmptyByteBuf.get()));
     }
 
     NioSocketChannel(ChannelContext context, ByteBufAllocator allocator) {
+        this.enableSsl = false;
         this.context = context;
-        // 认为在第一次Idle之前，连接都是畅通的
         this.allocator = allocator;
+        this.eventLoop = null;
+        this.selectionKey = null;
     }
 
     private void accept(ByteBuf buffer) throws Exception {
@@ -338,14 +337,14 @@ public class NioSocketChannel implements NioEventLoopTask {
             return;
         }
         try {
-            for (ChannelFuture future : futures) {
-                if (future.isHeartbeat()) {
+            for (ChannelFuture f : futures) {
+                if (f.isSilent() || f.isHeartbeat()) {
                     continue;
                 }
-                future.flush();
-                future.setNeedSsl(getContext().isEnableSsl());
+                f.flush();
+                f.setNeedSsl(getContext().isEnableSsl());
                 ProtocolCodec codec = getProtocolCodec();
-                codec.encode(this, future);
+                codec.encode(this, f);
             }
         } catch (Exception e) {
             for (ChannelFuture future : futures) {
@@ -362,9 +361,7 @@ public class NioSocketChannel implements NioEventLoopTask {
 
     public void flushChannelFuture(ChannelFuture future) {
         SocketSession session = getSession();
-        ReentrantLock lock = getCloseLock();
-        lock.lock();
-        try {
+        if (inEventLoop()) {
             if (!isOpened()) {
                 exceptionCaught(future, new ClosedChannelException(session.toString()));
                 return;
@@ -376,11 +373,30 @@ public class NioSocketChannel implements NioEventLoopTask {
             if (writeFutures.size() != 1) {
                 return;
             }
-        } catch (Exception e) {
-            exceptionCaught(future, e);
-            return;
-        } finally {
-            lock.unlock();
+            if ((selectionKey.interestOps() & SelectionKey.OP_WRITE) != 0) {
+                return;
+            }
+        }else{
+            ReentrantLock lock = getCloseLock();
+            lock.lock();
+            try {
+                if (!isOpened()) {
+                    exceptionCaught(future, new ClosedChannelException(session.toString()));
+                    return;
+                }
+                // FIXME 该连接写入过多啦
+                writeFutures.offer(future);
+                // 如果write futures != 1 说明在offer之后至少有2个write future(或者没了)
+                // 说明之前的尚未写入完整，或者正在写入，此时无需dispatch
+                if (writeFutures.size() != 1) {
+                    return;
+                }
+            } catch (Exception e) {
+                exceptionCaught(future, e);
+                return;
+            } finally {
+                lock.unlock();
+            }
         }
         doFlush();
     }
@@ -390,38 +406,73 @@ public class NioSocketChannel implements NioEventLoopTask {
             return;
         }
         SocketSession session = getSession();
-        ReentrantLock lock = getCloseLock();
-        lock.lock();
-        try {
-            if (!isOpened()) {
-                Exception e = new ClosedChannelException(session.toString());
+        if (inEventLoop()) {
+            try {
+                if (!isOpened()) {
+                    Exception e = new ClosedChannelException(session.toString());
+                    for (ChannelFuture future : futures) {
+                        exceptionCaught(future, e);
+                    }
+                    return;
+                }
+                int size = 0;
                 for (ChannelFuture future : futures) {
-                     exceptionCaught(future, e);
+                    if (future.isHeartbeat()) {
+                        continue;
+                    }
+                    size++;
+                    writeFutures.offer(future);
+                }
+                if (writeFutures.size() != size) {
+                    return;
+                }
+            } catch (Exception e) {
+                //will happen ?
+                for (ChannelFuture future : futures) {
+                    if (future.isHeartbeat()) {
+                        continue;
+                    }
+                    exceptionCaught(future, e);
                 }
                 return;
             }
-            int size = 0;
-            for (ChannelFuture future : futures) {
-                if (future.isHeartbeat()) {
-                    continue;
-                }
-                size++;
-                writeFutures.offer(future);
-            }
-            if (writeFutures.size() != size) {
+            if ((selectionKey.interestOps() & SelectionKey.OP_WRITE) != 0) {
                 return;
             }
-        } catch (Exception e) {
-            //will happen ?
-            for (ChannelFuture future : futures) {
-                if (future.isHeartbeat()) {
-                    continue;
+        }else{
+            ReentrantLock lock = getCloseLock();
+            lock.lock();
+            try {
+                if (!isOpened()) {
+                    Exception e = new ClosedChannelException(session.toString());
+                    for (ChannelFuture future : futures) {
+                        exceptionCaught(future, e);
+                    }
+                    return;
                 }
-                exceptionCaught(future, e);
+                int size = 0;
+                for (ChannelFuture future : futures) {
+                    if (future.isHeartbeat()) {
+                        continue;
+                    }
+                    size++;
+                    writeFutures.offer(future);
+                }
+                if (writeFutures.size() != size) {
+                    return;
+                }
+            } catch (Exception e) {
+                //will happen ?
+                for (ChannelFuture future : futures) {
+                    if (future.isHeartbeat()) {
+                        continue;
+                    }
+                    exceptionCaught(future, e);
+                }
+                return;
+            } finally {
+                lock.unlock();
             }
-            return;
-        } finally {
-            lock.unlock();
         }
         doFlush();
     }

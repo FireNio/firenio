@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -39,10 +38,8 @@ public class SocketSessionManager {
         this.context = context;
     }
 
-    private AtomicInteger managedSessionSize = new AtomicInteger();
-
     public int getManagedSessionSize() {
-        return managedSessionSize.get();
+        return sessions.size();
     }
 
     public SocketSession getSession(int sessionId) {
@@ -51,13 +48,10 @@ public class SocketSessionManager {
 
     public void putSession(SocketSession session) {
         sessions.put(session.getSessionId(), session);
-        managedSessionSize.incrementAndGet();
     }
 
     public void removeSession(SocketSession session) {
-        if (sessions.remove(session.getSessionId()) != null) {
-            managedSessionSize.decrementAndGet();
-        }
+        sessions.remove(session.getSessionId());
     }
 
     public void broadcast(Future future) throws IOException {

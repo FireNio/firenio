@@ -264,19 +264,31 @@ public abstract class AbstractHttpFuture extends AbstractChannelFuture implement
     protected abstract void parseFirstLine(String line);
 
     protected void parseParamString(String paramString) {
-        String[] array = paramString.split("&");
-        for (String s : array) {
-            if (StringUtil.isNullOrBlank(s)) {
-                continue;
+        boolean findKey = true;
+        int lastIndex = 0;
+        String key = null;
+        String value = null;
+        for (int i = 0; i < paramString.length(); i++) {
+            if (findKey) {
+                if (paramString.charAt(i) == '=') {
+                    key = paramString.substring(lastIndex, i);
+                    findKey = false;
+                    lastIndex = i+1;
+                }
+            }else{
+                if (paramString.charAt(i) == '&') {
+                    value = paramString.substring(lastIndex, i);
+                    findKey = true;
+                    lastIndex = i+1;
+                    params.put(key, value);
+                }
             }
-            String[] unitArray = s.split("=");
-            if (unitArray.length != 2) {
-                continue;
-            }
-            String key = unitArray[0];
-            String value = unitArray[1];
+        }
+        if (lastIndex < paramString.length()) {
+            value = paramString.substring(lastIndex);
             params.put(key, value);
         }
+        
     }
 
     @Override

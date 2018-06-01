@@ -34,7 +34,7 @@ public class SocketSessionImpl implements SocketSession {
 
     protected Object                  attachment;
     protected HashMap<Object, Object> attributes = new HashMap<>();
-    protected NioSocketChannel           channel;
+    protected final NioSocketChannel  channel;
 
     protected SocketSessionImpl(NioSocketChannel channel) {
         this.channel = channel;
