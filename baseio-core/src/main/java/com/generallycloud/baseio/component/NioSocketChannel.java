@@ -180,7 +180,9 @@ public class NioSocketChannel implements NioEventLoopTask {
             eventLoop.dispatch(new NioEventLoopTask() {
 
                 @Override
-                public void close() throws IOException {}
+                public void close() {
+                    NioSocketChannel.this.close0();
+                }
 
                 @Override
                 public void fireEvent(NioEventLoop eventLoop) {

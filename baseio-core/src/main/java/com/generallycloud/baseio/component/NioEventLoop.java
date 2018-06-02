@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLHandshakeException;
 
+import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
@@ -240,7 +241,9 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
                 } else {
                     targetEL.dispatch(new NioEventLoopTask() {
                         @Override
-                        public void close() throws IOException {}
+                        public void close() throws IOException {
+                            finishConnect(context,new IOException("closed nio eventloop"));
+                        }
 
                         @Override
                         public void fireEvent(NioEventLoop eventLoop) throws IOException {
@@ -569,7 +572,9 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
             final Waiter waiter = new Waiter();
             dispatch(new NioEventLoopTask() {
                 @Override
-                public void close() throws IOException {}
+                public void close() throws IOException {
+                    waiter.response(null);
+                }
 
                 @Override
                 public void fireEvent(NioEventLoop eventLoop) throws IOException {
