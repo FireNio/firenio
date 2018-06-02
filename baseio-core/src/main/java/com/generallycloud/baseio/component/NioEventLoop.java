@@ -45,6 +45,7 @@ import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.MessageFormatter;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ssl.SslHandler;
@@ -681,6 +682,17 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
 
     public List<ChannelFuture> getReadFutures() {
         return readFutures;
+    }
+
+    private String desc;
+
+    @Override
+    public String toString() {
+        if (desc == null) {
+            desc = MessageFormatter.arrayFormat("NioEventLoop(idx:{},sharable:{},isAcceptor:{})",
+                    new Object[] { index, sharable, isAcceptor });
+        }
+        return desc;
     }
 
     class SelectionKeySet extends AbstractSet<SelectionKey> {

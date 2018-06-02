@@ -17,8 +17,6 @@ package com.generallycloud.baseio.buffer;
 
 import java.nio.ByteBuffer;
 
-import com.generallycloud.baseio.common.ByteBufferUtil;
-
 /**
  * @author wangkai
  *
@@ -49,7 +47,7 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
         if (copyOld) {
             memory.flip();
             newMemory.put(memory);
-            ByteBufferUtil.release(memory);
+            ByteBufUtil.release(memory);
         } else {
             this.position(0);
         }
@@ -81,7 +79,7 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
         }
         if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount - 1)) {
             if (referenceCount == 1) {
-                ByteBufferUtil.release(memory);
+                ByteBufUtil.release(memory);
                 return;
             }
         }
@@ -92,7 +90,7 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
             }
             if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount - 1)) {
                 if (referenceCount == 1) {
-                    ByteBufferUtil.release(memory);
+                    ByteBufUtil.release(memory);
                     return;
                 }
             }

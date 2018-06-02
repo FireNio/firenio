@@ -24,11 +24,13 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
     private int                eventLoopSize;
     private FixedAtomicInteger eventLoopIndex;
 
-    public AbstractEventLoopGroup(String eventLoopName) {
+    protected AbstractEventLoopGroup() {}
+
+    protected AbstractEventLoopGroup(String eventLoopName) {
         this.eventLoopName = eventLoopName;
     }
 
-    public AbstractEventLoopGroup(String eventLoopName, int eventLoopSize) {
+    protected AbstractEventLoopGroup(String eventLoopName, int eventLoopSize) {
         this.eventLoopName = eventLoopName;
         this.eventLoopSize = eventLoopSize;
     }
@@ -57,6 +59,14 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 
     public void setEventLoopSize(int eventLoopSize) {
         this.eventLoopSize = eventLoopSize;
+    }
+
+    public String getEventLoopName() {
+        return eventLoopName;
+    }
+
+    public void setEventLoopName(String eventLoopName) {
+        this.eventLoopName = eventLoopName;
     }
 
     protected abstract EventLoop newEventLoop(int index);

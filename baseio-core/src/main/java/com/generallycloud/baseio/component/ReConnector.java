@@ -23,38 +23,38 @@ import org.slf4j.LoggerFactory;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 
-public class ReconnectableConnector implements Closeable {
+public class ReConnector implements Closeable {
 
-    private Logger                 logger                 = LoggerFactory.getLogger(getClass());
-    private ChannelConnector       realConnector          = null;
-    private long                   retryTime              = 15000;
-    private volatile boolean       reconnect              = true;
-    private ReconnectableConnector reconnectableConnector = null;
+    private Logger           logger      = LoggerFactory.getLogger(getClass());
+    private ChannelConnector connector   = null;
+    private long             retryTime   = 15000;
+    private volatile boolean reconnect   = true;
+    private ReConnector      reConnector = null;
 
-    public ReconnectableConnector(ChannelContext context) {
+    public ReConnector(ChannelContext context) {
         context.addSessionEventListener(newReconnectSEListener());
-        this.realConnector = new ChannelConnector(context);
-        this.reconnectableConnector = this;
-    }
-    
-    public ReconnectableConnector(ChannelContext context, NioEventLoop eventLoop) {
-        context.addSessionEventListener(newReconnectSEListener());
-        this.realConnector = new ChannelConnector(context, eventLoop);
-        this.reconnectableConnector = this;
+        this.connector = new ChannelConnector(context);
+        this.reConnector = this;
     }
 
-    public ReconnectableConnector(ChannelContext context, NioEventLoopGroup group) {
+    public ReConnector(ChannelContext context, NioEventLoop eventLoop) {
         context.addSessionEventListener(newReconnectSEListener());
-        this.realConnector = new ChannelConnector(context, group);
-        this.reconnectableConnector = this;
+        this.connector = new ChannelConnector(context, eventLoop);
+        this.reConnector = this;
+    }
+
+    public ReConnector(ChannelContext context, NioEventLoopGroup group) {
+        context.addSessionEventListener(newReconnectSEListener());
+        this.connector = new ChannelConnector(context, group);
+        this.reConnector = this;
     }
 
     public boolean isConnected() {
-        return realConnector.isConnected();
+        return connector.isConnected();
     }
 
     public SocketSession getSession() {
-        return realConnector.getSession();
+        return connector.getSession();
     }
 
     public synchronized void connect() {
@@ -62,7 +62,7 @@ public class ReconnectableConnector implements Closeable {
             logger.info("connection is closed, stop to reconnect");
             return;
         }
-        SocketSession session = realConnector.getSession();
+        SocketSession session = connector.getSession();
         ThreadUtil.sleep(300);
         logger.info("begin try to connect");
         for (;;) {
@@ -72,7 +72,7 @@ public class ReconnectableConnector implements Closeable {
                 continue;
             }
             try {
-                realConnector.connect();
+                connector.connect();
                 break;
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
@@ -86,12 +86,12 @@ public class ReconnectableConnector implements Closeable {
         return new SessionEventListenerAdapter() {
             @Override
             public void sessionClosed(SocketSession session) {
-                reconnect(reconnectableConnector);
+                reconnect(reConnector);
             }
         };
     }
 
-    private void reconnect(final ReconnectableConnector reconnectableConnector) {
+    private void reconnect(final ReConnector reconnectableConnector) {
         ThreadUtil.exec(new Runnable() {
             @Override
             public void run() {
@@ -104,7 +104,7 @@ public class ReconnectableConnector implements Closeable {
     @Override
     public synchronized void close() {
         reconnect = false;
-        CloseUtil.close(realConnector);
+        CloseUtil.close(connector);
     }
 
     public long getRetryTime() {
@@ -116,7 +116,7 @@ public class ReconnectableConnector implements Closeable {
     }
 
     public ChannelConnector getRealConnector() {
-        return realConnector;
+        return connector;
     }
 
 }

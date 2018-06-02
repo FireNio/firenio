@@ -34,6 +34,7 @@ public class TestHttpLoadServer {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
+                System.out.println("session >>>>"+session);
                 future.write("hello world!8080", session.getContext());
                 ServerHttpFuture f = (ServerHttpFuture) future;
                 session.flush(future);
@@ -46,7 +47,7 @@ public class TestHttpLoadServer {
         group.setMemoryPoolUnit(256);
         group.setEnableMemoryPoolDirect(true);
         group.setEnableMemoryPool(true);
-        ChannelContext context = new ChannelContext(new Configuration(8087));
+        ChannelContext context = new ChannelContext(new Configuration(8080));
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setProtocolCodec(new ServerHttpCodec());
         context.setIoEventHandle(eventHandleAdaptor);

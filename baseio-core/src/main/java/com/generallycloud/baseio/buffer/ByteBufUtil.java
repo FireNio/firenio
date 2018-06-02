@@ -13,30 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.common;
+package com.generallycloud.baseio.buffer;
 
 import java.nio.ByteBuffer;
 
-public class ByteBufferUtil {
-
-    @Deprecated
-    public static void read(ByteBuffer dest, ByteBuffer src) {
-        int srcRemaing = src.remaining();
-        if (srcRemaing == 0) {
-            return;
-        }
-        int remaining = dest.remaining();
-        if (remaining == 0) {
-            return;
-        }
-        if (remaining <= srcRemaing) {
-            dest.put(src.array(), src.position(), remaining);
-            src.position(src.position() + remaining);
-        } else {
-            dest.put(src.array(), src.position(), srcRemaing);
-            src.position(src.limit());
-        }
-    }
+public class ByteBufUtil {
 
     @SuppressWarnings("restriction")
     public static void release(ByteBuffer buffer) {

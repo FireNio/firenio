@@ -57,7 +57,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     public NioEventLoopGroup(int eventLoopSize) {
-        super("nio-process", eventLoopSize);
+        super("nio-processor",eventLoopSize);
     }
 
     private FixedAtomicInteger createChannelIdsSequence(int eventLoopSize) {

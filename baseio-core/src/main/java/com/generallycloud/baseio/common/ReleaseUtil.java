@@ -15,6 +15,7 @@
  */
 package com.generallycloud.baseio.common;
 
+import com.generallycloud.baseio.Releasable;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
