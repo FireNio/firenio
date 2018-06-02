@@ -42,7 +42,7 @@ public class SocketSessionManager {
         return sessions.size();
     }
 
-    public SocketSession getSession(int sessionId) {
+    public SocketSession getSession(Integer sessionId) {
         return sessions.get(sessionId);
     }
 

@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -43,6 +42,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.collection.Attributes;
+import com.generallycloud.baseio.collection.IntObjectHashMap;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
@@ -77,7 +77,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
     private AtomicBoolean                       selecting        = new AtomicBoolean();
     private SelectionKeySet                     selectionKeySet;
     private Selector                            selector;
-    private Map<Integer, SocketSession>         sessions;
+    private IntObjectHashMap<SocketSession>     sessions         = new IntObjectHashMap<>();
     private final int                           sessionSizeLimit = 1024 * 64;
     private SslFuture                           sslTemporary;
     private AtomicBoolean                       wakener          = new AtomicBoolean();      // true eventLooper, false offerer
@@ -88,11 +88,8 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
     private final boolean                       isAcceptor;
 
     NioEventLoop(NioEventLoopGroup group, int index, boolean isAcceptor) {
-        if (group.isSharable()) {
-            this.sessions = new ConcurrentHashMap<>();
-        } else {
+        if (!group.isSharable()) {
             this.context = group.getContext();
-            this.sessions = new HashMap<>();
         }
         this.index = index;
         this.group = group;
@@ -109,8 +106,8 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
         int readyOps = k.readyOps();
         if (sharable) {
             if (isAcceptor) {
-                if ((readyOps & SelectionKey.OP_CONNECT) != 0
-                        || (readyOps & SelectionKey.OP_ACCEPT) != 0) {
+                if ((readyOps & SelectionKey.OP_ACCEPT) != 0
+                        || (readyOps & SelectionKey.OP_CONNECT) != 0) {
                     // 说明该链接未打开
                     try {
                         registChannel(k);
@@ -185,8 +182,8 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
         final NioEventLoop thisEventLoop = this;
         final int channelId = group.getChannelIds().getAndIncrement();
         if (channelService instanceof ChannelAcceptor) {
-            ServerSocketChannel serverChannel = (ServerSocketChannel) channelService
-                    .getSelectableChannel();
+            ChannelAcceptor acceptor = (ChannelAcceptor) channelService;
+            ServerSocketChannel serverChannel = acceptor.getSelectableChannel();
             //有时候还未regist selector，但是却能selector到sk
             //如果getLocalAddress为空则不处理该sk
             if (serverChannel.getLocalAddress() == null) {
@@ -215,7 +212,9 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
                 });
             }
         } else {
-            final SocketChannel javaChannel = (SocketChannel) channelService.getSelectableChannel();
+            @SuppressWarnings("resource")
+            final ChannelConnector connector = (ChannelConnector) channelService;
+            final SocketChannel javaChannel = connector.getSelectableChannel();
             try {
                 if (!javaChannel.isConnectionPending()) {
                     return;
@@ -223,7 +222,6 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
                 if (!javaChannel.finishConnect()) {
                     throw new IOException("connect failed");
                 }
-                ChannelConnector connector = (ChannelConnector) context.getChannelService();
                 NioEventLoop targetEL = connector.getEventLoop();
                 if (targetEL == null) {
                     targetEL = group.getEventLoop(0);
@@ -513,7 +511,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
     }
 
     protected void putSession(SocketSession session) throws RejectedExecutionException {
-        Map<Integer, SocketSession> sessions = this.sessions;
+        IntObjectHashMap<SocketSession> sessions = this.sessions;
         Integer sessionId = session.getSessionId();
         SocketSession old = sessions.get(sessionId);
         if (old != null) {
@@ -523,7 +521,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
             throw new RejectedExecutionException(
                     "session size limit:" + sessionSizeLimit + ",current:" + sessions.size());
         }
-        sessions.put(sessionId, session);
+        sessions.put(sessionId.intValue(), session);
         session.getContext().getSessionManager().putSession(session);
     }
 
@@ -586,7 +584,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
             });
             waiter.await();
             Object res = waiter.getResponse();
-            if (res instanceof Exception) {
+            if (res instanceof IOException) {
                 throw (IOException) res;
             }
         }
@@ -622,10 +620,14 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
         session.getContext().getSessionManager().removeSession(session);
     }
 
+    public SocketSession getSession(int sessionId) {
+        return sessions.get(sessionId);
+    }
+
     private void sessionIdle(long currentTime) {
         long lastIdleTime = this.lastIdleTime;
         this.lastIdleTime = currentTime;
-        Map<Integer, SocketSession> sessions = this.sessions;
+        IntObjectHashMap<SocketSession> sessions = this.sessions;
         if (sessions.size() == 0) {
             return;
         }

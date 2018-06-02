@@ -18,7 +18,6 @@ package com.generallycloud.baseio.component;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SocketChannel;
 
 import com.generallycloud.baseio.LifeCycleUtil;
@@ -37,15 +36,15 @@ import com.generallycloud.baseio.log.LoggerFactory;
  */
 public class ChannelConnector implements ChannelService, Closeable {
 
-    private ChannelContext         context;
+    private ChannelContext    context;
     private NioEventLoop      eventLoop;
     private NioEventLoopGroup group;
-    private Logger                 logger  = LoggerFactory.getLogger(getClass());
-    private SelectableChannel      selectableChannel;
-    private InetSocketAddress      serverAddress;
-    private SocketSession          session;
-    private long                   timeout = 3000;
-    private Waiter                 waiter;
+    private Logger            logger  = LoggerFactory.getLogger(getClass());
+    private SocketChannel     selectableChannel;
+    private InetSocketAddress serverAddress;
+    private SocketSession     session;
+    private long              timeout = 3000;
+    private Waiter            waiter;
 
     public ChannelConnector(ChannelContext context, NioEventLoop eventLoop) {
         Assert.notNull(context, "null context");
@@ -103,8 +102,7 @@ public class ChannelConnector implements ChannelService, Closeable {
         ch.connect(serverAddress);
         wait4connect(timeout);
         return getSession();
-            
-        
+
     }
 
     //FIXME protected
@@ -135,7 +133,7 @@ public class ChannelConnector implements ChannelService, Closeable {
     }
 
     @Override
-    public SelectableChannel getSelectableChannel() {
+    public SocketChannel getSelectableChannel() {
         return selectableChannel;
     }
 
@@ -171,7 +169,7 @@ public class ChannelConnector implements ChannelService, Closeable {
     }
 
     private void wait4connect(long timeout) throws IOException {
-        if (eventLoop!= null && eventLoop.inEventLoop()) {
+        if (eventLoop != null && eventLoop.inEventLoop()) {
             throw new IOException("can not wait for connect in its event loop");
         }
         if (waiter.await(timeout)) {

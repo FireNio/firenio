@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Collection;
 
@@ -39,14 +38,14 @@ import com.generallycloud.baseio.protocol.Future;
  */
 public class ChannelAcceptor implements ChannelService {
 
-    private boolean                active = false;
-    private ChannelContext         context;
-    private NioEventLoopGroup group;
-    private Logger                 logger = LoggerFactory.getLogger(getClass());
-    private SelectableChannel      selectableChannel;
-    private InetSocketAddress      serverAddress;
-    private ServerSocket           serverSocket;
-    private SocketSessionManager   sessionManager;
+    private boolean              active = false;
+    private ChannelContext       context;
+    private NioEventLoopGroup    group;
+    private Logger               logger = LoggerFactory.getLogger(getClass());
+    private ServerSocketChannel  selectableChannel;
+    private InetSocketAddress    serverAddress;
+    private ServerSocket         serverSocket;
+    private SocketSessionManager sessionManager;
 
     public ChannelAcceptor(ChannelContext context) {
         this(context, new NioEventLoopGroup());
@@ -112,7 +111,7 @@ public class ChannelAcceptor implements ChannelService {
     }
 
     @Override
-    public SelectableChannel getSelectableChannel() {
+    public ServerSocketChannel getSelectableChannel() {
         return selectableChannel;
     }
 
