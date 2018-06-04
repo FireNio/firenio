@@ -38,7 +38,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
@@ -87,6 +86,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
     private final boolean                       sharable;
     private ChannelContext                      context;                                     // use when not sharable 
     private final boolean                       isAcceptor;
+    private boolean                             selectorRegisted;
 
     NioEventLoop(NioEventLoopGroup group, int index, boolean isAcceptor) {
         if (!group.isSharable()) {
@@ -242,7 +242,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
                     targetEL.dispatch(new NioEventLoopTask() {
                         @Override
                         public void close() throws IOException {
-                            finishConnect(context,new IOException("closed nio eventloop"));
+                            finishConnect(context, new IOException("closed nio eventloop"));
                         }
 
                         @Override
@@ -562,10 +562,18 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
         }
     }
 
-    public void registSelector(final ChannelContext context) throws IOException {
-        if (sharable && !isAcceptor) {
-            throw new IOException("not acceptor event loop");
+    protected void registSelector(final ChannelContext context) throws IOException {
+        if (sharable) {
+            if (!isAcceptor) {
+                throw new IOException("not acceptor event loop");
+            }
+        } else {
+            if (selectorRegisted) {
+                throw new IOException("selector registed");
+            }
+            selectorRegisted = true;
         }
+        if (sharable && !isAcceptor) {}
         if (inEventLoop()) {
             registSelector(this, context);
         } else {

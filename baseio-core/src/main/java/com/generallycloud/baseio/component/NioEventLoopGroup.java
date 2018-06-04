@@ -53,7 +53,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private NioEventLoop          acceptorEventLoop;
 
     public NioEventLoopGroup() {
-        this(Runtime.getRuntime().availableProcessors());
+        this(Runtime.getRuntime().availableProcessors() * 2);
     }
 
     public NioEventLoopGroup(int eventLoopSize) {
@@ -212,8 +212,10 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         if (sharable) {
             acceptorEventLoop.registSelector(context);
         } else {
-            for (NioEventLoop eventLoop : eventLoops) {
-                eventLoop.registSelector(context);
+            synchronized (this) {
+                for (NioEventLoop eventLoop : eventLoops) {
+                    eventLoop.registSelector(context);
+                }
             }
         }
     }
