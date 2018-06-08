@@ -318,6 +318,25 @@ public class NioSocketChannel implements NioEventLoopTask {
             exceptionCaught(future, e);
         }
     }
+    
+    public void unsafeFlush(ChannelFuture future) {
+        if (future == null || future.flushed()) {
+            return;
+        }
+        future.flush();
+        if (!isOpened()) {
+            exceptionCaught(future, new ClosedChannelException(this));
+            return;
+        }
+        try {
+            future.setNeedSsl(getContext().isEnableSsl());
+            ProtocolCodec codec = getProtocolCodec();
+            codec.encode(this, future);
+            unsafeFlushChannelFuture(future);
+        } catch (Exception e) {
+            exceptionCaught(future, e);
+        }
+    }
 
     public void flushFutures(Collection<ChannelFuture> futures) {
         if (futures == null || futures.isEmpty()) {
@@ -354,6 +373,26 @@ public class NioSocketChannel implements NioEventLoopTask {
             return;
         }
         flushChannelFutures(futures);
+    }
+    
+    public void unsafeFlushChannelFuture(ChannelFuture future) {
+        if (!inEventLoop()) {
+            throw new RuntimeException("not in eventloop");
+        } 
+        if (!isOpened()) {
+            exceptionCaught(future, new ClosedChannelException(this));
+            return;
+        }
+        if (currentWriteFuturesLen == 0 && writeFutures.size() == 0) {
+            write(future);
+        }else{
+            writeFutures.offer(future);
+            try {
+                write();
+            } catch (Throwable t) {
+                CloseUtil.close(this);
+            }
+        }
     }
 
     public void flushChannelFuture(ChannelFuture future) {
@@ -493,8 +532,6 @@ public class NioSocketChannel implements NioEventLoopTask {
     public long getLastAccessTime() {
         return lastAccess;
     }
-
-    // FIXME 是否使用channel.isOpen()
 
     public String getLocalAddr() {
         return localAddr;
