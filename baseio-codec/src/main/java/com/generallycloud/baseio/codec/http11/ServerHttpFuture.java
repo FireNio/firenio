@@ -76,16 +76,16 @@ public class ServerHttpFuture extends AbstractHttpFuture {
         setVersion(line.substring(index2 + 1));
     }
 
-    @Override
-    public void release(NioEventLoop eventLoop) {
-        super.release(eventLoop);
-        //FIXME ..final statck is null or not null
-        FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
-                .getAttribute(ServerHttpCodec.FUTURE_STACK_KEY);
-        if (stack != null) {
-            stack.push(this);
-        }
-    }
+//    @Override
+//    public void release(NioEventLoop eventLoop) {
+//        super.release(eventLoop);
+//        //FIXME ..final statck is null or not null
+//        FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
+//                .getAttribute(ServerHttpCodec.FUTURE_STACK_KEY);
+//        if (stack != null) {
+//            stack.push(this);
+//        }
+//    }
 
     @Override
     public ServerHttpFuture reset(NioSocketChannel channel, int headerLimit, int bodyLimit) {

@@ -181,19 +181,19 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
         return getReadText();
     }
 
-    @Override
-    public void release(NioEventLoop eventLoop) {
-        super.release(eventLoop);
-        //FIXME ..final statck is null or not null
-        if (WebSocketCodec.WS_PROTOCOL_CODEC.getFutureStackSize() == 0) {
-            return;
-        }
-        FixedThreadStack<WebSocketFutureImpl> stack = (FixedThreadStack<WebSocketFutureImpl>) eventLoop
-                .getAttribute(WebSocketCodec.FUTURE_STACK_KEY);
-        if (stack != null) {
-            stack.push(this);
-        }
-    }
+//    @Override
+//    public void release(NioEventLoop eventLoop) {
+//        super.release(eventLoop);
+//        //FIXME ..final statck is null or not null
+//        if (WebSocketCodec.WS_PROTOCOL_CODEC.getFutureStackSize() == 0) {
+//            return;
+//        }
+//        FixedThreadStack<WebSocketFutureImpl> stack = (FixedThreadStack<WebSocketFutureImpl>) eventLoop
+//                .getAttribute(WebSocketCodec.FUTURE_STACK_KEY);
+//        if (stack != null) {
+//            stack.push(this);
+//        }
+//    }
 
     protected WebSocketFutureImpl reset(NioSocketChannel channel, ByteBuf buf, int limit) {
         this.byteArray = null;
