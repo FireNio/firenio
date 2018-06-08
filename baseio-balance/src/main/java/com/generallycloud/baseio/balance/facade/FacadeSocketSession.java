@@ -15,17 +15,23 @@
  */
 package com.generallycloud.baseio.balance.facade;
 
+import com.generallycloud.baseio.balance.BalanceFuture;
+import com.generallycloud.baseio.balance.FacadeAcceptor;
 import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 import com.generallycloud.baseio.component.SocketSession;
 
 public interface FacadeSocketSession extends SocketSession {
 
-    public abstract Object getSessionKey();
+    FacadeAcceptor getAcceptor();
 
-    public abstract boolean overfulfil(int size);
+    Object getSessionKey();
 
-    public abstract ReverseSocketSession getReverseSocketSession();
+    void writeAndFlush(ReverseSocketSession rs, BalanceFuture future);
 
-    public abstract void setReverseSocketSession(ReverseSocketSession reverseSocketSession);
+    boolean overfulfil(int size);
+
+    ReverseSocketSession getReverseSocketSession();
+
+    void setReverseSocketSession(ReverseSocketSession reverseSocketSession);
 
 }

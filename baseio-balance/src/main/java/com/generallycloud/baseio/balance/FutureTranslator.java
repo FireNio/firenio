@@ -15,15 +15,18 @@
  */
 package com.generallycloud.baseio.balance;
 
-import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionFactoryImpl;
+import com.generallycloud.baseio.balance.facade.FacadeSocketSession;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 
-public class BalanceClientSocketSessionFactory extends SocketSessionFactoryImpl {
+/**
+ * @author wangkai
+ *
+ */
+public interface FutureTranslator {
 
-    @Override
-    public SocketSession newUnsafeSession(NioSocketChannel channel) {
-        return new BalanceClientSocketSessionImpl(channel);
-    }
+    BalanceFuture translateIn(FacadeSocketSession fs, ReverseSocketSession rs,
+            BalanceFuture future);
+
+    BalanceFuture translateOut(ReverseSocketSession rs, BalanceFuture future);
 
 }

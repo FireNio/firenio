@@ -15,30 +15,24 @@
  */
 package com.generallycloud.baseio.balance;
 
-import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSessionImpl;
+import com.generallycloud.baseio.balance.facade.FacadeSocketSession;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
 
 /**
  * @author wangkai
  *
  */
-public class BalanceClientSocketSessionImpl extends SocketSessionImpl
-        implements BalanceClientSocketSession {
-
-    public BalanceClientSocketSessionImpl(NioSocketChannel channel) {
-        super(channel);
-    }
-
-    private Long token;
+public class DefaultFutureTranslator implements FutureTranslator {
 
     @Override
-    public Long getToken() {
-        return token;
+    public BalanceFuture translateIn(FacadeSocketSession fs, ReverseSocketSession rs,
+            BalanceFuture future) {
+        return future.translate(fs);
     }
 
     @Override
-    public void setToken(Long token) {
-        this.token = token;
+    public BalanceFuture translateOut(ReverseSocketSession rs, BalanceFuture future) {
+        return future.translate(rs);
     }
 
 }

@@ -15,8 +15,12 @@
  */
 package com.generallycloud.baseio.balance.reverse;
 
+import java.util.List;
+
 import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.balance.BalanceFuture;
+import com.generallycloud.baseio.balance.FacadeAcceptor;
+import com.generallycloud.baseio.balance.facade.FacadeSocketSession;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -31,7 +35,7 @@ public class ReverseAcceptorHandler extends IoEventHandleAdaptor {
 
     private Logger                logger = LoggerFactory.getLogger(getClass());
     private BalanceRouter         balanceRouter;
-    private ChannelAcceptor       facadeAcceptor;
+    private List<FacadeAcceptor>  facadeAcceptors;
     private ExceptionCaughtHandle exceptionCaughtHandle;
     private ReverseLogger         reverseLogger;
 
@@ -41,25 +45,35 @@ public class ReverseAcceptorHandler extends IoEventHandleAdaptor {
                 .getAttribute(BalanceContext.BALANCE_CONTEXT_KEY);
         this.balanceRouter = balanceContext.getBalanceRouter();
         this.reverseLogger = balanceContext.getReverseLogger();
-        this.facadeAcceptor = balanceContext.getFacadeAcceptor();
+        this.facadeAcceptors = balanceContext.getFacadeAcceptors();
         this.exceptionCaughtHandle = balanceContext.getReverseExceptionCaughtHandle();
         super.initialize(context);
     }
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
+        ReverseSocketSession rs = (ReverseSocketSession) session;
         BalanceFuture f = (BalanceFuture) future;
         if (f.isBroadcast()) {
-            facadeAcceptor.broadcast(f.translate(session));
+            for (FacadeAcceptor facadeAcceptor : facadeAcceptors) {
+                ChannelAcceptor acceptor = facadeAcceptor.getAcceptor();
+                if(acceptor.getContext().getProtocolCodec().getProtocolId()
+                        .equals(session.getProtocolCodec().getProtocolId())){
+                    acceptor.broadcast(f.translate(session));
+                }else{
+                    BalanceFuture nf = facadeAcceptor.getFutureTranslator().translateOut(rs, f);
+                    acceptor.broadcast(nf);
+                }
+            }
             reverseLogger.logBroadcast(session, future, logger);
             return;
         }
-        SocketSession response = balanceRouter.getClientSession(f.getSessionKey());
+        FacadeSocketSession response = balanceRouter.getClientSession(f.getSessionKey());
         if (response == null || response.isClosed()) {
             reverseLogger.logPushLost(session, future, logger);
             return;
         }
-        response.flush(f.translate(session));
+        response.writeAndFlush(rs, f);
         reverseLogger.logPush(session, response, future, logger);
     }
 

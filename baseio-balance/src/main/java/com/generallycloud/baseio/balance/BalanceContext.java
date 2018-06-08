@@ -15,6 +15,9 @@
  */
 package com.generallycloud.baseio.balance;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.generallycloud.baseio.balance.reverse.ReverseLogger;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.component.ChannelAcceptor;
@@ -28,12 +31,12 @@ public class BalanceContext {
 
     private BalanceRouter            balanceRouter;
     private ChannelLostFutureFactory channelLostReadFutureFactory;
-    private ChannelAcceptor          facadeAcceptor;
     private ExceptionCaughtHandle    facadeExceptionCaughtHandle  = new SilentExceptionCaughtHandle();
     private FacadeInterceptor        facadeInterceptor;
+    private List<FacadeAcceptor>     facadeAcceptors              = new ArrayList<>();
     private NoneLoadFutureAcceptor   noneLoadReadFutureAcceptor;
     private ChannelAcceptor          reverseAcceptor;
-    private ExceptionCaughtHandle    reverseExceptionCaughtHandle = facadeExceptionCaughtHandle;
+    private ExceptionCaughtHandle    reverseExceptionCaughtHandle = new SilentExceptionCaughtHandle();
     private ReverseLogger            reverseLogger;
 
     public BalanceRouter getBalanceRouter() {
@@ -44,8 +47,8 @@ public class BalanceContext {
         return channelLostReadFutureFactory;
     }
 
-    public ChannelAcceptor getFacadeAcceptor() {
-        return facadeAcceptor;
+    public List<FacadeAcceptor> getFacadeAcceptors() {
+        return facadeAcceptors;
     }
 
     public ExceptionCaughtHandle getFacadeExceptionCaughtHandle() {
@@ -81,8 +84,8 @@ public class BalanceContext {
         this.channelLostReadFutureFactory = channelLostReadFutureFactory;
     }
 
-    public void setFacadeAcceptor(ChannelAcceptor facadeAcceptor) {
-        this.facadeAcceptor = facadeAcceptor;
+    public void addFacadeAcceptor(FacadeAcceptor facadeAcceptor) {
+        this.facadeAcceptors.add(facadeAcceptor);
     }
 
     public void setFacadeExceptionCaughtHandle(ExceptionCaughtHandle facadeExceptionCaughtHandle) {
