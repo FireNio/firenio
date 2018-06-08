@@ -22,6 +22,7 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
         implements ExecutorEventLoopGroup {
 
     private ExecutorEventLoop eventLoop;
+    private EventLoopListener eventLoopListener;
     private String            eventLoopName;
 
     public ExecutorPoolEventLoopGroup(String eventLoopName, int coreEventLoopSize,
@@ -33,11 +34,17 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
 
     @Override
     protected void doStart() throws Exception {
+        if (eventLoopListener != null) {
+            eventLoopListener.onStartup(eventLoop);
+        }
         eventLoop.startup(eventLoopName);
     }
 
     @Override
     protected void doStop() throws Exception {
+        if (eventLoopListener != null) {
+            eventLoopListener.onStop(eventLoop);
+        }
         LifeCycleUtil.stop(eventLoop);
     }
 
@@ -47,8 +54,18 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
     }
 
     @Override
+    public EventLoopListener getEventLoopListener() {
+        return eventLoopListener;
+    }
+
+    @Override
     public ExecutorEventLoop getNext() {
         return eventLoop;
+    }
+
+    @Override
+    public void setEventLoopListener(EventLoopListener eventLoopListener) {
+        this.eventLoopListener = eventLoopListener;
     }
 
 }

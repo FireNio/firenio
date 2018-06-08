@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio;
 
-import com.generallycloud.baseio.concurrent.Looper;
+import com.generallycloud.baseio.concurrent.EventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -50,12 +50,12 @@ public class LifeCycleUtil {
         }
     }
 
-    public static void stop(Looper looper) {
-        if (looper == null) {
+    public static void stop(EventLoop eventLoop) {
+        if (eventLoop == null) {
             return;
         }
         try {
-            looper.stop();
+            eventLoop.stop();
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }

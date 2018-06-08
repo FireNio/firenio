@@ -19,8 +19,12 @@ import com.generallycloud.baseio.LifeCycle;
 
 public interface EventLoopGroup extends LifeCycle {
 
+    EventLoop getEventLoop(int index);
+
+    EventLoopListener getEventLoopListener();
+
     EventLoop getNext();
 
-    EventLoop getEventLoop(int index);
+    void setEventLoopListener(EventLoopListener listener);
 
 }

@@ -17,8 +17,12 @@ package com.generallycloud.baseio;
 
 import java.io.IOException;
 
-@SuppressWarnings("serial")
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.SocketSession;
+
 public class ClosedChannelException extends IOException {
+
+    private static final long serialVersionUID = 1L;
 
     public ClosedChannelException(String message, Exception cause) {
         super(message, cause);
@@ -26,6 +30,15 @@ public class ClosedChannelException extends IOException {
 
     public ClosedChannelException(String message) {
         super(message);
+    }
+    
+    public ClosedChannelException(SocketSession session) {
+        super(session.toString());
+    }
+    
+    
+    public ClosedChannelException(NioSocketChannel channel) {
+        super(channel.toString());
     }
 
 }

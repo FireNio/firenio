@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-public interface EventLoop extends Looper {
+public interface EventLoop {
 
     EventLoopGroup getGroup();
 
@@ -27,7 +27,12 @@ public interface EventLoop extends Looper {
 
     boolean isRunning();
 
+    void loop();
+
     void startup(String threadName) throws Exception;
+
+    //FIXME stop 之前处理剩下的资源
+    void stop();
 
     void wakeup();
 

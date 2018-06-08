@@ -62,7 +62,7 @@ public class NioSocketChannel implements NioEventLoopTask {
     private long                           creationTime         = System.currentTimeMillis();
     private ChannelFuture[]                currentWriteFutures;
     private int                            currentWriteFuturesLen;
-    private final boolean                 enableSsl;
+    private final boolean                  enableSsl;
     private final NioEventLoop             eventLoop;
     private long                           lastAccess;
     private String                         localAddr;
@@ -205,7 +205,7 @@ public class NioSocketChannel implements NioEventLoopTask {
             } catch (Exception e) {}
             ClosedChannelException e = null;
             if (currentWriteFuturesLen > 0) {
-                e = new ClosedChannelException(session.toString());
+                e = new ClosedChannelException(this);
                 for (int i = 0; i < currentWriteFuturesLen; i++) {
                     exceptionCaught(currentWriteFutures[i], e);
                 }
@@ -231,10 +231,6 @@ public class NioSocketChannel implements NioEventLoopTask {
                 sslEngine.closeInbound();
             } catch (SSLException e) {}
         }
-    }
-
-    private void doFlush() {
-        eventLoop.dispatch(this);
     }
 
     private void exceptionCaught(Future future, Exception ex) {
@@ -310,7 +306,7 @@ public class NioSocketChannel implements NioEventLoopTask {
         }
         future.flush();
         if (!isOpened()) {
-            exceptionCaught(future, new ClosedChannelException(toString()));
+            exceptionCaught(future, new ClosedChannelException(this));
             return;
         }
         try {
@@ -323,13 +319,12 @@ public class NioSocketChannel implements NioEventLoopTask {
         }
     }
 
-    //FIXME ..处理silent
     public void flushFutures(Collection<ChannelFuture> futures) {
         if (futures == null || futures.isEmpty()) {
             return;
         }
         if (!isOpened()) {
-            Exception e = new ClosedChannelException(session.toString());
+            Exception e = new ClosedChannelException(this);
             for (ChannelFuture future : futures) {
                 if (future.isHeartbeat()) {
                     continue;
@@ -349,11 +344,11 @@ public class NioSocketChannel implements NioEventLoopTask {
                 codec.encode(this, f);
             }
         } catch (Exception e) {
-            for (ChannelFuture future : futures) {
-                if (future.isHeartbeat()) {
+            for (ChannelFuture f : futures) {
+                if (f.isSilent() || f.isHeartbeat()) {
                     continue;
                 }
-                exceptionCaught(future, e);
+                exceptionCaught(f, e);
             }
             CloseUtil.close(this);
             return;
@@ -362,99 +357,87 @@ public class NioSocketChannel implements NioEventLoopTask {
     }
 
     public void flushChannelFuture(ChannelFuture future) {
-        SocketSession session = getSession();
         if (inEventLoop()) {
             if (!isOpened()) {
-                exceptionCaught(future, new ClosedChannelException(session.toString()));
+                exceptionCaught(future, new ClosedChannelException(this));
                 return;
             }
-            // FIXME 该连接写入过多啦
             writeFutures.offer(future);
-            // 如果write futures != 1 说明在offer之后至少有2个write future(或者没了)
-            // 说明之前的尚未写入完整，或者正在写入，此时无需dispatch
-            if (writeFutures.size() != 1) {
-                return;
+            try {
+                write();
+            } catch (Throwable t) {
+                CloseUtil.close(this);
             }
-            if ((selectionKey.interestOps() & SelectionKey.OP_WRITE) != 0) {
-                return;
-            }
-        }else{
+        } else {
             ReentrantLock lock = getCloseLock();
             lock.lock();
             try {
                 if (!isOpened()) {
-                    exceptionCaught(future, new ClosedChannelException(session.toString()));
+                    exceptionCaught(future, new ClosedChannelException(this));
                     return;
                 }
-                // FIXME 该连接写入过多啦
                 writeFutures.offer(future);
-                // 如果write futures != 1 说明在offer之后至少有2个write future(或者没了)
-                // 说明之前的尚未写入完整，或者正在写入，此时无需dispatch
                 if (writeFutures.size() != 1) {
                     return;
                 }
-            } catch (Exception e) {
-                exceptionCaught(future, e);
-                return;
             } finally {
                 lock.unlock();
             }
+            eventLoop.dispatch(this);
         }
-        doFlush();
     }
 
     public void flushChannelFutures(Collection<ChannelFuture> futures) {
         if (futures == null || futures.isEmpty()) {
             return;
         }
-        SocketSession session = getSession();
         if (inEventLoop()) {
             try {
                 if (!isOpened()) {
-                    Exception e = new ClosedChannelException(session.toString());
+                    Exception e = new ClosedChannelException(this);
                     for (ChannelFuture future : futures) {
                         exceptionCaught(future, e);
                     }
                     return;
                 }
-                int size = 0;
                 for (ChannelFuture future : futures) {
-                    if (future.isHeartbeat()) {
+                    if (future.isSilent() || future.isHeartbeat()) {
                         continue;
                     }
-                    size++;
                     writeFutures.offer(future);
-                }
-                if (writeFutures.size() != size) {
-                    return;
                 }
             } catch (Exception e) {
                 //will happen ?
-                for (ChannelFuture future : futures) {
-                    if (future.isHeartbeat()) {
+                for (ChannelFuture f : futures) {
+                    if (f.isSilent() || f.isHeartbeat()) {
                         continue;
                     }
-                    exceptionCaught(future, e);
+                    exceptionCaught(f, e);
                 }
                 return;
             }
-            if ((selectionKey.interestOps() & SelectionKey.OP_WRITE) != 0) {
-                return;
+            try {
+                write();
+            } catch (Throwable t) {
+                CloseUtil.close(this);
             }
-        }else{
+        } else {
             ReentrantLock lock = getCloseLock();
             lock.lock();
             try {
+                int size = 0;
                 if (!isOpened()) {
-                    Exception e = new ClosedChannelException(session.toString());
+                    Exception e = new ClosedChannelException(this);
                     for (ChannelFuture future : futures) {
+                        if (future.isSilent() || future.isHeartbeat()) {
+                            continue;
+                        }
                         exceptionCaught(future, e);
                     }
                     return;
                 }
-                int size = 0;
                 for (ChannelFuture future : futures) {
-                    if (future.isHeartbeat()) {
+                    if (future.isSilent() || future.isHeartbeat()) {
                         continue;
                     }
                     size++;
@@ -466,7 +449,7 @@ public class NioSocketChannel implements NioEventLoopTask {
             } catch (Exception e) {
                 //will happen ?
                 for (ChannelFuture future : futures) {
-                    if (future.isHeartbeat()) {
+                    if (future.isSilent() || future.isHeartbeat()) {
                         continue;
                     }
                     exceptionCaught(future, e);
@@ -475,8 +458,8 @@ public class NioSocketChannel implements NioEventLoopTask {
             } finally {
                 lock.unlock();
             }
+            eventLoop.dispatch(this);
         }
-        doFlush();
     }
 
     public Integer getChannelId() {
@@ -683,9 +666,8 @@ public class NioSocketChannel implements NioEventLoopTask {
             return;
         }
         ChannelFuture future = writeFutures.poll();
-        SocketSession session = this.session;
         if (e == null) {
-            e = new ClosedChannelException(session.toString());
+            e = new ClosedChannelException(this);
         }
         for (; future != null;) {
             exceptionCaught(future, e);
@@ -726,6 +708,49 @@ public class NioSocketChannel implements NioEventLoopTask {
                     .append(getLocalPort()).append("]").toString();
         }
         return channelDesc;
+    }
+
+    private void write(ChannelFuture future) {
+        try {
+            if (future.isNeedSsl()) {
+                future.setNeedSsl(false);
+                // FIXME 部分情况下可以不在业务线程做wrapssl
+                ByteBuf old = future.getByteBuf();
+                long version = old.getReleaseVersion();
+                SslHandler handler = eventLoop.getSslHandler();
+                try {
+                    ByteBuf newBuf = handler.wrap(this, old);
+                    newBuf.nioBuffer();
+                    future.setByteBuf(newBuf);
+                } finally {
+                    ReleaseUtil.release(old, version);
+                }
+            }
+            ByteBuf buf = future.getByteBuf();
+            channel.write(buf.nioBuffer());
+            buf.reverse();
+            if (buf.hasRemaining()) {
+                currentWriteFuturesLen = 1;
+                currentWriteFutures[0] = future;
+                interestWrite(selectionKey);
+                return;
+            } else {
+                try {
+                    future.release(eventLoop);
+                } catch (Throwable e) {
+                    logger.error(e.getMessage(), e);
+                }
+                try {
+                    context.getIoEventHandle().futureSent(session, future);
+                } catch (Throwable e) {
+                    logger.debug(e.getMessage(), e);
+                }
+                interestRead(selectionKey);
+            }
+        } catch (Exception e) {
+            CloseUtil.close(this);
+            exceptionCaught(future, e);
+        }
     }
 
     protected void write() throws IOException {

@@ -15,38 +15,12 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractEventLoop implements EventLoop {
-
-    private class SingleEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
-
-        private EventLoop eventLoop;
-
-        public SingleEventLoopGroup(EventLoop eventLoop) {
-            this.eventLoop = eventLoop;
-        }
-
-        @Override
-        protected void doStart() throws Exception {}
-
-        @Override
-        protected void doStop() throws Exception {}
-
-        @Override
-        public EventLoop getNext() {
-            return eventLoop;
-        }
-
-        @Override
-        public EventLoop getEventLoop(int index) {
-            return eventLoop;
-        }
-    }
 
     private static final Logger logger  = LoggerFactory.getLogger(AbstractEventLoop.class);
 
@@ -57,8 +31,6 @@ public abstract class AbstractEventLoop implements EventLoop {
     protected volatile boolean  stopped = false;
 
     private Object              runLock = new Object();
-
-    private EventLoopGroup      defaultEventLoopGroup;
 
     protected void doLoop() throws Exception {}
 
@@ -71,14 +43,6 @@ public abstract class AbstractEventLoop implements EventLoop {
     }
 
     @Override
-    public EventLoopGroup getGroup() {
-        if (defaultEventLoopGroup == null) {
-            defaultEventLoopGroup = new SingleEventLoopGroup(this);
-        }
-        return defaultEventLoopGroup;
-    }
-
-    @Override
     public Thread getMonitor() {
         return monitor;
     }
@@ -87,10 +51,16 @@ public abstract class AbstractEventLoop implements EventLoop {
     public boolean inEventLoop() {
         return inEventLoop(Thread.currentThread());
     }
-    
+
     @Override
     public boolean inEventLoop(Thread thread) {
         return getMonitor() == thread;
+    }
+    
+    @Override
+    public EventLoopGroup getGroup() {
+        //just an event loop, has no group
+        return null;
     }
 
     @Override
@@ -128,6 +98,10 @@ public abstract class AbstractEventLoop implements EventLoop {
                 }
             }, threadName);
             this.doStartup();
+            EventLoopListener listener = getGroup().getEventLoopListener();
+            if (listener != null) {
+                listener.onStartup(this);
+            }
             this.monitor.start();
         }
     }
@@ -150,6 +124,14 @@ public abstract class AbstractEventLoop implements EventLoop {
             try {
                 doStop();
             } catch (Throwable e) {
+                logger.error(e.getMessage(), e);
+            }
+            try {
+                EventLoopListener listener = getGroup().getEventLoopListener();
+                if (listener != null) {
+                    listener.onStop(this);
+                }
+            } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }

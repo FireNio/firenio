@@ -15,10 +15,14 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-public interface Looper {
+/**
+ * @author wangkai
+ *
+ */
+public interface EventLoopListener {
 
-    void loop();
-
-    //FIXME stop 之前处理剩下的资源
-    void stop();
+    void onStartup(EventLoop eventLoop);
+    
+    void onStop(EventLoop eventLoop);
+    
 }
