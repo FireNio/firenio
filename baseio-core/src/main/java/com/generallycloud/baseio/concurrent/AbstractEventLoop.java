@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.concurrent;
 
+import com.generallycloud.baseio.AbstractLifeCycle;
+import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.log.Logger;
@@ -22,15 +24,17 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractEventLoop implements EventLoop {
 
-    private static final Logger logger  = LoggerFactory.getLogger(AbstractEventLoop.class);
+    private static final Logger logger       = LoggerFactory.getLogger(AbstractEventLoop.class);
 
-    private Thread              monitor = null;
+    private Thread              monitor      = null;
 
-    protected volatile boolean  running = false;
+    private EventLoopGroup      defaultGroup = new DefaultEventLoopGroup(this);
 
-    protected volatile boolean  stopped = false;
+    protected volatile boolean    running      = false;
 
-    private Object              runLock = new Object();
+    private volatile boolean    stopped      = false;
+
+    private Object              runLock      = new Object();
 
     protected void doLoop() throws Exception {}
 
@@ -56,11 +60,10 @@ public abstract class AbstractEventLoop implements EventLoop {
     public boolean inEventLoop(Thread thread) {
         return getMonitor() == thread;
     }
-    
+
     @Override
     public EventLoopGroup getGroup() {
-        //just an event loop, has no group
-        return null;
+        return defaultGroup;
     }
 
     @Override
@@ -141,7 +144,51 @@ public abstract class AbstractEventLoop implements EventLoop {
         return stopped;
     }
 
+    protected void setStopped(boolean stopped) {
+        this.stopped = stopped;
+    }
+
     @Override
     public void wakeup() {}
+
+    class DefaultEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
+
+        private EventLoopListener listener;
+
+        private EventLoop         eventLoop;
+
+        DefaultEventLoopGroup(EventLoop eventLoop) {
+            this.eventLoop = eventLoop;
+        }
+
+        @Override
+        public EventLoop getEventLoop(int index) {
+            return eventLoop;
+        }
+
+        @Override
+        public EventLoopListener getEventLoopListener() {
+            return listener;
+        }
+
+        @Override
+        public EventLoop getNext() {
+            return eventLoop;
+        }
+
+        @Override
+        public void setEventLoopListener(EventLoopListener listener) {
+            this.listener = listener;
+        }
+
+        @Override
+        protected void doStart() throws Exception {}
+
+        @Override
+        protected void doStop() throws Exception {
+            LifeCycleUtil.stop(eventLoop);
+        }
+
+    }
 
 }

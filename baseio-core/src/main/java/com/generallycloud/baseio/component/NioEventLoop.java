@@ -230,7 +230,8 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
                 if (sharable) {
                     //我也不知道为什么要这么做，如果不这么做当eventLoopGroup为共享时
                     //且acceptor eventLoop同时注册了accept和connect时，selector.select()会
-                    //立刻返回但是selected却为0，导致CPU100%
+                    //立刻返回但是selected却为0，导致CPU100%,如果你知道是什么原因，
+                    //还请发起pr，或者邮件我都可以，感谢！
                     SelectionKey sk = javaChannel.keyFor(selector);
                     if (sk != null) {
                         sk.cancel();
@@ -400,7 +401,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
         long selectTime = idle;
         for (;;) {
             if (!running) {
-                stopped = true;
+                setStopped(true);
                 return;
             }
             try {
@@ -534,7 +535,7 @@ public class NioEventLoop extends AbstractEventLoop implements Attributes {
         // 绑定SocketChannel到SelectionKey
         NioSocketChannel channel = (NioSocketChannel) sk.attachment();
         if (channel != null) {
-            return channel;
+            CloseUtil.close(channel);
         }
         channel = new NioSocketChannel(eventLoop, sk, context, channelId);
         sk.attach(channel);

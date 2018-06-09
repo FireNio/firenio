@@ -18,8 +18,6 @@ package com.generallycloud.test.io.balance;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.generallycloud.baseio.balance.BalanceClientSocketSession;
-import com.generallycloud.baseio.balance.BalanceClientSocketSessionFactory;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
@@ -58,10 +56,9 @@ public class TestBalanceClient {
         ChannelContext context = new ChannelContext(configuration);
         ChannelConnector connector = new ChannelConnector(context);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.setSocketSessionFactory(new BalanceClientSocketSessionFactory());
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setIoEventHandle(eventHandleAdaptor);
-        BalanceClientSocketSession session = (BalanceClientSocketSession) connector.connect();
+        SocketSession session = connector.connect();
 
         for (int i = 0; i < 100; i++) {
             int fid = Math.abs(new Random().nextInt());

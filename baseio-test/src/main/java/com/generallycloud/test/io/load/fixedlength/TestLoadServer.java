@@ -24,6 +24,7 @@ import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestLoadServer {
@@ -36,7 +37,7 @@ public class TestLoadServer {
                 FixedLengthFuture f = (FixedLengthFuture) future;
                 String res = "yes server already accept your message" + f.getReadText();
                 f.write(res, session);
-                session.flush(future);
+                session.unsafe().unsafeFlush((ChannelFuture) future);
             }
         };
 

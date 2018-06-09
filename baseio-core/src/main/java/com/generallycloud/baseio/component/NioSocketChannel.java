@@ -129,11 +129,6 @@ public class NioSocketChannel implements NioEventLoopTask {
                     if (!setFutureNull) {
                         setReadFuture(future);
                     }
-                    ByteBuf remainingBuf = getRemainingBuf();
-                    if (remainingBuf != null) {
-                        remainingBuf.release(remainingBuf.getReleaseVersion());
-                        setRemainingBuf(null);
-                    }
                     if (buffer.hasRemaining()) {
                         ByteBuf remaining = allocator.allocate(buffer.remaining());
                         remaining.read(buffer);
@@ -375,6 +370,7 @@ public class NioSocketChannel implements NioEventLoopTask {
         flushChannelFutures(futures);
     }
     
+    // 该方法必须在eventloop线程执行，当前无未写入数据时，立即写入，否则追加写入
     public void unsafeFlushChannelFuture(ChannelFuture future) {
         if (!inEventLoop()) {
             throw new RuntimeException("not in eventloop");
@@ -637,10 +633,7 @@ public class NioSocketChannel implements NioEventLoopTask {
         lastAccess = System.currentTimeMillis();
         buf.clear();
         if (!isEnableSsl()) {
-            ByteBuf remainingBuf = getRemainingBuf();
-            if (remainingBuf != null) {
-                buf.read(remainingBuf);
-            }
+            readRemainingBuf(buf);
         }
         SocketChannel javaChannel = javaChannel();
         int length = javaChannel.read(buf.nioBuffer());
@@ -727,6 +720,16 @@ public class NioSocketChannel implements NioEventLoopTask {
 
     public void setRemainingBuf(ByteBuf remainingBuf) {
         this.remainingBuf = remainingBuf;
+    }
+    
+    public void readRemainingBuf(ByteBuf dst){
+        ByteBuf remainingBuf = this.remainingBuf;
+        if (remainingBuf == null) {
+            return;
+        }
+        dst.read(remainingBuf);
+        remainingBuf.release(remainingBuf.getReleaseVersion());
+        this.remainingBuf = null;
     }
 
     public void setSslReadFuture(SslFuture future) {

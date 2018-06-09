@@ -18,9 +18,11 @@ package com.generallycloud.test.io.balance;
 import java.io.IOException;
 
 import com.generallycloud.baseio.balance.BalanceServerBootStrap;
+import com.generallycloud.baseio.balance.FacadeAcceptor;
 import com.generallycloud.baseio.balance.FacadeInterceptorImpl;
 import com.generallycloud.baseio.balance.router.HashedBalanceRouter;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
+import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
 import com.generallycloud.baseio.configuration.Configuration;
@@ -31,19 +33,25 @@ public class TestBalanceMain {
 
         BalanceServerBootStrap f = new BalanceServerBootStrap();
 
-        Configuration fc = new Configuration();
+        Configuration protoCfg = new Configuration();
+        Configuration fixedCfg = new Configuration();
         Configuration rc = new Configuration();
-        fc.setPort(8600);
+        protoCfg.setPort(8600);
+        fixedCfg.setPort(8700);
         rc.setPort(8800);
 
-        ChannelContext fcc = new ChannelContext(fc);
-        ChannelContext rcc = new ChannelContext(rc);
+        ChannelContext protoCtx = new ChannelContext(protoCfg);
+        ChannelContext fixedCtx = new ChannelContext(fixedCfg);
+        ChannelContext rcCtx = new ChannelContext(rc);
+        ChannelAcceptor protoCa = new ChannelAcceptor(protoCtx);
+        ChannelAcceptor fixedCa = new ChannelAcceptor(fixedCtx);
 
-        fcc.setProtocolCodec(new ProtobaseCodec());
-        rcc.setProtocolCodec(new ProtobaseCodec());
+        protoCtx.setProtocolCodec(new ProtobaseCodec());
+        rcCtx.setProtocolCodec(new ProtobaseCodec());
 
-        f.setFacadeChannelContext(fcc);
-        f.setReverseChannelContext(rcc);
+        f.addFacadeAcceptor(new FacadeAcceptor(protoCa));
+        f.addFacadeAcceptor(new FacadeAcceptor(fixedCa));
+        f.setReverseChannelContext(rcCtx);
         f.setFacadeExceptionCaughtHandle(new LoggerExceptionCaughtHandle());
         f.setReverseExceptionCaughtHandle(new LoggerExceptionCaughtHandle());
         f.setFacadeInterceptor(new FacadeInterceptorImpl(500, 50000));
