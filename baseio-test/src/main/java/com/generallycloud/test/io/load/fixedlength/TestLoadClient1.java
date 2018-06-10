@@ -28,7 +28,6 @@ import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
@@ -82,7 +81,7 @@ public class TestLoadClient1 extends ITestThread {
 
         int time = 128 * 10000;
 
-        int core_size = 8;
+        int core_size = 16;
 
         ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
     }

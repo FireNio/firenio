@@ -25,7 +25,7 @@ import java.util.NoSuchElementException;
 /**
  * copy from netty
  */
-public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectMap.Entry<V>> {
+public class IntObjectHashMap<V> implements Iterable<IntObjectEntry<V>> {
 
     /** Default initial capacity. Used if not specified in the constructor */
     private static final int    DEFAULT_CAPACITY    = 11;
@@ -95,13 +95,11 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
         return value == null ? (T) NULL_VALUE : value;
     }
 
-    @Override
     public V get(int key) {
         int index = indexOf(key);
         return index == -1 ? null : toExternal(values[index]);
     }
 
-    @Override
     public V put(int key, V value) {
         int startIndex = hashIndex(key);
         int index = startIndex;
@@ -133,8 +131,7 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
         return index == values.length - 1 ? 0 : index + 1;
     }
 
-    @Override
-    public void putAll(IntObjectMap<V> sourceMap) {
+    public void putAll(IntObjectHashMap<V> sourceMap) {
         if (sourceMap instanceof IntObjectHashMap) {
             // Optimization - iterate through the arrays.
             IntObjectHashMap<V> source = (IntObjectHashMap<V>) sourceMap;
@@ -148,12 +145,11 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
         }
 
         // Otherwise, just add each entry.
-        for (Entry<V> entry : sourceMap.entries()) {
+        for (IntObjectEntry<V> entry : sourceMap.entries()) {
             put(entry.key(), entry.value());
         }
     }
 
-    @Override
     public V remove(int key) {
         int index = indexOf(key);
         if (index == -1) {
@@ -165,29 +161,24 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
         return toExternal(prev);
     }
 
-    @Override
     public int size() {
         return size;
     }
 
-    @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
-    @Override
     public void clear() {
         Arrays.fill(keys, 0);
         Arrays.fill(values, null);
         size = 0;
     }
 
-    @Override
     public boolean containsKey(int key) {
         return indexOf(key) >= 0;
     }
 
-    @Override
     public boolean containsValue(V value) {
         V v1 = toInternal(value);
         for (V v2 : values) {
@@ -199,17 +190,14 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
         return false;
     }
 
-    @Override
-    public Iterable<Entry<V>> entries() {
+    public Iterable<IntObjectEntry<V>> entries() {
         return this;
     }
 
-    @Override
-    public Iterator<Entry<V>> iterator() {
+    public Iterator<IntObjectEntry<V>> iterator() {
         return new IteratorImpl();
     }
 
-    @Override
     public int[] keys() {
         int[] outKeys = new int[size()];
         int targetIx = 0;
@@ -221,7 +209,6 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
         return outKeys;
     }
 
-    @Override
     public V[] values(Class<V> clazz) {
         @SuppressWarnings("unchecked")
         V[] outValues = (V[]) Array.newInstance(clazz, size());
@@ -234,34 +221,29 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
         return outValues;
     }
 
-    @Override
     public Collection<V> values() {
         Collection<V> valueCollection = this.valueCollection;
         if (valueCollection == null) {
             this.valueCollection = valueCollection = new AbstractCollection<V>() {
-                @Override
+
                 public Iterator<V> iterator() {
                     return new Iterator<V>() {
-                        final Iterator<Entry<V>> iter = IntObjectHashMap.this.iterator();
+                        final Iterator<IntObjectEntry<V>> iter = IntObjectHashMap.this.iterator();
 
-                        @Override
                         public boolean hasNext() {
                             return iter.hasNext();
                         }
 
-                        @Override
                         public V next() {
                             return iter.next().value();
                         }
 
-                        @Override
                         public void remove() {
                             throw new UnsupportedOperationException();
                         }
                     };
                 }
 
-                @Override
                 public int size() {
                     return size;
                 }
@@ -271,7 +253,6 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
         return valueCollection;
     }
 
-    @Override
     public int hashCode() {
         // Hashcode is based on all non-zero, valid keys. We have to scan the whole keys
         // array, which may have different lengths for two maps of same size(), so the
@@ -290,16 +271,15 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
         return hash;
     }
 
-    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof IntObjectMap)) {
+        if (!(obj instanceof IntObjectHashMap)) {
             return false;
         }
         @SuppressWarnings("rawtypes")
-        IntObjectMap other = (IntObjectMap) obj;
+        IntObjectHashMap other = (IntObjectHashMap) obj;
         if (size != other.size()) {
             return false;
         }
@@ -470,7 +450,7 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
     /**
      * Iterator for traversing the entries in this map.
      */
-    private final class IteratorImpl implements Iterator<Entry<V>>, Entry<V> {
+    private final class IteratorImpl implements Iterator<IntObjectEntry<V>>, IntObjectEntry<V> {
         private int prevIndex  = -1;
         private int nextIndex  = -1;
         private int entryIndex = -1;
@@ -483,7 +463,6 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
             }
         }
 
-        @Override
         public boolean hasNext() {
             if (nextIndex == -1) {
                 scanNext();
@@ -491,8 +470,7 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
             return nextIndex < keys.length;
         }
 
-        @Override
-        public Entry<V> next() {
+        public IntObjectEntry<V> next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
@@ -505,7 +483,6 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
             return this;
         }
 
-        @Override
         public void remove() {
             if (prevIndex < 0) {
                 throw new IllegalStateException("next must be called before each remove.");
@@ -517,23 +494,19 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
         // Entry implementation. Since this implementation uses a single Entry, we coalesce that
         // into the Iterator object (potentially making loop optimization much easier).
 
-        @Override
         public int key() {
             return keys[entryIndex];
         }
 
-        @Override
         public V value() {
             return toExternal(values[entryIndex]);
         }
 
-        @Override
         public void setValue(V value) {
             values[entryIndex] = toInternal(value);
         }
     }
 
-    @Override
     public String toString() {
         if (size == 0) {
             return "{}";
@@ -557,4 +530,5 @@ public class IntObjectHashMap<V> implements IntObjectMap<V>, Iterable<IntObjectM
     protected String keyToString(int key) {
         return Integer.toString(key);
     }
+
 }

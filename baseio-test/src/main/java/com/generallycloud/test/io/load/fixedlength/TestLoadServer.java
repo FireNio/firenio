@@ -35,13 +35,12 @@ public class TestLoadServer {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
-                String res = "yes server already accept your message" + f.getReadText();
-                f.write(res, session);
+                f.write(f.getReadText(), session);
                 session.unsafe().unsafeFlush((ChannelFuture) future);
             }
         };
 
-        NioEventLoopGroup group = new NioEventLoopGroup(6);
+        NioEventLoopGroup group = new NioEventLoopGroup(8);
         group.setMemoryPoolCapacity(2560000 / 2);
         group.setMemoryPoolUnit(128);
         group.setEnableMemoryPoolDirect(true);
