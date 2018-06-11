@@ -436,8 +436,7 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     }
 
     @Override
-    public ByteBuf reset() {
-        limit(markLimit);
+    public ByteBuf resetP() {
         memory.reset();
         return this;
     }

@@ -22,8 +22,6 @@ public interface ProtobaseFuture extends NamedFuture, TextFuture {
 
     int getFutureId();
 
-    int getHashCode();
-
     byte[] getReadBinary();
 
     int getReadBinarySize();
@@ -47,8 +45,6 @@ public interface ProtobaseFuture extends NamedFuture, TextFuture {
     void setFutureId(int futureId);
 
     void setFutureName(String futureName);
-
-    void setHashCode(int hashCode);
 
     void setSessionId(int sessionId);
 

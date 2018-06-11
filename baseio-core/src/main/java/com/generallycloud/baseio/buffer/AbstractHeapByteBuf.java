@@ -388,8 +388,7 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     }
 
     @Override
-    public ByteBuf reset() {
-        limit(markLimit);
+    public ByteBuf resetP() {
         position(markPos);
         return this;
     }

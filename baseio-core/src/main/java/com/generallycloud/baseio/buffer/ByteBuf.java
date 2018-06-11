@@ -105,7 +105,7 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 
     ByteBuf markP();
 
-    ByteBuf markPL();
+    ByteBuf markL();
 
     ByteBuffer nioBuffer();
 
@@ -159,7 +159,9 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 
     int remaining();
 
-    ByteBuf reset();
+    ByteBuf resetP();
+    
+    ByteBuf resetL();
 
     ByteBuf reverse();
 

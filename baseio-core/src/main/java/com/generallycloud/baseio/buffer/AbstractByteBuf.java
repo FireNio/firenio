@@ -257,10 +257,14 @@ public abstract class AbstractByteBuf implements ByteBuf {
     }
 
     @Override
-    public ByteBuf markPL() {
-        markP();
+    public ByteBuf markL() {
         markLimit = limit();
         return this;
+    }
+    
+    @Override
+    public ByteBuf resetL() {
+        return limit(markLimit);
     }
 
 }

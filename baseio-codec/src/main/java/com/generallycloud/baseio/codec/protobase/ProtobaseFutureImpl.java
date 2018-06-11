@@ -16,7 +16,6 @@
 package com.generallycloud.baseio.codec.protobase;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
@@ -24,6 +23,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
+import com.generallycloud.baseio.protocol.ProtocolException;
 
 /**
  *
@@ -37,8 +37,6 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     private int     binaryWriteSize;
     private int     futureId;
     private String  futureName;
-    private byte    futureNameLength;
-    private int     hashCode;
     private boolean isBroadcast;
     private String  readText;
     private int     sessionId;
@@ -69,11 +67,6 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     @Override
     public String getFutureName() {
         return futureName;
-    }
-
-    @Override
-    public int getHashCode() {
-        return hashCode;
     }
 
     @Override
@@ -125,86 +118,70 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     public boolean isBroadcast() {
         return isBroadcast;
     }
+    
+    private void setHeartbeat(int len) {
+        if (len == ProtobaseCodec.PROTOCOL_PING) {
+            setPING();
+        } else if (len == ProtobaseCodec.PROTOCOL_PONG) {
+            setPONG();
+        } else {
+            throw new ProtocolException("illegal length:" + len);
+        }
+    }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        ByteBuf buf = getByteBuf();
-        if (futureNameLength == 0) {
-            buf.read(buffer);
-            if (buf.hasRemaining()) {
-                return false;
-            }
-            int nextLen = 4;
-            byte h1 = buf.getByte(0);
-            int type = h1 & 0b11000000;
-            if (type > 0b01000000) {
-                setHeartbeat(type == 0b10000000);
-                return true;
-            }
-            isBroadcast = ((h1 & 0b00100000) != 0);
-            if ((h1 & 0b00010000) != 0) {
-                futureId = -1;
-                nextLen += 4;
-            }
-            if ((h1 & 0b00001000) != 0) {
-                sessionId = -1;
-                nextLen += 4;
-            }
-            if ((h1 & 0b00000100) != 0) {
-                hashCode = -1;
-                nextLen += 4;
-            }
-            if ((h1 & 0b00000010) != 0) {
-                binaryReadSize = -1;
-                nextLen += 4;
-            }
-            futureNameLength = buf.getByte(1);
-            if (futureNameLength < 1) {
-                throw new IOException("futureNameLength < 1");
-            }
-            nextLen += futureNameLength;
-            buf.reallocate(nextLen);
-        }
-        if (futureName == null) {
-            buf.read(buffer);
-            if (buf.hasRemaining()) {
-                return false;
-            }
-            buf.flip();
-            textLength = buf.getInt();
-            if (futureId == -1) {
-                futureId = buf.getInt();
-            }
-            if (sessionId == -1) {
-                sessionId = buf.getInt();
-            }
-            if (hashCode == -1) {
-                hashCode = buf.getInt();
-            }
-            if (binaryReadSize == -1) {
-                binaryReadSize = buf.getInt();
-            }
-            Charset charset = channel.getEncoding();
-            ByteBuffer memory = buf.nioBuffer();
-            futureName = StringUtil.decode(charset, memory);
-            buf.reallocate(textLength + binaryReadSize);
-        }
-        buf.read(buffer);
-        if (buf.hasRemaining()) {
+    public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
+        if (src.remaining() < 4) {
             return false;
         }
-        if (textLength > 0) {
-            buf.flip();
-            buf.markPL();
-            buf.limit(textLength);
-            Charset charset = channel.getEncoding();
-            ByteBuffer memory = buf.nioBuffer();
-            readText = StringUtil.decode(charset, memory);
-            buf.reset();
-            buf.skipBytes(textLength);
+        int len = src.getInt();
+        if (len < 0) {
+            setHeartbeat(len);
+            return true;
         }
-        if (binaryReadSize > 0) {
-            this.binaryReadBuffer = buf.getBytes();
+        if (len > src.remaining()) {
+            src.position(src.position() - 4);
+            return false;
+        }
+        byte h1 = src.getByte();
+        int fnLen = src.getUnsignedByte();
+        isBroadcast = ((h1 & 0b10000000) != 0);
+        boolean hasText = ((h1 & 0b00010000) != 0);
+        boolean hasBinary = ((h1 & 0b00001000) != 0);
+        Charset charset = channel.getEncoding();
+        src.markL();
+        src.limit(src.position() + fnLen);
+        futureName = StringUtil.decode(charset, src.nioBuffer());
+        src.reverse();
+        src.resetL();
+        if (((h1 & 0b01000000) != 0)) {
+            futureId = src.getInt();
+        }
+        if (((h1 & 0b00100000) != 0)) {
+            sessionId = src.getInt();
+        }
+        int textLen = 0;
+        int binaryLen = 0;
+        if (hasText) {
+            textLen = src.getInt();
+        }
+        if (hasBinary) {
+            binaryLen = src.getInt();
+            binaryReadSize = binaryLen;
+        }
+        if (hasText) {
+            src.markL();
+            src.limit(src.position() + textLen);
+            readText = StringUtil.decode(charset, src.nioBuffer());
+            src.reverse();
+            src.resetL();
+        }
+        if (hasBinary) {
+            src.markL();
+            src.limit(src.position() + binaryLen);
+            this.binaryReadBuffer = src.getBytes();
+            src.reverse();
+            src.resetL();
         }
         return true;
     }
@@ -222,11 +199,6 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     @Override
     public void setFutureName(String futureName) {
         this.futureName = futureName;
-    }
-
-    @Override
-    public void setHashCode(int hashCode) {
-        this.hashCode = hashCode;
     }
 
     @Override
@@ -254,7 +226,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
 
     @Override
     public void writeBinary(byte[] bytes) {
-        write(bytes, 0, bytes.length);
+        writeBinary(bytes, 0, bytes.length);
     }
 
     @Override

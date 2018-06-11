@@ -31,21 +31,25 @@ import com.generallycloud.baseio.protocol.ProtocolException;
 
 /**
  * <pre>
- * 
- *  B0 :0-1 : 报文类型 0=UNKONW 1=NORMAL 2=PING 3=PONG
- *  B0 :2   : 推送类型 0=PUSH   1=BRODCAST
- *  B0 :3   : 是否包含FutureId  4 byte   
- *  B0 :4   : 是否包含SessionId 4 byte
- *  B0 :5   : 是否包含HashId    4 byte
- *  B0 :6   : 是否包含Binary    4 byte
- *  B0 :7   : 预留
- *  B1      : 预留
- *  B2-B3   : future name
- *  B4-B7   ：text   length
+ *  B0 -B3  : 报文总长度        大于0:普通消息 -1:心跳PING -2:心跳PONG
+ *  B4 :0   : 消息类型          0:P2P           1:BRODCAST
+ *  B4 :1   : 是否包含FutureId  4 byte   
+ *  B4 :2   : 是否包含SessionId 4 byte
+ *  B4 :3   : 是否包含Text      4 byte
+ *  B4 :4   : 是否包含Binary    4 byte
+ *  B4 :5   : 预留
+ *  B4 :6   : 预留
+ *  B4 :7   : 预留
+ *  B5      : futureNameLen
+ *  .....   ：futureName
+ *  .....   ：futureId,sessionId,Text,Binary
  *  
  * </pre>
  */
 public class ProtobaseCodec implements ProtocolCodec {
+    
+    public static final int      PROTOCOL_PING   = -1;
+    public static final int      PROTOCOL_PONG   = -2;
 
     private static final ByteBuf PING;
 
@@ -53,12 +57,10 @@ public class ProtobaseCodec implements ProtocolCodec {
 
     static {
         ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeap();
-        PING = allocator.allocate(2);
-        PONG = allocator.allocate(2);
-        PING.putByte((byte) 0b10000000);
-        PING.putByte((byte) 0b00000000);
-        PONG.putByte((byte) 0b11000000);
-        PONG.putByte((byte) 0b00000000);
+        PING = allocator.allocate(4);
+        PONG = allocator.allocate(4);
+        PING.putInt(PROTOCOL_PING);
+        PONG.putInt(PROTOCOL_PONG);
         PING.flip();
         PONG.flip();
     }
@@ -104,54 +106,52 @@ public class ProtobaseCodec implements ProtocolCodec {
             throw new ProtocolException("future name is empty");
         }
         byte[] futureNameBytes = futureName.getBytes(channel.getEncoding());
-        if (futureNameBytes.length > Byte.MAX_VALUE) {
-            throw new ProtocolException("future name max length 127");
+        int futureNameLen = futureNameBytes.length;
+        if (futureNameBytes.length > 255) {
+            throw new ProtocolException("future name max length 255");
         }
-        byte futureNameLength = (byte) futureNameBytes.length;
-        int allLen = 6 + futureNameLength;
+        int allLen = 6 + futureNameLen;
         int textWriteSize = f.getWriteSize();
         int binaryWriteSize = f.getWriteBinarySize();
-        byte h1 = 0b01000000;
+        byte h1 = 0b00000000;
         if (f.isBroadcast()) {
-            h1 |= 0b00100000;
+            h1 |= 0b10000000;
         }
         if (f.getFutureId() > 0) {
-            h1 |= 0b00010000;
+            h1 |= 0b01000000;
             allLen += 4;
         }
         if (f.getSessionId() > 0) {
-            h1 |= 0b00001000;
+            h1 |= 0b00100000;
             allLen += 4;
-        }
-        if (f.getHashCode() > 0) {
-            h1 |= 0b00000100;
-            allLen += 4;
-        }
-        if (f.getWriteBinarySize() > 0) {
-            h1 |= 0b00000010;
-            allLen += 4;
-            allLen += f.getWriteBinarySize();
         }
         if (textWriteSize > 0) {
+            h1 |= 0b00010000;
+            allLen += 4;
             allLen += textWriteSize;
         }
+        if (binaryWriteSize > 0) {
+            h1 |= 0b00001000;
+            allLen += 4;
+            allLen += binaryWriteSize;
+        }
         ByteBuf buf = allocator.allocate(allLen);
+        buf.putInt(allLen - 4);
         buf.putByte(h1);
-        buf.putByte(futureNameLength);
-        buf.putInt(textWriteSize);
+        buf.putByte((byte)futureNameLen);
+        buf.put(futureNameBytes);
         if (f.getFutureId() > 0) {
             buf.putInt(f.getFutureId());
         }
         if (f.getSessionId() > 0) {
             buf.putInt(f.getSessionId());
         }
-        if (f.getHashCode() > 0) {
-            buf.putInt(f.getHashCode());
+        if (textWriteSize > 0) {
+            buf.putInt(textWriteSize);
         }
         if (binaryWriteSize > 0) {
             buf.putInt(binaryWriteSize);
         }
-        buf.put(futureNameBytes);
         if (textWriteSize > 0) {
             buf.put(f.getWriteBuffer(), 0, textWriteSize);
         }

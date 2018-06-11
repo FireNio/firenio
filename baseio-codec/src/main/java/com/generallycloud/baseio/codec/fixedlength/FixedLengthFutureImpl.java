@@ -16,19 +16,17 @@
 package com.generallycloud.baseio.codec.fixedlength;
 
 import java.io.IOException;
-import java.nio.charset.CharsetDecoder;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.EmptyByteBuf;
+import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolException;
 
 public class FixedLengthFutureImpl extends AbstractChannelFuture implements FixedLengthFuture {
 
-    private boolean header_complete;
-    private int     limit;
-    private String  readText;
+    private int    limit;
+    private String readText;
 
     public FixedLengthFutureImpl() {}
 
@@ -43,64 +41,30 @@ public class FixedLengthFutureImpl extends AbstractChannelFuture implements Fixe
 
     @Override
     public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
-        ByteBuf buf = getByteBuf();
-        if (buf == EmptyByteBuf.get()) {
-            if (src.remaining() >= 4) {
-                int len = src.getInt();
-                if (len < 1) {
-                    setHeartBeat(len);
-                    return true;
-                }
-                if (src.remaining() >= len) {
-                    src.markPL();
-                    src.limit(len + src.position());
-                    try {
-                        CharsetDecoder decoder = channel.getEncoding().newDecoder();
-                        this.readText = decoder.decode(src.nioBuffer()).toString();
-                    } finally {
-                        src.reset();
-                        src.skipBytes(len);
-                    }
-                    return true;
-                } else {
-                    header_complete = true;
-                    buf = allocate(channel, len);
-                    buf.read(src);
-                    setByteBuf(buf);
-                }
-            } else {
-                buf = allocate(channel, 4);
-                buf.read(src);
-                setByteBuf(buf);
-            }
+        if (src.remaining() < 4) {
             return false;
-        } else {
-            if (!header_complete) {
-                buf.read(src);
-                if (buf.hasRemaining()) {
-                    return false;
-                }
-                header_complete = true;
-                buf.flip();
-                int len = buf.getInt();
-                if (len < 1) {
-                    setHeartBeat(len);
-                    return true;
-                }
-                buf.reallocate(len, limit);
-            }
-            buf.read(src);
-            if (buf.hasRemaining()) {
-                return false;
-            }
-            buf.flip();
-            CharsetDecoder decoder = channel.getEncoding().newDecoder();
-            this.readText = decoder.decode(buf.nioBuffer()).toString();
+        }
+        int len = src.getInt();
+        if (len < 0) {
+            setHeartbeat(len);
             return true;
         }
+        if (len > src.remaining()) {
+            src.position(src.position() - 4);
+            return false;
+        }
+        if (len > limit) {
+            throw new IOException("over limit:" + len);
+        }
+        src.markL();
+        src.limit(src.position() + len);
+        readText = StringUtil.decode(channel.getEncoding(), src.nioBuffer());
+        src.reverse();
+        src.resetL();
+        return true;
     }
 
-    private void setHeartBeat(int len) {
+    private void setHeartbeat(int len) {
         if (len == FixedLengthCodec.PROTOCOL_PING) {
             setPING();
         } else if (len == FixedLengthCodec.PROTOCOL_PONG) {

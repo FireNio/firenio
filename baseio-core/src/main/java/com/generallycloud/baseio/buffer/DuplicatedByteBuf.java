@@ -403,14 +403,20 @@ public class DuplicatedByteBuf implements ByteBuf {
     }
 
     @Override
-    public ByteBuf markPL() {
-        unwrap().markPL();
+    public ByteBuf markL() {
+        unwrap().markL();
+        return this;
+    }
+    
+    @Override
+    public ByteBuf resetL() {
+        unwrap().resetL();
         return this;
     }
 
     @Override
-    public ByteBuf reset() {
-        unwrap().reset();
+    public ByteBuf resetP() {
+        unwrap().resetP();
         return this;
     }
 

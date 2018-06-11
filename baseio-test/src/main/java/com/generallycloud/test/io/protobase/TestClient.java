@@ -17,41 +17,43 @@ package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
-import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SessionAliveIdleEventListener;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Future;
 
-public class SimpleTestProtobaseServer {
+public class TestClient {
 
     public static void main(String[] args) throws Exception {
-
-        DebugUtil.setEnableDebug(true);
 
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
-                ProtobaseFuture f = (ProtobaseFuture) future;
-                DebugUtil.debug("receive:" + f.getReadText());
-                future.write("yes server already accept your message:", session);
-                future.write(f.getReadText(), session);
-                session.flush(future);
+                System.out.println();
+                System.out.println("____________________" + future);
+                System.out.println();
             }
         };
 
-        ChannelContext context = new ChannelContext(new Configuration(8300));
-        ChannelAcceptor acceptor = new ChannelAcceptor(context);
-        context.addSessionEventListener(new LoggerSocketSEListener());
-        context.addSessionIdleEventListener(new SessionAliveIdleEventListener());
+        ChannelContext context = new ChannelContext(new Configuration("localhost", 8300));
+        ChannelConnector connector = new ChannelConnector(context);
+        connector.setTimeout(99999999);
         context.setIoEventHandle(eventHandleAdaptor);
+        context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new ProtobaseCodec());
-        acceptor.bind();
-    }
+        SocketSession session = connector.connect();
+        ProtobaseFuture future = new ProtobaseFutureImpl("test222");
+        future.write("hello server!", session);
+        session.flush(future);
+        ThreadUtil.sleep(100);
+        CloseUtil.close(connector);
 
+    }
 }
