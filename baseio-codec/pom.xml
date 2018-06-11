@@ -22,12 +22,6 @@
 			<version>${project.version}</version>
 		</dependency>
 	
-		<dependency>
-			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-balance</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
 		<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>

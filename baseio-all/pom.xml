@@ -30,7 +30,6 @@
 							</goals>
 							<configuration>
 								<sources>
-									<source>../baseio-balance/src/main/java</source>
 									<source>../baseio-codec/src/main/java</source>
 									<source>../baseio-container/src/main/java</source>
 									<source>../baseio-core/src/main/java</source>
@@ -67,14 +66,6 @@
             <version>8.1.10.v20161026</version>
             <scope>provided</scope>
         </dependency>
-
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>baseio-balance</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-			<optional>true</optional>
-		</dependency>
 
 		<dependency>
 			<groupId>${project.groupId}</groupId>

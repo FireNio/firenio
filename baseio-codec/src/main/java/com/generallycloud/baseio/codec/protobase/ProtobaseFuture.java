@@ -15,19 +15,22 @@
  */
 package com.generallycloud.baseio.codec.protobase;
 
-import com.generallycloud.baseio.balance.HashedBalanceFuture;
-import com.generallycloud.baseio.balance.SessionIdBalanceFuture;
 import com.generallycloud.baseio.protocol.NamedFuture;
 import com.generallycloud.baseio.protocol.TextFuture;
 
-public interface ProtobaseFuture
-        extends NamedFuture, SessionIdBalanceFuture, HashedBalanceFuture, TextFuture {
-
-    int getReadBinarySize();
+public interface ProtobaseFuture extends NamedFuture, TextFuture {
 
     int getFutureId();
 
+    int getHashCode();
+
     byte[] getReadBinary();
+
+    int getReadBinarySize();
+
+    int getSessionId();
+
+    int getSessionKey();
 
     int getTextLength();
 
@@ -37,9 +40,17 @@ public interface ProtobaseFuture
 
     boolean hasReadBinary();
 
+    boolean isBroadcast();
+
+    void setBroadcast(boolean broadcast);
+
     void setFutureId(int futureId);
 
     void setFutureName(String futureName);
+
+    void setHashCode(int hashCode);
+
+    void setSessionId(int sessionId);
 
     void writeBinary(byte b);
 

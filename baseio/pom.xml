@@ -23,7 +23,6 @@
 
 	<modules>
 		<module>../baseio-all</module>
-		<module>../baseio-balance</module>
 		<module>../baseio-codec</module>
 		<module>../baseio-container</module>
 		<module>../baseio-core</module>
