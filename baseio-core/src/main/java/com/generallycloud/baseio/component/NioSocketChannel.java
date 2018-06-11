@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
@@ -29,13 +30,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
-import com.generallycloud.baseio.ClosedChannelException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.ThrowableUtil;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.LinkedQueue;
@@ -49,7 +50,12 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 import com.generallycloud.baseio.protocol.SslFuture;
 
 public class NioSocketChannel implements NioEventLoopTask {
-
+    
+    
+    private static final ClosedChannelException CLOSED_WHEN_FLUSH = ThrowableUtil.unknownStackTrace(
+            new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
+    private static final ClosedChannelException CLOSED_CHANNEL = ThrowableUtil.unknownStackTrace(
+            new ClosedChannelException(), NioSocketChannel.class, "channel closed");
     private static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
     private static final Logger            logger               = LoggerFactory
             .getLogger(NioSocketChannel.class);
@@ -198,14 +204,7 @@ public class NioSocketChannel implements NioEventLoopTask {
             try {
                 write();
             } catch (Exception e) {}
-            ClosedChannelException e = null;
-            if (currentWriteFuturesLen > 0) {
-                e = new ClosedChannelException(this);
-                for (int i = 0; i < currentWriteFuturesLen; i++) {
-                    exceptionCaught(currentWriteFutures[i], e);
-                }
-            }
-            releaseFutures(e);
+            releaseFutures();
             CloseUtil.close(channel);
             selectionKey.attach(null);
             selectionKey.cancel();
@@ -260,7 +259,8 @@ public class NioSocketChannel implements NioEventLoopTask {
     @Override
     public void fireEvent(NioEventLoop eventLoop) throws IOException {
         if (!isOpened()) {
-            throw new ClosedChannelException("closed");
+            close();
+            return;
         }
         write();
     }
@@ -301,7 +301,7 @@ public class NioSocketChannel implements NioEventLoopTask {
         }
         future.flush();
         if (!isOpened()) {
-            exceptionCaught(future, new ClosedChannelException(this));
+            exceptionCaught(future, CLOSED_WHEN_FLUSH);
             return;
         }
         try {
@@ -320,7 +320,7 @@ public class NioSocketChannel implements NioEventLoopTask {
         }
         future.flush();
         if (!isOpened()) {
-            exceptionCaught(future, new ClosedChannelException(this));
+            exceptionCaught(future, CLOSED_WHEN_FLUSH);
             return;
         }
         try {
@@ -338,12 +338,11 @@ public class NioSocketChannel implements NioEventLoopTask {
             return;
         }
         if (!isOpened()) {
-            Exception e = new ClosedChannelException(this);
             for (ChannelFuture future : futures) {
                 if (future.isHeartbeat()) {
                     continue;
                 }
-                exceptionCaught(future, e);
+                exceptionCaught(future, CLOSED_WHEN_FLUSH);
             }
             return;
         }
@@ -376,7 +375,7 @@ public class NioSocketChannel implements NioEventLoopTask {
             throw new RuntimeException("not in eventloop");
         } 
         if (!isOpened()) {
-            exceptionCaught(future, new ClosedChannelException(this));
+            exceptionCaught(future, CLOSED_WHEN_FLUSH);
             return;
         }
         if (currentWriteFuturesLen == 0 && writeFutures.size() == 0) {
@@ -394,7 +393,7 @@ public class NioSocketChannel implements NioEventLoopTask {
     public void flushChannelFuture(ChannelFuture future) {
         if (inEventLoop()) {
             if (!isOpened()) {
-                exceptionCaught(future, new ClosedChannelException(this));
+                exceptionCaught(future, CLOSED_WHEN_FLUSH);
                 return;
             }
             writeFutures.offer(future);
@@ -408,7 +407,7 @@ public class NioSocketChannel implements NioEventLoopTask {
             lock.lock();
             try {
                 if (!isOpened()) {
-                    exceptionCaught(future, new ClosedChannelException(this));
+                    exceptionCaught(future, CLOSED_WHEN_FLUSH);
                     return;
                 }
                 writeFutures.offer(future);
@@ -429,9 +428,8 @@ public class NioSocketChannel implements NioEventLoopTask {
         if (inEventLoop()) {
             try {
                 if (!isOpened()) {
-                    Exception e = new ClosedChannelException(this);
                     for (ChannelFuture future : futures) {
-                        exceptionCaught(future, e);
+                        exceptionCaught(future, CLOSED_WHEN_FLUSH);
                     }
                     return;
                 }
@@ -462,12 +460,11 @@ public class NioSocketChannel implements NioEventLoopTask {
             try {
                 int size = 0;
                 if (!isOpened()) {
-                    Exception e = new ClosedChannelException(this);
                     for (ChannelFuture future : futures) {
                         if (future.isSilent() || future.isHeartbeat()) {
                             continue;
                         }
-                        exceptionCaught(future, e);
+                        exceptionCaught(future, CLOSED_WHEN_FLUSH);
                     }
                     return;
                 }
@@ -686,7 +683,12 @@ public class NioSocketChannel implements NioEventLoopTask {
         }
     }
 
-    private void releaseFutures(ClosedChannelException e) {
+    private void releaseFutures() {
+        if (currentWriteFuturesLen > 0) {
+            for (int i = 0; i < currentWriteFuturesLen; i++) {
+                exceptionCaught(currentWriteFutures[i], CLOSED_CHANNEL);
+            }
+        }
         NioEventLoop eventLoop = this.eventLoop;
         ReleaseUtil.release(readFuture, eventLoop);
         ReleaseUtil.release(sslReadFuture, eventLoop);
@@ -696,11 +698,8 @@ public class NioSocketChannel implements NioEventLoopTask {
             return;
         }
         ChannelFuture future = writeFutures.poll();
-        if (e == null) {
-            e = new ClosedChannelException(this);
-        }
         for (; future != null;) {
-            exceptionCaught(future, e);
+            exceptionCaught(future, CLOSED_CHANNEL);
             ReleaseUtil.release(future, eventLoop);
             future = writeFutures.poll();
         }
