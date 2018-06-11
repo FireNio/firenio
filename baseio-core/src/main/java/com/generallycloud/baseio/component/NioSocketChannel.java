@@ -314,25 +314,6 @@ public class NioSocketChannel implements NioEventLoopTask {
         }
     }
     
-    public void unsafeFlush(ChannelFuture future) {
-        if (future == null || future.flushed()) {
-            return;
-        }
-        future.flush();
-        if (!isOpened()) {
-            exceptionCaught(future, CLOSED_WHEN_FLUSH);
-            return;
-        }
-        try {
-            future.setNeedSsl(getContext().isEnableSsl());
-            ProtocolCodec codec = getProtocolCodec();
-            codec.encode(this, future);
-            unsafeFlushChannelFuture(future);
-        } catch (Exception e) {
-            exceptionCaught(future, e);
-        }
-    }
-
     public void flushFutures(Collection<ChannelFuture> futures) {
         if (futures == null || futures.isEmpty()) {
             return;
@@ -369,38 +350,21 @@ public class NioSocketChannel implements NioEventLoopTask {
         flushChannelFutures(futures);
     }
     
-    // 该方法必须在eventloop线程执行，当前无未写入数据时，立即写入，否则追加写入
-    public void unsafeFlushChannelFuture(ChannelFuture future) {
-        if (!inEventLoop()) {
-            throw new RuntimeException("not in eventloop");
-        } 
-        if (!isOpened()) {
-            exceptionCaught(future, CLOSED_WHEN_FLUSH);
-            return;
-        }
-        if (currentWriteFuturesLen == 0 && writeFutures.size() == 0) {
-            write(future);
-        }else{
-            writeFutures.offer(future);
-            try {
-                write();
-            } catch (Throwable t) {
-                CloseUtil.close(this);
-            }
-        }
-    }
-
     public void flushChannelFuture(ChannelFuture future) {
         if (inEventLoop()) {
             if (!isOpened()) {
                 exceptionCaught(future, CLOSED_WHEN_FLUSH);
                 return;
             }
-            writeFutures.offer(future);
-            try {
-                write();
-            } catch (Throwable t) {
-                CloseUtil.close(this);
+            if (currentWriteFuturesLen == 0 && writeFutures.size() == 0) {
+                write(future);
+            }else{
+                writeFutures.offer(future);
+                try {
+                    write();
+                } catch (Throwable t) {
+                    CloseUtil.close(this);
+                }
             }
         } else {
             ReentrantLock lock = getCloseLock();
