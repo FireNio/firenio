@@ -15,12 +15,8 @@
  */
 package com.generallycloud.baseio.balance.reverse;
 
-import java.util.List;
-
 import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.balance.BalanceFuture;
-import com.generallycloud.baseio.balance.FacadeAcceptor;
-import com.generallycloud.baseio.balance.facade.FacadeSocketSession;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -35,7 +31,7 @@ public class ReverseAcceptorHandler extends IoEventHandleAdaptor {
 
     private Logger                logger = LoggerFactory.getLogger(getClass());
     private BalanceRouter         balanceRouter;
-    private List<FacadeAcceptor>  facadeAcceptors;
+    private ChannelAcceptor       facadeAcceptor;
     private ExceptionCaughtHandle exceptionCaughtHandle;
     private ReverseLogger         reverseLogger;
 
@@ -45,35 +41,25 @@ public class ReverseAcceptorHandler extends IoEventHandleAdaptor {
                 .getAttribute(BalanceContext.BALANCE_CONTEXT_KEY);
         this.balanceRouter = balanceContext.getBalanceRouter();
         this.reverseLogger = balanceContext.getReverseLogger();
-        this.facadeAcceptors = balanceContext.getFacadeAcceptors();
+        this.facadeAcceptor = balanceContext.getFacadeAcceptor();
         this.exceptionCaughtHandle = balanceContext.getReverseExceptionCaughtHandle();
         super.initialize(context);
     }
 
     @Override
     public void accept(SocketSession session, Future future) throws Exception {
-        ReverseSocketSession rs = (ReverseSocketSession) session;
         BalanceFuture f = (BalanceFuture) future;
         if (f.isBroadcast()) {
-            for (FacadeAcceptor facadeAcceptor : facadeAcceptors) {
-                ChannelAcceptor acceptor = facadeAcceptor.getAcceptor();
-                if(acceptor.getContext().getProtocolCodec().getProtocolId()
-                        .equals(session.getProtocolCodec().getProtocolId())){
-                    acceptor.broadcast(f.translate(session));
-                }else{
-                    BalanceFuture nf = facadeAcceptor.getFutureTranslator().translateOut(rs, f);
-                    acceptor.broadcast(nf);
-                }
-            }
+            facadeAcceptor.broadcast(f.translate(session));
             reverseLogger.logBroadcast(session, future, logger);
             return;
         }
-        FacadeSocketSession response = balanceRouter.getClientSession(f.getSessionKey());
+        SocketSession response = balanceRouter.getClientSession(f.getSessionKey());
         if (response == null || response.isClosed()) {
             reverseLogger.logPushLost(session, future, logger);
             return;
         }
-        response.writeAndFlush(rs, f);
+        response.flush(f.translate(session));
         reverseLogger.logPush(session, response, future, logger);
     }
 

@@ -26,7 +26,6 @@ import com.generallycloud.baseio.balance.reverse.ReverseLogger;
 import com.generallycloud.baseio.balance.reverse.ReverseSocketSessionFactory;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.balance.router.SimpleNextRouter;
-import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
@@ -41,6 +40,7 @@ public class BalanceServerBootStrap {
 
     private BalanceContext         balanceContext = new BalanceContext();
     private IoEventHandleAdaptor   facadeAcceptorHandler;
+    private ChannelContext         facadeChannelContext;
     private ExceptionCaughtHandle  facadeExceptionCaughtHandle;
     private FacadeInterceptor      facadeInterceptor;
     private Logger                 logger         = LoggerFactory.getLogger(getClass());
@@ -53,13 +53,13 @@ public class BalanceServerBootStrap {
     public BalanceContext getBalanceContext() {
         return balanceContext;
     }
-    
-    public void addFacadeAcceptor(FacadeAcceptor facadeAcceptor) {
-        this.balanceContext.addFacadeAcceptor(facadeAcceptor);
-    }
 
     public IoEventHandleAdaptor getFacadeAcceptorHandler() {
         return facadeAcceptorHandler;
+    }
+
+    public ChannelContext getFacadeChannelContext() {
+        return facadeChannelContext;
     }
 
     public ExceptionCaughtHandle getFacadeExceptionCaughtHandle() {
@@ -103,6 +103,10 @@ public class BalanceServerBootStrap {
         this.facadeAcceptorHandler = facadeAcceptorHandler;
     }
 
+    public void setFacadeChannelContext(ChannelContext facadeChannelContext) {
+        this.facadeChannelContext = facadeChannelContext;
+    }
+
     public void setFacadeExceptionCaughtHandle(ExceptionCaughtHandle facadeExceptionCaughtHandle) {
         this.facadeExceptionCaughtHandle = facadeExceptionCaughtHandle;
     }
@@ -133,7 +137,12 @@ public class BalanceServerBootStrap {
     }
 
     public void startup() throws IOException {
-        Assert.notNull(reverseChannelContext, "reverseChannelContext is null");
+        if (facadeChannelContext == null) {
+            throw new IllegalArgumentException("facadeChannelContext is null");
+        }
+        if (reverseChannelContext == null) {
+            throw new IllegalArgumentException("reverseChannelContext is null");
+        }
         if (balanceContext.getBalanceRouter() == null) {
             balanceContext.setBalanceRouter(new SimpleNextRouter());
         }
@@ -160,33 +169,28 @@ public class BalanceServerBootStrap {
         }
         balanceContext.setNoneLoadReadFutureAcceptor(noneLoadReadFutureAcceptor);
         balanceContext.setReverseExceptionCaughtHandle(reverseExceptionCaughtHandle);
+        balanceContext.setFacadeExceptionCaughtHandle(facadeExceptionCaughtHandle);
         balanceContext.setReverseLogger(reverseLogger);
         balanceContext.setFacadeInterceptor(facadeInterceptor);
+        balanceContext.setFacadeAcceptor(new ChannelAcceptor(facadeChannelContext));
         balanceContext.setReverseAcceptor(new ChannelAcceptor(reverseChannelContext));
-        
+        facadeChannelContext.setAttribute(BalanceContext.BALANCE_CONTEXT_KEY, balanceContext);
+        facadeChannelContext.setIoEventHandle(facadeAcceptorHandler);
+        facadeChannelContext.addSessionEventListener(new FacadeAcceptorSEListener(balanceContext));
+        facadeChannelContext.setSocketSessionFactory(new FacadeSocketSessionFactory());
         reverseChannelContext.setAttribute(BalanceContext.BALANCE_CONTEXT_KEY, balanceContext);
         reverseChannelContext.setIoEventHandle(reverseAcceptorHandler);
         reverseChannelContext
                 .addSessionEventListener(new ReverseAcceptorSEListener(balanceContext));
         reverseChannelContext.setSocketSessionFactory(new ReverseSocketSessionFactory());
+        balanceContext.getFacadeAcceptor().bind();
+        LoggerUtil.prettyLog(logger, "Facade Acceptor startup completed ...");
         balanceContext.getReverseAcceptor().bind();
         LoggerUtil.prettyLog(logger, "Reverse Acceptor startup completed ...");
-        for(FacadeAcceptor facadeAcceptor : balanceContext.getFacadeAcceptors()){
-            ChannelAcceptor acceptor = facadeAcceptor.getAcceptor();
-            ChannelContext context = acceptor.getContext();
-            context.setAttribute(BalanceContext.BALANCE_CONTEXT_KEY, balanceContext);
-            context.setIoEventHandle(facadeAcceptorHandler);
-            context.addSessionEventListener(new FacadeAcceptorSEListener(balanceContext));
-            context.setSocketSessionFactory(new FacadeSocketSessionFactory(facadeAcceptor));
-            acceptor.bind();
-            LoggerUtil.prettyLog(logger, "Facade Acceptor startup completed ...");
-        }
     }
 
     public void stop() {
-        for(FacadeAcceptor acceptor : balanceContext.getFacadeAcceptors()){
-            acceptor.unbind();
-        }
+        CloseUtil.unbind(balanceContext.getFacadeAcceptor());
         CloseUtil.unbind(balanceContext.getReverseAcceptor());
     }
 

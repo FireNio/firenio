@@ -21,18 +21,19 @@ import com.generallycloud.baseio.protocol.Future;
 
 public interface BalanceRouter {
 
-    void addClientSession(FacadeSocketSession session);
+    public abstract void addClientSession(FacadeSocketSession session);
 
-    void addRouterSession(ReverseSocketSession session);
+    public abstract void addRouterSession(ReverseSocketSession session);
 
-    FacadeSocketSession getClientSession(Object key);
+    public abstract FacadeSocketSession getClientSession(Object key);
 
-    ReverseSocketSession getRouterSession(FacadeSocketSession session);
+    public abstract ReverseSocketSession getRouterSession(FacadeSocketSession session);
 
-    ReverseSocketSession getRouterSession(FacadeSocketSession session, Future future);
+    public abstract ReverseSocketSession getRouterSession(FacadeSocketSession session,
+            Future future);
 
-    void removeClientSession(FacadeSocketSession session);
+    public abstract void removeClientSession(FacadeSocketSession session);
 
-    void removeRouterSession(ReverseSocketSession session);
+    public abstract void removeRouterSession(ReverseSocketSession session);
 
 }

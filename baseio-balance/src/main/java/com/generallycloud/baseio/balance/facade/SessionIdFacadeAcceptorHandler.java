@@ -25,7 +25,7 @@ public class SessionIdFacadeAcceptorHandler extends FacadeAcceptorHandler {
     protected void doAccept(FacadeSocketSession fs, ReverseSocketSession rs, BalanceFuture future) {
         SessionIdBalanceFuture f = (SessionIdBalanceFuture) future;
         f.setSessionId(fs.getSessionId());
-        rs.flush(fs.getAcceptor().getFutureTranslator().translateIn(fs, rs, future));
+        rs.flush(f.translate(rs));
         logDispatchMsg(fs, rs, f);
     }
 

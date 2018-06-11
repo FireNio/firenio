@@ -58,7 +58,7 @@ public class TestBalanceClient {
         context.setProtocolCodec(new ProtobaseCodec());
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setIoEventHandle(eventHandleAdaptor);
-        SocketSession session = connector.connect();
+        SocketSession session = (SocketSession) connector.connect();
 
         for (int i = 0; i < 100; i++) {
             int fid = Math.abs(new Random().nextInt());

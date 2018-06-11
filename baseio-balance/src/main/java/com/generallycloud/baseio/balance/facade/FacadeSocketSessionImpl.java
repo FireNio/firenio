@@ -15,9 +15,10 @@
  */
 package com.generallycloud.baseio.balance.facade;
 
-import com.generallycloud.baseio.balance.BalanceFuture;
-import com.generallycloud.baseio.balance.FacadeAcceptor;
+import java.util.Random;
+
 import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
+import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SocketSessionImpl;
 
@@ -29,11 +30,8 @@ public class FacadeSocketSessionImpl extends SocketSessionImpl implements Facade
 
     private ReverseSocketSession reverseSocketSession;
 
-    private FacadeAcceptor       acceptor;
-
-    public FacadeSocketSessionImpl(FacadeAcceptor acceptor, NioSocketChannel channel) {
+    public FacadeSocketSessionImpl(NioSocketChannel channel) {
         super(channel);
-        this.acceptor = acceptor;
     }
 
     @Override
@@ -43,27 +41,15 @@ public class FacadeSocketSessionImpl extends SocketSessionImpl implements Facade
 
     @Override
     public boolean overfulfil(int size) {
+
         long now = System.currentTimeMillis();
+
         if (now > next_check_time) {
             next_check_time = now + 1000;
             msg_size = 0;
         }
-        return ++msg_size > size;
-    }
 
-    @Override
-    public void writeAndFlush(ReverseSocketSession rs, BalanceFuture future) {
-        if (getProtocolCodec().getProtocolId().equals(rs.getProtocolCodec().getProtocolId())) {
-            flush(future.translate(rs));
-        } else {
-            BalanceFuture nf = acceptor.getFutureTranslator().translateOut(rs, future);
-            flush(nf);
-        }
-    }
-    
-    @Override
-    public FacadeAcceptor getAcceptor() {
-        return acceptor;
+        return ++msg_size > size;
     }
 
     @Override
@@ -71,9 +57,26 @@ public class FacadeSocketSessionImpl extends SocketSessionImpl implements Facade
         this.reverseSocketSession = reverseSocketSession;
     }
 
+    private static Long generateToken1() {
+        long r = new Random().nextInt();
+        if (r < 0) {
+            r *= -1;
+        }
+        int s = new Random().nextInt(Integer.MAX_VALUE);
+        return s | (r << 32);
+    }
+
     @Override
     public Object getSessionKey() {
         return getSessionId();
+    }
+
+    public static void main(String[] args) {
+
+        for (int i = 0; i < 20; i++) {
+            System.out.println(MathUtil.long2HexString(generateToken1()));
+        }
+
     }
 
 }
