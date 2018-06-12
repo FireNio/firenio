@@ -38,10 +38,11 @@ public class TestServer {
             @Override
             public void accept(SocketSession session, Future future) throws Exception {
                 ProtobaseFuture f = (ProtobaseFuture) future;
-                DebugUtil.debug("receive:" + f.getReadText());
+                DebugUtil.debug("receive text:" + f.getReadText());
                 future.write("yes server already accept your text message:", session);
                 future.write(f.getReadText(), session);
                 if (f.getReadBinarySize() > 0) {
+                    DebugUtil.debug("receive binary:" + new String(f.getReadBinary()));
                     f.writeBinary("yes server already accept your binary message:".getBytes());
                     f.writeBinary(f.getReadBinary());
                 }

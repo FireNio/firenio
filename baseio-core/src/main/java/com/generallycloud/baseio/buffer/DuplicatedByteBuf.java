@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import com.generallycloud.baseio.common.ReleaseUtil;
 
 //FIXME 需要增加UnsupportedOperation // rm byteBuf 
+//FIXME 优化广播，缓存DuplicatedByteBuf
 public class DuplicatedByteBuf implements ByteBuf {
 
     private ByteBuf byteBuf;

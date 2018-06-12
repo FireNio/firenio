@@ -50,8 +50,8 @@ public class TestSimpleBinary {
         context.setIoEventHandle(eventHandle);
         SocketSession session = connector.connect();
         ProtobaseFuture f = new ProtobaseFutureImpl(serviceKey);
-        f.write("text".getBytes());
-        f.writeBinary("binary".getBytes());
+        f.write("text22222".getBytes());
+        f.writeBinary("binary22222".getBytes());
         session.flush(f);
         ThreadUtil.sleep(500);
         CloseUtil.close(connector);

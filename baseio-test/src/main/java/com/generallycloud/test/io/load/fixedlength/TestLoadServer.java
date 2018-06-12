@@ -36,7 +36,7 @@ public class TestLoadServer {
             public void accept(SocketSession session, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
                 f.write(f.getReadText(), session);
-                session.unsafe().unsafeFlush((ChannelFuture) future);
+                session.unsafe().flush((ChannelFuture) future);
             }
         };
 
