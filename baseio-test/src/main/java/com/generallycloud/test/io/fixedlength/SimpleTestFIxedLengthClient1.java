@@ -29,7 +29,7 @@ import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
-public class SimpleTestFIxedLengthClient {
+public class SimpleTestFIxedLengthClient1 {
 
     public static void main(String[] args) throws Exception {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
@@ -41,17 +41,29 @@ public class SimpleTestFIxedLengthClient {
                 System.out.println();
             }
 
+            @Override
+            public void futureSent(SocketSession session, Future future) {
+                System.out.println("_______________________sent ..........");
+            }
         };
-        NioEventLoopGroup group = new NioEventLoopGroup();
+        NioEventLoopGroup group = new NioEventLoopGroup(1);
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelConnector connector = new ChannelConnector(context, group);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
+
         SocketSession session = connector.connect();
-        FixedLengthFuture future = new FixedLengthFutureImpl();
-        future.write("hello server!", session);
-        session.flush(future);
+        StringBuilder sb = new StringBuilder(1024 * 6);
+        for (int i = 0; i < 1; i++) {
+            sb.append("hello!");
+        }
+
+        for (int i = 0; i < 20; i++) {
+            FixedLengthFuture future = new FixedLengthFutureImpl();
+            future.write(sb.toString(), session);
+            session.flush(future);
+        }
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);
     }
