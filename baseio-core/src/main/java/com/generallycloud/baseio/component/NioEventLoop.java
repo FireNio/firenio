@@ -59,7 +59,7 @@ import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.SslFuture;
 
 /**
@@ -100,7 +100,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private Object[]                            indexedVariables = new Object[maxIndexedVariablesSize];
     private final boolean                       isAcceptor;
     private long                                lastIdleTime     = 0;
-    private List<ChannelFuture>                 readFutures;
+    private List<Future>                 readFutures;
     private AtomicBoolean                       selecting        = new AtomicBoolean();
     private SelectionKeySet                     selectionKeySet;
     private Selector                            selector;
@@ -343,7 +343,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return indexedVariables[index];
     }
 
-    public List<ChannelFuture> getReadFutures() {
+    public List<Future> getReadFutures() {
         return readFutures;
     }
 

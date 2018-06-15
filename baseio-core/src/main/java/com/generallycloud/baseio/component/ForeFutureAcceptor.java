@@ -20,7 +20,7 @@ import java.util.List;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class ForeFutureAcceptor {
@@ -39,14 +39,14 @@ public class ForeFutureAcceptor {
         createHeartBeatLogger(channelContext);
     }
 
-    public void accept(final NioSocketChannel channel, List<ChannelFuture> futures) {
+    public void accept(final NioSocketChannel channel, List<Future> futures) {
         if (futures.isEmpty()) {
             return;
         }
         final ChannelContext context = channel.getContext();
         final IoEventHandle eventHandle = context.getIoEventHandle();
         for (int i = 0; i < futures.size(); i++) {
-            final ChannelFuture future = futures.get(i);
+            final Future future = futures.get(i);
             if (future.isSilent()) {
                 continue;
             }
@@ -77,11 +77,11 @@ public class ForeFutureAcceptor {
         futures.clear();
     }
 
-    protected void acceptHeartBeat(final NioSocketChannel channel, final ChannelFuture future) {
+    protected void acceptHeartBeat(final NioSocketChannel channel, final Future future) {
         if (future.isPING()) {
             heartBeatLogger.logRequest(channel);
             ProtocolCodec codec = channel.getProtocolCodec();
-            ChannelFuture f = codec.createPONGPacket(channel, future);
+            Future f = codec.createPONGPacket(channel, future);
             if (f == null) {
                 return;
             }

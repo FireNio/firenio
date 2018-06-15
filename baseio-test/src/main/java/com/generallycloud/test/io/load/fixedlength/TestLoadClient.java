@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -77,7 +76,7 @@ public class TestLoadClient {
         long old = System.currentTimeMillis();
 
         for (int i = 0; i < time; i++) {
-            FixedLengthFuture future = new FixedLengthFutureImpl();
+            FixedLengthFuture future = new FixedLengthFuture();
             future.write("hello server!", channel);
             channel.flush(future);
         }

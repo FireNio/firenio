@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.ByteArrayOutputStream;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
@@ -61,17 +61,17 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     }
 
     @Override
-    public ChannelFuture createPINGPacket(NioSocketChannel channel) {
+    public Future createPINGPacket(NioSocketChannel channel) {
         return null;
     }
 
     @Override
-    public ChannelFuture createPONGPacket(NioSocketChannel channel, ChannelFuture ping) {
+    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
         return null;
     }
 
     @Override
-    public ChannelFuture decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         if (httpFutureStackSize > 0) {
             NioEventLoop eventLoop = channel.getEventLoop();
             FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
@@ -122,7 +122,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     }
 
     @Override
-    public void encode(NioSocketChannel channel, ChannelFuture readFuture) throws IOException {
+    public void encode(NioSocketChannel channel, Future readFuture) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         ServerHttpFuture f = (ServerHttpFuture) readFuture;
         if (f.isUpdateWebSocketProtocol()) {

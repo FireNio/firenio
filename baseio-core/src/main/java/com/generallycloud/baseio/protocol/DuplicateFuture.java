@@ -22,11 +22,11 @@ import com.generallycloud.baseio.buffer.ByteBuf;
  *
  */
 //FIXME add unsupported operation
-public class DuplicateChannelFuture extends DefaultChannelFuture {
+public class DuplicateFuture extends DefaultFuture {
 
-    private ChannelFuture prototype;
+    private Future prototype;
 
-    public DuplicateChannelFuture(ByteBuf buf, ChannelFuture prototype) {
+    public DuplicateFuture(ByteBuf buf, Future prototype) {
         super(buf);
         this.prototype = prototype;
         //        this.flushed = prototype.flushed();
@@ -40,12 +40,12 @@ public class DuplicateChannelFuture extends DefaultChannelFuture {
         //FIXME 放开这段代码
     }
 
-    private ChannelFuture unwrap() {
+    private Future unwrap() {
         return prototype;
     }
 
     @Override
-    public ChannelFuture duplicate() {
+    public Future duplicate() {
         return unwrap().duplicate();
     }
 

@@ -18,7 +18,7 @@ package com.generallycloud.baseio.component;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class ChannelActiveIdleEventListener implements ChannelIdleEventListener {
@@ -38,7 +38,7 @@ public class ChannelActiveIdleEventListener implements ChannelIdleEventListener 
             CloseUtil.close(channel);
         } else {
             ProtocolCodec codec = channel.getProtocolCodec();
-            ChannelFuture future = codec.createPINGPacket(channel);
+            Future future = codec.createPINGPacket(channel);
             if (future == null) {
                 // 该channel无需心跳,比如HTTP协议
                 return;

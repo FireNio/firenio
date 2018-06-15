@@ -19,7 +19,7 @@ import com.generallycloud.baseio.Releasable;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 
 public class ReleaseUtil {
 
@@ -47,7 +47,7 @@ public class ReleaseUtil {
         }
     }
 
-    public static void release(ChannelFuture future, NioEventLoop eventLoop) {
+    public static void release(Future future, NioEventLoop eventLoop) {
         if (future == null) {
             return;
         }

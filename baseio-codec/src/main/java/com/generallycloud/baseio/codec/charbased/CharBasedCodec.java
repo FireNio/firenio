@@ -21,7 +21,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 /**
@@ -48,22 +48,22 @@ public class CharBasedCodec implements ProtocolCodec {
     }
 
     @Override
-    public ChannelFuture createPINGPacket(NioSocketChannel channel) {
+    public Future createPINGPacket(NioSocketChannel channel) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ChannelFuture createPONGPacket(NioSocketChannel channel, ChannelFuture ping) {
+    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ChannelFuture decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        return new CharBasedFutureImpl(limit, splitor);
+    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+        return new CharBasedFuture(limit, splitor);
     }
 
     @Override
-    public void encode(NioSocketChannel channel, ChannelFuture future) throws IOException {
+    public void encode(NioSocketChannel channel, Future future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         CharBasedFuture f = (CharBasedFuture) future;
         int writeSize = f.getWriteSize();

@@ -30,7 +30,7 @@ import com.generallycloud.baseio.component.NioSocketChannel;
  *  B3-B4: Length UnsignedShort
  * </pre>
  */
-public class SslFuture extends AbstractChannelFuture {
+public class SslFuture extends AbstractFuture {
 
     public static int SSL_CONTENT_TYPE_ALERT              = 21;
 

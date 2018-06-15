@@ -23,7 +23,7 @@ import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 import com.generallycloud.baseio.protocol.ProtocolException;
 
@@ -74,24 +74,24 @@ public class ProtobaseCodec implements ProtocolCodec {
     }
 
     @Override
-    public ChannelFuture createPINGPacket(NioSocketChannel channel) {
+    public Future createPINGPacket(NioSocketChannel channel) {
         return new ProtobaseFutureImpl().setPING();
     }
 
     @Override
-    public ChannelFuture createPONGPacket(NioSocketChannel channel, ChannelFuture ping) {
+    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
         return ping.setPONG();
     }
 
     @Override
-    public ChannelFuture decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         ByteBuf buf = allocator.allocate(2);
         return new ProtobaseFutureImpl(buf);
     }
 
     @Override
-    public void encode(NioSocketChannel channel, ChannelFuture future) throws IOException {
+    public void encode(NioSocketChannel channel, Future future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         if (future.isHeartbeat()) {
             ByteBuf buf = future.isPING() ? PING.duplicate() : PONG.duplicate();

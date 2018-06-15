@@ -18,7 +18,13 @@ package com.generallycloud.baseio.protocol;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.EmptyByteBuf;
+import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.NioEventLoop;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.concurrent.Linkable;
 
 public abstract class AbstractFuture implements Future {
 
@@ -82,6 +88,164 @@ public abstract class AbstractFuture implements Future {
     @Override
     public void write(String text, ChannelContext context) {
         write(text, context.getEncoding());
+    }
+    
+    //FIXME isX 使用 byte & x ?
+    private ByteBuf  buf        = EmptyByteBuf.get();
+    private long     bufReleaseVersion;
+    private boolean  flushed;
+    private boolean  isHeartbeat;
+    private boolean  isNeedSsl;
+    private boolean  isPING;
+    private boolean  isSilent;
+    private boolean  isValidate = true;
+    private Linkable next;
+
+    protected ByteBuf allocate(NioSocketChannel channel, int capacity) {
+        return channel.allocator().allocate(capacity);
+    }
+
+    protected ByteBuf allocate(NioSocketChannel channel, int capacity, int maxLimit) {
+        return channel.allocator().allocate(capacity, maxLimit);
+    }
+
+    @Override
+    public Future duplicate() {
+        return new DuplicateFuture(buf.duplicate(), this);
+    }
+
+    @Override
+    public final Future flush() {
+        flushed = true;
+        return this;
+    }
+
+    @Override
+    public boolean flushed() {
+        return flushed;
+    }
+
+    @Override
+    public ByteBuf getByteBuf() {
+        return buf;
+    }
+
+    @Override
+    public int getByteBufLimit() {
+        return buf.limit();
+    }
+
+    @Override
+    public Linkable getNext() {
+        return next;
+    }
+
+    @Override
+    public boolean isHeartbeat() {
+        return isHeartbeat;
+    }
+
+    @Override
+    public boolean isNeedSsl() {
+        return isNeedSsl;
+    }
+
+    @Override
+    public boolean isPING() {
+        return isHeartbeat && isPING;
+    }
+
+    @Override
+    public boolean isPONG() {
+        return isHeartbeat && !isPING;
+    }
+
+    @Override
+    public boolean isReleased() {
+        return buf.isReleased();
+    }
+
+    @Override
+    public boolean isSilent() {
+        return isSilent;
+    }
+
+    @Override
+    public boolean isValidate() {
+        return isValidate;
+    }
+
+    @Override
+    public boolean isWriteCompleted() {
+        return !buf.hasRemaining();
+    }
+
+    @Override
+    public void release(NioEventLoop eventLoop) {
+        ReleaseUtil.release(buf, bufReleaseVersion);
+    }
+
+    @Override
+    public void setByteBuf(ByteBuf buf) {
+        buf.nioBuffer();
+        this.buf = buf;
+        this.bufReleaseVersion = buf.getReleaseVersion();
+    }
+
+    @Override
+    public void setHeartbeat(boolean isPing) {
+        this.isPING = isPing;
+        this.isHeartbeat = true;
+    }
+
+    @Override
+    public void setNeedSsl(boolean needSsl) {
+        this.isNeedSsl = needSsl;
+    }
+
+    @Override
+    public void setNext(Linkable next) {
+        this.next = next;
+    }
+
+    @Override
+    public Future setPING() {
+        this.isPING = true;
+        this.isHeartbeat = true;
+        return this;
+    }
+
+    @Override
+    public Future setPONG() {
+        this.isPING = false;
+        this.isHeartbeat = true;
+        return this;
+    }
+
+    @Override
+    public void setSilent(boolean isSilent) {
+        this.isSilent = isSilent;
+    }
+
+    @Override
+    public void setValidate(boolean validate) {
+        this.isValidate = validate;
+    }
+
+    @Override
+    public void write(String text, NioSocketChannel channel) {
+        write(text, channel.getContext());
+    }
+
+    protected Future reset() {
+        this.flushed = false;
+        this.isHeartbeat = false;
+        this.isNeedSsl = false;
+        this.isSilent = false;
+        this.next = null;
+        this.writeSize = 0;
+        this.bufReleaseVersion = 0;
+        return this;
     }
 
 }

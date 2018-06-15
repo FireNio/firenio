@@ -27,12 +27,12 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.ChannelFuture;
-import com.generallycloud.baseio.protocol.DefaultChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.DefaultFuture;
 
 public class SslHandler {
     
-    private ChannelFuture forgeFuture = new DefaultChannelFuture(EmptyByteBuf.get(), true);
+    private Future forgeFuture = new DefaultFuture(EmptyByteBuf.get(), true);
 
     private ByteBuf       tempDst;
 
@@ -145,7 +145,7 @@ public class SslHandler {
             } else {
                 synchByteBuf(result, src, dst);
                 if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
-                    channel.flushChannelFuture(forgeFuture.duplicate());
+                    channel.flushFuture(forgeFuture.duplicate());
                     return null;
                 } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
                     runDelegatedTasks(sslEngine);

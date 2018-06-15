@@ -22,13 +22,13 @@ import java.util.Arrays;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.AbstractChannelFuture;
+import com.generallycloud.baseio.protocol.AbstractFuture;
 import com.generallycloud.baseio.protocol.ProtocolException;
 
 /**
  *
  */
-public class ProtobaseFutureImpl extends AbstractChannelFuture implements ProtobaseFuture {
+public class ProtobaseFutureImpl extends AbstractFuture implements ProtobaseFuture {
 
     private int     binaryLengthLimit;
     private byte[]  binaryReadBuffer;

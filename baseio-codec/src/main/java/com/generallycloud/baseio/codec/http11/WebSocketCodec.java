@@ -24,7 +24,7 @@ import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 //FIXME 心跳貌似由服务端发起
@@ -81,7 +81,7 @@ public class WebSocketCodec implements ProtocolCodec {
     }
 
     @Override
-    public ChannelFuture createPINGPacket(NioSocketChannel channel) {
+    public Future createPINGPacket(NioSocketChannel channel) {
         if (WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
             return new WebSocketFutureImpl().setPING();
         }
@@ -89,7 +89,7 @@ public class WebSocketCodec implements ProtocolCodec {
     }
 
     @Override
-    public ChannelFuture createPONGPacket(NioSocketChannel channel, ChannelFuture ping) {
+    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
         if (WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
             return ping.setPONG();
         }
@@ -97,7 +97,7 @@ public class WebSocketCodec implements ProtocolCodec {
     }
 
     @Override
-    public ChannelFuture decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         if (futureStackSize > 0) {
             NioEventLoop eventLoop = channel.getEventLoop();
             FixedThreadStack<WebSocketFutureImpl> stack = (FixedThreadStack<WebSocketFutureImpl>) eventLoop
@@ -118,7 +118,7 @@ public class WebSocketCodec implements ProtocolCodec {
     }
 
     @Override
-    public void encode(NioSocketChannel channel, ChannelFuture future) throws IOException {
+    public void encode(NioSocketChannel channel, Future future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         WebSocketFuture f = (WebSocketFuture) future;
         byte[] header;

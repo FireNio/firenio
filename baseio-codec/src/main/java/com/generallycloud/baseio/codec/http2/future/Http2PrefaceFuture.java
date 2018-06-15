@@ -22,10 +22,10 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.http2.Http2Session;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.AbstractChannelFuture;
-import com.generallycloud.baseio.protocol.DefaultChannelFuture;
+import com.generallycloud.baseio.protocol.AbstractFuture;
+import com.generallycloud.baseio.protocol.DefaultFuture;
 
-public class Http2PrefaceFuture extends AbstractChannelFuture {
+public class Http2PrefaceFuture extends AbstractFuture {
 
     private static byte[]  PREFACE_BINARY = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n".getBytes();
 
@@ -50,7 +50,7 @@ public class Http2PrefaceFuture extends AbstractChannelFuture {
         if (!isPreface(buf)) {
             throw new IOException("not http2 preface");
         }
-        channel.flushChannelFuture(new DefaultChannelFuture(PREFACE_BUF.duplicate()));
+        channel.flushFuture(new DefaultFuture(PREFACE_BUF.duplicate()));
     }
 
     private boolean isPreface(ByteBuf buf) {

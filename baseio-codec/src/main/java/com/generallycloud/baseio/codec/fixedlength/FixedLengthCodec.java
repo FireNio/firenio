@@ -22,7 +22,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 /**
@@ -72,22 +72,22 @@ public class FixedLengthCodec implements ProtocolCodec {
     }
 
     @Override
-    public ChannelFuture createPINGPacket(NioSocketChannel channel) {
-        return new FixedLengthFutureImpl().setPING();
+    public Future createPINGPacket(NioSocketChannel channel) {
+        return new FixedLengthFuture().setPING();
     }
 
     @Override
-    public ChannelFuture createPONGPacket(NioSocketChannel channel, ChannelFuture ping) {
+    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
         return ping.setPONG();
     }
 
     @Override
-    public ChannelFuture decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        return new FixedLengthFutureImpl(limit);
+    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+        return new FixedLengthFuture(limit);
     }
 
     @Override
-    public void encode(NioSocketChannel channel, ChannelFuture future) throws IOException {
+    public void encode(NioSocketChannel channel, Future future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         if (future.isHeartbeat()) {
             ByteBuf buf = future.isPING() ? PING.duplicate() : PONG.duplicate();

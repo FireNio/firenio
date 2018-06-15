@@ -15,9 +15,9 @@
  */
 package com.generallycloud.baseio.codec.redis;
 
-import com.generallycloud.baseio.protocol.AbstractChannelFuture;
+import com.generallycloud.baseio.protocol.AbstractFuture;
 
-public abstract class AbstractRedisFuture extends AbstractChannelFuture implements RedisFuture {
+public abstract class AbstractRedisFuture extends AbstractFuture implements RedisFuture {
 
     @Override
     public void writeCommand(byte[] command, byte[]... args) {

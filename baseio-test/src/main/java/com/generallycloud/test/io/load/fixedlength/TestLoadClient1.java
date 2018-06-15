@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -41,7 +40,7 @@ public class TestLoadClient1 extends ITestThread {
         int time1 = getTime();
         NioSocketChannel channel = connector.getChannel();
         for (int i = 0; i < time1; i++) {
-            FixedLengthFuture future = new FixedLengthFutureImpl();
+            FixedLengthFuture future = new FixedLengthFuture();
             future.write("hello server!", channel);
             channel.flush(future);
         }

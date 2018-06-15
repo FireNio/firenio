@@ -17,7 +17,6 @@ package com.generallycloud.test.io.fixedlength;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -60,7 +59,7 @@ public class SimpleTestFIxedLengthClient1 {
         }
 
         for (int i = 0; i < 20; i++) {
-            FixedLengthFuture future = new FixedLengthFutureImpl();
+            FixedLengthFuture future = new FixedLengthFuture();
             future.write(sb.toString(), channel);
             channel.flush(future);
         }

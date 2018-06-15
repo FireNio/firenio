@@ -22,7 +22,7 @@ import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
-public class EmptyFuture extends AbstractChannelFuture {
+public class EmptyFuture extends AbstractFuture {
 
     private final static EmptyFuture INSTANCE = new EmptyFuture();
 
@@ -58,7 +58,7 @@ public class EmptyFuture extends AbstractChannelFuture {
     }
 
     @Override
-    public ChannelFuture duplicate() {
+    public Future duplicate() {
         return this;
     }
 

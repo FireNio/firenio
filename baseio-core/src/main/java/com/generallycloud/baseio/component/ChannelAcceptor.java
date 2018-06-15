@@ -29,7 +29,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.Future;
 
 /**
@@ -97,13 +97,13 @@ public class ChannelAcceptor implements ChannelService {
         channelManager.broadcast(future, channels);
     }
 
-    public void broadcastChannelFuture(ChannelFuture future) throws IOException {
-        channelManager.broadcastChannelFuture(future);
+    public void broadcastFuture(Future future) throws IOException {
+        channelManager.broadcastFuture(future);
     }
 
-    public void broadcastChannelFuture(ChannelFuture future,
+    public void broadcastFuture(Future future,
             Collection<NioSocketChannel> channels) {
-        channelManager.broadcastChannelFuture(future, channels);
+        channelManager.broadcastFuture(future, channels);
     }
 
     @Override

@@ -32,7 +32,7 @@ import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayOutputStream;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.AbstractChannelFuture;
+import com.generallycloud.baseio.protocol.AbstractFuture;
 
 //FIXME 改进header parser
 /**
@@ -41,7 +41,7 @@ import com.generallycloud.baseio.protocol.AbstractChannelFuture;
  * multipart/form-data; boundary=----WebKitFormBoundaryKA6dsRskWA4CdJek
  *
  */
-public abstract class AbstractHttpFuture extends AbstractChannelFuture implements HttpFuture {
+public abstract class AbstractHttpFuture extends AbstractFuture implements HttpFuture {
 
     private static final Map<String, String> REQ_MAPPING    = HttpHeader.REQ_MAPPING;
 

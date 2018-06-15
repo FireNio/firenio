@@ -17,7 +17,7 @@ package com.generallycloud.test.io.charbased;
 
 import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
 import com.generallycloud.baseio.codec.charbased.CharBasedFuture;
-import com.generallycloud.baseio.codec.charbased.CharBasedFutureImpl;
+import com.generallycloud.baseio.codec.charbased.CharBasedFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -48,7 +48,7 @@ public class TestLineBasedClient {
         context.addChannelEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new CharBasedCodec());
         NioSocketChannel channel = connector.connect();
-        CharBasedFuture future = new CharBasedFutureImpl();
+        CharBasedFuture future = new CharBasedFuture();
         future.write("hello server!", channel);
         channel.flush(future);
         ThreadUtil.sleep(100);

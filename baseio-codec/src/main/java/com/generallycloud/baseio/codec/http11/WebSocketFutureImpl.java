@@ -19,10 +19,10 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.AbstractChannelFuture;
-import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.AbstractFuture;
+import com.generallycloud.baseio.protocol.Future;
 
-public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSocketFuture {
+public class WebSocketFutureImpl extends AbstractFuture implements WebSocketFuture {
 
     private byte[]  byteArray;
     private boolean eof;
@@ -154,13 +154,13 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     }
 
     @Override
-    public ChannelFuture setPING() {
+    public Future setPING() {
         this.type = WebSocketCodec.TYPE_PING;
         return super.setPING();
     }
 
     @Override
-    public ChannelFuture setPONG() {
+    public Future setPONG() {
         this.type = WebSocketCodec.TYPE_PONG;
         return super.setPONG();
     }

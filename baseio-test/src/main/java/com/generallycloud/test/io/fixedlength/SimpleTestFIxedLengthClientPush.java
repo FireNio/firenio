@@ -19,7 +19,6 @@ import java.util.Scanner;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -67,7 +66,7 @@ public class SimpleTestFIxedLengthClientPush {
                         CloseUtil.close(channel);
                         break;
                     }
-                    FixedLengthFuture future = new FixedLengthFutureImpl();
+                    FixedLengthFuture future = new FixedLengthFuture();
                     future.write(line, context);
                     channel.flush(future);
                 }

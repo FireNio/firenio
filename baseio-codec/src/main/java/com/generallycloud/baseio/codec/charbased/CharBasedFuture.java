@@ -15,11 +15,59 @@
  */
 package com.generallycloud.baseio.codec.charbased;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+
+import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.ByteArrayOutputStream;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.protocol.AbstractFuture;
 import com.generallycloud.baseio.protocol.TextFuture;
 
-public interface CharBasedFuture extends TextFuture {
+public class CharBasedFuture extends AbstractFuture implements TextFuture {
 
-    public abstract ByteArrayOutputStream getLineOutputStream();
+    private ByteArrayOutputStream cache = new ByteArrayOutputStream();
+    private int                   limit;
+    private String                readText;
+    private byte                  splitor;
+
+    public CharBasedFuture() {}
+
+    CharBasedFuture(int limit, byte splitor) {
+        this.limit = limit;
+        this.splitor = splitor;
+    }
+
+    public ByteArrayOutputStream getLineOutputStream() {
+        return cache;
+    }
+
+    @Override
+    public String getReadText() {
+        return readText;
+    }
+
+    @Override
+    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+        ByteArrayOutputStream cache = this.cache;
+        Charset charset = channel.getEncoding();
+        for (; buffer.hasRemaining();) {
+            byte b = buffer.getByte();
+            if (b == splitor) {
+                this.readText = cache.toString(charset);
+                return true;
+            }
+            cache.write(b);
+            if (cache.size() > limit) {
+                throw new IOException("max length " + limit);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return getReadText();
+    }
 
 }

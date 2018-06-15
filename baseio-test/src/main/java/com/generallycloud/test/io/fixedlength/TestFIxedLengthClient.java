@@ -17,7 +17,6 @@ package com.generallycloud.test.io.fixedlength;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -54,7 +53,7 @@ public class TestFIxedLengthClient {
         context.setProtocolCodec(new FixedLengthCodec());
         context.setSslContext(sslContext);
         NioSocketChannel channel = connector.connect();
-        FixedLengthFuture future = new FixedLengthFutureImpl();
+        FixedLengthFuture future = new FixedLengthFuture();
         future.write("hello server!", channel);
         channel.flush(future);
         ThreadUtil.sleep(100);

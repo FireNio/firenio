@@ -21,9 +21,9 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.AbstractChannelFuture;
+import com.generallycloud.baseio.protocol.AbstractFuture;
 
-public class Http2FrameHeaderImpl extends AbstractChannelFuture implements Http2FrameHeader {
+public class Http2FrameHeaderImpl extends AbstractFuture implements Http2FrameHeader {
 
     private boolean          header_complete;
 

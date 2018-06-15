@@ -26,13 +26,13 @@ import com.generallycloud.baseio.component.NioSocketChannel;
  */
 //FIXME 部分方法需要抛UnsupportedException
 //FIXME .....部分使用该类地方是否可以使用EmptyFuture
-public class DefaultChannelFuture extends AbstractChannelFuture {
+public class DefaultFuture extends AbstractFuture {
 
-    public DefaultChannelFuture(ByteBuf buf) {
+    public DefaultFuture(ByteBuf buf) {
         setByteBuf(buf);
     }
 
-    public DefaultChannelFuture(ByteBuf buf, boolean isNeedSsl) {
+    public DefaultFuture(ByteBuf buf, boolean isNeedSsl) {
         setByteBuf(buf);
         this.setNeedSsl(isNeedSsl);
     }

@@ -15,8 +15,69 @@
  */
 package com.generallycloud.baseio.codec.fixedlength;
 
+import java.io.IOException;
+
+import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.protocol.AbstractFuture;
+import com.generallycloud.baseio.protocol.ProtocolException;
 import com.generallycloud.baseio.protocol.TextFuture;
 
-public interface FixedLengthFuture extends TextFuture {
+public class FixedLengthFuture extends AbstractFuture implements TextFuture {
+
+    private int    limit;
+    private String readText;
+
+    public FixedLengthFuture() {}
+
+    public FixedLengthFuture(int limit) {
+        this.limit = limit;
+    }
+
+    @Override
+    public String getReadText() {
+        return readText;
+    }
+
+    @Override
+    public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
+        if (src.remaining() < 4) {
+            return false;
+        }
+        int len = src.getInt();
+        if (len < 0) {
+            setHeartbeat(len);
+            return true;
+        }
+        if (len > src.remaining()) {
+            src.position(src.position() - 4);
+            return false;
+        }
+        if (len > limit) {
+            throw new IOException("over limit:" + len);
+        }
+        src.markL();
+        src.limit(src.position() + len);
+        readText = StringUtil.decode(channel.getEncoding(), src.nioBuffer());
+        src.reverse();
+        src.resetL();
+        return true;
+    }
+
+    private void setHeartbeat(int len) {
+        if (len == FixedLengthCodec.PROTOCOL_PING) {
+            setPING();
+        } else if (len == FixedLengthCodec.PROTOCOL_PONG) {
+            setPONG();
+        } else {
+            throw new ProtocolException("illegal length:" + len);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return getReadText();
+    }
 
 }

@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.generallycloud.baseio.protocol.ChannelFuture;
+import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.Future;
 
 /**
@@ -58,8 +58,8 @@ public class ChannelManager {
         broadcast(future, channels.values());
     }
 
-    public void broadcastChannelFuture(ChannelFuture future) {
-        broadcastChannelFuture(future, channels.values());
+    public void broadcastFuture(Future future) {
+        broadcastFuture(future, channels.values());
     }
 
     public void broadcast(Future future, Collection<NioSocketChannel> channels) throws IOException {
@@ -67,18 +67,17 @@ public class ChannelManager {
             return;
         }
         NioSocketChannel channel = context.getSimulateSocketChannel();
-        ChannelFuture f = (ChannelFuture) future;
-        context.getProtocolCodec().encode(channel, f);
-        broadcastChannelFuture(f, channels);
+        context.getProtocolCodec().encode(channel, future);
+        broadcastFuture(future, channels);
     }
 
-    public void broadcastChannelFuture(ChannelFuture future,
+    public void broadcastFuture(Future future,
             Collection<NioSocketChannel> channels) {
         if (channels.size() == 0) {
             return;
         }
         for (NioSocketChannel ch : channels) {
-            ch.flushChannelFuture(future.duplicate());
+            ch.flushFuture(future.duplicate());
         }
     }
 

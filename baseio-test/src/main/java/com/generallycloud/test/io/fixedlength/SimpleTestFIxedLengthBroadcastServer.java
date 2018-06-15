@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFutureImpl;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -58,7 +57,7 @@ public class SimpleTestFIxedLengthBroadcastServer {
             public void run() {
                 for (;;) {
                     ThreadUtil.sleep(1000);
-                    FixedLengthFuture future = new FixedLengthFutureImpl();
+                    FixedLengthFuture future = new FixedLengthFuture();
                     future.write("broadcast msg .........................", context);
                     try {
                         acceptor.broadcast(future);
