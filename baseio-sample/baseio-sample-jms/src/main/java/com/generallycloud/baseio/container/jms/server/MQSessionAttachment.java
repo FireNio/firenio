@@ -15,13 +15,13 @@
  */
 package com.generallycloud.baseio.container.jms.server;
 
-public class MQSessionAttachment {
+public class MQChannelAttachment {
 
     private MQContext          context;
     private TransactionSection transactionSection;
     private Consumer           consumer;
 
-    public MQSessionAttachment(MQContext context) {
+    public MQChannelAttachment(MQContext context) {
         this.context = context;
     }
 

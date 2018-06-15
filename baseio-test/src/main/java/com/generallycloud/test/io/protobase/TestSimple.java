@@ -24,7 +24,7 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -36,19 +36,19 @@ public class TestSimple {
         IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 System.out.println("________________________" + future);
             }
         };
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelConnector connector = new ChannelConnector(context);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setIoEventHandle(eventHandle);
-        SocketSession session = connector.connect();
+        NioSocketChannel channel = connector.connect();
         ProtobaseFuture f = new ProtobaseFutureImpl(serviceKey);
-        f.write(param, session);
-        session.flush(f);
+        f.write(param, channel);
+        channel.flush(f);
         ThreadUtil.sleep(500);
         CloseUtil.close(connector);
     }

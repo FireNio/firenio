@@ -19,6 +19,6 @@ import com.generallycloud.baseio.protocol.Future;
 
 public interface FutureAcceptor {
 
-    void accept(SocketSession session, Future future) throws Exception;
+    void accept(NioSocketChannel channel, Future future) throws Exception;
 
 }

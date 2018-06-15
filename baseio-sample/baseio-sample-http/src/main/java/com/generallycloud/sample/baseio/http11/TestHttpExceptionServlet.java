@@ -27,7 +27,7 @@ import com.generallycloud.baseio.container.http11.HttpSession;
 public class TestHttpExceptionServlet extends HttpFutureAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
+    protected void doAccept(HttpSession channel, HttpFuture future) throws Exception {
         throw new IOException("test http error");
     }
 

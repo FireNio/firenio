@@ -15,10 +15,10 @@
  */
 package com.generallycloud.baseio.container.rtp.server;
 
-import com.generallycloud.baseio.component.Session;
+import com.generallycloud.baseio.component.Channel;
 import com.generallycloud.baseio.container.rtp.RTPContext;
 
-public class RTPSessionAttachment {
+public class RTPChannelAttachment {
 
     private RTPContext context;
 
@@ -28,10 +28,10 @@ public class RTPSessionAttachment {
         return rtpRoom;
     }
 
-    public RTPRoom createRTPRoom(Session session) {
+    public RTPRoom createRTPRoom(Channel channel) {
         if (rtpRoom == null) {
 
-            rtpRoom = new RTPRoom(context, session);
+            rtpRoom = new RTPRoom(context, channel);
 
             RTPRoomFactory factory = context.getRTPRoomFactory();
 
@@ -40,7 +40,7 @@ public class RTPSessionAttachment {
         return rtpRoom;
     }
 
-    protected RTPSessionAttachment(RTPContext context) {
+    protected RTPChannelAttachment(RTPContext context) {
         this.context = context;
     }
 

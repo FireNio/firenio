@@ -20,7 +20,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.FileReceiveUtil;
 import com.generallycloud.baseio.container.protobase.FileSendUtil;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
@@ -31,20 +31,20 @@ public class TestDownloadServlet extends ProtobaseFutureAcceptorService {
     public static final String SERVICE_NAME = TestDownloadServlet.class.getSimpleName();
 
     @Override
-    protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
+    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
         FileSendUtil fileSendUtil = new FileSendUtil();
         File file = new File(future.getParameters().getParameter(FileReceiveUtil.FILE_NAME));
         if (!file.exists()) {
-            fileNotFound(session, future, "file not found");
+            fileNotFound(channel, future, "file not found");
             return;
         }
-        fileSendUtil.sendFile(session, future.getFutureName(), file, 1024 * 800);
+        fileSendUtil.sendFile(channel, future.getFutureName(), file, 1024 * 800);
     }
 
-    private void fileNotFound(SocketSession session, ProtobaseFuture future, String msg)
+    private void fileNotFound(NioSocketChannel channel, ProtobaseFuture future, String msg)
             throws IOException {
         RESMessage message = new RESMessage(404, msg);
-        future.write(message.toString(), session);
-        session.flush(future);
+        future.write(message.toString(), channel);
+        channel.flush(future);
     }
 }

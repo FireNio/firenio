@@ -17,7 +17,7 @@ package com.generallycloud.sample.baseio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
 public class TestSimpleServlet extends ProtobaseFutureAcceptorService {
@@ -31,7 +31,7 @@ public class TestSimpleServlet extends ProtobaseFutureAcceptorService {
     //	private AtomicInteger size = new AtomicInteger();
 
     @Override
-    protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
+    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
 
         //		accept.getAndIncrement();
 
@@ -40,10 +40,10 @@ public class TestSimpleServlet extends ProtobaseFutureAcceptorService {
         if (StringUtil.isNullOrBlank(test)) {
             test = "test";
         }
-        future.write(simple1.dynamic(), session);
-        future.write(test, session);
-        future.write("$", session);
-        session.flush(future);
+        future.write(simple1.dynamic(), channel);
+        future.write(test, channel);
+        future.write("$", channel);
+        channel.flush(future);
 
         //		System.out.println("=============================="+size.incrementAndGet());
     }
@@ -52,7 +52,7 @@ public class TestSimpleServlet extends ProtobaseFutureAcceptorService {
     //	
     //	private AtomicInteger accept = new AtomicInteger(0);
     //	
-    //	public void futureSent(Session session, WriteFuture future) {
+    //	public void futureSent(Channel channel, WriteFuture future) {
     //		logger.info("sent:{}",sent.getAndIncrement());
     //		logger.info("accept:{}",accept.get());
     //	}

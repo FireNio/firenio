@@ -25,7 +25,7 @@ import com.generallycloud.baseio.container.http11.HttpSession;
 public class TestUploadServlet extends HttpFutureAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
+    protected void doAccept(HttpSession channel, HttpFuture future) throws Exception {
         String res;
         if (future.hasBodyContent()) {
             res = "yes server already accept your message :) " + future.getRequestParams()
@@ -35,8 +35,8 @@ public class TestUploadServlet extends HttpFutureAcceptorService {
             res = "yes server already accept your message :) " + future.getRequestParams();
         }
         future.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
-        future.write(res, session.getEncoding());
-        session.flush(future);
+        future.write(res, channel.getEncoding());
+        channel.flush(future);
     }
 
 }

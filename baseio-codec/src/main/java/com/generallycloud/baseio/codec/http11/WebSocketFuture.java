@@ -26,7 +26,7 @@ public interface WebSocketFuture extends HttpMessage {
 
     public static final int    HEADER_LENGTH             = 2;
 
-    public static final String SESSION_KEY_SERVICE_NAME  = "_SESSION_KEY_SERVICE_NAME";
+    public static final String CHANNEL_KEY_SERVICE_NAME  = "CHANNEL_KEY_SERVICE_NAME";
 
     public abstract boolean isEof();
 

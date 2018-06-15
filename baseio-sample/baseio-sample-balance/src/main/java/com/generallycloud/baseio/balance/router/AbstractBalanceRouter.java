@@ -18,30 +18,30 @@ package com.generallycloud.baseio.balance.router;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.generallycloud.baseio.balance.facade.FacadeSocketSession;
-import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
+import com.generallycloud.baseio.balance.facade.FacadeSocketChannel;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketChannel;
 
 public abstract class AbstractBalanceRouter implements BalanceRouter {
 
-    private ConcurrentMap<Object, FacadeSocketSession> clients = new ConcurrentHashMap<>();
+    private ConcurrentMap<Object, FacadeSocketChannel> clients = new ConcurrentHashMap<>();
 
     @Override
-    public void addClientSession(FacadeSocketSession session) {
-        this.clients.put(session.getSessionKey(), session);
+    public void addClientChannel(FacadeSocketChannel channel) {
+        this.clients.put(channel.getChannelKey(), channel);
     }
 
     @Override
-    public FacadeSocketSession getClientSession(Object key) {
+    public FacadeSocketChannel getClientChannel(Object key) {
         return clients.get(key);
     }
 
     @Override
-    public void removeClientSession(FacadeSocketSession session) {
-        this.clients.remove(session.getSessionKey());
+    public void removeClientChannel(FacadeSocketChannel channel) {
+        this.clients.remove(channel.getChannelKey());
     }
 
     @Override
-    public ReverseSocketSession getRouterSession(FacadeSocketSession session) {
-        return session.getReverseSocketSession();
+    public ReverseSocketChannel getRouterChannel(FacadeSocketChannel channel) {
+        return channel.getReverseSocketChannel();
     }
 }

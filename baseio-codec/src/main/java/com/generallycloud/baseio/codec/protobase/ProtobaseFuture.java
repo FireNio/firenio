@@ -26,9 +26,9 @@ public interface ProtobaseFuture extends NamedFuture, TextFuture {
 
     int getReadBinarySize();
 
-    int getSessionId();
+    int getChannelId();
 
-    int getSessionKey();
+    int getChannelKey();
 
     int getTextLength();
 
@@ -46,7 +46,7 @@ public interface ProtobaseFuture extends NamedFuture, TextFuture {
 
     void setFutureName(String futureName);
 
-    void setSessionId(int sessionId);
+    void setChannelId(int channelId);
 
     void writeBinary(byte b);
 

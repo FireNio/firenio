@@ -23,7 +23,7 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.container.protobase.FixedSession;
+import com.generallycloud.baseio.container.protobase.FixedChannel;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
 public class TestSimpleBigParam {
@@ -37,15 +37,15 @@ public class TestSimpleBigParam {
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
-        FixedSession session = new FixedSession(connector.connect());
+        context.addChannelEventListener(new LoggerSocketSEListener());
+        FixedChannel channel = new FixedChannel(connector.connect());
         String temp = "网易科技腾讯科技阿里巴巴";
         StringBuilder builder = new StringBuilder(temp);
         for (int i = 0; i < 600000; i++) {
             builder.append("\n");
             builder.append(temp);
         }
-        ProtobaseFuture future = session.request(serviceKey, builder.toString());
+        ProtobaseFuture future = channel.request(serviceKey, builder.toString());
         FileUtil.writeByCls(TestSimpleBigParam.class.getName(), future.getReadText());
         System.out.println("处理完成");
         CloseUtil.close(connector);

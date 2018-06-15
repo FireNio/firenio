@@ -88,6 +88,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private ByteBufAllocator                    allocator;
     private Map<Object, Object>                 attributes       = new HashMap<>();
     private ByteBuf                             buf;
+    private IntObjectHashMap<NioSocketChannel>  channels         = new IntObjectHashMap<>();
     private Map<Charset, CharsetDecoder>        charsetDecoders  = new IdentityHashMap<>();
     private Map<Charset, CharsetEncoder>        charsetEncoders  = new IdentityHashMap<>();
     private ChannelContext                      context;                                               // use when not sharable 
@@ -104,11 +105,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private SelectionKeySet                     selectionKeySet;
     private Selector                            selector;
     private boolean                             selectorRegisted;
-    private IntObjectHashMap<SocketSession>     sessions         = new IntObjectHashMap<>();
-    private final int                           sessionSizeLimit = 1024 * 64;
+    private final int                           channelSizeLimit = 1024 * 64;
     private final boolean                       sharable;
-    private SslFuture                           sslTemporary;
     private SslHandler                          sslHandler;
+    private SslFuture                           sslTemporary;
     private AtomicBoolean                       wakener          = new AtomicBoolean();                // true eventLooper, false offerer
     private ByteBuffer[]                        writeBuffers;
 
@@ -158,7 +158,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     ch.read(buf);
                 } catch (Throwable e) {
                     if (e instanceof SSLHandshakeException) {
-                        finishRegistChannel(ch.getSession(), e);
+                        finishRegistChannel(ch, e);
                     }
                     closeSocketChannel(ch, e);
                 }
@@ -190,7 +190,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 ch.read(buf);
             } catch (Throwable e) {
                 if (e instanceof SSLHandshakeException) {
-                    finishRegistChannel(ch.getSession(), e);
+                    finishRegistChannel(ch, e);
                 }
                 closeSocketChannel(ch, e);
             }
@@ -202,6 +202,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     @Override
+    public Map<Object, Object> attributes() {
+        return attributes;
+    }
+
+    @Override
     public void clearAttributes() {
         this.attributes.clear();
     }
@@ -210,15 +215,15 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         CloseUtil.close(selector);
     }
 
-    private void closeEvents(BufferedArrayList<NioEventLoopTask> events) {
-        for (NioEventLoopTask event : events.getBuffer()) {
-            CloseUtil.close(event);
+    private void closeChannels() {
+        for (NioSocketChannel channel : channels.values()) {
+            CloseUtil.close(channel);
         }
     }
 
-    private void closeSessions() {
-        for (SocketSession session : sessions.values()) {
-            CloseUtil.close(session);
+    private void closeEvents(BufferedArrayList<NioEventLoopTask> events) {
+        for (NioEventLoopTask event : events.getBuffer()) {
+            CloseUtil.close(event);
         }
     }
 
@@ -272,7 +277,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         ThreadUtil.sleep(8);
         closeEvents(events);
         closeEvents(events);
-        closeSessions();
+        closeChannels();
         CloseUtil.close(selector);
         ReleaseUtil.release(sslTemporary, this);
         ReleaseUtil.release(buf, buf.getReleaseVersion());
@@ -285,11 +290,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    public final void finishRegistChannel(SocketSession session, Throwable e) {
-        ChannelContext context = session.getContext();
+    public final void finishRegistChannel(NioSocketChannel channel, Throwable e) {
+        ChannelContext context = channel.getContext();
         ChannelService service = context.getChannelService();
         if (service instanceof ChannelConnector) {
-            ((ChannelConnector) service).finishConnect(session, e);
+            ((ChannelConnector) service).finishConnect(channel, e);
         }
     }
 
@@ -301,6 +306,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     @Override
     public Set<Object> getAttributeNames() {
         return this.attributes.keySet();
+    }
+
+    public NioSocketChannel getChannel(int channelId) {
+        return channels.get(channelId);
     }
 
     public CharsetDecoder getCharsetDecoder(Charset charset) {
@@ -340,10 +349,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
 
     public Selector getSelector() {
         return selector;
-    }
-
-    public SocketSession getSession(int sessionId) {
-        return sessions.get(sessionId);
     }
 
     public SslHandler getSslHandler() {
@@ -424,7 +429,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 }
                 long now = System.currentTimeMillis();
                 if (now >= nextIdle) {
-                    sessionIdle(now);
+                    channelIdle(now);
                     nextIdle = now + idle;
                     selectTime = idle;
                 } else {
@@ -487,19 +492,19 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return selector;
     }
 
-    protected void putSession(SocketSession session) throws RejectedExecutionException {
-        IntObjectHashMap<SocketSession> sessions = this.sessions;
-        Integer sessionId = session.getSessionId();
-        SocketSession old = sessions.get(sessionId);
+    protected void putChannel(NioSocketChannel channel) throws RejectedExecutionException {
+        IntObjectHashMap<NioSocketChannel> channels = this.channels;
+        Integer channelId = channel.getChannelId();
+        NioSocketChannel old = channels.get(channelId);
         if (old != null) {
             CloseUtil.close(old);
         }
-        if (sessions.size() >= sessionSizeLimit) {
+        if (channels.size() >= channelSizeLimit) {
             throw new RejectedExecutionException(
-                    "session size limit:" + sessionSizeLimit + ",current:" + sessions.size());
+                    "channel size limit:" + channelSizeLimit + ",current:" + channels.size());
         }
-        sessions.put(sessionId.intValue(), session);
-        session.getContext().getSessionManager().putSession(session);
+        channels.put(channelId.intValue(), channel);
+        channel.getContext().getChannelManager().putChannel(channel);
     }
 
     public void registChannel(SelectionKey k) throws IOException {
@@ -593,10 +598,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
         channel = new NioSocketChannel(eventLoop, sk, context, channelId);
         sk.attach(channel);
-        // fire session open event
+        // fire channel open event
         channel.fireOpend();
         if (!channel.isEnableSsl()) {
-            finishRegistChannel(channel.getSession(), null);
+            finishRegistChannel(channel, null);
         }
         return channel;
     }
@@ -682,32 +687,32 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return this.attributes.remove(key);
     }
 
-    protected void removeSession(SocketSession session) {
-        sessions.remove(session.getSessionId());
-        session.getContext().getSessionManager().removeSession(session);
+    protected void removeChannel(NioSocketChannel channel) {
+        channels.remove(channel.getChannelId());
+        channel.getContext().getChannelManager().removeChannel(channel);
     }
 
-    private void sessionIdle(long currentTime) {
+    private void channelIdle(long currentTime) {
         long lastIdleTime = this.lastIdleTime;
         this.lastIdleTime = currentTime;
-        IntObjectHashMap<SocketSession> sessions = this.sessions;
-        if (sessions.size() == 0) {
+        IntObjectHashMap<NioSocketChannel> channels = this.channels;
+        if (channels.size() == 0) {
             return;
         }
         if (sharable) {
-            for (SocketSession session : sessions.values()) {
-                ChannelContext context = session.getContext();
-                List<SessionIdleEventListener> ls = context.getSessionIdleEventListeners();
+            for (NioSocketChannel channel : channels.values()) {
+                ChannelContext context = channel.getContext();
+                List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
                 if (ls.size() == 1) {
                     try {
-                        ls.get(0).sessionIdled(session, lastIdleTime, currentTime);
+                        ls.get(0).channelIdled(channel, lastIdleTime, currentTime);
                     } catch (Exception e) {
                         logger.error(e.getMessage(), e);
                     }
                 } else {
-                    for (SessionIdleEventListener l : ls) {
+                    for (ChannelIdleEventListener l : ls) {
                         try {
-                            l.sessionIdled(session, lastIdleTime, currentTime);
+                            l.channelIdled(channel, lastIdleTime, currentTime);
                         } catch (Exception e) {
                             logger.error(e.getMessage(), e);
                         }
@@ -715,10 +720,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 }
             }
         } else {
-            List<SessionIdleEventListener> ls = context.getSessionIdleEventListeners();
-            for (SessionIdleEventListener l : ls) {
-                for (SocketSession session : sessions.values()) {
-                    l.sessionIdled(session, lastIdleTime, currentTime);
+            List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
+            for (ChannelIdleEventListener l : ls) {
+                for (NioSocketChannel channel : channels.values()) {
+                    l.channelIdled(channel, lastIdleTime, currentTime);
                 }
             }
         }

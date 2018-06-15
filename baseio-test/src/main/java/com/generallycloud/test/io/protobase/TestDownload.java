@@ -23,10 +23,10 @@ import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.container.protobase.FileReceiveUtil;
-import com.generallycloud.baseio.container.protobase.FixedSession;
+import com.generallycloud.baseio.container.protobase.FixedChannel;
 import com.generallycloud.baseio.container.protobase.OnFuture;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 import com.generallycloud.baseio.log.DebugUtil;
@@ -46,21 +46,21 @@ public class TestDownload {
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
-        FixedSession session = new FixedSession(connector.connect());
+        context.addChannelEventListener(new LoggerSocketSEListener());
+        FixedChannel channel = new FixedChannel(connector.connect());
         final FileReceiveUtil fileReceiveUtil = new FileReceiveUtil("download-");
-        session.listen(serviceName, new OnFuture() {
+        channel.listen(serviceName, new OnFuture() {
             @Override
-            public void onResponse(SocketSession session, Future future) {
+            public void onResponse(NioSocketChannel channel, Future future) {
                 try {
-                    fileReceiveUtil.accept(session, (ParamedProtobaseFuture) future, false);
+                    fileReceiveUtil.accept(channel, (ParamedProtobaseFuture) future, false);
                 } catch (Exception e) {
                     DebugUtil.debug(e);
                 }
             }
         });
         long old = System.currentTimeMillis();
-        session.write(serviceName, j.toJSONString());
+        channel.write(serviceName, j.toJSONString());
         System.out.println("Time:" + (System.currentTimeMillis() - old));
         ThreadUtil.sleep(5000);
         CloseUtil.close(connector);

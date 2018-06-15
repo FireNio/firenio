@@ -32,9 +32,9 @@ public class TestPublish {
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new ParamedProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
-        //        FixedSession session = new FixedSession(connector.connect());
-        //        MessageProducer producer = new DefaultMessageProducer(session);
+        context.addChannelEventListener(new LoggerSocketSEListener());
+        //        FixedChannel channel = new FixedChannel(connector.connect());
+        //        MessageProducer producer = new DefaultMessageProducer(channel);
         //        TextMessage message = new TextMessage("msgId", "qName", "你好！");
         //        producer.publish(message);
         connector.close();

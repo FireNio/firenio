@@ -17,7 +17,7 @@ package com.generallycloud.baseio.container.http11;
 
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.codec.http11.HttpStatus;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.DefaultOnRedeployAcceptor;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -28,12 +28,12 @@ import com.generallycloud.baseio.protocol.Future;
 public class HttpOnRedeployAcceptor extends DefaultOnRedeployAcceptor {
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
         if (future instanceof HttpFuture) {
             HttpFuture hf = (HttpFuture) future;
             hf.setStatus(HttpStatus.C503);
         }
-        super.accept(session, future);
+        super.accept(channel, future);
     }
 
 }

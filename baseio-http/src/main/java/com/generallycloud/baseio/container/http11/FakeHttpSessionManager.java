@@ -18,7 +18,7 @@ package com.generallycloud.baseio.container.http11;
 import java.util.Map;
 
 import com.generallycloud.baseio.codec.http11.HttpFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 
 /**
@@ -30,7 +30,7 @@ public class FakeHttpSessionManager extends AbstractEventLoop implements HttpSes
     private final String HTTP_SESSION_KEY = "_HTTP_SESSION_KEY";
 
     @Override
-    public void putSession(String sessionId, HttpSession session) {
+    public void putSession(String sessionId, HttpSession channel) {
         throw new UnsupportedOperationException();
     }
 
@@ -40,7 +40,7 @@ public class FakeHttpSessionManager extends AbstractEventLoop implements HttpSes
     }
 
     @Override
-    public HttpSession getHttpSession(HttpFutureAcceptor context, SocketSession ioSession,
+    public HttpSession getHttpSession(HttpFutureAcceptor context, NioSocketChannel ioSession,
             HttpFuture future) {
         HttpSession httpSession = (HttpSession) ioSession.getAttribute(HTTP_SESSION_KEY);
         if (httpSession == null) {

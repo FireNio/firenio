@@ -24,7 +24,7 @@ import com.generallycloud.baseio.codec.http11.Cookie;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.log.DebugUtil;
 
@@ -38,8 +38,8 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
     private Map<String, HttpSession> readOnlySessions      = Collections.unmodifiableMap(sessions);
 
     @Override
-    public void putSession(String sessionId, HttpSession session) {
-        sessions.put(sessionId, session);
+    public void putSession(String sessionId, HttpSession channel) {
+        sessions.put(sessionId, channel);
     }
 
     @Override
@@ -48,16 +48,16 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
     }
 
     @Override
-    public HttpSession getHttpSession(HttpFutureAcceptor context, SocketSession ioSession,
+    public HttpSession getHttpSession(HttpFutureAcceptor context, NioSocketChannel ioSession,
             HttpFuture future) {
         String sessionId = future.getCookie(COOKIE_NAME_SESSIONID);
         if (StringUtil.isNullOrBlank(sessionId)) {
-            DefaultHttpSession session = new DefaultHttpSession(context, ioSession);
-            sessionId = session.getSessionId();
+            DefaultHttpSession channel = new DefaultHttpSession(context, ioSession);
+            sessionId = channel.getSessionId();
             Cookie cookie = new Cookie(COOKIE_NAME_SESSIONID, sessionId);
             future.addCookie(cookie);
-            this.sessions.put(sessionId, session);
-            return session;
+            this.sessions.put(sessionId, channel);
+            return channel;
         }
         HttpSession session = sessions.get(sessionId);
         if (session == null) {
@@ -67,7 +67,7 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
         }
         if (!session.isValidate()) {
             sessions.remove(sessionId);
-            CloseUtil.close(session.getIoSession());
+            CloseUtil.close(session.getChannel());
             return getHttpSession(context, ioSession, future);
         }
         session.active(ioSession);
@@ -80,7 +80,7 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
         for (HttpSession session : es) {
             if (!session.isValidate()) {
                 sessions.remove(session.getSessionId());
-                CloseUtil.close(session.getIoSession());
+                CloseUtil.close(session.getChannel());
             }
         }
         sleep(30 * 60 * 1000);
@@ -99,7 +99,7 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
     @Override
     protected void doStop() {
         for (HttpSession session : sessions.values()) {
-            CloseUtil.close(session.getIoSession());
+            CloseUtil.close(session.getChannel());
         }
         super.doStop();
     }

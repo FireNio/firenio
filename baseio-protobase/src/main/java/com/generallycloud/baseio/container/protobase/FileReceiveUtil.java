@@ -22,7 +22,7 @@ import java.io.OutputStream;
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.collection.Parameters;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -39,14 +39,14 @@ public class FileReceiveUtil {
         this.prefix = prefix;
     }
 
-    public void accept(SocketSession session, ParamedProtobaseFuture future, boolean callback)
+    public void accept(NioSocketChannel channel, ParamedProtobaseFuture future, boolean callback)
             throws Exception {
         Parameters parameters = future.getParameters();
-        OutputStream outputStream = (OutputStream) session.getAttribute(ACCEPT_FILE);
+        OutputStream outputStream = (OutputStream) channel.getAttribute(ACCEPT_FILE);
         if (outputStream == null) {
             String fileName = prefix + parameters.getParameter(FILE_NAME);
             outputStream = new FileOutputStream(new File(fileName));
-            session.setAttribute(ACCEPT_FILE, outputStream);
+            channel.setAttribute(ACCEPT_FILE, outputStream);
             logger.info("accept...................open,file={}", fileName);
         }
         byte[] data = future.getReadBinary();
@@ -56,10 +56,10 @@ public class FileReceiveUtil {
         if (isEnd) {
             logger.info("accept...................close,stream={}", outputStream);
             CloseUtil.close(outputStream);
-            session.removeAttribute(ACCEPT_FILE);
+            channel.removeAttribute(ACCEPT_FILE);
             if (callback) {
-                future.write("传输成功！", session.getEncoding());
-                session.flush(future);
+                future.write("传输成功！", channel.getEncoding());
+                channel.flush(future);
             }
         }
     }

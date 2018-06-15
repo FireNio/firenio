@@ -19,18 +19,18 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
-import com.generallycloud.baseio.component.DatagramSession;
+import com.generallycloud.baseio.component.DatagramChannel;
 import com.generallycloud.baseio.component.Parameters;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionManager;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.SocketChannelManager;
 import com.generallycloud.baseio.container.ApplicationContext;
 import com.generallycloud.baseio.container.ApplicationContextUtil;
 import com.generallycloud.baseio.container.LoginCenter;
 import com.generallycloud.baseio.container.authority.AuthorityContext;
 import com.generallycloud.baseio.container.authority.AuthorityManager;
 import com.generallycloud.baseio.container.rtp.server.RTPRoom;
-import com.generallycloud.baseio.container.rtp.server.RTPSessionAttachment;
+import com.generallycloud.baseio.container.rtp.server.RTPChannelAttachment;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.DatagramPacket;
@@ -54,10 +54,10 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
     }
 
     @Override
-    public void doAccept(DatagramSession dSession, DatagramPacket packet, SocketSession session)
+    public void doAccept(DatagramChannel dChannel, DatagramPacket packet, NioSocketChannel channel)
             throws IOException {
 
-        AuthorityManager authorityManager = ApplicationContextUtil.getAuthorityManager(session);
+        AuthorityManager authorityManager = ApplicationContextUtil.getAuthorityManager(channel);
 
         if (authorityManager == null) {
             logger.debug("___________________null authority,packet:{}", packet);
@@ -69,20 +69,20 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
             return;
         }
 
-        RTPSessionAttachment attachment = (RTPSessionAttachment) session
+        RTPChannelAttachment attachment = (RTPChannelAttachment) channel
                 .getAttribute(context.getPluginKey());
 
         RTPRoom room = attachment.getRtpRoom();
 
         if (room != null) {
-            room.broadcast(dSession, packet);
+            room.broadcast(dChannel, packet);
         } else {
             logger.debug("___________________null room,packet:{}", packet);
         }
     }
 
     @Override
-    protected void execute(DatagramSession dSession, DatagramRequest request) {
+    protected void execute(DatagramChannel dChannel, DatagramRequest request) {
 
         String serviceName = request.getFutureName();
 
@@ -102,26 +102,26 @@ public class RTPServerDPAcceptor extends ServerDatagramPacketAcceptor {
 
             SocketChannelContext channelContext = context.getChannelContext();
 
-            SocketSessionManager sessionManager = channelContext.getSessionManager();
+            SocketChannelManager sessionManager = channelContext.getChannelManager();
 
-            //			Session session = factory.getSession(username);
+            //			Channel channel = factory.getChannel(username);
 
-            SocketSession session = null;
+            NioSocketChannel channel = null;
 
-            if (session == null) {
+            if (channel == null) {
                 return;
             }
 
-            //			session.setDatagramChannel(channel); //FIXME udp 
+            //			channel.setDatagramChannel(channel); //FIXME udp 
 
-            ProtobaseFuture future = new ProtobaseFutureImpl(session.getContext(),
+            ProtobaseFuture future = new ProtobaseFutureImpl(channel.getContext(),
                     BIND_SESSION_CALLBACK);
 
-            logger.debug("___________________bind___session___{}", session);
+            logger.debug("___________________bind___session___{}", channel);
 
             future.write("1");
 
-            session.flush(future);
+            channel.flush(future);
 
         } else {
             logger.debug(">>>> {}", request.getFutureName());

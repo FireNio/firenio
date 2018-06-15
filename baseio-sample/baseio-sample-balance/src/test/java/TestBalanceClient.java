@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -40,7 +40,7 @@ public class TestBalanceClient {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 ProtobaseFuture f = (ProtobaseFuture) future;
                 if (f.hasReadBinary()) {
                     System.out.println(f.getReadText() + new String(f.getReadBinary()) + "______R:"
@@ -56,16 +56,16 @@ public class TestBalanceClient {
         ChannelContext context = new ChannelContext(configuration);
         ChannelConnector connector = new ChannelConnector(context);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setIoEventHandle(eventHandleAdaptor);
-        SocketSession session = (SocketSession) connector.connect();
+        NioSocketChannel channel = (NioSocketChannel) connector.connect();
 
         for (int i = 0; i < 100; i++) {
             int fid = Math.abs(new Random().nextInt());
             ProtobaseFuture future = new ProtobaseFutureImpl("future-name");
-            future.write("你好！", session);
+            future.write("你好！", channel);
             future.setHashCode(fid);
-            session.flush(future);
+            channel.flush(future);
         }
 
         ThreadUtil.sleep(300);

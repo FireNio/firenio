@@ -31,7 +31,7 @@ import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.container.ContainerIoEventHandle;
 import com.generallycloud.baseio.log.Logger;
@@ -47,11 +47,11 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     private Logger                  logger    = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
-        acceptHtml(session, (NamedFuture) future);
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
+        acceptHtml(channel, (NamedFuture) future);
     }
 
-    protected void acceptHtml(SocketSession session, NamedFuture future) throws IOException {
+    protected void acceptHtml(NioSocketChannel channel, NamedFuture future) throws IOException {
         HttpEntity entity = htmlCache.get(future.getFutureName());
         HttpStatus status = HttpStatus.C200;
         ServerHttpFuture f = (ServerHttpFuture) future;
@@ -65,9 +65,9 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         File file = entity.getFile();
         if (file != null && file.lastModified() > entity.getLastModify()) {
             synchronized (entity) {
-                reloadEntity(entity, session.getContext(), status);
+                reloadEntity(entity, channel.getContext(), status);
             }
-            flush(session, f, entity);
+            flush(channel, f, entity);
             return;
         }
         String ims = f.getRequestHeader(HttpHeader.Req_If_Modified_Since);
@@ -76,11 +76,11 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
             imsTime = HttpHeaderDateFormat.getFormat().parse(ims).getTime();
         }
         if (imsTime < entity.getLastModifyGTMTime()) {
-            flush(session, f, entity);
+            flush(channel, f, entity);
             return;
         }
         f.setStatus(HttpStatus.C304);
-        session.flush(f);
+        channel.flush(f);
     }
 
     @Override
@@ -90,14 +90,14 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     }
 
     @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
+    public void exceptionCaught(NioSocketChannel channel, Future future, Exception ex) {
         logger.error(ex.getMessage(), ex);
         if (future instanceof WebSocketFuture) {
-            future.write(String.valueOf(ex.getMessage()), session);
-            session.flush(future);
+            future.write(String.valueOf(ex.getMessage()), channel);
+            channel.flush(future);
             return;
         }
-        ServerHttpFuture f = new ServerHttpFuture(session.getContext());
+        ServerHttpFuture f = new ServerHttpFuture(channel.getContext());
         StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
         builder.append("        <div style=\"margin-left:20px;\">\n");
         builder.append(
@@ -118,17 +118,17 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         builder.append("        </div>\n");
         builder.append(HtmlUtil.HTML_POWER_BY);
         builder.append(HtmlUtil.HTML_BOTTOM);
-        f.write(builder.toString(), session.getEncoding());
+        f.write(builder.toString(), channel.getEncoding());
         f.setStatus(HttpStatus.C500);
         f.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
-        session.flush(f);
+        channel.flush(f);
     }
 
-    private void flush(SocketSession session, ServerHttpFuture future, HttpEntity entity) {
+    private void flush(NioSocketChannel channel, ServerHttpFuture future, HttpEntity entity) {
         future.setResponseHeader(HttpHeader.Content_Type, entity.getContentType());
         future.setResponseHeader(HttpHeader.Last_Modified, entity.getLastModifyGTM());
         future.write(entity.getBinary());
-        session.flush(future);
+        channel.flush(future);
     }
 
     private ApplicationIoEventHandle getApplicationIoEventHandle(ChannelContext context) {
@@ -189,7 +189,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         ApplicationIoEventHandle handle = getApplicationIoEventHandle(context);
         if (handle.getConfiguration().isEnableHttpSession()) {
             httpSessionManager = new DefaultHttpSessionManager();
-            httpSessionManager.startup("http-session-manager");
+            httpSessionManager.startup("http-channel-manager");
         } else {
             httpSessionManager = new FakeHttpSessionManager();
         }

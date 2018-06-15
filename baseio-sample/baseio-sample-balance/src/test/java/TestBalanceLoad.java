@@ -22,7 +22,7 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -33,7 +33,7 @@ public class TestBalanceLoad {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
 
                 ProtobaseFuture f = (ProtobaseFuture) future;
 
@@ -43,8 +43,8 @@ public class TestBalanceLoad {
                     System.out.println("收到报文：" + future.toString());
                     String res = "_____________" + f.getReadText();
                     System.out.println("处理报文：" + res);
-                    f.write(res, session.getContext());
-                    session.flush(future);
+                    f.write(res, channel.getContext());
+                    channel.flush(future);
                 }
             }
         };
@@ -59,7 +59,7 @@ public class TestBalanceLoad {
 
         context.setProtocolCodec(new ProtobaseCodec());
 
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
 
         connector.connect();
 

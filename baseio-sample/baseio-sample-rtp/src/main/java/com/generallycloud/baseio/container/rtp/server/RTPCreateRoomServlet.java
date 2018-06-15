@@ -16,21 +16,21 @@
 package com.generallycloud.baseio.container.rtp.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class RTPCreateRoomServlet extends RTPServlet {
 
     public static final String SERVICE_NAME = RTPCreateRoomServlet.class.getSimpleName();
 
     @Override
-    public void doAccept(SocketSession session, ProtobaseFuture future,
-            RTPSessionAttachment attachment) throws Exception {
+    public void doAccept(NioSocketChannel channel, ProtobaseFuture future,
+            RTPChannelAttachment attachment) throws Exception {
 
-        RTPRoom room = attachment.createRTPRoom(session);
+        RTPRoom room = attachment.createRTPRoom(channel);
 
         future.write(String.valueOf(room.getRoomId()));
 
-        session.flush(future);
+        channel.flush(future);
     }
 
 }

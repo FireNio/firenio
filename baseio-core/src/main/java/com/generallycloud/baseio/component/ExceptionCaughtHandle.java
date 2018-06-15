@@ -23,6 +23,6 @@ import com.generallycloud.baseio.protocol.Future;
  */
 public interface ExceptionCaughtHandle {
 
-    void exceptionCaught(SocketSession session, Future future, Exception ex);
+    void exceptionCaught(NioSocketChannel channel, Future future, Exception ex);
 
 }

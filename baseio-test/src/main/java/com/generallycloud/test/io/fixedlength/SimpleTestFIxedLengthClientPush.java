@@ -26,7 +26,7 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -36,16 +36,16 @@ public class SimpleTestFIxedLengthClientPush {
     public static void main(String[] args) throws Exception {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 System.out.println(">msg from server: " + future);
             }
         };
         ChannelContext context = new ChannelContext(new Configuration("localhost", 8300));
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandleAdaptor);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
-        SocketSession session = connector.connect();
+        NioSocketChannel channel = connector.connect();
         ThreadUtil.exec(new Runnable() {
 
             @Override
@@ -64,12 +64,12 @@ public class SimpleTestFIxedLengthClientPush {
                     System.out.println(">");
                     String line = scanner.nextLine();
                     if ("exit".equals(line)) {
-                        CloseUtil.close(session);
+                        CloseUtil.close(channel);
                         break;
                     }
                     FixedLengthFuture future = new FixedLengthFutureImpl();
                     future.write(line, context);
-                    session.flush(future);
+                    channel.flush(future);
                 }
             }
         });

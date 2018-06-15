@@ -25,7 +25,7 @@ import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.http11.HtmlUtil;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptor;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
@@ -44,15 +44,15 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
         WebSocketMsgAdapter chatMsgAdapter = chatServlet.getMsgAdapter();
         WebSocketMsgAdapter rumpetrollMsgAdapter = rumpetrollServlet.getMsgAdapter();
 
-        SocketSession socketSession = session.getIoSession();
-        ChannelContext context = session.getIoSession().getContext();
+        NioSocketChannel channel = session.getChannel();
+        ChannelContext context = session.getChannel().getContext();
         HttpFutureAcceptor httpContext = session.getContext();
 
         BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
         BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
         BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
 
-        NioEventLoopGroup group = socketSession.unsafe().getEventLoop().getGroup();
+        NioEventLoopGroup group = channel.getEventLoop().getGroup();
 
         ByteBufAllocatorGroup allocator = group.getAllocatorGroup();
 
@@ -92,8 +92,8 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
         builder.append("\n</BR>小蝌蚪（WebSocket）客户端数量：");
         builder.append(rumpetrollMsgAdapter.getClientSize());
         builder.append("\n</BR>服务器当前连接数（io-session）：");
-        builder.append(context.getSessionManager().getManagedSessionSize());
-        for (SocketSession s : context.getSessionManager().getManagedSessions().values()) {
+        builder.append(context.getChannelManager().getManagedChannelSize());
+        for (NioSocketChannel s : context.getChannelManager().getManagedChannels().values()) {
             builder.append("\n</BR>");
             builder.append(s);
             builder.append(",opened:");

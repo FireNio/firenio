@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.baseio.component.DatagramSession;
-import com.generallycloud.baseio.component.Session;
+import com.generallycloud.baseio.component.DatagramChannel;
+import com.generallycloud.baseio.component.Channel;
 import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 import com.generallycloud.baseio.concurrent.ReentrantList;
 import com.generallycloud.baseio.container.rtp.RTPContext;
@@ -36,26 +36,26 @@ public class RTPRoom {
             .getLogger(RTPRoom.class);
 
     private RTPContext                      context;
-    private ReentrantList<DatagramSession>  datagramChannelList = new ReentrantList<>(
-            new ArrayList<DatagramSession>());
+    private ReentrantList<DatagramChannel>  datagramChannelList = new ReentrantList<>(
+            new ArrayList<DatagramChannel>());
     private RTPRoomFactory                  roomFactory;
     private int                             roomId;
     private boolean                         closed              = false;
 
-    public RTPRoom(RTPContext context, Session session) {
+    public RTPRoom(RTPContext context, Channel channel) {
         this.roomId = genRoomId();
         this.roomFactory = context.getRTPRoomFactory();
         this.context = context;
-        //		this.join(session.getDatagramChannel()); //FIXME udp 
+        //		this.join(channel.getDatagramChannel()); //FIXME udp 
     }
 
-    public void broadcast(DatagramSession session, DatagramPacket packet) {
+    public void broadcast(DatagramChannel channel, DatagramPacket packet) {
 
-        List<DatagramSession> datagramChannels = datagramChannelList.takeSnapshot();
+        List<DatagramChannel> datagramChannels = datagramChannelList.takeSnapshot();
 
-        for (DatagramSession ch : datagramChannels) {
+        for (DatagramChannel ch : datagramChannels) {
 
-            if (session == ch) {
+            if (channel == ch) {
                 continue;
             }
 
@@ -75,9 +75,9 @@ public class RTPRoom {
         return roomId;
     }
 
-    public boolean join(DatagramSession session) {
+    public boolean join(DatagramChannel channel) {
 
-        if (session == null) {
+        if (channel == null) {
             return false;
         }
 
@@ -92,7 +92,7 @@ public class RTPRoom {
             return false;
         }
 
-        if (!datagramChannelList.add(session)) {
+        if (!datagramChannelList.add(channel)) {
 
             lock.unlock();
 
@@ -101,17 +101,17 @@ public class RTPRoom {
 
         lock.unlock();
 
-        //		Session session = (Session) session.getSession();
+        //		Channel channel = (Channel) channel.getChannel();
 
         //FIXME RTP
-        //		RTPSessionAttachment attachment = (RTPSessionAttachment) session.getAttachment(context.getPluginIndex());
+        //		RTPChannelAttachment attachment = (RTPChannelAttachment) channel.getAttachment(context.getPluginIndex());
 
         //		attachment.setRTPRoom(this);
 
         return true;
     }
 
-    public void leave(DatagramSession channel) {
+    public void leave(DatagramChannel channel) {
 
         ReentrantLock lock = datagramChannelList.getReentrantLock();
 
@@ -119,18 +119,18 @@ public class RTPRoom {
 
         datagramChannelList.remove(channel);
 
-        List<DatagramSession> chs = datagramChannelList.takeSnapshot();
+        List<DatagramChannel> chs = datagramChannelList.takeSnapshot();
 
-        for (DatagramSession ch : chs) {
+        for (DatagramChannel ch : chs) {
 
             if (ch == channel) {
                 continue;
             }
 
             //FIXME RTP
-            //			SocketSession session = (SocketSession) ch.getSession();
+            //			NioSocketChannel channel = (NioSocketChannel) ch.getChannel();
 
-            //			Authority authority = ApplicationContextUtil.getAuthority(session);
+            //			Authority authority = ApplicationContextUtil.getAuthority(channel);
             //
             //			MapMessage message = new MapMessage("mmm", authority.getUuid());
             //

@@ -21,8 +21,8 @@ import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SessionAliveIdleEventListener;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.ChannelAliveIdleEventListener;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Future;
@@ -36,24 +36,24 @@ public class TestServer {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 ProtobaseFuture f = (ProtobaseFuture) future;
                 DebugUtil.debug("receive text:" + f.getReadText());
-                future.write("yes server already accept your text message:", session);
-                future.write(f.getReadText(), session);
+                future.write("yes server already accept your text message:", channel);
+                future.write(f.getReadText(), channel);
                 if (f.getReadBinarySize() > 0) {
                     DebugUtil.debug("receive binary:" + new String(f.getReadBinary()));
                     f.writeBinary("yes server already accept your binary message:".getBytes());
                     f.writeBinary(f.getReadBinary());
                 }
-                session.flush(future);
+                channel.flush(future);
             }
         };
 
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelAcceptor acceptor = new ChannelAcceptor(context);
-        context.addSessionEventListener(new LoggerSocketSEListener());
-        context.addSessionIdleEventListener(new SessionAliveIdleEventListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
+        context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());
         acceptor.bind();

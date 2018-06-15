@@ -16,8 +16,8 @@
 package com.generallycloud.baseio.balance.router;
 
 import com.generallycloud.baseio.balance.HashedBalanceFuture;
-import com.generallycloud.baseio.balance.facade.FacadeSocketSession;
-import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
+import com.generallycloud.baseio.balance.facade.FacadeSocketChannel;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
 public class HashedBalanceRouter extends AbstractBalanceRouter {
@@ -26,20 +26,20 @@ public class HashedBalanceRouter extends AbstractBalanceRouter {
         this.virtualNodes = new VirtualNodes<>(maxNode);
     }
 
-    private VirtualNodes<ReverseSocketSession> virtualNodes;
+    private VirtualNodes<ReverseSocketChannel> virtualNodes;
 
     @Override
-    public void addRouterSession(ReverseSocketSession session) {
-        virtualNodes.addMachine(session);
+    public void addRouterChannel(ReverseSocketChannel channel) {
+        virtualNodes.addMachine(channel);
     }
 
     @Override
-    public void removeRouterSession(ReverseSocketSession session) {
-        virtualNodes.removeMachine(session);
+    public void removeRouterChannel(ReverseSocketChannel channel) {
+        virtualNodes.removeMachine(channel);
     }
 
     @Override
-    public ReverseSocketSession getRouterSession(FacadeSocketSession session, Future future) {
+    public ReverseSocketChannel getRouterChannel(FacadeSocketChannel channel, Future future) {
 
         HashedBalanceFuture f = (HashedBalanceFuture) future;
 
@@ -47,7 +47,7 @@ public class HashedBalanceRouter extends AbstractBalanceRouter {
     }
 
     @Override
-    public ReverseSocketSession getRouterSession(FacadeSocketSession session) {
+    public ReverseSocketChannel getRouterChannel(FacadeSocketChannel channel) {
         return null;
     }
 

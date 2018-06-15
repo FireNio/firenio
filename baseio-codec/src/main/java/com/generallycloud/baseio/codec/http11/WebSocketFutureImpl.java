@@ -18,10 +18,7 @@ package com.generallycloud.baseio.codec.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.collection.FixedThreadStack;
-import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.AbstractChannelFuture;
 import com.generallycloud.baseio.protocol.ChannelFuture;
 
@@ -45,7 +42,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
     public WebSocketFutureImpl(NioSocketChannel channel, ByteBuf buf, int limit) {
         this.limit = limit;
         this.setByteBuf(buf);
-        this.setServiceName(channel.getSession());
+        this.setServiceName(channel);
     }
 
     @Override
@@ -168,8 +165,8 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
         return super.setPONG();
     }
 
-    protected void setServiceName(SocketSession session) {
-        this.serviceName = (String) session.getAttribute(SESSION_KEY_SERVICE_NAME);
+    protected void setServiceName(NioSocketChannel channel) {
+        this.serviceName = (String) channel.getAttribute(CHANNEL_KEY_SERVICE_NAME);
     }
 
     protected void setType(int type) {
@@ -207,7 +204,7 @@ public class WebSocketFutureImpl extends AbstractChannelFuture implements WebSoc
 
         this.limit = limit;
         this.setByteBuf(buf);
-        this.setServiceName(channel.getSession());
+        this.setServiceName(channel);
 
         super.reset();
         return this;

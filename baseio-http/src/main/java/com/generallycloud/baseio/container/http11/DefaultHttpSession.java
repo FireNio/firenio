@@ -20,39 +20,39 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.collection.AttributesImpl;
 import com.generallycloud.baseio.common.UUIDGenerator;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
 public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
     private long               createTime     = System.currentTimeMillis();
-    private SocketSession      ioSession;
+    private NioSocketChannel      channel;
     private long               lastAccessTime = createTime;
     private String             sessionId;
     private HttpFutureAcceptor context;
 
-    protected DefaultHttpSession(HttpFutureAcceptor context, SocketSession ioSession) {
+    protected DefaultHttpSession(HttpFutureAcceptor context, NioSocketChannel ioSession) {
         this.context = context;
-        this.ioSession = ioSession;
+        this.channel = ioSession;
         this.sessionId = UUIDGenerator.random();
     }
 
-    protected DefaultHttpSession(HttpFutureAcceptor context, SocketSession ioSession,
+    protected DefaultHttpSession(HttpFutureAcceptor context, NioSocketChannel ioSession,
             String sessionId) {
         this.context = context;
-        this.ioSession = ioSession;
+        this.channel = ioSession;
         this.sessionId = sessionId;
     }
 
     @Override
-    public void active(SocketSession ioSession) {
-        this.ioSession = ioSession;
+    public void active(NioSocketChannel ioSession) {
+        this.channel = ioSession;
         this.lastAccessTime = System.currentTimeMillis();
     }
 
     @Override
     public void flush(Future future) throws IOException {
-        ioSession.flush(future);
+        channel.flush(future);
     }
 
     @Override
@@ -61,8 +61,8 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
     }
 
     @Override
-    public SocketSession getIoSession() {
-        return ioSession;
+    public NioSocketChannel getChannel() {
+        return channel;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
     @Override
     public Charset getEncoding() {
-        return ioSession.getEncoding();
+        return channel.getEncoding();
     }
 
     @Override

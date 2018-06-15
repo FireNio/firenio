@@ -24,7 +24,7 @@ import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.Configuration;
@@ -37,17 +37,17 @@ public class TestFIxedLengthServer {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:", session);
-                future.write(f.getReadText(), session);
-                session.flush(future);
+                future.write("yes server already accept your message:", channel);
+                future.write(f.getReadText(), channel);
+                channel.flush(future);
             }
         };
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelAcceptor acceptor = new ChannelAcceptor(context);
-        context.addSessionEventListener(new LoggerSocketSEListener());
-        //		context.addSessionEventListener(new SocketSessionAliveSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
+        //		context.addChannelEventListener(new SocketChannelAliveSEListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new FixedLengthCodec());
         File certificate = FileUtil.readFileByCls("generallycloud.com.crt");

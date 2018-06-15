@@ -23,9 +23,7 @@ import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
-import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 import com.generallycloud.baseio.protocol.ProtocolException;
 
@@ -34,7 +32,7 @@ import com.generallycloud.baseio.protocol.ProtocolException;
  *  B0 -B3  : 报文总长度        大于0:普通消息 -1:心跳PING -2:心跳PONG
  *  B4 :0   : 消息类型          0:P2P           1:BRODCAST
  *  B4 :1   : 是否包含FutureId  4 byte   
- *  B4 :2   : 是否包含SessionId 4 byte
+ *  B4 :2   : 是否包含ChannelId 4 byte
  *  B4 :3   : 是否包含Text      4 byte
  *  B4 :4   : 是否包含Binary    4 byte
  *  B4 :5   : 预留
@@ -42,7 +40,7 @@ import com.generallycloud.baseio.protocol.ProtocolException;
  *  B4 :7   : 预留
  *  B5      : futureNameLen
  *  .....   ：futureName
- *  .....   ：futureId,sessionId,Text,Binary
+ *  .....   ：futureId,channelId,Text,Binary
  *  
  * </pre>
  */
@@ -76,12 +74,12 @@ public class ProtobaseCodec implements ProtocolCodec {
     }
 
     @Override
-    public Future createPINGPacket(SocketSession session) {
+    public ChannelFuture createPINGPacket(NioSocketChannel channel) {
         return new ProtobaseFutureImpl().setPING();
     }
 
     @Override
-    public Future createPONGPacket(SocketSession session, ChannelFuture ping) {
+    public ChannelFuture createPONGPacket(NioSocketChannel channel, ChannelFuture ping) {
         return ping.setPONG();
     }
 
@@ -121,7 +119,7 @@ public class ProtobaseCodec implements ProtocolCodec {
             h1 |= 0b01000000;
             allLen += 4;
         }
-        if (f.getSessionId() > 0) {
+        if (f.getChannelId() > 0) {
             h1 |= 0b00100000;
             allLen += 4;
         }
@@ -143,8 +141,8 @@ public class ProtobaseCodec implements ProtocolCodec {
         if (f.getFutureId() > 0) {
             buf.putInt(f.getFutureId());
         }
-        if (f.getSessionId() > 0) {
-            buf.putInt(f.getSessionId());
+        if (f.getChannelId() > 0) {
+            buf.putInt(f.getChannelId());
         }
         if (textWriteSize > 0) {
             buf.putInt(textWriteSize);

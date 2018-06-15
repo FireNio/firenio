@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.container.protobase;
 
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.ContainerIoEventHandle;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -26,7 +26,7 @@ import com.generallycloud.baseio.protocol.Future;
 public class ProtobaseFutureAcceptor extends ContainerIoEventHandle {
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
 
     }
 

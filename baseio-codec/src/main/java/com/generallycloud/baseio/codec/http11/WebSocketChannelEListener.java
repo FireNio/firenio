@@ -16,30 +16,30 @@
 package com.generallycloud.baseio.codec.http11;
 
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SessionEventListenerAdapter;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class WebSocketSessionEListener extends SessionEventListenerAdapter {
+public class WebSocketChannelEListener extends ChannelEventListenerAdapter {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void sessionClosed(SocketSession session) {
-        if (!WebSocketCodec.PROTOCOL_ID.equals(session.getProtocolId())) {
+    public void channelClosed(NioSocketChannel channel) {
+        if (!WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
             return;
         }
-        ChannelContext context = session.getContext();
+        ChannelContext context = channel.getContext();
         WebSocketFutureImpl future = new WebSocketFutureImpl();
         future.setType(WebSocketCodec.TYPE_CLOSE);
-        future.setServiceName(session);
+        future.setServiceName(channel);
         try {
-            context.getIoEventHandle().accept(session, future);
+            context.getIoEventHandle().accept(channel, future);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        super.sessionClosed(session);
+        super.channelClosed(channel);
     }
 
 }

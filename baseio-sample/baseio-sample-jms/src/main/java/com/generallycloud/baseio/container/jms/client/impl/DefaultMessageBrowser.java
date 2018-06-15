@@ -20,7 +20,7 @@ import java.io.IOException;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.FixedChannel;
 import com.generallycloud.baseio.container.jms.JmsUtil;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.Message;
@@ -35,10 +35,10 @@ public class DefaultMessageBrowser implements MessageBrowser {
 
     private MessageDecoder messageDecoder = new DefaultMessageDecoder();
 
-    private FixedSession   session        = null;
+    private FixedChannel   channel        = null;
 
-    public DefaultMessageBrowser(FixedSession session) {
-        this.session = session;
+    public DefaultMessageBrowser(FixedChannel channel) {
+        this.channel = channel;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 
         ParamedProtobaseFuture future;
         try {
-            future = session.request(SERVICE_NAME, param.toJSONString());
+            future = channel.request(SERVICE_NAME, param.toJSONString());
         } catch (IOException e) {
             throw new MQException(e.getMessage(), e);
         }
@@ -63,7 +63,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 
         ProtobaseFuture future;
         try {
-            future = session.request(SERVICE_NAME, param);
+            future = channel.request(SERVICE_NAME, param);
         } catch (IOException e) {
             throw new MQException(e.getMessage(), e);
         }
@@ -79,7 +79,7 @@ public class DefaultMessageBrowser implements MessageBrowser {
 
         ProtobaseFuture future;
         try {
-            future = session.request(SERVICE_NAME, param.toJSONString());
+            future = channel.request(SERVICE_NAME, param.toJSONString());
         } catch (IOException e) {
             throw new MQException(e.getMessage(), e);
         }

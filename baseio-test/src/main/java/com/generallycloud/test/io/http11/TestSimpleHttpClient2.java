@@ -26,7 +26,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.configuration.Configuration;
 
@@ -50,12 +50,12 @@ public class TestSimpleHttpClient2 {
         ChannelConnector connector = new ChannelConnector(context);
         context.setProtocolCodec(new ClientHttpCodec());
         context.setIoEventHandle(eventHandleAdaptor);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         if (port == 443) {
             context.setSslContext(SSLUtil.initClient(true));
         }
-        SocketSession session = connector.connect();
-        HttpClient client = new HttpClient(session);
+        NioSocketChannel channel = connector.connect();
+        HttpClient client = new HttpClient(channel);
         HttpFuture future = new ClientHttpFuture(context, "/");
         HttpFuture res = client.request(future, 99990000);
         System.out.println();

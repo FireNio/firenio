@@ -33,7 +33,7 @@ import com.generallycloud.baseio.container.http11.HttpSession;
 public class TestEmojiServlet extends HttpFutureAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
+    protected void doAccept(HttpSession channel, HttpFuture future) throws Exception {
 
         String emoji = EmojiUtil.EMOJI_ALL;
 
@@ -69,11 +69,11 @@ public class TestEmojiServlet extends HttpFutureAcceptorService {
         builder.append(getScript());
         builder.append(HtmlUtil.HTML_BOTTOM);
 
-        future.write(builder.toString(), session.getEncoding());
+        future.write(builder.toString(), channel.getEncoding());
 
         future.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
 
-        session.flush(future);
+        channel.flush(future);
     }
 
     private String getScript() {

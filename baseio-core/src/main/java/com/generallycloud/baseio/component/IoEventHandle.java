@@ -19,6 +19,6 @@ import com.generallycloud.baseio.protocol.Future;
 
 public interface IoEventHandle extends FutureAcceptor, ExceptionCaughtHandle {
 
-    void futureSent(SocketSession session, Future future);
+    void futureSent(NioSocketChannel channel, Future future);
 
 }

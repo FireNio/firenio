@@ -24,13 +24,13 @@ public class AttributesImpl implements Attributes {
     private Map<Object, Object> attributes = new HashMap<>();
 
     @Override
-    public Object removeAttribute(Object key) {
-        return this.attributes.remove(key);
+    public Map<Object, Object> attributes() {
+        return attributes;
     }
 
     @Override
-    public void setAttribute(Object key, Object value) {
-        this.attributes.put(key, value);
+    public void clearAttributes() {
+        this.attributes.clear();
     }
 
     @Override
@@ -44,8 +44,13 @@ public class AttributesImpl implements Attributes {
     }
 
     @Override
-    public void clearAttributes() {
-        this.attributes.clear();
+    public Object removeAttribute(Object key) {
+        return this.attributes.remove(key);
+    }
+
+    @Override
+    public void setAttribute(Object key, Object value) {
+        this.attributes.put(key, value);
     }
 
 }

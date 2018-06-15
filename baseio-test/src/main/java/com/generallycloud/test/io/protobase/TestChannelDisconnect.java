@@ -22,18 +22,18 @@ import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.container.protobase.FixedSession;
+import com.generallycloud.baseio.container.protobase.FixedChannel;
 import com.generallycloud.baseio.container.protobase.OnFuture;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 import com.generallycloud.baseio.protocol.Future;
 
-public class TestSessionDisconnect {
+public class TestChannelDisconnect {
 
     public static void main(String[] args) throws Exception {
 
-        String serviceName = "TestSessionDisconnectServlet";
+        String serviceName = "TestChannelDisconnectServlet";
         String param = "ttt";
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
         Configuration configuration = new Configuration(8300);
@@ -41,18 +41,18 @@ public class TestSessionDisconnect {
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
-        FixedSession session = new FixedSession(connector.connect());
-        ProtobaseFuture future = session.request(serviceName, param);
+        context.addChannelEventListener(new LoggerSocketSEListener());
+        FixedChannel channel = new FixedChannel(connector.connect());
+        ProtobaseFuture future = channel.request(serviceName, param);
         System.out.println(future.getReadText());
-        session.listen(serviceName, new OnFuture() {
+        channel.listen(serviceName, new OnFuture() {
             @Override
-            public void onResponse(SocketSession session, Future future) {
+            public void onResponse(NioSocketChannel channel, Future future) {
                 ProtobaseFuture f = (ProtobaseFuture) future;
                 System.out.println(f.getReadText());
             }
         });
-        session.write(serviceName, param);
+        channel.write(serviceName, param);
         ThreadUtil.sleep(9999);
         CloseUtil.close(connector);
     }

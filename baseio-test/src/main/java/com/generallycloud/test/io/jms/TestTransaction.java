@@ -33,11 +33,11 @@ public class TestTransaction {
     //
     //        context.setProtocolCodec(new ProtobaseCodec());
     //
-    //        context.addSessionEventListener(new LoggerSocketSEListener());
+    //        context.addChannelEventListener(new LoggerSocketSEListener());
     //
-    //        FixedSession session = new FixedSession(connector.connect());
+    //        FixedChannel channel = new FixedChannel(connector.connect());
     //
-    //        MessageConsumer consumer = new DefaultMessageConsumer(session);
+    //        MessageConsumer consumer = new DefaultMessageConsumer(channel);
     //
     //        rollback(consumer);
     //

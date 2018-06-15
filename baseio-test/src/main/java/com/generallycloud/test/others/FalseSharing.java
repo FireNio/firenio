@@ -21,8 +21,8 @@ package com.generallycloud.test.others;
  */
 public final class FalseSharing implements Runnable {
 
-    public static int             NUM_THREADS = 4;                   // change  
-    public final static long      ITERATIONS  = 500L * 1000L * 1000L;
+    public static int             NUM_THREADS = 1;                   // change  
+    public final static long      ITERATIONS  = 50L * 1000L * 1000L;
     private final int             arrayIndex;
     private static VolatileLong[] longs;
 
@@ -33,6 +33,7 @@ public final class FalseSharing implements Runnable {
     public static void main(final String[] args) throws Exception {
         //	        Thread.sleep(10000);  
         System.out.println("starting....");
+        System.out.println("count:"+ITERATIONS);
         if (args.length == 1) {
             NUM_THREADS = Integer.parseInt(args[0]);
         }
@@ -41,9 +42,9 @@ public final class FalseSharing implements Runnable {
         for (int i = 0; i < longs.length; i++) {
             longs[i] = new VolatileLong();
         }
-        final long start = System.nanoTime();
+        final long start = System.currentTimeMillis();
         runTest();
-        System.out.println("duration = " + (System.nanoTime() - start));
+        System.out.println("duration = " + (System.currentTimeMillis() - start));
     }
 
     private static void runTest() throws InterruptedException {
@@ -69,6 +70,10 @@ public final class FalseSharing implements Runnable {
 
     public final static class VolatileLong {
         public volatile long value = 0L;
-        //	        public long p1, p2, p3, p4, p5, p6; // 注释  
+        public long p1, p2, p3, p4, p5, p6; // 注释  
     }
+    
+    public static long preventFromOptimization(VolatileLong v) {  
+        return v.p1 + v.p2 + v.p3 + v.p4 + v.p5 + v.p6;  
+    }  
 }

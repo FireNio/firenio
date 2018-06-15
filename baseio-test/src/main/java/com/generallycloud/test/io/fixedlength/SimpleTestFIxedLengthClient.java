@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -34,7 +34,7 @@ public class SimpleTestFIxedLengthClient {
     public static void main(String[] args) throws Exception {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
                 System.out.println();
                 System.out.println("____________________" + f.getReadText());
@@ -46,12 +46,12 @@ public class SimpleTestFIxedLengthClient {
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelConnector connector = new ChannelConnector(context, group);
         context.setIoEventHandle(eventHandleAdaptor);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
-        SocketSession session = connector.connect();
+        NioSocketChannel channel = connector.connect();
         FixedLengthFuture future = new FixedLengthFutureImpl();
-        future.write("hello server!", session);
-        session.flush(future);
+        future.write("hello server!", channel);
+        channel.flush(future);
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);
     }

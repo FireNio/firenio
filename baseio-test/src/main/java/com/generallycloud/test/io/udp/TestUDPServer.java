@@ -24,7 +24,7 @@ public class TestUDPServer {
         //        DatagramPacketAcceptor datagramPacketAcceptor = new DatagramPacketAcceptor() {
         //
         //            @Override
-        //            public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
+        //            public void accept(DatagramChannel channel, DatagramPacket packet) throws IOException {
         //                String req = packet.getDataString(Encoding.UTF8);
         //
         //                DebugUtil.debug(req);
@@ -33,7 +33,7 @@ public class TestUDPServer {
         //
         //                DatagramPacket res = DatagramPacket.createSendPacket(resMsg);
         //
-        //                session.sendPacket(res);
+        //                channel.sendPacket(res);
         //            }
         //        };
         //

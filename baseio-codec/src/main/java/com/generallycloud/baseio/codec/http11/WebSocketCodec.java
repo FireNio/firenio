@@ -24,9 +24,7 @@ import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
-import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 //FIXME 心跳貌似由服务端发起
@@ -83,16 +81,16 @@ public class WebSocketCodec implements ProtocolCodec {
     }
 
     @Override
-    public Future createPINGPacket(SocketSession session) {
-        if (WebSocketCodec.PROTOCOL_ID.equals(session.getProtocolId())) {
+    public ChannelFuture createPINGPacket(NioSocketChannel channel) {
+        if (WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
             return new WebSocketFutureImpl().setPING();
         }
         return null;
     }
 
     @Override
-    public Future createPONGPacket(SocketSession session, ChannelFuture ping) {
-        if (WebSocketCodec.PROTOCOL_ID.equals(session.getProtocolId())) {
+    public ChannelFuture createPONGPacket(NioSocketChannel channel, ChannelFuture ping) {
+        if (WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
             return ping.setPONG();
         }
         return null;

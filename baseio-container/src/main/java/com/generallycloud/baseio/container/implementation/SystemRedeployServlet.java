@@ -20,7 +20,7 @@ import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -31,12 +31,12 @@ import com.generallycloud.baseio.protocol.Future;
 public class SystemRedeployServlet implements FutureAcceptor {
 
     @Override
-    public void accept(SocketSession session, Future future) throws IOException {
-        ApplicationIoEventHandle applicationIoEventHandle = (ApplicationIoEventHandle) session
+    public void accept(NioSocketChannel channel, Future future) throws IOException {
+        ApplicationIoEventHandle applicationIoEventHandle = (ApplicationIoEventHandle) channel
                 .getContext().getIoEventHandle();
         AtomicInteger redeployTime = applicationIoEventHandle.getRedeployTime();
         long startTime = System.currentTimeMillis();
-        Charset charset = session.getEncoding();
+        Charset charset = channel.getEncoding();
         if (applicationIoEventHandle.redeploy()) {
             int time = redeployTime.incrementAndGet();
             future.write("redeploy successful_", charset);
@@ -47,7 +47,7 @@ public class SystemRedeployServlet implements FutureAcceptor {
             future.write("redeploy failed,spent time:", charset);
             future.write(String.valueOf(System.currentTimeMillis() - startTime), charset);
         }
-        session.flush(future);
+        channel.flush(future);
     }
 
 }

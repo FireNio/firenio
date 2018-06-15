@@ -19,9 +19,9 @@ package com.generallycloud.baseio.balance;
  * @author wangkai
  *
  */
-public interface SessionIdBalanceFuture extends BalanceFuture {
+public interface ChannelIdBalanceFuture extends BalanceFuture {
 
-    public abstract int getSessionId();
+    public abstract int getChannelId();
 
-    public abstract void setSessionId(int sessionId);
+    public abstract void setChannelId(int sessionId);
 }

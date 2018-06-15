@@ -39,7 +39,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     private String  futureName;
     private boolean isBroadcast;
     private String  readText;
-    private int     sessionId;
+    private int     channelId;
     private int     textLength;
     private int     textLengthLimit;
 
@@ -85,13 +85,13 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     }
 
     @Override
-    public int getSessionId() {
-        return sessionId;
+    public int getChannelId() {
+        return channelId;
     }
 
     @Override
-    public int getSessionKey() {
-        return sessionId;
+    public int getChannelKey() {
+        return channelId;
     }
 
     @Override
@@ -158,7 +158,7 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
             futureId = src.getInt();
         }
         if (((h1 & 0b00100000) != 0)) {
-            sessionId = src.getInt();
+            channelId = src.getInt();
         }
         int textLen = 0;
         int binaryLen = 0;
@@ -202,8 +202,8 @@ public class ProtobaseFutureImpl extends AbstractChannelFuture implements Protob
     }
 
     @Override
-    public void setSessionId(int sessionId) {
-        this.sessionId = sessionId;
+    public void setChannelId(int channelId) {
+        this.channelId = channelId;
     }
 
     @Override

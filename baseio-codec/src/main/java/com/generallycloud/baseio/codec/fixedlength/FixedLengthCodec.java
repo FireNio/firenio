@@ -22,9 +22,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
-import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 /**
@@ -74,12 +72,12 @@ public class FixedLengthCodec implements ProtocolCodec {
     }
 
     @Override
-    public Future createPINGPacket(SocketSession session) {
+    public ChannelFuture createPINGPacket(NioSocketChannel channel) {
         return new FixedLengthFutureImpl().setPING();
     }
 
     @Override
-    public Future createPONGPacket(SocketSession session, ChannelFuture ping) {
+    public ChannelFuture createPONGPacket(NioSocketChannel channel, ChannelFuture ping) {
         return ping.setPONG();
     }
 

@@ -18,7 +18,7 @@ package com.generallycloud.baseio.container.jms.client.impl;
 import java.io.IOException;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.FixedChannel;
 import com.generallycloud.baseio.container.jms.BytedMessage;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.Message;
@@ -28,10 +28,10 @@ import com.generallycloud.baseio.container.jms.server.MQPublishServlet;
 
 public class DefaultMessageProducer implements MessageProducer {
 
-    private FixedSession session = null;
+    private FixedChannel channel = null;
 
-    public DefaultMessageProducer(FixedSession session) {
-        this.session = session;
+    public DefaultMessageProducer(FixedChannel channel) {
+        this.channel = channel;
     }
 
     @Override
@@ -51,13 +51,13 @@ public class DefaultMessageProducer implements MessageProducer {
 
             if (msgType == Message.TYPE_TEXT || msgType == Message.TYPE_MAP) {
 
-                future = session.request(serviceName, param);
+                future = channel.request(serviceName, param);
 
             } else if (msgType == Message.TYPE_TEXT_BYTE || msgType == Message.TYPE_MAP_BYTE) {
 
                 BytedMessage _message = (BytedMessage) message;
 
-                future = session.request(serviceName, param, _message.getByteArray());
+                future = channel.request(serviceName, param, _message.getByteArray());
 
             } else {
 

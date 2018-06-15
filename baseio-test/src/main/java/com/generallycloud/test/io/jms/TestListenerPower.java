@@ -32,9 +32,9 @@ public class TestListenerPower {
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
-        //        FixedSession session = new FixedSession(connector.connect());
-        //        MessageConsumer consumer = new DefaultMessageConsumer(session);
+        context.addChannelEventListener(new LoggerSocketSEListener());
+        //        FixedChannel channel = new FixedChannel(connector.connect());
+        //        MessageConsumer consumer = new DefaultMessageConsumer(channel);
         //        long old = System.currentTimeMillis();
         //        OnMessage onMessage = new OnMessage() {
         //            @Override

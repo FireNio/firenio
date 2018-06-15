@@ -19,25 +19,25 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFutureImpl;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.jms.BytedMessage;
 import com.generallycloud.baseio.container.jms.Message;
 
 public class Consumer {
 
     private String              queueName;
-    private MQSessionAttachment attachment;
+    private MQChannelAttachment attachment;
     private ConsumerQueue       consumerQueue;
-    private SocketSession       session;
+    private NioSocketChannel       channel;
     private ProtobaseFuture     future;
     private Message             message;
 
-    public Consumer(ConsumerQueue consumerQueue, MQSessionAttachment attachment,
-            SocketSession session, ProtobaseFuture future, String queueName) {
+    public Consumer(ConsumerQueue consumerQueue, MQChannelAttachment attachment,
+            NioSocketChannel channel, ProtobaseFuture future, String queueName) {
         this.consumerQueue = consumerQueue;
         this.queueName = queueName;
         this.attachment = attachment;
-        this.session = session;
+        this.channel = channel;
         this.future = future;
     }
 
@@ -64,16 +64,16 @@ public class Consumer {
 
         String content = message.toString();
 
-        SocketSession session = this.session;
+        NioSocketChannel channel = this.channel;
 
-        ProtobaseFuture f = new ProtobaseFutureImpl(session.getContext(), future.getFutureId(),
+        ProtobaseFuture f = new ProtobaseFutureImpl(channel.getContext(), future.getFutureId(),
                 future.getFutureName());
 
         f.write(content);
 
         if (msgType == Message.TYPE_TEXT || msgType == Message.TYPE_MAP) {
 
-            session.flush(f);
+            channel.flush(f);
 
         } else if (msgType == Message.TYPE_TEXT_BYTE || msgType == Message.TYPE_MAP_BYTE) {
 
@@ -83,7 +83,7 @@ public class Consumer {
 
             f.writeBinary(bytes);
 
-            session.flush(f);
+            channel.flush(f);
         }
     }
 
@@ -93,8 +93,8 @@ public class Consumer {
 
     @Override
     public Consumer clone() {
-        ProtobaseFuture f = new ProtobaseFutureImpl(session.getContext(), future.getFutureId(),
+        ProtobaseFuture f = new ProtobaseFutureImpl(channel.getContext(), future.getFutureId(),
                 future.getFutureName());
-        return new Consumer(consumerQueue, attachment, session, f, queueName);
+        return new Consumer(consumerQueue, attachment, channel, f, queueName);
     }
 }

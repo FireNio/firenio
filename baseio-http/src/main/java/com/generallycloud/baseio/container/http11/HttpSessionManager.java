@@ -18,7 +18,7 @@ package com.generallycloud.baseio.container.http11;
 import java.util.Map;
 
 import com.generallycloud.baseio.codec.http11.HttpFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.EventLoop;
 
 /**
@@ -27,11 +27,11 @@ import com.generallycloud.baseio.concurrent.EventLoop;
  */
 public interface HttpSessionManager extends EventLoop {
 
-    void putSession(String sessionId, HttpSession session);
+    void putSession(String sessionId, HttpSession channel);
 
     void removeSession(String sessionId);
 
-    HttpSession getHttpSession(HttpFutureAcceptor context, SocketSession ioSession,
+    HttpSession getHttpSession(HttpFutureAcceptor context, NioSocketChannel ioSession,
             HttpFuture future);
 
     Map<String, HttpSession> getManagedSessions();

@@ -16,7 +16,7 @@
 package com.generallycloud.sample.baseio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
 public class TestGetPhoneNOServlet extends ProtobaseFutureAcceptorService {
@@ -29,13 +29,13 @@ public class TestGetPhoneNOServlet extends ProtobaseFutureAcceptorService {
     private int                index        = 0;
 
     @Override
-    protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
+    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
         String phone = NOS[index++];
         if (index == 4) {
             index = 0;
         }
-        future.write(phone, session.getContext());
-        session.flush(future);
+        future.write(phone, channel.getContext());
+        channel.flush(future);
     }
 
 }

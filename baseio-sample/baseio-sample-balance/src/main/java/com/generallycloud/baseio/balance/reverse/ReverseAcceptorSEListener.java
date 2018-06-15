@@ -16,12 +16,12 @@
 package com.generallycloud.baseio.balance.reverse;
 
 import com.generallycloud.baseio.balance.BalanceContext;
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SessionEventListenerAdapter;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class ReverseAcceptorSEListener extends SessionEventListenerAdapter {
+public class ReverseAcceptorSEListener extends ChannelEventListenerAdapter {
 
     private Logger         logger = LoggerFactory.getLogger(getClass());
 
@@ -32,14 +32,14 @@ public class ReverseAcceptorSEListener extends SessionEventListenerAdapter {
     }
 
     @Override
-    public void sessionOpened(SocketSession session) {
-        logger.info("load node from [ {} ] connected.", session);
-        context.getBalanceRouter().addRouterSession((ReverseSocketSession) session);
+    public void sessionOpened(NioSocketChannel channel) {
+        logger.info("load node from [ {} ] connected.", channel);
+        context.getBalanceRouter().addRouterChannel((ReverseSocketChannel) channel);
     }
 
     @Override
-    public void sessionClosed(SocketSession session) {
-        logger.info("load node from [ {} ] disconnected.", session);
-        context.getBalanceRouter().removeRouterSession((ReverseSocketSession) session);
+    public void sessionClosed(NioSocketChannel channel) {
+        logger.info("load node from [ {} ] disconnected.", channel);
+        context.getBalanceRouter().removeRouterChannel((ReverseSocketChannel) channel);
     }
 }

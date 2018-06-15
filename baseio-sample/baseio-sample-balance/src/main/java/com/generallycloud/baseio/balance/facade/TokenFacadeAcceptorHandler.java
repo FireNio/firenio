@@ -17,13 +17,13 @@ package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.balance.TokenBalanceFuture;
-import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
 public abstract class TokenFacadeAcceptorHandler extends FacadeAcceptorHandler {
 
     @Override
-    protected void doAccept(FacadeSocketSession fs, ReverseSocketSession rs, BalanceFuture future) {
+    protected void doAccept(FacadeSocketChannel fs, ReverseSocketChannel rs, BalanceFuture future) {
         TokenBalanceFuture f = (TokenBalanceFuture) future;
         if (f.getToken() == 0) {
             fs.flush(createTokenPacket(fs));
@@ -33,6 +33,6 @@ public abstract class TokenFacadeAcceptorHandler extends FacadeAcceptorHandler {
         logDispatchMsg(fs, rs, f);
     }
 
-    protected abstract Future createTokenPacket(FacadeSocketSession session);
+    protected abstract Future createTokenPacket(FacadeSocketChannel channel);
 
 }

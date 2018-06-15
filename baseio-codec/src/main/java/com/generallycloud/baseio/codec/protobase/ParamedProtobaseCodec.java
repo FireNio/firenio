@@ -20,9 +20,7 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
-import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
@@ -41,12 +39,12 @@ public class ParamedProtobaseCodec extends ProtobaseCodec {
     }
 
     @Override
-    public Future createPINGPacket(SocketSession session) {
+    public ChannelFuture createPINGPacket(NioSocketChannel channel) {
         return new ParamedProtobaseFutureImpl().setPING();
     }
 
     @Override
-    public Future createPONGPacket(SocketSession session, ChannelFuture ping) {
+    public ChannelFuture createPONGPacket(NioSocketChannel channel, ChannelFuture ping) {
         return ping.setPONG();
     }
 

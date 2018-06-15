@@ -23,7 +23,7 @@ import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 
 public class TestRedisClient {
@@ -36,13 +36,13 @@ public class TestRedisClient {
 
         context.setIoEventHandle(new RedisIOEventHandle());
 
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
 
         context.setProtocolCodec(new RedisCodec());
 
-        SocketSession session = connector.connect();
+        NioSocketChannel channel = connector.connect();
 
-        RedisClient client = new RedisClient(session);
+        RedisClient client = new RedisClient(channel);
 
         String value = client.set("name222", "hello redis!");
 

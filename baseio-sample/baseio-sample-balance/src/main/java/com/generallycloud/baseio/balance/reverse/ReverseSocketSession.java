@@ -16,8 +16,8 @@
 package com.generallycloud.baseio.balance.reverse;
 
 import com.generallycloud.baseio.balance.router.VirtualMachine;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
-public interface ReverseSocketSession extends SocketSession, VirtualMachine {
+public interface ReverseSocketChannel extends NioSocketChannel, VirtualMachine {
 
 }

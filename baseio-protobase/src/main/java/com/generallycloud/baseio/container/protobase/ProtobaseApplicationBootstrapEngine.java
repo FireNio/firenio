@@ -32,7 +32,7 @@ public class ProtobaseApplicationBootstrapEngine extends ApplicationBootstrapEng
     protected void enrichSocketChannelContext(ChannelContext context) {
         ApplicationIoEventHandle handle = (ApplicationIoEventHandle) context.getIoEventHandle();
         handle.setApplicationConfigurationLoader(new FileSystemACLoader());
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new ParamedProtobaseCodec());
     }
 

@@ -16,17 +16,17 @@
 package com.generallycloud.baseio.container.jms.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class MQConsumerServlet extends MQServlet {
 
     public static final String SERVICE_NAME = MQConsumerServlet.class.getSimpleName();
 
     @Override
-    public void doAccept(SocketSession session, ParamedProtobaseFuture future,
-            MQSessionAttachment attachment) throws Exception {
+    public void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future,
+            MQChannelAttachment attachment) throws Exception {
 
-        getMQContext().pollMessage(session, future, attachment);
+        getMQContext().pollMessage(channel, future, attachment);
     }
 
 }

@@ -17,23 +17,23 @@ package com.generallycloud.test.io.fixedlength;
 
 import java.net.StandardSocketOptions;
 
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SessionEventListener;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.ChannelEventListener;
 
 /**
  * @author wangkai
  *
  */
-public class SetOptionListener implements SessionEventListener {
+public class SetOptionListener implements ChannelEventListener {
 
     @Override
-    public void sessionOpened(SocketSession session) throws Exception {
-        session.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-        session.setOption(StandardSocketOptions.TCP_NODELAY, true);
+    public void channelOpened(NioSocketChannel channel) throws Exception {
+        channel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+        channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
     }
 
     @Override
-    public void sessionClosed(SocketSession session) {
+    public void channelClosed(NioSocketChannel channel) {
 
     }
 

@@ -17,17 +17,17 @@ package com.generallycloud.baseio.container.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
 public abstract class ProtobaseFutureAcceptorService implements FutureAcceptor {
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
-        this.doAccept(session, (ParamedProtobaseFuture) future);
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
+        this.doAccept(channel, (ParamedProtobaseFuture) future);
     }
 
-    protected abstract void doAccept(SocketSession session, ParamedProtobaseFuture future)
+    protected abstract void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future)
             throws Exception;
 
 }

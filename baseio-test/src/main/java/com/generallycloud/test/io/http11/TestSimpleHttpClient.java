@@ -24,7 +24,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.Configuration;
@@ -47,12 +47,12 @@ public class TestSimpleHttpClient {
 
         context.setProtocolCodec(new ClientHttpCodec());
         context.setIoEventHandle(eventHandleAdaptor);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setSslContext(sslContext);
 
-        SocketSession session = connector.connect();
+        NioSocketChannel channel = connector.connect();
 
-        HttpClient client = new HttpClient(session);
+        HttpClient client = new HttpClient(channel);
 
         HttpFuture future = new ClientHttpFuture(context, "/test-show-memory");
 

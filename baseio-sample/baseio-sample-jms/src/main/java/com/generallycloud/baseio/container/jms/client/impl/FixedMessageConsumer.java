@@ -18,7 +18,7 @@ package com.generallycloud.baseio.container.jms.client.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.FixedChannel;
 import com.generallycloud.baseio.container.jms.ErrorMessage;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.MapByteMessage;
@@ -44,8 +44,8 @@ public class FixedMessageConsumer implements OnMessage, MessageConsumer {
 
     private MessageConsumer              messageConsumer;
 
-    public FixedMessageConsumer(FixedSession session) {
-        this.messageConsumer = new DefaultMessageConsumer(session);
+    public FixedMessageConsumer(FixedChannel channel) {
+        this.messageConsumer = new DefaultMessageConsumer(channel);
     }
 
     @Override

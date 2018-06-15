@@ -28,7 +28,7 @@ public class LoggerExceptionCaughtHandle implements ExceptionCaughtHandle {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
+    public void exceptionCaught(NioSocketChannel channel, Future future, Exception ex) {
         logger.error(ex.getMessage(), ex);
     }
 

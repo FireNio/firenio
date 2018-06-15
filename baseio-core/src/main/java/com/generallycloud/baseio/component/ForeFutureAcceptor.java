@@ -21,12 +21,11 @@ import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ChannelFuture;
-import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class ForeFutureAcceptor {
 
-    private Logger          logger = LoggerFactory.getLogger(getClass());
+    private Logger            logger = LoggerFactory.getLogger(getClass());
 
     protected HeartBeatLogger heartBeatLogger;
 
@@ -40,11 +39,11 @@ public class ForeFutureAcceptor {
         createHeartBeatLogger(channelContext);
     }
 
-    public void accept(final SocketSession session, List<ChannelFuture> futures) {
+    public void accept(final NioSocketChannel channel, List<ChannelFuture> futures) {
         if (futures.isEmpty()) {
             return;
         }
-        final ChannelContext context = session.getContext();
+        final ChannelContext context = channel.getContext();
         final IoEventHandle eventHandle = context.getIoEventHandle();
         for (int i = 0; i < futures.size(); i++) {
             final ChannelFuture future = futures.get(i);
@@ -52,43 +51,43 @@ public class ForeFutureAcceptor {
                 continue;
             }
             if (future.isHeartbeat()) {
-                acceptHeartBeat(session, future);
+                acceptHeartBeat(channel, future);
                 continue;
             }
             if (enableWorkEventLoop) {
-                ExecutorEventLoop eventLoop = session.getExecutorEventLoop();
+                ExecutorEventLoop eventLoop = channel.getExecutorEventLoop();
                 eventLoop.dispatch(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            eventHandle.accept(session, future);
+                            eventHandle.accept(channel, future);
                         } catch (Exception e) {
-                            eventHandle.exceptionCaught(session, future, e);
+                            eventHandle.exceptionCaught(channel, future, e);
                         }
                     }
                 });
             } else {
                 try {
-                    eventHandle.accept(session, future);
+                    eventHandle.accept(channel, future);
                 } catch (Exception e) {
-                    eventHandle.exceptionCaught(session, future, e);
+                    eventHandle.exceptionCaught(channel, future, e);
                 }
             }
         }
         futures.clear();
     }
 
-    protected void acceptHeartBeat(final SocketSession session, final ChannelFuture future) {
+    protected void acceptHeartBeat(final NioSocketChannel channel, final ChannelFuture future) {
         if (future.isPING()) {
-            heartBeatLogger.logRequest(session);
-            ProtocolCodec codec = session.getProtocolCodec();
-            Future f = codec.createPONGPacket(session, future);
+            heartBeatLogger.logRequest(channel);
+            ProtocolCodec codec = channel.getProtocolCodec();
+            ChannelFuture f = codec.createPONGPacket(channel, future);
             if (f == null) {
                 return;
             }
-            session.flush(f);
+            channel.flush(f);
         } else {
-            heartBeatLogger.logResponse(session);
+            heartBeatLogger.logResponse(channel);
         }
     }
 
@@ -96,25 +95,25 @@ public class ForeFutureAcceptor {
         if (context.getConfiguration().isEnableHeartbeatLog()) {
             heartBeatLogger = new HeartBeatLogger() {
                 @Override
-                public void logRequest(SocketSession session) {
-                    logger.info("heart beat request from: {}", session);
+                public void logRequest(NioSocketChannel channel) {
+                    logger.info("heart beat request from: {}", channel);
                 }
 
                 @Override
-                public void logResponse(SocketSession session) {
-                    logger.info("heart beat response from: {}", session);
+                public void logResponse(NioSocketChannel channel) {
+                    logger.info("heart beat response from: {}", channel);
                 }
             };
         } else {
             heartBeatLogger = new HeartBeatLogger() {
                 @Override
-                public void logRequest(SocketSession session) {
-                    logger.debug("heart beat request from: {}", session);
+                public void logRequest(NioSocketChannel channel) {
+                    logger.debug("heart beat request from: {}", channel);
                 }
 
                 @Override
-                public void logResponse(SocketSession session) {
-                    logger.debug("heart beat response from: {}", session);
+                public void logResponse(NioSocketChannel channel) {
+                    logger.debug("heart beat response from: {}", channel);
                 }
             };
         }
@@ -122,9 +121,9 @@ public class ForeFutureAcceptor {
 
     private interface HeartBeatLogger {
 
-        void logRequest(SocketSession session);
+        void logRequest(NioSocketChannel channel);
 
-        void logResponse(SocketSession session);
+        void logResponse(NioSocketChannel channel);
     }
 
 }

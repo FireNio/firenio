@@ -22,7 +22,7 @@ import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -47,25 +47,25 @@ public class ReverseAcceptorHandler extends IoEventHandleAdaptor {
     }
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
         BalanceFuture f = (BalanceFuture) future;
         if (f.isBroadcast()) {
-            facadeAcceptor.broadcast(f.translate(session));
-            reverseLogger.logBroadcast(session, future, logger);
+            facadeAcceptor.broadcast(f.translate(channel));
+            reverseLogger.logBroadcast(channel, future, logger);
             return;
         }
-        SocketSession response = balanceRouter.getClientSession(f.getSessionKey());
+        NioSocketChannel response = balanceRouter.getClientChannel(f.getChannelKey());
         if (response == null || response.isClosed()) {
-            reverseLogger.logPushLost(session, future, logger);
+            reverseLogger.logPushLost(channel, future, logger);
             return;
         }
-        response.flush(f.translate(session));
-        reverseLogger.logPush(session, response, future, logger);
+        response.flush(f.translate(channel));
+        reverseLogger.logPush(channel, response, future, logger);
     }
 
     @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
-        exceptionCaughtHandle.exceptionCaught(session, future, ex);
+    public void exceptionCaught(NioSocketChannel channel, Future future, Exception ex) {
+        exceptionCaughtHandle.exceptionCaught(channel, future, ex);
     }
 
 }

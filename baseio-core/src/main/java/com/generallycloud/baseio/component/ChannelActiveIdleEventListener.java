@@ -18,32 +18,32 @@ package com.generallycloud.baseio.component;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
-public class SessionActiveIdleEventListener implements SessionIdleEventListener {
+public class ChannelActiveIdleEventListener implements ChannelIdleEventListener {
 
-    private Logger logger = LoggerFactory.getLogger(SessionActiveIdleEventListener.class);
+    private Logger logger = LoggerFactory.getLogger(ChannelActiveIdleEventListener.class);
 
     @Override
-    public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
-        if (session.isClosed()) {
-            logger.info("closed session");
+    public void channelIdled(NioSocketChannel channel, long lastIdleTime, long currentTime) {
+        if (channel.isClosed()) {
+            logger.info("closed channel");
             return;
         }
-        if (session.getLastAccessTime() < lastIdleTime) {
+        if (channel.getLastAccessTime() < lastIdleTime) {
             logger.info(
                     "Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",
-                    session);
-            CloseUtil.close(session);
+                    channel);
+            CloseUtil.close(channel);
         } else {
-            ProtocolCodec codec = session.getProtocolCodec();
-            Future future = codec.createPINGPacket(session);
+            ProtocolCodec codec = channel.getProtocolCodec();
+            ChannelFuture future = codec.createPINGPacket(channel);
             if (future == null) {
-                // 该session无需心跳,比如HTTP协议
+                // 该channel无需心跳,比如HTTP协议
                 return;
             }
-            session.flush(future);
+            channel.flush(future);
         }
     }
 }

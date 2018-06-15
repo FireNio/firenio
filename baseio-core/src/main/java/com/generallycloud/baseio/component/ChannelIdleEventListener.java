@@ -17,10 +17,8 @@ package com.generallycloud.baseio.component;
 
 import java.util.EventListener;
 
-public interface SessionEventListener extends EventListener {
+public interface ChannelIdleEventListener extends EventListener {
 
-    void sessionOpened(SocketSession session) throws Exception;
-
-    void sessionClosed(SocketSession session);
+    void channelIdled(NioSocketChannel channel, long lastIdleTime, long currentTime);
 
 }

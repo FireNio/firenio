@@ -36,11 +36,11 @@ public class TestTeller {
 
         context.setProtocolCodec(new ParamedProtobaseCodec());
 
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
 
-        //        FixedSession session = new FixedSession(connector.connect());
+        //        FixedChannel channel = new FixedChannel(connector.connect());
         //
-        //        MessageProducer producer = new DefaultMessageProducer(session);
+        //        MessageProducer producer = new DefaultMessageProducer(channel);
         //
         //        TextMessage message = new TextMessage("msgId", "uuid", "你好！");
         //

@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.codec.redis;
 
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -25,7 +25,7 @@ public class RedisIOEventHandle extends IoEventHandleAdaptor {
     private Waiter waiter;
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
         RedisFuture f = (RedisFuture) future;
         Waiter waiter = this.waiter;
         if (waiter != null) {

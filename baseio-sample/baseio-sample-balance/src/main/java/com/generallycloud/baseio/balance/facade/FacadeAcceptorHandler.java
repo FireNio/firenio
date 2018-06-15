@@ -20,12 +20,12 @@ import com.generallycloud.baseio.balance.BalanceFuture;
 import com.generallycloud.baseio.balance.FacadeInterceptor;
 import com.generallycloud.baseio.balance.NoneLoadFutureAcceptor;
 import com.generallycloud.baseio.balance.reverse.ReverseLogger;
-import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketChannel;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -52,14 +52,14 @@ public abstract class FacadeAcceptorHandler extends IoEventHandleAdaptor {
     }
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
-        FacadeSocketSession fs = (FacadeSocketSession) session;
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
+        FacadeSocketChannel fs = (FacadeSocketChannel) channel;
         BalanceFuture f = (BalanceFuture) future;
         if (facadeInterceptor.intercept(fs, f)) {
             logger.info("msg intercepted [ {} ], msg: {}", fs.getRemoteAddrPort(), f);
             return;
         }
-        ReverseSocketSession rs = balanceRouter.getRouterSession(fs, f);
+        ReverseSocketChannel rs = balanceRouter.getRouterChannel(fs, f);
         if (rs == null || rs.isClosed()) {
             noneLoadReadFutureAcceptor.accept(fs, f, reverseLogger);
             return;
@@ -67,18 +67,18 @@ public abstract class FacadeAcceptorHandler extends IoEventHandleAdaptor {
         doAccept(fs, rs, f);
     }
 
-    protected abstract void doAccept(FacadeSocketSession fs, ReverseSocketSession rs,
+    protected abstract void doAccept(FacadeSocketChannel fs, ReverseSocketChannel rs,
             BalanceFuture future);
 
-    protected void logDispatchMsg(FacadeSocketSession fs, ReverseSocketSession rs,
+    protected void logDispatchMsg(FacadeSocketChannel fs, ReverseSocketChannel rs,
             BalanceFuture f) {
         logger.info("dispatch msg: F[{}],T[{}],msg:{}", fs.getRemoteAddrPort(),
                 rs.getRemoteAddrPort(), f);
     }
 
     @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
-        exceptionCaughtHandle.exceptionCaught(session, future, ex);
+    public void exceptionCaught(NioSocketChannel channel, Future future, Exception ex) {
+        exceptionCaughtHandle.exceptionCaught(channel, future, ex);
     }
 
 }

@@ -15,10 +15,10 @@
  */
 package com.generallycloud.baseio.container.protobase;
 
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
 public interface OnFuture {
 
-    public abstract void onResponse(SocketSession session, Future future);
+    public abstract void onResponse(NioSocketChannel channel, Future future);
 }

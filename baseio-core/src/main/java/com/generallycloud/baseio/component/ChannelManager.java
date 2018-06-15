@@ -28,61 +28,62 @@ import com.generallycloud.baseio.protocol.Future;
  * @author wangkai
  *
  */
-public class SocketSessionManager {
+public class ChannelManager {
 
-    private Map<Integer, SocketSession> sessions         = new ConcurrentHashMap<>();
-    private Map<Integer, SocketSession> readOnlySessions = Collections.unmodifiableMap(sessions);
-    private ChannelContext              context;
+    private Map<Integer, NioSocketChannel> channels         = new ConcurrentHashMap<>();
+    private Map<Integer, NioSocketChannel> readOnlyChannels = Collections.unmodifiableMap(channels);
+    private ChannelContext                 context;
 
-    public SocketSessionManager(ChannelContext context) {
+    public ChannelManager(ChannelContext context) {
         this.context = context;
     }
 
-    public int getManagedSessionSize() {
-        return sessions.size();
+    public int getManagedChannelSize() {
+        return channels.size();
     }
 
-    public SocketSession getSession(Integer sessionId) {
-        return sessions.get(sessionId);
+    public NioSocketChannel getChannel(Integer channelId) {
+        return channels.get(channelId);
     }
 
-    public void putSession(SocketSession session) {
-        sessions.put(session.getSessionId(), session);
+    public void putChannel(NioSocketChannel channel) {
+        channels.put(channel.getChannelId(), channel);
     }
 
-    public void removeSession(SocketSession session) {
-        sessions.remove(session.getSessionId());
+    public void removeChannel(NioSocketChannel channel) {
+        channels.remove(channel.getChannelId());
     }
 
     public void broadcast(Future future) throws IOException {
-        broadcast(future, sessions.values());
+        broadcast(future, channels.values());
     }
 
     public void broadcastChannelFuture(ChannelFuture future) {
-        broadcastChannelFuture(future, sessions.values());
+        broadcastChannelFuture(future, channels.values());
     }
 
-    public void broadcast(Future future, Collection<SocketSession> sessions) throws IOException {
-        if (sessions.size() == 0) {
+    public void broadcast(Future future, Collection<NioSocketChannel> channels) throws IOException {
+        if (channels.size() == 0) {
             return;
         }
         NioSocketChannel channel = context.getSimulateSocketChannel();
         ChannelFuture f = (ChannelFuture) future;
         context.getProtocolCodec().encode(channel, f);
-        broadcastChannelFuture(f, sessions);
+        broadcastChannelFuture(f, channels);
     }
 
-    public void broadcastChannelFuture(ChannelFuture future, Collection<SocketSession> sessions) {
-        if (sessions.size() == 0) {
+    public void broadcastChannelFuture(ChannelFuture future,
+            Collection<NioSocketChannel> channels) {
+        if (channels.size() == 0) {
             return;
         }
-        for (SocketSession s : sessions) {
-            s.flushChannelFuture(future.duplicate());
+        for (NioSocketChannel ch : channels) {
+            ch.flushChannelFuture(future.duplicate());
         }
     }
 
-    public Map<Integer, SocketSession> getManagedSessions() {
-        return readOnlySessions;
+    public Map<Integer, NioSocketChannel> getManagedChannels() {
+        return readOnlyChannels;
     }
 
 }

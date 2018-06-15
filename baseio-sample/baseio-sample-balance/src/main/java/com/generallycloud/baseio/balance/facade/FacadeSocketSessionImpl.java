@@ -17,26 +17,26 @@ package com.generallycloud.baseio.balance.facade;
 
 import java.util.Random;
 
-import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketChannel;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSessionImpl;
+import com.generallycloud.baseio.component.SocketChannelImpl;
 
-public class FacadeSocketSessionImpl extends SocketSessionImpl implements FacadeSocketSession {
+public class FacadeSocketChannelImpl extends SocketChannelImpl implements FacadeSocketChannel {
 
     private int                  msg_size;
 
     private long                 next_check_time;
 
-    private ReverseSocketSession reverseSocketSession;
+    private ReverseSocketChannel reverseSocketChannel;
 
-    public FacadeSocketSessionImpl(NioSocketChannel channel) {
+    public FacadeSocketChannelImpl(NioSocketChannel channel) {
         super(channel);
     }
 
     @Override
-    public ReverseSocketSession getReverseSocketSession() {
-        return reverseSocketSession;
+    public ReverseSocketChannel getReverseSocketChannel() {
+        return reverseSocketChannel;
     }
 
     @Override
@@ -53,8 +53,8 @@ public class FacadeSocketSessionImpl extends SocketSessionImpl implements Facade
     }
 
     @Override
-    public void setReverseSocketSession(ReverseSocketSession reverseSocketSession) {
-        this.reverseSocketSession = reverseSocketSession;
+    public void setReverseSocketChannel(ReverseSocketChannel reverseSocketChannel) {
+        this.reverseSocketChannel = reverseSocketChannel;
     }
 
     private static Long generateToken1() {
@@ -67,8 +67,8 @@ public class FacadeSocketSessionImpl extends SocketSessionImpl implements Facade
     }
 
     @Override
-    public Object getSessionKey() {
-        return getSessionId();
+    public Object getChannelKey() {
+        return getChannelId();
     }
 
     public static void main(String[] args) {

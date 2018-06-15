@@ -16,7 +16,7 @@
 package com.generallycloud.sample.baseio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.FileReceiveUtil;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
@@ -27,8 +27,8 @@ public class TestUploadServlet extends ProtobaseFutureAcceptorService {
     private FileReceiveUtil    fileReceiveUtil = new FileReceiveUtil("upload-");
 
     @Override
-    protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
+    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
 
-        fileReceiveUtil.accept(session, future, true);
+        fileReceiveUtil.accept(channel, future, true);
     }
 }

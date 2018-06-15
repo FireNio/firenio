@@ -16,24 +16,24 @@
 package com.generallycloud.baseio.container.rtp.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class RTPLeaveRoomServlet extends RTPServlet {
 
     public static final String SERVICE_NAME = RTPLeaveRoomServlet.class.getSimpleName();
 
     @Override
-    public void doAccept(SocketSession session, ProtobaseFuture future,
-            RTPSessionAttachment attachment) throws Exception {
+    public void doAccept(NioSocketChannel channel, ProtobaseFuture future,
+            RTPChannelAttachment attachment) throws Exception {
 
         RTPRoom room = attachment.getRtpRoom();
 
         if (room != null) {
-            //			room.leave(session.getDatagramChannel()); //FIXME udp 
+            //			room.leave(channel.getDatagramChannel()); //FIXME udp 
         }
 
         future.write("1");
 
-        session.flush(future);
+        channel.flush(future);
     }
 }

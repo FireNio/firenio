@@ -22,7 +22,7 @@ import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioSocketChannelContext;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.connector.SocketChannelConnector;
-import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.FixedChannel;
 import com.generallycloud.baseio.container.SimpleIoEventHandle;
 import com.generallycloud.baseio.container.jms.client.MessageBrowser;
 import com.generallycloud.baseio.container.jms.client.impl.DefaultMessageBrowser;
@@ -71,11 +71,11 @@ public class ConnectExecutable extends MQCommandExecutor {
 
             baseContext.setIoEventHandleAdaptor(eventHandle);
 
-            baseContext.addSessionEventListener(new LoggerSocketSEListener());
+            baseContext.addChannelEventListener(new LoggerSocketSEListener());
 
-            FixedSession session = new FixedSession(connector.connect());
+            FixedChannel channel = new FixedChannel(connector.connect());
 
-            MessageBrowser browser = new DefaultMessageBrowser(session);
+            MessageBrowser browser = new DefaultMessageBrowser(channel);
 
             response.setResponse("连接成功！");
 

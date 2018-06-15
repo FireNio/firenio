@@ -22,9 +22,8 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.protocol.ChannelFuture;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestLoadServer {
@@ -33,10 +32,10 @@ public class TestLoadServer {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
-                f.write(f.getReadText(), session);
-                session.unsafe().flush((ChannelFuture) future);
+                f.write(f.getReadText(), channel);
+                channel.flush(future);
             }
         };
 
@@ -50,7 +49,7 @@ public class TestLoadServer {
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setProtocolCodec(new FixedLengthCodec());
         context.setIoEventHandle(eventHandleAdaptor);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         acceptor.bind();
     }
 

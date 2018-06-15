@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.container.jms.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
 public abstract class MQServlet extends ProtobaseFutureAcceptorService {
@@ -28,14 +28,14 @@ public abstract class MQServlet extends ProtobaseFutureAcceptorService {
     }
 
     @Override
-    public void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
+    public void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
 
-        MQSessionAttachment attachment = context.getSessionAttachment(session);
+        MQChannelAttachment attachment = context.getChannelAttachment(channel);
 
-        this.doAccept(session, future, attachment);
+        this.doAccept(channel, future, attachment);
     }
 
-    public abstract void doAccept(SocketSession session, ParamedProtobaseFuture future,
-            MQSessionAttachment attachment) throws Exception;
+    public abstract void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future,
+            MQChannelAttachment attachment) throws Exception;
 
 }

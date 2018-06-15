@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.container;
 
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
 /**
@@ -26,9 +26,9 @@ import com.generallycloud.baseio.protocol.Future;
 public class DefaultOnRedeployAcceptor implements FutureAcceptor {
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
-        future.write("server is upgrading , please wait ...", session.getEncoding());
-        session.flush(future);
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
+        future.write("server is upgrading , please wait ...", channel.getEncoding());
+        channel.flush(future);
     }
 
 }

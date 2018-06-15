@@ -25,9 +25,9 @@ public class TestUDPConnector1 {
         //
         //		ChannelConnector connector = IoConnectorUtil.getTCPConnector(eventHandle);
         //
-        //		FixedSession session = new FixedSession(connector.connect());
+        //		FixedChannel channel = new FixedChannel(connector.connect());
         //
-        //		session.login("udp1", "udp1");
+        //		channel.login("udp1", "udp1");
         //		
         //		DatagramChannelConnector udpConnector = new DatagramChannelConnector(connector.getContext());
         //		
@@ -35,9 +35,9 @@ public class TestUDPConnector1 {
         //		
         //		String otherCustomerId = "udp2";
         //		
-        //		RTPClient client = new RTPClient(session,udpConnector);
+        //		RTPClient client = new RTPClient(channel,udpConnector);
         //		
-        //		client.bindTCPSession();
+        //		client.bindTCPChannel();
         //		
         //		client.setRTPHandle(new TestUDPReceiveHandle());
         //

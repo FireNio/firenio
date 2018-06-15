@@ -21,7 +21,7 @@
 //import com.generallycloud.baseio.component.SocketChannelContext;
 //import com.generallycloud.baseio.configuration.ServerConfiguration;
 //import com.generallycloud.baseio.connector.ChannelConnector;
-//import com.generallycloud.baseio.container.FixedSession;
+//import com.generallycloud.baseio.container.FixedChannel;
 //import com.generallycloud.baseio.container.SimpleIoEventHandle;
 //import com.generallycloud.baseio.container.jms.Message;
 //import com.generallycloud.baseio.container.jms.client.MessageBrowser;
@@ -45,11 +45,11 @@
 //
 //        context.setProtocolCodec(new ParamedProtobaseCodec());
 //
-//        context.addSessionEventListener(new LoggerSocketSEListener());
+//        context.addChannelEventListener(new LoggerSocketSEListener());
 //
-//        FixedSession session = new FixedSession(connector.connect());
+//        FixedChannel channel = new FixedChannel(connector.connect());
 //
-//        MessageBrowser browser = new DefaultMessageBrowser(session);
+//        MessageBrowser browser = new DefaultMessageBrowser(channel);
 //
 //        Message message = browser.browser(queueName);
 //

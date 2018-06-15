@@ -28,7 +28,7 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
@@ -40,14 +40,14 @@ public class TestSimpleWebSocketClient {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 if (future instanceof ClientHttpFuture) {
                     ClientHttpFuture f = (ClientHttpFuture) future;
                     if (f.getRequestHeader(HttpHeader.Req_Sec_WebSocket_Key) != null) {
                         f.updateWebSocketProtocol();
                         WebSocketFuture f2 = new WebSocketFutureImpl();
-                        f2.write("{action: \"add-user\", username: \"火星人\"}", session);
-                        session.flush(f2);
+                        f2.write("{action: \"add-user\", username: \"火星人\"}", channel);
+                        channel.flush(f2);
                     }
                     System.out.println(f.getRequestHeaders());
                 } else {
@@ -71,12 +71,12 @@ public class TestSimpleWebSocketClient {
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setSslContext(SSLUtil.initClient(true));
-        SocketSession session = connector.connect();
+        NioSocketChannel channel = connector.connect();
         String url = "/web-socket-chat";
         url = "/c1020";
-        HttpFuture future = new WebSocketUpgradeRequestFuture(session.getContext(), url);
+        HttpFuture future = new WebSocketUpgradeRequestFuture(channel.getContext(), url);
         //		 future.setRequestURL("ws://120.76.222.210:30005/");
         //		future.setResponseHeader("Host", "120.76.222.210:30005");
         //		future.setResponseHeader("Pragma", "no-cache");
@@ -86,12 +86,12 @@ public class TestSimpleWebSocketClient {
         //		future.setResponseHeader("Accept-Encoding", "gzip, deflate, sdch");
         //		future.setResponseHeader("Accept-Language", "zh-CN,zh;q=0.8");
         // future.setRequestHeader("", "");
-        session.flush(future);
+        channel.flush(future);
 
         //		ThreadUtil.sleep(1000);
         //		WebSocketReadFuture f2 = new WebSocketReadFutureImpl();
         //		f2.write("test");
-        //		session.flush(f2);
+        //		channel.flush(f2);
 
         ThreadUtil.sleep(999999999);
         CloseUtil.close(connector);

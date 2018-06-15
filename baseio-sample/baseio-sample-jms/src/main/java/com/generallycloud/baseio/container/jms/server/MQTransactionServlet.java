@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.container.jms.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.RESMessage;
 
 public class MQTransactionServlet extends MQServlet {
@@ -24,8 +24,8 @@ public class MQTransactionServlet extends MQServlet {
     public static final String SERVICE_NAME = MQTransactionServlet.class.getSimpleName();
 
     @Override
-    public void doAccept(SocketSession session, ParamedProtobaseFuture future,
-            MQSessionAttachment attachment) throws Exception {
+    public void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future,
+            MQChannelAttachment attachment) throws Exception {
 
         String action = future.getReadText();
 
@@ -41,7 +41,7 @@ public class MQTransactionServlet extends MQServlet {
                 message = MQRESMessage.R_TRANSACTION_BEGINED;
             }
             future.write(message.toString());
-            session.flush(future);
+            channel.flush(future);
 
         } else if ("commit".equals(action)) {
             RESMessage message = null;
@@ -57,7 +57,7 @@ public class MQTransactionServlet extends MQServlet {
             }
 
             future.write(message.toString());
-            session.flush(future);
+            channel.flush(future);
 
         } else if ("rollback".equals(action)) {
             RESMessage message = null;
@@ -72,7 +72,7 @@ public class MQTransactionServlet extends MQServlet {
                 attachment.setTransactionSection(null);
             }
             future.write(message.toString());
-            session.flush(future);
+            channel.flush(future);
         }
         // else if("complete".equals(action)){
         // RESMessage message = RESMessage.R_SUCCESS;
@@ -83,7 +83,7 @@ public class MQTransactionServlet extends MQServlet {
         // }
         else {
             future.write(MQRESMessage.R_CMD_NOT_FOUND.toString());
-            session.flush(future);
+            channel.flush(future);
         }
     }
 

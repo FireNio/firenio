@@ -17,23 +17,23 @@ package com.generallycloud.baseio.container.http11;
 
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.protocol.Future;
 
 public abstract class HttpFutureAcceptorService implements FutureAcceptor {
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
-        ApplicationIoEventHandle handle = (ApplicationIoEventHandle) session.getContext()
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
+        ApplicationIoEventHandle handle = (ApplicationIoEventHandle) channel.getContext()
                 .getIoEventHandle();
         HttpFutureAcceptor containerHandle = (HttpFutureAcceptor) handle.getFutureAcceptor();
         HttpSessionManager manager = containerHandle.getHttpSessionManager();
         HttpFuture httpReadFuture = (HttpFuture) future;
-        HttpSession httpSession = manager.getHttpSession(containerHandle, session, httpReadFuture);
+        HttpSession httpSession = manager.getHttpSession(containerHandle, channel, httpReadFuture);
         doAccept(httpSession, httpReadFuture);
     }
 
-    protected abstract void doAccept(HttpSession session, HttpFuture future) throws Exception;
+    protected abstract void doAccept(HttpSession channel, HttpFuture future) throws Exception;
 
 }

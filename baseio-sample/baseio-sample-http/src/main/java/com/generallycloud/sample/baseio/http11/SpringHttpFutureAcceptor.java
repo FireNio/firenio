@@ -19,7 +19,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptor;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.NamedFuture;
@@ -31,24 +31,24 @@ public class SpringHttpFutureAcceptor extends HttpFutureAcceptor {
     private FutureAcceptor                 filter;
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
         NamedFuture f = (NamedFuture) future;
         if (checkFilter) {
             checkFilter = false;
             filter = getFutureAcceptor("http-filter");
         }
         if (filter != null) {
-            filter.accept(session, future);
+            filter.accept(channel, future);
             if (future.flushed()) {
                 return;
             }
         }
         FutureAcceptor acceptor = getFutureAcceptor(f.getFutureName());
         if (acceptor == null) {
-            acceptHtml(session, f);
+            acceptHtml(channel, f);
             return;
         }
-        acceptor.accept(session, future);
+        acceptor.accept(channel, future);
     }
 
     private FutureAcceptor getFutureAcceptor(String name) {

@@ -24,7 +24,7 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -35,7 +35,7 @@ public class TestSimpleBinary {
         IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 ProtobaseFuture f = (ProtobaseFuture) future;
                 System.out.println("________________________" + f.getReadText());
                 if (f.getReadBinarySize() > 0) {
@@ -46,13 +46,13 @@ public class TestSimpleBinary {
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelConnector connector = new ChannelConnector(context);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setIoEventHandle(eventHandle);
-        SocketSession session = connector.connect();
+        NioSocketChannel channel = connector.connect();
         ProtobaseFuture f = new ProtobaseFutureImpl(serviceKey);
         f.write("text22222".getBytes());
         f.writeBinary("binary22222".getBytes());
-        session.flush(f);
+        channel.flush(f);
         ThreadUtil.sleep(500);
         CloseUtil.close(connector);
     }

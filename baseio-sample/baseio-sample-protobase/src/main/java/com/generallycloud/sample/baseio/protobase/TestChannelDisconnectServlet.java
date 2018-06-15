@@ -17,26 +17,26 @@ package com.generallycloud.sample.baseio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
-public class TestSessionDisconnectServlet extends ProtobaseFutureAcceptorService {
+public class TestChannelDisconnectServlet extends ProtobaseFutureAcceptorService {
 
-    public static final String SERVICE_NAME = TestSessionDisconnectServlet.class.getSimpleName();
+    public static final String SERVICE_NAME = TestChannelDisconnectServlet.class.getSimpleName();
 
     private TestSimple1        simple1      = new TestSimple1();
 
     @Override
-    protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
+    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
         String test = future.getReadText();
         if (StringUtil.isNullOrBlank(test)) {
             test = "test";
         }
-        future.write(simple1.dynamic(), session);
-        future.write(test, session);
-        future.write("$", session);
-        session.flush(future);
-        session.close();
+        future.write(simple1.dynamic(), channel);
+        future.write(test, channel);
+        future.write("$", channel);
+        channel.flush(future);
+        channel.close();
     }
 
 }

@@ -18,7 +18,7 @@ package com.generallycloud.baseio.container.jms.client.impl;
 import java.io.IOException;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.FixedChannel;
 import com.generallycloud.baseio.container.RESMessage;
 import com.generallycloud.baseio.container.RESMessageDecoder;
 import com.generallycloud.baseio.container.WaiterOnFuture;
@@ -34,10 +34,10 @@ public class DefaultMessageConsumer implements MessageConsumer {
     private MessageDecoder messageDecoder           = new DefaultMessageDecoder();
     private boolean        needSendReceiveCommand   = true;
     private boolean        needSendSubscribeCommand = true;
-    private FixedSession   session;
+    private FixedChannel   channel;
 
-    public DefaultMessageConsumer(FixedSession session) {
-        this.session = session;
+    public DefaultMessageConsumer(FixedChannel channel) {
+        this.channel = channel;
     }
 
     @Override
@@ -48,8 +48,8 @@ public class DefaultMessageConsumer implements MessageConsumer {
     private boolean transactionVal(String action) throws MQException {
         try {
             WaiterOnFuture onReadFuture = new WaiterOnFuture();
-            session.listen(MQTransactionServlet.SERVICE_NAME, onReadFuture);
-            session.write(MQTransactionServlet.SERVICE_NAME, action);
+            channel.listen(MQTransactionServlet.SERVICE_NAME, onReadFuture);
+            channel.write(MQTransactionServlet.SERVICE_NAME, action);
             if (onReadFuture.await(3000)) {
                 throw MQException.TIME_OUT;
             }
@@ -92,8 +92,8 @@ public class DefaultMessageConsumer implements MessageConsumer {
             return;
         }
         try {
-            session.listen("MQConsumerServlet", new ConsumerOnFuture(onMessage, messageDecoder));
-            session.write("MQConsumerServlet", null);
+            channel.listen("MQConsumerServlet", new ConsumerOnFuture(onMessage, messageDecoder));
+            channel.write("MQConsumerServlet", null);
             needSendReceiveCommand = false;
         } catch (IOException e) {
             throw new MQException(e);
@@ -105,8 +105,8 @@ public class DefaultMessageConsumer implements MessageConsumer {
             return;
         }
         try {
-            session.listen("MQSubscribeServlet", new ConsumerOnFuture(onMessage, messageDecoder));
-            session.write("MQSubscribeServlet", null);
+            channel.listen("MQSubscribeServlet", new ConsumerOnFuture(onMessage, messageDecoder));
+            channel.write("MQSubscribeServlet", null);
             needSendSubscribeCommand = false;
         } catch (IOException e) {
             throw new MQException(e);

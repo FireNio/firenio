@@ -15,17 +15,17 @@
  */
 package com.generallycloud.baseio.balance.facade;
 
-import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
-public interface FacadeSocketSession extends SocketSession {
+public interface FacadeSocketChannel extends NioSocketChannel {
 
-    public abstract Object getSessionKey();
+    public abstract Object getChannelKey();
 
     public abstract boolean overfulfil(int size);
 
-    public abstract ReverseSocketSession getReverseSocketSession();
+    public abstract ReverseSocketChannel getReverseSocketChannel();
 
-    public abstract void setReverseSocketSession(ReverseSocketSession reverseSocketSession);
+    public abstract void setReverseSocketChannel(ReverseSocketChannel reverseSocketChannel);
 
 }

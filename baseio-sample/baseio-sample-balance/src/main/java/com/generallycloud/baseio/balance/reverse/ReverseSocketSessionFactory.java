@@ -16,14 +16,14 @@
 package com.generallycloud.baseio.balance.reverse;
 
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionFactoryImpl;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.SocketChannelFactoryImpl;
 
-public class ReverseSocketSessionFactory extends SocketSessionFactoryImpl {
+public class ReverseSocketChannelFactory extends SocketChannelFactoryImpl {
 
     @Override
-    public SocketSession newUnsafeSession(NioSocketChannel channel) {
-        return new ReverseSocketSessionImpl(channel);
+    public NioSocketChannel newUnsafeChannel(NioSocketChannel channel) {
+        return new ReverseSocketChannelImpl(channel);
     }
 
 }

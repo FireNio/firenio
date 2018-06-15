@@ -23,7 +23,7 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.container.protobase.FixedSession;
+import com.generallycloud.baseio.container.protobase.FixedChannel;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -45,17 +45,17 @@ public class Test404 {
 
         context.setProtocolCodec(new ParamedProtobaseCodec());
 
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
 
-        FixedSession session = new FixedSession(connector.connect());
+        FixedChannel channel = new FixedChannel(connector.connect());
 
-        ProtobaseFuture future = session.request(serviceKey, null);
+        ProtobaseFuture future = channel.request(serviceKey, null);
 
         System.out.println(future.getReadText());
 
         Future future1 = new ProtobaseFutureImpl().setPING();
 
-        session.getSession().flush(future1);
+        channel.getChannel().flush(future1);
 
         CloseUtil.close(connector);
     }

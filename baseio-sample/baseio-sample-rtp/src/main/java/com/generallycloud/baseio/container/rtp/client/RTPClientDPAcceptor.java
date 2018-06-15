@@ -18,7 +18,7 @@ package com.generallycloud.baseio.container.rtp.client;
 import java.io.IOException;
 
 import com.generallycloud.baseio.component.DatagramPacketAcceptor;
-import com.generallycloud.baseio.component.DatagramSession;
+import com.generallycloud.baseio.component.DatagramChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.DatagramPacket;
@@ -51,7 +51,7 @@ public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
     }
 
     @Override
-    public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
+    public void accept(DatagramChannel channel, DatagramPacket packet) throws IOException {
 
         long timestamp = packet.getTimestamp();
 
@@ -81,8 +81,8 @@ public class RTPClientDPAcceptor implements DatagramPacketAcceptor {
 
             this.packetGroup.addDatagramPacket(packet);
 
-            //socketSession.getEventLoop()
-            //			session.getEventLoop().dispatch(new Runnable() {
+            //socketChannel.getEventLoop()
+            //			channel.getEventLoop().dispatch(new Runnable() {
             //
             //				public void run() {
             //					try {

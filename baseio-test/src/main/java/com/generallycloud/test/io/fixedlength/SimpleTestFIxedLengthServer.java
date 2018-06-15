@@ -22,7 +22,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -31,17 +31,17 @@ public class SimpleTestFIxedLengthServer {
     public static void main(String[] args) throws Exception {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:", session.getEncoding());
-                future.write(f.getReadText(), session.getEncoding());
-                session.flush(future);
+                future.write("yes server already accept your message:", channel.getEncoding());
+                future.write(f.getReadText(), channel.getEncoding());
+                channel.flush(future);
             }
         };
         NioEventLoopGroup group = new NioEventLoopGroup();
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new FixedLengthCodec());
         acceptor.bind();

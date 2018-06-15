@@ -20,7 +20,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptor;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.NamedFuture;
@@ -34,15 +34,15 @@ public class SpringProtobaseFutureAcceptor extends ProtobaseFutureAcceptor {
     private ClassPathXmlApplicationContext applicationContext;
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
         NamedFuture f = (NamedFuture) future;
         FutureAcceptor acceptor = (FutureAcceptor) ContextUtil.getBean(f.getFutureName());
         if (acceptor == null) {
-            future.write("404", session);
-            session.flush(future);
+            future.write("404", channel);
+            channel.flush(future);
             return;
         }
-        acceptor.accept(session, future);
+        acceptor.accept(channel, future);
     }
 
     @Override

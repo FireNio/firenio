@@ -23,10 +23,10 @@ import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.DatagramChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.connector.DatagramChannelConnector;
-import com.generallycloud.baseio.container.FixedSession;
+import com.generallycloud.baseio.container.FixedChannel;
 import com.generallycloud.baseio.container.OnFuture;
 import com.generallycloud.baseio.container.authority.Authority;
 import com.generallycloud.baseio.container.jms.JmsUtil;
@@ -56,19 +56,19 @@ public class RTPClient {
     private String                   inviteUsername;
     private MessageProducer          producer;
     private String                   roomId;
-    private FixedSession             session;
+    private FixedChannel             channel;
     private RTPHandle                handle;
 
-    public RTPClient(FixedSession session, DatagramChannelConnector connector) {
-        this(session, connector, new FixedMessageConsumer(session),
-                new DefaultMessageProducer(session));
+    public RTPClient(FixedChannel channel, DatagramChannelConnector connector) {
+        this(channel, connector, new FixedMessageConsumer(channel),
+                new DefaultMessageProducer(channel));
     }
 
     // FIXME listen onf break
-    public RTPClient(FixedSession session, DatagramChannelConnector connector,
+    public RTPClient(FixedChannel channel, DatagramChannelConnector connector,
             FixedMessageConsumer consumer, MessageProducer producer) {
         this.connector = connector;
-        this.session = session;
+        this.channel = channel;
         this.producer = producer;
         this.consumer = consumer;
         this.context = connector.getContext();
@@ -123,7 +123,7 @@ public class RTPClient {
         ProtobaseFuture future;
 
         try {
-            future = session.request(RTPCreateRoomServlet.SERVICE_NAME, null);
+            future = channel.request(RTPCreateRoomServlet.SERVICE_NAME, null);
         } catch (IOException e) {
             throw new RTPException(e.getMessage(), e);
         }
@@ -155,7 +155,7 @@ public class RTPClient {
             throw new RTPException("none roomId,create room first");
         }
 
-        Authority authority = session.getAuthority();
+        Authority authority = channel.getAuthority();
 
         if (authority == null) {
             throw new RTPException("not login");
@@ -198,7 +198,7 @@ public class RTPClient {
 
     public boolean joinRoom(String roomId) throws RTPException {
         try {
-            ProtobaseFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomId);
+            ProtobaseFuture future = channel.request(RTPJoinRoomServlet.SERVICE_NAME, roomId);
             return JmsUtil.isTrue(future);
         } catch (IOException e) {
             throw new RTPException(e.getMessage(), e);
@@ -208,13 +208,13 @@ public class RTPClient {
     public boolean leaveRoom() throws RTPException {
         try {
 
-            Authority authority = session.getAuthority();
+            Authority authority = channel.getAuthority();
 
             if (authority == null) {
                 throw new RTPException("not login");
             }
 
-            ProtobaseFuture future = session.request(RTPJoinRoomServlet.SERVICE_NAME, roomId);
+            ProtobaseFuture future = channel.request(RTPJoinRoomServlet.SERVICE_NAME, roomId);
 
             this.handle.onBreak(this, new MapMessage("", authority.getUuid()));
 
@@ -249,13 +249,13 @@ public class RTPClient {
         context.setDatagramPacketAcceptor(acceptor);
     }
 
-    public void bindTCPSession() throws IOException {
+    public void bindTCPChannel() throws IOException {
 
         if (connector == null) {
             throw new IllegalArgumentException("null udp connector");
         }
 
-        Authority authority = session.getAuthority();
+        Authority authority = channel.getAuthority();
 
         if (authority == null) {
             throw new IllegalArgumentException("not login");
@@ -275,10 +275,10 @@ public class RTPClient {
 
         final Waiter<Integer> waiter = new Waiter<>();
 
-        session.listen(BIND_SESSION_CALLBACK, new OnFuture() {
+        channel.listen(BIND_SESSION_CALLBACK, new OnFuture() {
 
             @Override
-            public void onResponse(SocketSession session, Future future) {
+            public void onResponse(NioSocketChannel channel, Future future) {
 
                 waiter.setPayload(0);
             }

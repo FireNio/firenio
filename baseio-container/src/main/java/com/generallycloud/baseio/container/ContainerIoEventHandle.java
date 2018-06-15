@@ -17,7 +17,7 @@ package com.generallycloud.baseio.container;
 
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -27,12 +27,12 @@ public abstract class ContainerIoEventHandle implements IoEventHandle {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
+    public void exceptionCaught(NioSocketChannel channel, Future future, Exception ex) {
         logger.error(ex.getMessage(), ex);
     }
 
     @Override
-    public void futureSent(SocketSession session, Future future) {}
+    public void futureSent(NioSocketChannel channel, Future future) {}
 
     protected void initialize(ChannelContext context, boolean redeploy) throws Exception {}
 

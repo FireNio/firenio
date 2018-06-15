@@ -19,24 +19,24 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.Waiter;
 
 public class HttpClient {
 
     private ChannelContext    context;
-    private SocketSession     session;
+    private NioSocketChannel     channel;
     private HttpIOEventHandle ioEventHandle;
 
-    public HttpClient(SocketSession session) {
-        this.session = session;
-        this.context = session.getContext();
+    public HttpClient(NioSocketChannel channel) {
+        this.channel = channel;
+        this.context = channel.getContext();
         this.ioEventHandle = (HttpIOEventHandle) context.getIoEventHandle();
     }
 
     public synchronized HttpFuture request(HttpFuture future, long timeout) throws IOException {
         Waiter waiter = ioEventHandle.newWaiter();
-        session.flush(future);
+        channel.flush(future);
         if (waiter.await(timeout)) {
             throw new TimeoutException("timeout");
         }

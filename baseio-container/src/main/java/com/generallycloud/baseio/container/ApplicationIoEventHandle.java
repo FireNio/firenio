@@ -27,8 +27,8 @@ import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SessionEventListener;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.ChannelEventListener;
 import com.generallycloud.baseio.component.URLDynamicClassLoader;
 import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
@@ -64,20 +64,20 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     }
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
         if (deploying) {
-            appOnRedeployService.accept(session, future);
+            appOnRedeployService.accept(channel, future);
             return;
         }
         try {
-            futureAcceptor.accept(session, future);
+            futureAcceptor.accept(channel, future);
         } catch (Exception e) {
-            futureAcceptor.exceptionCaught(session, future, e);
+            futureAcceptor.exceptionCaught(channel, future, e);
         }
     }
 
-    public void addSessionEventListener(SessionEventListener listener) {
-        channelContext.addSessionEventListener(listener);
+    public void addChannelEventListener(ChannelEventListener listener) {
+        channelContext.addChannelEventListener(listener);
     }
 
     @Override
@@ -93,8 +93,8 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     }
 
     @Override
-    public void exceptionCaught(SocketSession session, Future future, Exception ex) {
-        ioExceptionCaughtHandle.exceptionCaught(session, future, ex);
+    public void exceptionCaught(NioSocketChannel channel, Future future, Exception ex) {
+        ioExceptionCaughtHandle.exceptionCaught(channel, future, ex);
     }
 
     public ApplicationExtLoader getApplicationExtLoader() {
@@ -203,7 +203,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     }
 
     // FIXME 考虑部署失败后如何再次部署
-    // FIXME keep http session
+    // FIXME keep http channel
     public synchronized boolean redeploy() {
         this.deploying = true;
         try {
@@ -250,8 +250,8 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
     }
 
     @Override
-    public void futureSent(SocketSession session, Future future) {
-        futureAcceptor.futureSent(session, future);
+    public void futureSent(NioSocketChannel channel, Future future) {
+        futureAcceptor.futureSent(channel, future);
     }
 
 }

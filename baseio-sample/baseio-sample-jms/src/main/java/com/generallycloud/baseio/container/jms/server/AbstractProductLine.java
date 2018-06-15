@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.container.jms.Message;
 import com.generallycloud.baseio.log.Logger;
@@ -49,8 +49,8 @@ public abstract class AbstractProductLine extends AbstractEventLoop implements M
     }
 
     @Override
-    public void pollMessage(SocketSession session, ProtobaseFuture future,
-            MQSessionAttachment attachment) {
+    public void pollMessage(NioSocketChannel channel, ProtobaseFuture future,
+            MQChannelAttachment attachment) {
         if (attachment.getConsumer() != null) {
             return;
         }
@@ -58,7 +58,7 @@ public abstract class AbstractProductLine extends AbstractEventLoop implements M
         // 来自终端类型
         context.addReceiver(queueName);
         ConsumerQueue consumerQueue = getConsumerQueue(queueName);
-        Consumer consumer = new Consumer(consumerQueue, attachment, session, future, queueName);
+        Consumer consumer = new Consumer(consumerQueue, attachment, channel, future, queueName);
         attachment.setConsumer(consumer);
         consumerQueue.offer(consumer);
     }

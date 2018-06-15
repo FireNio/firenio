@@ -20,7 +20,7 @@ import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -31,16 +31,16 @@ public class TestLineBasedBroadcastServer {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 long old = System.currentTimeMillis();
                 String res = "hello world!";
-                future.write(res, session);
-                ChannelAcceptor acceptor = (ChannelAcceptor) session.getContext()
+                future.write(res, channel);
+                ChannelAcceptor acceptor = (ChannelAcceptor) channel.getContext()
                         .getChannelService();
                 acceptor.broadcast(future);
                 long now = System.currentTimeMillis();
                 System.out.println("广播花费时间：" + (now - old) + ",连接数："
-                        + session.getContext().getSessionManager().getManagedSessionSize());
+                        + channel.getContext().getChannelManager().getManagedChannelSize());
             }
         };
 
@@ -48,7 +48,7 @@ public class TestLineBasedBroadcastServer {
         configuration.setPort(8300);
         ChannelContext context = new ChannelContext(configuration);
         ChannelAcceptor acceptor = new ChannelAcceptor(context);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new CharBasedCodec());
         acceptor.bind();

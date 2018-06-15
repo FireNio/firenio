@@ -18,7 +18,7 @@ package com.generallycloud.baseio.container.protobase;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
 public class OnFutureWrapper implements OnFuture {
@@ -28,13 +28,13 @@ public class OnFutureWrapper implements OnFuture {
     private BlockingQueue<WaiterOnFuture> waiters  = new ArrayBlockingQueue<>(1024 * 8);
 
     @Override
-    public void onResponse(final SocketSession session, final Future future) {
+    public void onResponse(final NioSocketChannel channel, final Future future) {
 
         WaiterOnFuture waiter = waiters.poll();
 
         if (waiter != null) {
 
-            waiter.onResponse(session, future);
+            waiter.onResponse(channel, future);
 
             return;
         }
@@ -43,7 +43,7 @@ public class OnFutureWrapper implements OnFuture {
             return;
         }
 
-        listener.onResponse(session, future);
+        listener.onResponse(channel, future);
     }
 
     public void listen(WaiterOnFuture onReadFuture) {

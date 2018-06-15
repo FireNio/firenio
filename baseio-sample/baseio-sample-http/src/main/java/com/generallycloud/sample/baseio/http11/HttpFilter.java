@@ -26,7 +26,7 @@ import com.generallycloud.baseio.codec.http11.HttpMessage;
 import com.generallycloud.baseio.collection.Parameters;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -44,8 +44,8 @@ public class HttpFilter implements FutureAcceptor {
     private Set<String> noneLoggerUrlSet    = new HashSet<>();
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
-        log(session, future);
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
+        log(channel, future);
     }
 
     private boolean endContains(String futureName) {
@@ -70,13 +70,13 @@ public class HttpFilter implements FutureAcceptor {
         noneLoggerSuffixSet.add(".scss");
     }
 
-    private void log(SocketSession session, Future future) throws Exception {
+    private void log(NioSocketChannel channel, Future future) throws Exception {
         HttpMessage m = (HttpMessage) future;
         String futureName = m.getFutureName();
         if (noneLoggerUrlSet.contains(futureName) || endContains(futureName)) {
             return;
         }
-        String remoteAddr = session.getRemoteAddr();
+        String remoteAddr = channel.getRemoteAddr();
         String readText = m.getReadText();
         if (!StringUtil.isNullOrBlank(readText)) {
             logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, futureName,

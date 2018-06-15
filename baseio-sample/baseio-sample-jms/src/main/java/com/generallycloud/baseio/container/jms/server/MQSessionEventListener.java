@@ -15,30 +15,30 @@
  */
 package com.generallycloud.baseio.container.jms.server;
 
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.SocketChannelEventListenerAdapter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class MQSessionEventListener extends SocketSessionEventListenerAdapter {
+public class MQChannelEventListener extends SocketChannelEventListenerAdapter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MQSessionEventListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MQChannelEventListener.class);
 
     @Override
-    public void sessionOpened(SocketSession session) {
+    public void sessionOpened(NioSocketChannel channel) {
         MQContext context = MQContext.getInstance();
-        MQSessionAttachment attachment = context.getSessionAttachment(session);
+        MQChannelAttachment attachment = context.getChannelAttachment(channel);
         if (attachment == null) {
-            attachment = new MQSessionAttachment(context);
-            session.setAttribute(MQContext.SESSION_KEY_MQ_ATT, attachment);
+            attachment = new MQChannelAttachment(context);
+            channel.setAttribute(MQContext.SESSION_KEY_MQ_ATT, attachment);
         }
     }
 
     // FIXME 移除该session上的consumer
     @Override
-    public void sessionClosed(SocketSession session) {
+    public void sessionClosed(NioSocketChannel channel) {
         MQContext context = MQContext.getInstance();
-        MQSessionAttachment attachment = context.getSessionAttachment(session);
+        MQChannelAttachment attachment = context.getChannelAttachment(channel);
         if (attachment == null) {
             return;
         }

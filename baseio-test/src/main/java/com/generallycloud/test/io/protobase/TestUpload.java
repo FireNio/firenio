@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.container.protobase.FileSendUtil;
 import com.generallycloud.baseio.protocol.Future;
@@ -41,7 +41,7 @@ public class TestUpload {
         IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 ProtobaseFuture f = (ProtobaseFuture) future;
                 System.out.println();
                 System.out.println(f.getReadText());
@@ -56,14 +56,14 @@ public class TestUpload {
         connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
-        SocketSession session = connector.connect();
+        context.addChannelEventListener(new LoggerSocketSEListener());
+        NioSocketChannel channel = connector.connect();
         String fileName = "lantern-installer-beta.exe";
         fileName = "content.rar";
         //		fileName = "jdk-8u102-windows-x64.exe";
         File file = new File("c:/ryms/" + fileName);
         FileSendUtil fileSendUtil = new FileSendUtil();
-        fileSendUtil.sendFile(session, serviceName, file, 1024 * 800);
+        fileSendUtil.sendFile(channel, serviceName, file, 1024 * 800);
         ThreadUtil.sleep(10000000);
     }
 

@@ -51,10 +51,9 @@ public class ChannelContext extends AbstractLifeCycle {
     private Logger                         logger        = LoggerFactory.getLogger(getClass());
     private ProtocolCodec                  protocolCodec;
     private NioEventLoopGroup              nioEventLoopGroup;
-    private SocketSessionFactory           sessionFactory;
-    private SocketSessionManager           sessionManager;
-    private List<SessionEventListener>     ssels         = new ArrayList<>();
-    private List<SessionIdleEventListener> ssiels        = new ArrayList<>();
+    private ChannelManager                 channelManager;
+    private List<ChannelEventListener>     ssels         = new ArrayList<>();
+    private List<ChannelIdleEventListener> ssiels        = new ArrayList<>();
     private SslContext                     sslContext;
     private NioSocketChannel               simulateSocketChannel;
     private long                           startupTime   = System.currentTimeMillis();
@@ -64,12 +63,12 @@ public class ChannelContext extends AbstractLifeCycle {
         this.addLifeCycleListener(new ChannelContextListener());
     }
 
-    public void addSessionEventListener(SessionEventListener listener) {
+    public void addChannelEventListener(ChannelEventListener listener) {
         checkNotRunning();
         ssels.add(listener);
     }
 
-    public void addSessionIdleEventListener(SessionIdleEventListener listener) {
+    public void addChannelIdleEventListener(ChannelIdleEventListener listener) {
         checkNotRunning();
         ssiels.add(listener);
     }
@@ -91,7 +90,7 @@ public class ChannelContext extends AbstractLifeCycle {
         String protocolId = protocolCodec.getProtocolId();
         int eventLoopSize = nioEventLoopGroup.getEventLoopSize();
         int serverPort = configuration.getPort();
-        long sessionIdle = nioEventLoopGroup.getIdleTime();
+        long channelIdle = nioEventLoopGroup.getIdleTime();
         this.encoding = configuration.getCharset();
         //        LoggerUtil.prettyLog(logger,
         //                "======================================= service begin to start =======================================");
@@ -99,7 +98,7 @@ public class ChannelContext extends AbstractLifeCycle {
         LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
         LoggerUtil.prettyLog(logger, "event loop size       :{ {} }", eventLoopSize);
         LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSsl());
-        LoggerUtil.prettyLog(logger, "session idle          :{ {} }", sessionIdle);
+        LoggerUtil.prettyLog(logger, "channel idle          :{ {} }", channelIdle);
         LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", serverPort);
         if (nioEventLoopGroup.isEnableMemoryPool()) {
             long memoryPoolCapacity = nioEventLoopGroup.getMemoryPoolCapacity() * eventLoopSize;
@@ -109,7 +108,7 @@ public class ChannelContext extends AbstractLifeCycle {
             LoggerUtil.prettyLog(logger, "memory pool cap       :{ {} * {} ≈ {} M }",
                     new Object[] { memoryPoolUnit, memoryPoolCapacity, memoryPoolSize });
         }
-        sessionManager = new SocketSessionManager(this);
+        channelManager = new ChannelManager(this);
         protocolCodec.initialize(this);
         ioEventHandle.initialize(this);
         if (executorEventLoopGroup == null) {
@@ -124,9 +123,6 @@ public class ChannelContext extends AbstractLifeCycle {
             foreFutureAcceptor = new ForeFutureAcceptor(getConfiguration().isEnableWorkEventLoop());
         }
         foreFutureAcceptor.initialize(this);
-        if (sessionFactory == null) {
-            sessionFactory = new SocketSessionFactoryImpl();
-        }
         LifeCycleUtil.start(executorEventLoopGroup);
         this.simulateSocketChannel = new NioSocketChannel(this,
                 UnpooledByteBufAllocator.getDirect());
@@ -183,20 +179,16 @@ public class ChannelContext extends AbstractLifeCycle {
         return nioEventLoopGroup;
     }
 
-    public List<SessionEventListener> getSessionEventListeners() {
+    public List<ChannelEventListener> getChannelEventListeners() {
         return ssels;
     }
 
-    public SocketSessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
-
-    public List<SessionIdleEventListener> getSessionIdleEventListeners() {
+    public List<ChannelIdleEventListener> getChannelIdleEventListeners() {
         return ssiels;
     }
 
-    public SocketSessionManager getSessionManager() {
-        return sessionManager;
+    public ChannelManager getChannelManager() {
+        return channelManager;
     }
 
     public SslContext getSslContext() {
@@ -240,11 +232,6 @@ public class ChannelContext extends AbstractLifeCycle {
 
     public void setNioEventLoopGroup(NioEventLoopGroup nioEventLoopGroup) {
         this.nioEventLoopGroup = nioEventLoopGroup;
-    }
-
-    public void setSocketSessionFactory(SocketSessionFactory sessionFactory) {
-        checkNotRunning();
-        this.sessionFactory = sessionFactory;
     }
 
     public void setSslContext(SslContext sslContext) {

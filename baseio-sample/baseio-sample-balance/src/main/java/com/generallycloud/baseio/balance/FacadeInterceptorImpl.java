@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.balance;
 
-import com.generallycloud.baseio.balance.facade.FacadeSocketSession;
+import com.generallycloud.baseio.balance.facade.FacadeSocketChannel;
 
 public class FacadeInterceptorImpl implements FacadeInterceptor {
 
@@ -34,17 +34,17 @@ public class FacadeInterceptorImpl implements FacadeInterceptor {
     }
 
     @Override
-    public boolean intercept(FacadeSocketSession session, BalanceFuture future) throws Exception {
+    public boolean intercept(FacadeSocketChannel channel, BalanceFuture future) throws Exception {
 
         long now = System.currentTimeMillis();
 
         if (now > next_check_time) {
             next_check_time = now + 1000;
             check = 0;
-            return session.overfulfil(interceptorLimit);
+            return channel.overfulfil(interceptorLimit);
         }
 
-        return ++check > globalLimit || session.overfulfil(interceptorLimit);
+        return ++check > globalLimit || channel.overfulfil(interceptorLimit);
     }
 
 }

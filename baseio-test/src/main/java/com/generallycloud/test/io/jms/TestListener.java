@@ -31,11 +31,11 @@ public class TestListener {
         //
         //        context.setProtocolCodec(new ParamedProtobaseCodec());
         //
-        //        context.addSessionEventListener(new LoggerSocketSEListener());
+        //        context.addChannelEventListener(new LoggerSocketSEListener());
         //
-        //        FixedSession session = new FixedSession(connector.connect());
+        //        FixedChannel channel = new FixedChannel(connector.connect());
         //
-        //        MessageConsumer consumer = new MessageConsumer(session,"uuid");
+        //        MessageConsumer consumer = new MessageConsumer(channel,"uuid");
         //
         //        long old = System.currentTimeMillis();
         //

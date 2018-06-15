@@ -22,9 +22,7 @@ import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.redis.RedisFuture.RedisCommand;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
-import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 /**
@@ -39,7 +37,7 @@ public class RedisCodec implements ProtocolCodec {
     }
 
     @Override
-    public Future createPINGPacket(SocketSession session) {
+    public ChannelFuture createPINGPacket(NioSocketChannel channel) {
         RedisCmdFuture f = new RedisCmdFuture();
         f.setPING();
         f.writeCommand(RedisCommand.PING.raw);
@@ -47,7 +45,7 @@ public class RedisCodec implements ProtocolCodec {
     }
 
     @Override
-    public Future createPONGPacket(SocketSession session, ChannelFuture ping) {
+    public ChannelFuture createPONGPacket(NioSocketChannel channel, ChannelFuture ping) {
         RedisCmdFuture f = (RedisCmdFuture) ping;
         f.setPONG();
         f.writeCommand(RedisCommand.PONG.raw);

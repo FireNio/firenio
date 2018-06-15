@@ -38,14 +38,14 @@ import com.generallycloud.baseio.protocol.Future;
  */
 public class ChannelAcceptor implements ChannelService {
 
-    private boolean              active = false;
-    private ChannelContext       context;
-    private NioEventLoopGroup    group;
-    private Logger               logger = LoggerFactory.getLogger(getClass());
-    private ServerSocketChannel  selectableChannel;
-    private InetSocketAddress    serverAddress;
-    private ServerSocket         serverSocket;
-    private SocketSessionManager sessionManager;
+    private boolean             active = false;
+    private ChannelContext      context;
+    private NioEventLoopGroup   group;
+    private Logger              logger = LoggerFactory.getLogger(getClass());
+    private ServerSocketChannel selectableChannel;
+    private InetSocketAddress   serverAddress;
+    private ServerSocket        serverSocket;
+    private ChannelManager      channelManager;
 
     public ChannelAcceptor(ChannelContext context) {
         this(context, new NioEventLoopGroup());
@@ -76,7 +76,7 @@ public class ChannelAcceptor implements ChannelService {
         this.selectableChannel.configureBlocking(false);
         this.serverSocket = ((ServerSocketChannel) selectableChannel).socket();
         this.group.registSelector(context);
-        this.sessionManager = context.getSessionManager();
+        this.channelManager = context.getChannelManager();
         try {
             this.serverSocket.bind(serverAddress, 50);
         } catch (IOException e) {
@@ -90,19 +90,20 @@ public class ChannelAcceptor implements ChannelService {
     }
 
     public void broadcast(Future future) throws IOException {
-        sessionManager.broadcast(future);
+        channelManager.broadcast(future);
     }
 
-    public void broadcast(Future future, Collection<SocketSession> sessions) throws IOException {
-        sessionManager.broadcast(future, sessions);
+    public void broadcast(Future future, Collection<NioSocketChannel> channels) throws IOException {
+        channelManager.broadcast(future, channels);
     }
 
     public void broadcastChannelFuture(ChannelFuture future) throws IOException {
-        sessionManager.broadcastChannelFuture(future);
+        channelManager.broadcastChannelFuture(future);
     }
 
-    public void broadcastChannelFuture(ChannelFuture future, Collection<SocketSession> sessions) {
-        sessionManager.broadcastChannelFuture(future, sessions);
+    public void broadcastChannelFuture(ChannelFuture future,
+            Collection<NioSocketChannel> channels) {
+        channelManager.broadcastChannelFuture(future, channels);
     }
 
     @Override

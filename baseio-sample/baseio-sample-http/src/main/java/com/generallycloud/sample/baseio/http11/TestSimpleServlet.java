@@ -25,9 +25,9 @@ import com.generallycloud.baseio.container.http11.HttpSession;
 public class TestSimpleServlet extends HttpFutureAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
+    protected void doAccept(HttpSession channel, HttpFuture future) throws Exception {
         String res = "yes server already accept your message :) " + future.getRequestParams();
-        future.write(res, session.getEncoding());
-        session.flush(future);
+        future.write(res, channel.getEncoding());
+        channel.flush(future);
     }
 }

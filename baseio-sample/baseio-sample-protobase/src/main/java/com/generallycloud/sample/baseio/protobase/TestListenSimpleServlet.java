@@ -19,7 +19,7 @@ import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
 public class TestListenSimpleServlet extends ProtobaseFutureAcceptorService {
@@ -27,20 +27,20 @@ public class TestListenSimpleServlet extends ProtobaseFutureAcceptorService {
     public static final String SERVICE_NAME = TestListenSimpleServlet.class.getSimpleName();
 
     @Override
-    protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
+    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
         String test = future.getReadText();
         if (StringUtil.isNullOrBlank(test)) {
             test = "test";
         }
-        future.write(test, session.getContext());
-        future.write("$", session.getContext());
-        session.flush(future);
+        future.write(test, channel.getContext());
+        future.write("$", channel.getContext());
+        channel.flush(future);
         for (int i = 0; i < 5; i++) {
             ProtobaseFuture f = new ProtobaseFutureImpl(future.getFutureId(),
                     future.getFutureName());
-            f.write(test, session);
-            f.write("$", session);
-            session.flush(f);
+            f.write(test, channel);
+            f.write("$", channel);
+            channel.flush(f);
         }
 
     }

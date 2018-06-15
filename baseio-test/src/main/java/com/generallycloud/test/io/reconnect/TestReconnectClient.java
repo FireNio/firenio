@@ -22,7 +22,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.ReConnector;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -33,7 +33,7 @@ public class TestReconnectClient {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
 
             }
         };
@@ -46,11 +46,11 @@ public class TestReconnectClient {
 
         context.setIoEventHandle(eventHandleAdaptor);
 
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
 
         context.setProtocolCodec(new FixedLengthCodec());
 
-        //		context.addSessionEventListener(new CloseConnectorSEListener(connector.getRealConnector()));
+        //		context.addChannelEventListener(new CloseConnectorSEListener(connector.getRealConnector()));
 
         connector.connect();
 

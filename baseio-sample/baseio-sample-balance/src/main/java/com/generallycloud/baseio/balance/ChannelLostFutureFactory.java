@@ -15,10 +15,10 @@
  */
 package com.generallycloud.baseio.balance;
 
-import com.generallycloud.baseio.balance.facade.FacadeSocketSession;
+import com.generallycloud.baseio.balance.facade.FacadeSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
 public interface ChannelLostFutureFactory {
 
-    public abstract Future createChannelLostPacket(FacadeSocketSession session);
+    public abstract Future createChannelLostPacket(FacadeSocketChannel channel);
 }

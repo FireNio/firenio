@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.balance.facade;
 
-public interface TokenFacadeSocketSession extends FacadeSocketSession {
+public interface TokenFacadeSocketChannel extends FacadeSocketChannel {
 
     public abstract Long getToken();
 

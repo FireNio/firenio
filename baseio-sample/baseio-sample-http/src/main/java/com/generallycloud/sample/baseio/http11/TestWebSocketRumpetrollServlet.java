@@ -27,7 +27,7 @@ import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.codec.http11.WebSocketFuture;
 import com.generallycloud.baseio.codec.http11.WebSocketFutureImpl;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.log.Logger;
@@ -45,40 +45,40 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
     protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
         future.updateWebSocketProtocol();
         session.flush(future);
-        SocketSession ioSession = session.getIoSession();
-        msgAdapter.addClient(ioSession.getRemoteAddrPort(), ioSession);
+        NioSocketChannel ioChannel = session.getChannel();
+        msgAdapter.addClient(ioChannel.getRemoteAddrPort(), ioChannel);
         JSONObject o = new JSONObject();
         o.put("type", "welcome");
-        o.put("id", ioSession.getSessionId());
+        o.put("id", ioChannel.getChannelId());
         WebSocketFuture f = new WebSocketFutureImpl();
         f.write(o.toJSONString(), session.getEncoding());
         session.flush(f);
     }
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
         if (future instanceof HttpFuture) {
-            super.accept(session, future);
+            super.accept(channel, future);
             return;
         }
         WebSocketFuture f = (WebSocketFuture) future;
         // CLOSE
         if (f.getType() == 8) {
-            msgAdapter.removeClient(session);
+            msgAdapter.removeClient(channel);
             JSONObject o = new JSONObject();
             o.put("type", "closed");
-            o.put("id", session.getSessionId());
+            o.put("id", channel.getChannelId());
             msgAdapter.sendMsg(o.toJSONString());
-            logger.info("客户端主动关闭连接：{}", session);
+            logger.info("客户端主动关闭连接：{}", channel);
         } else {
             String msg = f.getReadText();
             JSONObject o = JSON.parseObject(msg);
             String name = o.getString("name");
             if (StringUtil.isNullOrBlank(name)) {
-                name = session.getRemoteAddrPort();
+                name = channel.getRemoteAddrPort();
             }
             o.put("name", name);
-            o.put("id", session.getSessionId());
+            o.put("id", channel.getChannelId());
             String type = o.getString("type");
             if ("update".equals(type)) {
                 o.put("life", "1");

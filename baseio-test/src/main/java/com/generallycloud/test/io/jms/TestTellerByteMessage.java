@@ -36,14 +36,14 @@ public class TestTellerByteMessage {
 
         context.setProtocolCodec(new ProtobaseCodec());
 
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
 
-        //        FixedSession session = new FixedSession(connector.connect());
+        //        FixedChannel channel = new FixedChannel(connector.connect());
         //
-        //        MessageProducer producer = new DefaultMessageProducer(session);
+        //        MessageProducer producer = new DefaultMessageProducer(channel);
         //
         //        TextByteMessage message = new TextByteMessage("msgId", "uuid", "============",
-        //                "你好！".getBytes(session.getContext().getEncoding()));
+        //                "你好！".getBytes(channel.getContext().getEncoding()));
         //
         //        long old = System.currentTimeMillis();
         //

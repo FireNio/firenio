@@ -22,7 +22,7 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.container.protobase.FixedSession;
+import com.generallycloud.baseio.container.protobase.FixedChannel;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
 public class TestException {
@@ -38,9 +38,9 @@ public class TestException {
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
-        FixedSession session = new FixedSession(connector.connect());
-        ProtobaseFuture future = session.request(serviceKey, param);
+        context.addChannelEventListener(new LoggerSocketSEListener());
+        FixedChannel channel = new FixedChannel(connector.connect());
+        ProtobaseFuture future = channel.request(serviceKey, param);
         System.out.println(future.getReadText());
         CloseUtil.close(connector);
     }

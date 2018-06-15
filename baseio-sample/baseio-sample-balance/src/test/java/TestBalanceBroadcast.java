@@ -24,7 +24,7 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -35,7 +35,7 @@ public class TestBalanceBroadcast {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 ProtobaseFuture f = (ProtobaseFuture) future;
                 if ("XXX".equals(f.getFutureName())) {
                     System.out.println("客户端已下线：" + f.getReadText());
@@ -43,8 +43,8 @@ public class TestBalanceBroadcast {
                     System.out.println("~~~~~~收到报文：" + future.toString());
                     String res = "(***" + f.getReadText() + "***)";
                     System.out.println("~~~~~~处理报文：" + res);
-                    f.write(res, session.getContext());
-                    session.flush(future);
+                    f.write(res, channel.getContext());
+                    channel.flush(future);
                 }
             }
         };
@@ -54,16 +54,16 @@ public class TestBalanceBroadcast {
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
-        SocketSession session = connector.connect();
+        context.addChannelEventListener(new LoggerSocketSEListener());
+        NioSocketChannel channel = connector.connect();
 
-        for (; session.isOpened();) {
+        for (; channel.isOpened();) {
             ProtobaseFuture future = new ProtobaseFutureImpl("broadcast");
             future.setBroadcast(true);
             String msg = "broadcast msg___S:" + System.currentTimeMillis();
             future.write(msg, context);
             future.writeBinary("__^^^binary^^^__".getBytes());
-            session.flush(future);
+            channel.flush(future);
             ThreadUtil.sleep(10);
         }
 

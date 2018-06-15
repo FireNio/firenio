@@ -18,18 +18,18 @@ package com.generallycloud.baseio.component;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class LoggerSocketSEListener implements SessionEventListener {
+public class LoggerSocketSEListener implements ChannelEventListener {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void sessionOpened(SocketSession session) {
-        logger.info("session opened:{}", session);
+    public void channelOpened(NioSocketChannel channel) {
+        logger.info("channel opened:{}", channel);
     }
 
     @Override
-    public void sessionClosed(SocketSession session) {
-        logger.info("session closed:{}", session);
+    public void channelClosed(NioSocketChannel channel) {
+        logger.info("channel closed:{}", channel);
     }
 
 }

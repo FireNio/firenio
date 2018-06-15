@@ -15,33 +15,33 @@
  */
 package com.generallycloud.baseio.container.rtp.server;
 
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionEventListenerAdapter;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.SocketChannelEventListenerAdapter;
 import com.generallycloud.baseio.container.rtp.RTPContext;
 
-public class RTPSessionEventListener extends SocketSessionEventListenerAdapter {
+public class RTPChannelEventListener extends SocketChannelEventListenerAdapter {
 
     @Override
-    public void sessionOpened(SocketSession session) {
+    public void sessionOpened(NioSocketChannel channel) {
 
         RTPContext context = RTPContext.getInstance();
 
-        RTPSessionAttachment attachment = context.getSessionAttachment(session);
+        RTPChannelAttachment attachment = context.getChannelAttachment(channel);
 
         if (attachment == null) {
 
-            attachment = new RTPSessionAttachment(context);
+            attachment = new RTPChannelAttachment(context);
 
-            session.setAttribute(context.getPluginKey(), attachment);
+            channel.setAttribute(context.getPluginKey(), attachment);
         }
     }
 
     @Override
-    public void sessionClosed(SocketSession session) {
+    public void sessionClosed(NioSocketChannel channel) {
 
         RTPContext context = RTPContext.getInstance();
 
-        RTPSessionAttachment attachment = context.getSessionAttachment(session);
+        RTPChannelAttachment attachment = context.getChannelAttachment(channel);
 
         if (attachment == null) {
             return;
@@ -53,7 +53,7 @@ public class RTPSessionEventListener extends SocketSessionEventListenerAdapter {
             return;
         }
 
-        //		room.leave(session.getDatagramChannel()); //FIXME udp 
+        //		room.leave(channel.getDatagramChannel()); //FIXME udp 
     }
 
 }

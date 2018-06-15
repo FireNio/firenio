@@ -15,18 +15,21 @@
  */
 package com.generallycloud.baseio.collection;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface Attributes {
 
-    Object removeAttribute(Object key);
+    Map<Object, Object> attributes();
 
-    void setAttribute(Object key, Object value);
+    void clearAttributes();
 
     Object getAttribute(Object key);
 
     Set<Object> getAttributeNames();
 
-    void clearAttributes();
+    Object removeAttribute(Object key);
+
+    void setAttribute(Object key, Object value);
 
 }

@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import com.generallycloud.baseio.codec.http11.WebSocketFuture;
 import com.generallycloud.baseio.codec.http11.WebSocketFutureImpl;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -34,29 +34,29 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public class WebSocketMsgAdapter extends AbstractEventLoop {
 
     private Logger                     logger     = LoggerFactory.getLogger(getClass());
-    private List<SocketSession>        clients    = new ArrayList<>();
-    private Map<String, SocketSession> clientsMap = new HashMap<>();
+    private List<NioSocketChannel>        clients    = new ArrayList<>();
+    private Map<String, NioSocketChannel> clientsMap = new HashMap<>();
     private BlockingQueue<Msg>         msgs       = new ArrayBlockingQueue<>(1024 * 4);
 
-    public synchronized void addClient(String username, SocketSession session) {
-        clients.add(session);
-        clientsMap.put(username, session);
-        logger.info("client joined {} ,clients size: {}", session, clients.size());
+    public synchronized void addClient(String username, NioSocketChannel channel) {
+        clients.add(channel);
+        clientsMap.put(username, channel);
+        logger.info("client joined {} ,clients size: {}", channel, clients.size());
     }
 
-    public synchronized boolean removeClient(SocketSession session) {
-        if (clients.remove(session)) {
-            String username = (String) session.getAttribute("username");
+    public synchronized boolean removeClient(NioSocketChannel channel) {
+        if (clients.remove(channel)) {
+            String username = (String) channel.getAttribute("username");
             if (!StringUtil.isNullOrBlank(username)) {
                 clientsMap.remove(username);
             }
-            logger.info("client left {} ,clients size: {}", session, clients.size());
+            logger.info("client left {} ,clients size: {}", channel, clients.size());
             return true;
         }
         return false;
     }
 
-    public SocketSession getSession(String username) {
+    public NioSocketChannel getChannel(String username) {
         return clientsMap.get(username);
     }
 
@@ -64,8 +64,8 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
         sendMsg(null, msg);
     }
 
-    public void sendMsg(SocketSession session, String msg) {
-        msgs.offer(new Msg(session, msg));
+    public void sendMsg(NioSocketChannel channel, String msg) {
+        msgs.offer(new Msg(channel, msg));
     }
 
     public int getClientSize() {
@@ -79,14 +79,14 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
             return;
         }
         synchronized (this) {
-            SocketSession session = msg.session;
-            if (session != null) {
+            NioSocketChannel channel = msg.channel;
+            if (channel != null) {
                 WebSocketFuture f = new WebSocketFutureImpl();
-                f.write(msg.msg, session);
-                session.flush(f);
+                f.write(msg.msg, channel);
+                channel.flush(f);
             } else {
                 for (int i = 0; i < clients.size(); i++) {
-                    SocketSession s = clients.get(i);
+                    NioSocketChannel s = clients.get(i);
                     if (s.isOpened()) {
                         WebSocketFuture f = new WebSocketFutureImpl();
                         f.write(msg.msg, s);
@@ -102,12 +102,12 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
     class Msg {
 
-        Msg(SocketSession session, String msg) {
+        Msg(NioSocketChannel channel, String msg) {
             this.msg = msg;
-            this.session = session;
+            this.channel = channel;
         }
 
         String        msg;
-        SocketSession session;
+        NioSocketChannel channel;
     }
 }

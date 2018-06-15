@@ -15,17 +15,17 @@
  */
 package com.generallycloud.baseio.balance;
 
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
 public interface BalanceFuture extends Future {
 
-    public abstract int getSessionKey();
+    public abstract int getChannelKey();
 
     public abstract boolean isBroadcast();
 
     public abstract void setBroadcast(boolean broadcast);
 
-    public abstract BalanceFuture translate(SocketSession session);
+    public abstract BalanceFuture translate(NioSocketChannel channel);
 
 }

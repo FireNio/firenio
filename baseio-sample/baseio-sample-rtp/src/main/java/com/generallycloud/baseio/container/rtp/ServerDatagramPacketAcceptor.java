@@ -18,8 +18,8 @@ package com.generallycloud.baseio.container.rtp;
 import java.io.IOException;
 
 import com.generallycloud.baseio.component.DatagramPacketAcceptor;
-import com.generallycloud.baseio.component.DatagramSession;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.DatagramChannel;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.DatagramPacket;
@@ -30,30 +30,30 @@ public abstract class ServerDatagramPacketAcceptor implements DatagramPacketAcce
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
+    public void accept(DatagramChannel channel, DatagramPacket packet) throws IOException {
 
         if (packet.getType() == DatagramPacket.TYPE_ACTION) {
 
-            execute(session, new DatagramRequest(packet.getDataString()));
+            execute(channel, new DatagramRequest(packet.getDataString()));
             return;
         }
 
         //		logger.debug("___________________server receive,packet:{}",packet);
 
-        SocketSession socketSession = session.getSocketSession();
+        NioSocketChannel socketChannel = channel.getSocketChannel();
 
-        if (socketSession == null) {
-            logger.debug("___________________null session,packet:{}", packet);
+        if (socketChannel == null) {
+            logger.debug("___________________null channel,packet:{}", packet);
             return;
         }
 
-        doAccept(session, packet, socketSession); //FIXME UDP
+        doAccept(channel, packet, socketChannel); //FIXME UDP
 
     }
 
-    protected abstract void doAccept(DatagramSession session, DatagramPacket packet,
-            SocketSession socketSession) throws IOException;
+    protected abstract void doAccept(DatagramChannel channel, DatagramPacket packet,
+            NioSocketChannel socketChannel) throws IOException;
 
-    protected abstract void execute(DatagramSession session, DatagramRequest request);
+    protected abstract void execute(DatagramChannel channel, DatagramRequest request);
 
 }

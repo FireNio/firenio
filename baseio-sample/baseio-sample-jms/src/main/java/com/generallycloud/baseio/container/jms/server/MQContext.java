@@ -22,7 +22,7 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
 import com.generallycloud.baseio.component.SocketChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.ConcurrentSet;
 import com.generallycloud.baseio.container.jms.MQException;
 import com.generallycloud.baseio.container.jms.Message;
@@ -49,8 +49,8 @@ public class MQContext implements MessageQueue {
         return messageIds.get(messageId);
     }
 
-    public MQSessionAttachment getSessionAttachment(SocketSession session) {
-        return (MQSessionAttachment) session.getAttribute(SESSION_KEY_MQ_ATT);
+    public MQChannelAttachment getChannelAttachment(NioSocketChannel channel) {
+        return (MQChannelAttachment) channel.getAttribute(SESSION_KEY_MQ_ATT);
     }
 
     public void initialize(SocketChannelContext context) throws Exception {
@@ -58,7 +58,7 @@ public class MQContext implements MessageQueue {
         setMessageDueTime(dueTime);
         p2pProductLine.startup("MQ-P2P-ProductLine");
         subProductLine.startup("MQ-SUB-ProductLine");
-        context.addSessionEventListener(new MQSessionEventListener());
+        context.addChannelEventListener(new MQChannelEventListener());
         instance = this;
     }
 
@@ -99,15 +99,15 @@ public class MQContext implements MessageQueue {
     }
 
     @Override
-    public void pollMessage(SocketSession session, ProtobaseFuture future,
-            MQSessionAttachment attachment) {
-        p2pProductLine.pollMessage(session, future, attachment);
+    public void pollMessage(NioSocketChannel channel, ProtobaseFuture future,
+            MQChannelAttachment attachment) {
+        p2pProductLine.pollMessage(channel, future, attachment);
     }
 
-    public void subscribeMessage(SocketSession session, ProtobaseFuture future,
-            MQSessionAttachment attachment) {
+    public void subscribeMessage(NioSocketChannel channel, ProtobaseFuture future,
+            MQChannelAttachment attachment) {
 
-        subProductLine.pollMessage(session, future, attachment);
+        subProductLine.pollMessage(channel, future, attachment);
     }
 
     public void setMessageDueTime(long dueTime) {

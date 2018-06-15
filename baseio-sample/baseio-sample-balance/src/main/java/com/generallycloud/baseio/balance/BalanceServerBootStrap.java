@@ -18,12 +18,12 @@ package com.generallycloud.baseio.balance;
 import java.io.IOException;
 
 import com.generallycloud.baseio.balance.facade.FacadeAcceptorSEListener;
-import com.generallycloud.baseio.balance.facade.FacadeSocketSessionFactory;
-import com.generallycloud.baseio.balance.facade.SessionIdFacadeAcceptorHandler;
+import com.generallycloud.baseio.balance.facade.FacadeSocketChannelFactory;
+import com.generallycloud.baseio.balance.facade.ChannelIdFacadeAcceptorHandler;
 import com.generallycloud.baseio.balance.reverse.ReverseAcceptorHandler;
 import com.generallycloud.baseio.balance.reverse.ReverseAcceptorSEListener;
 import com.generallycloud.baseio.balance.reverse.ReverseLogger;
-import com.generallycloud.baseio.balance.reverse.ReverseSocketSessionFactory;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketChannelFactory;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
 import com.generallycloud.baseio.balance.router.SimpleNextRouter;
 import com.generallycloud.baseio.common.CloseUtil;
@@ -162,7 +162,7 @@ public class BalanceServerBootStrap {
             reverseExceptionCaughtHandle = new SilentExceptionCaughtHandle();
         }
         if (facadeAcceptorHandler == null) {
-            facadeAcceptorHandler = new SessionIdFacadeAcceptorHandler();
+            facadeAcceptorHandler = new ChannelIdFacadeAcceptorHandler();
         }
         if (reverseAcceptorHandler == null) {
             reverseAcceptorHandler = new ReverseAcceptorHandler();
@@ -176,13 +176,13 @@ public class BalanceServerBootStrap {
         balanceContext.setReverseAcceptor(new ChannelAcceptor(reverseChannelContext));
         facadeChannelContext.setAttribute(BalanceContext.BALANCE_CONTEXT_KEY, balanceContext);
         facadeChannelContext.setIoEventHandle(facadeAcceptorHandler);
-        facadeChannelContext.addSessionEventListener(new FacadeAcceptorSEListener(balanceContext));
-        facadeChannelContext.setSocketSessionFactory(new FacadeSocketSessionFactory());
+        facadeChannelContext.addChannelEventListener(new FacadeAcceptorSEListener(balanceContext));
+        facadeChannelContext.setSocketChannelFactory(new FacadeSocketChannelFactory());
         reverseChannelContext.setAttribute(BalanceContext.BALANCE_CONTEXT_KEY, balanceContext);
         reverseChannelContext.setIoEventHandle(reverseAcceptorHandler);
         reverseChannelContext
-                .addSessionEventListener(new ReverseAcceptorSEListener(balanceContext));
-        reverseChannelContext.setSocketSessionFactory(new ReverseSocketSessionFactory());
+                .addChannelEventListener(new ReverseAcceptorSEListener(balanceContext));
+        reverseChannelContext.setSocketChannelFactory(new ReverseSocketChannelFactory());
         balanceContext.getFacadeAcceptor().bind();
         LoggerUtil.prettyLog(logger, "Facade Acceptor startup completed ...");
         balanceContext.getReverseAcceptor().bind();

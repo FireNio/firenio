@@ -17,7 +17,7 @@ package com.generallycloud.baseio.container.rtp;
 
 import java.util.Map;
 
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.ServerConfiguration;
 import com.generallycloud.baseio.container.AbstractPluginContext;
 import com.generallycloud.baseio.container.ApplicationContext;
@@ -26,8 +26,8 @@ import com.generallycloud.baseio.container.rtp.server.RTPCreateRoomServlet;
 import com.generallycloud.baseio.container.rtp.server.RTPJoinRoomServlet;
 import com.generallycloud.baseio.container.rtp.server.RTPLeaveRoomServlet;
 import com.generallycloud.baseio.container.rtp.server.RTPRoomFactory;
-import com.generallycloud.baseio.container.rtp.server.RTPSessionAttachment;
-import com.generallycloud.baseio.container.rtp.server.RTPSessionEventListener;
+import com.generallycloud.baseio.container.rtp.server.RTPChannelAttachment;
+import com.generallycloud.baseio.container.rtp.server.RTPChannelEventListener;
 import com.generallycloud.baseio.container.service.FutureAcceptorService;
 
 public class RTPContext extends AbstractPluginContext {
@@ -72,13 +72,13 @@ public class RTPContext extends AbstractPluginContext {
 
         super.initialize(context, config);
 
-        context.addSessionEventListener(new RTPSessionEventListener());
+        context.addChannelEventListener(new RTPChannelEventListener());
 
         instance = this;
     }
 
-    public RTPSessionAttachment getSessionAttachment(SocketSession session) {
-        return (RTPSessionAttachment) session.getAttribute(getPluginKey());
+    public RTPChannelAttachment getChannelAttachment(NioSocketChannel channel) {
+        return (RTPChannelAttachment) channel.getAttribute(getPluginKey());
     }
 
     public RTPRoomFactory getRTPRoomFactory() {

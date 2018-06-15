@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -34,7 +34,7 @@ public class SimpleTestFIxedLengthClient1 {
     public static void main(String[] args) throws Exception {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
                 System.out.println();
                 System.out.println("____________________" + f.getReadText());
@@ -42,7 +42,7 @@ public class SimpleTestFIxedLengthClient1 {
             }
 
             @Override
-            public void futureSent(SocketSession session, Future future) {
+            public void futureSent(NioSocketChannel channel, Future future) {
                 System.out.println("_______________________sent ..........");
             }
         };
@@ -50,10 +50,10 @@ public class SimpleTestFIxedLengthClient1 {
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelConnector connector = new ChannelConnector(context, group);
         context.setIoEventHandle(eventHandleAdaptor);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
 
-        SocketSession session = connector.connect();
+        NioSocketChannel channel = connector.connect();
         StringBuilder sb = new StringBuilder(1024 * 6);
         for (int i = 0; i < 1; i++) {
             sb.append("hello!");
@@ -61,8 +61,8 @@ public class SimpleTestFIxedLengthClient1 {
 
         for (int i = 0; i < 20; i++) {
             FixedLengthFuture future = new FixedLengthFutureImpl();
-            future.write(sb.toString(), session);
-            session.flush(future);
+            future.write(sb.toString(), channel);
+            channel.flush(future);
         }
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);

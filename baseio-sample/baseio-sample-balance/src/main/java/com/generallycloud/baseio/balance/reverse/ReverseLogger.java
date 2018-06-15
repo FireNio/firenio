@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.balance.reverse;
 
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -25,21 +25,21 @@ import com.generallycloud.baseio.protocol.Future;
  */
 public class ReverseLogger {
 
-    public void logBroadcast(SocketSession session, Future future, Logger logger) {
-        logger.info("broadcast msg: F:{}, msg:{}", session.getRemoteAddrPort(), future);
+    public void logBroadcast(NioSocketChannel channel, Future future, Logger logger) {
+        logger.info("broadcast msg: F:{}, msg:{}", channel.getRemoteAddrPort(), future);
     }
 
-    public void logPushLost(SocketSession session, Future future, Logger logger) {
-        logger.info("connection lost: F:{}, msg:{}", session.getRemoteAddrPort(), future);
+    public void logPushLost(NioSocketChannel channel, Future future, Logger logger) {
+        logger.info("connection lost: F:{}, msg:{}", channel.getRemoteAddrPort(), future);
     }
 
-    public void logPush(SocketSession session, SocketSession response, Future future,
+    public void logPush(NioSocketChannel channel, NioSocketChannel response, Future future,
             Logger logger) {
         logger.info("reply msg: F:[{}], T:[{}], msg: {}",
-                new Object[] { session.getRemoteAddrPort(), response.getRemoteAddrPort(), future });
+                new Object[] { channel.getRemoteAddrPort(), response.getRemoteAddrPort(), future });
     }
 
-    public void logPush(SocketSession response, Future future, Logger logger) {
+    public void logPush(NioSocketChannel response, Future future, Logger logger) {
         logger.info("reply msg: T:[{}], msg: {}", response.getRemoteAddrPort(), future);
     }
 

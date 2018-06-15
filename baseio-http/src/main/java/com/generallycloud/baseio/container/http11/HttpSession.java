@@ -18,18 +18,18 @@ package com.generallycloud.baseio.container.http11;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
 public interface HttpSession {
 
-    void active(SocketSession ioSession);
+    void active(NioSocketChannel ioSession);
 
     void flush(Future future) throws IOException;
 
     long getCreateTime();
 
-    SocketSession getIoSession();
+    NioSocketChannel getChannel();
 
     long getLastAccessTime();
 

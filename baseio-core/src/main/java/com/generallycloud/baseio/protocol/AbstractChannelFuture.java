@@ -20,7 +20,6 @@ import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.concurrent.Linkable;
 
 public abstract class AbstractChannelFuture extends AbstractFuture implements ChannelFuture {
@@ -168,8 +167,8 @@ public abstract class AbstractChannelFuture extends AbstractFuture implements Ch
     }
 
     @Override
-    public void write(String text, SocketSession session) {
-        write(text, session.getContext());
+    public void write(String text, NioSocketChannel channel) {
+        write(text, channel.getContext());
     }
 
     protected ChannelFuture reset() {

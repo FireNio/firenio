@@ -24,8 +24,8 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SessionActiveIdleEventListener;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.ChannelActiveIdleEventListener;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Future;
@@ -39,7 +39,7 @@ public class TestBeat {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 DebugUtil.debug("______________" + future);
             }
         };
@@ -49,17 +49,17 @@ public class TestBeat {
         group.setIdleTime(10);
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelConnector connector = new ChannelConnector(context,group);
-        context.addSessionIdleEventListener(new SessionActiveIdleEventListener());
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelIdleEventListener(new ChannelActiveIdleEventListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new ProtobaseCodec());
         context.setIoEventHandle(eventHandleAdaptor);
-        SocketSession session = connector.connect();
+        NioSocketChannel channel = connector.connect();
         String param = "tttt";
         long old = System.currentTimeMillis();
         for (int i = 0; i < 5; i++) {
             Future future = new ProtobaseFutureImpl(serviceKey);
             future.write(param, context);
-            session.flush(future);
+            channel.flush(future);
             ThreadUtil.sleep(300);
         }
         System.out.println("Time:" + (System.currentTimeMillis() - old));

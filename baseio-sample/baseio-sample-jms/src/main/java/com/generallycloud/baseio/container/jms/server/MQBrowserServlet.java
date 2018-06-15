@@ -18,7 +18,7 @@ package com.generallycloud.baseio.container.jms.server;
 import com.generallycloud.baseio.codec.protobase.future.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.Parameters;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.jms.ErrorMessage;
 import com.generallycloud.baseio.container.jms.Message;
 import com.generallycloud.baseio.container.jms.NullMessage;
@@ -35,8 +35,8 @@ public class MQBrowserServlet extends MQServlet {
     public static final String SERVICE_NAME = MQBrowserServlet.class.getSimpleName();
 
     @Override
-    public void doAccept(SocketSession session, ParamedProtobaseFuture future,
-            MQSessionAttachment attachment) throws Exception {
+    public void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future,
+            MQChannelAttachment attachment) throws Exception {
 
         Parameters param = future.getParameters();
 
@@ -92,7 +92,7 @@ public class MQBrowserServlet extends MQServlet {
             }
         }
 
-        session.flush(future);
+        channel.flush(future);
     }
 
 }

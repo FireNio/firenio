@@ -18,48 +18,54 @@ package com.generallycloud.baseio.codec.http2;
 import com.generallycloud.baseio.codec.http2.hpack.Http2Headers;
 import com.generallycloud.baseio.codec.http2.hpack.Http2HeadersImpl;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSessionImpl;
 
-public class Http2SocketSessionImpl extends SocketSessionImpl implements Http2SocketSession {
+public class Http2Session {
 
-    public Http2SocketSessionImpl(NioSocketChannel channel) {
-        super(channel);
-    }
-
+    private static final String http2SessionChannelKey = "Http2SessionChannelKey";
+    
     private boolean      prefaceRead  = true;
 
     private long[]       settings     = new long[] { 0, 4096, 1, 128, 65535, 16384, 0 };
 
     private Http2Headers http2Headers = new Http2HeadersImpl();
 
-    @Override
     public long getSettings(int i) {
         return settings[i];
     }
 
-    @Override
     public void setSettings(int key, long value) {
         settings[key] = value;
     }
 
-    @Override
     public long[] getSettings() {
         return settings;
     }
 
-    @Override
     public Http2Headers getHttp2Headers() {
         return http2Headers;
     }
 
-    @Override
     public boolean isPrefaceRead() {
         return prefaceRead;
     }
 
-    @Override
     public void setPrefaceRead(boolean prefaceRead) {
         this.prefaceRead = prefaceRead;
+    }
+    
+    public static Http2Session getHttp2Session(NioSocketChannel channel){
+        Http2Session session = (Http2Session) channel.getAttribute(http2SessionChannelKey);
+        if (session == null) {
+            synchronized (channel.attributes()) {
+                session = (Http2Session) channel.getAttribute(http2SessionChannelKey);
+                if (session != null) {
+                    return session;
+                }
+                session = new Http2Session();
+                channel.setAttribute(http2SessionChannelKey, session);
+            }
+        }
+        return session;
     }
 
 }

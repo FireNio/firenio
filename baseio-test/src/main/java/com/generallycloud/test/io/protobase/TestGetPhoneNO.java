@@ -22,7 +22,7 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
 import com.generallycloud.baseio.configuration.Configuration;
-import com.generallycloud.baseio.container.protobase.FixedSession;
+import com.generallycloud.baseio.container.protobase.FixedChannel;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
 public class TestGetPhoneNO {
@@ -36,10 +36,10 @@ public class TestGetPhoneNO {
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new ProtobaseCodec());
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         connector.getContext().setProtocolCodec(new ProtobaseCodec());
-        FixedSession session = new FixedSession(connector.connect());
-        ProtobaseFuture future = session.request(serviceKey, null);
+        FixedChannel channel = new FixedChannel(connector.connect());
+        ProtobaseFuture future = channel.request(serviceKey, null);
         System.out.println(future.getReadText());
         CloseUtil.close(connector);
     }

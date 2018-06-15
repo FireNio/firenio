@@ -18,7 +18,7 @@ package com.generallycloud.sample.baseio.protobase;
 import java.io.IOException;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
 public class TestExceptionServlet extends ProtobaseFutureAcceptorService {
@@ -26,7 +26,7 @@ public class TestExceptionServlet extends ProtobaseFutureAcceptorService {
     public static final String SERVICE_NAME = TestExceptionServlet.class.getSimpleName();
 
     @Override
-    protected void doAccept(SocketSession session, ParamedProtobaseFuture future) throws Exception {
+    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
         throw new IOException("测试啊");
     }
 

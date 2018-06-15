@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.container.rtp.server;
 
 import com.generallycloud.baseio.codec.protobase.future.ProtobaseFuture;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.rtp.RTPContext;
 
 public class RTPJoinRoomServlet extends RTPServlet {
@@ -24,8 +24,8 @@ public class RTPJoinRoomServlet extends RTPServlet {
     public static final String SERVICE_NAME = RTPJoinRoomServlet.class.getSimpleName();
 
     @Override
-    public void doAccept(SocketSession session, ProtobaseFuture future,
-            RTPSessionAttachment attachment) throws Exception {
+    public void doAccept(NioSocketChannel channel, ProtobaseFuture future,
+            RTPChannelAttachment attachment) throws Exception {
 
         RTPContext context = getRTPContext();
 
@@ -39,7 +39,7 @@ public class RTPJoinRoomServlet extends RTPServlet {
 
             future.write("0");
 
-            session.flush(future);
+            channel.flush(future);
 
             return;
         }
@@ -53,7 +53,7 @@ public class RTPJoinRoomServlet extends RTPServlet {
             future.write("0");
         }
 
-        session.flush(future);
+        channel.flush(future);
     }
 
 }

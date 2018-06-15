@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.container.protobase;
 
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -36,7 +36,7 @@ public class WaiterOnFuture implements OnFuture {
     }
 
     @Override
-    public void onResponse(SocketSession session, Future future) {
+    public void onResponse(NioSocketChannel channel, Future future) {
         this.waiter.response(future);
     }
 }

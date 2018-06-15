@@ -23,7 +23,7 @@ import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
 import com.generallycloud.baseio.component.LoggerSocketSEListener;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.configuration.Configuration;
@@ -36,16 +36,16 @@ public class TestLineBasedServer {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 String res = "yes server already accept your message:" + future;
-                future.write(res, session.getEncoding());
-                session.flush(future);
+                future.write(res, channel.getEncoding());
+                channel.flush(future);
             }
         };
 
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelAcceptor acceptor = new ChannelAcceptor(context);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerSocketSEListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new CharBasedCodec());
         File certificate = FileUtil.readFileByCls("generallycloud.com.crt");

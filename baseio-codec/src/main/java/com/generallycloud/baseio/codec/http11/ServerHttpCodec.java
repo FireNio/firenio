@@ -25,9 +25,7 @@ import com.generallycloud.baseio.component.ByteArrayOutputStream;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
 import com.generallycloud.baseio.protocol.ChannelFuture;
-import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai
@@ -63,12 +61,12 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     }
 
     @Override
-    public Future createPINGPacket(SocketSession session) {
+    public ChannelFuture createPINGPacket(NioSocketChannel channel) {
         return null;
     }
 
     @Override
-    public Future createPONGPacket(SocketSession session, ChannelFuture ping) {
+    public ChannelFuture createPONGPacket(NioSocketChannel channel, ChannelFuture ping) {
         return null;
     }
 
@@ -129,8 +127,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         ServerHttpFuture f = (ServerHttpFuture) readFuture;
         if (f.isUpdateWebSocketProtocol()) {
             channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
-            channel.getSession().setAttribute(WebSocketFuture.SESSION_KEY_SERVICE_NAME,
-                    f.getFutureName());
+            channel.setAttribute(WebSocketFuture.CHANNEL_KEY_SERVICE_NAME, f.getFutureName());
         }
         f.setResponseHeader("Date",
                 HttpHeaderDateFormat.getFormat().format(System.currentTimeMillis()));

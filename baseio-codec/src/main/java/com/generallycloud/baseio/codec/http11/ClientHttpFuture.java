@@ -21,7 +21,6 @@ import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
 
 public class ClientHttpFuture extends AbstractHttpFuture {
 
@@ -47,8 +46,7 @@ public class ClientHttpFuture extends AbstractHttpFuture {
     @Override
     public void updateWebSocketProtocol() {
         ChannelConnector connector = (ChannelConnector) getContext().getChannelService();
-        SocketSession session = connector.getSession();
-        NioSocketChannel channel = session.unsafe();
+        NioSocketChannel channel = connector.getChannel();
         channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
     }
 

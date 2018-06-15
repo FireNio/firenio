@@ -15,22 +15,12 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
-
-public class SessionAliveIdleEventListener implements SessionIdleEventListener {
-
-    private Logger logger = LoggerFactory.getLogger(getClass());
+public class ChannelEventListenerAdapter implements ChannelEventListener {
 
     @Override
-    public void sessionIdled(SocketSession session, long lastIdleTime, long currentTime) {
+    public void channelOpened(NioSocketChannel channel) throws Exception {}
 
-        if (session.getLastAccessTime() < lastIdleTime) {
-            logger.info(
-                    "Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",
-                    session);
-            CloseUtil.close(session);
-        }
-    }
+    @Override
+    public void channelClosed(NioSocketChannel channel) {}
+
 }

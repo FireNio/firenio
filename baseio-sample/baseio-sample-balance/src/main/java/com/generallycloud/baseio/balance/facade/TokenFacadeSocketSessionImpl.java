@@ -23,10 +23,10 @@ import com.generallycloud.baseio.component.NioSocketChannel;
  * @author wangkai
  *
  */
-public class TokenFacadeSocketSessionImpl extends FacadeSocketSessionImpl
-        implements TokenFacadeSocketSession {
+public class TokenFacadeSocketChannelImpl extends FacadeSocketChannelImpl
+        implements TokenFacadeSocketChannel {
 
-    public TokenFacadeSocketSessionImpl(NioSocketChannel channel) {
+    public TokenFacadeSocketChannelImpl(NioSocketChannel channel) {
         super(channel);
         this.token = generateToken();
     }
@@ -38,11 +38,11 @@ public class TokenFacadeSocketSessionImpl extends FacadeSocketSessionImpl
         if (r < 0) {
             r *= -1;
         }
-        return (r << 32) | getSessionId();
+        return (r << 32) | getChannelId();
     }
 
     @Override
-    public Object getSessionKey() {
+    public Object getChannelKey() {
         return getToken();
     }
 

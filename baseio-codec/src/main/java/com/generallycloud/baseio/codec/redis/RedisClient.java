@@ -20,25 +20,25 @@ import java.io.IOException;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.codec.redis.RedisFuture.RedisCommand;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.Waiter;
 
 //FIXME check null
 public class RedisClient {
 
     private ChannelContext     context;
-    private SocketSession      session;
+    private NioSocketChannel      channel;
     private RedisIOEventHandle ioEventHandle;
     private long               timeout;
 
-    public RedisClient(SocketSession session) {
-        this(session, 3000);
+    public RedisClient(NioSocketChannel channel) {
+        this(channel, 3000);
     }
 
-    public RedisClient(SocketSession session, long timeout) {
+    public RedisClient(NioSocketChannel channel, long timeout) {
         this.timeout = timeout;
-        this.session = session;
-        this.context = session.getContext();
+        this.channel = channel;
+        this.context = channel.getContext();
         this.ioEventHandle = (RedisIOEventHandle) context.getIoEventHandle();
     }
 
@@ -46,7 +46,7 @@ public class RedisClient {
         RedisFuture future = new RedisCmdFuture();
         future.writeCommand(command, args);
         Waiter waiter = ioEventHandle.newWaiter();
-        session.flush(future);
+        channel.flush(future);
         if (waiter.await(timeout)) {
             throw new TimeoutException("timeout");
         }

@@ -23,11 +23,11 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class FileSendUtil {
 
-    public void sendFile(SocketSession session, String serviceName, File file, int cacheSize)
+    public void sendFile(NioSocketChannel channel, String serviceName, File file, int cacheSize)
             throws Exception {
         FileInputStream inputStream = new FileInputStream(file);
         int available = (int) file.length();
@@ -40,16 +40,16 @@ public class FileSendUtil {
         for (int i = 0; i < time; i++) {
             FileUtil.readInputStream(inputStream, cache);
             ProtobaseFuture f = new ProtobaseFutureImpl(serviceName);
-            f.write(jsonString, session.getEncoding());
+            f.write(jsonString, channel.getEncoding());
             f.writeBinary(cache);
-            session.flush(f);
+            channel.flush(f);
         }
         int r = FileUtil.readInputStream(inputStream, cache);
         json.put(FileReceiveUtil.IS_END, true);
         ProtobaseFuture f = new ProtobaseFutureImpl(serviceName);
-        f.write(json.toJSONString(), session.getEncoding());
+        f.write(json.toJSONString(), channel.getEncoding());
         f.writeBinary(cache, 0, r);
-        session.flush(f);
+        channel.flush(f);
         CloseUtil.close(inputStream);
     }
 

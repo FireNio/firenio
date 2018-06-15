@@ -20,7 +20,6 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
 
 /**
  * @author wangkai
@@ -28,9 +27,9 @@ import com.generallycloud.baseio.component.SocketSession;
  */
 public interface ProtocolCodec {
 
-    Future createPINGPacket(SocketSession session);
+    ChannelFuture createPINGPacket(NioSocketChannel channel);
 
-    Future createPONGPacket(SocketSession session, ChannelFuture ping);
+    ChannelFuture createPONGPacket(NioSocketChannel channel, ChannelFuture ping);
 
     // 可能会遭受一种攻击，比如最大可接收数据为100，客户端传输到99后暂停，
     // 这样多次以后可能会导致内存溢出

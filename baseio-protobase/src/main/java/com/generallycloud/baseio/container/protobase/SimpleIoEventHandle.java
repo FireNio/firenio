@@ -21,7 +21,7 @@ import java.util.Map;
 
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.NamedFuture;
 
@@ -30,11 +30,11 @@ public class SimpleIoEventHandle extends IoEventHandleAdaptor {
     private Map<String, OnFutureWrapper> listeners = new HashMap<>();
 
     @Override
-    public void accept(SocketSession session, Future future) throws Exception {
+    public void accept(NioSocketChannel channel, Future future) throws Exception {
         NamedFuture f = (NamedFuture) future;
         OnFutureWrapper onReadFuture = listeners.get(f.getFutureName());
         if (onReadFuture != null) {
-            onReadFuture.onResponse(session, f);
+            onReadFuture.onResponse(channel, f);
         }
     }
 

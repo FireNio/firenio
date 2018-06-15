@@ -32,7 +32,7 @@ io.on('connection', function (socket) {
   socket.on('add user', function (username) {
     if (addedUser) return;
 
-    // we store the username in the socket session for this client
+    // we store the username in the socket channel for this client
     socket.username = username;
     ++numUsers;
     addedUser = true;

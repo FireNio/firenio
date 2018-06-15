@@ -22,7 +22,7 @@ public class TestUDPClient {
         //        DatagramPacketAcceptor acceptor = new DatagramPacketAcceptor() {
         //
         //            @Override
-        //            public void accept(DatagramSession session, DatagramPacket packet) throws IOException {
+        //            public void accept(DatagramChannel channel, DatagramPacket packet) throws IOException {
         //                System.out.println(packet.getDataString(Encoding.UTF8));
         //
         //            }
@@ -35,11 +35,11 @@ public class TestUDPClient {
         //
         //        context.setDatagramPacketAcceptor(acceptor);
         //
-        //        DatagramSession session = connector.connect();
+        //        DatagramChannel channel = connector.connect();
         //
         //        DatagramPacket packet = DatagramPacket.createSendPacket("hello world!".getBytes());
         //
-        //        session.sendPacket(packet);
+        //        channel.sendPacket(packet);
         //
         //        ThreadUtil.sleep(30);
         //

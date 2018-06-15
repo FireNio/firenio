@@ -17,14 +17,14 @@ package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.balance.BalanceContext;
 import com.generallycloud.baseio.balance.ChannelLostFutureFactory;
-import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketChannel;
 import com.generallycloud.baseio.balance.router.BalanceRouter;
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SessionEventListenerAdapter;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class FacadeAcceptorSEListener extends SessionEventListenerAdapter {
+public class FacadeAcceptorSEListener extends ChannelEventListenerAdapter {
 
     private Logger         logger = LoggerFactory.getLogger(getClass());
 
@@ -35,21 +35,21 @@ public class FacadeAcceptorSEListener extends SessionEventListenerAdapter {
     }
 
     @Override
-    public void sessionOpened(SocketSession session) {
+    public void sessionOpened(NioSocketChannel channel) {
         BalanceRouter balanceRouter = context.getBalanceRouter();
-        balanceRouter.addClientSession((FacadeSocketSession) session);
-        logger.info("client from [ {}:{} ] connected.", session.getRemoteAddr(),
-                session.getRemotePort());
+        balanceRouter.addClientChannel((FacadeSocketChannel) channel);
+        logger.info("client from [ {}:{} ] connected.", channel.getRemoteAddr(),
+                channel.getRemotePort());
     }
 
     @Override
-    public void sessionClosed(SocketSession session) {
+    public void sessionClosed(NioSocketChannel channel) {
         BalanceRouter balanceRouter = context.getBalanceRouter();
-        FacadeSocketSession fs = (FacadeSocketSession) session;
-        balanceRouter.removeClientSession(fs);
-        logger.info("client from [ {}:{} ] disconnected.", session.getRemoteAddr(),
-                session.getRemotePort());
-        ReverseSocketSession rs = balanceRouter.getRouterSession(fs);
+        FacadeSocketChannel fs = (FacadeSocketChannel) channel;
+        balanceRouter.removeClientChannel(fs);
+        logger.info("client from [ {}:{} ] disconnected.", channel.getRemoteAddr(),
+                channel.getRemotePort());
+        ReverseSocketChannel rs = balanceRouter.getRouterChannel(fs);
         if (rs == null) {
             return;
         }

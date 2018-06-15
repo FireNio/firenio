@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.http2;
+package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionFactory;
+import java.util.EventListener;
 
-public class Http2SessionFactory implements SocketSessionFactory {
+public interface ChannelEventListener extends EventListener {
 
-    @Override
-    public SocketSession newUnsafeSession(NioSocketChannel channel) {
-        return new Http2SocketSessionImpl(channel);
-    }
+    void channelOpened(NioSocketChannel channel) throws Exception;
+
+    void channelClosed(NioSocketChannel channel);
+
 }

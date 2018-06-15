@@ -19,70 +19,70 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.baseio.balance.facade.FacadeSocketSession;
-import com.generallycloud.baseio.balance.reverse.ReverseSocketSession;
+import com.generallycloud.baseio.balance.facade.FacadeSocketChannel;
+import com.generallycloud.baseio.balance.reverse.ReverseSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleNextRouter extends AbstractBalanceRouter {
 
     private int                        index      = 0;
     private ReentrantLock              lock       = new ReentrantLock();
-    private List<ReverseSocketSession> routerList = new ArrayList<>();
+    private List<ReverseSocketChannel> routerList = new ArrayList<>();
 
-    private ReverseSocketSession getNextRouterSession() {
-        List<ReverseSocketSession> list = this.routerList;
+    private ReverseSocketChannel getNextRouterChannel() {
+        List<ReverseSocketChannel> list = this.routerList;
         if (list.isEmpty()) {
             return null;
         }
-        ReverseSocketSession session;
+        ReverseSocketChannel channel;
         if (index < list.size()) {
-            session = list.get(index++);
+            channel = list.get(index++);
         } else {
             index = 1;
-            session = list.get(0);
+            channel = list.get(0);
         }
-        return session;
+        return channel;
     }
 
     @Override
-    public void addRouterSession(ReverseSocketSession session) {
+    public void addRouterChannel(ReverseSocketChannel channel) {
         ReentrantLock lock = this.lock;
         lock.lock();
-        this.routerList.add(session);
+        this.routerList.add(channel);
         lock.unlock();
     }
 
     @Override
-    public void removeRouterSession(ReverseSocketSession session) {
+    public void removeRouterChannel(ReverseSocketChannel channel) {
         ReentrantLock lock = this.lock;
         lock.lock();
-        routerList.remove(session);
+        routerList.remove(channel);
         lock.unlock();
     }
 
     @Override
-    public ReverseSocketSession getRouterSession(FacadeSocketSession session, Future future) {
-        ReverseSocketSession router_session = getRouterSession(session);
+    public ReverseSocketChannel getRouterChannel(FacadeSocketChannel channel, Future future) {
+        ReverseSocketChannel router_session = getRouterChannel(channel);
         if (router_session == null) {
-            return getRouterSessionFresh(session);
+            return getRouterChannelFresh(channel);
         }
         if (router_session.isClosed()) {
-            return getRouterSessionFresh(session);
+            return getRouterChannelFresh(channel);
         }
         return router_session;
     }
 
-    private ReverseSocketSession getRouterSessionFresh(FacadeSocketSession session) {
+    private ReverseSocketChannel getRouterChannelFresh(FacadeSocketChannel channel) {
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            ReverseSocketSession router_session = getRouterSession(session);
+            ReverseSocketChannel router_session = getRouterChannel(channel);
             if (router_session == null || router_session.isClosed()) {
-                router_session = getNextRouterSession();
+                router_session = getNextRouterChannel();
                 if (router_session == null) {
                     return null;
                 }
-                session.setReverseSocketSession(router_session);
+                channel.setReverseSocketChannel(router_session);
             }
             return router_session;
         } finally {

@@ -32,19 +32,19 @@ public class ReConnector implements Closeable {
     private ReConnector      reConnector = null;
 
     public ReConnector(ChannelContext context) {
-        context.addSessionEventListener(newReconnectSEListener());
+        context.addChannelEventListener(newReconnectSEListener());
         this.connector = new ChannelConnector(context);
         this.reConnector = this;
     }
 
     public ReConnector(ChannelContext context, NioEventLoop eventLoop) {
-        context.addSessionEventListener(newReconnectSEListener());
+        context.addChannelEventListener(newReconnectSEListener());
         this.connector = new ChannelConnector(context, eventLoop);
         this.reConnector = this;
     }
 
     public ReConnector(ChannelContext context, NioEventLoopGroup group) {
-        context.addSessionEventListener(newReconnectSEListener());
+        context.addChannelEventListener(newReconnectSEListener());
         this.connector = new ChannelConnector(context, group);
         this.reConnector = this;
     }
@@ -53,8 +53,8 @@ public class ReConnector implements Closeable {
         return connector.isConnected();
     }
 
-    public SocketSession getSession() {
-        return connector.getSession();
+    public NioSocketChannel getChannel() {
+        return connector.getChannel();
     }
 
     public synchronized void connect() {
@@ -62,11 +62,11 @@ public class ReConnector implements Closeable {
             logger.info("connection is closed, stop to reconnect");
             return;
         }
-        SocketSession session = connector.getSession();
+        NioSocketChannel channel = connector.getChannel();
         ThreadUtil.sleep(300);
         logger.info("begin try to connect");
         for (;;) {
-            if (session != null && session.isOpened()) {
+            if (channel != null && channel.isOpened()) {
                 logger.error("reconnect failed,try reconnect later on {} milliseconds", retryTime);
                 ThreadUtil.sleep(retryTime);
                 continue;
@@ -82,10 +82,10 @@ public class ReConnector implements Closeable {
         }
     }
 
-    private SessionEventListenerAdapter newReconnectSEListener() {
-        return new SessionEventListenerAdapter() {
+    private ChannelEventListenerAdapter newReconnectSEListener() {
+        return new ChannelEventListenerAdapter() {
             @Override
-            public void sessionClosed(SocketSession session) {
+            public void channelClosed(NioSocketChannel channel) {
                 reconnect(reConnector);
             }
         };

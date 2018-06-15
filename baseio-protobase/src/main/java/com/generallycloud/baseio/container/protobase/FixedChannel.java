@@ -23,18 +23,18 @@ import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.SocketSession;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
-public class FixedSession {
+public class FixedChannel {
 
     private ChannelContext      context     = null;
     private boolean             logined     = false;
-    private SocketSession       session     = null;
+    private NioSocketChannel    channel     = null;
     private long                timeout     = 50000;
     private SimpleIoEventHandle eventHandle = null;
 
-    public FixedSession(SocketSession session) {
-        update(session);
+    public FixedChannel(NioSocketChannel channel) {
+        update(channel);
     }
 
     public void setTimeout(long timeout) {
@@ -53,8 +53,8 @@ public class FixedSession {
         return context;
     }
 
-    public SocketSession getSession() {
-        return session;
+    public NioSocketChannel getChannel() {
+        return channel;
     }
 
     public boolean isLogined() {
@@ -69,25 +69,25 @@ public class FixedSession {
             throws IOException {
         ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(serviceName);
         if (!StringUtil.isNullOrBlank(content)) {
-            future.write(content, session.getEncoding());
+            future.write(content, channel.getEncoding());
         }
         if (binary != null) {
             future.writeBinary(binary);
         }
         WaiterOnFuture onReadFuture = new WaiterOnFuture();
         waiterListen(serviceName, onReadFuture);
-        session.flush(future);
+        channel.flush(future);
         // FIXME 连接丢失时叫醒我
         if (onReadFuture.await(timeout)) {
-            CloseUtil.close(session);
+            CloseUtil.close(channel);
             throw new TimeoutException("timeout");
         }
         return (ParamedProtobaseFuture) onReadFuture.getReadFuture();
     }
 
-    public void update(SocketSession session) {
-        this.session = session;
-        this.context = session.getContext();
+    public void update(NioSocketChannel channel) {
+        this.channel = channel;
+        this.context = channel.getContext();
         this.eventHandle = (SimpleIoEventHandle) context.getIoEventHandle();
     }
 
@@ -110,12 +110,12 @@ public class FixedSession {
     public void write(String serviceName, String content, byte[] binary) throws IOException {
         ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(serviceName);
         if (!StringUtil.isNullOrBlank(content)) {
-            future.write(content, session.getEncoding());
+            future.write(content, channel.getEncoding());
         }
         if (binary != null) {
             future.writeBinary(binary);
         }
-        session.flush(future);
+        channel.flush(future);
     }
 
     public void listen(String serviceName, OnFuture onReadFuture) throws IOException {

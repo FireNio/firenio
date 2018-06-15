@@ -16,14 +16,14 @@
 package com.generallycloud.baseio.balance.facade;
 
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SocketSession;
-import com.generallycloud.baseio.component.SocketSessionFactoryImpl;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.SocketChannelFactoryImpl;
 
-public class TokenFacadeSocketSessionFactory extends SocketSessionFactoryImpl {
+public class TokenFacadeSocketChannelFactory extends SocketChannelFactoryImpl {
 
     @Override
-    public SocketSession newUnsafeSession(NioSocketChannel channel) {
-        return new TokenFacadeSocketSessionImpl(channel);
+    public NioSocketChannel newUnsafeChannel(NioSocketChannel channel) {
+        return new TokenFacadeSocketChannelImpl(channel);
     }
 
 }
