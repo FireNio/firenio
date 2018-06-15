@@ -49,43 +49,43 @@ import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 import com.generallycloud.baseio.protocol.SslFuture;
 
-public class NioSocketChannel implements NioEventLoopTask {
-    
-    
-    private static final ClosedChannelException CLOSED_WHEN_FLUSH = ThrowableUtil.unknownStackTrace(
-            new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
-    private static final ClosedChannelException CLOSED_CHANNEL = ThrowableUtil.unknownStackTrace(
-            new ClosedChannelException(), NioSocketChannel.class, "channel closed");
-    private static final InetSocketAddress ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
-    private static final Logger            logger               = LoggerFactory
+public final class NioSocketChannel implements NioEventLoopTask {
+
+    private static final ClosedChannelException CLOSED_WHEN_FLUSH    = ThrowableUtil
+            .unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
+    private static final ClosedChannelException CLOSED_CHANNEL       = ThrowableUtil
+            .unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class,
+                    "channel closed");
+    private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
+    private static final Logger                 logger               = LoggerFactory
             .getLogger(NioSocketChannel.class);
-    private ByteBufAllocator               allocator;
-    private SocketChannel                  channel;
-    private String                         channelDesc;
-    private Integer                        channelId;
-    private ReentrantLock                  closeLock            = new ReentrantLock();
-    private ChannelContext                 context;
-    private long                           creationTime         = System.currentTimeMillis();
-    private ChannelFuture[]                currentWriteFutures;
-    private int                            currentWriteFuturesLen;
-    private final boolean                  enableSsl;
-    private final NioEventLoop             eventLoop;
-    private long                           lastAccess;
-    private String                         localAddr;
-    private int                            localPort;
-    private boolean                        opened               = true;
-    private ProtocolCodec                  protocolCodec;
-    private transient ChannelFuture        readFuture;
-    private ByteBuf                        remainingBuf;
-    private String                         remoteAddr;
-    private String                         remoteAddrPort;
-    private int                            remotePort;
-    private final SelectionKey             selectionKey;
-    private SocketSession                  session;
-    private SSLEngine                      sslEngine;
-    private transient SslFuture            sslReadFuture;
-    private LinkedQueue<ChannelFuture>     writeFutures;
-    private ExecutorEventLoop              executorEventLoop;
+    private ByteBufAllocator                    allocator;
+    private SocketChannel                       channel;
+    private String                              channelDesc;
+    private Integer                             channelId;
+    private ReentrantLock                       closeLock            = new ReentrantLock();
+    private ChannelContext                      context;
+    private long                                creationTime         = System.currentTimeMillis();
+    private ChannelFuture[]                     currentWriteFutures;
+    private int                                 currentWriteFuturesLen;
+    private final boolean                       enableSsl;
+    private final NioEventLoop                  eventLoop;
+    private long                                lastAccess;
+    private String                              localAddr;
+    private int                                 localPort;
+    private boolean                             opened               = true;
+    private ProtocolCodec                       protocolCodec;
+    private transient ChannelFuture             readFuture;
+    private ByteBuf                             remainingBuf;
+    private String                              remoteAddr;
+    private String                              remoteAddrPort;
+    private int                                 remotePort;
+    private final SelectionKey                  selectionKey;
+    private SocketSession                       session;
+    private SSLEngine                           sslEngine;
+    private transient SslFuture                 sslReadFuture;
+    private LinkedQueue<ChannelFuture>          writeFutures;
+    private ExecutorEventLoop                   executorEventLoop;
 
     NioSocketChannel(NioEventLoop eventLoop, SelectionKey selectionKey, ChannelContext context,
             int channelId) {
@@ -313,7 +313,7 @@ public class NioSocketChannel implements NioEventLoopTask {
             exceptionCaught(future, e);
         }
     }
-    
+
     public void flushFutures(Collection<ChannelFuture> futures) {
         if (futures == null || futures.isEmpty()) {
             return;
@@ -349,7 +349,7 @@ public class NioSocketChannel implements NioEventLoopTask {
         }
         flushChannelFutures(futures);
     }
-    
+
     public void flushChannelFuture(ChannelFuture future) {
         if (inEventLoop()) {
             if (!isOpened()) {
@@ -358,7 +358,7 @@ public class NioSocketChannel implements NioEventLoopTask {
             }
             if (currentWriteFuturesLen == 0 && writeFutures.size() == 0) {
                 write(future);
-            }else{
+            } else {
                 writeFutures.offer(future);
                 try {
                     write();
@@ -590,7 +590,7 @@ public class NioSocketChannel implements NioEventLoopTask {
         return opened;
     }
 
-    protected void read(ByteBuf buf) throws Exception {
+    protected final void read(ByteBuf buf) throws Exception {
         lastAccess = System.currentTimeMillis();
         buf.clear();
         if (!isEnableSsl()) {
@@ -684,8 +684,8 @@ public class NioSocketChannel implements NioEventLoopTask {
     public void setRemainingBuf(ByteBuf remainingBuf) {
         this.remainingBuf = remainingBuf;
     }
-    
-    public void readRemainingBuf(ByteBuf dst){
+
+    public void readRemainingBuf(ByteBuf dst) {
         ByteBuf remainingBuf = this.remainingBuf;
         if (remainingBuf == null) {
             return;
@@ -756,7 +756,7 @@ public class NioSocketChannel implements NioEventLoopTask {
         }
     }
 
-    protected void write() throws IOException {
+    protected final void write() throws IOException {
         final NioEventLoop eventLoop = this.eventLoop;
         final ChannelFuture[] currentWriteFutures = this.currentWriteFutures;
         final LinkedQueue<ChannelFuture> writeFutures = this.writeFutures;

@@ -32,8 +32,6 @@ import com.generallycloud.baseio.protocol.DefaultChannelFuture;
 
 public class SslHandler {
     
-    public static final String SSL_HANDlER_EVENT_LOOP_KEY = "SSL_HANDlER_EVENT_LOOP_KEY";
-
     private ChannelFuture forgeFuture = new DefaultChannelFuture(EmptyByteBuf.get(), true);
 
     private ByteBuf       tempDst;
