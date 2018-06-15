@@ -20,7 +20,7 @@ import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
-import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
@@ -41,7 +41,7 @@ public class SimpleTestFIxedLengthServer {
         NioEventLoopGroup group = new NioEventLoopGroup();
         ChannelContext context = new ChannelContext(new Configuration(8300));
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
-        context.addChannelEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new FixedLengthCodec());
         acceptor.bind();

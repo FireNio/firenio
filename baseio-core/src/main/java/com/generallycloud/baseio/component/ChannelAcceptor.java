@@ -30,7 +30,6 @@ import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.baseio.protocol.Future;
 
 /**
  * @author wangkai

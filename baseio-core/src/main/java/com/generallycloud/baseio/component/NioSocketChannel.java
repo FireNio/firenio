@@ -67,7 +67,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
     private ReentrantLock                       closeLock            = new ReentrantLock();
     private ChannelContext                      context;
     private long                                creationTime         = System.currentTimeMillis();
-    private Future[]                     currentWriteFutures;
+    private Future[]                            currentWriteFutures;
     private int                                 currentWriteFuturesLen;
     private final boolean                       enableSsl;
     private final NioEventLoop                  eventLoop;
@@ -77,7 +77,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
     private int                                 localPort;
     private boolean                             opened               = true;
     private ProtocolCodec                       protocolCodec;
-    private transient Future             readFuture;
+    private transient Future                    readFuture;
     private ByteBuf                             remainingBuf;
     private String                              remoteAddr;
     private String                              remoteAddrPort;
@@ -85,7 +85,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
     private final SelectionKey                  selectionKey;
     private SSLEngine                           sslEngine;
     private transient SslFuture                 sslReadFuture;
-    private LinkedQueue<Future>          writeFutures;
+    private LinkedQueue<Future>                 writeFutures;
 
     NioSocketChannel(ChannelContext context, ByteBufAllocator allocator) {
         this.enableSsl = false;
@@ -313,7 +313,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
             exceptionCaught(future, e);
         }
     }
-    
+
     public void flush(Collection<Future> futures) {
         if (futures == null || futures.isEmpty()) {
             return;

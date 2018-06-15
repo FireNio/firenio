@@ -16,10 +16,10 @@
 package com.generallycloud.baseio.container.http11;
 
 import com.generallycloud.baseio.codec.http11.ServerHttpCodec;
-import com.generallycloud.baseio.codec.http11.WebSocketChannelEListener;
+import com.generallycloud.baseio.codec.http11.WebSocketChannelListener;
 import com.generallycloud.baseio.component.ChannelAliveIdleEventListener;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.concurrent.ExecutorPoolEventLoopGroup;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrapEngine;
@@ -37,10 +37,10 @@ public class HttpApplicationBootstrapEngine extends ApplicationBootstrapEngine {
         handle.setApplicationExtLoader(new HttpExtLoader());
         handle.setApplicationConfigurationLoader(new FileSystemACLoader());
         handle.setAppOnRedeployService(new HttpOnRedeployAcceptor());
-        context.addChannelEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerChannelOpenListener());
         context.getNioEventLoopGroup().setIdleTime(1000 * 60 * 30);
         context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
-        context.addChannelEventListener(new WebSocketChannelEListener());
+        context.addChannelEventListener(new WebSocketChannelListener());
         context.setProtocolCodec(new ServerHttpCodec());
         context.setExecutorEventLoopGroup(new ExecutorPoolEventLoopGroup("http-event-processor", 16,
                 64, 1024 * 64, 1000 * 60 * 30));

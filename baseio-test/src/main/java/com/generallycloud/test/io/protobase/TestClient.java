@@ -23,7 +23,7 @@ import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
-import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
@@ -46,7 +46,7 @@ public class TestClient {
         ChannelConnector connector = new ChannelConnector(context);
         connector.setTimeout(99999999);
         context.setIoEventHandle(eventHandleAdaptor);
-        context.addChannelEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new ProtobaseCodec());
         NioSocketChannel channel = connector.connect();
         ProtobaseFuture future = new ProtobaseFutureImpl("test222");

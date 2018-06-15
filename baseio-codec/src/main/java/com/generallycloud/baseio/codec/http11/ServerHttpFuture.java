@@ -18,11 +18,9 @@ package com.generallycloud.baseio.codec.http11;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.baseio.collection.FixedThreadStack;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class ServerHttpFuture extends AbstractHttpFuture {

@@ -19,7 +19,7 @@ import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandleAdaptor;
-import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
@@ -48,7 +48,7 @@ public class TestLineBasedBroadcastServer {
         configuration.setPort(8300);
         ChannelContext context = new ChannelContext(configuration);
         ChannelAcceptor acceptor = new ChannelAcceptor(context);
-        context.addChannelEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new CharBasedCodec());
         acceptor.bind();

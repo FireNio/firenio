@@ -21,7 +21,7 @@ import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class WebSocketChannelEListener extends ChannelEventListenerAdapter {
+public class WebSocketChannelListener extends ChannelEventListenerAdapter {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 

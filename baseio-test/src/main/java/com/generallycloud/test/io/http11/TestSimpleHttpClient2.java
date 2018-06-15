@@ -25,7 +25,7 @@ import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.configuration.Configuration;
@@ -50,7 +50,7 @@ public class TestSimpleHttpClient2 {
         ChannelConnector connector = new ChannelConnector(context);
         context.setProtocolCodec(new ClientHttpCodec());
         context.setIoEventHandle(eventHandleAdaptor);
-        context.addChannelEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerChannelOpenListener());
         if (port == 443) {
             context.setSslContext(SSLUtil.initClient(true));
         }

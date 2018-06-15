@@ -19,7 +19,7 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
@@ -37,7 +37,7 @@ public class TestListenerByteMessage {
 
         context.setProtocolCodec(new ProtobaseCodec());
 
-        context.addChannelEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerChannelOpenListener());
 
         //        FixedChannel channel = new FixedChannel(connector.connect());
         //

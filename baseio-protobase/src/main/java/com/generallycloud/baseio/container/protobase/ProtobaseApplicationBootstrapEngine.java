@@ -17,7 +17,7 @@ package com.generallycloud.baseio.container.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseCodec;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.LoggerSocketSEListener;
+import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
 import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrapEngine;
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
@@ -32,7 +32,7 @@ public class ProtobaseApplicationBootstrapEngine extends ApplicationBootstrapEng
     protected void enrichSocketChannelContext(ChannelContext context) {
         ApplicationIoEventHandle handle = (ApplicationIoEventHandle) context.getIoEventHandle();
         handle.setApplicationConfigurationLoader(new FileSystemACLoader());
-        context.addChannelEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new ParamedProtobaseCodec());
     }
 

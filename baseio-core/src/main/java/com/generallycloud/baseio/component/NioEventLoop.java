@@ -100,7 +100,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private Object[]                            indexedVariables = new Object[maxIndexedVariablesSize];
     private final boolean                       isAcceptor;
     private long                                lastIdleTime     = 0;
-    private List<Future>                 readFutures;
+    private List<Future>                        readFutures;
     private AtomicBoolean                       selecting        = new AtomicBoolean();
     private SelectionKeySet                     selectionKeySet;
     private Selector                            selector;

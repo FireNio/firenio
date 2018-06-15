@@ -18,7 +18,7 @@ package com.generallycloud.baseio.component;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
-public class LoggerSocketSEListener implements ChannelEventListener {
+public class LoggerChannelOpenListener implements ChannelEventListener {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
