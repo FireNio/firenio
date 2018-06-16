@@ -56,12 +56,9 @@ public class TestLoadClient1 extends ITestThread {
             }
         };
 
-        NioEventLoopGroup group = new NioEventLoopGroup(1);
+        NioEventLoopGroup group = new NioEventLoopGroup();
         group.setMemoryPoolCapacity(320000);
         group.setMemoryPoolUnit(128);
-        group.setEnableMemoryPoolDirect(true);
-        group.setEnableMemoryPool(true);
-        group.setWriteBuffers(32);
         Configuration c = new Configuration(8300);
         ChannelContext context = new ChannelContext(c);
         connector = new ChannelConnector(context, group);

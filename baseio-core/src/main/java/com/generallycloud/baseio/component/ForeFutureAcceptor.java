@@ -74,7 +74,6 @@ public class ForeFutureAcceptor {
                 }
             }
         }
-        futures.clear();
     }
 
     protected void acceptHeartBeat(final NioSocketChannel channel, final Future future) {

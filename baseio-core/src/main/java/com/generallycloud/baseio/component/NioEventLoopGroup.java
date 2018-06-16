@@ -44,8 +44,8 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private int                   memoryPoolUnit         = 512;
     private NioEventLoop[]        eventLoops;
     //单条连接write(srcs)的数量
-    private int                   writeBuffers           = 8;
-    private int                   readFutures            = 8;
+    private int                   writeBuffers           = 16;
+    private int                   readFutures            = 16;
     private FixedAtomicInteger    channelIds;
     private boolean               enableSsl;
     private boolean               sharable;

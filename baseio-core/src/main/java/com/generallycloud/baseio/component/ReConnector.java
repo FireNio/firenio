@@ -67,9 +67,7 @@ public class ReConnector implements Closeable {
         logger.info("begin try to connect");
         for (;;) {
             if (channel != null && channel.isOpened()) {
-                logger.error("reconnect failed,try reconnect later on {} milliseconds", retryTime);
-                ThreadUtil.sleep(retryTime);
-                continue;
+                break;
             }
             try {
                 connector.connect();

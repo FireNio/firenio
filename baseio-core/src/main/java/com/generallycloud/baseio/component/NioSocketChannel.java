@@ -23,7 +23,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -290,6 +289,11 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
             }
         }
     }
+    
+    @Override
+    public int hashCode() {
+        return remoteAddrPort.hashCode();
+    }
 
     /**
      * flush未encode的future
@@ -312,7 +316,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
         }
     }
 
-    public void flush(Collection<Future> futures) {
+    public void flush(List<Future> futures) {
         if (futures == null || futures.isEmpty()) {
             return;
         }
@@ -344,7 +348,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
         }
         flushFutures(futures);
     }
-
+    
     /**
      * flush已encode的future
      * @param future
@@ -388,8 +392,14 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
         }
     }
 
-    public void flushFutures(Collection<Future> futures) {
+    //FIXME ..使用该方法貌似会性能下降？查找原因
+    public void flushFutures(List<Future> futures) {
         if (futures == null || futures.isEmpty()) {
+            return;
+        }
+        final int futuresSize = futures.size();
+        if (futuresSize == 1) {
+            flushFuture(futures.get(0));
             return;
         }
         if (inEventLoop()) {
@@ -402,16 +412,60 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
                 }
                 return;
             }
-            for (Future f : futures) {
-                if (f.flushed()) {
-                    continue;
+            final LinkedQueue<Future> writeFutures = this.writeFutures;
+            if (writeFutures.size() == 0) {
+                final Future[] currentWriteFutures = this.currentWriteFutures;
+                final int maxLen = currentWriteFutures.length;
+                int currentWriteFuturesLen = this.currentWriteFuturesLen;
+                if (currentWriteFuturesLen == 0) {
+                    if (futuresSize > maxLen) {
+                        for (int i = 0; i < maxLen; i++) {
+                            currentWriteFutures[i] = futures.get(i);
+                        }
+                        for (int i = maxLen; i < futuresSize; i++) {
+                            writeFutures.offer(futures.get(i));
+                        }
+                        this.currentWriteFuturesLen = maxLen;
+                    }else{
+                        for (int i = 0; i < futuresSize; i++) {
+                            currentWriteFutures[i] = futures.get(i);
+                        }
+                        this.currentWriteFuturesLen = futuresSize;
+                    }
+                }else{
+                    final int currentRemain = maxLen - currentWriteFuturesLen;
+                    if (futuresSize > currentRemain) {
+                        for (int i = 0; i < currentRemain; i++) {
+                            currentWriteFutures[i+currentWriteFuturesLen] = futures.get(i);
+                        }
+                        for (int i = currentRemain; i < futuresSize; i++) {
+                            writeFutures.offer(futures.get(i));
+                        }
+                        this.currentWriteFuturesLen = maxLen;
+                    }else{
+                        for (int i = 0; i < futuresSize; i++) {
+                            currentWriteFutures[i+currentWriteFuturesLen] = futures.get(i);
+                        }
+                        this.currentWriteFuturesLen += futuresSize;
+                    }
                 }
-                writeFutures.offer(f);
-            }
-            try {
-                write();
-            } catch (Throwable t) {
-                CloseUtil.close(this);
+                try {
+                    write();
+                } catch (Throwable t) {
+                    CloseUtil.close(this);
+                }
+            }else{
+                for (Future f : futures) {
+                    if (f.flushed()) {
+                        continue;
+                    }
+                    writeFutures.offer(f);
+                }
+                try {
+                    write();
+                } catch (Throwable t) {
+                    CloseUtil.close(this);
+                }
             }
         } else {
             ReentrantLock lock = getCloseLock();
@@ -427,6 +481,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
                     return;
                 }
                 int size = 0;
+                final LinkedQueue<Future> writeFutures = this.writeFutures;
                 for (Future f : futures) {
                     if (f.flushed()) {
                         continue;
@@ -586,18 +641,13 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
         return opened;
     }
 
-    protected SocketChannel javaChannel() {
-        return channel;
-    }
-
-    protected final void read(ByteBuf buf) throws Exception {
+    protected void read(ByteBuf buf) throws Exception {
         lastAccess = System.currentTimeMillis();
         buf.clear();
         if (!isEnableSsl()) {
             readRemainingBuf(buf);
         }
-        SocketChannel javaChannel = javaChannel();
-        int length = javaChannel.read(buf.nioBuffer());
+        int length = channel.read(buf.nioBuffer());
         if (length < 1) {
             if (length == -1) {
                 CloseUtil.close(this);
@@ -606,8 +656,8 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
         }
         buf.reverse();
         buf.flip();
-        SslFuture sslTemporary = eventLoop.getSslTemporary();
-        if (isEnableSsl()) {
+        if (enableSsl) {
+            SslFuture sslTemporary = eventLoop.getSslTemporary();
             for (;;) {
                 if (!buf.hasRemaining()) {
                     return;
@@ -713,28 +763,28 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
         return channelDesc;
     }
 
-    protected final void write() throws IOException {
+    protected void write() throws IOException {
         final NioEventLoop eventLoop = this.eventLoop;
+        final SelectionKey selectionKey = this.selectionKey;
         final Future[] currentWriteFutures = this.currentWriteFutures;
         final LinkedQueue<Future> writeFutures = this.writeFutures;
         final ByteBuffer[] writeBuffers = eventLoop.getWriteBuffers();
         final int maxLen = currentWriteFutures.length;
         for (;;) {
-            int i = currentWriteFuturesLen;
-            for (; i < maxLen; i++) {
+            int currentWriteFuturesLen = this.currentWriteFuturesLen;
+            for (; currentWriteFuturesLen < maxLen; currentWriteFuturesLen++) {
                 Future future = writeFutures.poll();
                 if (future == null) {
                     break;
                 }
-                currentWriteFutures[i] = future;
+                currentWriteFutures[currentWriteFuturesLen] = future;
             }
-            currentWriteFuturesLen = i;
             if (currentWriteFuturesLen == 0) {
                 interestRead(selectionKey);
                 return;
             }
             //FIXME ...是否要清空buffers
-            for (i = 0; i < currentWriteFuturesLen; i++) {
+            for (int i = 0; i < currentWriteFuturesLen; i++) {
                 Future future = currentWriteFutures[i];
                 if (future.isNeedSsl()) {
                     future.setNeedSsl(false);
@@ -773,13 +823,13 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
                     } catch (Throwable e) {
                         logger.debug(e.getMessage(), e);
                     }
-                    currentWriteFuturesLen = 0;
+                    this.currentWriteFuturesLen = 0;
                     interestRead(selectionKey);
                     return;
                 }
             } else {
                 channel.write(writeBuffers, 0, currentWriteFuturesLen);
-                for (i = 0; i < currentWriteFuturesLen; i++) {
+                for (int i = 0; i < currentWriteFuturesLen; i++) {
                     Future future = currentWriteFutures[i];
                     if (writeBuffers[i].hasRemaining()) {
                         int remain = currentWriteFuturesLen - i;
@@ -795,7 +845,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
                             currentWriteFutures[j] = null;
                         }
                         future.getByteBuf().reverse();
-                        currentWriteFuturesLen = remain;
+                        this.currentWriteFuturesLen = remain;
                         interestWrite(selectionKey);
                         return;
                     } else {
@@ -815,11 +865,11 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
                     currentWriteFutures[j] = null;
                 }
                 if (currentWriteFuturesLen != maxLen) {
-                    currentWriteFuturesLen = 0;
+                    this.currentWriteFuturesLen = 0;
                     interestRead(selectionKey);
                     return;
                 }
-                currentWriteFuturesLen = 0;
+                this.currentWriteFuturesLen = 0;
             }
         }
     }
