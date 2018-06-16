@@ -28,68 +28,6 @@ import com.generallycloud.baseio.concurrent.Linkable;
 
 public abstract class AbstractFuture implements Future {
 
-    protected byte[] writeBuffer;
-    protected int    writeSize;
-
-    @Override
-    public byte[] getWriteBuffer() {
-        return writeBuffer;
-    }
-
-    @Override
-    public int getWriteSize() {
-        return writeSize;
-    }
-
-    @Override
-    public void write(byte b) {
-        if (writeBuffer == null) {
-            writeBuffer = new byte[256];
-        }
-        int newcount = writeSize + 1;
-        if (newcount > writeBuffer.length) {
-            writeBuffer = Arrays.copyOf(writeBuffer, writeBuffer.length << 1);
-        }
-        writeBuffer[writeSize] = b;
-        writeSize = newcount;
-    }
-
-    @Override
-    public void write(byte[] bytes) {
-        write(bytes, 0, bytes.length);
-    }
-
-    @Override
-    public void write(byte[] bytes, int off, int len) {
-        if (writeBuffer == null) {
-            if ((len - off) != bytes.length) {
-                writeBuffer = new byte[len];
-                writeSize = len;
-                System.arraycopy(bytes, off, writeBuffer, 0, len);
-                return;
-            }
-            writeBuffer = bytes;
-            writeSize = len;
-            return;
-        }
-        int newcount = writeSize + len;
-        if (newcount > writeBuffer.length) {
-            writeBuffer = Arrays.copyOf(writeBuffer, Math.max(writeBuffer.length << 1, newcount));
-        }
-        System.arraycopy(bytes, off, writeBuffer, writeSize, len);
-        writeSize = newcount;
-    }
-
-    @Override
-    public void write(String text, Charset charset) {
-        write(text.getBytes(charset));
-    }
-
-    @Override
-    public void write(String text, ChannelContext context) {
-        write(text, context.getEncoding());
-    }
-    
     //FIXME isX 使用 byte & x ?
     private ByteBuf  buf        = EmptyByteBuf.get();
     private long     bufReleaseVersion;
@@ -100,6 +38,8 @@ public abstract class AbstractFuture implements Future {
     private boolean  isSilent;
     private boolean  isValidate = true;
     private Linkable next;
+    protected byte[] writeBuffer;
+    protected int    writeSize;
 
     protected ByteBuf allocate(NioSocketChannel channel, int capacity) {
         return channel.allocator().allocate(capacity);
@@ -138,6 +78,16 @@ public abstract class AbstractFuture implements Future {
     @Override
     public Linkable getNext() {
         return next;
+    }
+
+    @Override
+    public byte[] getWriteBuffer() {
+        return writeBuffer;
+    }
+
+    @Override
+    public int getWriteSize() {
+        return writeSize;
     }
 
     @Override
@@ -185,6 +135,17 @@ public abstract class AbstractFuture implements Future {
         ReleaseUtil.release(buf, bufReleaseVersion);
     }
 
+    protected Future reset() {
+        this.flushed = false;
+        this.isHeartbeat = false;
+        this.isNeedSsl = false;
+        this.isSilent = false;
+        this.next = null;
+        this.writeSize = 0;
+        this.bufReleaseVersion = 0;
+        return this;
+    }
+
     @Override
     public void setByteBuf(ByteBuf buf) {
         buf.nioBuffer();
@@ -224,6 +185,7 @@ public abstract class AbstractFuture implements Future {
 
     @Override
     public void setSilent(boolean isSilent) {
+        this.flushed = isSilent;
         this.isSilent = isSilent;
     }
 
@@ -233,19 +195,57 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public void write(String text, NioSocketChannel channel) {
-        write(text, channel.getContext());
+    public void write(byte b) {
+        if (writeBuffer == null) {
+            writeBuffer = new byte[256];
+        }
+        int newcount = writeSize + 1;
+        if (newcount > writeBuffer.length) {
+            writeBuffer = Arrays.copyOf(writeBuffer, writeBuffer.length << 1);
+        }
+        writeBuffer[writeSize] = b;
+        writeSize = newcount;
     }
 
-    protected Future reset() {
-        this.flushed = false;
-        this.isHeartbeat = false;
-        this.isNeedSsl = false;
-        this.isSilent = false;
-        this.next = null;
-        this.writeSize = 0;
-        this.bufReleaseVersion = 0;
-        return this;
+    @Override
+    public void write(byte[] bytes) {
+        write(bytes, 0, bytes.length);
+    }
+
+    @Override
+    public void write(byte[] bytes, int off, int len) {
+        if (writeBuffer == null) {
+            if ((len - off) != bytes.length) {
+                writeBuffer = new byte[len];
+                writeSize = len;
+                System.arraycopy(bytes, off, writeBuffer, 0, len);
+                return;
+            }
+            writeBuffer = bytes;
+            writeSize = len;
+            return;
+        }
+        int newcount = writeSize + len;
+        if (newcount > writeBuffer.length) {
+            writeBuffer = Arrays.copyOf(writeBuffer, Math.max(writeBuffer.length << 1, newcount));
+        }
+        System.arraycopy(bytes, off, writeBuffer, writeSize, len);
+        writeSize = newcount;
+    }
+
+    @Override
+    public void write(String text, ChannelContext context) {
+        write(text, context.getEncoding());
+    }
+
+    @Override
+    public void write(String text, Charset charset) {
+        write(text.getBytes(charset));
+    }
+
+    @Override
+    public void write(String text, NioSocketChannel channel) {
+        write(text, channel.getContext());
     }
 
 }

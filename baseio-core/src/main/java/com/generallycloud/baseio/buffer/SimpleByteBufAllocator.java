@@ -18,7 +18,7 @@ package com.generallycloud.baseio.buffer;
 import java.util.BitSet;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class SimpleByteBufAllocator extends PooledByteBufAllocator {
+public final class SimpleByteBufAllocator extends PooledByteBufAllocator {
 
     public SimpleByteBufAllocator(int capacity, int unitMemorySize, int bufRecycleSize,
             boolean isDirect) {

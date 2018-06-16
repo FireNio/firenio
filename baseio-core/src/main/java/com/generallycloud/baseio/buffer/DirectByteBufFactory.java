@@ -17,7 +17,7 @@ package com.generallycloud.baseio.buffer;
 
 import java.nio.ByteBuffer;
 
-public class DirectByteBufFactory extends AbstractByteBufFactory {
+public final class DirectByteBufFactory extends AbstractByteBufFactory {
 
     private ByteBuffer memory = null;
 

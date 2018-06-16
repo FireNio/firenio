@@ -23,7 +23,7 @@ import com.generallycloud.baseio.common.ReleaseUtil;
  * @author wangkai
  *
  */
-public class FixedUnpooledByteBuf implements ByteBuf {
+public final class FixedUnpooledByteBuf implements ByteBuf {
 
     private ByteBuf byteBuf;
 

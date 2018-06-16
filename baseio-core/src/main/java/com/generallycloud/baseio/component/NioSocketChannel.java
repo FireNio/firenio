@@ -299,15 +299,13 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
         if (future == null || future.flushed()) {
             return;
         }
-        future.flush();
         if (!isOpened()) {
             exceptionCaught(future, CLOSED_WHEN_FLUSH);
             return;
         }
         try {
-            future.setNeedSsl(getContext().isEnableSsl());
-            ProtocolCodec codec = getProtocolCodec();
-            codec.encode(this, future);
+            future.setNeedSsl(context.isEnableSsl());
+            getProtocolCodec().encode(this, future);
             flushFuture(future);
         } catch (Exception e) {
             exceptionCaught(future, e);
@@ -319,29 +317,26 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
             return;
         }
         if (!isOpened()) {
-            for (Future future : futures) {
-                if (future.isHeartbeat()) {
+            for (Future f : futures) {
+                if (f.flushed()) {
                     continue;
                 }
-                exceptionCaught(future, CLOSED_WHEN_FLUSH);
+                exceptionCaught(f, CLOSED_WHEN_FLUSH);
             }
             return;
         }
         try {
+            boolean enableSsl = getContext().isEnableSsl();
+            ProtocolCodec codec = getProtocolCodec();
             for (Future f : futures) {
-                if (f.isSilent() || f.isHeartbeat()) {
+                if (f.flushed()) {
                     continue;
                 }
-                f.flush();
-                f.setNeedSsl(getContext().isEnableSsl());
-                ProtocolCodec codec = getProtocolCodec();
+                f.setNeedSsl(enableSsl);
                 codec.encode(this, f);
             }
         } catch (Exception e) {
             for (Future f : futures) {
-                if (f.isSilent() || f.isHeartbeat()) {
-                    continue;
-                }
                 exceptionCaught(f, e);
             }
             CloseUtil.close(this);
@@ -355,6 +350,10 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
      * @param future
      */
     public void flushFuture(Future future) {
+        if (future.flushed()) {
+            return;
+        }
+        future.flush();
         if (inEventLoop()) {
             if (!isOpened()) {
                 exceptionCaught(future, CLOSED_WHEN_FLUSH);
@@ -394,28 +393,20 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
             return;
         }
         if (inEventLoop()) {
-            try {
-                if (!isOpened()) {
-                    for (Future future : futures) {
-                        exceptionCaught(future, CLOSED_WHEN_FLUSH);
-                    }
-                    return;
-                }
-                for (Future future : futures) {
-                    if (future.isSilent() || future.isHeartbeat()) {
-                        continue;
-                    }
-                    writeFutures.offer(future);
-                }
-            } catch (Exception e) {
-                //will happen ?
+            if (!isOpened()) {
                 for (Future f : futures) {
-                    if (f.isSilent() || f.isHeartbeat()) {
+                    if (f.flushed()) {
                         continue;
                     }
-                    exceptionCaught(f, e);
+                    exceptionCaught(f, CLOSED_WHEN_FLUSH);
                 }
                 return;
+            }
+            for (Future f : futures) {
+                if (f.flushed()) {
+                    continue;
+                }
+                writeFutures.offer(f);
             }
             try {
                 write();
@@ -426,33 +417,31 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
             ReentrantLock lock = getCloseLock();
             lock.lock();
             try {
-                int size = 0;
                 if (!isOpened()) {
-                    for (Future future : futures) {
-                        if (future.isSilent() || future.isHeartbeat()) {
+                    for (Future f : futures) {
+                        if (f.flushed()) {
                             continue;
                         }
-                        exceptionCaught(future, CLOSED_WHEN_FLUSH);
+                        exceptionCaught(f, CLOSED_WHEN_FLUSH);
                     }
                     return;
                 }
-                for (Future future : futures) {
-                    if (future.isSilent() || future.isHeartbeat()) {
+                int size = 0;
+                for (Future f : futures) {
+                    if (f.flushed()) {
                         continue;
                     }
+                    f.flush();
                     size++;
-                    writeFutures.offer(future);
+                    writeFutures.offer(f);
                 }
                 if (writeFutures.size() != size) {
                     return;
                 }
             } catch (Exception e) {
                 //will happen ?
-                for (Future future : futures) {
-                    if (future.isSilent() || future.isHeartbeat()) {
-                        continue;
-                    }
-                    exceptionCaught(future, e);
+                for (Future f : futures) {
+                    exceptionCaught(f, e);
                 }
                 return;
             } finally {
