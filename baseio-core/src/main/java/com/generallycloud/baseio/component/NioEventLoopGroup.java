@@ -30,34 +30,33 @@ import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
  */
 public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
-    private int                   bufRecycleSize         = 1024 * 4;
+    private NioEventLoop          acceptorEventLoop;
     private ByteBufAllocatorGroup allocatorGroup;
+    private int                   bufRecycleSize         = 1024 * 4;
+    private FixedAtomicInteger    channelIds;
     private int                   channelReadBuffer      = 1024 * 512;
+    private ChannelContext        context;
     private boolean               enableMemoryPool       = true;
     //内存池是否使用启用堆外内存
     private boolean               enableMemoryPoolDirect = true;
+    private boolean               enableSsl;
+    private NioEventLoop[]        eventLoops;
     private long                  idleTime               = 30 * 1000;
     //内存池内存单元数量（单核）
     private int                   memoryPoolCapacity;
     private int                   memoryPoolRate         = 32;
     //内存池单元大小
     private int                   memoryPoolUnit         = 512;
-    private NioEventLoop[]        eventLoops;
+    private boolean               sharable;
     //单条连接write(srcs)的数量
     private int                   writeBuffers           = 16;
-    private int                   readFutures            = 16;
-    private FixedAtomicInteger    channelIds;
-    private boolean               enableSsl;
-    private boolean               sharable;
-    private ChannelContext        context;
-    private NioEventLoop          acceptorEventLoop;
 
     public NioEventLoopGroup() {
         this(Runtime.getRuntime().availableProcessors() * 2);
     }
 
     public NioEventLoopGroup(int eventLoopSize) {
-        super("nio-processor",eventLoopSize);
+        super("nio-processor", eventLoopSize);
     }
 
     private FixedAtomicInteger createChannelIdsSequence(int eventLoopSize) {
@@ -88,27 +87,24 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         super.doStop();
     }
 
-    private void initializeByteBufAllocator() {
-        if (getAllocatorGroup() == null) {
-            if (isEnableMemoryPool()) {
-                this.allocatorGroup = new PooledByteBufAllocatorGroup(this);
-            } else {
-                this.allocatorGroup = new UnpooledByteBufAllocatorGroup(this);
-            }
-        }
-        LifeCycleUtil.start(getAllocatorGroup());
+    public ByteBufAllocatorGroup getAllocatorGroup() {
+        return allocatorGroup;
     }
 
     public int getBufRecycleSize() {
         return bufRecycleSize;
     }
 
-    public ByteBufAllocatorGroup getAllocatorGroup() {
-        return allocatorGroup;
+    public FixedAtomicInteger getChannelIds() {
+        return channelIds;
     }
 
     public int getChannelReadBuffer() {
         return channelReadBuffer;
+    }
+
+    public ChannelContext getContext() {
+        return context;
     }
 
     @Override
@@ -147,6 +143,17 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         return eventLoops;
     }
 
+    private void initializeByteBufAllocator() {
+        if (getAllocatorGroup() == null) {
+            if (isEnableMemoryPool()) {
+                this.allocatorGroup = new PooledByteBufAllocatorGroup(this);
+            } else {
+                this.allocatorGroup = new UnpooledByteBufAllocatorGroup(this);
+            }
+        }
+        LifeCycleUtil.start(getAllocatorGroup());
+    }
+
     public boolean isEnableMemoryPool() {
         return enableMemoryPool;
     }
@@ -155,9 +162,29 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         return enableMemoryPoolDirect;
     }
 
+    public boolean isEnableSsl() {
+        return enableSsl;
+    }
+
+    public boolean isSharable() {
+        return sharable;
+    }
+
     @Override
     protected NioEventLoop newEventLoop(int index) {
         return new NioEventLoop(this, index, false);
+    }
+
+    public void registSelector(ChannelContext context) throws IOException {
+        if (sharable) {
+            acceptorEventLoop.registSelector(context);
+        } else {
+            synchronized (this) {
+                for (NioEventLoop eventLoop : eventLoops) {
+                    eventLoop.registSelector(context);
+                }
+            }
+        }
     }
 
     public void setBufRecycleSize(int bufRecycleSize) {
@@ -168,12 +195,20 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         this.channelReadBuffer = channelReadBuffer;
     }
 
+    public void setContext(ChannelContext context) {
+        this.context = context;
+    }
+
     public void setEnableMemoryPool(boolean enableMemoryPool) {
         this.enableMemoryPool = enableMemoryPool;
     }
 
     public void setEnableMemoryPoolDirect(boolean enableMemoryPoolDirect) {
         this.enableMemoryPoolDirect = enableMemoryPoolDirect;
+    }
+
+    public void setEnableSsl(boolean enableSsl) {
+        this.enableSsl = enableSsl;
     }
 
     public void setIdleTime(long idleTime) {
@@ -192,56 +227,12 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         this.memoryPoolUnit = memoryPoolUnit;
     }
 
-    public void setWriteBuffers(int writeBuffers) {
-        this.writeBuffers = writeBuffers;
-    }
-
-    public FixedAtomicInteger getChannelIds() {
-        return channelIds;
-    }
-
-    public boolean isEnableSsl() {
-        return enableSsl;
-    }
-
-    public void setEnableSsl(boolean enableSsl) {
-        this.enableSsl = enableSsl;
-    }
-
-    public void registSelector(ChannelContext context) throws IOException {
-        if (sharable) {
-            acceptorEventLoop.registSelector(context);
-        } else {
-            synchronized (this) {
-                for (NioEventLoop eventLoop : eventLoops) {
-                    eventLoop.registSelector(context);
-                }
-            }
-        }
-    }
-
-    public boolean isSharable() {
-        return sharable;
-    }
-
     public void setSharable(boolean sharable) {
         this.sharable = sharable;
     }
 
-    public ChannelContext getContext() {
-        return context;
-    }
-
-    public void setContext(ChannelContext context) {
-        this.context = context;
-    }
-
-    public int getReadFutures() {
-        return readFutures;
-    }
-
-    public void setReadFutures(int readFutures) {
-        this.readFutures = readFutures;
+    public void setWriteBuffers(int writeBuffers) {
+        this.writeBuffers = writeBuffers;
     }
 
 }

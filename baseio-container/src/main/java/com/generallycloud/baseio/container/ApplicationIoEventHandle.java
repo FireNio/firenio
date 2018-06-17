@@ -249,9 +249,4 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         this.ioExceptionCaughtHandle = ioExceptionCaughtHandle;
     }
 
-    @Override
-    public void futureSent(NioSocketChannel channel, Future future) {
-        futureAcceptor.futureSent(channel, future);
-    }
-
 }

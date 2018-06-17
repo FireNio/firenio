@@ -39,6 +39,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.common.ThrowableUtil;
+import com.generallycloud.baseio.component.ChannelContext.HeartBeatLogger;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.concurrent.LinkedQueue;
@@ -115,26 +116,19 @@ public final class NioSocketChannel extends AttributesImpl
 
     private void accept(ByteBuf buffer) throws Exception {
         final ProtocolCodec codec = getProtocolCodec();
-        final ForeFutureAcceptor acceptor = getContext().getForeFutureAcceptor();
         final NioEventLoop eventLoop = this.eventLoop;
         final ByteBufAllocator allocator = this.allocator;
-        final List<Future> readFutures = eventLoop.getReadFutures();
-        final int maxReadFuture = eventLoop.getGroup().getReadFutures();
-        for (;;) {
-            if (!buffer.hasRemaining()) {
-                break;
-            }
-            Future future = getReadFuture();
-            boolean setFutureNull = true;
-            if (future == null) {
-                future = codec.decode(this, buffer);
-                setFutureNull = false;
-            }
-            try {
+        final HeartBeatLogger heartBeatLogger = context.getHeartBeatLogger();
+        final boolean enableWorkEventLoop = context.isEnableWorkEventLoop();
+        final IoEventHandle eventHandle = context.getIoEventHandle();
+        Future future = getReadFuture();
+        if (future == null) {
+            future = codec.decode(this, buffer);
+        }
+        try {
+            for (;;) {
                 if (!future.read(this, buffer)) {
-                    if (!setFutureNull) {
-                        setReadFuture(future);
-                    }
+                    setReadFuture(future);
                     if (buffer.hasRemaining()) {
                         ByteBuf remaining = allocator.allocate(buffer.remaining());
                         remaining.read(buffer);
@@ -143,27 +137,59 @@ public final class NioSocketChannel extends AttributesImpl
                     }
                     break;
                 }
-            } catch (Throwable e) {
                 future.release(eventLoop);
-                acceptor.accept(this, readFutures);
-                readFutures.clear();
-                if (e instanceof IOException) {
-                    throw (IOException) e;
+                if (future.isSilent()) {
+                    continue;
                 }
-                throw new IOException("exception occurred when do decode," + e.getMessage(), e);
+                if (future.isHeartbeat()) {
+                    if (future.isPING()) {
+                        heartBeatLogger.logRequest(this);
+                        Future f = codec.createPONGPacket(this, future);
+                        if (f == null) {
+                            return;
+                        }
+                        this.flush(f);
+                    } else {
+                        heartBeatLogger.logResponse(this);
+                    }
+                    continue;
+                }
+                if (enableWorkEventLoop) {
+                    accept(eventHandle, future);
+                } else {
+                    try {
+                        eventHandle.accept(this, future);
+                    } catch (Exception e) {
+                        eventHandle.exceptionCaught(this, future, e);
+                    }
+                }
+                if (!buffer.hasRemaining()) {
+                    setReadFuture(null);
+                    break;
+                }
+                future = codec.decode(this, buffer);
             }
-            if (setFutureNull) {
-                setReadFuture(null);
-            }
+        } catch (Throwable e) {
             future.release(eventLoop);
-            readFutures.add(future);
-            if (readFutures.size() == maxReadFuture) {
-                acceptor.accept(this, readFutures);
-                readFutures.clear();
+            if (e instanceof IOException) {
+                throw (IOException) e;
             }
+            throw new IOException("exception occurred when do decode," + e.getMessage(), e);
         }
-        acceptor.accept(this, readFutures);
-        readFutures.clear();
+    }
+
+    private void accept(final IoEventHandle eventHandle, final Future future) {
+        getExecutorEventLoop().dispatch(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    eventHandle.accept(NioSocketChannel.this, future);
+                } catch (Exception e) {
+                    eventHandle.exceptionCaught(NioSocketChannel.this, future, e);
+                }
+            }
+        });
+
     }
 
     public ByteBufAllocator allocator() {
@@ -285,11 +311,6 @@ public final class NioSocketChannel extends AttributesImpl
                 logger.error(e.getMessage(), e);
             }
         }
-    }
-
-    @Override
-    public int hashCode() {
-        return remoteAddrPort.hashCode();
     }
 
     /**
@@ -606,6 +627,11 @@ public final class NioSocketChannel extends AttributesImpl
         return writeFutures.size();
     }
 
+    @Override
+    public int hashCode() {
+        return remoteAddrPort.hashCode();
+    }
+
     public boolean inEventLoop() {
         return eventLoop.inEventLoop();
     }
@@ -799,7 +825,6 @@ public final class NioSocketChannel extends AttributesImpl
                 }
                 writeBuffers[i] = future.getByteBuf().nioBuffer();
             }
-            IoEventHandle ioEventHandle = context.getIoEventHandle();
             if (currentWriteFuturesLen == 1) {
                 ByteBuffer nioBuf = writeBuffers[0];
                 channel.write(nioBuf);
@@ -814,11 +839,6 @@ public final class NioSocketChannel extends AttributesImpl
                         future.release(eventLoop);
                     } catch (Throwable e) {
                         logger.error(e.getMessage(), e);
-                    }
-                    try {
-                        ioEventHandle.futureSent(this, future);
-                    } catch (Throwable e) {
-                        logger.debug(e.getMessage(), e);
                     }
                     this.currentWriteFuturesLen = 0;
                     interestRead(selectionKey);
@@ -850,11 +870,6 @@ public final class NioSocketChannel extends AttributesImpl
                             future.release(eventLoop);
                         } catch (Throwable e) {
                             logger.error(e.getMessage(), e);
-                        }
-                        try {
-                            ioEventHandle.futureSent(this, future);
-                        } catch (Throwable e) {
-                            logger.debug(e.getMessage(), e);
                         }
                     }
                 }
@@ -900,11 +915,6 @@ public final class NioSocketChannel extends AttributesImpl
                     future.release(eventLoop);
                 } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
-                }
-                try {
-                    context.getIoEventHandle().futureSent(this, future);
-                } catch (Throwable e) {
-                    logger.debug(e.getMessage(), e);
                 }
                 interestRead(selectionKey);
             }

@@ -40,10 +40,6 @@ public class SimpleTestFIxedLengthClient1 {
                 System.out.println();
             }
 
-            @Override
-            public void futureSent(NioSocketChannel channel, Future future) {
-                System.out.println("_______________________sent ..........");
-            }
         };
         NioEventLoopGroup group = new NioEventLoopGroup(1);
         ChannelContext context = new ChannelContext(new Configuration(8300));

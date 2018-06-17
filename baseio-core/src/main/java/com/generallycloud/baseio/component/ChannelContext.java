@@ -45,7 +45,6 @@ public class ChannelContext extends AbstractLifeCycle {
     private boolean                        enableSsl;
     private Charset                        encoding;
     private ExecutorEventLoopGroup         executorEventLoopGroup;
-    private ForeFutureAcceptor             foreFutureAcceptor;
     private boolean                        initialized;
     private IoEventHandleAdaptor           ioEventHandle = new DefaultIoEventHandle();
     private Logger                         logger        = LoggerFactory.getLogger(getClass());
@@ -56,6 +55,7 @@ public class ChannelContext extends AbstractLifeCycle {
     private List<ChannelIdleEventListener> ssiels        = new ArrayList<>();
     private SslContext                     sslContext;
     private NioSocketChannel               simulateSocketChannel;
+    private boolean   enableWorkEventLoop;
     private long                           startupTime   = System.currentTimeMillis();
 
     public ChannelContext(Configuration configuration) {
@@ -92,8 +92,7 @@ public class ChannelContext extends AbstractLifeCycle {
         int serverPort = configuration.getPort();
         long channelIdle = nioEventLoopGroup.getIdleTime();
         this.encoding = configuration.getCharset();
-        //        LoggerUtil.prettyLog(logger,
-        //                "======================================= service begin to start =======================================");
+        this.enableWorkEventLoop = configuration.isEnableWorkEventLoop();
         LoggerUtil.prettyLog(logger, "encoding              :{ {} }", encoding);
         LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
         LoggerUtil.prettyLog(logger, "event loop size       :{ {} }", eventLoopSize);
@@ -108,6 +107,7 @@ public class ChannelContext extends AbstractLifeCycle {
             LoggerUtil.prettyLog(logger, "memory pool cap       :{ {} * {} ≈ {} M }",
                     new Object[] { memoryPoolUnit, memoryPoolCapacity, memoryPoolSize });
         }
+        createHeartBeatLogger();
         channelManager = new ChannelManager(this);
         protocolCodec.initialize(this);
         ioEventHandle.initialize(this);
@@ -119,10 +119,6 @@ public class ChannelContext extends AbstractLifeCycle {
                 executorEventLoopGroup = new LineEventLoopGroup("event-process", eventLoopSize);
             }
         }
-        if (foreFutureAcceptor == null) {
-            foreFutureAcceptor = new ForeFutureAcceptor(getConfiguration().isEnableWorkEventLoop());
-        }
-        foreFutureAcceptor.initialize(this);
         LifeCycleUtil.start(executorEventLoopGroup);
         this.simulateSocketChannel = new NioSocketChannel(this,
                 UnpooledByteBufAllocator.getDirect());
@@ -161,10 +157,6 @@ public class ChannelContext extends AbstractLifeCycle {
 
     public ExecutorEventLoopGroup getExecutorEventLoopGroup() {
         return executorEventLoopGroup;
-    }
-
-    public ForeFutureAcceptor getForeFutureAcceptor() {
-        return foreFutureAcceptor;
     }
 
     public IoEventHandle getIoEventHandle() {
@@ -242,13 +234,54 @@ public class ChannelContext extends AbstractLifeCycle {
         this.sslContext = sslContext;
         this.enableSsl = true;
     }
+    
+    public boolean isEnableWorkEventLoop() {
+        return enableWorkEventLoop;
+    }
 
     public NioSocketChannel getSimulateSocketChannel() {
         return simulateSocketChannel;
     }
+    
+    private HeartBeatLogger heartBeatLogger;
+    
+    public HeartBeatLogger getHeartBeatLogger() {
+        return heartBeatLogger;
+    }
+    
+    private void createHeartBeatLogger() {
+        if (getConfiguration().isEnableHeartbeatLog()) {
+            heartBeatLogger = new HeartBeatLogger() {
+                @Override
+                public void logRequest(NioSocketChannel channel) {
+                    logger.info("heart beat request from: {}", channel);
+                }
 
-    public void setForeFutureAcceptor(ForeFutureAcceptor foreFutureAcceptor) {
-        this.foreFutureAcceptor = foreFutureAcceptor;
+                @Override
+                public void logResponse(NioSocketChannel channel) {
+                    logger.info("heart beat response from: {}", channel);
+                }
+            };
+        } else {
+            heartBeatLogger = new HeartBeatLogger() {
+                @Override
+                public void logRequest(NioSocketChannel channel) {
+                    logger.debug("heart beat request from: {}", channel);
+                }
+
+                @Override
+                public void logResponse(NioSocketChannel channel) {
+                    logger.debug("heart beat response from: {}", channel);
+                }
+            };
+        }
+    }
+    
+    public interface HeartBeatLogger {
+
+        void logRequest(NioSocketChannel channel);
+
+        void logResponse(NioSocketChannel channel);
     }
 
 }

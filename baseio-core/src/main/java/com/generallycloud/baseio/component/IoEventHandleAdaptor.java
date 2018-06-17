@@ -28,9 +28,6 @@ public abstract class IoEventHandleAdaptor implements IoEventHandle {
         logger.error(ex.getMessage(), ex);
     }
 
-    @Override
-    public void futureSent(NioSocketChannel channel, Future future) {}
-
     protected void initialize(ChannelContext context) throws Exception {}
 
     protected void destroy(ChannelContext context) throws Exception {}

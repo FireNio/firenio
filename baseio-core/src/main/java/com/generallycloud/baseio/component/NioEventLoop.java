@@ -31,7 +31,6 @@ import java.nio.charset.CharsetEncoder;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.AbstractSet;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -60,7 +59,6 @@ import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.SslFuture;
 
 /**
@@ -90,6 +88,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private Map<Object, Object>                 attributes       = new HashMap<>();
     private ByteBuf                             buf;
     private IntObjectHashMap<NioSocketChannel>  channels         = new IntObjectHashMap<>();
+    private final int                           channelSizeLimit = 1024 * 64;
     private Map<Charset, CharsetDecoder>        charsetDecoders  = new IdentityHashMap<>();
     private Map<Charset, CharsetEncoder>        charsetEncoders  = new IdentityHashMap<>();
     private ChannelContext                      context;                                               // use when not sharable 
@@ -101,12 +100,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private Object[]                            indexedVariables = new Object[maxIndexedVariablesSize];
     private final boolean                       isAcceptor;
     private long                                lastIdleTime     = 0;
-    private List<Future>                        readFutures;
     private AtomicBoolean                       selecting        = new AtomicBoolean();
     private SelectionKeySet                     selectionKeySet;
     private Selector                            selector;
     private boolean                             selectorRegisted;
-    private final int                           channelSizeLimit = 1024 * 64;
     private final boolean                       sharable;
     private SslHandler                          sslHandler;
     private SslFuture                           sslTemporary;
@@ -211,6 +208,43 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return attributes;
     }
 
+    private void channelIdle(long currentTime) {
+        long lastIdleTime = this.lastIdleTime;
+        this.lastIdleTime = currentTime;
+        IntObjectHashMap<NioSocketChannel> channels = this.channels;
+        if (channels.size() == 0) {
+            return;
+        }
+        if (sharable) {
+            for (NioSocketChannel channel : channels.values()) {
+                ChannelContext context = channel.getContext();
+                List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
+                if (ls.size() == 1) {
+                    try {
+                        ls.get(0).channelIdled(channel, lastIdleTime, currentTime);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                } else {
+                    for (ChannelIdleEventListener l : ls) {
+                        try {
+                            l.channelIdled(channel, lastIdleTime, currentTime);
+                        } catch (Exception e) {
+                            logger.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            }
+        } else {
+            List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
+            for (ChannelIdleEventListener l : ls) {
+                for (NioSocketChannel channel : channels.values()) {
+                    l.channelIdled(channel, lastIdleTime, currentTime);
+                }
+            }
+        }
+    }
+
     @Override
     public void clearAttributes() {
         this.attributes.clear();
@@ -245,17 +279,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         CloseUtil.close(channel);
     }
 
-    public final void dispatchAfterLoop(NioEventLoopTask event) {
-        if (inEventLoop()) {
-            events.unsafeOffer(event);
-        } else {
-            if (!isRunning()) {
-                throw new RejectedExecutionException();
-            }
-            events.offer(event);
-        }
-    }
-
     protected final void dispatch(NioEventLoopTask event) {
         if (!isRunning()) {
             throw new RejectedExecutionException();
@@ -268,10 +291,20 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         wakeup();
     }
 
+    public final void dispatchAfterLoop(NioEventLoopTask event) {
+        if (inEventLoop()) {
+            events.unsafeOffer(event);
+        } else {
+            if (!isRunning()) {
+                throw new RejectedExecutionException();
+            }
+            events.offer(event);
+        }
+    }
+
     @Override
     protected void doStartup() throws IOException {
         this.writeBuffers = new ByteBuffer[group.getWriteBuffers()];
-        this.readFutures = new ArrayList<>(group.getReadFutures());
         this.buf = UnpooledByteBufAllocator.getDirect().allocate(group.getChannelReadBuffer());
         if (group.isEnableSsl()) {
             ByteBuf buf = UnpooledByteBufAllocator.getHeap().allocate(1024 * 64);
@@ -349,10 +382,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
 
     public Object getIndexedVariable(int index) {
         return indexedVariables[index];
-    }
-
-    public List<Future> getReadFutures() {
-        return readFutures;
     }
 
     public Selector getSelector() {
@@ -686,43 +715,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     protected void removeChannel(NioSocketChannel channel) {
         channels.remove(channel.getChannelId());
         channel.getContext().getChannelManager().removeChannel(channel);
-    }
-
-    private void channelIdle(long currentTime) {
-        long lastIdleTime = this.lastIdleTime;
-        this.lastIdleTime = currentTime;
-        IntObjectHashMap<NioSocketChannel> channels = this.channels;
-        if (channels.size() == 0) {
-            return;
-        }
-        if (sharable) {
-            for (NioSocketChannel channel : channels.values()) {
-                ChannelContext context = channel.getContext();
-                List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
-                if (ls.size() == 1) {
-                    try {
-                        ls.get(0).channelIdled(channel, lastIdleTime, currentTime);
-                    } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
-                    }
-                } else {
-                    for (ChannelIdleEventListener l : ls) {
-                        try {
-                            l.channelIdled(channel, lastIdleTime, currentTime);
-                        } catch (Exception e) {
-                            logger.error(e.getMessage(), e);
-                        }
-                    }
-                }
-            }
-        } else {
-            List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
-            for (ChannelIdleEventListener l : ls) {
-                for (NioSocketChannel channel : channels.values()) {
-                    l.channelIdled(channel, lastIdleTime, currentTime);
-                }
-            }
-        }
     }
 
     @Override

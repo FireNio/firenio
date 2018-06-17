@@ -20,7 +20,6 @@ import java.util.Arrays;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
-import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -133,7 +132,6 @@ public abstract class AbstractFuture implements Future {
     @Override
     public void release(NioEventLoop eventLoop) {
         buf.release(bufReleaseVersion);
-//        ReleaseUtil.release(buf, bufReleaseVersion);
     }
 
     protected Future reset() {

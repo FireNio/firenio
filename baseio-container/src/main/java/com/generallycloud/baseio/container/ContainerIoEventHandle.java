@@ -31,9 +31,6 @@ public abstract class ContainerIoEventHandle implements IoEventHandle {
         logger.error(ex.getMessage(), ex);
     }
 
-    @Override
-    public void futureSent(NioSocketChannel channel, Future future) {}
-
     protected void initialize(ChannelContext context, boolean redeploy) throws Exception {}
 
     protected void destroy(ChannelContext context, boolean redeploy) {}
