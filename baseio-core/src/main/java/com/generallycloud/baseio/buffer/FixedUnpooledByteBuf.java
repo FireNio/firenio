@@ -387,7 +387,7 @@ public final class FixedUnpooledByteBuf implements ByteBuf {
 
     @Override
     public void release(long version) {
-        ReleaseUtil.release(byteBuf, version);
+        byteBuf.release(version);
     }
 
     @Override

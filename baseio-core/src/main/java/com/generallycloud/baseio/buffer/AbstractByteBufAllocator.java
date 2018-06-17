@@ -20,7 +20,7 @@ import com.generallycloud.baseio.AbstractLifeCycle;
 public abstract class AbstractByteBufAllocator extends AbstractLifeCycle
         implements ByteBufAllocator {
 
-    protected boolean isDirect;
+    private final boolean isDirect;
 
     public AbstractByteBufAllocator(boolean isDirect) {
         this.isDirect = isDirect;
@@ -53,7 +53,7 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle
     }
 
     @Override
-    public boolean isDirect() {
+    public final boolean isDirect() {
         return isDirect;
     }
 }

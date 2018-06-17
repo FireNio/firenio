@@ -37,7 +37,7 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 
     @Override
     public ByteBuf allocate(int capacity) {
-        if (isDirect) {
+        if (isDirect()) {
             return new UnpooledDirectByteBuf(this, ByteBuffer.allocateDirect(capacity));
         } else {
             return new UnpooledHeapByteBuf(this, new byte[capacity]);

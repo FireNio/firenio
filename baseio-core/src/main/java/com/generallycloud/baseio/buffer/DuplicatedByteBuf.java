@@ -17,8 +17,6 @@ package com.generallycloud.baseio.buffer;
 
 import java.nio.ByteBuffer;
 
-import com.generallycloud.baseio.common.ReleaseUtil;
-
 //FIXME 需要增加UnsupportedOperation // rm byteBuf 
 //FIXME 优化广播，缓存DuplicatedByteBuf
 public class DuplicatedByteBuf implements ByteBuf {
@@ -368,7 +366,7 @@ public class DuplicatedByteBuf implements ByteBuf {
 
     @Override
     public void release(long version) {
-        ReleaseUtil.release(prototype, version);
+        prototype.release(version);
     }
 
     @Override

@@ -132,7 +132,8 @@ public abstract class AbstractFuture implements Future {
 
     @Override
     public void release(NioEventLoop eventLoop) {
-        ReleaseUtil.release(buf, bufReleaseVersion);
+        buf.release(bufReleaseVersion);
+//        ReleaseUtil.release(buf, bufReleaseVersion);
     }
 
     protected Future reset() {

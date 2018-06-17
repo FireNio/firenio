@@ -56,9 +56,9 @@ public final class SimpleByteBufAllocator extends PooledByteBufAllocator {
     @Override
     protected void doStart() throws Exception {
         super.doStart();
-        this.blockEnds = new int[capacity];
-        this.frees = new BitSet(capacity);
-        this.frees.set(0, capacity, true);
+        this.blockEnds = new int[getCapacity()];
+        this.frees = new BitSet(getCapacity());
+        this.frees.set(0, getCapacity(), true);
     }
 
     @Override
@@ -68,12 +68,12 @@ public final class SimpleByteBufAllocator extends PooledByteBufAllocator {
 
     @Override
     protected void release(PooledByteBuf buf, boolean recycle) {
-        ReentrantLock lock = this.lock;
+        ReentrantLock lock = getLock();
         lock.lock();
         try {
             frees.set(buf.getBeginUnit());
             if (recycle) {
-                bufFactory.freeBuf(buf);
+                getBufFactory().freeBuf(buf);
             }
         } finally {
             lock.unlock();
@@ -83,7 +83,7 @@ public final class SimpleByteBufAllocator extends PooledByteBufAllocator {
     //FIXME ..not correct
     private int fillBusy() {
         int free = 0;
-        for (int i = 0; i < capacity; i++) {
+        for (int i = 0; i < getCapacity(); i++) {
             if (frees.get(i)) {
                 free++;
             }
@@ -99,9 +99,9 @@ public final class SimpleByteBufAllocator extends PooledByteBufAllocator {
         b.append("[free=");
         b.append(free);
         b.append(",memory=");
-        b.append(capacity);
+        b.append(getCapacity());
         b.append(",isDirect=");
-        b.append(isDirect);
+        b.append(isDirect());
         b.append("]");
         return b.toString();
     }

@@ -17,29 +17,27 @@ package com.generallycloud.baseio.buffer;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.baseio.common.ReleaseUtil;
-
 /**
  * @author wangkai
  *
  */
 public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
 
-    protected ByteBufFactory         bufFactory;
-    protected long                   bufVersions = 1;
-    protected int                    capacity;
-    protected ReentrantLock          lock        = new ReentrantLock();
-    protected int                    mask;
-    protected int                    unitMemorySize;
-    protected int                    bufRecycleSize;
-    protected PooledByteBufAllocator next;
+    private final ByteBufFactory   bufFactory;
+    protected long                 bufVersions = 1;
+    private final int              capacity;
+    private final ReentrantLock    lock        = new ReentrantLock();
+    protected int                  mask;
+    private final int              unitMemorySize;
+    private PooledByteBufAllocator next;
 
     public PooledByteBufAllocator(int capacity, int unitMemorySize, int bufRecycleSize,
             boolean isDirect) {
         super(isDirect);
-        this.bufRecycleSize = bufRecycleSize;
         this.capacity = capacity;
         this.unitMemorySize = unitMemorySize;
+        this.bufFactory = isDirect ? new DirectByteBufFactory(bufRecycleSize)
+                : new HeapByteBufFactory(bufRecycleSize);
     }
 
     private PooledByteBuf allocate(ByteBufNew byteBufNew, int limit) {
@@ -47,9 +45,6 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            if (!isRunning()) {
-                return null;
-            }
             int mask = this.mask;
             PooledByteBuf buf = allocate(byteBufNew, limit, mask, this.capacity, size);
             if (buf == null) {
@@ -59,6 +54,10 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
         } finally {
             lock.unlock();
         }
+    }
+
+    protected final ReentrantLock getLock() {
+        return lock;
     }
 
     abstract PooledByteBuf allocate(ByteBufNew byteBufNew, int limit, int start, int end, int size);
@@ -86,10 +85,6 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
 
     @Override
     protected void doStart() throws Exception {
-        if (bufFactory == null) {
-            bufFactory = isDirect ? new DirectByteBufFactory(bufRecycleSize)
-                    : new HeapByteBufFactory(bufRecycleSize);
-        }
         bufFactory.initializeMemory(capacity * unitMemorySize);
     }
 
@@ -110,13 +105,17 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
     }
 
     @Override
-    public int getCapacity() {
+    public final int getCapacity() {
         return capacity;
     }
 
     @Override
-    public int getUnitMemorySize() {
+    public final int getUnitMemorySize() {
         return unitMemorySize;
+    }
+
+    protected final ByteBufFactory getBufFactory() {
+        return bufFactory;
     }
 
     @Override
@@ -136,7 +135,7 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
             release((PooledByteBuf) buf, false);
             return buf.newByteBuf(this).produce(newBuf);
         }
-        ReleaseUtil.release(buf, buf.getReleaseVersion());
+        buf.release(buf.getReleaseVersion());
         ByteBuf newBuf = allocate(buf, limit);
         if (newBuf == null) {
             throw new BufferException("reallocate failed");

@@ -15,6 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketOption;
@@ -49,7 +50,8 @@ import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 import com.generallycloud.baseio.protocol.SslFuture;
 
-public final class NioSocketChannel extends AttributesImpl implements NioEventLoopTask, Attributes {
+public final class NioSocketChannel extends AttributesImpl
+        implements NioEventLoopTask, Attributes, Closeable {
 
     private static final ClosedChannelException CLOSED_CHANNEL       = ThrowableUtil
             .unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class,
@@ -179,11 +181,6 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
             eventLoop.dispatch(new NioEventLoopTask() {
 
                 @Override
-                public void close() {
-                    NioSocketChannel.this.close0();
-                }
-
-                @Override
                 public void fireEvent(NioEventLoop eventLoop) {
                     NioSocketChannel.this.close0();
                 }
@@ -226,7 +223,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
     }
 
     private void exceptionCaught(Future future, Exception ex) {
-        ReleaseUtil.release(future, eventLoop);
+        future.release(eventLoop);
         try {
             getContext().getIoEventHandle().exceptionCaught(this, future, ex);
         } catch (Throwable e) {
@@ -289,7 +286,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
             }
         }
     }
-    
+
     @Override
     public int hashCode() {
         return remoteAddrPort.hashCode();
@@ -348,7 +345,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
         }
         flushFutures(futures);
     }
-    
+
     /**
      * flush已encode的future
      * @param future
@@ -426,25 +423,25 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
                             writeFutures.offer(futures.get(i));
                         }
                         this.currentWriteFuturesLen = maxLen;
-                    }else{
+                    } else {
                         for (int i = 0; i < futuresSize; i++) {
                             currentWriteFutures[i] = futures.get(i);
                         }
                         this.currentWriteFuturesLen = futuresSize;
                     }
-                }else{
+                } else {
                     final int currentRemain = maxLen - currentWriteFuturesLen;
                     if (futuresSize > currentRemain) {
                         for (int i = 0; i < currentRemain; i++) {
-                            currentWriteFutures[i+currentWriteFuturesLen] = futures.get(i);
+                            currentWriteFutures[i + currentWriteFuturesLen] = futures.get(i);
                         }
                         for (int i = currentRemain; i < futuresSize; i++) {
                             writeFutures.offer(futures.get(i));
                         }
                         this.currentWriteFuturesLen = maxLen;
-                    }else{
+                    } else {
                         for (int i = 0; i < futuresSize; i++) {
-                            currentWriteFutures[i+currentWriteFuturesLen] = futures.get(i);
+                            currentWriteFutures[i + currentWriteFuturesLen] = futures.get(i);
                         }
                         this.currentWriteFuturesLen += futuresSize;
                     }
@@ -454,7 +451,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
                 } catch (Throwable t) {
                     CloseUtil.close(this);
                 }
-            }else{
+            } else {
                 for (Future f : futures) {
                     if (f.flushed()) {
                         continue;
@@ -685,7 +682,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
                 try {
                     product = sslHandler.unwrap(this, future.getByteBuf());
                 } finally {
-                    ReleaseUtil.release(future, this.eventLoop);
+                    future.release(eventLoop);
                 }
                 if (product == null) {
                     continue;
@@ -797,7 +794,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
                         newBuf.nioBuffer();
                         future.setByteBuf(newBuf);
                     } finally {
-                        ReleaseUtil.release(old, version);
+                        old.release(version);
                     }
                 }
                 writeBuffers[i] = future.getByteBuf().nioBuffer();
@@ -887,7 +884,7 @@ public final class NioSocketChannel extends AttributesImpl implements NioEventLo
                     newBuf.nioBuffer();
                     future.setByteBuf(newBuf);
                 } finally {
-                    ReleaseUtil.release(old, version);
+                    old.release(version);
                 }
             }
             ByteBuf buf = future.getByteBuf();

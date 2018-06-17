@@ -128,7 +128,7 @@ public class SimplyByteBufAllocator extends PooledByteBufAllocator {
         super.doStart();
 
         ByteBufUnit2 begin = units[0];
-        ByteBufUnit2 end = units[capacity - 1];
+        ByteBufUnit2 end = units[getCapacity() - 1];
 
         setBlock(begin, end, true);
     }
@@ -175,7 +175,7 @@ public class SimplyByteBufAllocator extends PooledByteBufAllocator {
             }
         }
 
-        if (endIndex != capacity) {
+        if (endIndex != getCapacity()) {
 
             ByteBufUnit2 rightBuf = bufs[endIndex];
 
@@ -198,12 +198,12 @@ public class SimplyByteBufAllocator extends PooledByteBufAllocator {
 
     @Override
     protected void release(PooledByteBuf buf, boolean recycle) {
-        ReentrantLock lock = this.lock;
+        ReentrantLock lock = getLock();
         lock.lock();
         try {
             doRelease(getUnits()[buf.getBeginUnit()]);
             if (recycle) {
-                bufFactory.freeBuf(buf);
+                getBufFactory().freeBuf(buf);
             }
         } finally {
             lock.unlock();

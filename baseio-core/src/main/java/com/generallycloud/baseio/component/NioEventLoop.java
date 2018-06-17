@@ -15,6 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -137,6 +138,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     try {
                         registChannel(k);
                     } catch (Exception e) {
+                        k.channel();
+                        k.attach(null);
                         logger.error(e.getMessage(), e);
                     }
                     return;
@@ -170,6 +173,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     registChannel(k);
                 } catch (Exception e) {
+                    k.channel();
+                    k.attach(null);
                     logger.error(e.getMessage(), e);
                 }
                 return;
@@ -223,7 +228,15 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
 
     private void closeEvents(BufferedArrayList<NioEventLoopTask> events) {
         for (NioEventLoopTask event : events.getBuffer()) {
-            CloseUtil.close(event);
+            if (event instanceof Closeable) {
+                CloseUtil.close((Closeable) event);
+            } else {
+                try {
+                    event.fireEvent(this);
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
         }
     }
 
@@ -232,31 +245,26 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         CloseUtil.close(channel);
     }
 
-    public final void dispatch(NioEventLoopTask event) {
-        //FIXME 找出这里出问题的原因
+    public final void dispatchAfterLoop(NioEventLoopTask event) {
         if (inEventLoop()) {
+            events.unsafeOffer(event);
+        } else {
             if (!isRunning()) {
-                CloseUtil.close(event);
-                return;
+                throw new RejectedExecutionException();
             }
-            handleEvent(event);
-            return;
+            events.offer(event);
         }
-        if (!isRunning()) {
-            CloseUtil.close(event);
-            return;
-        }
-        events.offer(event);
+    }
 
+    protected final void dispatch(NioEventLoopTask event) {
+        if (!isRunning()) {
+            throw new RejectedExecutionException();
+        }
         /* ----------------------------------------------------------------- */
         // 这里不需要再次判断了，因为close方法会延迟执行，
         // 可以确保event要么被执行，要么被close
-        //        if (!isRunning()) {
-        //            CloseUtil.close(event);
-        //            return;
-        //        }
         /* ----------------------------------------------------------------- */
-
+        events.offer(event);
         wakeup();
     }
 
@@ -367,7 +375,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         try {
             event.fireEvent(this);
         } catch (Throwable e) {
-            CloseUtil.close(event);
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -534,9 +542,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 targetEventLoop.dispatch(new NioEventLoopTask() {
 
                     @Override
-                    public void close() throws IOException {}
-
-                    @Override
                     public void fireEvent(NioEventLoop eventLoop) throws IOException {
                         registChannel(channel, eventLoop, context, channelId);
                     }
@@ -571,11 +576,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     registChannel(javaChannel, targetEL, context, channelId);
                 } else {
                     targetEL.dispatch(new NioEventLoopTask() {
-                        @Override
-                        public void close() throws IOException {
-                            finishConnect(context, new IOException("closed nio eventloop"));
-                        }
-
                         @Override
                         public void fireEvent(NioEventLoop eventLoop) throws IOException {
                             registChannel(javaChannel, eventLoop, context, channelId);
@@ -623,10 +623,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         } else {
             final Waiter waiter = new Waiter();
             dispatch(new NioEventLoopTask() {
-                @Override
-                public void close() throws IOException {
-                    waiter.response(null);
-                }
 
                 @Override
                 public void fireEvent(NioEventLoop eventLoop) throws IOException {

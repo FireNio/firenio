@@ -15,14 +15,13 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 /**
  * @author wangkai
  *
  */
-public interface NioEventLoopTask extends Closeable {
+public interface NioEventLoopTask {
 
     void fireEvent(NioEventLoop eventLoop) throws IOException;
 
