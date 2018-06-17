@@ -139,9 +139,11 @@ public final class NioSocketChannel extends AttributesImpl
                 }
                 future.release(eventLoop);
                 if (future.isSilent()) {
-                    continue;
-                }
-                if (future.isHeartbeat()) {
+                    if (!buffer.hasRemaining()) {
+                        setReadFuture(null);
+                        break;
+                    }
+                } else if (future.isHeartbeat()) {
                     if (future.isPING()) {
                         heartBeatLogger.logRequest(this);
                         Future f = codec.createPONGPacket(this, future);
@@ -152,15 +154,15 @@ public final class NioSocketChannel extends AttributesImpl
                     } else {
                         heartBeatLogger.logResponse(this);
                     }
-                    continue;
-                }
-                if (enableWorkEventLoop) {
-                    accept(eventHandle, future);
                 } else {
-                    try {
-                        eventHandle.accept(this, future);
-                    } catch (Exception e) {
-                        eventHandle.exceptionCaught(this, future, e);
+                    if (enableWorkEventLoop) {
+                        accept(eventHandle, future);
+                    } else {
+                        try {
+                            eventHandle.accept(this, future);
+                        } catch (Exception e) {
+                            eventHandle.exceptionCaught(this, future, e);
+                        }
                     }
                 }
                 if (!buffer.hasRemaining()) {
@@ -326,6 +328,7 @@ public final class NioSocketChannel extends AttributesImpl
             return;
         }
         try {
+            future.flush();
             future.setNeedSsl(context.isEnableSsl());
             getProtocolCodec().encode(this, future);
             flushFuture(future);
@@ -340,9 +343,6 @@ public final class NioSocketChannel extends AttributesImpl
         }
         if (!isOpened()) {
             for (Future f : futures) {
-                if (f.flushed()) {
-                    continue;
-                }
                 exceptionCaught(f, CLOSED_WHEN_FLUSH);
             }
             return;
@@ -351,9 +351,7 @@ public final class NioSocketChannel extends AttributesImpl
             boolean enableSsl = getContext().isEnableSsl();
             ProtocolCodec codec = getProtocolCodec();
             for (Future f : futures) {
-                if (f.flushed()) {
-                    continue;
-                }
+                f.flush();
                 f.setNeedSsl(enableSsl);
                 codec.encode(this, f);
             }
@@ -372,10 +370,7 @@ public final class NioSocketChannel extends AttributesImpl
      * @param future
      */
     public void flushFuture(Future future) {
-        if (future.flushed()) {
-            return;
-        }
-        future.flush();
+        final LinkedQueue<Future> writeFutures = this.writeFutures;
         if (inEventLoop()) {
             if (!isOpened()) {
                 exceptionCaught(future, CLOSED_WHEN_FLUSH);
@@ -415,21 +410,14 @@ public final class NioSocketChannel extends AttributesImpl
         if (futures == null || futures.isEmpty()) {
             return;
         }
-        final int futuresSize = futures.size();
-        if (futuresSize == 1) {
-            flushFuture(futures.get(0));
-            return;
-        }
         if (inEventLoop()) {
             if (!isOpened()) {
                 for (Future f : futures) {
-                    if (f.flushed()) {
-                        continue;
-                    }
                     exceptionCaught(f, CLOSED_WHEN_FLUSH);
                 }
                 return;
             }
+            final int futuresSize = futures.size();
             final LinkedQueue<Future> writeFutures = this.writeFutures;
             if (writeFutures.size() == 0) {
                 final Future[] currentWriteFutures = this.currentWriteFutures;
@@ -474,9 +462,6 @@ public final class NioSocketChannel extends AttributesImpl
                 }
             } else {
                 for (Future f : futures) {
-                    if (f.flushed()) {
-                        continue;
-                    }
                     writeFutures.offer(f);
                 }
                 try {
@@ -491,24 +476,15 @@ public final class NioSocketChannel extends AttributesImpl
             try {
                 if (!isOpened()) {
                     for (Future f : futures) {
-                        if (f.flushed()) {
-                            continue;
-                        }
                         exceptionCaught(f, CLOSED_WHEN_FLUSH);
                     }
                     return;
                 }
-                int size = 0;
                 final LinkedQueue<Future> writeFutures = this.writeFutures;
                 for (Future f : futures) {
-                    if (f.flushed()) {
-                        continue;
-                    }
-                    f.flush();
-                    size++;
                     writeFutures.offer(f);
                 }
-                if (writeFutures.size() != size) {
+                if (writeFutures.size() != futures.size()) {
                     return;
                 }
             } catch (Exception e) {
