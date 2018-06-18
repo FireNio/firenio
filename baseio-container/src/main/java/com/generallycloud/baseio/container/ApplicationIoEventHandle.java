@@ -181,7 +181,7 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
         }
         Class<?> clazz = classLoader.loadClass(configuration.getFutureAcceptor());
         futureAcceptor = (ContainerIoEventHandle) clazz.newInstance();
-        getFutureAcceptor().initialize(channelContext, redeploy);
+        futureAcceptor.initialize(channelContext, redeploy);
     }
 
     private Object newInstanceFromClass(String className, Object defaultObj) throws Exception {

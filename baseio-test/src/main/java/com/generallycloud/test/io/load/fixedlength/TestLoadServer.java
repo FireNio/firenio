@@ -15,7 +15,6 @@
  */
 package com.generallycloud.test.io.load.fixedlength;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,9 +25,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
-import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
-import com.generallycloud.baseio.component.NioEventLoopTask;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
@@ -52,12 +49,9 @@ public class TestLoadServer {
 
             @Override
             public void channelOpened(NioSocketChannel channel) throws Exception {
-
                 channel.setIoEventHandle(new IoEventHandle() {
-
                     boolean      addTask = true;
                     List<Future> fs      = new ArrayList<>(1024 * 4);
-
                     @Override
                     public void accept(NioSocketChannel channel, Future future) throws Exception {
                         FixedLengthFuture f = (FixedLengthFuture) future;
@@ -66,14 +60,10 @@ public class TestLoadServer {
                             fs.add(f);
                             if (addTask) {
                                 addTask = false;
-                                channel.getEventLoop().dispatchAfterLoop(new NioEventLoopTask() {
-                                    @Override
-                                    public void fireEvent(NioEventLoop eventLoop)
-                                            throws IOException {
-                                        channel.flush(fs);
-                                        addTask = true;
-                                        fs.clear();
-                                    }
+                                channel.getEventLoop().dispatchAfterLoop((e) -> {
+                                    channel.flush(fs);
+                                    addTask = true;
+                                    fs.clear();
                                 });
                             }
                         } else {

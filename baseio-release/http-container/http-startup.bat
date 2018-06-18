@@ -1,5 +1,5 @@
 cd ../../baseio
-call build-package.bat
+call mvn clean install -DskipTests
 
 cd ../baseio-sample/baseio-sample-http
 call mvn clean package -P run -DskipTests
