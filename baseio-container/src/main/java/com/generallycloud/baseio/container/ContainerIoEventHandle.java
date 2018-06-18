@@ -22,7 +22,7 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
 
-public abstract class ContainerIoEventHandle implements IoEventHandle {
+public abstract class ContainerIoEventHandle extends IoEventHandle {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 

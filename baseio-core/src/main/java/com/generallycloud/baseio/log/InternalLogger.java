@@ -26,13 +26,13 @@ import com.generallycloud.baseio.common.MessageFormatter;
  */
 public class InternalLogger implements Logger {
 
-    private Class<?>      loggerClass;
-
     private String        debugClassName;
 
     private String        errorClassName;
 
     private String        infoClassName;
+
+    private Class<?>      loggerClass;
 
     private LoggerPrinter printer;
 
@@ -60,16 +60,16 @@ public class InternalLogger implements Logger {
     }
 
     @Override
-    public void debug(String message, Object param, Object param1) {
+    public void debug(String message, Object... param) {
         if (isEnableDebug()) {
-            info0(debugClassName, message, param, param1);
+            info0(debugClassName, message, param);
         }
     }
 
     @Override
-    public void debug(String message, Object... param) {
+    public void debug(String message, Object param, Object param1) {
         if (isEnableDebug()) {
-            info0(debugClassName, message, param);
+            info0(debugClassName, message, param, param1);
         }
     }
 
@@ -86,6 +86,21 @@ public class InternalLogger implements Logger {
     }
 
     @Override
+    public void error(String message, Object param) {
+        error0(message, param);
+    }
+
+    @Override
+    public void error(String message, Object... params) {
+        error0(message, params);
+    }
+
+    @Override
+    public void error(String message, Object param, Object param1) {
+        error0(message, param, param1);
+    }
+
+    @Override
     public void error(String message, Throwable e) {
         error(message);
         printStackTrace(e);
@@ -94,6 +109,25 @@ public class InternalLogger implements Logger {
     @Override
     public void error(Throwable e) {
         printStackTrace(e);
+    }
+
+    private void error0(String message) {
+        printer.errPrintln(getTimeFormat() + errorClassName + message);
+    }
+
+    private void error0(String message, Object param) {
+        printer.errPrintln(
+                getTimeFormat() + errorClassName + MessageFormatter.format(message, param));
+    }
+
+    private void error0(String message, Object... param) {
+        printer.errPrintln(
+                getTimeFormat() + errorClassName + MessageFormatter.arrayFormat(message, param));
+    }
+
+    private void error0(String message, Object param, Object param1) {
+        printer.errPrintln(
+                getTimeFormat() + errorClassName + MessageFormatter.format(message, param, param1));
     }
 
     public String exception2string(Throwable exception) {
@@ -107,25 +141,13 @@ public class InternalLogger implements Logger {
         return builder.toString();
     }
 
+    @Override
+    public Class<?> getLoggerClass() {
+        return loggerClass;
+    }
+
     private String getTimeFormat() {
         return DateUtil.formatYyyy_MM_dd_HH_mm_ss_SSS(new Date());
-    }
-
-    private void info0(String className, String message) {
-        printer.println(getTimeFormat() + className + message);
-    }
-
-    private void info0(String className, String message, Object param) {
-        printer.println(getTimeFormat() + className + MessageFormatter.format(message, param));
-    }
-
-    private void info0(String className, String message, Object param, Object param1) {
-        printer.println(
-                getTimeFormat() + className + MessageFormatter.format(message, param, param1));
-    }
-
-    private void info0(String className, String message, Object... param) {
-        printer.println(getTimeFormat() + className + MessageFormatter.arrayFormat(message, param));
     }
 
     @Override
@@ -139,55 +161,39 @@ public class InternalLogger implements Logger {
     }
 
     @Override
-    public void info(String message, Object param, Object param1) {
-        info0(infoClassName, message, param, param1);
-    }
-
-    @Override
     public void info(String message, Object... param) {
         info0(infoClassName, message, param);
     }
 
-    public void printStackTrace(Throwable t) {
-        printer.errPrintThrowable(t);
-    }
-
-    public void setEnableDebug(boolean enable) {
-        LoggerFactory.setEnableDebug(enable);
-    }
-
     @Override
-    public void error(String message, Object param) {
-        error0(message, param);
+    public void info(String message, Object param, Object param1) {
+        info0(infoClassName, message, param, param1);
     }
 
-    @Override
-    public void error(String message, Object param, Object param1) {
-        error0(message, param, param1);
+    private void info0(String className, String message) {
+        if (isEnableInfo()) {
+            printer.println(getTimeFormat() + className + message);
+        }
     }
 
-    @Override
-    public void error(String message, Object... params) {
-        error0(message, params);
+    private void info0(String className, String message, Object param) {
+        if (isEnableInfo()) {
+            printer.println(getTimeFormat() + className + MessageFormatter.format(message, param));
+        }
     }
 
-    private void error0(String message) {
-        printer.errPrintln(getTimeFormat() + errorClassName + message);
+    private void info0(String className, String message, Object... param) {
+        if (isEnableInfo()) {
+            printer.println(
+                    getTimeFormat() + className + MessageFormatter.arrayFormat(message, param));
+        }
     }
 
-    private void error0(String message, Object param) {
-        printer.errPrintln(
-                getTimeFormat() + errorClassName + MessageFormatter.format(message, param));
-    }
-
-    private void error0(String message, Object param, Object param1) {
-        printer.errPrintln(
-                getTimeFormat() + errorClassName + MessageFormatter.format(message, param, param1));
-    }
-
-    private void error0(String message, Object... param) {
-        printer.errPrintln(
-                getTimeFormat() + errorClassName + MessageFormatter.arrayFormat(message, param));
+    private void info0(String className, String message, Object param, Object param1) {
+        if (isEnableInfo()) {
+            printer.println(
+                    getTimeFormat() + className + MessageFormatter.format(message, param, param1));
+        }
     }
 
     @Override
@@ -196,8 +202,16 @@ public class InternalLogger implements Logger {
     }
 
     @Override
-    public Class<?> getLoggerClass() {
-        return loggerClass;
+    public boolean isEnableInfo() {
+        return LoggerFactory.isEnableInfo();
+    }
+
+    public void printStackTrace(Throwable t) {
+        printer.errPrintThrowable(t);
+    }
+
+    public void setEnableDebug(boolean enable) {
+        LoggerFactory.setEnableDebug(enable);
     }
 
 }

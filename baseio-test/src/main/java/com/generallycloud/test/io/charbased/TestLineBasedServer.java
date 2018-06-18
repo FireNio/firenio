@@ -21,7 +21,7 @@ import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
@@ -33,7 +33,7 @@ public class TestLineBasedServer {
 
     public static void main(String[] args) throws Exception {
 
-        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {

@@ -25,8 +25,7 @@ public abstract class HttpFutureAcceptorService implements FutureAcceptor {
 
     @Override
     public void accept(NioSocketChannel channel, Future future) throws Exception {
-        ApplicationIoEventHandle handle = (ApplicationIoEventHandle) channel.getContext()
-                .getIoEventHandle();
+        ApplicationIoEventHandle handle = (ApplicationIoEventHandle) channel.getIoEventHandle();
         HttpFutureAcceptor containerHandle = (HttpFutureAcceptor) handle.getFutureAcceptor();
         HttpSessionManager manager = containerHandle.getHttpSessionManager();
         HttpFuture httpReadFuture = (HttpFuture) future;

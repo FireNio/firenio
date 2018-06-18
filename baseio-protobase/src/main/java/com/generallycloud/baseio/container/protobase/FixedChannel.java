@@ -88,7 +88,7 @@ public class FixedChannel {
     public void update(NioSocketChannel channel) {
         this.channel = channel;
         this.context = channel.getContext();
-        this.eventHandle = (SimpleIoEventHandle) context.getIoEventHandle();
+        this.eventHandle = (SimpleIoEventHandle) channel.getIoEventHandle();
     }
 
     private void waiterListen(String serviceName, WaiterOnFuture onReadFuture) throws IOException {

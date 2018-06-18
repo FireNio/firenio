@@ -22,7 +22,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
@@ -33,7 +33,7 @@ public class TestSimple {
     public static void main(String[] args) throws Exception {
         String serviceKey = "/test-simple";
         String param = "ttt";
-        IoEventHandleAdaptor eventHandle = new IoEventHandleAdaptor() {
+        IoEventHandle eventHandle = new IoEventHandle() {
 
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {

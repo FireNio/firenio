@@ -18,17 +18,19 @@ package com.generallycloud.baseio.container;
 import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.generallycloud.baseio.LifeCycle;
+import com.generallycloud.baseio.LifeCycleListener;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.ChannelEventListener;
 import com.generallycloud.baseio.component.DynamicClassLoader;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.FutureAcceptor;
-import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.ChannelEventListener;
 import com.generallycloud.baseio.component.URLDynamicClassLoader;
 import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap;
 import com.generallycloud.baseio.container.configuration.ApplicationConfiguration;
@@ -38,7 +40,7 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
 
-public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
+public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycleListener{
 
     private ApplicationExtLoader           applicationExtLoader;
     private String                         appLocalAddres;
@@ -80,11 +82,9 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         channelContext.addChannelEventListener(listener);
     }
 
-    @Override
-    protected void destroy(ChannelContext context) throws Exception {
+    private void destroy(ChannelContext context) throws Exception {
         this.deploying = true;
         this.destroyHandle(context, false);
-        super.destroy(context);
     }
 
     private void destroyHandle(ChannelContext context, boolean redeploy) {
@@ -141,8 +141,7 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         return rootLocalAddress;
     }
 
-    @Override
-    protected void initialize(ChannelContext context) throws Exception {
+    private void initialize(ChannelContext context) throws Exception {
         this.channelContext = context;
         if (StringUtil.isNullOrBlank(rootLocalAddress)) {
             throw new IllegalArgumentException("rootLocalAddress");
@@ -159,7 +158,6 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
         LoggerUtil.prettyLog(logger, "application path      :{ {} }", appLocalAddres);
         this.initializeHandle(context, false);
         this.deploying = false;
-        super.initialize(context);
     }
 
     private void initializeHandle(ChannelContext context, boolean redeploy) throws Exception {
@@ -247,6 +245,44 @@ public class ApplicationIoEventHandle extends IoEventHandleAdaptor {
 
     public void setIoExceptionCaughtHandle(ExceptionCaughtHandle ioExceptionCaughtHandle) {
         this.ioExceptionCaughtHandle = ioExceptionCaughtHandle;
+    }
+
+    @Override
+    public int lifeCycleListenerSortIndex() {
+        return 0;
+    }
+
+    @Override
+    public void lifeCycleStarting(LifeCycle lifeCycle) {
+        
+    }
+
+    @Override
+    public void lifeCycleStarted(LifeCycle lifeCycle) {
+        try {
+            initialize((ChannelContext)lifeCycle);
+        } catch (Exception e) {
+           logger.error(e.getMessage(),e);
+        }
+    }
+
+    @Override
+    public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
+        
+    }
+
+    @Override
+    public void lifeCycleStopping(LifeCycle lifeCycle) {
+        try {
+            destroy((ChannelContext)lifeCycle);
+        } catch (Exception e) {
+           logger.error(e.getMessage(),e);
+        }
+    }
+
+    @Override
+    public void lifeCycleStopped(LifeCycle lifeCycle) {
+        
     }
 
 }

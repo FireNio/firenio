@@ -23,13 +23,21 @@ import com.generallycloud.baseio.protocol.Future;
  * @author wangkai
  *
  */
-public class DefaultIoEventHandle extends IoEventHandleAdaptor{
+public class DefaultIoEventHandle extends IoEventHandle {
+
+    private DefaultIoEventHandle() {}
+
+    private static final DefaultIoEventHandle handle = new DefaultIoEventHandle();
+
+    public static DefaultIoEventHandle get() {
+        return handle;
+    }
 
     private Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     @Override
     public void accept(NioSocketChannel channel, Future future) throws Exception {
-        logger.info("you did not set IoEventHandleAdaptor and the msg is coming:{}",future);
+        logger.info("you did not set IoEventHandleAdaptor and the msg is coming:{}", future);
     }
-    
+
 }

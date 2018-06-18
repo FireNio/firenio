@@ -18,20 +18,17 @@ package com.generallycloud.baseio.codec.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.Waiter;
 
 public class HttpClient {
 
-    private ChannelContext    context;
-    private NioSocketChannel     channel;
+    private NioSocketChannel  channel;
     private HttpIOEventHandle ioEventHandle;
 
     public HttpClient(NioSocketChannel channel) {
         this.channel = channel;
-        this.context = channel.getContext();
-        this.ioEventHandle = (HttpIOEventHandle) context.getIoEventHandle();
+        this.ioEventHandle = (HttpIOEventHandle) channel.getIoEventHandle();
     }
 
     public synchronized HttpFuture request(HttpFuture future, long timeout) throws IOException {

@@ -22,7 +22,7 @@ import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -49,16 +49,18 @@ public class TestLoadClient1 extends ITestThread {
     @Override
     public void prepare() throws Exception {
 
-        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
+            
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {
-                addCount(10000);
+                addCount(40000);
             }
         };
 
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setMemoryPoolCapacity(320000);
         group.setMemoryPoolUnit(128);
+        group.setBufRecycleSize(1024 * 4);
         Configuration c = new Configuration(8300);
         ChannelContext context = new ChannelContext(c);
         connector = new ChannelConnector(context, group);
@@ -75,7 +77,7 @@ public class TestLoadClient1 extends ITestThread {
 
     public static void main(String[] args) throws IOException {
 
-        int time = 128 * 10000;
+        int time = 256 * 10000;
 
         int core_size = 16;
 

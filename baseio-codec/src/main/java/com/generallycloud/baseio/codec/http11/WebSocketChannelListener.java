@@ -15,9 +15,8 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
+import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -30,12 +29,11 @@ public class WebSocketChannelListener extends ChannelEventListenerAdapter {
         if (!WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
             return;
         }
-        ChannelContext context = channel.getContext();
         WebSocketFutureImpl future = new WebSocketFutureImpl();
         future.setType(WebSocketCodec.TYPE_CLOSE);
         future.setServiceName(channel);
         try {
-            context.getIoEventHandle().accept(channel, future);
+            channel.getIoEventHandle().accept(channel, future);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

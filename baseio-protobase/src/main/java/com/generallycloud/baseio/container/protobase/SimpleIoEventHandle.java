@@ -20,12 +20,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.NamedFuture;
 
-public class SimpleIoEventHandle extends IoEventHandleAdaptor {
+public class SimpleIoEventHandle extends IoEventHandle {
 
     private Map<String, OnFutureWrapper> listeners = new HashMap<>();
 

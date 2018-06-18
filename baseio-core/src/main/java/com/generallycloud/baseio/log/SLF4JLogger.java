@@ -109,6 +109,11 @@ public class SLF4JLogger implements Logger {
     public boolean isEnableDebug() {
         return logger.isDebugEnabled();
     }
+    
+    @Override
+    public boolean isEnableInfo() {
+        return logger.isInfoEnabled();
+    }
 
     @Override
     public void error(Throwable e) {

@@ -15,13 +15,20 @@
  */
 package com.generallycloud.test.io.load.fixedlength;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
+import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
+import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
+import com.generallycloud.baseio.component.NioEventLoopTask;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
@@ -29,25 +36,53 @@ import com.generallycloud.baseio.protocol.Future;
 public class TestLoadServer {
 
     public static void main(String[] args) throws Exception {
-        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
 
-            @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                FixedLengthFuture f = (FixedLengthFuture) future;
-                f.write(f.getReadText(), channel);
-                channel.flush(future);
-            }
-        };
+        final boolean batchFlush = true;
 
         NioEventLoopGroup group = new NioEventLoopGroup(8);
         group.setMemoryPoolCapacity(2560000 / 2);
+        group.setBufRecycleSize(1024 * 64);
         group.setMemoryPoolUnit(128);
         Configuration c = new Configuration(8300);
         ChannelContext context = new ChannelContext(c);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setProtocolCodec(new FixedLengthCodec());
-        context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
+        context.addChannelEventListener(new ChannelEventListenerAdapter() {
+
+            @Override
+            public void channelOpened(NioSocketChannel channel) throws Exception {
+
+                channel.setIoEventHandle(new IoEventHandle() {
+
+                    boolean      addTask = true;
+                    List<Future> fs      = new ArrayList<>(1024 * 4);
+
+                    @Override
+                    public void accept(NioSocketChannel channel, Future future) throws Exception {
+                        FixedLengthFuture f = (FixedLengthFuture) future;
+                        f.write(f.getReadText(), channel);
+                        if (batchFlush) {
+                            fs.add(f);
+                            if (addTask) {
+                                addTask = false;
+                                channel.getEventLoop().dispatchAfterLoop(new NioEventLoopTask() {
+                                    @Override
+                                    public void fireEvent(NioEventLoop eventLoop)
+                                            throws IOException {
+                                        channel.flush(fs);
+                                        addTask = true;
+                                        fs.clear();
+                                    }
+                                });
+                            }
+                        } else {
+                            channel.flush(future);
+                        }
+                    }
+                });
+            }
+        });
         acceptor.bind();
     }
 

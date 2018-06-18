@@ -15,12 +15,12 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.protocol.Future;
 
-public class HttpIOEventHandle extends IoEventHandleAdaptor {
+public class HttpIOEventHandle extends IoEventHandle {
 
     private Waiter waiter;
 

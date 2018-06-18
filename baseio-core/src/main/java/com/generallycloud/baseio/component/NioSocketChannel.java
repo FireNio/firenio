@@ -88,6 +88,7 @@ public final class NioSocketChannel extends AttributesImpl
     private SSLEngine                           sslEngine;
     private transient SslFuture                 sslReadFuture;
     private LinkedQueue<Future>                 writeFutures;
+    private IoEventHandle                       ioEventHandle;
 
     NioSocketChannel(ChannelContext context, ByteBufAllocator allocator) {
         this.enableSsl = false;
@@ -117,10 +118,10 @@ public final class NioSocketChannel extends AttributesImpl
     private void accept(ByteBuf buffer) throws Exception {
         final ProtocolCodec codec = getProtocolCodec();
         final NioEventLoop eventLoop = this.eventLoop;
+        final IoEventHandle eventHandle = this.ioEventHandle;
         final ByteBufAllocator allocator = this.allocator;
         final HeartBeatLogger heartBeatLogger = context.getHeartBeatLogger();
         final boolean enableWorkEventLoop = context.isEnableWorkEventLoop();
-        final IoEventHandle eventHandle = context.getIoEventHandle();
         Future future = getReadFuture();
         if (future == null) {
             future = codec.decode(this, buffer);
@@ -253,7 +254,7 @@ public final class NioSocketChannel extends AttributesImpl
     private void exceptionCaught(Future future, Exception ex) {
         future.release(eventLoop);
         try {
-            getContext().getIoEventHandle().exceptionCaught(this, future, ex);
+            getIoEventHandle().exceptionCaught(this, future, ex);
         } catch (Throwable e) {
             logger.error(ex.getMessage(), ex);
             logger.error(e.getMessage(), e);
@@ -312,6 +313,9 @@ public final class NioSocketChannel extends AttributesImpl
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
+        }
+        if (ioEventHandle == null) {
+            ioEventHandle = context.getIoEventHandle();
         }
     }
 
@@ -526,6 +530,10 @@ public final class NioSocketChannel extends AttributesImpl
 
     public ExecutorEventLoop getExecutorEventLoop() {
         return executorEventLoop;
+    }
+    
+    public IoEventHandle getIoEventHandle() {
+        return ioEventHandle;
     }
 
     public long getLastAccessTime() {
@@ -744,6 +752,10 @@ public final class NioSocketChannel extends AttributesImpl
 
     public void setRemainingBuf(ByteBuf remainingBuf) {
         this.remainingBuf = remainingBuf;
+    }
+    
+    public void setIoEventHandle(IoEventHandle ioEventHandle) {
+        this.ioEventHandle = ioEventHandle;
     }
 
     public void setSslReadFuture(SslFuture future) {

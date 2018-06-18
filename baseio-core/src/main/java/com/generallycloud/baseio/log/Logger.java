@@ -48,6 +48,8 @@ public interface Logger {
     Class<?> getLoggerClass();
 
     boolean isEnableDebug();
+    
+    boolean isEnableInfo();
 
     void error(Throwable e);
 

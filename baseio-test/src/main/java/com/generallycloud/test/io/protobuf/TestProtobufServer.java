@@ -20,7 +20,7 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.configuration.Configuration;
@@ -35,7 +35,7 @@ public class TestProtobufServer {
 
         protobufUtil.regist(SearchRequest.getDefaultInstance());
 
-        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {

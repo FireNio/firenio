@@ -40,22 +40,23 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public class ChannelContext extends AbstractLifeCycle {
 
     private Map<Object, Object>            attributes    = new HashMap<>();
+    private ChannelManager                 channelManager;
     private ChannelService                 channelService;
     private Configuration                  configuration;
     private boolean                        enableSsl;
+    private boolean                        enableWorkEventLoop;
     private Charset                        encoding;
     private ExecutorEventLoopGroup         executorEventLoopGroup;
+    private HeartBeatLogger                heartBeatLogger;
     private boolean                        initialized;
-    private IoEventHandleAdaptor           ioEventHandle = new DefaultIoEventHandle();
+    private IoEventHandle                  ioEventHandle = DefaultIoEventHandle.get();
     private Logger                         logger        = LoggerFactory.getLogger(getClass());
-    private ProtocolCodec                  protocolCodec;
     private NioEventLoopGroup              nioEventLoopGroup;
-    private ChannelManager                 channelManager;
+    private ProtocolCodec                  protocolCodec;
+    private NioSocketChannel               simulateSocketChannel;
     private List<ChannelEventListener>     ssels         = new ArrayList<>();
     private List<ChannelIdleEventListener> ssiels        = new ArrayList<>();
     private SslContext                     sslContext;
-    private NioSocketChannel               simulateSocketChannel;
-    private boolean   enableWorkEventLoop;
     private long                           startupTime   = System.currentTimeMillis();
 
     public ChannelContext(Configuration configuration) {
@@ -76,6 +77,34 @@ public class ChannelContext extends AbstractLifeCycle {
     private void checkNotRunning() {
         if (isRunning()) {
             throw new UnsupportedOperationException("starting or running");
+        }
+    }
+
+    private void createHeartBeatLogger() {
+        if (getConfiguration().isEnableHeartbeatLog()) {
+            heartBeatLogger = new HeartBeatLogger() {
+                @Override
+                public void logRequest(NioSocketChannel channel) {
+                    logger.info("heart beat request from: {}", channel);
+                }
+
+                @Override
+                public void logResponse(NioSocketChannel channel) {
+                    logger.info("heart beat response from: {}", channel);
+                }
+            };
+        } else {
+            heartBeatLogger = new HeartBeatLogger() {
+                @Override
+                public void logRequest(NioSocketChannel channel) {
+                    logger.debug("heart beat request from: {}", channel);
+                }
+
+                @Override
+                public void logResponse(NioSocketChannel channel) {
+                    logger.debug("heart beat response from: {}", channel);
+                }
+            };
         }
     }
 
@@ -110,7 +139,6 @@ public class ChannelContext extends AbstractLifeCycle {
         createHeartBeatLogger();
         channelManager = new ChannelManager(this);
         protocolCodec.initialize(this);
-        ioEventHandle.initialize(this);
         if (executorEventLoopGroup == null) {
             if (getConfiguration().isEnableWorkEventLoop()) {
                 executorEventLoopGroup = new ThreadEventLoopGroup(this, "event-process",
@@ -127,11 +155,6 @@ public class ChannelContext extends AbstractLifeCycle {
     @Override
     protected void doStop() throws Exception {
         LifeCycleUtil.stop(executorEventLoopGroup);
-        try {
-            ioEventHandle.destroy(this);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
         this.attributes.clear();
     }
 
@@ -141,6 +164,18 @@ public class ChannelContext extends AbstractLifeCycle {
 
     public Set<Object> getAttributeNames() {
         return this.attributes.keySet();
+    }
+
+    public List<ChannelEventListener> getChannelEventListeners() {
+        return ssels;
+    }
+
+    public List<ChannelIdleEventListener> getChannelIdleEventListeners() {
+        return ssiels;
+    }
+
+    public ChannelManager getChannelManager() {
+        return channelManager;
     }
 
     public ChannelService getChannelService() {
@@ -159,28 +194,24 @@ public class ChannelContext extends AbstractLifeCycle {
         return executorEventLoopGroup;
     }
 
-    public IoEventHandle getIoEventHandle() {
-        return ioEventHandle;
+    public HeartBeatLogger getHeartBeatLogger() {
+        return heartBeatLogger;
     }
 
-    public ProtocolCodec getProtocolCodec() {
-        return protocolCodec;
+    public IoEventHandle getIoEventHandle() {
+        return ioEventHandle;
     }
 
     public NioEventLoopGroup getNioEventLoopGroup() {
         return nioEventLoopGroup;
     }
 
-    public List<ChannelEventListener> getChannelEventListeners() {
-        return ssels;
+    public ProtocolCodec getProtocolCodec() {
+        return protocolCodec;
     }
 
-    public List<ChannelIdleEventListener> getChannelIdleEventListeners() {
-        return ssiels;
-    }
-
-    public ChannelManager getChannelManager() {
-        return channelManager;
+    public NioSocketChannel getSimulateSocketChannel() {
+        return simulateSocketChannel;
     }
 
     public SslContext getSslContext() {
@@ -193,6 +224,10 @@ public class ChannelContext extends AbstractLifeCycle {
 
     public boolean isEnableSsl() {
         return enableSsl;
+    }
+
+    public boolean isEnableWorkEventLoop() {
+        return enableWorkEventLoop;
     }
 
     public Object removeAttribute(Object key) {
@@ -212,18 +247,18 @@ public class ChannelContext extends AbstractLifeCycle {
         this.executorEventLoopGroup = executorEventLoopGroup;
     }
 
-    public void setIoEventHandle(IoEventHandleAdaptor ioEventHandleAdaptor) {
+    public void setIoEventHandle(IoEventHandle ioEventHandle) {
         checkNotRunning();
-        this.ioEventHandle = ioEventHandleAdaptor;
+        this.ioEventHandle = ioEventHandle;
+    }
+
+    public void setNioEventLoopGroup(NioEventLoopGroup nioEventLoopGroup) {
+        this.nioEventLoopGroup = nioEventLoopGroup;
     }
 
     public void setProtocolCodec(ProtocolCodec protocolCodec) {
         checkNotRunning();
         this.protocolCodec = protocolCodec;
-    }
-
-    public void setNioEventLoopGroup(NioEventLoopGroup nioEventLoopGroup) {
-        this.nioEventLoopGroup = nioEventLoopGroup;
     }
 
     public void setSslContext(SslContext sslContext) {
@@ -234,49 +269,7 @@ public class ChannelContext extends AbstractLifeCycle {
         this.sslContext = sslContext;
         this.enableSsl = true;
     }
-    
-    public boolean isEnableWorkEventLoop() {
-        return enableWorkEventLoop;
-    }
 
-    public NioSocketChannel getSimulateSocketChannel() {
-        return simulateSocketChannel;
-    }
-    
-    private HeartBeatLogger heartBeatLogger;
-    
-    public HeartBeatLogger getHeartBeatLogger() {
-        return heartBeatLogger;
-    }
-    
-    private void createHeartBeatLogger() {
-        if (getConfiguration().isEnableHeartbeatLog()) {
-            heartBeatLogger = new HeartBeatLogger() {
-                @Override
-                public void logRequest(NioSocketChannel channel) {
-                    logger.info("heart beat request from: {}", channel);
-                }
-
-                @Override
-                public void logResponse(NioSocketChannel channel) {
-                    logger.info("heart beat response from: {}", channel);
-                }
-            };
-        } else {
-            heartBeatLogger = new HeartBeatLogger() {
-                @Override
-                public void logRequest(NioSocketChannel channel) {
-                    logger.debug("heart beat request from: {}", channel);
-                }
-
-                @Override
-                public void logResponse(NioSocketChannel channel) {
-                    logger.debug("heart beat response from: {}", channel);
-                }
-            };
-        }
-    }
-    
     public interface HeartBeatLogger {
 
         void logRequest(NioSocketChannel channel);

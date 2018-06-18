@@ -39,7 +39,7 @@ public class RedisClient {
         this.timeout = timeout;
         this.channel = channel;
         this.context = channel.getContext();
-        this.ioEventHandle = (RedisIOEventHandle) context.getIoEventHandle();
+        this.ioEventHandle = (RedisIOEventHandle) channel.getIoEventHandle();
     }
 
     private synchronized RedisNode sendCommand(byte[] command, byte[]... args) throws IOException {

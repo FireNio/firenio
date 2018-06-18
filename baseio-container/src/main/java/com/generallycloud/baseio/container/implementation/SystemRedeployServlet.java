@@ -32,8 +32,8 @@ public class SystemRedeployServlet implements FutureAcceptor {
 
     @Override
     public void accept(NioSocketChannel channel, Future future) throws IOException {
-        ApplicationIoEventHandle applicationIoEventHandle = (ApplicationIoEventHandle) channel
-                .getContext().getIoEventHandle();
+        ApplicationIoEventHandle applicationIoEventHandle = 
+                (ApplicationIoEventHandle) channel.getIoEventHandle();
         AtomicInteger redeployTime = applicationIoEventHandle.getRedeployTime();
         long startTime = System.currentTimeMillis();
         Charset charset = channel.getEncoding();

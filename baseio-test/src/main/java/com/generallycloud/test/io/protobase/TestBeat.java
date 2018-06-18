@@ -21,7 +21,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -36,7 +36,7 @@ public class TestBeat {
 
         DebugUtil.setEnableDebug(true);
 
-        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {

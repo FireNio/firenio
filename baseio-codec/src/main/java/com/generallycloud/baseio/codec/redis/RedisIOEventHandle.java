@@ -15,12 +15,12 @@
  */
 package com.generallycloud.baseio.codec.redis;
 
-import com.generallycloud.baseio.component.IoEventHandleAdaptor;
+import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.protocol.Future;
 
-public class RedisIOEventHandle extends IoEventHandleAdaptor {
+public class RedisIOEventHandle extends IoEventHandle {
 
     private Waiter waiter;
 

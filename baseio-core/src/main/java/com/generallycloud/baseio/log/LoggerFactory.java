@@ -22,6 +22,7 @@ public class LoggerFactory {
 
     private static boolean       enableSLF4JLogger = false;
     private static boolean       enableDebug       = false;
+    private static boolean       enableInfo       = true;
     private static File          internalLogFile;
     private static LoggerPrinter printer           = SysLoggerPrinter.get();
 
@@ -57,6 +58,14 @@ public class LoggerFactory {
 
     public static void setEnableDebug(boolean enableDebug) {
         LoggerFactory.enableDebug = enableDebug;
+    }
+    
+    public static boolean isEnableInfo() {
+        return enableInfo;
+    }
+
+    public static void setEnableInfo(boolean enableInfo) {
+        LoggerFactory.enableInfo = enableInfo;
     }
 
     public static File getInternalLogFile() {
