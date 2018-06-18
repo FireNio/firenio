@@ -412,6 +412,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     public void loop() {
         final long idle = group.getIdleTime();
         final Selector selector = this.selector;
+        final AtomicBoolean selecting = this.selecting;
+        final BufferedArrayList<NioEventLoopTask> events = this.events;
+        final SelectionKeySet keySet = this.selectionKeySet;
         long nextIdle = 0;
         long selectTime = idle;
         for (;;) {
@@ -442,8 +445,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     }
                 }
                 if (selected > 0) {
-                    if (selectionKeySet != null) {
-                        SelectionKeySet keySet = selectionKeySet;
+                    if (keySet != null) {
                         for (int i = 0; i < keySet.size; i++) {
                             SelectionKey k = keySet.keys[i];
                             keySet.keys[i] = null;

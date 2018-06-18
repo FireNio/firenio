@@ -59,11 +59,11 @@ public class WebSocketCodec implements ProtocolCodec {
     public static final String   FUTURE_STACK_KEY   = "FixedThreadStack_WebSocketFuture";
     public static final int      PROTOCOL_HEADER    = 2;
     public static final String   PROTOCOL_ID        = "WebSocket";
-    public static final int      TYPE_BINARY        = 2;
-    public static final int      TYPE_CLOSE         = 8;
-    public static final int      TYPE_PING          = 9;
-    public static final int      TYPE_PONG          = 10;
-    public static final int      TYPE_TEXT          = 1;
+    public static final byte     TYPE_BINARY        = 2;
+    public static final byte     TYPE_CLOSE         = 8;
+    public static final byte     TYPE_PING          = 9;
+    public static final byte     TYPE_PONG          = 10;
+    public static final byte     TYPE_TEXT          = 1;
     public static final int      MAX_UNSIGNED_SHORT = (1 << 16) - 1;
     public static WebSocketCodec WS_PROTOCOL_CODEC;
 

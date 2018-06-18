@@ -18,6 +18,7 @@ package com.generallycloud.baseio.codec.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractFuture;
 import com.generallycloud.baseio.protocol.Future;
@@ -35,11 +36,10 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
 
     private byte[]             byteArray;
     private boolean            eof;
-    private int                length;
     private int                limit;
     private String             readText;
     private String             serviceName;
-    private int                type;
+    private byte                type;
 
     public WebSocketFuture() {
         this.type = WebSocketCodec.TYPE_TEXT;
@@ -60,12 +60,11 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
         return serviceName;
     }
 
-    public int getLength() {
-        return length;
-    }
-
     @Override
     public String getReadText() {
+        if (readText == null) {
+            readText = new String(byteArray, Encoding.UTF8);
+        }
         return readText;
     }
 
@@ -96,7 +95,7 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
         }
         int payloadLen = (b1 & 0x7f);
         if (payloadLen < 126) {
-            
+
         } else if (payloadLen == 126) {
             dataLen += 2;
             if (src.remaining() < dataLen) {
@@ -112,40 +111,62 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
             }
             payloadLen = (int) src.getLong();
             if (payloadLen < 0) {
-                throw new IOException("over limit:"+payloadLen);
+                throw new IOException("over limit:" + payloadLen);
             }
         }
         if (payloadLen > limit) {
-            throw new IOException("over limit:"+payloadLen);
+            throw new IOException("over limit:" + payloadLen);
         }
         if (src.remaining() < payloadLen) {
             src.resetP();
             return false;
         }
         eof = (b0 & 0b10000000) > 0;
-        type = (b0 & 0xF);
+        type = (byte)(b0 & 0xF);
         if (type == WebSocketCodec.TYPE_PING) {
             setPING();
         } else if (type == WebSocketCodec.TYPE_PONG) {
             setPONG();
         }
-        byte [] array = new byte[payloadLen];
+        byte[] array = new byte[payloadLen];
         if (hasMask) {
-            byte []mask = new byte[4];
-            src.get(mask);
+            byte m0 = src.getByte();
+            byte m1 = src.getByte();
+            byte m2 = src.getByte();
+            byte m3 = src.getByte();
             src.get(array);
             int length = array.length;
-            for (int i = 0; i < length; i++) {
-                array[i] = (byte) (array[i] ^ mask[i % 4]);
+            int len = (length / 4) * 4;
+            for (int i = 0; i < len;) {
+                array[i++] ^= m0;
+                array[i++] ^= m1;
+                array[i++] ^= m2;
+                array[i++] ^= m3;
             }
-        }else{
+            if (len < length) {
+                int i = len;
+                for (;;) {
+                    array[i++] ^= m0;
+                    if (i == length) {
+                        break;
+                    }
+                    array[i++] ^= m1;
+                    if (i == length) {
+                        break;
+                    }
+                    array[i++] ^= m2;
+                    if (i == length) {
+                        break;
+                    }
+                    array[i++] ^= m3;
+                }
+            }
+        } else {
             src.get(array);
         }
         this.byteArray = array;
         if (type == WebSocketCodec.TYPE_BINARY) {
             // FIXME 处理binary
-        } else {
-            this.readText = new String(array, channel.getEncoding());
         }
         return true;
     }
@@ -166,7 +187,7 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
         this.serviceName = (String) channel.getAttribute(CHANNEL_KEY_SERVICE_NAME);
     }
 
-    protected void setType(int type) {
+    protected void setType(byte type) {
         this.type = type;
     }
 
@@ -192,7 +213,6 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
     protected WebSocketFuture reset(NioSocketChannel channel, ByteBuf buf, int limit) {
         this.byteArray = null;
         this.eof = false;
-        this.length = 0;
         this.readText = null;
         this.type = 0;
 
