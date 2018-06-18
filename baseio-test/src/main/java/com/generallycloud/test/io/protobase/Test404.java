@@ -17,7 +17,7 @@ package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -53,7 +53,7 @@ public class Test404 {
 
         System.out.println(future.getReadText());
 
-        Future future1 = new ProtobaseFutureImpl().setPING();
+        Future future1 = new ProtobaseFuture().setPING();
 
         channel.getChannel().flush(future1);
 

@@ -55,7 +55,7 @@ final class HuffmanDecoder {
     public String decode(ByteBuf buf, int length) throws Http2Exception {
         processor.reset();
         buf.forEachByte(buf.position(), length, processor);
-        buf.skipBytes(length);
+        buf.skip(length);
         return processor.end();
     }
 

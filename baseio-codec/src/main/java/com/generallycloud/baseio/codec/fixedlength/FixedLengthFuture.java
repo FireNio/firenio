@@ -51,7 +51,7 @@ public class FixedLengthFuture extends AbstractFuture implements TextFuture {
             return true;
         }
         if (len > src.remaining()) {
-            src.position(src.position() - 4);
+            src.skip(-4);
             return false;
         }
         if (len > limit) {

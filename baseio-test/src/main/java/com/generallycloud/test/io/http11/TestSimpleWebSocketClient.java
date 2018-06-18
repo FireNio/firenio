@@ -19,8 +19,7 @@ import com.generallycloud.baseio.codec.http11.ClientHttpFuture;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.WebSocketFuture;
-import com.generallycloud.baseio.codec.http11.WebSocketFutureImpl;
-import com.generallycloud.baseio.codec.http11.WebSocketUpgradeRequestFuture;
+import com.generallycloud.baseio.codec.http11.WsUpgradeRequestFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
@@ -45,7 +44,7 @@ public class TestSimpleWebSocketClient {
                     ClientHttpFuture f = (ClientHttpFuture) future;
                     if (f.getRequestHeader(HttpHeader.Req_Sec_WebSocket_Key) != null) {
                         f.updateWebSocketProtocol();
-                        WebSocketFuture f2 = new WebSocketFutureImpl();
+                        WebSocketFuture f2 = new WebSocketFuture();
                         f2.write("{action: \"add-user\", username: \"火星人\"}", channel);
                         channel.flush(f2);
                     }
@@ -76,7 +75,7 @@ public class TestSimpleWebSocketClient {
         NioSocketChannel channel = connector.connect();
         String url = "/web-socket-chat";
         url = "/c1020";
-        HttpFuture future = new WebSocketUpgradeRequestFuture(channel.getContext(), url);
+        HttpFuture future = new WsUpgradeRequestFuture(channel.getContext(), url);
         //		 future.setRequestURL("ws://120.76.222.210:30005/");
         //		future.setResponseHeader("Host", "120.76.222.210:30005");
         //		future.setResponseHeader("Pragma", "no-cache");

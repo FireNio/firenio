@@ -45,9 +45,9 @@ import com.generallycloud.baseio.protocol.ProtocolException;
  * </pre>
  */
 public class ProtobaseCodec implements ProtocolCodec {
-    
-    public static final int      PROTOCOL_PING   = -1;
-    public static final int      PROTOCOL_PONG   = -2;
+
+    public static final int      PROTOCOL_PING = -1;
+    public static final int      PROTOCOL_PONG = -2;
 
     private static final ByteBuf PING;
 
@@ -63,19 +63,26 @@ public class ProtobaseCodec implements ProtocolCodec {
         PONG.flip();
     }
 
-    protected int limit;
+    private final int textLenLimit;
+
+    private final int binaryLenLimit;
 
     public ProtobaseCodec() {
-        this(1024 * 8);
+        this(1024 * 64, 1024 * 64);
     }
 
-    public ProtobaseCodec(int limit) {
-        this.limit = limit;
+    public ProtobaseCodec(int textLenLimit) {
+        this(textLenLimit, 1024 * 64);
+    }
+
+    public ProtobaseCodec(int textLenLimit, int binaryLenLimit) {
+        this.textLenLimit = textLenLimit;
+        this.binaryLenLimit = binaryLenLimit;
     }
 
     @Override
     public Future createPINGPacket(NioSocketChannel channel) {
-        return new ProtobaseFutureImpl().setPING();
+        return new ProtobaseFuture().setPING();
     }
 
     @Override
@@ -85,9 +92,15 @@ public class ProtobaseCodec implements ProtocolCodec {
 
     @Override
     public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        ByteBufAllocator allocator = channel.allocator();
-        ByteBuf buf = allocator.allocate(2);
-        return new ProtobaseFutureImpl(buf);
+        return new ProtobaseFuture(textLenLimit, binaryLenLimit);
+    }
+
+    public int getTextLenLimit() {
+        return textLenLimit;
+    }
+
+    public int getBinaryLenLimit() {
+        return binaryLenLimit;
     }
 
     @Override
@@ -136,7 +149,7 @@ public class ProtobaseCodec implements ProtocolCodec {
         ByteBuf buf = allocator.allocate(allLen);
         buf.putInt(allLen - 4);
         buf.putByte(h1);
-        buf.putByte((byte)futureNameLen);
+        buf.putByte((byte) futureNameLen);
         buf.put(futureNameBytes);
         if (f.getFutureId() > 0) {
             buf.putInt(f.getFutureId());

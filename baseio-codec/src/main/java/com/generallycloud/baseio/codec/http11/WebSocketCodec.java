@@ -37,11 +37,11 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 *      |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
 *      |I|S|S|S|  (4)  |A|     (7)     |             (16/32)           |
 *      |N|V|V|V|       |S|             |   (if payload len==126/127)   |
-*      | |1|2|3|       |K|             |           (unsigned)          |
+*      | |1|2|3|       |K|             |       (unsigned(2byte))       |
 *      +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
 *      |     Extended payload length continued, if payload len == 127  |
 *      + - - - - - - - - - - - - - - - +-------------------------------+
-*      |                               |Masking-key, if MASK set to 1  |
+*      |    payload len (4+2+2)        |Masking-key, if MASK set to 1  |
 *      +-------------------------------+-------------------------------+
 *      | Masking-key (continued)       |          Payload Data         |
 *      +-------------------------------- - - - - - - - - - - - - - - - +
@@ -56,34 +56,34 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 */
 public class WebSocketCodec implements ProtocolCodec {
 
-    public static final String   FUTURE_STACK_KEY = "FixedThreadStack_WebSocketFuture";
-    public static final int      PROTOCOL_HEADER  = 2;
-    public static final String   PROTOCOL_ID      = "WebSocket";
-    public static final int      TYPE_BINARY      = 2;
-    public static final int      TYPE_CLOSE       = 8;
-    public static final int      TYPE_PING        = 9;
-    public static final int      TYPE_PONG        = 10;
-    public static final int      TYPE_TEXT        = 1;
+    public static final String   FUTURE_STACK_KEY   = "FixedThreadStack_WebSocketFuture";
+    public static final int      PROTOCOL_HEADER    = 2;
+    public static final String   PROTOCOL_ID        = "WebSocket";
+    public static final int      TYPE_BINARY        = 2;
+    public static final int      TYPE_CLOSE         = 8;
+    public static final int      TYPE_PING          = 9;
+    public static final int      TYPE_PONG          = 10;
+    public static final int      TYPE_TEXT          = 1;
+    public static final int      MAX_UNSIGNED_SHORT = (1 << 16) - 1;
     public static WebSocketCodec WS_PROTOCOL_CODEC;
 
     static void init(ChannelContext context, int limit, int futureStackSize) {
-        WS_PROTOCOL_CODEC = new WebSocketCodec(futureStackSize);
-        WS_PROTOCOL_CODEC.limit = limit;
+        WS_PROTOCOL_CODEC = new WebSocketCodec(limit, futureStackSize);
         WS_PROTOCOL_CODEC.initialize(context);
     }
 
+    private final int limit;
     private final int futureStackSize;
-    private int       limit              = 1024 * 8;
-    final int         MAX_UNSIGNED_SHORT = (1 << 16) - 1;
 
-    public WebSocketCodec(int futureStackSize) {
+    public WebSocketCodec(int limit, int futureStackSize) {
+        this.limit = limit;
         this.futureStackSize = futureStackSize;
     }
 
     @Override
     public Future createPINGPacket(NioSocketChannel channel) {
         if (WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
-            return new WebSocketFutureImpl().setPING();
+            return new WebSocketFuture().setPING();
         }
         return null;
     }
@@ -100,21 +100,20 @@ public class WebSocketCodec implements ProtocolCodec {
     public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         if (futureStackSize > 0) {
             NioEventLoop eventLoop = channel.getEventLoop();
-            FixedThreadStack<WebSocketFutureImpl> stack = (FixedThreadStack<WebSocketFutureImpl>) eventLoop
+            FixedThreadStack<WebSocketFuture> stack = (FixedThreadStack<WebSocketFuture>) eventLoop
                     .getAttribute(FUTURE_STACK_KEY);
             if (stack == null) {
                 stack = new FixedThreadStack<>(futureStackSize);
                 eventLoop.setAttribute(FUTURE_STACK_KEY, stack);
             }
-            WebSocketFutureImpl future = stack.pop();
+            WebSocketFuture future = stack.pop();
             if (future == null) {
-                return new WebSocketFutureImpl(channel,
-                        channel.allocator().allocate(PROTOCOL_HEADER), limit);
+                return new WebSocketFuture(channel, channel.allocator().allocate(PROTOCOL_HEADER),
+                        limit);
             }
             return future.reset(channel, channel.allocator().allocate(PROTOCOL_HEADER), limit);
         }
-        return new WebSocketFutureImpl(channel, channel.allocator().allocate(PROTOCOL_HEADER),
-                limit);
+        return new WebSocketFuture(channel, channel.allocator().allocate(PROTOCOL_HEADER), limit);
     }
 
     @Override
@@ -135,10 +134,10 @@ public class WebSocketCodec implements ProtocolCodec {
             header[1] = 126;
             MathUtil.unsignedShort2Byte(header, size, 2);
         } else {
-            header = new byte[6];
+            header = new byte[10];
             header[0] = header0;
             header[1] = 127;
-            MathUtil.int2Byte(header, size, 2);
+            MathUtil.long2Byte(header, size, 2);
         }
         ByteBuf buf = allocator.allocate(header.length + size);
         buf.put(header);

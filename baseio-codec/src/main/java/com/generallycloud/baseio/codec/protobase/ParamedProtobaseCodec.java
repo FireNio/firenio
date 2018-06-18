@@ -18,7 +18,6 @@ package com.generallycloud.baseio.codec.protobase;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -28,31 +27,21 @@ import com.generallycloud.baseio.protocol.Future;
  */
 public class ParamedProtobaseCodec extends ProtobaseCodec {
 
-    protected int limit;
-
     public ParamedProtobaseCodec() {
-        this(1024 * 8);
+        this(1024 * 64, 1024 * 64);
     }
 
-    public ParamedProtobaseCodec(int limit) {
-        this.limit = limit;
+    public ParamedProtobaseCodec(int textLenLimit) {
+        this(textLenLimit, 1024 * 64);
     }
 
-    @Override
-    public Future createPINGPacket(NioSocketChannel channel) {
-        return new ParamedProtobaseFutureImpl().setPING();
-    }
-
-    @Override
-    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
-        return ping.setPONG();
+    public ParamedProtobaseCodec(int textLenLimit, int binaryLenLimit) {
+        super(textLenLimit, binaryLenLimit);
     }
 
     @Override
     public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        ByteBufAllocator allocator = channel.allocator();
-        ByteBuf buf = allocator.allocate(2);
-        return new ParamedProtobaseFutureImpl(buf);
+        return new ParamedProtobaseFuture(getTextLenLimit(),getBinaryLenLimit());
     }
 
     @Override

@@ -17,7 +17,6 @@ package com.generallycloud.test.io.protobuf;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
 import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
@@ -71,7 +70,7 @@ public class TestProtobufClient {
 
         NioSocketChannel channel = connector.connect();
 
-        ProtobaseFuture f = new ProtobaseFutureImpl();
+        ProtobaseFuture f = new ProtobaseFuture();
 
         ByteString byteString = ByteString.copyFrom("222".getBytes());
 

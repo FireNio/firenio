@@ -25,7 +25,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.codec.http11.WebSocketFuture;
-import com.generallycloud.baseio.codec.http11.WebSocketFutureImpl;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
@@ -50,7 +49,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
         JSONObject o = new JSONObject();
         o.put("type", "welcome");
         o.put("id", ioChannel.getChannelId());
-        WebSocketFuture f = new WebSocketFutureImpl();
+        WebSocketFuture f = new WebSocketFuture();
         f.write(o.toJSONString(), session.getEncoding());
         session.flush(f);
     }

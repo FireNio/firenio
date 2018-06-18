@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -67,7 +66,7 @@ public class FixedChannel {
 
     public ParamedProtobaseFuture request(String serviceName, String content, byte[] binary)
             throws IOException {
-        ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(serviceName);
+        ParamedProtobaseFuture future = new ParamedProtobaseFuture(serviceName);
         if (!StringUtil.isNullOrBlank(content)) {
             future.write(content, channel.getEncoding());
         }
@@ -108,7 +107,7 @@ public class FixedChannel {
     }
 
     public void write(String serviceName, String content, byte[] binary) throws IOException {
-        ParamedProtobaseFuture future = new ParamedProtobaseFutureImpl(serviceName);
+        ParamedProtobaseFuture future = new ParamedProtobaseFuture(serviceName);
         if (!StringUtil.isNullOrBlank(content)) {
             future.write(content, channel.getEncoding());
         }

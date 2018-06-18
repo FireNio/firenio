@@ -24,7 +24,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import com.generallycloud.baseio.codec.http11.WebSocketFuture;
-import com.generallycloud.baseio.codec.http11.WebSocketFutureImpl;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
@@ -81,14 +80,14 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
         synchronized (this) {
             NioSocketChannel channel = msg.channel;
             if (channel != null) {
-                WebSocketFuture f = new WebSocketFutureImpl();
+                WebSocketFuture f = new WebSocketFuture();
                 f.write(msg.msg, channel);
                 channel.flush(f);
             } else {
                 for (int i = 0; i < clients.size(); i++) {
                     NioSocketChannel s = clients.get(i);
                     if (s.isOpened()) {
-                        WebSocketFuture f = new WebSocketFutureImpl();
+                        WebSocketFuture f = new WebSocketFuture();
                         f.write(msg.msg, s);
                         s.flush(f);
                     } else {

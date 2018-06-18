@@ -17,8 +17,6 @@ package com.generallycloud.baseio.buffer;
 
 import java.nio.ByteBuffer;
 
-import com.generallycloud.baseio.common.ReleaseUtil;
-
 /**
  * @author wangkai
  *
@@ -402,8 +400,8 @@ public final class FixedUnpooledByteBuf implements ByteBuf {
     }
 
     @Override
-    public ByteBuf skipBytes(int length) {
-        unwrap().skipBytes(length);
+    public ByteBuf skip(int length) {
+        unwrap().skip(length);
         return this;
     }
 

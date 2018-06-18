@@ -40,7 +40,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     private static final byte[] SET_COOKIE               = "Set-Cookie:".getBytes();
     private int                 bodyLimit                = 1024 * 512;
     private int                 headerLimit              = 1024 * 8;
-    private int                 websocketLimit           = 1024 * 8;
+    private int                 websocketLimit           = 1024 * 128;
     private final int           httpFutureStackSize;
     private int                 websocketFutureStackSize = 0;
 

@@ -143,7 +143,7 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
             return remaining;
         } else {
             src.get(memory, ix(position), srcRemaining);
-            skipBytes(srcRemaining);
+            skip(srcRemaining);
             return srcRemaining;
         }
     }
@@ -156,7 +156,7 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
             return remaining;
         } else {
             src.get(memory, ix(position), srcRemaining);
-            skipBytes(srcRemaining);
+            skip(srcRemaining);
             return srcRemaining;
         }
     }

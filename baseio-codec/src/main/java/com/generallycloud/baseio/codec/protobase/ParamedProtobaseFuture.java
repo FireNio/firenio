@@ -15,12 +15,38 @@
  */
 package com.generallycloud.baseio.codec.protobase;
 
+import com.generallycloud.baseio.collection.JsonParameters;
+import com.generallycloud.baseio.collection.Parameters;
 import com.generallycloud.baseio.protocol.ParametersFuture;
 
 /**
  * @author wangkai
  *
  */
-public interface ParamedProtobaseFuture extends ProtobaseFuture, ParametersFuture {
+public class ParamedProtobaseFuture extends ProtobaseFuture implements ParametersFuture {
+
+    public ParamedProtobaseFuture() {}
+
+    ParamedProtobaseFuture(int textLengthLimit, int binaryLengthLimit) {
+        super(textLengthLimit, binaryLengthLimit);
+    }
+
+    public ParamedProtobaseFuture(String futureName) {
+        super(futureName);
+    }
+
+    public ParamedProtobaseFuture(int futureId, String futureName) {
+        super(futureId, futureName);
+    }
+
+    private Parameters parameters;
+
+    @Override
+    public Parameters getParameters() {
+        if (parameters == null) {
+            parameters = new JsonParameters(getReadText());
+        }
+        return parameters;
+    }
 
 }

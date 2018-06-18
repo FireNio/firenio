@@ -386,8 +386,8 @@ public class DuplicatedByteBuf implements ByteBuf {
     }
 
     @Override
-    public ByteBuf skipBytes(int length) {
-        unwrap().skipBytes(length);
+    public ByteBuf skip(int length) {
+        unwrap().skip(length);
         return this;
     }
 

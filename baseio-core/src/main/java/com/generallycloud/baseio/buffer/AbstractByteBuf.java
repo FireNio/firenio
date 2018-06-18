@@ -156,7 +156,7 @@ public abstract class AbstractByteBuf implements ByteBuf {
     protected abstract int read0(ByteBuf src, int srcRemaining, int remaining);
 
     @Override
-    public ByteBuf skipBytes(int length) {
+    public ByteBuf skip(int length) {
         return position(position() + length);
     }
 

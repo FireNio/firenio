@@ -165,6 +165,6 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 
     ByteBuf reverse();
 
-    ByteBuf skipBytes(int length);
+    ByteBuf skip(int length);
 
 }

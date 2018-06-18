@@ -62,38 +62,38 @@ class JdkSslEngine extends SSLEngine {
     }
 
     @Override
-    public SSLEngineResult wrap(ByteBuffer byteBuffer, ByteBuffer byteBuffer2) throws SSLException {
-        return unwrap().wrap(byteBuffer, byteBuffer2);
+    public SSLEngineResult wrap(ByteBuffer src, ByteBuffer dst) throws SSLException {
+        return unwrap().wrap(src, dst);
     }
 
     @Override
-    public SSLEngineResult wrap(ByteBuffer[] byteBuffers, ByteBuffer byteBuffer)
+    public SSLEngineResult wrap(ByteBuffer[] srcs, ByteBuffer dst)
             throws SSLException {
-        return unwrap().wrap(byteBuffers, byteBuffer);
+        return unwrap().wrap(srcs, dst);
     }
 
     @Override
-    public SSLEngineResult wrap(ByteBuffer[] byteBuffers, int i, int i2, ByteBuffer byteBuffer)
+    public SSLEngineResult wrap(ByteBuffer[] byteBuffers, int offset, int len, ByteBuffer dst)
             throws SSLException {
-        return unwrap().wrap(byteBuffers, i, i2, byteBuffer);
+        return unwrap().wrap(byteBuffers, offset, len, dst);
     }
 
     @Override
-    public SSLEngineResult unwrap(ByteBuffer byteBuffer, ByteBuffer byteBuffer2)
+    public SSLEngineResult unwrap(ByteBuffer src, ByteBuffer dst)
             throws SSLException {
-        return unwrap().unwrap(byteBuffer, byteBuffer2);
+        return unwrap().unwrap(src, dst);
     }
 
     @Override
-    public SSLEngineResult unwrap(ByteBuffer byteBuffer, ByteBuffer[] byteBuffers)
+    public SSLEngineResult unwrap(ByteBuffer src, ByteBuffer[] dsts)
             throws SSLException {
-        return unwrap().unwrap(byteBuffer, byteBuffers);
+        return unwrap().unwrap(src, dsts);
     }
 
     @Override
-    public SSLEngineResult unwrap(ByteBuffer byteBuffer, ByteBuffer[] byteBuffers, int i, int i2)
+    public SSLEngineResult unwrap(ByteBuffer src, ByteBuffer[] dsts, int offset, int len)
             throws SSLException {
-        return unwrap().unwrap(byteBuffer, byteBuffers, i, i2);
+        return unwrap().unwrap(src, dsts, offset, len);
     }
 
     @Override

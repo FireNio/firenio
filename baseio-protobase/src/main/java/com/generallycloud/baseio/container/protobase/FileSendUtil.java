@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -39,14 +38,14 @@ public class FileSendUtil {
         String jsonString = json.toJSONString();
         for (int i = 0; i < time; i++) {
             FileUtil.readInputStream(inputStream, cache);
-            ProtobaseFuture f = new ProtobaseFutureImpl(serviceName);
+            ProtobaseFuture f = new ProtobaseFuture(serviceName);
             f.write(jsonString, channel.getEncoding());
             f.writeBinary(cache);
             channel.flush(f);
         }
         int r = FileUtil.readInputStream(inputStream, cache);
         json.put(FileReceiveUtil.IS_END, true);
-        ProtobaseFuture f = new ProtobaseFutureImpl(serviceName);
+        ProtobaseFuture f = new ProtobaseFuture(serviceName);
         f.write(json.toJSONString(), channel.getEncoding());
         f.writeBinary(cache, 0, r);
         channel.flush(f);

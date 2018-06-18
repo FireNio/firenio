@@ -29,7 +29,7 @@ public class WebSocketChannelListener extends ChannelEventListenerAdapter {
         if (!WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
             return;
         }
-        WebSocketFutureImpl future = new WebSocketFutureImpl();
+        WebSocketFuture future = new WebSocketFuture();
         future.setType(WebSocketCodec.TYPE_CLOSE);
         future.setServiceName(channel);
         try {

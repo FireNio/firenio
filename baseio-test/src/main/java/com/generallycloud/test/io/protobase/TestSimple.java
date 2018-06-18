@@ -17,7 +17,7 @@ package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -46,7 +46,7 @@ public class TestSimple {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandle);
         NioSocketChannel channel = connector.connect();
-        ProtobaseFuture f = new ProtobaseFutureImpl(serviceKey);
+        ProtobaseFuture f = new ProtobaseFuture(serviceKey);
         f.write(param, channel);
         channel.flush(f);
         ThreadUtil.sleep(500);

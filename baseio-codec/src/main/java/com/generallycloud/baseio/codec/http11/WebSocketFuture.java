@@ -15,7 +15,14 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-public interface WebSocketFuture extends HttpMessage {
+import java.io.IOException;
+
+import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.protocol.AbstractFuture;
+import com.generallycloud.baseio.protocol.Future;
+
+public class WebSocketFuture extends AbstractFuture implements HttpMessage {
 
     public static final int    OP_CONTINUATION_FRAME     = 0;
     public static final int    OP_TEXT_FRAME             = 1;
@@ -23,19 +30,178 @@ public interface WebSocketFuture extends HttpMessage {
     public static final int    OP_CONNECTION_CLOSE_FRAME = 8;
     public static final int    OP_PING_FRAME             = 9;
     public static final int    OP_PONG_FRAME             = 10;
-
     public static final int    HEADER_LENGTH             = 2;
-
     public static final String CHANNEL_KEY_SERVICE_NAME  = "CHANNEL_KEY_SERVICE_NAME";
 
-    public abstract boolean isEof();
+    private byte[]             byteArray;
+    private boolean            eof;
+    private int                length;
+    private int                limit;
+    private String             readText;
+    private String             serviceName;
+    private int                type;
 
-    public abstract int getType();
+    public WebSocketFuture() {
+        this.type = WebSocketCodec.TYPE_TEXT;
+    }
 
-    public abstract int getLength();
+    public WebSocketFuture(NioSocketChannel channel, ByteBuf buf, int limit) {
+        this.limit = limit;
+        this.setByteBuf(buf);
+        this.setServiceName(channel);
+    }
 
-    public abstract boolean isCloseFrame();
+    public byte[] getByteArray() {
+        return byteArray;
+    }
 
-    public abstract byte[] getByteArray();
+    @Override
+    public String getFutureName() {
+        return serviceName;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    @Override
+    public String getReadText() {
+        return readText;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public boolean isCloseFrame() {
+        return OP_CONNECTION_CLOSE_FRAME == type;
+    }
+
+    public boolean isEof() {
+        return eof;
+    }
+
+    @Override
+    public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
+        if (src.remaining() < 2) {
+            return false;
+        }
+        src.markP();
+        byte b0 = src.getByte();
+        byte b1 = src.getByte();
+        int dataLen = 0;
+        boolean hasMask = (b1 & 0b10000000) > 0;
+        if (hasMask) {
+            dataLen += 4;
+        }
+        int payloadLen = (b1 & 0x7f);
+        if (payloadLen < 126) {
+            
+        } else if (payloadLen == 126) {
+            dataLen += 2;
+            if (src.remaining() < dataLen) {
+                src.resetP();
+                return false;
+            }
+            payloadLen = src.getUnsignedShort();
+        } else {
+            dataLen += 8;
+            if (src.remaining() < dataLen) {
+                src.resetP();
+                return false;
+            }
+            payloadLen = (int) src.getLong();
+            if (payloadLen < 0) {
+                throw new IOException("over limit:"+payloadLen);
+            }
+        }
+        if (payloadLen > limit) {
+            throw new IOException("over limit:"+payloadLen);
+        }
+        if (src.remaining() < payloadLen) {
+            src.resetP();
+            return false;
+        }
+        eof = (b0 & 0b10000000) > 0;
+        type = (b0 & 0xF);
+        if (type == WebSocketCodec.TYPE_PING) {
+            setPING();
+        } else if (type == WebSocketCodec.TYPE_PONG) {
+            setPONG();
+        }
+        byte [] array = new byte[payloadLen];
+        if (hasMask) {
+            byte []mask = new byte[4];
+            src.get(mask);
+            src.get(array);
+            int length = array.length;
+            for (int i = 0; i < length; i++) {
+                array[i] = (byte) (array[i] ^ mask[i % 4]);
+            }
+        }else{
+            src.get(array);
+        }
+        this.byteArray = array;
+        if (type == WebSocketCodec.TYPE_BINARY) {
+            // FIXME 处理binary
+        } else {
+            this.readText = new String(array, channel.getEncoding());
+        }
+        return true;
+    }
+
+    @Override
+    public Future setPING() {
+        this.type = WebSocketCodec.TYPE_PING;
+        return super.setPING();
+    }
+
+    @Override
+    public Future setPONG() {
+        this.type = WebSocketCodec.TYPE_PONG;
+        return super.setPONG();
+    }
+
+    protected void setServiceName(NioSocketChannel channel) {
+        this.serviceName = (String) channel.getAttribute(CHANNEL_KEY_SERVICE_NAME);
+    }
+
+    protected void setType(int type) {
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return getReadText();
+    }
+
+    //    @Override
+    //    public void release(NioEventLoop eventLoop) {
+    //        super.release(eventLoop);
+    //        //FIXME ..final statck is null or not null
+    //        if (WebSocketCodec.WS_PROTOCOL_CODEC.getFutureStackSize() == 0) {
+    //            return;
+    //        }
+    //        FixedThreadStack<WebSocketFutureImpl> stack = (FixedThreadStack<WebSocketFutureImpl>) eventLoop
+    //                .getAttribute(WebSocketCodec.FUTURE_STACK_KEY);
+    //        if (stack != null) {
+    //            stack.push(this);
+    //        }
+    //    }
+
+    protected WebSocketFuture reset(NioSocketChannel channel, ByteBuf buf, int limit) {
+        this.byteArray = null;
+        this.eof = false;
+        this.length = 0;
+        this.readText = null;
+        this.type = 0;
+
+        this.limit = limit;
+        this.setByteBuf(buf);
+        this.setServiceName(channel);
+
+        super.reset();
+        return this;
+    }
 
 }

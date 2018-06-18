@@ -19,9 +19,9 @@ import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.UUIDGenerator;
 import com.generallycloud.baseio.component.ChannelContext;
 
-public class WebSocketUpgradeRequestFuture extends ClientHttpFuture {
+public class WsUpgradeRequestFuture extends ClientHttpFuture {
 
-    public WebSocketUpgradeRequestFuture(ChannelContext context, String url) {
+    public WsUpgradeRequestFuture(ChannelContext context, String url) {
 
         super(context, url, "GET");
 

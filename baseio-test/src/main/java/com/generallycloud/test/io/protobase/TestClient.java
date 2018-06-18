@@ -17,7 +17,7 @@ package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFutureImpl;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -49,7 +49,7 @@ public class TestClient {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new ProtobaseCodec());
         NioSocketChannel channel = connector.connect();
-        ProtobaseFuture future = new ProtobaseFutureImpl("test222");
+        ProtobaseFuture future = new ProtobaseFuture("test222");
         future.write("hello server!", channel);
         channel.flush(future);
         ThreadUtil.sleep(100);
