@@ -43,11 +43,11 @@ BaseIO is an io framework which can build network project fast, it based on java
     public static void main(String[] args) throws Exception {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
+            public void accept(SocketSession session, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:", channel.getEncoding());
-                future.write(f.getReadText(), channel.getEncoding());
-                channel.flush(future);
+                future.write("yes server already accept your message:", session.getEncoding());
+                future.write(f.getReadText(), session.getEncoding());
+                session.flush(future);
             }
         };
         NioEventLoopGroup group = new NioEventLoopGroup();
@@ -68,7 +68,7 @@ BaseIO is an io framework which can build network project fast, it based on java
     public static void main(String[] args) throws Exception {
         IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
+            public void accept(SocketSession session, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
                 System.out.println();
                 System.out.println("____________________" + f.getReadText());
@@ -81,10 +81,10 @@ BaseIO is an io framework which can build network project fast, it based on java
         context.setIoEventHandle(eventHandleAdaptor);
         context.addSessionEventListener(new LoggerSocketSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
-        NioSocketChannel channel = connector.connect();
+        SocketSession session = connector.connect();
         FixedLengthFuture future = new FixedLengthFutureImpl();
-        future.write("hello server!", channel);
-        channel.flush(future);
+        future.write("hello server!", session);
+        session.flush(future);
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);
     }
