@@ -22,9 +22,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 public class WsUpgradeRequestFuture extends ClientHttpFuture {
 
     public WsUpgradeRequestFuture(ChannelContext context, String url) {
-
         super(context, url, "GET");
-
         this.setResponseHeaders();
     }
 

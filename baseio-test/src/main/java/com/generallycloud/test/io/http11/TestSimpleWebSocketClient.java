@@ -15,12 +15,11 @@
  */
 package com.generallycloud.test.io.http11;
 
+import com.generallycloud.baseio.codec.http11.ClientHttpCodec;
 import com.generallycloud.baseio.codec.http11.ClientHttpFuture;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
-import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.WebSocketFuture;
 import com.generallycloud.baseio.codec.http11.WsUpgradeRequestFuture;
-import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -42,8 +41,7 @@ public class TestSimpleWebSocketClient {
             public void accept(NioSocketChannel channel, Future future) throws Exception {
                 if (future instanceof ClientHttpFuture) {
                     ClientHttpFuture f = (ClientHttpFuture) future;
-                    if (f.getRequestHeader(HttpHeader.Req_Sec_WebSocket_Key) != null) {
-                        f.updateWebSocketProtocol();
+                    if (f.updateWebSocketProtocol()) {
                         WebSocketFuture f2 = new WebSocketFuture();
                         f2.write("{action: \"add-user\", username: \"火星人\"}", channel);
                         channel.flush(f2);
@@ -57,11 +55,11 @@ public class TestSimpleWebSocketClient {
         };
 
         Configuration configuration = new Configuration();
-        configuration.setHost("47.89.30.77");
+        configuration.setHost("127.0.0.1");
         //		configuration.setSERVER_HOST("120.76.222.210");
         //		configuration.setSERVER_HOST("115.29.193.48");
         //		configuration.setSERVER_HOST("workerman.net");
-        configuration.setPort(7680);
+        configuration.setPort(443);
         //		configuration.setSERVER_PORT(30005);
         //		configuration.setSERVER_PORT(29000);
         //		configuration.setSERVER_PORT(8280);
@@ -69,12 +67,12 @@ public class TestSimpleWebSocketClient {
         ChannelContext context = new ChannelContext(configuration);
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandleAdaptor);
-        context.setProtocolCodec(new ProtobaseCodec());
+        context.setProtocolCodec(new ClientHttpCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setSslContext(SSLUtil.initClient(true));
         NioSocketChannel channel = connector.connect();
         String url = "/web-socket-chat";
-        url = "/c1020";
+        //        url = "/c1020";
         HttpFuture future = new WsUpgradeRequestFuture(channel.getContext(), url);
         //		 future.setRequestURL("ws://120.76.222.210:30005/");
         //		future.setResponseHeader("Host", "120.76.222.210:30005");
@@ -86,12 +84,6 @@ public class TestSimpleWebSocketClient {
         //		future.setResponseHeader("Accept-Language", "zh-CN,zh;q=0.8");
         // future.setRequestHeader("", "");
         channel.flush(future);
-
-        //		ThreadUtil.sleep(1000);
-        //		WebSocketReadFuture f2 = new WebSocketReadFutureImpl();
-        //		f2.write("test");
-        //		channel.flush(f2);
-
         ThreadUtil.sleep(999999999);
         CloseUtil.close(connector);
 

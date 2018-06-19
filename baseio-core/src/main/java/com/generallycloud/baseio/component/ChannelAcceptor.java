@@ -65,6 +65,7 @@ public class ChannelAcceptor implements ChannelService {
         }
         Assert.notNull(context, "null context");
         Assert.notNull(group, "null group");
+        this.group.setEnableSsl(context.isEnableSsl());
         LifeCycleUtil.stop(getContext());
         LifeCycleUtil.start(group);
         this.context.setChannelService(this);

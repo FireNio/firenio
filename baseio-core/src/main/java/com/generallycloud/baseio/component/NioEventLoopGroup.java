@@ -208,7 +208,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     public void setEnableSsl(boolean enableSsl) {
-        this.enableSsl = enableSsl;
+        this.enableSsl = this.enableSsl || enableSsl;
     }
 
     public void setIdleTime(long idleTime) {

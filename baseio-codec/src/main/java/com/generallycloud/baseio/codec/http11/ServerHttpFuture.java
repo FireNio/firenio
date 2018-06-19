@@ -18,12 +18,16 @@ package com.generallycloud.baseio.codec.http11;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.Encoding;
+import com.generallycloud.baseio.common.SHAUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class ServerHttpFuture extends AbstractHttpFuture {
+
+    private boolean updateWebSocketProtocol;
 
     public ServerHttpFuture(NioSocketChannel channel, int headerLimit, int bodyLimit) {
         super(channel, bodyLimit, bodyLimit);
@@ -66,6 +70,29 @@ public class ServerHttpFuture extends AbstractHttpFuture {
     }
 
     @Override
+    public boolean updateWebSocketProtocol() {
+        String Sec_WebSocket_Key = getRequestHeader(HttpHeader.Req_Sec_WebSocket_Key);
+        if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key)) {
+            //FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
+            String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key
+                    + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+            byte[] key_array = SHAUtil.SHA1(Sec_WebSocket_Key_Magic);
+            String acceptKey = BASE64Util.byteArrayToBase64(key_array);
+            setStatus(HttpStatus.C101);
+            setResponseHeader(HttpHeader.Connection, "Upgrade");
+            setResponseHeader(HttpHeader.Upgrade, "WebSocket");
+            setResponseHeader(HttpHeader.Sec_WebSocket_Accept, acceptKey);
+            updateWebSocketProtocol = true;
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean isUpdateWebSocketProtocol() {
+        return updateWebSocketProtocol;
+    }
+
+    @Override
     protected void parseFirstLine(String line) {
         int index1 = line.indexOf(' ');
         int index2 = line.indexOf(' ', index1 + 1);
@@ -74,20 +101,21 @@ public class ServerHttpFuture extends AbstractHttpFuture {
         setVersion(line.substring(index2 + 1));
     }
 
-//    @Override
-//    public void release(NioEventLoop eventLoop) {
-//        super.release(eventLoop);
-//        //FIXME ..final statck is null or not null
-//        FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
-//                .getAttribute(ServerHttpCodec.FUTURE_STACK_KEY);
-//        if (stack != null) {
-//            stack.push(this);
-//        }
-//    }
+    //    @Override
+    //    public void release(NioEventLoop eventLoop) {
+    //        super.release(eventLoop);
+    //        //FIXME ..final statck is null or not null
+    //        FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
+    //                .getAttribute(ServerHttpCodec.FUTURE_STACK_KEY);
+    //        if (stack != null) {
+    //            stack.push(this);
+    //        }
+    //    }
 
     @Override
     public ServerHttpFuture reset(NioSocketChannel channel, int headerLimit, int bodyLimit) {
         super.reset(channel, headerLimit, bodyLimit);
+        this.updateWebSocketProtocol = false;
         setDefaultResponseHeaders(getResponseHeaders());
         return this;
     }

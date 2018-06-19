@@ -15,17 +15,18 @@
  */
 package com.generallycloud.test.others;
 
+import java.math.BigDecimal;
+
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.util.TypeUtils;
+
 public class Test2 {
 
     public static void main(String[] args) throws Exception {
-
-        System.out.println(-1 & 0x3f);
-
-        System.out.println(0x3f);
-
-        System.out.println(255 * 255);
-
-        System.out.println(256 * 256 - 1);
+        TypeUtils.compatibleWithJavaBean = true;
+        
+//        String s = JSONObject.toJSONString(t);
+//        System.out.println(s);
 
     }
 

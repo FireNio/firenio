@@ -44,10 +44,15 @@ public class ClientHttpFuture extends AbstractHttpFuture {
     }
 
     @Override
-    public void updateWebSocketProtocol() {
+    public boolean updateWebSocketProtocol() {
+        String key = getRequestHeader(HttpHeader.Sec_WebSocket_Accept);
+        if (StringUtil.isNullOrBlank(key)) {
+            return false;
+        }
         ChannelConnector connector = (ChannelConnector) getContext().getChannelService();
         NioSocketChannel channel = connector.getChannel();
         channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+        return true;
     }
 
     @Override

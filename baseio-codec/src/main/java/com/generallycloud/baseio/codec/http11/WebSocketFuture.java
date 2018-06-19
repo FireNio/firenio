@@ -63,6 +63,9 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
     @Override
     public String getReadText() {
         if (readText == null) {
+            if (byteArray == null) {
+                return null;
+            }
             readText = new String(byteArray, Encoding.UTF8);
         }
         return readText;

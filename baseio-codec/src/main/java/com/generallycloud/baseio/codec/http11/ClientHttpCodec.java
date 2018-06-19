@@ -33,11 +33,13 @@ import com.generallycloud.baseio.protocol.Future;
  */
 public class ClientHttpCodec extends AbstractHttpCodec {
 
-    private static final byte[] COOKIE    = "Cookie:".getBytes();
-    private static final byte[] PROTOCOL  = " HTTP/1.1\r\n".getBytes();
-    private static final byte   SEMICOLON = ';';
+    private static final byte[] COOKIE                   = "Cookie:".getBytes();
+    private static final byte[] PROTOCOL                 = " HTTP/1.1\r\n".getBytes();
+    private static final byte   SEMICOLON                = ';';
     private int                 bodyLimit;
     private int                 headerLimit;
+    private int                 websocketLimit           = 1024 * 128;
+    private int                 websocketFutureStackSize = 0;
 
     public ClientHttpCodec() {
         this(1024 * 8, 1024 * 512);
@@ -66,7 +68,7 @@ public class ClientHttpCodec extends AbstractHttpCodec {
     @Override
     public void encode(NioSocketChannel channel, Future future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
-        HttpFuture f = (HttpFuture) future;
+        ClientHttpFuture f = (ClientHttpFuture) future;
         ByteBuf buf = allocator.allocate(256);
         buf.put(f.getMethod().getBytes());
         buf.putByte(SPACE);
@@ -94,6 +96,22 @@ public class ClientHttpCodec extends AbstractHttpCodec {
         return "HTTP11";
     }
 
+    public int getWebsocketLimit() {
+        return websocketLimit;
+    }
+
+    public void setWebsocketLimit(int websocketLimit) {
+        this.websocketLimit = websocketLimit;
+    }
+
+    public int getWebsocketFutureStackSize() {
+        return websocketFutureStackSize;
+    }
+
+    public void setWebsocketFutureStackSize(int websocketFutureStackSize) {
+        this.websocketFutureStackSize = websocketFutureStackSize;
+    }
+
     private String getRequestURI(HttpFuture future) {
         Map<String, String> params = future.getRequestParams();
         if (params == null) {
@@ -113,6 +131,8 @@ public class ClientHttpCodec extends AbstractHttpCodec {
     }
 
     @Override
-    public void initialize(ChannelContext context) {}
+    public void initialize(ChannelContext context) {
+        WebSocketCodec.init(context, websocketLimit, websocketFutureStackSize);
+    }
 
 }

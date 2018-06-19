@@ -24,9 +24,7 @@ import java.util.Map;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
-import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.KMPUtil;
-import com.generallycloud.baseio.common.SHAUtil;
 import com.generallycloud.baseio.common.StringLexer;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayOutputStream;
@@ -44,10 +42,9 @@ import com.generallycloud.baseio.protocol.AbstractFuture;
 public abstract class AbstractHttpFuture extends AbstractFuture implements HttpFuture {
 
     private static final Map<String, String> REQ_MAPPING    = HttpHeader.REQ_MAPPING;
-
     protected static final KMPUtil           KMP_BOUNDARY   = new KMPUtil("boundary=");
 
-    private ByteArrayOutputStream                  binaryBuffer;
+    private ByteArrayOutputStream            binaryBuffer;
     private byte[]                           bodyArray;
     private int                              bodyLimit;
     private String                           boundary;
@@ -71,7 +68,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
     private String                           requestURL;
     private Map<String, String>              response_headers;
     private HttpStatus                       status         = HttpStatus.C200;
-    private boolean                          updateWebSocketProtocol;
     private String                           version;
 
     public AbstractHttpFuture(NioSocketChannel channel, int headerLimit, int bodyLimit) {
@@ -213,10 +209,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
         return hasBodyContent;
     }
 
-    public boolean isUpdateWebSocketProtocol() {
-        return updateWebSocketProtocol;
-    }
-
     private void parse_cookies(String line) {
         if (cookies == null) {
             cookies = new HashMap<>();
@@ -273,13 +265,13 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
                 if (paramString.charAt(i) == '=') {
                     key = paramString.substring(lastIndex, i);
                     findKey = false;
-                    lastIndex = i+1;
+                    lastIndex = i + 1;
                 }
-            }else{
+            } else {
                 if (paramString.charAt(i) == '&') {
                     value = paramString.substring(lastIndex, i);
                     findKey = true;
-                    lastIndex = i+1;
+                    lastIndex = i + 1;
                     params.put(key, value);
                 }
             }
@@ -288,7 +280,7 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
             value = paramString.substring(lastIndex);
             params.put(key, value);
         }
-        
+
     }
 
     @Override
@@ -441,25 +433,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
     }
 
     @Override
-    public void updateWebSocketProtocol() {
-        String Sec_WebSocket_Key = getRequestHeader(HttpHeader.Req_Sec_WebSocket_Key);
-        if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key)) {
-            //FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
-            String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key
-                    + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-            byte[] key_array = SHAUtil.SHA1(Sec_WebSocket_Key_Magic);
-            String acceptKey = BASE64Util.byteArrayToBase64(key_array);
-            setStatus(HttpStatus.C101);
-            setResponseHeader(HttpHeader.Connection, "Upgrade");
-            setResponseHeader(HttpHeader.Upgrade, "WebSocket");
-            setResponseHeader(HttpHeader.Sec_WebSocket_Accept, acceptKey);
-            updateWebSocketProtocol = true;
-            return;
-        }
-        throw new IllegalArgumentException("illegal http header : empty Sec-WebSocket-Key");
-    }
-
-    @Override
     public void writeBinary(byte[] binary) {
         if (binaryBuffer == null) {
             binaryBuffer = new ByteArrayOutputStream(binary);
@@ -521,9 +494,8 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
         this.requestURI = null;
         this.requestURL = null;
         this.clear(response_headers);
-        ;
+
         this.status = HttpStatus.C200;
-        this.updateWebSocketProtocol = false;
         this.version = null;
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;

@@ -20,37 +20,37 @@ import java.util.Map;
 
 import com.generallycloud.baseio.component.ByteArrayOutputStream;
 
-public abstract interface HttpFuture extends HttpMessage {
+public interface HttpFuture extends HttpMessage {
 
-    public static final String CONTENT_TYPE_MULTIPART           = "multipart/form-data";
-    public static final String CONTENT_TYPE_TEXT_PLAIN          = "text/plain;charset=utf-8";
-    public static final String CONTENT_TYPE_TEXT_CSS            = "text/css;charset=utf-8";
-    public static final String CONTENT_TYPE_TEXT_HTML           = "text/html;charset=utf-8";
-    public static final String CONTENT_TYPE_IMAGE_PNG           = "image/png";
-    public static final String CONTENT_TYPE_IMAGE_GIF           = "image/gif";
-    public static final String CONTENT_TYPE_IMAGE_JPEG          = "image/jpeg";
-    public static final String CONTENT_TYPE_IMAGE_ICON          = "image/x-icon";
-    public static final String CONTENT_APPLICATION_URLENCODED   = "application/x-www-form-urlencoded";
-    public static final String CONTENT_APPLICATION_OCTET_STREAM = "application/octet-stream";
-    public static final String CONTENT_APPLICATION_JAVASCRIPT   = "application/x-javascript";
+    String CONTENT_TYPE_MULTIPART           = "multipart/form-data";
+    String CONTENT_TYPE_TEXT_PLAIN          = "text/plain;charset=utf-8";
+    String CONTENT_TYPE_TEXT_CSS            = "text/css;charset=utf-8";
+    String CONTENT_TYPE_TEXT_HTML           = "text/html;charset=utf-8";
+    String CONTENT_TYPE_IMAGE_PNG           = "image/png";
+    String CONTENT_TYPE_IMAGE_GIF           = "image/gif";
+    String CONTENT_TYPE_IMAGE_JPEG          = "image/jpeg";
+    String CONTENT_TYPE_IMAGE_ICON          = "image/x-icon";
+    String CONTENT_APPLICATION_URLENCODED   = "application/x-www-form-urlencoded";
+    String CONTENT_APPLICATION_OCTET_STREAM = "application/octet-stream";
+    String CONTENT_APPLICATION_JAVASCRIPT   = "application/x-javascript";
 
-    public abstract String getRequestHeader(String name);
+    String getRequestHeader(String name);
 
-    public abstract void setRequestHeader(String name, String value);
+    void setRequestHeader(String name, String value);
 
-    public abstract void setResponseHeader(String name, String value);
+    void setResponseHeader(String name, String value);
 
-    public abstract Map<String, String> getRequestHeaders();
+    Map<String, String> getRequestHeaders();
 
-    public abstract Map<String, String> getResponseHeaders();
+    Map<String, String> getResponseHeaders();
 
-    public abstract void setRequestHeaders(Map<String, String> headers);
+    void setRequestHeaders(Map<String, String> headers);
 
-    public abstract void setResponseHeaders(Map<String, String> headers);
+    void setResponseHeaders(Map<String, String> headers);
 
-    public abstract String getHost();
+    String getHost();
 
-    public abstract int getContentLength();
+    int getContentLength();
 
     /**
      * <table summary="Examples of Returned Values">
@@ -71,45 +71,45 @@ public abstract interface HttpFuture extends HttpMessage {
      * <td>/xyz
      * </table>
      */
-    public abstract String getRequestURI();
+    String getRequestURI();
 
-    public abstract String getRequestURL();
+    String getRequestURL();
 
-    public abstract void setRequestURL(String url);
+    void setRequestURL(String url);
 
-    public abstract List<Cookie> getCookieList();
+    List<Cookie> getCookieList();
 
-    public abstract String getMethod();
+    String getMethod();
 
-    public abstract String getVersion();
+    String getVersion();
 
-    public abstract String getBoundary();
+    String getBoundary();
 
-    public abstract String getContentType();
+    String getContentType();
 
-    public abstract Map<String, String> getRequestParams();
+    Map<String, String> getRequestParams();
 
-    public abstract String getRequestParam(String key);
+    String getRequestParam(String key);
 
-    public abstract void setReuestParam(String key, String value);
+    void setReuestParam(String key, String value);
 
-    public abstract void setRequestParams(Map<String, String> params);
+    void setRequestParams(Map<String, String> params);
 
-    public abstract byte[] getBodyContent();
+    byte[] getBodyContent();
 
-    public abstract boolean hasBodyContent();
+    boolean hasBodyContent();
 
-    public abstract HttpStatus getStatus();
+    HttpStatus getStatus();
 
-    public abstract void setStatus(HttpStatus status);
+    void setStatus(HttpStatus status);
 
-    public abstract String getCookie(String name);
+    String getCookie(String name);
 
-    public abstract void addCookie(Cookie cookie);
+    void addCookie(Cookie cookie);
 
-    public abstract void updateWebSocketProtocol();
+    boolean updateWebSocketProtocol();
 
-    public abstract void writeBinary(byte[] binary);
+    void writeBinary(byte[] binary);
 
-    public abstract ByteArrayOutputStream getBinaryBuffer();
+    ByteArrayOutputStream getBinaryBuffer();
 }
