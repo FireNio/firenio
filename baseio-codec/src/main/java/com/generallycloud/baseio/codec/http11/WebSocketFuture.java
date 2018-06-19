@@ -39,7 +39,7 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
     private int                limit;
     private String             readText;
     private String             serviceName;
-    private byte                type;
+    private byte               type;
 
     public WebSocketFuture() {
         this.type = WebSocketCodec.TYPE_TEXT;
@@ -122,7 +122,7 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
             return false;
         }
         eof = (b0 & 0b10000000) > 0;
-        type = (byte)(b0 & 0xF);
+        type = (byte) (b0 & 0xF);
         if (type == WebSocketCodec.TYPE_PING) {
             setPING();
         } else if (type == WebSocketCodec.TYPE_PONG) {

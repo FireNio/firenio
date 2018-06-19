@@ -116,7 +116,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private void accept(ByteBuf buffer) throws Exception {
-        final ProtocolCodec codec = getProtocolCodec();
+        final ProtocolCodec codec = this.protocolCodec;
         final NioEventLoop eventLoop = this.eventLoop;
         final IoEventHandle eventHandle = this.ioEventHandle;
         final ByteBufAllocator allocator = this.allocator;
@@ -269,8 +269,8 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private void fireClosed() {
-        eventLoop.removeChannel(this);
         NioSocketChannel channel = this;
+        eventLoop.removeChannel(channel);
         for (ChannelEventListener l : getContext().getChannelEventListeners()) {
             try {
                 l.channelClosed(channel);
