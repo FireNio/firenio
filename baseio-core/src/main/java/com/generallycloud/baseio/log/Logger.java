@@ -45,10 +45,10 @@ public interface Logger {
 
     void error(String message, Throwable throwable);
 
-    Class<?> getLoggerClass();
+    String getName();
 
     boolean isEnableDebug();
-    
+
     boolean isEnableInfo();
 
     void error(Throwable e);

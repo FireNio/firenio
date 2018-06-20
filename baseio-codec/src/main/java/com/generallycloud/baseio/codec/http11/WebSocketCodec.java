@@ -141,7 +141,9 @@ public class WebSocketCodec implements ProtocolCodec {
         }
         ByteBuf buf = allocator.allocate(header.length + size);
         buf.put(header);
-        buf.put(data, 0, size);
+        if (size > 0) {
+            buf.put(data, 0, size);
+        }
         future.setByteBuf(buf.flip());
     }
 

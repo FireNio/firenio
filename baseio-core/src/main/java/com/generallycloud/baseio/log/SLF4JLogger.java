@@ -19,18 +19,22 @@ import org.slf4j.LoggerFactory;
 
 public class SLF4JLogger implements Logger {
 
-    private org.slf4j.Logger logger      = null;
+    private org.slf4j.Logger logger = null;
 
-    private Class<?>         loggerClass = null;
+    private String           name;
+
+    public SLF4JLogger(String name) {
+        this.logger = LoggerFactory.getLogger(name);
+        this.name = name;
+    }
 
     public SLF4JLogger(Class<?> clazz) {
-        this.logger = LoggerFactory.getLogger(clazz);
-        this.loggerClass = clazz;
+        this(clazz.getName());
     }
 
     @Override
-    public Class<?> getLoggerClass() {
-        return loggerClass;
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -109,7 +113,7 @@ public class SLF4JLogger implements Logger {
     public boolean isEnableDebug() {
         return logger.isDebugEnabled();
     }
-    
+
     @Override
     public boolean isEnableInfo() {
         return logger.isInfoEnabled();

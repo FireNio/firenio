@@ -26,27 +26,21 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.codec.http11.WebSocketFuture;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
-import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.protocol.Future;
 
 //FIXME ________根据当前是否正在redeploy来保存和恢复client
 @Service("/web-socket-chat")
-public class TestWebSocketChatServlet extends HttpFutureAcceptorService {
+public class TestWebSocketChatServlet implements FutureAcceptor {
 
     private WebSocketMsgAdapter msgAdapter = new WebSocketMsgAdapter();
 
     @Override
-    protected void doAccept(HttpSession channel, HttpFuture future) throws Exception {
-        future.updateWebSocketProtocol();
-        channel.flush(future);
-    }
-
-    @Override
     public void accept(NioSocketChannel channel, Future future) throws Exception {
         if (future instanceof HttpFuture) {
-            super.accept(channel, future);
+            ((HttpFuture) future).updateWebSocketProtocol();
+            channel.flush(future);
             return;
         }
         WebSocketFuture f = (WebSocketFuture) future;

@@ -24,8 +24,7 @@ public class LoggerUtil {
     private static String prefix_log    = "[baseio] ";
 
     private static String getSpace(Logger logger) {
-        Class<?> clazz = logger.getLoggerClass();
-        String name = clazz.getSimpleName();
+        String name = logger.getName();
         int length = maxNameLength - name.length();
         if (length == 0) {
             return "";

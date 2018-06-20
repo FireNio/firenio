@@ -32,17 +32,21 @@ public class InternalLogger implements Logger {
 
     private String        infoClassName;
 
-    private Class<?>      loggerClass;
+    private String        name;
 
     private LoggerPrinter printer;
 
     public InternalLogger(LoggerPrinter printer, Class<?> clazz) {
-        String className = clazz.getSimpleName() + " -";
+        this(printer, clazz.getName());
+    }
+
+    public InternalLogger(LoggerPrinter printer, String name) {
+        String className = name + " -";
         this.printer = printer;
         this.debugClassName = " [DEBUG] " + className;
         this.infoClassName = " [INFO] " + className;
         this.errorClassName = " [ERROR] " + className;
-        this.loggerClass = clazz;
+        this.name = name;
     }
 
     @Override
@@ -142,8 +146,8 @@ public class InternalLogger implements Logger {
     }
 
     @Override
-    public Class<?> getLoggerClass() {
-        return loggerClass;
+    public String getName() {
+        return name;
     }
 
     private String getTimeFormat() {

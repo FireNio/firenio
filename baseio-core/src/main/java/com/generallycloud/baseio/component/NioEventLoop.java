@@ -111,9 +111,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private ByteBuffer[]                        writeBuffers;
 
     NioEventLoop(NioEventLoopGroup group, int index, boolean isAcceptor) {
-        if (!group.isSharable()) {
-            this.context = group.getContext();
-        }
+        this.context = group.getContext();
         this.index = index;
         this.group = group;
         this.isAcceptor = isAcceptor;
@@ -644,7 +642,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             }
         } else {
             if (selectorRegisted) {
-                throw new IOException("selector registed");
+                if (context == this.context) {
+                    return;
+                }else{
+                    throw new IOException("selector registed");
+                }
             }
             selectorRegisted = true;
         }
