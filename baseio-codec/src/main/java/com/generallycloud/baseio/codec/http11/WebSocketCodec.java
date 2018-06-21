@@ -83,7 +83,7 @@ public class WebSocketCodec implements ProtocolCodec {
     @Override
     public Future createPINGPacket(NioSocketChannel channel) {
         if (WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
-            return new WebSocketFuture().setPING();
+            return new WebSocketFuture().setPing();
         }
         return null;
     }
@@ -91,7 +91,7 @@ public class WebSocketCodec implements ProtocolCodec {
     @Override
     public Future createPONGPacket(NioSocketChannel channel, Future ping) {
         if (WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
-            return ping.setPONG();
+            return ping.setPong();
         }
         return null;
     }

@@ -234,24 +234,24 @@ public class ChannelContext extends AbstractLifeCycle {
         if (isEnableHeartbeatLog()) {
             heartBeatLogger = new HeartBeatLogger() {
                 @Override
-                public void logRequest(NioSocketChannel channel) {
+                public void logPing(NioSocketChannel channel) {
                     logger.info("hb req from: {}", channel);
                 }
 
                 @Override
-                public void logResponse(NioSocketChannel channel) {
+                public void logPong(NioSocketChannel channel) {
                     logger.info("hb res from: {}", channel);
                 }
             };
         } else {
             heartBeatLogger = new HeartBeatLogger() {
                 @Override
-                public void logRequest(NioSocketChannel channel) {
+                public void logPing(NioSocketChannel channel) {
                     logger.debug("hb req from: {}", channel);
                 }
 
                 @Override
-                public void logResponse(NioSocketChannel channel) {
+                public void logPong(NioSocketChannel channel) {
                     logger.debug("hb res from: {}", channel);
                 }
             };
@@ -394,9 +394,9 @@ public class ChannelContext extends AbstractLifeCycle {
 
     public interface HeartBeatLogger {
 
-        void logRequest(NioSocketChannel channel);
+        void logPing(NioSocketChannel channel);
 
-        void logResponse(NioSocketChannel channel);
+        void logPong(NioSocketChannel channel);
     }
 
 }

@@ -39,7 +39,7 @@ public class RedisCodec implements ProtocolCodec {
     @Override
     public Future createPINGPacket(NioSocketChannel channel) {
         RedisCmdFuture f = new RedisCmdFuture();
-        f.setPING();
+        f.setPing();
         f.writeCommand(RedisCommand.PING.raw);
         return f;
     }
@@ -47,7 +47,7 @@ public class RedisCodec implements ProtocolCodec {
     @Override
     public Future createPONGPacket(NioSocketChannel channel, Future ping) {
         RedisCmdFuture f = (RedisCmdFuture) ping;
-        f.setPONG();
+        f.setPong();
         f.writeCommand(RedisCommand.PONG.raw);
         return f;
     }

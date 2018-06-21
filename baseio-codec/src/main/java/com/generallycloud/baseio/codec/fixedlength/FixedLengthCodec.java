@@ -73,12 +73,12 @@ public class FixedLengthCodec implements ProtocolCodec {
 
     @Override
     public Future createPINGPacket(NioSocketChannel channel) {
-        return new FixedLengthFuture().setPING();
+        return new FixedLengthFuture().setPing();
     }
 
     @Override
     public Future createPONGPacket(NioSocketChannel channel, Future ping) {
-        return ping.setPONG();
+        return ping.setPong();
     }
 
     @Override
@@ -89,9 +89,8 @@ public class FixedLengthCodec implements ProtocolCodec {
     @Override
     public void encode(NioSocketChannel channel, Future future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
-        if (future.isHeartbeat()) {
-            ByteBuf buf = future.isPING() ? PING.duplicate() : PONG.duplicate();
-            future.setByteBuf(buf);
+        if (future.isSilent()) {
+            future.setByteBuf(future.isPing() ? PING.duplicate() : PONG.duplicate());
             return;
         }
         FixedLengthFuture f = (FixedLengthFuture) future;

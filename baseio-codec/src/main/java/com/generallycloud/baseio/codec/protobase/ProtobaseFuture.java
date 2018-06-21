@@ -107,9 +107,9 @@ public class ProtobaseFuture extends AbstractFuture implements NamedFuture, Text
 
     private void setHeartbeat(int len) {
         if (len == ProtobaseCodec.PROTOCOL_PING) {
-            setPING();
+            setPing();
         } else if (len == ProtobaseCodec.PROTOCOL_PONG) {
-            setPONG();
+            setPong();
         } else {
             throw new ProtocolException("illegal length:" + len);
         }

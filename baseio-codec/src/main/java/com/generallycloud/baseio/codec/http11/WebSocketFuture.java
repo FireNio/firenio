@@ -124,11 +124,11 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
             return false;
         }
         eof = (b0 & 0b10000000) > 0;
-        type = (byte) (b0 & 0xF);
+        byte type = (byte) (b0 & 0xF);
         if (type == WebSocketCodec.TYPE_PING) {
-            setPING();
+            setPing();
         } else if (type == WebSocketCodec.TYPE_PONG) {
-            setPONG();
+            setPong();
         }
         byte[] array = new byte[payloadLen];
         if (hasMask) {
@@ -170,23 +170,19 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
         if (type == WebSocketCodec.TYPE_BINARY) {
             // FIXME 处理binary
         }
-        if (isCloseFrame()) {
-            channel.flush(this);
-            setSilent(true);
-        }
         return true;
     }
 
     @Override
-    public Future setPING() {
+    public Future setPing() {
         this.type = WebSocketCodec.TYPE_PING;
-        return super.setPING();
+        return super.setPing();
     }
 
     @Override
-    public Future setPONG() {
+    public Future setPong() {
         this.type = WebSocketCodec.TYPE_PONG;
-        return super.setPONG();
+        return super.setPong();
     }
 
     protected void setServiceName(NioSocketChannel channel) {

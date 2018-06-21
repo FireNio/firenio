@@ -140,20 +140,14 @@ public final class NioSocketChannel extends AttributesImpl
                 }
                 future.release(eventLoop);
                 if (future.isSilent()) {
-                    if (!buffer.hasRemaining()) {
-                        setReadFuture(null);
-                        break;
-                    }
-                } else if (future.isHeartbeat()) {
-                    if (future.isPING()) {
-                        heartBeatLogger.logRequest(this);
+                    if (future.isPing()) {
+                        heartBeatLogger.logPing(this);
                         Future f = codec.createPONGPacket(this, future);
-                        if (f == null) {
-                            return;
+                        if (f != null) {
+                            flush(f);
                         }
-                        this.flush(f);
-                    } else {
-                        heartBeatLogger.logResponse(this);
+                    } else if (future.isPong()) {
+                        heartBeatLogger.logPong(this);
                     }
                 } else {
                     if (enableWorkEventLoop) {
@@ -531,7 +525,7 @@ public final class NioSocketChannel extends AttributesImpl
     public ExecutorEventLoop getExecutorEventLoop() {
         return executorEventLoop;
     }
-    
+
     public IoEventHandle getIoEventHandle() {
         return ioEventHandle;
     }
@@ -559,8 +553,8 @@ public final class NioSocketChannel extends AttributesImpl
     public <T> T getOption(SocketOption<T> name) throws IOException {
         return channel.getOption(name);
     }
-    
-    public int getWriteBacklog(){
+
+    public int getWriteBacklog() {
         //忽略current write[]
         return writeFutures.size();
     }
@@ -758,7 +752,7 @@ public final class NioSocketChannel extends AttributesImpl
     public void setRemainingBuf(ByteBuf remainingBuf) {
         this.remainingBuf = remainingBuf;
     }
-    
+
     public void setIoEventHandle(IoEventHandle ioEventHandle) {
         this.ioEventHandle = ioEventHandle;
     }

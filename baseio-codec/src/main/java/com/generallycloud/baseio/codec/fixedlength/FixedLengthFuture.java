@@ -67,9 +67,9 @@ public class FixedLengthFuture extends AbstractFuture implements TextFuture {
 
     private void setHeartbeat(int len) {
         if (len == FixedLengthCodec.PROTOCOL_PING) {
-            setPING();
+            setPing();
         } else if (len == FixedLengthCodec.PROTOCOL_PONG) {
-            setPONG();
+            setPong();
         } else {
             throw new ProtocolException("illegal length:" + len);
         }

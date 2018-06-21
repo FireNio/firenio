@@ -27,16 +27,19 @@ import com.generallycloud.baseio.concurrent.Linkable;
 
 public abstract class AbstractFuture implements Future {
 
+    private static final byte TYPE_PING   = 1;
+    private static final byte TYPE_PONG   = 1;
+    private static final byte TYPE_SILENT = 0;
+
     //FIXME isX 使用 byte & x ?
     private ByteBuf  buf        = EmptyByteBuf.get();
     private long     bufReleaseVersion;
     private boolean  flushed;
-    private boolean  isHeartbeat;
     private boolean  isNeedSsl;
-    private boolean  isPING;
     private boolean  isSilent;
     private boolean  isValidate = true;
     private Linkable next;
+    private byte     futureType;
     protected byte[] writeBuffer;
     protected int    writeSize;
 
@@ -90,23 +93,18 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public boolean isHeartbeat() {
-        return isHeartbeat;
-    }
-
-    @Override
     public boolean isNeedSsl() {
         return isNeedSsl;
     }
 
     @Override
-    public boolean isPING() {
-        return isHeartbeat && isPING;
+    public boolean isPing() {
+        return futureType == TYPE_PING;
     }
 
     @Override
-    public boolean isPONG() {
-        return isHeartbeat && !isPING;
+    public boolean isPong() {
+        return futureType == TYPE_PONG;
     }
 
     @Override
@@ -136,7 +134,7 @@ public abstract class AbstractFuture implements Future {
 
     protected Future reset() {
         this.flushed = false;
-        this.isHeartbeat = false;
+        this.futureType = 0;
         this.isNeedSsl = false;
         this.isSilent = false;
         this.next = null;
@@ -153,12 +151,6 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public void setHeartbeat(boolean isPing) {
-        this.isPING = isPing;
-        this.isHeartbeat = true;
-    }
-
-    @Override
     public void setNeedSsl(boolean needSsl) {
         this.isNeedSsl = needSsl;
     }
@@ -169,23 +161,23 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public Future setPING() {
-        this.isPING = true;
-        this.isHeartbeat = true;
+    public Future setPing() {
+        this.futureType = TYPE_PING;
+        this.isSilent = true;
         return this;
     }
 
     @Override
-    public Future setPONG() {
-        this.isPING = false;
-        this.isHeartbeat = true;
+    public Future setPong() {
+        this.futureType = TYPE_PONG;
+        this.isSilent = true;
         return this;
     }
 
     @Override
-    public void setSilent(boolean isSilent) {
-        this.flushed = isSilent;
-        this.isSilent = isSilent;
+    public void setSilent() {
+        this.futureType = TYPE_SILENT;
+        this.isSilent = true;
     }
 
     @Override

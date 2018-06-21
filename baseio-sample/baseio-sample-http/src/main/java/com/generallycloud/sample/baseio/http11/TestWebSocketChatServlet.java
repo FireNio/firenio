@@ -55,6 +55,7 @@ public class TestWebSocketChatServlet implements FutureAcceptor {
             obj.put("action", "user-left");
             String msg1 = obj.toJSONString();
             msgAdapter.sendMsg(msg1);
+            channel.flush(f);
         } else {
             String msg = f.getReadText();
             JSONObject obj = JSON.parseObject(msg);

@@ -40,13 +40,11 @@ public interface Future extends Linkable {
 
     int getWriteSize();
 
-    boolean isHeartbeat();
-
     boolean isNeedSsl();
 
-    boolean isPING();
+    boolean isPing();
 
-    boolean isPONG();
+    boolean isPong();
 
     boolean isReleased();
 
@@ -67,15 +65,13 @@ public interface Future extends Linkable {
 
     void setByteBuf(ByteBuf buf);
 
-    void setHeartbeat(boolean isPing);
-
     void setNeedSsl(boolean needSsl);
 
-    Future setPING();
+    Future setPing();
 
-    Future setPONG();
+    Future setPong();
 
-    void setSilent(boolean isSilent);
+    void setSilent();
 
     void write(byte b);
 

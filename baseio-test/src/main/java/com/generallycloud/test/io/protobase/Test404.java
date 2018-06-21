@@ -39,7 +39,7 @@ public class Test404 {
         FixedChannel channel = new FixedChannel(connector.connect());
         ProtobaseFuture future = channel.request(serviceKey, null);
         System.out.println(future.getReadText());
-        Future future1 = new ProtobaseFuture().setPING();
+        Future future1 = new ProtobaseFuture().setPing();
         channel.getChannel().flush(future1);
         CloseUtil.close(connector);
     }
