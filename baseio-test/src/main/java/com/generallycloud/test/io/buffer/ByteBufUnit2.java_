@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.buffer;
+package com.generallycloud.test.io.buffer;
 
 public class ByteBufUnit2 {
 

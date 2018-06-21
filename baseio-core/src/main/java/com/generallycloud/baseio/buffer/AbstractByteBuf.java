@@ -18,6 +18,9 @@ package com.generallycloud.baseio.buffer;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
+
 public abstract class AbstractByteBuf implements ByteBuf {
 
     static final AtomicIntegerFieldUpdater<AbstractByteBuf> refCntUpdater;
@@ -186,9 +189,13 @@ public abstract class AbstractByteBuf implements ByteBuf {
         return reallocate(limit, maxLimit, false);
     }
 
+    private static Logger logger= LoggerFactory.getLogger(AbstractByteBuf.class);
+    
     @Override
     public void release(long version) {
         if (releaseVersion != version) {
+            Exception e = new Exception("buf version");
+            logger.error(e.getMessage(),e);
             return;
         }
         int referenceCount = this.referenceCount;

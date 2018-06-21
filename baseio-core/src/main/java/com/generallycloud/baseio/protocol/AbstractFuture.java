@@ -140,6 +140,7 @@ public abstract class AbstractFuture implements Future {
         this.next = null;
         this.writeSize = 0;
         this.bufReleaseVersion = 0;
+        this.buf = EmptyByteBuf.get();
         return this;
     }
 

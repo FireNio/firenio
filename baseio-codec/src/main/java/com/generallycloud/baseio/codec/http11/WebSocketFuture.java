@@ -218,16 +218,13 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
     //        }
     //    }
 
-    protected WebSocketFuture reset(NioSocketChannel channel, ByteBuf buf, int limit) {
+    protected WebSocketFuture reset(NioSocketChannel channel, int limit) {
         this.byteArray = null;
         this.eof = false;
         this.readText = null;
         this.type = 0;
-
         this.limit = limit;
-        this.setByteBuf(buf);
         this.setServiceName(channel);
-
         super.reset();
         return this;
     }

@@ -46,15 +46,14 @@ public class TestWebSocketChatServlet implements FutureAcceptor {
         WebSocketFuture f = (WebSocketFuture) future;
         // CLOSE
         if (f.isCloseFrame()) {
-            if (!msgAdapter.removeClient(channel)) {
-                return;
+            if (msgAdapter.removeClient(channel)) {
+                JSONObject obj = new JSONObject();
+                obj.put("username", channel.getAttribute("username"));
+                obj.put("numUsers", msgAdapter.getClientSize());
+                obj.put("action", "user-left");
+                String msg1 = obj.toJSONString();
+                msgAdapter.sendMsg(msg1);
             }
-            JSONObject obj = new JSONObject();
-            obj.put("username", channel.getAttribute("username"));
-            obj.put("numUsers", msgAdapter.getClientSize());
-            obj.put("action", "user-left");
-            String msg1 = obj.toJSONString();
-            msgAdapter.sendMsg(msg1);
             if (channel.isOpened()) {
                 channel.flush(f);
             }

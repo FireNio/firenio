@@ -135,7 +135,7 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
             release((PooledByteBuf) buf, false);
             return buf.newByteBuf(this).produce(newBuf);
         }
-        buf.release(buf.getReleaseVersion());
+        release((PooledByteBuf) buf, true);
         ByteBuf newBuf = allocate(buf, limit);
         if (newBuf == null) {
             throw new BufferException("reallocate failed");

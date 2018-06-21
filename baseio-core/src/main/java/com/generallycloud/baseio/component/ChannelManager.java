@@ -62,7 +62,11 @@ public class ChannelManager {
         }
         NioSocketChannel channel = channels.iterator().next();
         channel.getProtocolCodec().encode(channel, future);
-        broadcastFuture(future, channels);
+        try {
+            broadcastFuture(future, channels);
+        } finally {
+            future.release(channel.getEventLoop());
+        }
     }
 
     public void broadcastFuture(Future future, Collection<NioSocketChannel> channels) {

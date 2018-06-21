@@ -63,12 +63,13 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
         WebSocketFuture f = (WebSocketFuture) future;
         // CLOSE
         if (f.isCloseFrame()) {
-            msgAdapter.removeClient(channel);
-            JSONObject o = new JSONObject();
-            o.put("type", "closed");
-            o.put("id", channel.getChannelId());
-            msgAdapter.sendMsg(o.toJSONString());
-            logger.info("客户端主动关闭连接：{}", channel);
+            if(msgAdapter.removeClient(channel)){
+                JSONObject o = new JSONObject();
+                o.put("type", "closed");
+                o.put("id", channel.getChannelId());
+                msgAdapter.sendMsg(o.toJSONString());
+                logger.info("客户端主动关闭连接：{}", channel);
+            }
             if (channel.isOpened()) {
                 channel.flush(f);
             }

@@ -18,6 +18,9 @@ package com.generallycloud.baseio.buffer;
 import java.util.BitSet;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
+
 public final class SimpleByteBufAllocator extends PooledByteBufAllocator {
 
     public SimpleByteBufAllocator(int capacity, int unitMemorySize, int bufRecycleSize,
@@ -65,12 +68,18 @@ public final class SimpleByteBufAllocator extends PooledByteBufAllocator {
     public void release(ByteBuf buf) {
         release((PooledByteBuf) buf, true);
     }
+    
+    private static final Logger logger = LoggerFactory.getLogger(SimpleByteBufAllocator.class);
 
     @Override
     protected void release(PooledByteBuf buf, boolean recycle) {
         ReentrantLock lock = getLock();
         lock.lock();
         try {
+            if (recycle && ((AbstractByteBuf)buf).referenceCount != 0) {
+                Exception e = new Exception("buf referenceCount:"+((AbstractByteBuf)buf).referenceCount);
+                logger.error(e.getMessage(),e);
+            }
             frees.set(buf.getBeginUnit());
             if (recycle) {
                 getBufFactory().freeBuf(buf);

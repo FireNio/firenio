@@ -110,7 +110,7 @@ public class WebSocketCodec implements ProtocolCodec {
             if (future == null) {
                 return new WebSocketFuture(channel, limit);
             }
-            return future.reset(channel, channel.allocator().allocate(PROTOCOL_HEADER), limit);
+            return future.reset(channel, limit);
         }
         return new WebSocketFuture(channel, limit);
     }
