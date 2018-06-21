@@ -34,8 +34,10 @@ public abstract class ApplicationBootstrapEngine implements BootstrapEngine {
     public void bootstrap(String rootPath, String mode) throws Exception {
         Properties properties = FileUtil.readPropertiesByCls("server.properties");
         ChannelContext context = new ChannelContext();
+        NioEventLoopGroup group = new NioEventLoopGroup();
         ConfigurationParser.parseConfiguration("server.", context, properties);
-        ChannelAcceptor acceptor = new ChannelAcceptor(context, new NioEventLoopGroup());
+        ConfigurationParser.parseConfiguration("server.", group, properties);
+        ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         ApplicationIoEventHandle handle = new ApplicationIoEventHandle(rootPath, mode);
         context.setIoEventHandle(handle);
         context.addLifeCycleListener(handle);

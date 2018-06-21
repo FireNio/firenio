@@ -30,7 +30,19 @@ public class ConfigurationParser {
 
     public static void parseConfiguration(String prefix, Object cfg, Properties properties)
             throws Exception {
-        Field[] fs = cfg.getClass().getDeclaredFields();
+        Class<?> clazz = cfg.getClass();
+        for(;;){
+            if (clazz == Object.class) {
+                return;
+            }
+            parseConfiguration(prefix, cfg, clazz, properties);
+            clazz = clazz.getSuperclass();
+        }
+    }
+
+    private static void parseConfiguration(String prefix, Object cfg, Class<?> clazz,
+            Properties properties) throws Exception {
+        Field[] fs = clazz.getDeclaredFields();
         for (Field f : fs) {
             Class<?> type = f.getType();
             String name = f.getName();
@@ -68,7 +80,7 @@ public class ConfigurationParser {
             } else if (type == Charset.class) {
                 ClassUtil.trySetAccessible(f);
                 f.set(cfg, Charset.forName(properties.getProperty(prefix + name, "GBK")));
-            } 
+            }
         }
     }
 
