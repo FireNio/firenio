@@ -59,6 +59,11 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         super("nio-processor", eventLoopSize);
     }
 
+    public NioEventLoopGroup(int eventLoopSize, int idleTime) {
+        super("nio-processor", eventLoopSize);
+        this.idleTime = idleTime;
+    }
+
     private FixedAtomicInteger createChannelIdsSequence(int eventLoopSize) {
         int min = (10000 / eventLoopSize) * eventLoopSize - 1;
         int max = (Integer.MAX_VALUE / eventLoopSize) * eventLoopSize - 1;

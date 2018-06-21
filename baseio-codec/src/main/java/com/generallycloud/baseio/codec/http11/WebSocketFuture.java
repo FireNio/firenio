@@ -45,9 +45,8 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
         this.type = WebSocketCodec.TYPE_TEXT;
     }
 
-    public WebSocketFuture(NioSocketChannel channel, ByteBuf buf, int limit) {
+    public WebSocketFuture(NioSocketChannel channel,int limit) {
         this.limit = limit;
-        this.setByteBuf(buf);
         this.setServiceName(channel);
     }
 
