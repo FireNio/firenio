@@ -17,12 +17,10 @@ package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.container.protobase.FixedChannel;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 import com.generallycloud.baseio.protocol.Future;
@@ -32,31 +30,18 @@ public class Test404 {
     public static void main(String[] args) throws Exception {
 
         String serviceKey = "22";
-
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
-
-        Configuration configuration = new Configuration(8300);
-
-        ChannelContext context = new ChannelContext(configuration);
-
+        ChannelContext context = new ChannelContext(8300);
         ChannelConnector connector = new ChannelConnector(context);
-
         context.setIoEventHandle(eventHandle);
-
         context.setProtocolCodec(new ParamedProtobaseCodec());
-
         context.addChannelEventListener(new LoggerChannelOpenListener());
-
         FixedChannel channel = new FixedChannel(connector.connect());
-
         ProtobaseFuture future = channel.request(serviceKey, null);
-
         System.out.println(future.getReadText());
-
         Future future1 = new ProtobaseFuture().setPING();
-
         channel.getChannel().flush(future1);
-
         CloseUtil.close(connector);
     }
+    
 }

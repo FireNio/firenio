@@ -521,7 +521,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public Charset getEncoding() {
-        return getContext().getEncoding();
+        return getContext().getCharset();
     }
 
     public NioEventLoop getEventLoop() {
@@ -558,6 +558,11 @@ public final class NioSocketChannel extends AttributesImpl
 
     public <T> T getOption(SocketOption<T> name) throws IOException {
         return channel.getOption(name);
+    }
+    
+    public int getWriteBacklog(){
+        //忽略current write[]
+        return writeFutures.size();
     }
 
     public ProtocolCodec getProtocolCodec() {

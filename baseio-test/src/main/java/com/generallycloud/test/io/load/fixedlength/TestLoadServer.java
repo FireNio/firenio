@@ -27,7 +27,6 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestLoadServer {
@@ -40,8 +39,7 @@ public class TestLoadServer {
         group.setMemoryPoolCapacity(2560000 / 2);
         group.setBufRecycleSize(1024 * 64);
         group.setMemoryPoolUnit(128);
-        Configuration c = new Configuration(8300);
-        ChannelContext context = new ChannelContext(c);
+        ChannelContext context = new ChannelContext(8300);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setProtocolCodec(new FixedLengthCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());

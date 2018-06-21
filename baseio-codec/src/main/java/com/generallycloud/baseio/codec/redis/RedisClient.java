@@ -58,14 +58,14 @@ public class RedisClient {
     }
 
     public String set(String key, String value) throws IOException {
-        byte[] _key = key.getBytes(context.getEncoding());
-        byte[] _value = value.getBytes(context.getEncoding());
+        byte[] _key = key.getBytes(context.getCharset());
+        byte[] _value = value.getBytes(context.getCharset());
         RedisNode node = sendCommand(RedisCommand.SET, _key, _value);
         return (String) node.getValue();
     }
 
     public String get(String key) throws IOException {
-        byte[] _key = key.getBytes(context.getEncoding());
+        byte[] _key = key.getBytes(context.getCharset());
         RedisNode node = sendCommand(RedisCommand.GET, _key);
         return (String) node.getValue();
     }

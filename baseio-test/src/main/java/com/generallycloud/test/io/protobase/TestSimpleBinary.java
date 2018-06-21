@@ -17,7 +17,6 @@ package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -25,7 +24,6 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestSimpleBinary {
@@ -43,7 +41,7 @@ public class TestSimpleBinary {
                 }
             }
         };
-        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(8300);
         ChannelConnector connector = new ChannelConnector(context);
         context.setProtocolCodec(new ProtobaseCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());

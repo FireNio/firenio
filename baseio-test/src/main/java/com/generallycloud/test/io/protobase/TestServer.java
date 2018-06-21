@@ -18,12 +18,11 @@ package com.generallycloud.test.io.protobase;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelAliveIdleEventListener;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.ChannelAliveIdleEventListener;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -50,7 +49,7 @@ public class TestServer {
             }
         };
 
-        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(8300);
         ChannelAcceptor acceptor = new ChannelAcceptor(context);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());

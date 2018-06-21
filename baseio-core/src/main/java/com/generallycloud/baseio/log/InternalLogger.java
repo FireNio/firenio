@@ -37,7 +37,7 @@ public class InternalLogger implements Logger {
     private LoggerPrinter printer;
 
     public InternalLogger(LoggerPrinter printer, Class<?> clazz) {
-        this(printer, clazz.getName());
+        this(printer, clazz.getSimpleName());
     }
 
     public InternalLogger(LoggerPrinter printer, String name) {

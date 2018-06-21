@@ -18,7 +18,7 @@ package com.generallycloud.baseio.container.configuration;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Properties;
-import com.generallycloud.baseio.configuration.ConfigurationParser;
+import com.generallycloud.baseio.component.ConfigurationParser;
 
 public class FileSystemACLoader implements ApplicationConfigurationLoader {
 

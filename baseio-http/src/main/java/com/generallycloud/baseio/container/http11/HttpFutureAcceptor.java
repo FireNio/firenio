@@ -266,7 +266,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
             entity.setContentType(HttpFuture.CONTENT_TYPE_TEXT_HTML);
             entity.setFile(file);
             entity.setLastModify(System.currentTimeMillis());
-            entity.setBinary(b.toString().getBytes(context.getEncoding()));
+            entity.setBinary(b.toString().getBytes(context.getCharset()));
             htmlCache.put(staticName, entity);
         }
     }

@@ -31,11 +31,6 @@ public class ChannelManager {
 
     private Map<Integer, NioSocketChannel> channels         = new ConcurrentHashMap<>();
     private Map<Integer, NioSocketChannel> readOnlyChannels = Collections.unmodifiableMap(channels);
-    private ChannelContext                 context;
-
-    public ChannelManager(ChannelContext context) {
-        this.context = context;
-    }
 
     public int getManagedChannelSize() {
         return channels.size();
@@ -65,13 +60,12 @@ public class ChannelManager {
         if (channels.size() == 0) {
             return;
         }
-        NioSocketChannel channel = context.getSimulateSocketChannel();
-        context.getProtocolCodec().encode(channel, future);
+        NioSocketChannel channel = channels.iterator().next();
+        channel.getProtocolCodec().encode(channel, future);
         broadcastFuture(future, channels);
     }
 
-    public void broadcastFuture(Future future,
-            Collection<NioSocketChannel> channels) {
+    public void broadcastFuture(Future future, Collection<NioSocketChannel> channels) {
         if (channels.size() == 0) {
             return;
         }

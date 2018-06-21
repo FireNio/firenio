@@ -26,7 +26,6 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
@@ -61,8 +60,7 @@ public class TestLoadClient1 extends ITestThread {
         group.setMemoryPoolCapacity(320000);
         group.setMemoryPoolUnit(128);
         group.setBufRecycleSize(1024 * 4);
-        Configuration c = new Configuration(8300);
-        ChannelContext context = new ChannelContext(c);
+        ChannelContext context = new ChannelContext(8300);
         connector = new ChannelConnector(context, group);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());

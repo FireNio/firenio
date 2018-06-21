@@ -25,7 +25,6 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
 public class SimpleTestFIxedLengthClient1 {
@@ -42,7 +41,7 @@ public class SimpleTestFIxedLengthClient1 {
 
         };
         NioEventLoopGroup group = new NioEventLoopGroup(1);
-        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(8300);
         ChannelConnector connector = new ChannelConnector(context, group);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());

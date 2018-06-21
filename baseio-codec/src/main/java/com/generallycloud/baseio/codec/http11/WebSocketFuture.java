@@ -171,6 +171,10 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
         if (type == WebSocketCodec.TYPE_BINARY) {
             // FIXME 处理binary
         }
+        if (isCloseFrame()) {
+            channel.flush(this);
+            setSilent(true);
+        }
         return true;
     }
 

@@ -25,7 +25,6 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.test.io.protobuf.TestProtoBufBean.SearchRequest;
 import com.generallycloud.test.io.protobuf.TestProtoBufBean.SearchRequest.Corpus;
@@ -54,7 +53,7 @@ public class TestProtobufClient {
             }
         };
 
-        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(8300);
 
         ChannelConnector connector = new ChannelConnector(context);
 

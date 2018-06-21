@@ -29,7 +29,7 @@ public class SLF4JLogger implements Logger {
     }
 
     public SLF4JLogger(Class<?> clazz) {
-        this(clazz.getName());
+        this(clazz.getSimpleName());
     }
 
     @Override

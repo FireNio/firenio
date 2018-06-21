@@ -89,8 +89,8 @@ public class ChannelConnector implements ChannelService, Closeable {
         this.group.setEnableSsl(context.isEnableSsl());
         LifeCycleUtil.stop(getContext());
         LifeCycleUtil.start(group);
-        String host = context.getConfiguration().getHost();
-        int port = context.getConfiguration().getPort();
+        String host = context.getHost();
+        int port = context.getPort();
         this.channel = null;
         this.context.setChannelService(this);
         LifeCycleUtil.start(getContext());

@@ -19,7 +19,6 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
 public class TestListenerPower {
@@ -27,8 +26,7 @@ public class TestListenerPower {
     public static void main(String[] args) throws Exception {
 
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
-        Configuration configuration = new Configuration(8300);
-        ChannelContext context = new ChannelContext(configuration);
+        ChannelContext context = new ChannelContext(8300);
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new ProtobaseCodec());

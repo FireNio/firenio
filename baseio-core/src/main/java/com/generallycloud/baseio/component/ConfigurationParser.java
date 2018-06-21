@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.configuration;
+package com.generallycloud.baseio.component;
 
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
@@ -68,9 +68,7 @@ public class ConfigurationParser {
             } else if (type == Charset.class) {
                 ClassUtil.trySetAccessible(f);
                 f.set(cfg, Charset.forName(properties.getProperty(prefix + name, "GBK")));
-            } else {
-                throw new Exception("unknow type " + type);
-            }
+            } 
         }
     }
 

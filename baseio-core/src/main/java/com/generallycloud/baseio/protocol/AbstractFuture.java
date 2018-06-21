@@ -234,7 +234,7 @@ public abstract class AbstractFuture implements Future {
 
     @Override
     public void write(String text, ChannelContext context) {
-        write(text, context.getEncoding());
+        write(text, context.getCharset());
     }
 
     @Override

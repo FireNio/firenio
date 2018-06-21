@@ -19,14 +19,13 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.ChannelActiveIdleEventListener;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.ChannelActiveIdleEventListener;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -47,7 +46,7 @@ public class TestBeat {
         String serviceKey = "TestSimpleServlet";
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setIdleTime(10);
-        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(8300);
         ChannelConnector connector = new ChannelConnector(context,group);
         context.addChannelIdleEventListener(new ChannelActiveIdleEventListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());

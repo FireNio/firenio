@@ -19,7 +19,6 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 
 public class TestTellerByteMessage {
@@ -28,7 +27,7 @@ public class TestTellerByteMessage {
 
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
 
-        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(8300);
 
         ChannelConnector connector = new ChannelConnector(context);
 

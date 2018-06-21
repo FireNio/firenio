@@ -33,12 +33,16 @@ public class LoggerFactory {
     public static void setEnableSLF4JLogger(boolean enable) {
         enableSLF4JLogger = enable;
     }
+    
+    public static Logger getLogger(String name) {
+        if (!enableSLF4JLogger) {
+            return new InternalLogger(printer, name);
+        }
+        return new SLF4JLogger(name);
+    }
 
     public static Logger getLogger(Class<?> clazz) {
-        if (!enableSLF4JLogger) {
-            return new InternalLogger(printer, clazz);
-        }
-        return new SLF4JLogger(clazz);
+        return getLogger(clazz.getSimpleName());
     }
 
     private static void configure() {

@@ -28,7 +28,6 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
@@ -61,11 +60,7 @@ public class TestLoadClient {
             }
 
         };
-
-        Configuration configuration = new Configuration(8300);
-
-        //        SocketChannelContext context = new NioSocketChannelContext(configuration);
-        ChannelContext context = new ChannelContext(configuration);
+        ChannelContext context = new ChannelContext(8300);
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());

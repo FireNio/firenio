@@ -28,7 +28,6 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestSimpleWebSocketClient {
@@ -54,17 +53,7 @@ public class TestSimpleWebSocketClient {
             }
         };
 
-        Configuration configuration = new Configuration();
-        configuration.setHost("127.0.0.1");
-        //		configuration.setSERVER_HOST("120.76.222.210");
-        //		configuration.setSERVER_HOST("115.29.193.48");
-        //		configuration.setSERVER_HOST("workerman.net");
-        configuration.setPort(443);
-        //		configuration.setSERVER_PORT(30005);
-        //		configuration.setSERVER_PORT(29000);
-        //		configuration.setSERVER_PORT(8280);
-
-        ChannelContext context = new ChannelContext(configuration);
+        ChannelContext context = new ChannelContext(443);
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ClientHttpCodec());

@@ -27,7 +27,6 @@ import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
-import com.generallycloud.baseio.configuration.Configuration;
 
 public class TestSimpleHttpClient {
 
@@ -37,9 +36,7 @@ public class TestSimpleHttpClient {
 
         //		ServerConfiguration c = new ServerConfiguration("localhost",80);
 
-        Configuration c = new Configuration("generallycloud.com", 443);
-
-        ChannelContext context = new ChannelContext(c);
+        ChannelContext context = new ChannelContext("generallycloud.com", 443);
 
         ChannelConnector connector = new ChannelConnector(context);
 

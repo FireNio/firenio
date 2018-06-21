@@ -70,8 +70,7 @@ public class ChannelAcceptor implements ChannelService {
         LifeCycleUtil.start(group);
         this.context.setChannelService(this);
         LifeCycleUtil.start(getContext());
-        int port = getContext().getConfiguration().getPort();
-        this.serverAddress = new InetSocketAddress(port);
+        this.serverAddress = new InetSocketAddress(context.getPort());
         this.selectableChannel = ServerSocketChannel.open();
         this.selectableChannel.configureBlocking(false);
         this.serverSocket = ((ServerSocketChannel) selectableChannel).socket();
@@ -81,7 +80,7 @@ public class ChannelAcceptor implements ChannelService {
             this.serverSocket.bind(serverAddress, 50);
         } catch (IOException e) {
             if ("Already bound".equalsIgnoreCase(e.getMessage()) || e instanceof BindException) {
-                throw new BindException("Already bound at " + port);
+                throw new BindException("Already bound at " + context.getPort());
             }
             throw e;
         }
@@ -101,8 +100,7 @@ public class ChannelAcceptor implements ChannelService {
         channelManager.broadcastFuture(future);
     }
 
-    public void broadcastFuture(Future future,
-            Collection<NioSocketChannel> channels) {
+    public void broadcastFuture(Future future, Collection<NioSocketChannel> channels) {
         channelManager.broadcastFuture(future, channels);
     }
 

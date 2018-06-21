@@ -40,7 +40,7 @@ public class ServerHttpFuture extends AbstractHttpFuture {
 
     @Override
     protected void setDefaultResponseHeaders(Map<String, String> headers) {
-        if (getContext().getEncoding() == Encoding.GBK) {
+        if (getContext().getCharset() == Encoding.GBK) {
             headers.put(HttpHeader.Content_Type, "text/plain;charset=gbk");
         } else {
             headers.put(HttpHeader.Content_Type, "text/plain;charset=utf-8");

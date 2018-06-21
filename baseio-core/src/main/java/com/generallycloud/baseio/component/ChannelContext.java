@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -25,42 +27,60 @@ import java.util.Set;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.Assert;
+import com.generallycloud.baseio.common.Encoding;
+import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
+import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.concurrent.LineEventLoopGroup;
 import com.generallycloud.baseio.concurrent.ThreadEventLoopGroup;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class ChannelContext extends AbstractLifeCycle {
 
-    private Map<Object, Object>            attributes    = new HashMap<>();
-    private ChannelManager                 channelManager;
+    private Map<Object, Object>            attributes         = new HashMap<>();
+    private String                         certCrt;
+    private String                         certKey;
+    private ChannelManager                 channelManager     = new ChannelManager();
     private ChannelService                 channelService;
-    private Configuration                  configuration;
+    private Charset                        charset            = Encoding.UTF8;
+    private boolean                        enableHeartbeatLog = true;
     private boolean                        enableSsl;
+    //是否启用work event loop，如果启用，则future在work event loop中处理
     private boolean                        enableWorkEventLoop;
-    private Charset                        encoding;
     private ExecutorEventLoopGroup         executorEventLoopGroup;
     private HeartBeatLogger                heartBeatLogger;
+    private String                         host               = "127.0.0.1";
     private boolean                        initialized;
-    private IoEventHandle                  ioEventHandle = DefaultIoEventHandle.get();
-    private Logger                         logger        = LoggerFactory.getLogger(getClass());
+    private IoEventHandle                  ioEventHandle      = DefaultIoEventHandle.get();
+    private Logger                         logger             = LoggerFactory.getLogger(getClass());
+    private int                            maxWriteBacklog    = 256;
     private NioEventLoopGroup              nioEventLoopGroup;
+    private int                            port;
     private ProtocolCodec                  protocolCodec;
-    private NioSocketChannel               simulateSocketChannel;
-    private List<ChannelEventListener>     ssels         = new ArrayList<>();
-    private List<ChannelIdleEventListener> ssiels        = new ArrayList<>();
+    private List<ChannelEventListener>     ssels              = new ArrayList<>();
+    private List<ChannelIdleEventListener> ssiels             = new ArrayList<>();
     private SslContext                     sslContext;
-    private long                           startupTime   = System.currentTimeMillis();
+    private String                         sslKeystore;
+    private long                           startupTime        = System.currentTimeMillis();
+    private int                            workEventQueueSize = 1024 * 256;
 
-    public ChannelContext(Configuration configuration) {
-        this.configuration = configuration;
+    public ChannelContext() {
+        this(0);
+    }
+
+    public ChannelContext(int port) {
+        this(null, port);
+    }
+
+    public ChannelContext(String host, int port) {
+        this.port = port;
+        this.host = host;
         this.addLifeCycleListener(new ChannelContextListener());
     }
 
@@ -80,54 +100,25 @@ public class ChannelContext extends AbstractLifeCycle {
         }
     }
 
-    private void createHeartBeatLogger() {
-        if (getConfiguration().isEnableHeartbeatLog()) {
-            heartBeatLogger = new HeartBeatLogger() {
-                @Override
-                public void logRequest(NioSocketChannel channel) {
-                    logger.info("heart beat request from: {}", channel);
-                }
-
-                @Override
-                public void logResponse(NioSocketChannel channel) {
-                    logger.info("heart beat response from: {}", channel);
-                }
-            };
-        } else {
-            heartBeatLogger = new HeartBeatLogger() {
-                @Override
-                public void logRequest(NioSocketChannel channel) {
-                    logger.debug("heart beat request from: {}", channel);
-                }
-
-                @Override
-                public void logResponse(NioSocketChannel channel) {
-                    logger.debug("heart beat response from: {}", channel);
-                }
-            };
-        }
-    }
-
     @Override
     protected void doStart() throws Exception {
-        Assert.notNull(configuration, "null configuration");
         Assert.notNull(ioEventHandle, "null ioEventHandleAdaptor");
+        Assert.notNull(charset, "null charset");
         Assert.notNull(protocolCodec, "null protocolCodec");
         if (!initialized) {
             initialized = true;
         }
+        initHeartBeatLogger();
+        initSslContext(getClass().getClassLoader());
         String protocolId = protocolCodec.getProtocolId();
         int eventLoopSize = nioEventLoopGroup.getEventLoopSize();
-        int serverPort = configuration.getPort();
         long channelIdle = nioEventLoopGroup.getIdleTime();
-        this.encoding = configuration.getCharset();
-        this.enableWorkEventLoop = configuration.isEnableWorkEventLoop();
-        LoggerUtil.prettyLog(logger, "encoding              :{ {} }", encoding);
+        LoggerUtil.prettyLog(logger, "charset               :{ {} }", charset);
         LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
         LoggerUtil.prettyLog(logger, "event loop size       :{ {} }", eventLoopSize);
         LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSsl());
         LoggerUtil.prettyLog(logger, "channel idle          :{ {} }", channelIdle);
-        LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", serverPort);
+        LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", port);
         if (nioEventLoopGroup.isEnableMemoryPool()) {
             long memoryPoolCapacity = nioEventLoopGroup.getMemoryPoolCapacity() * eventLoopSize;
             long memoryPoolUnit = nioEventLoopGroup.getMemoryPoolUnit();
@@ -136,11 +127,9 @@ public class ChannelContext extends AbstractLifeCycle {
             LoggerUtil.prettyLog(logger, "memory pool cap       :{ {} * {} ≈ {} M }",
                     new Object[] { memoryPoolUnit, memoryPoolCapacity, memoryPoolSize });
         }
-        createHeartBeatLogger();
-        channelManager = new ChannelManager(this);
         protocolCodec.initialize(this);
         if (executorEventLoopGroup == null) {
-            if (getConfiguration().isEnableWorkEventLoop()) {
+            if (isEnableWorkEventLoop()) {
                 executorEventLoopGroup = new ThreadEventLoopGroup(this, "event-process",
                         eventLoopSize);
             } else {
@@ -148,8 +137,6 @@ public class ChannelContext extends AbstractLifeCycle {
             }
         }
         LifeCycleUtil.start(executorEventLoopGroup);
-        this.simulateSocketChannel = new NioSocketChannel(this,
-                UnpooledByteBufAllocator.getDirect());
     }
 
     @Override
@@ -164,6 +151,14 @@ public class ChannelContext extends AbstractLifeCycle {
 
     public Set<Object> getAttributeNames() {
         return this.attributes.keySet();
+    }
+
+    public String getCertCrt() {
+        return certCrt;
+    }
+
+    public String getCertKey() {
+        return certKey;
     }
 
     public List<ChannelEventListener> getChannelEventListeners() {
@@ -182,12 +177,8 @@ public class ChannelContext extends AbstractLifeCycle {
         return channelService;
     }
 
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-
-    public Charset getEncoding() {
-        return encoding;
+    public Charset getCharset() {
+        return charset;
     }
 
     public ExecutorEventLoopGroup getExecutorEventLoopGroup() {
@@ -198,28 +189,102 @@ public class ChannelContext extends AbstractLifeCycle {
         return heartBeatLogger;
     }
 
+    public String getHost() {
+        return host;
+    }
+
     public IoEventHandle getIoEventHandle() {
         return ioEventHandle;
+    }
+
+    public int getMaxWriteBacklog() {
+        return maxWriteBacklog;
     }
 
     public NioEventLoopGroup getNioEventLoopGroup() {
         return nioEventLoopGroup;
     }
 
-    public ProtocolCodec getProtocolCodec() {
-        return protocolCodec;
+    public int getPort() {
+        return port;
     }
 
-    public NioSocketChannel getSimulateSocketChannel() {
-        return simulateSocketChannel;
+    public ProtocolCodec getProtocolCodec() {
+        return protocolCodec;
     }
 
     public SslContext getSslContext() {
         return sslContext;
     }
 
+    public String getSslKeystore() {
+        return sslKeystore;
+    }
+
     public long getStartupTime() {
         return startupTime;
+    }
+
+    public int getWorkEventQueueSize() {
+        return workEventQueueSize;
+    }
+
+    private void initHeartBeatLogger() {
+        final Logger logger = LoggerFactory.getLogger("hb");
+        if (isEnableHeartbeatLog()) {
+            heartBeatLogger = new HeartBeatLogger() {
+                @Override
+                public void logRequest(NioSocketChannel channel) {
+                    logger.info("hb req from: {}", channel);
+                }
+
+                @Override
+                public void logResponse(NioSocketChannel channel) {
+                    logger.info("hb res from: {}", channel);
+                }
+            };
+        } else {
+            heartBeatLogger = new HeartBeatLogger() {
+                @Override
+                public void logRequest(NioSocketChannel channel) {
+                    logger.debug("hb req from: {}", channel);
+                }
+
+                @Override
+                public void logResponse(NioSocketChannel channel) {
+                    logger.debug("hb res from: {}", channel);
+                }
+            };
+        }
+    }
+
+    private void initSslContext(ClassLoader classLoader) throws IOException {
+        if (isEnableSsl() && getSslContext() == null) {
+            if (!StringUtil.isNullOrBlank(getCertCrt())) {
+                File certificate = FileUtil.readFileByCls(getCertCrt(), classLoader);
+                File privateKey = FileUtil.readFileByCls(getCertKey(), classLoader);
+                SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
+                setSslContext(sslContext);
+                return;
+            }
+            if (!StringUtil.isNullOrBlank(getSslKeystore())) {
+                String keystoreInfo = getSslKeystore();
+                String[] params = keystoreInfo.split(";");
+                if (params.length != 4) {
+                    throw new IllegalArgumentException("SERVER_SSL_KEYSTORE config error");
+                }
+                File storeFile = FileUtil.readFileByCls(params[0], classLoader);
+                SslContext sslContext = SSLUtil.initServer(storeFile, params[1], params[2],
+                        params[3]);
+                setSslContext(sslContext);
+                return;
+            }
+            throw new IllegalArgumentException("ssl enabled,but there is no config for");
+        }
+    }
+
+    public boolean isEnableHeartbeatLog() {
+        return enableHeartbeatLog;
     }
 
     public boolean isEnableSsl() {
@@ -238,8 +303,39 @@ public class ChannelContext extends AbstractLifeCycle {
         this.attributes.put(key, value);
     }
 
+    public void setCertCrt(String certCrt) {
+        checkNotRunning();
+        this.certCrt = certCrt;
+    }
+
+    public void setCertKey(String certKey) {
+        checkNotRunning();
+        this.certKey = certKey;
+    }
+
     public void setChannelService(ChannelService service) {
+        checkNotRunning();
         this.channelService = service;
+    }
+
+    public void setCharset(Charset charset) {
+        checkNotRunning();
+        this.charset = charset;
+    }
+
+    public void setEnableHeartbeatLog(boolean enableHeartbeatLog) {
+        checkNotRunning();
+        this.enableHeartbeatLog = enableHeartbeatLog;
+    }
+
+    public void setEnableSsl(boolean enableSsl) {
+        checkNotRunning();
+        this.enableSsl = enableSsl;
+    }
+
+    public void setEnableWorkEventLoop(boolean enableWorkEventLoop) {
+        checkNotRunning();
+        this.enableWorkEventLoop = enableWorkEventLoop;
     }
 
     public void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup) {
@@ -247,13 +343,29 @@ public class ChannelContext extends AbstractLifeCycle {
         this.executorEventLoopGroup = executorEventLoopGroup;
     }
 
+    public void setHost(String host) {
+        checkNotRunning();
+        this.host = host;
+    }
+
     public void setIoEventHandle(IoEventHandle ioEventHandle) {
         checkNotRunning();
         this.ioEventHandle = ioEventHandle;
     }
 
+    public void setMaxWriteBacklog(int maxWriteBacklog) {
+        checkNotRunning();
+        this.maxWriteBacklog = maxWriteBacklog;
+    }
+
     public void setNioEventLoopGroup(NioEventLoopGroup nioEventLoopGroup) {
+        checkNotRunning();
         this.nioEventLoopGroup = nioEventLoopGroup;
+    }
+
+    public void setPort(int port) {
+        checkNotRunning();
+        this.port = port;
     }
 
     public void setProtocolCodec(ProtocolCodec protocolCodec) {
@@ -268,6 +380,16 @@ public class ChannelContext extends AbstractLifeCycle {
         }
         this.sslContext = sslContext;
         this.enableSsl = true;
+    }
+
+    public void setSslKeystore(String sslKeystore) {
+        checkNotRunning();
+        this.sslKeystore = sslKeystore;
+    }
+
+    public void setWorkEventQueueSize(int workEventQueueSize) {
+        checkNotRunning();
+        this.workEventQueueSize = workEventQueueSize;
     }
 
     public interface HeartBeatLogger {

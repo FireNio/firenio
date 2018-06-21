@@ -318,7 +318,7 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
         bodyArray = buf.getBytes();
         if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
             // FIXME encoding
-            String paramString = new String(bodyArray, context.getEncoding());
+            String paramString = new String(bodyArray, context.getCharset());
             parseParamString(paramString);
             this.readText = paramString;
         } else {

@@ -24,13 +24,12 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.configuration.Configuration;
 
 public class TestRedisClient {
 
     public static void main(String[] args) throws Exception {
 
-        ChannelContext context = new ChannelContext(new Configuration(6379));
+        ChannelContext context = new ChannelContext(6379);
 
         ChannelConnector connector = new ChannelConnector(context);
 

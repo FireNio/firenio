@@ -26,7 +26,6 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.configuration.Configuration;
 import com.generallycloud.baseio.container.protobase.FileSendUtil;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -51,8 +50,7 @@ public class TestUpload {
             }
         };
 
-        Configuration configuration = new Configuration(8300);
-        ChannelContext context = new ChannelContext(configuration);
+        ChannelContext context = new ChannelContext(8300);
         connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new ProtobaseCodec());
