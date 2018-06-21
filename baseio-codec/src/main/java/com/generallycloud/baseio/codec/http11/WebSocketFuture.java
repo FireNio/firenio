@@ -77,6 +77,10 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
     public boolean isCloseFrame() {
         return OP_CONNECTION_CLOSE_FRAME == type;
     }
+    
+    public boolean isContinuationFrame(){
+        return OP_CONTINUATION_FRAME == type;
+    }
 
     public boolean isEof() {
         return eof;
@@ -129,6 +133,8 @@ public class WebSocketFuture extends AbstractFuture implements HttpMessage {
             setPing();
         } else if (type == WebSocketCodec.TYPE_PONG) {
             setPong();
+        }else{
+            this.type = type;
         }
         byte[] array = new byte[payloadLen];
         if (hasMask) {

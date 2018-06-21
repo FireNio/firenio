@@ -195,7 +195,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     @Override
     public void close() throws IOException {
-        if (!isOpened()) {
+        if (isClosed()) {
             return;
         }
         if (inEventLoop()) {
@@ -212,12 +212,16 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private void close0() {
-        if (!isOpened()) {
+        if (isClosed()) {
             return;
         }
         ReentrantLock lock = getCloseLock();
         lock.lock();
         try {
+            if (isClosed()) {
+                return;
+            }
+            opened = false;
             closeSSL();
             try {
                 write();
@@ -227,7 +231,6 @@ public final class NioSocketChannel extends AttributesImpl
             selectionKey.attach(null);
             selectionKey.cancel();
             fireClosed();
-            opened = false;
         } finally {
             lock.unlock();
         }
@@ -276,7 +279,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     @Override
     public void fireEvent(NioEventLoop eventLoop) throws IOException {
-        if (!isOpened()) {
+        if (isClosed()) {
             close();
             return;
         }
@@ -321,7 +324,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (future == null || future.flushed()) {
             return;
         }
-        if (!isOpened()) {
+        if (isClosed()) {
             exceptionCaught(future, CLOSED_WHEN_FLUSH);
             return;
         }
@@ -339,7 +342,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (futures == null || futures.isEmpty()) {
             return;
         }
-        if (!isOpened()) {
+        if (isClosed()) {
             for (Future f : futures) {
                 exceptionCaught(f, CLOSED_WHEN_FLUSH);
             }
@@ -370,7 +373,7 @@ public final class NioSocketChannel extends AttributesImpl
     public void flushFuture(Future future) {
         final LinkedQueue<Future> writeFutures = this.writeFutures;
         if (inEventLoop()) {
-            if (!isOpened()) {
+            if (isClosed()) {
                 exceptionCaught(future, CLOSED_WHEN_FLUSH);
                 return;
             }
@@ -388,7 +391,7 @@ public final class NioSocketChannel extends AttributesImpl
             ReentrantLock lock = getCloseLock();
             lock.lock();
             try {
-                if (!isOpened()) {
+                if (isClosed()) {
                     exceptionCaught(future, CLOSED_WHEN_FLUSH);
                     return;
                 }
@@ -409,7 +412,7 @@ public final class NioSocketChannel extends AttributesImpl
             return;
         }
         if (inEventLoop()) {
-            if (!isOpened()) {
+            if (isClosed()) {
                 for (Future f : futures) {
                     exceptionCaught(f, CLOSED_WHEN_FLUSH);
                 }
@@ -472,7 +475,7 @@ public final class NioSocketChannel extends AttributesImpl
             ReentrantLock lock = getCloseLock();
             lock.lock();
             try {
-                if (!isOpened()) {
+                if (isClosed()) {
                     for (Future f : futures) {
                         exceptionCaught(f, CLOSED_WHEN_FLUSH);
                     }

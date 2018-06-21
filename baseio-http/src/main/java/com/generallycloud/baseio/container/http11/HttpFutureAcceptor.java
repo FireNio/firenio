@@ -92,6 +92,9 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     @Override
     public void exceptionCaught(NioSocketChannel channel, Future future, Exception ex) {
         logger.error(ex.getMessage(), ex);
+        if (channel.isClosed()) {
+            return;
+        }
         if (future instanceof WebSocketFuture) {
             future.write(String.valueOf(ex.getMessage()), channel);
             channel.flush(future);
