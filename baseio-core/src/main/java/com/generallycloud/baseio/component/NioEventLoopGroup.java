@@ -16,19 +16,26 @@
 package com.generallycloud.baseio.component;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.buffer.ByteBufAllocatorGroup;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocatorGroup;
+import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.concurrent.AbstractEventLoopGroup;
 import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 /**
  * @author wangkai
  *
  */
 public class NioEventLoopGroup extends AbstractEventLoopGroup {
+
+    private static final Logger   logger                 = LoggerFactory
+            .getLogger(NioEventLoopGroup.class);
 
     private NioEventLoop          acceptorEventLoop;
     private ByteBufAllocatorGroup allocatorGroup;
@@ -152,6 +159,12 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         if (getAllocatorGroup() == null) {
             if (isEnableMemoryPool()) {
                 this.allocatorGroup = new PooledByteBufAllocatorGroup(this);
+                double memoryPoolCapacity = getMemoryPoolCapacity() * getEventLoopSize();
+                double memoryPoolByteSize = memoryPoolCapacity * getMemoryPoolUnit();
+                double memoryPoolSize = memoryPoolByteSize / (1024 * 1024);
+                LoggerUtil.prettyLog(logger, "memory pool cap       :{ {} * {} ≈ {} M }",
+                        new Object[] { getMemoryPoolUnit(), memoryPoolCapacity, 
+                                new BigDecimal(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP) });
             } else {
                 this.allocatorGroup = new UnpooledByteBufAllocatorGroup(this);
             }

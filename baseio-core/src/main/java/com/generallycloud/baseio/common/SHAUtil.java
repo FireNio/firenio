@@ -34,7 +34,12 @@ public class SHAUtil {
     public static void main(String[] args) {
 
         String ss = "test2";
-
+        long startTime = System.currentTimeMillis();
+        int count = 1000000;
+        for (int i = 0; i < count; i++) {
+            MathUtil.bytes2HexString(SHA1(ss));
+        }
+        System.out.println("Time:"+(System.currentTimeMillis() - startTime));
         System.out.println(MathUtil.bytes2HexString(SHA1(ss)));
 
         System.out.println(MathUtil.bytes2HexString(SHA256(ss)));

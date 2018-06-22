@@ -17,7 +17,6 @@ package com.generallycloud.baseio.component;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,13 +95,13 @@ public class ChannelContext extends AbstractLifeCycle {
 
     private void checkNotRunning() {
         if (isRunning()) {
-            throw new UnsupportedOperationException("starting or running");
+            throw new UnsupportedOperationException("already running");
         }
     }
 
     @Override
     protected void doStart() throws Exception {
-        Assert.notNull(ioEventHandle, "null ioEventHandleAdaptor");
+        Assert.notNull(ioEventHandle, "null ioEventHandle");
         Assert.notNull(charset, "null charset");
         Assert.notNull(protocolCodec, "null protocolCodec");
         if (!initialized) {
@@ -119,14 +118,6 @@ public class ChannelContext extends AbstractLifeCycle {
         LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSsl());
         LoggerUtil.prettyLog(logger, "channel idle          :{ {} }", channelIdle);
         LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", port);
-        if (nioEventLoopGroup.isEnableMemoryPool()) {
-            long memoryPoolCapacity = nioEventLoopGroup.getMemoryPoolCapacity() * eventLoopSize;
-            long memoryPoolUnit = nioEventLoopGroup.getMemoryPoolUnit();
-            double memoryPoolSize = new BigDecimal(memoryPoolCapacity * memoryPoolUnit)
-                    .divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
-            LoggerUtil.prettyLog(logger, "memory pool cap       :{ {} * {} ≈ {} M }",
-                    new Object[] { memoryPoolUnit, memoryPoolCapacity, memoryPoolSize });
-        }
         protocolCodec.initialize(this);
         if (executorEventLoopGroup == null) {
             if (isEnableWorkEventLoop()) {

@@ -752,8 +752,6 @@ public final class NioSocketChannel extends AttributesImpl
         this.protocolCodec = protocolCodec;
     }
 
-    // FIXME 这里有问题
-
     public void setReadFuture(Future readFuture) {
         this.readFuture = readFuture;
     }
