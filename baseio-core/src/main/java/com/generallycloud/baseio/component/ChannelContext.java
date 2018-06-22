@@ -17,6 +17,7 @@ package com.generallycloud.baseio.component;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -107,17 +108,25 @@ public class ChannelContext extends AbstractLifeCycle {
         if (!initialized) {
             initialized = true;
         }
+        NioEventLoopGroup g = this.nioEventLoopGroup;
         initHeartBeatLogger();
         initSslContext(getClass().getClassLoader());
         String protocolId = protocolCodec.getProtocolId();
-        int eventLoopSize = nioEventLoopGroup.getEventLoopSize();
-        long channelIdle = nioEventLoopGroup.getIdleTime();
+        int eventLoopSize = g.getEventLoopSize();
         LoggerUtil.prettyLog(logger, "charset               :{ {} }", charset);
         LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
         LoggerUtil.prettyLog(logger, "event loop size       :{ {} }", eventLoopSize);
         LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSsl());
-        LoggerUtil.prettyLog(logger, "channel idle          :{ {} }", channelIdle);
+        LoggerUtil.prettyLog(logger, "channel idle          :{ {} }", g.getIdleTime());
         LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", port);
+        if (g.isEnableMemoryPool()) {
+            long memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();
+            long memoryPoolByteSize = memoryPoolCapacity * g.getMemoryPoolUnit();
+            double memoryPoolSize = memoryPoolByteSize / (1024 * 1024);
+            LoggerUtil.prettyLog(logger, "memory pool           :{ {} * {} ≈ {} M }",
+                    new Object[] { g.getMemoryPoolUnit(), memoryPoolCapacity, 
+                            new BigDecimal(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP) });
+        }
         protocolCodec.initialize(this);
         if (executorEventLoopGroup == null) {
             if (isEnableWorkEventLoop()) {
