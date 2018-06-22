@@ -717,24 +717,30 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private void releaseFutures() {
-        if (currentWriteFuturesLen > 0) {
-            for (int i = 0; i < currentWriteFuturesLen; i++) {
-                exceptionCaught(currentWriteFutures[i], CLOSED_CHANNEL);
+        final Future[] cwfs = this.currentWriteFutures;
+        final int maxLen = cwfs.length;
+        // 这里有可能是因为异常关闭，currentWriteFutureLen不准确
+        // 对所有不为空的future release
+        for (int i = 0; i < maxLen; i++) {
+            Future f = cwfs[i];
+            if (f == null) {
+                break;
             }
+            exceptionCaught(f, CLOSED_CHANNEL);
+            cwfs[i] = null;
         }
         NioEventLoop eventLoop = this.eventLoop;
         ReleaseUtil.release(readFuture, eventLoop);
         ReleaseUtil.release(sslReadFuture, eventLoop);
         ReleaseUtil.release(remainingBuf);
-        LinkedQueue<Future> writeFutures = this.writeFutures;
-        if (writeFutures.size() == 0) {
+        LinkedQueue<Future> wfs = this.writeFutures;
+        if (wfs.size() == 0) {
             return;
         }
-        Future future = writeFutures.poll();
+        Future future = wfs.poll();
         for (; future != null;) {
             exceptionCaught(future, CLOSED_CHANNEL);
-            ReleaseUtil.release(future, eventLoop);
-            future = writeFutures.poll();
+            future = wfs.poll();
         }
     }
 
@@ -785,12 +791,12 @@ public final class NioSocketChannel extends AttributesImpl
         final int maxLen = currentWriteFutures.length;
         for (;;) {
             int currentWriteFuturesLen = this.currentWriteFuturesLen;
-            for (; currentWriteFuturesLen < maxLen; currentWriteFuturesLen++) {
+            for (;currentWriteFuturesLen < maxLen;) {
                 Future future = writeFutures.poll();
                 if (future == null) {
                     break;
                 }
-                currentWriteFutures[currentWriteFuturesLen] = future;
+                currentWriteFutures[currentWriteFuturesLen++] = future;
             }
             if (currentWriteFuturesLen == 0) {
                 interestRead(selectionKey);
@@ -819,6 +825,7 @@ public final class NioSocketChannel extends AttributesImpl
                 ByteBuffer nioBuf = writeBuffers[0];
                 channel.write(nioBuf);
                 if (nioBuf.hasRemaining()) {
+                    this.currentWriteFuturesLen = 1;
                     currentWriteFutures[0].getByteBuf().reverse();
                     interestWrite(selectionKey);
                     return;
@@ -866,12 +873,11 @@ public final class NioSocketChannel extends AttributesImpl
                 for (int j = 0; j < currentWriteFuturesLen; j++) {
                     currentWriteFutures[j] = null;
                 }
+                this.currentWriteFuturesLen = 0;
                 if (currentWriteFuturesLen != maxLen) {
-                    this.currentWriteFuturesLen = 0;
                     interestRead(selectionKey);
                     return;
                 }
-                this.currentWriteFuturesLen = 0;
             }
         }
     }
