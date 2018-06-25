@@ -19,7 +19,6 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -31,10 +30,7 @@ public abstract class AbstractFuture implements Future {
     private static final byte TYPE_SILENT = 0;
 
     //FIXME isX 使用 byte & x ?
-    private ByteBuf  buf = EmptyByteBuf.get();
-    private long     bufReleaseVersion;
     private boolean  flushed;
-    private boolean  isNeedSsl;
     private boolean  isSilent;
     private byte     futureType;
     protected byte[] writeBuffer;
@@ -49,11 +45,6 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public Future duplicate() {
-        return new DuplicateFuture(buf.duplicate(), this);
-    }
-
-    @Override
     public final Future flush() {
         flushed = true;
         return this;
@@ -62,16 +53,6 @@ public abstract class AbstractFuture implements Future {
     @Override
     public boolean flushed() {
         return flushed;
-    }
-
-    @Override
-    public ByteBuf getByteBuf() {
-        return buf;
-    }
-
-    @Override
-    public int getByteBufLimit() {
-        return buf.limit();
     }
 
     @Override
@@ -85,11 +66,6 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public boolean isNeedSsl() {
-        return isNeedSsl;
-    }
-
-    @Override
     public boolean isPing() {
         return futureType == TYPE_PING;
     }
@@ -100,46 +76,20 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public boolean isReleased() {
-        return buf.isReleased();
-    }
-
-    @Override
     public boolean isSilent() {
         return isSilent;
     }
 
     @Override
-    public boolean isWriteCompleted() {
-        return !buf.hasRemaining();
-    }
-
-    @Override
     public void release(NioEventLoop eventLoop) {
-        buf.release(bufReleaseVersion);
     }
 
     protected Future reset() {
         this.flushed = false;
         this.futureType = 0;
-        this.isNeedSsl = false;
         this.isSilent = false;
         this.writeSize = 0;
-        this.bufReleaseVersion = 0;
-        this.buf = EmptyByteBuf.get();
         return this;
-    }
-
-    @Override
-    public void setByteBuf(ByteBuf buf) {
-        buf.nioBuffer();
-        this.buf = buf;
-        this.bufReleaseVersion = buf.getReleaseVersion();
-    }
-
-    @Override
-    public void setNeedSsl(boolean needSsl) {
-        this.isNeedSsl = needSsl;
     }
 
     @Override

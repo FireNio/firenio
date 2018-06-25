@@ -129,7 +129,7 @@ public class Http2Codec implements ProtocolCodec {
     }
 
     @Override
-    public void encode(NioSocketChannel channel, Future future) throws IOException {
+    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         Http2Frame frame = (Http2Frame) future;
         Http2FrameType frameType = frame.getHttp2FrameType();
@@ -186,7 +186,7 @@ public class Http2Codec implements ProtocolCodec {
         buf.putByte((byte) 0);
         buf.putInt(frame.getHeader().getStreamIdentifier());
         buf.put(payload);
-        future.setByteBuf(buf.flip());
+        return buf.flip();
     }
 
     @Override

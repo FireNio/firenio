@@ -19,10 +19,8 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.collection.FixedThreadStack;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -99,24 +97,24 @@ public class WebSocketCodec implements ProtocolCodec {
     @Override
     public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         if (futureStackSize > 0) {
-            NioEventLoop eventLoop = channel.getEventLoop();
-            FixedThreadStack<WebSocketFuture> stack = (FixedThreadStack<WebSocketFuture>) eventLoop
-                    .getAttribute(FUTURE_STACK_KEY);
-            if (stack == null) {
-                stack = new FixedThreadStack<>(futureStackSize);
-                eventLoop.setAttribute(FUTURE_STACK_KEY, stack);
-            }
-            WebSocketFuture future = stack.pop();
-            if (future == null) {
-                return new WebSocketFuture(channel, limit);
-            }
-            return future.reset(channel, limit);
+//            NioEventLoop eventLoop = channel.getEventLoop();
+//            FixedThreadStack<WebSocketFuture> stack = (FixedThreadStack<WebSocketFuture>) eventLoop
+//                    .getAttribute(FUTURE_STACK_KEY);
+//            if (stack == null) {
+//                stack = new FixedThreadStack<>(futureStackSize);
+//                eventLoop.setAttribute(FUTURE_STACK_KEY, stack);
+//            }
+//            WebSocketFuture future = stack.pop();
+//            if (future == null) {
+//                return new WebSocketFuture(channel, limit);
+//            }
+//            return future.reset(channel, limit);
         }
         return new WebSocketFuture(channel, limit);
     }
 
     @Override
-    public void encode(NioSocketChannel channel, Future future) throws IOException {
+    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         WebSocketFuture f = (WebSocketFuture) future;
         byte[] header;
@@ -143,7 +141,7 @@ public class WebSocketCodec implements ProtocolCodec {
         if (size > 0) {
             buf.put(data, 0, size);
         }
-        future.setByteBuf(buf.flip());
+        return buf.flip();
     }
 
     public int getFutureStackSize() {

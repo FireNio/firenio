@@ -44,9 +44,10 @@ public class SslFuture extends AbstractFuture {
 
     private boolean   header_complete;
     private int       limit;
+    private ByteBuf    buf;
 
     public SslFuture(ByteBuf buf, int limit) {
-        this.setByteBuf(buf);
+        this.buf = buf;
         this.limit = limit;
     }
 
@@ -88,6 +89,10 @@ public class SslFuture extends AbstractFuture {
         this.header_complete = false;
         getByteBuf().clear().limit(SSL_RECORD_HEADER_LENGTH);
         return this;
+    }
+    
+    public ByteBuf getByteBuf() {
+        return buf;
     }
 
     public SslFuture copy(NioSocketChannel channel) {

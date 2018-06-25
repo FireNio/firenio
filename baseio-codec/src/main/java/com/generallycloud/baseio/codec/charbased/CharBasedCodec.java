@@ -63,7 +63,7 @@ public class CharBasedCodec implements ProtocolCodec {
     }
 
     @Override
-    public void encode(NioSocketChannel channel, Future future) throws IOException {
+    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         CharBasedFuture f = (CharBasedFuture) future;
         int writeSize = f.getWriteSize();
@@ -73,7 +73,7 @@ public class CharBasedCodec implements ProtocolCodec {
         ByteBuf buf = allocator.allocate(writeSize + 1);
         buf.put(f.getWriteBuffer(), 0, writeSize);
         buf.putByte(splitor);
-        future.setByteBuf(buf.flip());
+        return buf.flip();
     }
 
     @Override

@@ -24,6 +24,7 @@ import java.util.Collection;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
+import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
@@ -96,12 +97,12 @@ public class ChannelAcceptor implements ChannelService {
         channelManager.broadcast(future, channels);
     }
 
-    public void broadcastFuture(Future future) throws IOException {
-        channelManager.broadcastFuture(future);
+    public void broadcast(ByteBuf buf) throws IOException {
+        channelManager.broadcast(buf);
     }
 
-    public void broadcastFuture(Future future, Collection<NioSocketChannel> channels) {
-        channelManager.broadcastFuture(future, channels);
+    public void broadcast(ByteBuf buf, Collection<NioSocketChannel> channels) {
+        channelManager.broadcast(buf, channels);
     }
 
     @Override

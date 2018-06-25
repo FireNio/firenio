@@ -23,20 +23,21 @@ import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.http2.Http2Session;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractFuture;
-import com.generallycloud.baseio.protocol.DefaultFuture;
 
 public class Http2PrefaceFuture extends AbstractFuture {
 
     private static byte[]  PREFACE_BINARY = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n".getBytes();
 
     private static ByteBuf PREFACE_BUF;
+    
+    private ByteBuf buf;
 
     static {
         PREFACE_BUF = UnpooledByteBufAllocator.getHeap().wrap(ByteBuffer.wrap(PREFACE_BINARY));
     }
 
     public Http2PrefaceFuture(ByteBuf buf) {
-        this.setByteBuf(buf);
+        this.buf = buf;
     }
 
     @Override
@@ -50,7 +51,7 @@ public class Http2PrefaceFuture extends AbstractFuture {
         if (!isPreface(buf)) {
             throw new IOException("not http2 preface");
         }
-        channel.flushFuture(new DefaultFuture(PREFACE_BUF.duplicate()));
+        channel.flush(PREFACE_BUF.duplicate());
     }
 
     private boolean isPreface(ByteBuf buf) {
@@ -67,7 +68,7 @@ public class Http2PrefaceFuture extends AbstractFuture {
 
     @Override
     public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        ByteBuf buf = getByteBuf();
+        ByteBuf buf = this.buf;
         buf.read(buffer);
         if (buf.hasRemaining()) {
             return false;

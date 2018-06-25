@@ -46,7 +46,6 @@ import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.DefaultFuture;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 import com.generallycloud.baseio.protocol.SslFuture;
@@ -54,9 +53,6 @@ import com.generallycloud.baseio.protocol.SslFuture;
 public final class NioSocketChannel extends AttributesImpl
         implements NioEventLoopTask, Attributes, Closeable {
 
-    private static final ClosedChannelException CLOSED_CHANNEL       = ThrowableUtil
-            .unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class,
-                    "channel closed");
     private static final ClosedChannelException CLOSED_WHEN_FLUSH    = ThrowableUtil
             .unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
     private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
@@ -69,14 +65,16 @@ public final class NioSocketChannel extends AttributesImpl
     private final ReentrantLock                 closeLock            = new ReentrantLock();
     private final ChannelContext                context;
     private final long                          creationTime         = System.currentTimeMillis();
-    private final Future[]                      currentWriteFutures;
-    private int                                 currentWriteFuturesLen;
+    private final ByteBuf[]                     currentWriteBufs;
+    private int                                 currentWriteBufsLen;
     private final boolean                       enableSsl;
     private final NioEventLoop                  eventLoop;
     private final ExecutorEventLoop             executorEventLoop;
+    private IoEventHandle                       ioEventHandle;
     private long                                lastAccess;
     private final String                        localAddr;
     private final int                           localPort;
+    private final int                           maxWriteBacklog;
     private boolean                             opened               = true;
     private ProtocolCodec                       protocolCodec;
     private transient Future                    readFuture;
@@ -87,9 +85,7 @@ public final class NioSocketChannel extends AttributesImpl
     private final SelectionKey                  selectionKey;
     private final SSLEngine                     sslEngine;
     private transient SslFuture                 sslReadFuture;
-    private final Queue<Future>                 writeFutures;
-    private IoEventHandle                       ioEventHandle;
-    private final int                           maxWriteBacklog;
+    private final Queue<ByteBuf>                writeBufs;
 
     NioSocketChannel(NioEventLoop eventLoop, SelectionKey selectionKey, ChannelContext context,
             int channelId) {
@@ -102,25 +98,24 @@ public final class NioSocketChannel extends AttributesImpl
         this.allocator = eventLoop.allocator();
         this.protocolCodec = context.getProtocolCodec();
         this.maxWriteBacklog = context.getMaxWriteBacklog();
-        this.currentWriteFutures = new Future[group.getWriteBuffers()];
+        this.currentWriteBufs = new ByteBuf[group.getWriteBuffers()];
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
         this.channel = (SocketChannel) selectionKey.channel();
         this.lastAccess = creationTime + group.getIdleTime();
-        this.writeFutures = new ConcurrentLinkedQueue<>();
-        //        this.writeFutures = new LinkedBlockingQueue<>();
+        this.writeBufs = new ConcurrentLinkedQueue<>();
         //请勿使用remote.getRemoteHost(),可能出现阻塞
         InetSocketAddress remote = getRemoteSocketAddress0();
         InetSocketAddress local = getLocalSocketAddress0();
-        remoteAddr = remote.getAddress().getHostAddress();
-        remotePort = remote.getPort();
-        remoteAddrPort = remoteAddr + ":" + remotePort;
-        localAddr = local.getAddress().getHostAddress();
-        localPort = local.getPort();
-        String idStr = Long.toHexString(channelId);
-        idStr = "0x" + StringUtil.getZeroString(8 - idStr.length()) + idStr;
-        channelDesc = new StringBuilder("[Id(").append(idStr).append(")R/").append(getRemoteAddr())
-                .append(":").append(getRemotePort()).append("; L:").append(getLocalPort())
-                .append("]").toString();
+        String idhex = Long.toHexString(channelId);
+        this.remoteAddr = remote.getAddress().getHostAddress();
+        this.remotePort = remote.getPort();
+        this.remoteAddrPort = remoteAddr + ":" + remotePort;
+        this.localAddr = local.getAddress().getHostAddress();
+        this.localPort = local.getPort();
+        this.channelDesc = new StringBuilder("[Id(0x")
+                .append(StringUtil.getZeroString(8 - idhex.length())).append(idhex).append(")R/")
+                .append(getRemoteAddr()).append(":").append(getRemotePort()).append("; L:")
+                .append(getLocalPort()).append("]").toString();
         if (context.isEnableSsl()) {
             this.sslEngine = context.getSslContext().newEngine(remoteAddr, remotePort);
         } else {
@@ -130,7 +125,6 @@ public final class NioSocketChannel extends AttributesImpl
 
     private void accept(ByteBuf buffer) throws Exception {
         final ProtocolCodec codec = this.protocolCodec;
-        final NioEventLoop eventLoop = this.eventLoop;
         final IoEventHandle eventHandle = this.ioEventHandle;
         final ByteBufAllocator allocator = this.allocator;
         final HeartBeatLogger heartBeatLogger = context.getHeartBeatLogger();
@@ -151,7 +145,6 @@ public final class NioSocketChannel extends AttributesImpl
                     }
                     break;
                 }
-                future.release(eventLoop);
                 if (future.isSilent()) {
                     if (future.isPing()) {
                         heartBeatLogger.logPing(this);
@@ -180,7 +173,6 @@ public final class NioSocketChannel extends AttributesImpl
                 future = codec.decode(this, buffer);
             }
         } catch (Throwable e) {
-            future.release(eventLoop);
             if (e instanceof IOException) {
                 throw (IOException) e;
             }
@@ -199,7 +191,6 @@ public final class NioSocketChannel extends AttributesImpl
                 }
             }
         });
-
     }
 
     public ByteBufAllocator allocator() {
@@ -239,7 +230,7 @@ public final class NioSocketChannel extends AttributesImpl
             try {
                 write();
             } catch (Exception e) {}
-            releaseFutures();
+            releaseBufs();
             CloseUtil.close(channel);
             selectionKey.attach(null);
             selectionKey.cancel();
@@ -253,12 +244,33 @@ public final class NioSocketChannel extends AttributesImpl
         if (isEnableSsl()) {
             sslEngine.closeOutbound();
             if (getContext().getSslContext().isClient()) {
-                writeFutures.offer(new DefaultFuture(EmptyByteBuf.get(), true));
+                writeBufs.offer(EmptyByteBuf.get());
             }
             try {
                 sslEngine.closeInbound();
             } catch (SSLException e) {}
         }
+    }
+
+    public ByteBuf encode(Future future) throws IOException {
+        if (future == null) {
+            return null;
+        }
+        if (isClosed()) {
+            return null;
+        }
+        ByteBuf buf = getProtocolCodec().encode(this, future);
+        if (enableSsl) {
+            FastThreadLocal l = FastThreadLocal.get();
+            ByteBuf old = buf;
+            SslHandler handler = l.getSslHandler();
+            try {
+                buf = handler.wrap(this, old);
+            } finally {
+                old.release(old.getReleaseVersion());
+            }
+        }
+        return buf;
     }
 
     private void exceptionCaught(Future future, Exception ex) {
@@ -293,16 +305,16 @@ public final class NioSocketChannel extends AttributesImpl
     @Override
     public void fireEvent(NioEventLoop eventLoop) throws IOException {
         if (isClosed()) {
-            close();
             return;
         }
         write();
     }
 
-    public void fireOpend() {
+    public void fireOpend() throws IOException {
         //FIXME ..如果这时候连接关闭了如何处理
         if (isEnableSsl() && context.getSslContext().isClient()) {
-            flushFuture(new DefaultFuture(EmptyByteBuf.get(), true));
+            SslHandler handler = FastThreadLocal.get().getSslHandler();
+            flush(handler.wrap(this, EmptyByteBuf.get()));
         }
         eventLoop.putChannel(this);
         for (ChannelEventListener l : getContext().getChannelEventListeners()) {
@@ -318,6 +330,56 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     /**
+     * flush已encode的future
+     * @param buf
+     */
+    public void flush(ByteBuf buf) {
+        final Queue<ByteBuf> writeBufs = this.writeBufs;
+        if (inEventLoop()) {
+            if (isClosed()) {
+                return;
+            }
+            if (currentWriteBufsLen == 0 && writeBufs.size() == 0) {
+                write(buf);
+            } else {
+                writeBufs.offer(buf);
+                if (maxWriteBacklog != Integer.MAX_VALUE) {
+                    if (writeBufs.size() > maxWriteBacklog) {
+                        close();
+                        return;
+                    }
+                }
+                try {
+                    write();
+                } catch (Throwable t) {
+                    close();
+                }
+            }
+        } else {
+            ReentrantLock lock = getCloseLock();
+            lock.lock();
+            try {
+                if (isClosed()) {
+                    return;
+                }
+                writeBufs.offer(buf);
+                if (maxWriteBacklog != Integer.MAX_VALUE) {
+                    if (writeBufs.size() > maxWriteBacklog) {
+                        close();
+                        return;
+                    }
+                }
+                if (writeBufs.size() != 1) {
+                    return;
+                }
+            } finally {
+                lock.unlock();
+            }
+            eventLoop.dispatch(this);
+        }
+    }
+
+    /**
      * flush未encode的future
      * @param f
      */
@@ -329,140 +391,75 @@ public final class NioSocketChannel extends AttributesImpl
             exceptionCaught(future, CLOSED_WHEN_FLUSH);
             return;
         }
+        ByteBuf buf = null;
         try {
+            buf = getProtocolCodec().encode(this, future);
             future.flush();
-            future.setNeedSsl(context.isEnableSsl());
-            getProtocolCodec().encode(this, future);
-            flushFuture(future);
-        } catch (Exception e) {
-            exceptionCaught(future, e);
-        }
-    }
-
-    public void flush(List<Future> futures) {
-        if (futures == null || futures.isEmpty()) {
-            return;
-        }
-        if (isClosed()) {
-            for (Future f : futures) {
-                exceptionCaught(f, CLOSED_WHEN_FLUSH);
-            }
-            return;
-        }
-        try {
-            boolean enableSsl = getContext().isEnableSsl();
-            ProtocolCodec codec = getProtocolCodec();
-            for (Future f : futures) {
-                f.flush();
-                f.setNeedSsl(enableSsl);
-                codec.encode(this, f);
-            }
-        } catch (Exception e) {
-            for (Future f : futures) {
-                exceptionCaught(f, e);
-            }
-            CloseUtil.close(this);
-            return;
-        }
-        flushFutures(futures);
-    }
-
-    /**
-     * flush已encode的future
-     * @param future
-     */
-    public void flushFuture(Future future) {
-        final Queue<Future> writeFutures = this.writeFutures;
-        if (inEventLoop()) {
-            if (isClosed()) {
-                exceptionCaught(future, CLOSED_WHEN_FLUSH);
-                return;
-            }
-            if (currentWriteFuturesLen == 0 && writeFutures.size() == 0) {
-                write(future);
-            } else {
-                writeFutures.offer(future);
-                if (writeFutures.size() > maxWriteBacklog) {
-                    close();
-                    return;
-                }
+            future.release(eventLoop);
+            if (enableSsl) {
+                FastThreadLocal l = FastThreadLocal.get();
+                ByteBuf old = buf;
+                SslHandler handler = l.getSslHandler();
                 try {
-                    write();
-                } catch (Throwable t) {
-                    close();
+                    buf = handler.wrap(this, old);
+                } finally {
+                    old.release(old.getReleaseVersion());
                 }
             }
-        } else {
-            ReentrantLock lock = getCloseLock();
-            lock.lock();
-            try {
-                if (isClosed()) {
-                    exceptionCaught(future, CLOSED_WHEN_FLUSH);
-                    return;
-                }
-                writeFutures.offer(future);
-                if (writeFutures.size() > maxWriteBacklog) {
-                    close();
-                    return;
-                }
-                if (writeFutures.size() != 1) {
-                    return;
-                }
-            } finally {
-                lock.unlock();
-            }
-            eventLoop.dispatch(this);
+        } catch (Exception e) {
+            ReleaseUtil.release(buf);
+            exceptionCaught(future, e);
+            return;
         }
+        flush(buf);
     }
 
     //FIXME ..使用该方法貌似会性能下降？查找原因
-    public void flushFutures(List<Future> futures) {
-        if (futures == null || futures.isEmpty()) {
+    public void flush(List<ByteBuf> bufs) {
+        if (bufs == null || bufs.isEmpty()) {
             return;
         }
         if (inEventLoop()) {
             if (isClosed()) {
-                for (Future f : futures) {
-                    exceptionCaught(f, CLOSED_WHEN_FLUSH);
-                }
+                ReleaseUtil.release(bufs);
                 return;
             }
-            final int futuresSize = futures.size();
-            final Queue<Future> writeFutures = this.writeFutures;
-            if (writeFutures.size() == 0) {
-                final Future[] currentWriteFutures = this.currentWriteFutures;
-                final int maxLen = currentWriteFutures.length;
-                int currentWriteFuturesLen = this.currentWriteFuturesLen;
-                if (currentWriteFuturesLen == 0) {
-                    if (futuresSize > maxLen) {
+            final int bufsSize = bufs.size();
+            final Queue<ByteBuf> writeBufs = this.writeBufs;
+            if (writeBufs.size() == 0) {
+                final ByteBuf[] currentWriteBufs = this.currentWriteBufs;
+                final int maxLen = currentWriteBufs.length;
+                int currentWriteBufsLen = this.currentWriteBufsLen;
+                if (currentWriteBufsLen == 0) {
+                    if (bufsSize > maxLen) {
                         for (int i = 0; i < maxLen; i++) {
-                            currentWriteFutures[i] = futures.get(i);
+                            currentWriteBufs[i] = bufs.get(i);
                         }
-                        for (int i = maxLen; i < futuresSize; i++) {
-                            writeFutures.offer(futures.get(i));
+                        for (int i = maxLen; i < bufsSize; i++) {
+                            writeBufs.offer(bufs.get(i));
                         }
-                        this.currentWriteFuturesLen = maxLen;
+                        this.currentWriteBufsLen = maxLen;
                     } else {
-                        for (int i = 0; i < futuresSize; i++) {
-                            currentWriteFutures[i] = futures.get(i);
+                        for (int i = 0; i < bufsSize; i++) {
+                            currentWriteBufs[i] = bufs.get(i);
                         }
-                        this.currentWriteFuturesLen = futuresSize;
+                        this.currentWriteBufsLen = bufsSize;
                     }
                 } else {
-                    final int currentRemain = maxLen - currentWriteFuturesLen;
-                    if (futuresSize > currentRemain) {
+                    final int currentRemain = maxLen - currentWriteBufsLen;
+                    if (bufsSize > currentRemain) {
                         for (int i = 0; i < currentRemain; i++) {
-                            currentWriteFutures[i + currentWriteFuturesLen] = futures.get(i);
+                            currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
                         }
-                        for (int i = currentRemain; i < futuresSize; i++) {
-                            writeFutures.offer(futures.get(i));
+                        for (int i = currentRemain; i < bufsSize; i++) {
+                            writeBufs.offer(bufs.get(i));
                         }
-                        this.currentWriteFuturesLen = maxLen;
+                        this.currentWriteBufsLen = maxLen;
                     } else {
-                        for (int i = 0; i < futuresSize; i++) {
-                            currentWriteFutures[i + currentWriteFuturesLen] = futures.get(i);
+                        for (int i = 0; i < bufsSize; i++) {
+                            currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
                         }
-                        this.currentWriteFuturesLen += futuresSize;
+                        this.currentWriteBufsLen += bufsSize;
                     }
                 }
                 try {
@@ -471,15 +468,15 @@ public final class NioSocketChannel extends AttributesImpl
                     CloseUtil.close(this);
                 }
             } else {
-                if (futuresSize + futures.size() > maxWriteBacklog) {
-                    for (Future f : futures) {
-                        exceptionCaught(f, CLOSED_WHEN_FLUSH);
+                if (maxWriteBacklog != Integer.MAX_VALUE) {
+                    if (bufsSize + bufs.size() > maxWriteBacklog) {
+                        ReleaseUtil.release(bufs);
+                        close();
+                        return;
                     }
-                    close();
-                    return;
                 }
-                for (Future f : futures) {
-                    writeFutures.offer(f);
+                for (ByteBuf buf : bufs) {
+                    writeBufs.offer(buf);
                 }
                 try {
                     write();
@@ -492,30 +489,27 @@ public final class NioSocketChannel extends AttributesImpl
             lock.lock();
             try {
                 if (isClosed()) {
-                    for (Future f : futures) {
-                        exceptionCaught(f, CLOSED_WHEN_FLUSH);
-                    }
+                    ReleaseUtil.release(bufs);
                     return;
                 }
-                final Queue<Future> writeFutures = this.writeFutures;
-                if (writeFutures.size() + futures.size() > maxWriteBacklog) {
-                    for (Future f : futures) {
-                        exceptionCaught(f, CLOSED_WHEN_FLUSH);
+                final Queue<ByteBuf> writeBufs = this.writeBufs;
+                if (maxWriteBacklog != Integer.MAX_VALUE) {
+                    if (writeBufs.size() + bufs.size() > maxWriteBacklog) {
+                        ReleaseUtil.release(bufs);
+                        close();
+                        return;
                     }
-                    close();
-                    return;
                 }
-                for (Future f : futures) {
-                    writeFutures.offer(f);
+                for (ByteBuf buf : bufs) {
+                    writeBufs.offer(buf);
                 }
-                if (writeFutures.size() != futures.size()) {
+                if (writeBufs.size() != bufs.size()) {
                     return;
                 }
             } catch (Exception e) {
                 //will happen ?
-                for (Future f : futures) {
-                    exceptionCaught(f, e);
-                }
+                ReleaseUtil.release(bufs);
+                CloseUtil.close(this);
                 return;
             } finally {
                 lock.unlock();
@@ -580,11 +574,6 @@ public final class NioSocketChannel extends AttributesImpl
         return channel.getOption(name);
     }
 
-    public int getWriteBacklog() {
-        //忽略current write[]
-        return writeFutures.size();
-    }
-
     public ProtocolCodec getProtocolCodec() {
         return protocolCodec;
     }
@@ -624,12 +613,13 @@ public final class NioSocketChannel extends AttributesImpl
         return sslEngine;
     }
 
-    public SslHandler getSslHandler() {
-        return eventLoop.getSslHandler();
-    }
-
     public SslFuture getSslReadFuture() {
         return sslReadFuture;
+    }
+
+    public int getWriteBacklog() {
+        //忽略current write[]
+        return writeBufs.size();
     }
 
     @Override
@@ -685,6 +675,8 @@ public final class NioSocketChannel extends AttributesImpl
         buf.reverse();
         buf.flip();
         if (enableSsl) {
+            FastThreadLocal l = FastThreadLocal.get();
+            SslHandler sslHandler = l.getSslHandler();
             SslFuture sslTemporary = eventLoop.getSslTemporary();
             for (;;) {
                 if (!buf.hasRemaining()) {
@@ -708,13 +700,7 @@ public final class NioSocketChannel extends AttributesImpl
                 if (setFutureNull) {
                     this.setSslReadFuture(null);
                 }
-                SslHandler sslHandler = getSslHandler();
-                ByteBuf product;
-                try {
-                    product = sslHandler.unwrap(this, future.getByteBuf());
-                } finally {
-                    future.release(eventLoop);
-                }
+                ByteBuf product = sslHandler.unwrap(this, future.getByteBuf());
                 if (product == null) {
                     continue;
                 }
@@ -735,32 +721,36 @@ public final class NioSocketChannel extends AttributesImpl
         this.remainingBuf = null;
     }
 
-    private void releaseFutures() {
-        final Future[] cwfs = this.currentWriteFutures;
-        final int maxLen = cwfs.length;
+    private void releaseBufs() {
+        final ByteBuf[] cwbs = this.currentWriteBufs;
+        final int maxLen = cwbs.length;
         // 这里有可能是因为异常关闭，currentWriteFutureLen不准确
         // 对所有不为空的future release
         for (int i = 0; i < maxLen; i++) {
-            Future f = cwfs[i];
-            if (f == null) {
+            ByteBuf buf = cwbs[i];
+            if (buf == null) {
                 break;
             }
-            exceptionCaught(f, CLOSED_CHANNEL);
-            cwfs[i] = null;
+            ReleaseUtil.release(buf);
+            cwbs[i] = null;
         }
         NioEventLoop eventLoop = this.eventLoop;
         ReleaseUtil.release(readFuture, eventLoop);
         ReleaseUtil.release(sslReadFuture, eventLoop);
         ReleaseUtil.release(remainingBuf);
-        Queue<Future> wfs = this.writeFutures;
+        Queue<ByteBuf> wfs = this.writeBufs;
         if (wfs.size() == 0) {
             return;
         }
-        Future future = wfs.poll();
-        for (; future != null;) {
-            exceptionCaught(future, CLOSED_CHANNEL);
-            future = wfs.poll();
+        ByteBuf buf = wfs.poll();
+        for (; buf != null;) {
+            ReleaseUtil.release(buf);
+            buf = wfs.poll();
         }
+    }
+
+    public void setIoEventHandle(IoEventHandle ioEventHandle) {
+        this.ioEventHandle = ioEventHandle;
     }
 
     public <T> void setOption(SocketOption<T> name, T value) throws IOException {
@@ -779,10 +769,6 @@ public final class NioSocketChannel extends AttributesImpl
         this.remainingBuf = remainingBuf;
     }
 
-    public void setIoEventHandle(IoEventHandle ioEventHandle) {
-        this.ioEventHandle = ioEventHandle;
-    }
-
     public void setSslReadFuture(SslFuture future) {
         this.sslReadFuture = future;
     }
@@ -794,97 +780,74 @@ public final class NioSocketChannel extends AttributesImpl
 
     protected void write() throws IOException {
         final NioEventLoop eventLoop = this.eventLoop;
+        final Queue<ByteBuf> writeBufs = this.writeBufs;
         final SelectionKey selectionKey = this.selectionKey;
-        final Queue<Future> writeFutures = this.writeFutures;
-        final Future[] currentWriteFutures = this.currentWriteFutures;
+        final ByteBuf[] currentWriteBufs = this.currentWriteBufs;
         final ByteBuffer[] writeBuffers = eventLoop.getWriteBuffers();
-        final int maxLen = currentWriteFutures.length;
+        final int maxLen = currentWriteBufs.length;
         for (;;) {
-            int currentWriteFuturesLen = this.currentWriteFuturesLen;
-            for (; currentWriteFuturesLen < maxLen;) {
-                Future future = writeFutures.poll();
-                if (future == null) {
+            int currentWriteBufsLen = this.currentWriteBufsLen;
+            for (; currentWriteBufsLen < maxLen;) {
+                ByteBuf buf = writeBufs.poll();
+                if (buf == null) {
                     break;
                 }
-                currentWriteFutures[currentWriteFuturesLen++] = future;
+                currentWriteBufs[currentWriteBufsLen++] = buf;
             }
-            if (currentWriteFuturesLen == 0) {
+            if (currentWriteBufsLen == 0) {
                 interestRead(selectionKey);
                 return;
             }
             //FIXME ...是否要清空buffers
-            for (int i = 0; i < currentWriteFuturesLen; i++) {
-                Future future = currentWriteFutures[i];
-                if (future.isNeedSsl()) {
-                    future.setNeedSsl(false);
-                    // FIXME 部分情况下可以不在业务线程做wrapssl
-                    ByteBuf old = future.getByteBuf();
-                    long version = old.getReleaseVersion();
-                    SslHandler handler = eventLoop.getSslHandler();
-                    try {
-                        ByteBuf newBuf = handler.wrap(this, old);
-                        newBuf.nioBuffer();
-                        future.setByteBuf(newBuf);
-                    } finally {
-                        old.release(version);
-                    }
-                }
-                writeBuffers[i] = future.getByteBuf().nioBuffer();
+            for (int i = 0; i < currentWriteBufsLen; i++) {
+                ByteBuf buf = currentWriteBufs[i];
+                writeBuffers[i] = buf.nioBuffer();
             }
-            if (currentWriteFuturesLen == 1) {
+            if (currentWriteBufsLen == 1) {
                 ByteBuffer nioBuf = writeBuffers[0];
                 channel.write(nioBuf);
                 if (nioBuf.hasRemaining()) {
-                    this.currentWriteFuturesLen = 1;
-                    currentWriteFutures[0].getByteBuf().reverse();
+                    this.currentWriteBufsLen = 1;
+                    currentWriteBufs[0].reverse();
                     interestWrite(selectionKey);
                     return;
                 } else {
-                    Future future = currentWriteFutures[0];
-                    currentWriteFutures[0] = null;
-                    try {
-                        future.release(eventLoop);
-                    } catch (Throwable e) {
-                        logger.error(e.getMessage(), e);
-                    }
-                    this.currentWriteFuturesLen = 0;
+                    ByteBuf buf = currentWriteBufs[0];
+                    currentWriteBufs[0] = null;
+                    buf.release(buf.getReleaseVersion());
+                    this.currentWriteBufsLen = 0;
                     interestRead(selectionKey);
                     return;
                 }
             } else {
-                channel.write(writeBuffers, 0, currentWriteFuturesLen);
-                for (int i = 0; i < currentWriteFuturesLen; i++) {
-                    Future future = currentWriteFutures[i];
+                channel.write(writeBuffers, 0, currentWriteBufsLen);
+                for (int i = 0; i < currentWriteBufsLen; i++) {
+                    ByteBuf buf = currentWriteBufs[i];
                     if (writeBuffers[i].hasRemaining()) {
-                        int remain = currentWriteFuturesLen - i;
+                        int remain = currentWriteBufsLen - i;
                         if (remain > 16) {
-                            System.arraycopy(currentWriteFutures, i, currentWriteFutures, 0,
-                                    remain);
+                            System.arraycopy(currentWriteBufs, i, currentWriteBufs, 0, remain);
                         } else {
                             for (int j = 0; j < remain; j++) {
-                                currentWriteFutures[j] = currentWriteFutures[i + j];
+                                currentWriteBufs[j] = currentWriteBufs[i + j];
                             }
                         }
-                        for (int j = currentWriteFuturesLen - i; j < maxLen; j++) {
-                            currentWriteFutures[j] = null;
+                        for (int j = currentWriteBufsLen - i; j < maxLen; j++) {
+                            currentWriteBufs[j] = null;
                         }
-                        future.getByteBuf().reverse();
-                        this.currentWriteFuturesLen = remain;
+                        buf.reverse();
+                        this.currentWriteBufsLen = remain;
                         interestWrite(selectionKey);
                         return;
                     } else {
-                        try {
-                            future.release(eventLoop);
-                        } catch (Throwable e) {
-                            logger.error(e.getMessage(), e);
-                        }
+                        buf.release(buf.getReleaseVersion());
                     }
                 }
-                for (int j = 0; j < currentWriteFuturesLen; j++) {
-                    currentWriteFutures[j] = null;
+                for (int j = 0; j < currentWriteBufsLen; j++) {
+                    currentWriteBufs[j] = null;
                 }
-                this.currentWriteFuturesLen = 0;
-                if (currentWriteFuturesLen != maxLen) {
+                this.currentWriteBufsLen = 0;
+                if (currentWriteBufsLen != maxLen) {
                     interestRead(selectionKey);
                     return;
                 }
@@ -892,41 +855,22 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    private void write(Future future) {
+    private void write(ByteBuf buf) {
         try {
-            if (future.isNeedSsl()) {
-                future.setNeedSsl(false);
-                // FIXME 部分情况下可以不在业务线程做wrapssl
-                ByteBuf old = future.getByteBuf();
-                long version = old.getReleaseVersion();
-                SslHandler handler = eventLoop.getSslHandler();
-                try {
-                    ByteBuf newBuf = handler.wrap(this, old);
-                    newBuf.nioBuffer();
-                    future.setByteBuf(newBuf);
-                } finally {
-                    old.release(version);
-                }
-            }
-            ByteBuf buf = future.getByteBuf();
             channel.write(buf.nioBuffer());
             buf.reverse();
             if (buf.hasRemaining()) {
-                currentWriteFuturesLen = 1;
-                currentWriteFutures[0] = future;
+                currentWriteBufsLen = 1;
+                currentWriteBufs[0] = buf;
                 interestWrite(selectionKey);
                 return;
             } else {
-                try {
-                    future.release(eventLoop);
-                } catch (Throwable e) {
-                    logger.error(e.getMessage(), e);
-                }
+                buf.release(buf.getReleaseVersion());
                 interestRead(selectionKey);
             }
         } catch (Exception e) {
+            ReleaseUtil.release(buf);
             CloseUtil.close(this);
-            exceptionCaught(future, e);
         }
     }
 

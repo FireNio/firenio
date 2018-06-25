@@ -53,14 +53,14 @@ public class RedisCodec implements ProtocolCodec {
     }
 
     @Override
-    public void encode(NioSocketChannel channel, Future future) throws IOException {
+    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
         RedisFuture f = (RedisFuture) future;
         int writeSize = f.getWriteSize();
         if (writeSize == 0) {
             throw new IOException("null write buffer");
         }
         ByteBuf buf = UnpooledByteBufAllocator.getHeap().wrap(f.getWriteBuffer(), 0, writeSize);
-        future.setByteBuf(buf);
+        return buf.flip();
     }
 
     @Override

@@ -20,10 +20,8 @@ import java.util.List;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.collection.FixedThreadStack;
 import com.generallycloud.baseio.component.ByteArrayOutputStream;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -73,23 +71,23 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     @Override
     public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         if (httpFutureStackSize > 0) {
-            NioEventLoop eventLoop = channel.getEventLoop();
-            FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
-                    .getAttribute(FUTURE_STACK_KEY);
-            if (stack == null) {
-                stack = new FixedThreadStack<>(httpFutureStackSize);
-                eventLoop.setAttribute(FUTURE_STACK_KEY, stack);
-            }
-            ServerHttpFuture future = stack.pop();
-            if (future == null) {
-                return new ServerHttpFuture(channel, headerLimit, bodyLimit);
-            }
-            return future.reset(channel, headerLimit, bodyLimit);
+//            NioEventLoop eventLoop = channel.getEventLoop();
+//            FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
+//                    .getAttribute(FUTURE_STACK_KEY);
+//            if (stack == null) {
+//                stack = new FixedThreadStack<>(httpFutureStackSize);
+//                eventLoop.setAttribute(FUTURE_STACK_KEY, stack);
+//            }
+//            ServerHttpFuture future = stack.pop();
+//            if (future == null) {
+//                return new ServerHttpFuture(channel, headerLimit, bodyLimit);
+//            }
+//            return future.reset(channel, headerLimit, bodyLimit);
         }
         return new ServerHttpFuture(channel, headerLimit, bodyLimit);
     }
 
-    private void encode(ByteBufAllocator allocator, ServerHttpFuture f, int length, byte[] array)
+    private ByteBuf encode(ByteBufAllocator allocator, ServerHttpFuture f, int length, byte[] array)
             throws IOException {
         ByteBuf buf = allocator.allocate(256);
         try {
@@ -118,11 +116,11 @@ public class ServerHttpCodec extends AbstractHttpCodec {
             buf.release(buf.getReleaseVersion());
             throw e;
         }
-        f.setByteBuf(buf.flip());
+        return buf.flip();
     }
 
     @Override
-    public void encode(NioSocketChannel channel, Future readFuture) throws IOException {
+    public ByteBuf encode(NioSocketChannel channel, Future readFuture) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         ServerHttpFuture f = (ServerHttpFuture) readFuture;
         if (f.isUpdateWebSocketProtocol()) {
@@ -133,15 +131,13 @@ public class ServerHttpCodec extends AbstractHttpCodec {
                 HttpHeaderDateFormat.getFormat().format(System.currentTimeMillis()));
         ByteArrayOutputStream os = f.getBinaryBuffer();
         if (os != null) {
-            encode(allocator, f, os.size(), os.array());
-            return;
+            return encode(allocator, f, os.size(), os.array());
         }
         int writeSize = f.getWriteSize();
         if (writeSize == 0) {
-            encode(allocator, f, 0, null);
-            return;
+            return encode(allocator, f, 0, null);
         }
-        encode(allocator, f, writeSize, f.getWriteBuffer());
+        return encode(allocator, f, writeSize, f.getWriteBuffer());
     }
 
     @Override

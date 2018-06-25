@@ -26,15 +26,13 @@ import com.generallycloud.baseio.protocol.AbstractFuture;
 public class Http2FrameHeaderImpl extends AbstractFuture implements Http2FrameHeader {
 
     private boolean          header_complete;
-
     private byte             flags;
-
     private int              streamIdentifier;
-
     private SocketHttp2Frame frame;
+    private ByteBuf          buf;
 
     public Http2FrameHeaderImpl(ByteBuf buf) {
-        setByteBuf(buf);
+        this.buf = buf;
     }
 
     public Http2FrameHeaderImpl() {}
@@ -52,7 +50,7 @@ public class Http2FrameHeaderImpl extends AbstractFuture implements Http2FrameHe
 
     @Override
     public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        ByteBuf buf = getByteBuf();
+        ByteBuf buf = this.buf;
         if (!header_complete) {
             buf.read(buffer);
             if (buf.hasRemaining()) {
@@ -125,11 +123,6 @@ public class Http2FrameHeaderImpl extends AbstractFuture implements Http2FrameHe
     public void release(NioEventLoop eventLoop) {
         super.release(eventLoop);
         frame.release(eventLoop);
-    }
-
-    @Override
-    public boolean isReleased() {
-        return frame.isReleased() && getByteBuf().isReleased();
     }
 
 }

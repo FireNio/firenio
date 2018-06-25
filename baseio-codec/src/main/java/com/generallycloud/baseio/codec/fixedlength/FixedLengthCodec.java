@@ -87,11 +87,10 @@ public class FixedLengthCodec implements ProtocolCodec {
     }
 
     @Override
-    public void encode(NioSocketChannel channel, Future future) throws IOException {
+    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         if (future.isSilent()) {
-            future.setByteBuf(future.isPing() ? PING.duplicate() : PONG.duplicate());
-            return;
+            return future.isPing() ? PING.duplicate() : PONG.duplicate();
         }
         FixedLengthFuture f = (FixedLengthFuture) future;
         int writeSize = f.getWriteSize();
@@ -101,7 +100,7 @@ public class FixedLengthCodec implements ProtocolCodec {
         ByteBuf buf = allocator.allocate(writeSize + 4);
         buf.putInt(writeSize);
         buf.put(f.getWriteBuffer(), 0, writeSize);
-        future.setByteBuf(buf.flip());
+        return buf.flip();
     }
 
     @Override

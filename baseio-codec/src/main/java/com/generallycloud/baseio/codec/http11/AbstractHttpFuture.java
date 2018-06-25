@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.common.KMPUtil;
 import com.generallycloud.baseio.common.StringLexer;
 import com.generallycloud.baseio.common.StringUtil;
@@ -69,6 +68,7 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
     private Map<String, String>              response_headers;
     private HttpStatus                       status         = HttpStatus.C200;
     private String                           version;
+    private ByteBuf                          buf;
 
     public AbstractHttpFuture(NioSocketChannel channel, int headerLimit, int bodyLimit) {
         this.context = channel.getContext();
@@ -306,16 +306,17 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
             } else {
                 hasBodyContent = true;
                 // FIXME 写入临时文件
-                setByteBuf(allocate(channel, contentLength, bodyLimit));
+                this.buf = allocate(channel, contentLength, bodyLimit);
             }
         }
-        ByteBuf buf = getByteBuf();
+        ByteBuf buf = this.buf;
         buf.read(buffer);
         if (buf.hasRemaining()) {
             return false;
         }
         buf.flip();
         bodyArray = buf.getBytes();
+        buf.release(buf.getReleaseVersion());
         if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
             // FIXME encoding
             String paramString = new String(bodyArray, context.getCharset());
@@ -515,7 +516,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
         } else {
             params.clear();
         }
-        setByteBuf(EmptyByteBuf.get());
         super.reset();
         return this;
     }

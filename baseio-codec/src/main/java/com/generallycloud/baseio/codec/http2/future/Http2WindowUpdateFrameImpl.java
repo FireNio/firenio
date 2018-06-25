@@ -25,7 +25,7 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame
         implements Http2WindowUpdateFrame {
 
     private int updateValue;
-
+    
     public Http2WindowUpdateFrameImpl(ByteBuf buf, Http2FrameHeader header) {
         super(header);
         this.setByteBuf(buf);

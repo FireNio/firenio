@@ -104,11 +104,10 @@ public class ProtobaseCodec implements ProtocolCodec {
     }
 
     @Override
-    public void encode(NioSocketChannel channel, Future future) throws IOException {
+    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         if (future.isSilent()) {
-            future.setByteBuf(future.isPing() ? PING.duplicate() : PONG.duplicate());
-            return;
+            return future.isPing() ? PING.duplicate() : PONG.duplicate();
         }
         ProtobaseFuture f = (ProtobaseFuture) future;
         String futureName = f.getFutureName();
@@ -168,7 +167,7 @@ public class ProtobaseCodec implements ProtocolCodec {
         if (binaryWriteSize > 0) {
             buf.put(f.getWriteBinary(), 0, binaryWriteSize);
         }
-        future.setByteBuf(buf.flip());
+        return buf.flip();
     }
 
     @Override

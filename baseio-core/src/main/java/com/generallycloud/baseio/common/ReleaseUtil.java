@@ -15,7 +15,11 @@
  */
 package com.generallycloud.baseio.common;
 
+import java.util.Collection;
+import java.util.List;
+
 import com.generallycloud.baseio.Releasable;
+import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -33,6 +37,15 @@ public class ReleaseUtil {
             releasable.release(version);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+    
+    public static void release(List<ByteBuf> bufs) {
+        if (bufs == null) {
+            return;
+        }
+        for(Releasable r : bufs){
+            release(r);
         }
     }
 

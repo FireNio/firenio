@@ -28,15 +28,6 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 //FIXME .....部分使用该类地方是否可以使用EmptyFuture
 public class DefaultFuture extends AbstractFuture {
 
-    public DefaultFuture(ByteBuf buf) {
-        setByteBuf(buf);
-    }
-
-    public DefaultFuture(ByteBuf buf, boolean isNeedSsl) {
-        setByteBuf(buf);
-        this.setNeedSsl(isNeedSsl);
-    }
-
     @Override
     public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
         throw new UnsupportedOperationException();

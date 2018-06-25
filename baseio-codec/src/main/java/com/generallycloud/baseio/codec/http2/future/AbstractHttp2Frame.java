@@ -15,11 +15,13 @@
  */
 package com.generallycloud.baseio.codec.http2.future;
 
+import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.protocol.AbstractFuture;
 
 public abstract class AbstractHttp2Frame extends AbstractFuture implements SocketHttp2Frame {
 
     private Http2FrameHeader header;
+    private ByteBuf buf;
 
     protected AbstractHttp2Frame(Http2FrameHeader header) {
         this.header = header;
@@ -28,6 +30,14 @@ public abstract class AbstractHttp2Frame extends AbstractFuture implements Socke
     @Override
     public Http2FrameHeader getHeader() {
         return header;
+    }
+
+    public ByteBuf getByteBuf() {
+        return buf;
+    }
+
+    public void setByteBuf(ByteBuf buf) {
+        this.buf = buf;
     }
 
 }

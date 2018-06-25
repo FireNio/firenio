@@ -18,6 +18,7 @@ package com.generallycloud.test.io.load.fixedlength;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.component.ChannelAcceptor;
@@ -41,7 +42,7 @@ public class TestLoadServer {
         group.setMemoryPoolUnit(128);
         ChannelContext context = new ChannelContext(8300);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
-        context.setMaxWriteBacklog(1024 * 1024);
+        context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setProtocolCodec(new FixedLengthCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new ChannelEventListenerAdapter() {
@@ -50,13 +51,13 @@ public class TestLoadServer {
             public void channelOpened(NioSocketChannel channel) throws Exception {
                 channel.setIoEventHandle(new IoEventHandle() {
                     boolean      addTask = true;
-                    List<Future> fs      = new ArrayList<>(1024 * 4);
+                    List<ByteBuf> fs      = new ArrayList<>(1024 * 4);
                     @Override
                     public void accept(NioSocketChannel channel, Future future) throws Exception {
                         FixedLengthFuture f = (FixedLengthFuture) future;
                         f.write(f.getReadText(), channel);
                         if (batchFlush) {
-                            fs.add(f);
+                            fs.add(channel.encode(future));
                             if (addTask) {
                                 addTask = false;
                                 channel.getEventLoop().dispatchAfterLoop((e) -> {

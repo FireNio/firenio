@@ -25,21 +25,16 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.AbstractSet;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.SSLHandshakeException;
 
@@ -53,9 +48,9 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
-import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
+import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -68,47 +63,30 @@ import com.generallycloud.baseio.protocol.SslFuture;
 //FIXME 使用ThreadLocal
 public final class NioEventLoop extends AbstractEventLoop implements Attributes {
 
-    private static final AtomicInteger indexedVariablesIndex   = new AtomicInteger(0);
-    private static final Logger        logger                  = LoggerFactory
+    private static final Logger                      logger           = LoggerFactory
             .getLogger(NioEventLoop.class);
-    private static final int           maxIndexedVariablesSize = 16;
+    private final ByteBufAllocator                   allocator;
+    private final Map<Object, Object>                attributes       = new HashMap<>();
+    private ByteBuf                                  buf;
+    private final IntObjectHashMap<NioSocketChannel> channels         = new IntObjectHashMap<>();
+    private final int                                channelSizeLimit = 1024 * 64;
+    private ChannelContext                           context;                                     // use when not sharable 
+    private String                                   desc;
+    private BufferedArrayList<NioEventLoopTask>      events           = new BufferedArrayList<>();
+    private final NioEventLoopGroup                  group;
+    private volatile boolean                         hasTask          = false;
+    private final int                                index;
+    private final boolean                            isAcceptor;
+    private long                                     lastIdleTime     = 0;
+    private AtomicBoolean                            selecting        = new AtomicBoolean();
+    private SelectionKeySet                          selectionKeySet;
+    private Selector                                 selector;
+    private boolean                                  selectorRegisted;
+    private final boolean                            sharable;
+    private SslFuture                                sslTemporary;
+    private AtomicBoolean                            wakener          = new AtomicBoolean();      // true eventLooper, false offerer
 
-    public static int nextIndexedVariablesIndex() {
-        if (indexedVariablesIndex.get() >= maxIndexedVariablesSize) {
-            return -1;
-        }
-        int index = indexedVariablesIndex.getAndIncrement();
-        if (index >= maxIndexedVariablesSize) {
-            return -1;
-        }
-        return index;
-    }
-
-    private ByteBufAllocator                    allocator;
-    private Map<Object, Object>                 attributes       = new HashMap<>();
-    private ByteBuf                             buf;
-    private IntObjectHashMap<NioSocketChannel>  channels         = new IntObjectHashMap<>();
-    private final int                           channelSizeLimit = 1024 * 64;
-    private Map<Charset, CharsetDecoder>        charsetDecoders  = new IdentityHashMap<>();
-    private Map<Charset, CharsetEncoder>        charsetEncoders  = new IdentityHashMap<>();
-    private ChannelContext                      context;                                               // use when not sharable 
-    private String                              desc;
-    private BufferedArrayList<NioEventLoopTask> events           = new BufferedArrayList<>();
-    private NioEventLoopGroup                   group;
-    private volatile boolean                    hasTask          = false;
-    private final int                           index;
-    private Object[]                            indexedVariables = new Object[maxIndexedVariablesSize];
-    private final boolean                       isAcceptor;
-    private long                                lastIdleTime     = 0;
-    private AtomicBoolean                       selecting        = new AtomicBoolean();
-    private SelectionKeySet                     selectionKeySet;
-    private Selector                            selector;
-    private boolean                             selectorRegisted;
-    private final boolean                       sharable;
-    private SslHandler                          sslHandler;
-    private SslFuture                           sslTemporary;
-    private AtomicBoolean                       wakener          = new AtomicBoolean();                // true eventLooper, false offerer
-    private ByteBuffer[]                        writeBuffers;
+    private ByteBuffer[]                             writeBuffers;
 
     NioEventLoop(NioEventLoopGroup group, int index, boolean isAcceptor) {
         this.context = group.getContext();
@@ -265,7 +243,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             } else {
                 try {
                     event.fireEvent(this);
-                } catch (IOException e) {
+                } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -309,6 +287,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             this.sslTemporary = new SslFuture(buf, 1024 * 64);
         }
         this.selector = openSelector();
+        this.desc = MessageFormatter.arrayFormat("NioEventLoop(idx:{},sharable:{},isAcceptor:{})",
+                new Object[] { index, sharable, isAcceptor });
     }
 
     @Override
@@ -351,24 +331,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return channels.get(channelId);
     }
 
-    public CharsetDecoder getCharsetDecoder(Charset charset) {
-        CharsetDecoder decoder = charsetDecoders.get(charset);
-        if (decoder == null) {
-            decoder = charset.newDecoder();
-            charsetDecoders.put(charset, decoder);
-        }
-        return decoder;
-    }
-
-    public CharsetEncoder getCharsetEncoder(Charset charset) {
-        CharsetEncoder encoder = charsetEncoders.get(charset);
-        if (encoder == null) {
-            encoder = charset.newEncoder();
-            charsetEncoders.put(charset, encoder);
-        }
-        return encoder;
-    }
-
     @Override
     public NioEventLoopGroup getGroup() {
         return group;
@@ -378,16 +340,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return index;
     }
 
-    public Object getIndexedVariable(int index) {
-        return indexedVariables[index];
-    }
-
     public Selector getSelector() {
         return selector;
-    }
-
-    public SslHandler getSslHandler() {
-        return sslHandler;
     }
 
     public SslFuture getSslTemporary() {
@@ -545,10 +499,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     public void registChannel(SelectionKey k) throws IOException {
+        final NioEventLoop thisEventLoop = this;
         final ChannelContext context = (ChannelContext) k.attachment();
         final ChannelService channelService = context.getChannelService();
-        final NioEventLoop thisEventLoop = this;
-        final int channelId = group.getChannelIds().getAndIncrement();
+        final FixedAtomicInteger channelIds = group.getChannelIds();
         if (channelService instanceof ChannelAcceptor) {
             ChannelAcceptor acceptor = (ChannelAcceptor) channelService;
             ServerSocketChannel serverChannel = acceptor.getSelectableChannel();
@@ -565,6 +519,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             // 配置为非阻塞
             channel.configureBlocking(false);
             // 注册到selector，等待连接
+            final int channelId = channelIds.getAndIncrement();
             if (thisEventLoop == targetEventLoop) {
                 registChannel(channel, targetEventLoop, context, channelId);
             } else {
@@ -601,6 +556,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         sk.cancel();
                     }
                 }
+                final int channelId = channelIds.getAndIncrement();
                 if (thisEventLoop == targetEL) {
                     registChannel(javaChannel, targetEL, context, channelId);
                 } else {
@@ -644,7 +600,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             if (selectorRegisted) {
                 if (context == this.context) {
                     return;
-                }else{
+                } else {
                     throw new IOException("selector registed");
                 }
             }
@@ -700,9 +656,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             throws IOException {
         ChannelService channelService = context.getChannelService();
         SelectableChannel channel = channelService.getSelectableChannel();
-        if (context.isEnableSsl()) {
-            eventLoop.sslHandler = context.getSslContext().newSslHandler();
-        }
         if (channelService instanceof ChannelAcceptor) {
             //FIXME 使用多eventLoop accept是否导致卡顿 是否要区分accept和read
             return channel.register(eventLoop.selector, SelectionKey.OP_ACCEPT, context);
@@ -726,16 +679,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         this.attributes.put(key, value);
     }
 
-    public void setIndexedVariable(int index, Object value) {
-        indexedVariables[index] = value;
-    }
-
     @Override
     public String toString() {
-        if (desc == null) {
-            desc = MessageFormatter.arrayFormat("NioEventLoop(idx:{},sharable:{},isAcceptor:{})",
-                    new Object[] { index, sharable, isAcceptor });
-        }
         return desc;
     }
 

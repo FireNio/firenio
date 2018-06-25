@@ -66,7 +66,7 @@ public class ClientHttpCodec extends AbstractHttpCodec {
     }
 
     @Override
-    public void encode(NioSocketChannel channel, Future future) throws IOException {
+    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
         ByteBufAllocator allocator = channel.allocator();
         ClientHttpFuture f = (ClientHttpFuture) future;
         ByteBuf buf = allocator.allocate(256);
@@ -88,7 +88,7 @@ public class ClientHttpCodec extends AbstractHttpCodec {
         }
         buf.putByte(R);
         buf.putByte(N);
-        future.setByteBuf(buf.flip());
+        return buf.flip();
     }
 
     @Override

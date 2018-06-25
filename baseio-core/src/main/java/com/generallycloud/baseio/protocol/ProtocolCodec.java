@@ -36,7 +36,7 @@ public interface ProtocolCodec {
     Future decode(NioSocketChannel channel, ByteBuf src) throws IOException;
 
     // 注意：encode失败要release掉encode过程中申请的内存
-    void encode(NioSocketChannel channel, Future future) throws IOException;
+    ByteBuf encode(NioSocketChannel channel, Future future) throws IOException;
 
     String getProtocolId();
 

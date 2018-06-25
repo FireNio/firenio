@@ -25,31 +25,19 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 
 public interface Future {
 
-    Future duplicate();
-
     Future flush();
 
     boolean flushed();
-
-    ByteBuf getByteBuf();
-
-    int getByteBufLimit();
 
     byte[] getWriteBuffer();
 
     int getWriteSize();
 
-    boolean isNeedSsl();
-
     boolean isPing();
 
     boolean isPong();
 
-    boolean isReleased();
-
     boolean isSilent();
-
-    boolean isWriteCompleted();
 
     /**
      * return true if the future read complete
@@ -61,10 +49,6 @@ public interface Future {
     boolean read(NioSocketChannel channel, ByteBuf src) throws IOException;
 
     void release(NioEventLoop loop);
-
-    void setByteBuf(ByteBuf buf);
-
-    void setNeedSsl(boolean needSsl);
 
     Future setPing();
 

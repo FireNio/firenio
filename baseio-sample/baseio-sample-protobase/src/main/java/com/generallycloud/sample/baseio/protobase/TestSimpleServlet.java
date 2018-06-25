@@ -48,13 +48,4 @@ public class TestSimpleServlet extends ProtobaseFutureAcceptorService {
         //		System.out.println("=============================="+size.incrementAndGet());
     }
 
-    //	private AtomicInteger sent = new AtomicInteger(1);
-    //	
-    //	private AtomicInteger accept = new AtomicInteger(0);
-    //	
-    //	public void futureSent(Channel channel, WriteFuture future) {
-    //		logger.info("sent:{}",sent.getAndIncrement());
-    //		logger.info("accept:{}",accept.get());
-    //	}
-
 }
