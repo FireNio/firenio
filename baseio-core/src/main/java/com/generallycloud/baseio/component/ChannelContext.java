@@ -41,7 +41,7 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
-public class ChannelContext extends AbstractLifeCycle {
+public final class ChannelContext extends AbstractLifeCycle {
 
     private Map<Object, Object>            attributes         = new HashMap<>();
     private String                         certCrt;
@@ -55,7 +55,7 @@ public class ChannelContext extends AbstractLifeCycle {
     private boolean                        enableWorkEventLoop;
     private ExecutorEventLoopGroup         executorEventLoopGroup;
     private HeartBeatLogger                heartBeatLogger;
-    private String                         host               = "127.0.0.1";
+    private String                         host;
     private boolean                        initialized;
     private IoEventHandle                  ioEventHandle      = DefaultIoEventHandle.get();
     private Logger                         logger             = LoggerFactory.getLogger(getClass());
@@ -63,8 +63,8 @@ public class ChannelContext extends AbstractLifeCycle {
     private NioEventLoopGroup              nioEventLoopGroup;
     private int                            port;
     private ProtocolCodec                  protocolCodec;
-    private List<ChannelEventListener>     ssels              = new ArrayList<>();
-    private List<ChannelIdleEventListener> ssiels             = new ArrayList<>();
+    private List<ChannelEventListener>     cels               = new ArrayList<>();
+    private List<ChannelIdleEventListener> ciels              = new ArrayList<>();
     private SslContext                     sslContext;
     private String                         sslKeystore;
     private long                           startupTime        = System.currentTimeMillis();
@@ -75,7 +75,7 @@ public class ChannelContext extends AbstractLifeCycle {
     }
 
     public ChannelContext(int port) {
-        this(null, port);
+        this("127.0.0.1", port);
     }
 
     public ChannelContext(String host, int port) {
@@ -86,12 +86,12 @@ public class ChannelContext extends AbstractLifeCycle {
 
     public void addChannelEventListener(ChannelEventListener listener) {
         checkNotRunning();
-        ssels.add(listener);
+        cels.add(listener);
     }
 
     public void addChannelIdleEventListener(ChannelIdleEventListener listener) {
         checkNotRunning();
-        ssiels.add(listener);
+        ciels.add(listener);
     }
 
     private void checkNotRunning() {
@@ -108,9 +108,9 @@ public class ChannelContext extends AbstractLifeCycle {
         if (!initialized) {
             initialized = true;
         }
-        NioEventLoopGroup g = this.nioEventLoopGroup;
         initHeartBeatLogger();
         initSslContext(getClass().getClassLoader());
+        NioEventLoopGroup g = this.nioEventLoopGroup;
         String protocolId = protocolCodec.getProtocolId();
         int eventLoopSize = g.getEventLoopSize();
         LoggerUtil.prettyLog(logger, "charset               :{ {} }", charset);
@@ -124,7 +124,7 @@ public class ChannelContext extends AbstractLifeCycle {
             long memoryPoolByteSize = memoryPoolCapacity * g.getMemoryPoolUnit();
             double memoryPoolSize = memoryPoolByteSize / (1024 * 1024);
             LoggerUtil.prettyLog(logger, "memory pool           :{ {} * {} ≈ {} M }",
-                    new Object[] { g.getMemoryPoolUnit(), memoryPoolCapacity, 
+                    new Object[] { g.getMemoryPoolUnit(), memoryPoolCapacity,
                             new BigDecimal(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP) });
         }
         protocolCodec.initialize(this);
@@ -162,11 +162,11 @@ public class ChannelContext extends AbstractLifeCycle {
     }
 
     public List<ChannelEventListener> getChannelEventListeners() {
-        return ssels;
+        return cels;
     }
 
     public List<ChannelIdleEventListener> getChannelIdleEventListeners() {
-        return ssiels;
+        return ciels;
     }
 
     public ChannelManager getChannelManager() {

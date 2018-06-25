@@ -62,6 +62,7 @@ public class TestLoadClient1 extends ITestThread {
         group.setBufRecycleSize(1024 * 4);
         ChannelContext context = new ChannelContext(8300);
         connector = new ChannelConnector(context, group);
+        context.setMaxWriteBacklog(1024 * 1024);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());

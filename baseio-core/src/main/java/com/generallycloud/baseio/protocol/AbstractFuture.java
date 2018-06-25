@@ -23,7 +23,6 @@ import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.concurrent.Linkable;
 
 public abstract class AbstractFuture implements Future {
 
@@ -32,13 +31,11 @@ public abstract class AbstractFuture implements Future {
     private static final byte TYPE_SILENT = 0;
 
     //FIXME isX 使用 byte & x ?
-    private ByteBuf  buf        = EmptyByteBuf.get();
+    private ByteBuf  buf = EmptyByteBuf.get();
     private long     bufReleaseVersion;
     private boolean  flushed;
     private boolean  isNeedSsl;
     private boolean  isSilent;
-    private boolean  isValidate = true;
-    private Linkable next;
     private byte     futureType;
     protected byte[] writeBuffer;
     protected int    writeSize;
@@ -78,11 +75,6 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public Linkable getNext() {
-        return next;
-    }
-
-    @Override
     public byte[] getWriteBuffer() {
         return writeBuffer;
     }
@@ -118,11 +110,6 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public boolean isValidate() {
-        return isValidate;
-    }
-
-    @Override
     public boolean isWriteCompleted() {
         return !buf.hasRemaining();
     }
@@ -137,7 +124,6 @@ public abstract class AbstractFuture implements Future {
         this.futureType = 0;
         this.isNeedSsl = false;
         this.isSilent = false;
-        this.next = null;
         this.writeSize = 0;
         this.bufReleaseVersion = 0;
         this.buf = EmptyByteBuf.get();
@@ -154,11 +140,6 @@ public abstract class AbstractFuture implements Future {
     @Override
     public void setNeedSsl(boolean needSsl) {
         this.isNeedSsl = needSsl;
-    }
-
-    @Override
-    public void setNext(Linkable next) {
-        this.next = next;
     }
 
     @Override
@@ -179,11 +160,6 @@ public abstract class AbstractFuture implements Future {
     public void setSilent() {
         this.futureType = TYPE_SILENT;
         this.isSilent = true;
-    }
-
-    @Override
-    public void setValidate(boolean validate) {
-        this.isValidate = validate;
     }
 
     @Override

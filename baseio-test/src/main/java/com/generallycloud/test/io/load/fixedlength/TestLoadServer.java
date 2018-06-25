@@ -41,6 +41,7 @@ public class TestLoadServer {
         group.setMemoryPoolUnit(128);
         ChannelContext context = new ChannelContext(8300);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
+        context.setMaxWriteBacklog(1024 * 1024);
         context.setProtocolCodec(new FixedLengthCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new ChannelEventListenerAdapter() {

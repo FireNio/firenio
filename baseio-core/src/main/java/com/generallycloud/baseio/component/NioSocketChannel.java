@@ -25,6 +25,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
@@ -42,8 +44,6 @@ import com.generallycloud.baseio.common.ThrowableUtil;
 import com.generallycloud.baseio.component.ChannelContext.HeartBeatLogger;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
-import com.generallycloud.baseio.concurrent.LinkedQueue;
-import com.generallycloud.baseio.concurrent.ScspLinkedQueue;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.DefaultFuture;
@@ -62,41 +62,34 @@ public final class NioSocketChannel extends AttributesImpl
     private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
     private static final Logger                 logger               = LoggerFactory
             .getLogger(NioSocketChannel.class);
-    private ByteBufAllocator                    allocator;
-    private SocketChannel                       channel;
-    private String                              channelDesc;
-    private Integer                             channelId;
-    private ReentrantLock                       closeLock            = new ReentrantLock();
-    private ChannelContext                      context;
-    private long                                creationTime         = System.currentTimeMillis();
-    private Future[]                            currentWriteFutures;
+    private final ByteBufAllocator              allocator;
+    private final SocketChannel                 channel;
+    private final String                        channelDesc;
+    private final Integer                       channelId;
+    private final ReentrantLock                 closeLock            = new ReentrantLock();
+    private final ChannelContext                context;
+    private final long                          creationTime         = System.currentTimeMillis();
+    private final Future[]                      currentWriteFutures;
     private int                                 currentWriteFuturesLen;
     private final boolean                       enableSsl;
     private final NioEventLoop                  eventLoop;
-    private ExecutorEventLoop                   executorEventLoop;
+    private final ExecutorEventLoop             executorEventLoop;
     private long                                lastAccess;
-    private String                              localAddr;
-    private int                                 localPort;
+    private final String                        localAddr;
+    private final int                           localPort;
     private boolean                             opened               = true;
     private ProtocolCodec                       protocolCodec;
     private transient Future                    readFuture;
     private ByteBuf                             remainingBuf;
-    private String                              remoteAddr;
-    private String                              remoteAddrPort;
-    private int                                 remotePort;
+    private final String                        remoteAddr;
+    private final String                        remoteAddrPort;
+    private final int                           remotePort;
     private final SelectionKey                  selectionKey;
-    private SSLEngine                           sslEngine;
+    private final SSLEngine                     sslEngine;
     private transient SslFuture                 sslReadFuture;
-    private LinkedQueue<Future>                 writeFutures;
+    private final Queue<Future>                 writeFutures;
     private IoEventHandle                       ioEventHandle;
-
-    NioSocketChannel(ChannelContext context, ByteBufAllocator allocator) {
-        this.enableSsl = false;
-        this.context = context;
-        this.allocator = allocator;
-        this.eventLoop = null;
-        this.selectionKey = null;
-    }
+    private final int                           maxWriteBacklog;
 
     NioSocketChannel(NioEventLoop eventLoop, SelectionKey selectionKey, ChannelContext context,
             int channelId) {
@@ -108,11 +101,31 @@ public final class NioSocketChannel extends AttributesImpl
         this.enableSsl = context.isEnableSsl();
         this.allocator = eventLoop.allocator();
         this.protocolCodec = context.getProtocolCodec();
+        this.maxWriteBacklog = context.getMaxWriteBacklog();
         this.currentWriteFutures = new Future[group.getWriteBuffers()];
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
         this.channel = (SocketChannel) selectionKey.channel();
         this.lastAccess = creationTime + group.getIdleTime();
-        this.writeFutures = new ScspLinkedQueue<>(new DefaultFuture(EmptyByteBuf.get()));
+        this.writeFutures = new ConcurrentLinkedQueue<>();
+        //        this.writeFutures = new LinkedBlockingQueue<>();
+        //请勿使用remote.getRemoteHost(),可能出现阻塞
+        InetSocketAddress remote = getRemoteSocketAddress0();
+        InetSocketAddress local = getLocalSocketAddress0();
+        remoteAddr = remote.getAddress().getHostAddress();
+        remotePort = remote.getPort();
+        remoteAddrPort = remoteAddr + ":" + remotePort;
+        localAddr = local.getAddress().getHostAddress();
+        localPort = local.getPort();
+        String idStr = Long.toHexString(channelId);
+        idStr = "0x" + StringUtil.getZeroString(8 - idStr.length()) + idStr;
+        channelDesc = new StringBuilder("[Id(").append(idStr).append(")R/").append(getRemoteAddr())
+                .append(":").append(getRemotePort()).append("; L:").append(getLocalPort())
+                .append("]").toString();
+        if (context.isEnableSsl()) {
+            this.sslEngine = context.getSslContext().newEngine(remoteAddr, remotePort);
+        } else {
+            this.sslEngine = null;
+        }
     }
 
     private void accept(ByteBuf buffer) throws Exception {
@@ -194,7 +207,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (isClosed()) {
             return;
         }
@@ -288,18 +301,6 @@ public final class NioSocketChannel extends AttributesImpl
 
     public void fireOpend() {
         //FIXME ..如果这时候连接关闭了如何处理
-        //请勿使用remote.getRemoteHost(),可能出现阻塞
-        InetSocketAddress remote = getRemoteSocketAddress0();
-        InetSocketAddress local = getLocalSocketAddress0();
-        remoteAddr = remote.getAddress().getHostAddress();
-        remotePort = remote.getPort();
-        remoteAddrPort = remoteAddr + ":" + remotePort;
-        localAddr = local.getAddress().getHostAddress();
-        localPort = local.getPort();
-        ChannelContext context = getContext();
-        if (context.isEnableSsl()) {
-            this.sslEngine = context.getSslContext().newEngine(remoteAddr, remotePort);
-        }
         if (isEnableSsl() && context.getSslContext().isClient()) {
             flushFuture(new DefaultFuture(EmptyByteBuf.get(), true));
         }
@@ -371,7 +372,7 @@ public final class NioSocketChannel extends AttributesImpl
      * @param future
      */
     public void flushFuture(Future future) {
-        final LinkedQueue<Future> writeFutures = this.writeFutures;
+        final Queue<Future> writeFutures = this.writeFutures;
         if (inEventLoop()) {
             if (isClosed()) {
                 exceptionCaught(future, CLOSED_WHEN_FLUSH);
@@ -381,10 +382,14 @@ public final class NioSocketChannel extends AttributesImpl
                 write(future);
             } else {
                 writeFutures.offer(future);
+                if (writeFutures.size() > maxWriteBacklog) {
+                    close();
+                    return;
+                }
                 try {
                     write();
                 } catch (Throwable t) {
-                    CloseUtil.close(this);
+                    close();
                 }
             }
         } else {
@@ -396,6 +401,10 @@ public final class NioSocketChannel extends AttributesImpl
                     return;
                 }
                 writeFutures.offer(future);
+                if (writeFutures.size() > maxWriteBacklog) {
+                    close();
+                    return;
+                }
                 if (writeFutures.size() != 1) {
                     return;
                 }
@@ -419,7 +428,7 @@ public final class NioSocketChannel extends AttributesImpl
                 return;
             }
             final int futuresSize = futures.size();
-            final LinkedQueue<Future> writeFutures = this.writeFutures;
+            final Queue<Future> writeFutures = this.writeFutures;
             if (writeFutures.size() == 0) {
                 final Future[] currentWriteFutures = this.currentWriteFutures;
                 final int maxLen = currentWriteFutures.length;
@@ -462,6 +471,13 @@ public final class NioSocketChannel extends AttributesImpl
                     CloseUtil.close(this);
                 }
             } else {
+                if (futuresSize + futures.size() > maxWriteBacklog) {
+                    for (Future f : futures) {
+                        exceptionCaught(f, CLOSED_WHEN_FLUSH);
+                    }
+                    close();
+                    return;
+                }
                 for (Future f : futures) {
                     writeFutures.offer(f);
                 }
@@ -481,7 +497,14 @@ public final class NioSocketChannel extends AttributesImpl
                     }
                     return;
                 }
-                final LinkedQueue<Future> writeFutures = this.writeFutures;
+                final Queue<Future> writeFutures = this.writeFutures;
+                if (writeFutures.size() + futures.size() > maxWriteBacklog) {
+                    for (Future f : futures) {
+                        exceptionCaught(f, CLOSED_WHEN_FLUSH);
+                    }
+                    close();
+                    return;
+                }
                 for (Future f : futures) {
                     writeFutures.offer(f);
                 }
@@ -609,10 +632,6 @@ public final class NioSocketChannel extends AttributesImpl
         return sslReadFuture;
     }
 
-    public int getWriteFutureSize() {
-        return writeFutures.size();
-    }
-
     @Override
     public int hashCode() {
         return remoteAddrPort.hashCode();
@@ -733,7 +752,7 @@ public final class NioSocketChannel extends AttributesImpl
         ReleaseUtil.release(readFuture, eventLoop);
         ReleaseUtil.release(sslReadFuture, eventLoop);
         ReleaseUtil.release(remainingBuf);
-        LinkedQueue<Future> wfs = this.writeFutures;
+        Queue<Future> wfs = this.writeFutures;
         if (wfs.size() == 0) {
             return;
         }
@@ -770,26 +789,19 @@ public final class NioSocketChannel extends AttributesImpl
 
     @Override
     public String toString() {
-        if (channelDesc == null) {
-            String idStr = Long.toHexString(channelId);
-            idStr = "0x" + StringUtil.getZeroString(8 - idStr.length()) + idStr;
-            channelDesc = new StringBuilder("[Id(").append(idStr).append(")R/")
-                    .append(getRemoteAddr()).append(":").append(getRemotePort()).append("; L:")
-                    .append(getLocalPort()).append("]").toString();
-        }
         return channelDesc;
     }
 
     protected void write() throws IOException {
         final NioEventLoop eventLoop = this.eventLoop;
         final SelectionKey selectionKey = this.selectionKey;
+        final Queue<Future> writeFutures = this.writeFutures;
         final Future[] currentWriteFutures = this.currentWriteFutures;
-        final LinkedQueue<Future> writeFutures = this.writeFutures;
         final ByteBuffer[] writeBuffers = eventLoop.getWriteBuffers();
         final int maxLen = currentWriteFutures.length;
         for (;;) {
             int currentWriteFuturesLen = this.currentWriteFuturesLen;
-            for (;currentWriteFuturesLen < maxLen;) {
+            for (; currentWriteFuturesLen < maxLen;) {
                 Future future = writeFutures.poll();
                 if (future == null) {
                     break;

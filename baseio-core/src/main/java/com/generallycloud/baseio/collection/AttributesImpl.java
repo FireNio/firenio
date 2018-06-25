@@ -21,7 +21,7 @@ import java.util.Set;
 
 public class AttributesImpl implements Attributes {
 
-    private Map<Object, Object> attributes = new HashMap<>();
+    private final Map<Object, Object> attributes = new HashMap<>();
 
     @Override
     public Map<Object, Object> attributes() {

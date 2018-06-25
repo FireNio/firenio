@@ -22,9 +22,8 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.concurrent.Linkable;
 
-public interface Future extends Linkable {
+public interface Future {
 
     Future duplicate();
 
