@@ -33,7 +33,7 @@ public class SystemStopServerServlet implements FutureAcceptor {
     @Override
     public void accept(NioSocketChannel channel, Future future) throws Exception {
         ChannelContext context = channel.getContext();
-        future.write("server is stopping", channel.getEncoding());
+        future.write("server is stopping", channel.getCharset());
         channel.flush(future);
         ThreadUtil.exec(new StopServer(context));
     }

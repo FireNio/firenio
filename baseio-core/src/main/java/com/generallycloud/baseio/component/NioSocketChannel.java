@@ -534,7 +534,7 @@ public final class NioSocketChannel extends AttributesImpl
         return creationTime;
     }
 
-    public Charset getEncoding() {
+    public Charset getCharset() {
         return getContext().getCharset();
     }
 

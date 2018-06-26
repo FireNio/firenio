@@ -27,7 +27,7 @@ public class DefaultOnRedeployAcceptor implements FutureAcceptor {
 
     @Override
     public void accept(NioSocketChannel channel, Future future) throws Exception {
-        future.write("server is upgrading , please wait ...", channel.getEncoding());
+        future.write("server is upgrading , please wait ...", channel.getCharset());
         channel.flush(future);
     }
 

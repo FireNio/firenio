@@ -77,7 +77,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
     @Override
     public Charset getEncoding() {
-        return channel.getEncoding();
+        return channel.getCharset();
     }
 
     @Override

@@ -37,7 +37,7 @@ public class TestLineBasedServer {
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {
                 String res = "yes server already accept your message:" + future;
-                future.write(res, channel.getEncoding());
+                future.write(res, channel.getCharset());
                 channel.flush(future);
             }
         };

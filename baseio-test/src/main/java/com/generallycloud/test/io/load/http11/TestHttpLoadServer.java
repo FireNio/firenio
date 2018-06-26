@@ -16,7 +16,6 @@
 package com.generallycloud.test.io.load.http11;
 
 import com.generallycloud.baseio.codec.http11.ServerHttpCodec;
-import com.generallycloud.baseio.codec.http11.ServerHttpFuture;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
@@ -33,20 +32,18 @@ public class TestHttpLoadServer {
 
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {
-                System.out.println("channel >>>>"+channel);
                 future.write("hello world!8080", channel.getContext());
-                ServerHttpFuture f = (ServerHttpFuture) future;
                 channel.flush(future);
             }
 
         };
 
-        NioEventLoopGroup group = new NioEventLoopGroup(8);
-        group.setMemoryPoolCapacity(1024 * 1024 * 2 / 8);
+        NioEventLoopGroup group = new NioEventLoopGroup(4);
+        group.setMemoryPoolCapacity(1024 * 1024 * 2 / 4);
         group.setMemoryPoolUnit(256);
         group.setEnableMemoryPoolDirect(true);
         group.setEnableMemoryPool(true);
-        ChannelContext context = new ChannelContext(8080);
+        ChannelContext context = new ChannelContext(8087);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setProtocolCodec(new ServerHttpCodec());
         context.setIoEventHandle(eventHandleAdaptor);

@@ -59,7 +59,7 @@ public class FixedLengthFuture extends AbstractFuture implements TextFuture {
         }
         src.markL();
         src.limit(src.position() + len);
-        readText = StringUtil.decode(channel.getEncoding(), src.nioBuffer());
+        readText = StringUtil.decode(channel.getCharset(), src.nioBuffer());
         src.reverse();
         src.resetL();
         return true;

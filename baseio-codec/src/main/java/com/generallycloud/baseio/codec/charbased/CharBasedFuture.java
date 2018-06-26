@@ -50,7 +50,7 @@ public class CharBasedFuture extends AbstractFuture implements TextFuture {
     @Override
     public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         ByteArrayOutputStream cache = this.cache;
-        Charset charset = channel.getEncoding();
+        Charset charset = channel.getCharset();
         for (; buffer.hasRemaining();) {
             byte b = buffer.getByte();
             if (b == splitor) {

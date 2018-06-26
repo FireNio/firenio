@@ -58,7 +58,7 @@ public class FileReceiveUtil {
             CloseUtil.close(outputStream);
             channel.removeAttribute(ACCEPT_FILE);
             if (callback) {
-                future.write("传输成功！", channel.getEncoding());
+                future.write("传输成功！", channel.getCharset());
                 channel.flush(future);
             }
         }

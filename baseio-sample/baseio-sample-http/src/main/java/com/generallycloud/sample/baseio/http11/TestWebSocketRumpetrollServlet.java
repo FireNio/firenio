@@ -42,7 +42,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
 
     @Override
     protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
-        future.updateWebSocketProtocol();
+        future.updateWebSocketProtocol(session.getChannel());
         session.flush(future);
         NioSocketChannel ioChannel = session.getChannel();
         msgAdapter.addClient(ioChannel.getRemoteAddrPort(), ioChannel);

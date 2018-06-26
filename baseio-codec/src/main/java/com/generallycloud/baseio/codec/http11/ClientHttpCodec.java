@@ -62,7 +62,7 @@ public class ClientHttpCodec extends AbstractHttpCodec {
 
     @Override
     public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        return new ClientHttpFuture(channel, headerLimit, bodyLimit);
+        return new ClientHttpFuture(channel.getContext(), headerLimit, bodyLimit);
     }
 
     @Override

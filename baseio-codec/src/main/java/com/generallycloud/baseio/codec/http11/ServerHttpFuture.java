@@ -29,18 +29,22 @@ public class ServerHttpFuture extends AbstractHttpFuture {
 
     private boolean updateWebSocketProtocol;
 
-    public ServerHttpFuture(NioSocketChannel channel, int headerLimit, int bodyLimit) {
-        super(channel, bodyLimit, bodyLimit);
+    public ServerHttpFuture(ChannelContext context, int headerLimit, int bodyLimit) {
+        super(bodyLimit, bodyLimit);
+        setRequestHeaders(new HashMap<String, String>());
         setRequestParams(new HashMap<String, String>());
+        setResponseHeaders(new HashMap<String, String>());
+        setDefaultResponseHeaders(context, getResponseHeaders());
     }
-
+    
     public ServerHttpFuture(ChannelContext context) {
-        super(context);
+        setRequestHeaders(new HashMap<String, String>());
+        setResponseHeaders(new HashMap<String, String>());
+        setDefaultResponseHeaders(context, getResponseHeaders());
     }
 
-    @Override
-    protected void setDefaultResponseHeaders(Map<String, String> headers) {
-        if (getContext().getCharset() == Encoding.GBK) {
+    private void setDefaultResponseHeaders(ChannelContext context, Map<String, String> headers) {
+        if (context.getCharset() == Encoding.GBK) {
             headers.put(HttpHeader.Content_Type, "text/plain;charset=gbk");
         } else {
             headers.put(HttpHeader.Content_Type, "text/plain;charset=utf-8");
@@ -70,7 +74,7 @@ public class ServerHttpFuture extends AbstractHttpFuture {
     }
 
     @Override
-    public boolean updateWebSocketProtocol() {
+    public boolean updateWebSocketProtocol(NioSocketChannel channel) {
         String Sec_WebSocket_Key = getRequestHeader(HttpHeader.Req_Sec_WebSocket_Key);
         if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key)) {
             //FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
@@ -87,7 +91,7 @@ public class ServerHttpFuture extends AbstractHttpFuture {
         }
         return false;
     }
-    
+
     public boolean isUpdateWebSocketProtocol() {
         return updateWebSocketProtocol;
     }
@@ -116,7 +120,10 @@ public class ServerHttpFuture extends AbstractHttpFuture {
     public ServerHttpFuture reset(NioSocketChannel channel, int headerLimit, int bodyLimit) {
         super.reset(channel, headerLimit, bodyLimit);
         this.updateWebSocketProtocol = false;
-        setDefaultResponseHeaders(getResponseHeaders());
+        getRequestParams().clear();
+        getResponseHeaders().clear();
+        setRequestParams(getRequestParams());
+        setDefaultResponseHeaders(channel.getContext(), getResponseHeaders());
         return this;
     }
 

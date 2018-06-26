@@ -28,6 +28,7 @@ public class FileSystemACLoader implements ApplicationConfigurationLoader {
         Properties properties = FileUtil.readPropertiesByCls("app.properties", Encoding.UTF8,
                 classLoader);
         ConfigurationParser.parseConfiguration("app.", configuration, properties);
+        configuration.setProperties(properties);
         return configuration;
     }
 

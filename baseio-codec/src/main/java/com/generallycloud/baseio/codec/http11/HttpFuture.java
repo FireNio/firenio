@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.generallycloud.baseio.component.ByteArrayOutputStream;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 public interface HttpFuture extends HttpMessage {
 
@@ -107,7 +108,7 @@ public interface HttpFuture extends HttpMessage {
 
     void addCookie(Cookie cookie);
 
-    boolean updateWebSocketProtocol();
+    boolean updateWebSocketProtocol(NioSocketChannel channel);
 
     void writeBinary(byte[] binary);
 

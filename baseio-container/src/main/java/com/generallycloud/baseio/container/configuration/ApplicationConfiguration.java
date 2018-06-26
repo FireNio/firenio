@@ -15,61 +15,72 @@
  */
 package com.generallycloud.baseio.container.configuration;
 
+import com.generallycloud.baseio.common.Properties;
+
 public class ApplicationConfiguration {
 
-    private boolean enableHttpSession;
-    private boolean enableRedeploy   = true;
-    private boolean enableStopServer = true;
-    private String  futureAcceptor;
-    private String  onRedeployFutureAcceptor;
-    private String  ioExceptionCaughtHandle;
-
-    public boolean isEnableHttpSession() {
-        return enableHttpSession;
-    }
-
-    public void setEnableHttpSession(boolean enableHttpSession) {
-        this.enableHttpSession = enableHttpSession;
-    }
-
-    public boolean isEnableRedeploy() {
-        return enableRedeploy;
-    }
-
-    public void setEnableRedeploy(boolean enableRedeploy) {
-        this.enableRedeploy = enableRedeploy;
-    }
-
-    public boolean isEnableStopServer() {
-        return enableStopServer;
-    }
-
-    public void setEnableStopServer(boolean enableStopServer) {
-        this.enableStopServer = enableStopServer;
-    }
+    private boolean    enableHttpSession;
+    private boolean    enableRedeploy   = true;
+    private boolean    enableStopServer = true;
+    private String     futureAcceptor;
+    private String     ioExceptionCaughtHandle;
+    private String     onRedeployFutureAcceptor;
+    private Properties properties;
 
     public String getFutureAcceptor() {
         return futureAcceptor;
-    }
-
-    public void setFutureAcceptor(String futureAcceptor) {
-        this.futureAcceptor = futureAcceptor;
-    }
-
-    public String getOnRedeployFutureAcceptor() {
-        return onRedeployFutureAcceptor;
-    }
-
-    public void setOnRedeployFutureAcceptor(String onRedeployFutureAcceptor) {
-        this.onRedeployFutureAcceptor = onRedeployFutureAcceptor;
     }
 
     public String getIoExceptionCaughtHandle() {
         return ioExceptionCaughtHandle;
     }
 
+    public String getOnRedeployFutureAcceptor() {
+        return onRedeployFutureAcceptor;
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public boolean isEnableHttpSession() {
+        return enableHttpSession;
+    }
+
+    public boolean isEnableRedeploy() {
+        return enableRedeploy;
+    }
+
+    public boolean isEnableStopServer() {
+        return enableStopServer;
+    }
+
+    public void setEnableHttpSession(boolean enableHttpSession) {
+        this.enableHttpSession = enableHttpSession;
+    }
+
+    public void setEnableRedeploy(boolean enableRedeploy) {
+        this.enableRedeploy = enableRedeploy;
+    }
+
+    public void setEnableStopServer(boolean enableStopServer) {
+        this.enableStopServer = enableStopServer;
+    }
+
+    public void setFutureAcceptor(String futureAcceptor) {
+        this.futureAcceptor = futureAcceptor;
+    }
+
     public void setIoExceptionCaughtHandle(String ioExceptionCaughtHandle) {
         this.ioExceptionCaughtHandle = ioExceptionCaughtHandle;
+    }
+
+    public void setOnRedeployFutureAcceptor(String onRedeployFutureAcceptor) {
+        this.onRedeployFutureAcceptor = onRedeployFutureAcceptor;
+    }
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
     }
 
 }

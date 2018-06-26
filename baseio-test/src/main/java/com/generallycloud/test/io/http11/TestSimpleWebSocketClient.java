@@ -40,7 +40,7 @@ public class TestSimpleWebSocketClient {
             public void accept(NioSocketChannel channel, Future future) throws Exception {
                 if (future instanceof ClientHttpFuture) {
                     ClientHttpFuture f = (ClientHttpFuture) future;
-                    if (f.updateWebSocketProtocol()) {
+                    if (f.updateWebSocketProtocol(channel)) {
                         WebSocketFuture f2 = new WebSocketFuture();
                         f2.write("{action: \"add-user\", username: \"火星人\"}", channel);
                         channel.flush(f2);

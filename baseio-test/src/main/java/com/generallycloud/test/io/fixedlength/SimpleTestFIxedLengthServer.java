@@ -32,8 +32,8 @@ public class SimpleTestFIxedLengthServer {
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:", channel.getEncoding());
-                future.write(f.getReadText(), channel.getEncoding());
+                future.write("yes server already accept your message:", channel.getCharset());
+                future.write(f.getReadText(), channel.getCharset());
                 channel.flush(future);
             }
         };

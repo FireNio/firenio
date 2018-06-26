@@ -27,7 +27,6 @@ import com.generallycloud.baseio.common.KMPUtil;
 import com.generallycloud.baseio.common.StringLexer;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ByteArrayOutputStream;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractFuture;
 
@@ -49,7 +48,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
     private String                           boundary;
     private int                              contentLength;
     private String                           contentType;
-    private ChannelContext                   context;
     private List<Cookie>                     cookieList;
     private Map<String, String>              cookies;
     private StringBuilder                    currentHeaderLine;
@@ -68,19 +66,14 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
     private Map<String, String>              response_headers;
     private HttpStatus                       status         = HttpStatus.C200;
     private String                           version;
-    private ByteBuf                          buf;
 
-    public AbstractHttpFuture(NioSocketChannel channel, int headerLimit, int bodyLimit) {
-        this.context = channel.getContext();
+    public AbstractHttpFuture(int headerLimit, int bodyLimit) {
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
-        this.request_headers = new HashMap<>();
         this.currentHeaderLine = new StringBuilder();
     }
-
-    public AbstractHttpFuture(ChannelContext context) {
-        this.context = context;
-    }
+    
+    AbstractHttpFuture(){}
 
     @Override
     public void addCookie(Cookie cookie) {
@@ -187,10 +180,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
 
     @Override
     public Map<String, String> getResponseHeaders() {
-        if (response_headers == null) {
-            response_headers = new HashMap<>();
-            setDefaultResponseHeaders(response_headers);
-        }
         return response_headers;
     }
 
@@ -280,13 +269,12 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
             value = paramString.substring(lastIndex);
             params.put(key, value);
         }
-
     }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
         if (!header_complete) {
-            readHeader(buffer);
+            readHeader(src);
             if (!header_complete) {
                 return false;
             }
@@ -304,22 +292,27 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
             if (contentLength < 1) {
                 return true;
             } else {
+                if (contentLength > bodyLimit) {
+                    throw new IOException("over limit:" + contentLengthStr);
+                }
                 hasBodyContent = true;
                 // FIXME 写入临时文件
-                this.buf = allocate(channel, contentLength, bodyLimit);
             }
         }
-        ByteBuf buf = this.buf;
-        buf.read(buffer);
-        if (buf.hasRemaining()) {
+        int remain = src.remaining();
+        if (remain == contentLength) {
+            bodyArray = src.getBytes();
+        } else if (remain < contentLength) {
             return false;
+        } else {
+            src.markL();
+            src.limit(src.position() + contentLength);
+            bodyArray = src.getBytes();
+            src.resetL();
         }
-        buf.flip();
-        bodyArray = buf.getBytes();
-        buf.release(buf.getReleaseVersion());
         if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
             // FIXME encoding
-            String paramString = new String(bodyArray, context.getCharset());
+            String paramString = new String(bodyArray, channel.getCharset());
             parseParamString(paramString);
             this.readText = paramString;
         } else {
@@ -364,8 +357,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
         }
     }
 
-    protected abstract void setDefaultResponseHeaders(Map<String, String> headers);
-
     @Override
     public void setRequestHeader(String name, String value) {
         if (StringUtil.isNullOrBlank(name)) {
@@ -403,10 +394,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
 
     @Override
     public void setResponseHeader(String name, String value) {
-        if (response_headers == null) {
-            response_headers = new HashMap<>();
-            setDefaultResponseHeaders(response_headers);
-        }
         response_headers.put(name, value);
     }
 
@@ -444,10 +431,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
 
     protected void setMethod(String method) {
         this.method = method;
-    }
-
-    protected ChannelContext getContext() {
-        return context;
     }
 
     protected void setContentType(String contentType) {
@@ -500,7 +483,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
         this.version = null;
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
-        this.context = channel.getContext();
         if (currentHeaderLine == null) {
             currentHeaderLine = new StringBuilder();
         } else {

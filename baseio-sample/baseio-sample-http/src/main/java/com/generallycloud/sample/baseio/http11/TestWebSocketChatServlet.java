@@ -39,7 +39,7 @@ public class TestWebSocketChatServlet implements FutureAcceptor {
     @Override
     public void accept(NioSocketChannel channel, Future future) throws Exception {
         if (future instanceof HttpFuture) {
-            ((HttpFuture) future).updateWebSocketProtocol();
+            ((HttpFuture) future).updateWebSocketProtocol(channel);
             channel.flush(future);
             return;
         }

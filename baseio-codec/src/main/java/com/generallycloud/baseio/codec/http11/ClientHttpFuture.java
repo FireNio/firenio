@@ -15,42 +15,36 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import java.util.Map;
+import java.util.HashMap;
 
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class ClientHttpFuture extends AbstractHttpFuture {
 
     public ClientHttpFuture(ChannelContext context, String url, String method) {
-        super(context);
         this.setMethod(method);
         this.setRequestURL(url);
+        setRequestHeaders(new HashMap<String,String>());
+        setRequestParams(new HashMap<String,String>());
     }
 
     public ClientHttpFuture(ChannelContext context, String url) {
         this(context, url, "GET");
     }
 
-    public ClientHttpFuture(NioSocketChannel channel, int headerLimit, int bodyLimit) {
-        super(channel, headerLimit, bodyLimit);
+    public ClientHttpFuture(ChannelContext context, int headerLimit, int bodyLimit) {
+        super(headerLimit, bodyLimit);
+        setResponseHeaders(new HashMap<String,String>());
     }
 
     @Override
-    protected void setDefaultResponseHeaders(Map<String, String> headers) {
-        headers.put("Connection", "keep-alive");
-    }
-
-    @Override
-    public boolean updateWebSocketProtocol() {
+    public boolean updateWebSocketProtocol(NioSocketChannel channel) {
         String key = getRequestHeader(HttpHeader.Sec_WebSocket_Accept);
         if (StringUtil.isNullOrBlank(key)) {
             return false;
         }
-        ChannelConnector connector = (ChannelConnector) getContext().getChannelService();
-        NioSocketChannel channel = connector.getChannel();
         channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
         return true;
     }

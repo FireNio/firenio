@@ -39,14 +39,14 @@ public class FileSendUtil {
         for (int i = 0; i < time; i++) {
             FileUtil.readInputStream(inputStream, cache);
             ProtobaseFuture f = new ProtobaseFuture(serviceName);
-            f.write(jsonString, channel.getEncoding());
+            f.write(jsonString, channel.getCharset());
             f.writeBinary(cache);
             channel.flush(f);
         }
         int r = FileUtil.readInputStream(inputStream, cache);
         json.put(FileReceiveUtil.IS_END, true);
         ProtobaseFuture f = new ProtobaseFuture(serviceName);
-        f.write(json.toJSONString(), channel.getEncoding());
+        f.write(json.toJSONString(), channel.getCharset());
         f.writeBinary(cache, 0, r);
         channel.flush(f);
         CloseUtil.close(inputStream);

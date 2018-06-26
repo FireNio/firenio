@@ -36,7 +36,7 @@ public class SystemRedeployServlet implements FutureAcceptor {
                 (ApplicationIoEventHandle) channel.getIoEventHandle();
         AtomicInteger redeployTime = applicationIoEventHandle.getRedeployTime();
         long startTime = System.currentTimeMillis();
-        Charset charset = channel.getEncoding();
+        Charset charset = channel.getCharset();
         if (applicationIoEventHandle.redeploy()) {
             int time = redeployTime.incrementAndGet();
             future.write("redeploy successful_", charset);

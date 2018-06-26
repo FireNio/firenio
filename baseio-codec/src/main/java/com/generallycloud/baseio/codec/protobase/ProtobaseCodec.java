@@ -114,7 +114,7 @@ public class ProtobaseCodec implements ProtocolCodec {
         if (StringUtil.isNullOrBlank(futureName)) {
             throw new ProtocolException("future name is empty");
         }
-        byte[] futureNameBytes = futureName.getBytes(channel.getEncoding());
+        byte[] futureNameBytes = futureName.getBytes(channel.getCharset());
         int futureNameLen = futureNameBytes.length;
         if (futureNameBytes.length > 255) {
             throw new ProtocolException("future name max length 255");

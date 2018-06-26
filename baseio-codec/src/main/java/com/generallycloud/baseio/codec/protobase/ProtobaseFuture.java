@@ -134,7 +134,7 @@ public class ProtobaseFuture extends AbstractFuture implements NamedFuture, Text
         isBroadcast = ((h1 & 0b10000000) != 0);
         boolean hasText = ((h1 & 0b00010000) != 0);
         boolean hasBinary = ((h1 & 0b00001000) != 0);
-        Charset charset = channel.getEncoding();
+        Charset charset = channel.getCharset();
         src.markL();
         src.limit(src.position() + fnLen);
         futureName = StringUtil.decode(charset, src.nioBuffer());

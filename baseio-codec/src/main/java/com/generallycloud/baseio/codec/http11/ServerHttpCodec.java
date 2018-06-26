@@ -84,7 +84,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
 //            }
 //            return future.reset(channel, headerLimit, bodyLimit);
         }
-        return new ServerHttpFuture(channel, headerLimit, bodyLimit);
+        return new ServerHttpFuture(channel.getContext(), headerLimit, bodyLimit);
     }
 
     private ByteBuf encode(ByteBufAllocator allocator, ServerHttpFuture f, int length, byte[] array)

@@ -68,7 +68,7 @@ public class FixedChannel {
             throws IOException {
         ParamedProtobaseFuture future = new ParamedProtobaseFuture(serviceName);
         if (!StringUtil.isNullOrBlank(content)) {
-            future.write(content, channel.getEncoding());
+            future.write(content, channel.getCharset());
         }
         if (binary != null) {
             future.writeBinary(binary);
@@ -109,7 +109,7 @@ public class FixedChannel {
     public void write(String serviceName, String content, byte[] binary) throws IOException {
         ParamedProtobaseFuture future = new ParamedProtobaseFuture(serviceName);
         if (!StringUtil.isNullOrBlank(content)) {
-            future.write(content, channel.getEncoding());
+            future.write(content, channel.getCharset());
         }
         if (binary != null) {
             future.writeBinary(binary);
