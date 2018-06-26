@@ -19,6 +19,7 @@ import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.component.FastThreadLocalThread;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -30,7 +31,7 @@ public abstract class AbstractEventLoop implements EventLoop {
 
     private EventLoopGroup      defaultGroup = new DefaultEventLoopGroup(this);
 
-    protected volatile boolean    running      = false;
+    protected volatile boolean  running      = false;
 
     private volatile boolean    stopped      = false;
 
@@ -94,7 +95,7 @@ public abstract class AbstractEventLoop implements EventLoop {
             }
             running = true;
             stopped = false;
-            this.monitor = new Thread(new Runnable() {
+            this.monitor = new FastThreadLocalThread(new Runnable() {
                 @Override
                 public void run() {
                     loop();

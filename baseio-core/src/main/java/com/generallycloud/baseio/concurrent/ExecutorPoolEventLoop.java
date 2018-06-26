@@ -21,6 +21,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.generallycloud.baseio.component.FastThreadLocalThread;
+
 public class ExecutorPoolEventLoop implements ExecutorEventLoop {
 
     private int                    coreEventLoopSize;
@@ -28,7 +30,6 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
     private long                   keepAliveTime;
     private int                    maxEventQueueSize;
     private NamedThreadFactory     threadFactory;
-    private boolean                running = false;
     private ExecutorEventLoopGroup eventLoopGroup;
 
     public ExecutorPoolEventLoop(ExecutorEventLoopGroup eventLoopGroup, int coreEventLoopSize,
@@ -53,12 +54,10 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
         poolExecutor = new ThreadPoolExecutor(coreEventLoopSize, maxEventLoopSize, keepAliveTime,
                 TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(maxEventQueueSize),
                 threadFactory);
-        running = true;
     }
 
     @Override
     public void stop() {
-        running = false;
         if (poolExecutor != null) {
             poolExecutor.shutdown();
         }
@@ -66,7 +65,7 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
 
     @Override
     public boolean inEventLoop() {
-        return threadFactory.inFactory(Thread.currentThread());
+        return false;
     }
 
     @Override
@@ -81,7 +80,7 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
 
     @Override
     public boolean isRunning() {
-        return running;
+        return !poolExecutor.isShutdown();
     }
 
     @Override
@@ -114,7 +113,7 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
         @Override
         public Thread newThread(Runnable r) {
             String threadName = namePrefix + "-" + threadNumber.getAndIncrement();
-            Thread t = new PooledThread(group, r, threadName, 0);
+            Thread t = new FastThreadLocalThread(group, r, threadName, 0);
             if (t.isDaemon()) {
                 t.setDaemon(false);
             }
@@ -122,17 +121,6 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
                 t.setPriority(Thread.NORM_PRIORITY);
             }
             return t;
-        }
-
-        public boolean inFactory(Thread thread) {
-            return thread instanceof PooledThread;
-        }
-
-        class PooledThread extends Thread {
-
-            public PooledThread(ThreadGroup group, Runnable r, String string, int i) {
-                super(group, r, string, i);
-            }
         }
 
     }

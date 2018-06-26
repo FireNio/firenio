@@ -244,7 +244,11 @@ public final class NioSocketChannel extends AttributesImpl
         if (isEnableSsl()) {
             sslEngine.closeOutbound();
             if (getContext().getSslContext().isClient()) {
-                writeBufs.offer(EmptyByteBuf.get());
+                SslHandler handler = FastThreadLocal.get().getSslHandler();
+                try {
+                    writeBufs.offer(handler.wrap(this, EmptyByteBuf.get()));
+                } catch (IOException e) {
+                }
             }
             try {
                 sslEngine.closeInbound();

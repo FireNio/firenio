@@ -20,7 +20,6 @@ import java.util.concurrent.RejectedExecutionException;
 public class LineEventLoop implements ExecutorEventLoop {
 
     private ExecutorEventLoopGroup eventLoopGroup;
-
     private EventLoop              eventLoop;
 
     public LineEventLoop(ExecutorEventLoopGroup eventLoopGroup) {

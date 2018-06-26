@@ -20,7 +20,6 @@ import java.util.List;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
@@ -29,6 +28,7 @@ import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.TextFuture;
 
 public class TestLoadServer {
 
@@ -54,7 +54,7 @@ public class TestLoadServer {
                     List<ByteBuf> fs      = new ArrayList<>(1024 * 4);
                     @Override
                     public void accept(NioSocketChannel channel, Future future) throws Exception {
-                        FixedLengthFuture f = (FixedLengthFuture) future;
+                        TextFuture f = (TextFuture) future;
                         f.write(f.getReadText(), channel);
                         if (batchFlush) {
                             fs.add(channel.encode(future));

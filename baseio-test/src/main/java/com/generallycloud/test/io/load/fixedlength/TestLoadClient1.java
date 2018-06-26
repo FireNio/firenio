@@ -39,7 +39,7 @@ public class TestLoadClient1 extends ITestThread {
         int time1 = getTime();
         NioSocketChannel channel = connector.getChannel();
         for (int i = 0; i < time1; i++) {
-            FixedLengthFuture future = new FixedLengthFuture();
+            Future future = new FixedLengthFuture();
             future.write("hello server!", channel);
             channel.flush(future);
         }
@@ -59,7 +59,7 @@ public class TestLoadClient1 extends ITestThread {
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setMemoryPoolCapacity(320000);
         group.setMemoryPoolUnit(128);
-        group.setBufRecycleSize(1024 * 4);
+        group.setBufRecycleSize(1024 * 8);
         ChannelContext context = new ChannelContext(8300);
         connector = new ChannelConnector(context, group);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);

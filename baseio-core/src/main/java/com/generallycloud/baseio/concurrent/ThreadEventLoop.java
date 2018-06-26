@@ -28,9 +28,7 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventLoop {
 
     private ChannelContext         context;
-
     private static Logger          logger = LoggerFactory.getLogger(ThreadEventLoop.class);
-
     private ExecutorEventLoopGroup executorEventLoopGroup;
 
     public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, ChannelContext context) {

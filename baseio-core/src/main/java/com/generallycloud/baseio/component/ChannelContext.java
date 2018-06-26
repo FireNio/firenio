@@ -235,12 +235,12 @@ public final class ChannelContext extends AbstractLifeCycle {
             heartBeatLogger = new HeartBeatLogger() {
                 @Override
                 public void logPing(NioSocketChannel channel) {
-                    logger.info("hb req from: {}", channel);
+                    logger.info("heart beat req from: {}", channel);
                 }
 
                 @Override
                 public void logPong(NioSocketChannel channel) {
-                    logger.info("hb res from: {}", channel);
+                    logger.info("heart beat res from: {}", channel);
                 }
             };
         } else {
