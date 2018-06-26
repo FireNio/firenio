@@ -16,7 +16,7 @@
 package com.generallycloud.sample.baseio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.collection.Parameters;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
@@ -28,13 +28,9 @@ public class TestChannelDisconnectServlet extends ProtobaseFutureAcceptorService
 
     @Override
     protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
-        String test = future.getReadText();
-        if (StringUtil.isNullOrBlank(test)) {
-            test = "test";
-        }
-        future.write(simple1.dynamic(), channel);
-        future.write(test, channel);
-        future.write("$", channel);
+        Parameters p = future.getParameters();
+        future.put("dynamic",simple1.dynamic());
+        future.put("param",future.getFutureName());
         channel.flush(future);
         channel.close();
     }

@@ -18,18 +18,19 @@ package com.generallycloud.baseio.collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
 import com.generallycloud.baseio.common.StringUtil;
 
 public class MapParameters implements Parameters {
 
-    private Map map;
+    private Map<String, Object> map;
 
-    public MapParameters(Map object) {
+    public MapParameters(Map<String, Object> object) {
         this.map = object;
     }
 
     public MapParameters() {
-        this(new HashMap<>());
+        this(new HashMap<String, Object>());
     }
 
     @Override
@@ -100,13 +101,28 @@ public class MapParameters implements Parameters {
     }
 
     @Override
+    public void put(String key, Object value) {
+        map.put(key, value);
+    }
+
+    @Override
+    public void putAll(Map<String, Object> params) {
+        map.putAll(params);
+    }
+
+    @Override
     public int size() {
         return map.size();
     }
 
     @Override
-    public Map getMap() {
+    public Map<String, Object> getMap() {
         return map;
+    }
+
+    @Override
+    public String toString() {
+        return JSON.toJSONString(map);
     }
 
 }

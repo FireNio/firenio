@@ -15,8 +15,11 @@
  */
 package com.generallycloud.test.io.protobase;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -37,13 +40,11 @@ public class TestSimpleBigParam {
         context.setProtocolCodec(new ProtobaseCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         FixedChannel channel = new FixedChannel(connector.connect());
-        String temp = "网易科技腾讯科技阿里巴巴";
-        StringBuilder builder = new StringBuilder(temp);
+        Map<String, Object> params = new HashMap<>();
         for (int i = 0; i < 600000; i++) {
-            builder.append("\n");
-            builder.append(temp);
+            params.put(String.valueOf(i), "网易科技腾讯科技阿里巴巴");
         }
-        ProtobaseFuture future = channel.request(serviceKey, builder.toString());
+        ParamedProtobaseFuture future = channel.request(serviceKey, params);
         FileUtil.writeByCls(TestSimpleBigParam.class.getName(), future.getReadText());
         System.out.println("处理完成");
         CloseUtil.close(connector);

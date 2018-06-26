@@ -18,12 +18,12 @@ package com.generallycloud.sample.baseio.protobase;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.FutureAcceptor;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptor;
 import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.baseio.protocol.NamedFuture;
 
 /**
  * @author wangkai
@@ -35,10 +35,10 @@ public class SpringProtobaseFutureAcceptor extends ProtobaseFutureAcceptor {
 
     @Override
     public void accept(NioSocketChannel channel, Future future) throws Exception {
-        NamedFuture f = (NamedFuture) future;
+        ParamedProtobaseFuture f = (ParamedProtobaseFuture) future;
         FutureAcceptor acceptor = (FutureAcceptor) ContextUtil.getBean(f.getFutureName());
         if (acceptor == null) {
-            future.write("404", channel);
+            f.put("code", 404);
             channel.flush(future);
             return;
         }

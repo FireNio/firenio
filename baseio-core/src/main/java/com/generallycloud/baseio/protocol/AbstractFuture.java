@@ -26,7 +26,7 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 public abstract class AbstractFuture implements Future {
 
     private static final byte TYPE_PING   = 1;
-    private static final byte TYPE_PONG   = 1;
+    private static final byte TYPE_PONG   = 2;
     private static final byte TYPE_SILENT = 0;
 
     //FIXME isX 使用 byte & x ?

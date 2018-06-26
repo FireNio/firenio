@@ -32,26 +32,20 @@ public class ProtobufUtil {
     }
 
     public void regist(MessageLite messageLite) {
-
         parses.put(messageLite.getClass().getName(), messageLite.getParserForType());
     }
 
     public Parser<? extends MessageLite> getParser(String name)
             throws InvalidProtocolBufferException {
-
         Parser<? extends MessageLite> parser = parses.get(name);
-
         if (parser == null) {
             throw new InvalidProtocolBufferException("did not found parse by name " + name);
         }
-
         return parser;
     }
 
     public MessageLite getMessage(ProtobaseFuture future) throws InvalidProtocolBufferException {
-
-        Parser<? extends MessageLite> parser = getParser(future.getFutureName());
-
+        Parser<? extends MessageLite> parser = getParser(future.getReadText());
         return parser.parseFrom(future.getReadBinary());
     }
 
@@ -62,12 +56,9 @@ public class ProtobufUtil {
 
     public void writeProtobuf(String parserName, MessageLite messageLite, ProtobaseFuture future)
             throws InvalidProtocolBufferException {
-
-        future.setFutureName(parserName);
-
+        future.write(parserName.getBytes());
         // FIXME 判断array是否过大
         byte[] array = messageLite.toByteArray();
-
         future.writeBinary(array, 0, array.length);
     }
 

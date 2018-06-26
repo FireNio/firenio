@@ -34,7 +34,7 @@ public class TestGetPhoneNOServlet extends ProtobaseFutureAcceptorService {
         if (index == 4) {
             index = 0;
         }
-        future.write(phone, channel.getContext());
+        future.put("phone", phone);
         channel.flush(future);
     }
 

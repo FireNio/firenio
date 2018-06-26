@@ -24,7 +24,6 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.FileReceiveUtil;
 import com.generallycloud.baseio.container.protobase.FileSendUtil;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
-import com.generallycloud.baseio.container.protobase.RESMessage;
 
 public class TestDownloadServlet extends ProtobaseFutureAcceptorService {
 
@@ -41,10 +40,9 @@ public class TestDownloadServlet extends ProtobaseFutureAcceptorService {
         fileSendUtil.sendFile(channel, future.getFutureName(), file, 1024 * 800);
     }
 
-    private void fileNotFound(NioSocketChannel channel, ProtobaseFuture future, String msg)
+    private void fileNotFound(NioSocketChannel channel, ParamedProtobaseFuture future, String msg)
             throws IOException {
-        RESMessage message = new RESMessage(404, msg);
-        future.write(message.toString(), channel);
+        future.put("code", 404);
         channel.flush(future);
     }
 }

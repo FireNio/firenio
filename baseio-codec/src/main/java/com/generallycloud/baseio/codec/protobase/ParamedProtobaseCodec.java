@@ -18,6 +18,7 @@ package com.generallycloud.baseio.codec.protobase;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.collection.Parameters;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -42,6 +43,16 @@ public class ParamedProtobaseCodec extends ProtobaseCodec {
     @Override
     public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         return new ParamedProtobaseFuture(getTextLenLimit(),getBinaryLenLimit());
+    }
+    
+    @Override
+    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
+        ParamedProtobaseFuture f = (ParamedProtobaseFuture) future;
+        Parameters p = f.getParameters();
+        if (p != null) {
+            f.write(p.toString(),channel);
+        }
+        return super.encode(channel, future);
     }
 
     @Override

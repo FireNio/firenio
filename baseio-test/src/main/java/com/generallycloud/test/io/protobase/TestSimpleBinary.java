@@ -15,8 +15,9 @@
  */
 package com.generallycloud.test.io.protobase;
 
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -34,7 +35,7 @@ public class TestSimpleBinary {
 
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {
-                ProtobaseFuture f = (ProtobaseFuture) future;
+                ParamedProtobaseFuture f = (ParamedProtobaseFuture) future;
                 System.out.println("________________________" + f.getReadText());
                 if (f.getReadBinarySize() > 0) {
                     System.out.println("________________________" + new String(f.getReadBinary()));    
@@ -47,7 +48,7 @@ public class TestSimpleBinary {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandle);
         NioSocketChannel channel = connector.connect();
-        ProtobaseFuture f = new ProtobaseFuture(serviceKey);
+        ParamedProtobaseFuture f = new ParamedProtobaseFuture(serviceKey);
         f.write("text22222".getBytes());
         f.writeBinary("binary22222".getBytes());
         channel.flush(f);

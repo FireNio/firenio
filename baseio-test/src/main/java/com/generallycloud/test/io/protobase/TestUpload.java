@@ -18,7 +18,7 @@ package com.generallycloud.test.io.protobase;
 import java.io.File;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -41,7 +41,7 @@ public class TestUpload {
 
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {
-                ProtobaseFuture f = (ProtobaseFuture) future;
+                ParamedProtobaseFuture f = (ParamedProtobaseFuture) future;
                 System.out.println();
                 System.out.println(f.getReadText());
                 System.out.println();

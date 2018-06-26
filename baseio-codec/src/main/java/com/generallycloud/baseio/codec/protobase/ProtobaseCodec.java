@@ -20,17 +20,15 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
-import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
-import com.generallycloud.baseio.protocol.ProtocolException;
 
 /**
  * <pre>
  *  B0 -B3  : 报文总长度        大于0:普通消息 -1:心跳PING -2:心跳PONG
- *  B4 :0   : 消息类型          0:P2P           1:BRODCAST
+ *  B4 :0   : 广播类型          0:P2P           1:BRODCAST
  *  B4 :1   : 是否包含FutureId  4 byte   
  *  B4 :2   : 是否包含ChannelId 4 byte
  *  B4 :3   : 是否包含Text      4 byte
@@ -38,9 +36,8 @@ import com.generallycloud.baseio.protocol.ProtocolException;
  *  B4 :5   : 预留
  *  B4 :6   : 预留
  *  B4 :7   : 预留
- *  B5      : futureNameLen
- *  .....   ：futureName
- *  .....   ：futureId,channelId,Text,Binary
+ *  B5      : 消息类型FutureType
+ *  .....   ：FutureId,ChannelId,Text,Binary
  *  
  * </pre>
  */
@@ -110,16 +107,7 @@ public class ProtobaseCodec implements ProtocolCodec {
             return future.isPing() ? PING.duplicate() : PONG.duplicate();
         }
         ProtobaseFuture f = (ProtobaseFuture) future;
-        String futureName = f.getFutureName();
-        if (StringUtil.isNullOrBlank(futureName)) {
-            throw new ProtocolException("future name is empty");
-        }
-        byte[] futureNameBytes = futureName.getBytes(channel.getCharset());
-        int futureNameLen = futureNameBytes.length;
-        if (futureNameBytes.length > 255) {
-            throw new ProtocolException("future name max length 255");
-        }
-        int allLen = 6 + futureNameLen;
+        int allLen = 6;
         int textWriteSize = f.getWriteSize();
         int binaryWriteSize = f.getWriteBinarySize();
         byte h1 = 0b00000000;
@@ -147,8 +135,7 @@ public class ProtobaseCodec implements ProtocolCodec {
         ByteBuf buf = allocator.allocate(allLen);
         buf.putInt(allLen - 4);
         buf.putByte(h1);
-        buf.putByte((byte) futureNameLen);
-        buf.put(futureNameBytes);
+        buf.putByte(f.getFutureType());
         if (f.getFutureId() > 0) {
             buf.putInt(f.getFutureId());
         }

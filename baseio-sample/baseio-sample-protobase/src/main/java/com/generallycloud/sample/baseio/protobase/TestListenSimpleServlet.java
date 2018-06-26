@@ -16,7 +16,6 @@
 package com.generallycloud.sample.baseio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
@@ -32,13 +31,11 @@ public class TestListenSimpleServlet extends ProtobaseFutureAcceptorService {
         if (StringUtil.isNullOrBlank(test)) {
             test = "test";
         }
-        future.write(test, channel.getContext());
-        future.write("$", channel.getContext());
+        future.put("param",future.getFutureName());
         channel.flush(future);
         for (int i = 0; i < 5; i++) {
-            ProtobaseFuture f = new ProtobaseFuture(future.getFutureId(), future.getFutureName());
-            f.write(test, channel);
-            f.write("$", channel);
+            ParamedProtobaseFuture f = new ParamedProtobaseFuture(future.getFutureId(), future.getFutureName());
+            f.put("param",future.getFutureName());
             channel.flush(f);
         }
 

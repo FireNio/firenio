@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.collection;
 
+import java.util.Map;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -53,6 +55,11 @@ public class JsonParameters implements Parameters {
             return false;
         }
         return jsonObject.getBooleanValue(key);
+    }
+    
+    @Override
+    public void putAll(Map<String, Object> params) {
+        jsonObject.putAll(params);
     }
 
     @Override
@@ -117,6 +124,11 @@ public class JsonParameters implements Parameters {
     @Override
     public JSONObject getMap() {
         return jsonObject;
+    }
+    
+    @Override
+    public void put(String key, Object value) {
+        jsonObject.put(key, value);
     }
 
     @Override

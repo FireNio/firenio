@@ -58,7 +58,7 @@ public class TestDownload {
             }
         });
         long old = System.currentTimeMillis();
-        channel.write(serviceName, j.toJSONString());
+        channel.write(serviceName, j);
         System.out.println("Time:" + (System.currentTimeMillis() - old));
         ThreadUtil.sleep(5000);
         CloseUtil.close(connector);

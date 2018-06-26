@@ -16,11 +16,11 @@
 package com.generallycloud.baseio.container.protobase;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
@@ -40,7 +40,6 @@ public class FixedChannel {
         if (timeout < 0) {
             throw new IllegalArgumentException("illegal argument timeout: " + timeout);
         }
-
         this.timeout = timeout;
     }
 
@@ -60,15 +59,20 @@ public class FixedChannel {
         return logined;
     }
 
-    public ParamedProtobaseFuture request(String serviceName, String content) throws IOException {
-        return request(serviceName, content, null);
+    public ParamedProtobaseFuture request(String serviceName) throws IOException {
+        return request(serviceName, null, null);
     }
 
-    public ParamedProtobaseFuture request(String serviceName, String content, byte[] binary)
+    public ParamedProtobaseFuture request(String serviceName, Map<String, Object> params)
             throws IOException {
+        return request(serviceName, params, null);
+    }
+
+    public ParamedProtobaseFuture request(String serviceName, Map<String, Object> params,
+            byte[] binary) throws IOException {
         ParamedProtobaseFuture future = new ParamedProtobaseFuture(serviceName);
-        if (!StringUtil.isNullOrBlank(content)) {
-            future.write(content, channel.getCharset());
+        if (params != null) {
+            future.putAll(params);
         }
         if (binary != null) {
             future.writeBinary(binary);
@@ -102,14 +106,19 @@ public class FixedChannel {
         wrapper.listen(onReadFuture);
     }
 
-    public void write(String serviceName, String content) throws IOException {
-        write(serviceName, content, null);
+    public void write(String serviceName) throws IOException {
+        write(serviceName, null, null);
     }
 
-    public void write(String serviceName, String content, byte[] binary) throws IOException {
+    public void write(String serviceName, Map<String, Object> params) throws IOException {
+        write(serviceName, params, null);
+    }
+
+    public void write(String serviceName, Map<String, Object> params, byte[] binary)
+            throws IOException {
         ParamedProtobaseFuture future = new ParamedProtobaseFuture(serviceName);
-        if (!StringUtil.isNullOrBlank(content)) {
-            future.write(content, channel.getCharset());
+        if (params != null) {
+            future.putAll(params);
         }
         if (binary != null) {
             future.writeBinary(binary);

@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -33,8 +33,6 @@ public class TestListenSimple {
     public static void main(String[] args) throws Exception {
 
         String serviceKey = "TestListenSimpleServlet";
-        String param = "ttt";
-
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
         ChannelContext context = new ChannelContext(8300);
         ChannelConnector connector = new ChannelConnector(context);
@@ -42,16 +40,16 @@ public class TestListenSimple {
         context.setProtocolCodec(new ProtobaseCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         FixedChannel channel = new FixedChannel(connector.connect());
-        ProtobaseFuture future = channel.request(serviceKey, param);
+        ParamedProtobaseFuture future = channel.request(serviceKey);
         System.out.println(future.getReadText());
         channel.listen(serviceKey, new OnFuture() {
             @Override
             public void onResponse(NioSocketChannel channel, Future future) {
-                ProtobaseFuture f = (ProtobaseFuture) future;
+                ParamedProtobaseFuture f = (ParamedProtobaseFuture) future;
                 System.out.println(f.getReadText());
             }
         });
-        channel.write(serviceKey, param);
+        channel.write(serviceKey);
         ThreadUtil.sleep(1000);
         CloseUtil.close(connector);
 

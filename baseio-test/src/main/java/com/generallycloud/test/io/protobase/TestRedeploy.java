@@ -15,8 +15,11 @@
  */
 package com.generallycloud.test.io.protobase;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -29,7 +32,9 @@ public class TestRedeploy {
     public static void main(String[] args) throws Exception {
 
         String serviceKey = "system-redeploy";
-        String param = "{username:\"admin\",password:\"admin100\"}";
+        Map<String, Object> params = new HashMap<>();
+        params.put("username", "admin");
+        params.put("password", "admin100");
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
         ChannelContext context = new ChannelContext(8300);
         ChannelConnector connector = new ChannelConnector(context);
@@ -37,10 +42,10 @@ public class TestRedeploy {
         context.setProtocolCodec(new ProtobaseCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         FixedChannel channel = new FixedChannel(connector.connect());
-        ProtobaseFuture future = channel.request(serviceKey, param);
+        ParamedProtobaseFuture future = channel.request(serviceKey, params);
         System.out.println(future.getReadText());
         for (int i = 0; i < 0; i++) {
-            future = channel.request(serviceKey, param);
+            future = channel.request(serviceKey, params);
         }
         CloseUtil.close(connector);
     }

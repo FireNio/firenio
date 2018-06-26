@@ -15,8 +15,8 @@
  */
 package com.generallycloud.test.io.protobase;
 
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelActiveIdleEventListener;
@@ -56,7 +56,7 @@ public class TestBeat {
         String param = "tttt";
         long old = System.currentTimeMillis();
         for (int i = 0; i < 5; i++) {
-            Future future = new ProtobaseFuture(serviceKey);
+            Future future = new ParamedProtobaseFuture(serviceKey);
             future.write(param, context);
             channel.flush(future);
             ThreadUtil.sleep(300);

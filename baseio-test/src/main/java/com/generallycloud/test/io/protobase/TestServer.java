@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelAliveIdleEventListener;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -36,7 +36,7 @@ public class TestServer {
 
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {
-                ProtobaseFuture f = (ProtobaseFuture) future;
+                ParamedProtobaseFuture f = (ParamedProtobaseFuture) future;
                 DebugUtil.debug("receive text:" + f.getReadText());
                 future.write("yes server already accept your text message:", channel);
                 future.write(f.getReadText(), channel);

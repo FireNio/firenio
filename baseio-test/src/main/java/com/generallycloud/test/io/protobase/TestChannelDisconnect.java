@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -33,7 +33,6 @@ public class TestChannelDisconnect {
     public static void main(String[] args) throws Exception {
 
         String serviceName = "TestChannelDisconnectServlet";
-        String param = "ttt";
         SimpleIoEventHandle eventHandle = new SimpleIoEventHandle();
         ChannelContext context = new ChannelContext(8300);
         ChannelConnector connector = new ChannelConnector(context);
@@ -41,16 +40,16 @@ public class TestChannelDisconnect {
         context.setProtocolCodec(new ProtobaseCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         FixedChannel channel = new FixedChannel(connector.connect());
-        ProtobaseFuture future = channel.request(serviceName, param);
+        ParamedProtobaseFuture future = channel.request(serviceName);
         System.out.println(future.getReadText());
         channel.listen(serviceName, new OnFuture() {
             @Override
             public void onResponse(NioSocketChannel channel, Future future) {
-                ProtobaseFuture f = (ProtobaseFuture) future;
+                ParamedProtobaseFuture f = (ParamedProtobaseFuture) future;
                 System.out.println(f.getReadText());
             }
         });
-        channel.write(serviceName, param);
+        channel.write(serviceName);
         ThreadUtil.sleep(9999);
         CloseUtil.close(connector);
     }

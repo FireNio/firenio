@@ -16,36 +16,19 @@
 package com.generallycloud.sample.baseio.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
-import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
 
 public class TestSimpleServlet extends ProtobaseFutureAcceptorService {
 
     public static final String SERVICE_NAME = TestSimpleServlet.class.getSimpleName();
-
-    //	private Logger logger = LoggerFactory.getLogger(TestSimpleServlet.class);
-
     private TestSimple1 simple1 = new TestSimple1();
-
-    //	private AtomicInteger size = new AtomicInteger();
 
     @Override
     protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
-
-        //		accept.getAndIncrement();
-
-        String test = future.getReadText();
-
-        if (StringUtil.isNullOrBlank(test)) {
-            test = "test";
-        }
-        future.write(simple1.dynamic(), channel);
-        future.write(test, channel);
-        future.write("$", channel);
+        future.put("dynamic",simple1.dynamic());
+        future.put("param",future.getFutureName());
         channel.flush(future);
-
-        //		System.out.println("=============================="+size.incrementAndGet());
     }
 
 }

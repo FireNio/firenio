@@ -15,28 +15,56 @@
  */
 package com.generallycloud.baseio.codec.protobase;
 
+import java.util.Map;
+
 import com.generallycloud.baseio.collection.JsonParameters;
 import com.generallycloud.baseio.collection.Parameters;
+import com.generallycloud.baseio.protocol.NamedFuture;
 import com.generallycloud.baseio.protocol.ParametersFuture;
 
 /**
  * @author wangkai
  *
  */
-public class ParamedProtobaseFuture extends ProtobaseFuture implements ParametersFuture {
+public class ParamedProtobaseFuture extends ProtobaseFuture
+        implements NamedFuture, ParametersFuture {
 
-    public ParamedProtobaseFuture() {}
+    private static final String FUTURE_NAME_KEY = "FUTURE_NAME_KEY";
+
+    public ParamedProtobaseFuture() {
+        this.parameters = new JsonParameters();
+    }
 
     ParamedProtobaseFuture(int textLengthLimit, int binaryLengthLimit) {
         super(textLengthLimit, binaryLengthLimit);
     }
 
     public ParamedProtobaseFuture(String futureName) {
-        super(futureName);
+        this.parameters = new JsonParameters();
+        this.setFutureName(futureName);
     }
 
     public ParamedProtobaseFuture(int futureId, String futureName) {
-        super(futureId, futureName);
+        super(futureId);
+        this.parameters = new JsonParameters();
+        this.setFutureName(futureName);
+    }
+
+    @Override
+    public String getFutureName() {
+        return getParameters().getParameter(FUTURE_NAME_KEY);
+    }
+
+    public void setFutureName(String futureName) {
+        this.parameters.put(FUTURE_NAME_KEY, futureName);
+    }
+
+    public void put(String key, Object value) {
+        this.parameters.put(key, value);
+    }
+
+    public void putAll(Map<String, Object> params) {
+        this.parameters.putAll(params);
     }
 
     private Parameters parameters;

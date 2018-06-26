@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import com.alibaba.fastjson.JSONObject;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
@@ -38,14 +39,14 @@ public class FileSendUtil {
         String jsonString = json.toJSONString();
         for (int i = 0; i < time; i++) {
             FileUtil.readInputStream(inputStream, cache);
-            ProtobaseFuture f = new ProtobaseFuture(serviceName);
+            ProtobaseFuture f = new ParamedProtobaseFuture(serviceName);
             f.write(jsonString, channel.getCharset());
             f.writeBinary(cache);
             channel.flush(f);
         }
         int r = FileUtil.readInputStream(inputStream, cache);
         json.put(FileReceiveUtil.IS_END, true);
-        ProtobaseFuture f = new ProtobaseFuture(serviceName);
+        ParamedProtobaseFuture f = new ParamedProtobaseFuture(serviceName);
         f.write(json.toJSONString(), channel.getCharset());
         f.writeBinary(cache, 0, r);
         channel.flush(f);

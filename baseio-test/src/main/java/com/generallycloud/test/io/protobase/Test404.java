@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -37,9 +37,9 @@ public class Test404 {
         context.setProtocolCodec(new ParamedProtobaseCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         FixedChannel channel = new FixedChannel(connector.connect());
-        ProtobaseFuture future = channel.request(serviceKey, null);
+        ParamedProtobaseFuture future = channel.request(serviceKey);
         System.out.println(future.getReadText());
-        Future future1 = new ProtobaseFuture().setPing();
+        Future future1 = new ParamedProtobaseFuture().setPing();
         channel.getChannel().flush(future1);
         CloseUtil.close(connector);
     }

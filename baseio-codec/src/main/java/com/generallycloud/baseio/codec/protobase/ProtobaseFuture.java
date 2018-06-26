@@ -16,25 +16,23 @@
 package com.generallycloud.baseio.codec.protobase;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractFuture;
-import com.generallycloud.baseio.protocol.NamedFuture;
 import com.generallycloud.baseio.protocol.ProtocolException;
 import com.generallycloud.baseio.protocol.TextFuture;
 
-public class ProtobaseFuture extends AbstractFuture implements NamedFuture, TextFuture {
+public class ProtobaseFuture extends AbstractFuture implements TextFuture {
 
     private int     binaryLenLimit;
     private byte[]  binaryReadBuffer;
     private byte[]  binaryWriteBuffer;
     private int     binaryWriteSize;
     private int     futureId;
-    private String  futureName;
+    private byte    futureType;
     private boolean isBroadcast;
     private String  readText;
     private int     channelId;
@@ -47,22 +45,16 @@ public class ProtobaseFuture extends AbstractFuture implements NamedFuture, Text
         this.binaryLenLimit = binaryLengthLimit;
     }
 
-    public ProtobaseFuture(int futureId, String futureName) {
-        this.futureName = futureName;
+    public ProtobaseFuture(int futureId) {
         this.futureId = futureId;
-    }
-
-    public ProtobaseFuture(String futureName) {
-        this(0, futureName);
     }
 
     public int getFutureId() {
         return futureId;
     }
 
-    @Override
-    public String getFutureName() {
-        return futureName;
+    public byte getFutureType() {
+        return futureType;
     }
 
     public byte[] getReadBinary() {
@@ -130,16 +122,10 @@ public class ProtobaseFuture extends AbstractFuture implements NamedFuture, Text
             return false;
         }
         byte h1 = src.getByte();
-        int fnLen = src.getUnsignedByte();
+        futureType = src.getByte();
         isBroadcast = ((h1 & 0b10000000) != 0);
         boolean hasText = ((h1 & 0b00010000) != 0);
         boolean hasBinary = ((h1 & 0b00001000) != 0);
-        Charset charset = channel.getCharset();
-        src.markL();
-        src.limit(src.position() + fnLen);
-        futureName = StringUtil.decode(charset, src.nioBuffer());
-        src.reverse();
-        src.resetL();
         if (((h1 & 0b01000000) != 0)) {
             futureId = src.getInt();
         }
@@ -151,19 +137,19 @@ public class ProtobaseFuture extends AbstractFuture implements NamedFuture, Text
         if (hasText) {
             textLen = src.getInt();
             if (textLen > textLenLimit) {
-                throw new IOException("over text limit"+textLen);
+                throw new IOException("over text limit" + textLen);
             }
         }
         if (hasBinary) {
             binaryLen = src.getInt();
             if (binaryLen > binaryLenLimit) {
-                throw new IOException("over binary limit"+textLen);
+                throw new IOException("over binary limit" + textLen);
             }
         }
         if (hasText) {
             src.markL();
             src.limit(src.position() + textLen);
-            readText = StringUtil.decode(charset, src.nioBuffer());
+            readText = StringUtil.decode(channel.getCharset(), src.nioBuffer());
             src.reverse();
             src.resetL();
         }
@@ -185,8 +171,8 @@ public class ProtobaseFuture extends AbstractFuture implements NamedFuture, Text
         this.futureId = futureId;
     }
 
-    public void setFutureName(String futureName) {
-        this.futureName = futureName;
+    public void setFutureType(byte futureType) {
+        this.futureType = futureType;
     }
 
     public void setChannelId(int channelId) {
@@ -195,7 +181,7 @@ public class ProtobaseFuture extends AbstractFuture implements NamedFuture, Text
 
     @Override
     public String toString() {
-        return getFutureName() + "@" + getReadText();
+        return getReadText();
     }
 
     public void writeBinary(byte b) {
