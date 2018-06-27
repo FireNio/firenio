@@ -50,7 +50,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private boolean               sharable;
     //单条连接write(srcs)的数量
     private int                   writeBuffers           = 16;
-    private boolean              acceptor;
+    private boolean               acceptor;
 
     public NioEventLoopGroup() {
         this(Runtime.getRuntime().availableProcessors() * 2);
@@ -79,9 +79,10 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
             memoryPoolCapacity = (int) (total
                     / (memoryPoolUnit * getEventLoopSize() * memoryPoolRate));
         }
+        String name = isAcceptor() ? "nio-acceptor" : "nio-processor";
         this.initializeByteBufAllocator();
         headEventLoop = new NioEventLoop(this, 0);
-        headEventLoop.startup("nio-acceptor");
+        headEventLoop.startup(name);
         super.doStart();
     }
 

@@ -320,13 +320,13 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     @Override
     public void loop() {
         final long idle = group.getIdleTime();
+        final Selector selector = this.selector;
         final AtomicBoolean selecting = this.selecting;
+        final SelectionKeySet keySet = this.selectionKeySet;
         final BufferedArrayList<NioEventLoopTask> events = this.events;
         long nextIdle = 0;
         long selectTime = idle;
         for (;;) {
-            final Selector selector = this.selector;
-            final SelectionKeySet keySet = this.selectionKeySet;
             if (!running) {
                 setStopped(true);
                 return;
