@@ -57,17 +57,19 @@ public class ChannelConnector implements ChannelService, Closeable {
     }
 
     public ChannelConnector(ChannelContext context) {
-        this(context, new NioEventLoopGroup(1));
+        this(context, new NioEventLoopGroup());
     }
 
+    //该构造方法仅用于非sharable group
+    //sharable group请勿使用该构造方法
     public ChannelConnector(ChannelContext context, NioEventLoopGroup group) {
         Assert.notNull(context, "null context");
         Assert.notNull(group, "null group");
         this.context = context;
         this.group = group;
-        this.context.setNioEventLoopGroup(group);
+        this.group.setAcceptor(false);
         this.group.setContext(context);
-        this.group.setEventLoopSize(1);
+        this.context.setNioEventLoopGroup(group);
     }
 
     @Override

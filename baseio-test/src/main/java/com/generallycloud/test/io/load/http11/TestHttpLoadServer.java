@@ -38,8 +38,9 @@ public class TestHttpLoadServer {
 
         };
 
-        NioEventLoopGroup group = new NioEventLoopGroup(4);
-        group.setMemoryPoolCapacity(1024 * 1024 * 2 / 4);
+        int core = 32;
+        NioEventLoopGroup group = new NioEventLoopGroup(core);
+        group.setMemoryPoolCapacity(1024 * 1024 * 2 / core);
         group.setMemoryPoolUnit(256);
         group.setEnableMemoryPoolDirect(true);
         group.setEnableMemoryPool(true);

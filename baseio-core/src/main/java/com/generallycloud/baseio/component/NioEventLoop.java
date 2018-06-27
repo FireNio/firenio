@@ -76,7 +76,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private final NioEventLoopGroup                  group;
     private volatile boolean                         hasTask          = false;
     private final int                                index;
-    private final boolean                            isAcceptor;
     private long                                     lastIdleTime     = 0;
     private AtomicBoolean                            selecting        = new AtomicBoolean();
     private SelectionKeySet                          selectionKeySet;
@@ -85,14 +84,12 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private final boolean                            sharable;
     private SslFuture                                sslTemporary;
     private AtomicBoolean                            wakener          = new AtomicBoolean();      // true eventLooper, false offerer
-
     private ByteBuffer[]                             writeBuffers;
 
-    NioEventLoop(NioEventLoopGroup group, int index, boolean isAcceptor) {
+    NioEventLoop(NioEventLoopGroup group, int index) {
         this.context = group.getContext();
         this.index = index;
         this.group = group;
-        this.isAcceptor = isAcceptor;
         this.sharable = group.isSharable();
         this.allocator = group.getAllocatorGroup().getNext();
     }
@@ -102,60 +99,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             k.cancel();
             return;
         }
-        int readyOps = k.readyOps();
-        if (sharable) {
-            if (isAcceptor) {
-                if ((readyOps & SelectionKey.OP_ACCEPT) != 0
-                        || (readyOps & SelectionKey.OP_CONNECT) != 0) {
-                    // 说明该链接未打开
-                    try {
-                        registChannel(k);
-                    } catch (Exception e) {
-                        k.channel();
-                        k.attach(null);
-                        logger.error(e.getMessage(), e);
-                    }
-                    return;
-                }
-            } else {
-                NioSocketChannel ch = (NioSocketChannel) k.attachment();
-                if (ch == null || !ch.isOpened()) {
-                    return;
-                }
-                if ((readyOps & SelectionKey.OP_WRITE) != 0) {
-                    try {
-                        ch.write();
-                    } catch (Throwable e) {
-                        closeSocketChannel(ch, e);
-                    }
-                    return;
-                }
-                try {
-                    ch.read(buf);
-                } catch (Throwable e) {
-                    if (e instanceof SSLHandshakeException) {
-                        finishRegistChannel(ch, e);
-                    }
-                    closeSocketChannel(ch, e);
-                }
-            }
-        } else {
-            if ((readyOps & SelectionKey.OP_CONNECT) != 0
-                    || (readyOps & SelectionKey.OP_ACCEPT) != 0) {
-                // 说明该链接未打开
-                try {
-                    registChannel(k);
-                } catch (Exception e) {
-                    k.channel();
-                    k.attach(null);
-                    logger.error(e.getMessage(), e);
-                }
-                return;
-            }
-            NioSocketChannel ch = (NioSocketChannel) k.attachment();
-            if (ch == null || !ch.isOpened()) {
-                return;
-            }
+        final Object attach = k.attachment();
+        if (attach instanceof NioSocketChannel) {
+            NioSocketChannel ch = (NioSocketChannel) attach;
+            int readyOps = k.readyOps();
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                 try {
                     ch.write();
@@ -172,6 +119,16 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 }
                 closeSocketChannel(ch, e);
             }
+        } else {
+            final ChannelContext context = (ChannelContext) attach;
+            try {
+                registChannel(k, context);
+            } catch (Exception e) {
+                k.channel();
+                k.attach(null);
+                logger.error(e.getMessage(), e);
+            }
+            return;
         }
     }
 
@@ -287,8 +244,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             this.sslTemporary = new SslFuture(buf, 1024 * 64);
         }
         this.selector = openSelector();
-        this.desc = MessageFormatter.arrayFormat("NioEventLoop(idx:{},sharable:{},isAcceptor:{})",
-                new Object[] { index, sharable, isAcceptor });
+        this.desc = MessageFormatter.arrayFormat("NioEventLoop(idx:{},sharable:{})",
+                new Object[] { index, sharable });
     }
 
     @Override
@@ -363,13 +320,13 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     @Override
     public void loop() {
         final long idle = group.getIdleTime();
-        final Selector selector = this.selector;
         final AtomicBoolean selecting = this.selecting;
         final BufferedArrayList<NioEventLoopTask> events = this.events;
-        final SelectionKeySet keySet = this.selectionKeySet;
         long nextIdle = 0;
         long selectTime = idle;
         for (;;) {
+            final Selector selector = this.selector;
+            final SelectionKeySet keySet = this.selectionKeySet;
             if (!running) {
                 setStopped(true);
                 return;
@@ -449,8 +406,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         if (res instanceof Throwable) {
             return selector;
         }
+        this.selectionKeySet = new SelectionKeySet();
         final Class selectorImplClass = (Class) res;
-        final SelectionKeySet keySet = new SelectionKeySet();
+        final SelectionKeySet keySet = this.selectionKeySet;
         res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
             public Object run() {
@@ -479,7 +437,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         if (res instanceof Throwable) {
             return selector;
         }
-        selectionKeySet = keySet;
         return selector;
     }
 
@@ -498,9 +455,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         channel.getContext().getChannelManager().putChannel(channel);
     }
 
-    public void registChannel(SelectionKey k) throws IOException {
+    public void registChannel(final SelectionKey key, final ChannelContext context)
+            throws IOException {
         final NioEventLoop thisEventLoop = this;
-        final ChannelContext context = (ChannelContext) k.attachment();
         final ChannelService channelService = context.getChannelService();
         final FixedAtomicInteger channelIds = group.getChannelIds();
         if (channelService instanceof ChannelAcceptor) {
@@ -546,18 +503,13 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 if (targetEL == null) {
                     targetEL = group.getEventLoop(0);
                 }
-                if (sharable) {
-                    //我也不知道为什么要这么做，如果不这么做当eventLoopGroup为共享时
-                    //且acceptor eventLoop同时注册了accept和connect时，selector.select()会
-                    //立刻返回但是selected却为0，导致CPU100%,如果你知道是什么原因，
-                    //还请发起pr，或者邮件我都可以，感谢！
-                    SelectionKey sk = javaChannel.keyFor(selector);
-                    if (sk != null) {
-                        sk.cancel();
-                    }
+                SelectionKey sk = javaChannel.keyFor(selector);
+                if (sk != null) {
+                    sk.cancel();
                 }
                 final int channelId = channelIds.getAndIncrement();
                 if (thisEventLoop == targetEL) {
+                    selector.selectNow();
                     registChannel(javaChannel, targetEL, context, channelId);
                 } else {
                     targetEL.dispatch(new NioEventLoopTask() {
@@ -592,11 +544,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     protected void registSelector(final ChannelContext context) throws IOException {
-        if (sharable) {
-            if (!isAcceptor) {
-                throw new IOException("not acceptor event loop");
-            }
-        } else {
+        if (!sharable) {
             if (selectorRegisted) {
                 if (context == this.context) {
                     return;
@@ -606,7 +554,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             }
             selectorRegisted = true;
         }
-        if (sharable && !isAcceptor) {}
         if (inEventLoop()) {
             registSelector(this, context);
         } else {

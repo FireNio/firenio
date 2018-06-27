@@ -30,7 +30,7 @@ import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
  */
 public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
-    private NioEventLoop          acceptorEventLoop;
+    private NioEventLoop          headEventLoop;
     private ByteBufAllocatorGroup allocatorGroup;
     private int                   bufRecycleSize         = 1024 * 4;
     private FixedAtomicInteger    channelIds;
@@ -50,6 +50,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private boolean               sharable;
     //单条连接write(srcs)的数量
     private int                   writeBuffers           = 16;
+    private boolean              acceptor;
 
     public NioEventLoopGroup() {
         this(Runtime.getRuntime().availableProcessors() * 2);
@@ -79,16 +80,14 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
                     / (memoryPoolUnit * getEventLoopSize() * memoryPoolRate));
         }
         this.initializeByteBufAllocator();
-        if (sharable) {
-            acceptorEventLoop = new NioEventLoop(this, -1, true);
-            acceptorEventLoop.startup("nio-acceptor");
-        }
+        headEventLoop = new NioEventLoop(this, 0);
+        headEventLoop.startup("nio-acceptor");
         super.doStart();
     }
 
     @Override
     protected void doStop() throws Exception {
-        LifeCycleUtil.stop(acceptorEventLoop);
+        LifeCycleUtil.stop(headEventLoop);
         super.doStop();
     }
 
@@ -177,19 +176,15 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     @Override
     protected NioEventLoop newEventLoop(int index) {
-        return new NioEventLoop(this, index, false);
+        if (acceptor) {
+            return new NioEventLoop(this, index);
+        }
+        eventLoops[0] = headEventLoop;
+        return headEventLoop;
     }
 
     public void registSelector(ChannelContext context) throws IOException {
-        if (sharable) {
-            acceptorEventLoop.registSelector(context);
-        } else {
-            synchronized (this) {
-                for (NioEventLoop eventLoop : eventLoops) {
-                    eventLoop.registSelector(context);
-                }
-            }
-        }
+        headEventLoop.registSelector(context);
     }
 
     public void setBufRecycleSize(int bufRecycleSize) {
@@ -238,6 +233,17 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     public void setWriteBuffers(int writeBuffers) {
         this.writeBuffers = writeBuffers;
+    }
+
+    public boolean isAcceptor() {
+        return acceptor;
+    }
+
+    public void setAcceptor(boolean acceptor) {
+        this.acceptor = acceptor;
+        if (!acceptor) {
+            setEventLoopSize(1);
+        }
     }
 
 }
