@@ -22,7 +22,7 @@ public interface ChannelService {
 
     ChannelContext getContext();
 
-    InetSocketAddress getServerSocketAddress();
+    InetSocketAddress getServerAddress();
 
     boolean isActive();
 

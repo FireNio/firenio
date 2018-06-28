@@ -30,7 +30,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
@@ -222,40 +221,39 @@ public final class NioSocketChannel extends AttributesImpl
         ReentrantLock lock = getCloseLock();
         lock.lock();
         try {
-            if (isClosed()) {
-                return;
+            if (isOpened()) {
+                opened = false;
+                closeSsl();
+                releaseBufs();
+                CloseUtil.close(channel);
+                selectionKey.attach(null);
+                selectionKey.cancel();
+                fireClosed();
             }
-            opened = false;
-            closeSSL();
-            try {
-                write();
-            } catch (Exception e) {}
-            releaseBufs();
-            CloseUtil.close(channel);
-            selectionKey.attach(null);
-            selectionKey.cancel();
-            fireClosed();
         } finally {
             lock.unlock();
         }
     }
 
-    private void closeSSL() {
-        if (isEnableSsl()) {
+    private void closeSsl() {
+        if (enableSsl) {
+            if (!channel.isOpen()) {
+                return;
+            }
             sslEngine.closeOutbound();
-            if (getContext().getSslContext().isClient()) {
+            if (context.getSslContext().isClient()) {
                 SslHandler handler = FastThreadLocal.get().getSslHandler();
                 try {
                     writeBufs.offer(handler.wrap(this, EmptyByteBuf.get()));
-                } catch (IOException e) {
-                }
+                    write();
+                } catch (Exception e) {}
             }
             try {
                 sslEngine.closeInbound();
-            } catch (SSLException e) {}
+            } catch (Exception e) {}
         }
     }
-
+    
     public ByteBuf encode(Future future) throws IOException {
         if (future == null) {
             return null;
@@ -469,7 +467,7 @@ public final class NioSocketChannel extends AttributesImpl
                 try {
                     write();
                 } catch (Throwable t) {
-                    CloseUtil.close(this);
+                    close();
                 }
             } else {
                 if (maxWriteBacklog != Integer.MAX_VALUE) {
@@ -485,7 +483,7 @@ public final class NioSocketChannel extends AttributesImpl
                 try {
                     write();
                 } catch (Throwable t) {
-                    CloseUtil.close(this);
+                    close();
                 }
             }
         } else {

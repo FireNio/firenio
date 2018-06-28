@@ -18,6 +18,8 @@ package com.generallycloud.baseio.component;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -380,6 +382,10 @@ public final class ChannelContext extends AbstractLifeCycle {
         }
         this.sslContext = sslContext;
         this.enableSsl = true;
+    }
+    
+    public SelectableChannel getSelectableChannel() {
+        return channelService.getSelectableChannel();
     }
 
     public void setSslKeystore(String sslKeystore) {

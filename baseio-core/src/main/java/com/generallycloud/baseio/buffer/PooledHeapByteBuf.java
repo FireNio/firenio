@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.buffer;
 
-public class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteBuf {
+final class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteBuf {
 
     protected PooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
         super(allocator, memory);

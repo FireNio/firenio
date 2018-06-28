@@ -17,7 +17,7 @@ package com.generallycloud.baseio.buffer;
 
 import java.nio.ByteBuffer;
 
-public class PooledDirectByteBuf extends AbstractDirectByteBuf implements PooledByteBuf {
+final class PooledDirectByteBuf extends AbstractDirectByteBuf implements PooledByteBuf {
 
     protected PooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
         super(allocator, memory);

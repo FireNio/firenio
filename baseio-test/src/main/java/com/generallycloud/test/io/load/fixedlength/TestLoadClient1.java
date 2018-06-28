@@ -67,7 +67,7 @@ public class TestLoadClient1 extends ITestThread {
             
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {
-                addCount(20000);
+                addCount(40000);
             }
         };
 

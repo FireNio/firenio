@@ -87,7 +87,7 @@ public class ChannelAcceptor implements ChannelService {
             throw e;
         }
         this.active = true;
-        LoggerUtil.prettyLog(logger, "server listening @{}", getServerSocketAddress());
+        LoggerUtil.prettyLog(logger, "server listening @{}", getServerAddress());
     }
 
     public void broadcast(Future future) throws IOException {
@@ -117,7 +117,7 @@ public class ChannelAcceptor implements ChannelService {
     }
 
     @Override
-    public InetSocketAddress getServerSocketAddress() {
+    public InetSocketAddress getServerAddress() {
         return serverAddress;
     }
 

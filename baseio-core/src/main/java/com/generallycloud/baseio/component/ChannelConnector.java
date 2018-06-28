@@ -40,7 +40,7 @@ public class ChannelConnector implements ChannelService, Closeable {
     private NioEventLoop      eventLoop;
     private NioEventLoopGroup group;
     private Logger            logger  = LoggerFactory.getLogger(getClass());
-    private SocketChannel     selectableChannel;
+    private SocketChannel     socketChannel;
     private InetSocketAddress serverAddress;
     private NioSocketChannel  channel;
     private long              timeout = 3000;
@@ -77,7 +77,7 @@ public class ChannelConnector implements ChannelService, Closeable {
         if (getChannel() != null) {
             CloseUtil.close(getChannel());
         }
-        CloseUtil.close(selectableChannel);
+        CloseUtil.close(socketChannel);
         LifeCycleUtil.stop(getContext());
         if (!group.isSharable()) {
             LifeCycleUtil.stop(group);
@@ -98,10 +98,10 @@ public class ChannelConnector implements ChannelService, Closeable {
         LifeCycleUtil.start(getContext());
         this.waiter = new Waiter();
         this.serverAddress = new InetSocketAddress(host, port);
-        this.selectableChannel = SocketChannel.open();
-        this.selectableChannel.configureBlocking(false);
+        this.socketChannel = SocketChannel.open();
+        this.socketChannel.configureBlocking(false);
         this.group.registSelector(context);
-        SocketChannel ch = (SocketChannel) selectableChannel;
+        SocketChannel ch = (SocketChannel) socketChannel;
         ch.connect(serverAddress);
         wait4connect(timeout);
         return getChannel();
@@ -137,11 +137,11 @@ public class ChannelConnector implements ChannelService, Closeable {
 
     @Override
     public SocketChannel getSelectableChannel() {
-        return selectableChannel;
+        return socketChannel;
     }
 
     @Override
-    public InetSocketAddress getServerSocketAddress() {
+    public InetSocketAddress getServerAddress() {
         return serverAddress;
     }
 
@@ -177,19 +177,19 @@ public class ChannelConnector implements ChannelService, Closeable {
         }
         if (waiter.await(timeout)) {
             CloseUtil.close(this);
-            throw new TimeoutException("connect to " + getServerSocketAddress() + " time out");
+            throw new TimeoutException("connect to " + getServerAddress() + " time out");
         }
         if (waiter.isFailed()) {
             CloseUtil.close(this);
             Throwable ex = (Throwable) waiter.getResponse();
             String errorMsg = MessageFormatter.format(
-                    "connect to [{}] failed,nested exception is {}", getServerSocketAddress(),
+                    "connect to [{}] failed,nested exception is {}", getServerAddress(),
                     ex.getMessage());
             throw new IOException(errorMsg, ex);
         }
         this.channel = (NioSocketChannel) waiter.getResponse();
         this.waiter = null;
-        LoggerUtil.prettyLog(logger, "connected to server @{}", getServerSocketAddress());
+        LoggerUtil.prettyLog(logger, "connected to server @{}", getServerAddress());
     }
 
 }
