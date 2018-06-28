@@ -18,35 +18,68 @@ package com.generallycloud.baseio.codec.http11;
 import java.util.HashMap;
 
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class ClientHttpFuture extends AbstractHttpFuture {
 
-    public ClientHttpFuture(ChannelContext context, String url, String method) {
+    public ClientHttpFuture(String url, String method) {
         this.setMethod(method);
         this.setRequestURL(url);
         setRequestHeaders(new HashMap<String,String>());
         setRequestParams(new HashMap<String,String>());
     }
 
-    public ClientHttpFuture(ChannelContext context, String url) {
-        this(context, url, "GET");
+    public ClientHttpFuture(String url) {
+        this(url, "GET");
     }
 
-    public ClientHttpFuture(ChannelContext context, int headerLimit, int bodyLimit) {
+    public ClientHttpFuture(int headerLimit, int bodyLimit) {
         super(headerLimit, bodyLimit);
         setResponseHeaders(new HashMap<String,String>());
     }
 
     @Override
     public boolean updateWebSocketProtocol(NioSocketChannel channel) {
-        String key = getRequestHeader(HttpHeader.Sec_WebSocket_Accept);
+        String key = getResponseHeader(HttpHeader.Sec_WebSocket_Accept);
         if (StringUtil.isNullOrBlank(key)) {
             return false;
         }
         channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
         return true;
+    }
+    
+    @Override
+    void setReadHeader(String name, String value) {
+        setResponseHeader(name, value);
+    }
+
+    @Override
+    String getReadHeader(String name) {
+        return getResponseHeader(name);
+    }
+    
+    @Override
+    public void setResponseHeader(String name, String value) {
+        if (StringUtil.isNullOrBlank(name)) {
+            return;
+        }
+        String _name = HEADER_LOW_MAPPING.get(name);
+        if (_name == null) {
+            _name = name.toLowerCase();
+        }
+        super.setResponseHeader(_name, value);
+    }
+    
+    @Override
+    public String getResponseHeader(String name) {
+        if (StringUtil.isNullOrBlank(name)) {
+            return null;
+        }
+        String _name = HEADER_LOW_MAPPING.get(name);
+        if (_name == null) {
+            _name = name.toLowerCase();
+        }
+        return super.getResponseHeader(_name);
     }
 
     @Override

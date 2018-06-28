@@ -16,12 +16,14 @@
 package com.generallycloud.test.io.load.fixedlength;
 
 import java.io.IOException;
+import java.net.StandardSocketOptions;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
@@ -31,6 +33,19 @@ import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
 public class TestLoadClient1 extends ITestThread {
+    
+    static final int core_size = 16;
+    
+    private static final byte [] req;
+    
+    static {
+        int len = 1;
+        String s = "hello server!";
+        for (int i = 0; i < len; i++) {
+            s += "hello server!";
+        }
+        req = s.getBytes();
+    }
 
     private ChannelConnector connector = null;
 
@@ -40,7 +55,7 @@ public class TestLoadClient1 extends ITestThread {
         NioSocketChannel channel = connector.getChannel();
         for (int i = 0; i < time1; i++) {
             Future future = new FixedLengthFuture();
-            future.write("hello server!", channel);
+            future.write(req);
             channel.flush(future);
         }
     }
@@ -52,19 +67,27 @@ public class TestLoadClient1 extends ITestThread {
             
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {
-                addCount(40000);
+                addCount(20000);
             }
         };
 
         NioEventLoopGroup group = new NioEventLoopGroup();
-        group.setMemoryPoolCapacity(320000);
-        group.setMemoryPoolUnit(128);
+        group.setMemoryPoolCapacity(5120000 / core_size);
+        group.setMemoryPoolUnit(512);
         group.setBufRecycleSize(1024 * 8);
+//        group.setEnableMemoryPool(false);
+//        group.setEnableMemoryPoolDirect(false);
         ChannelContext context = new ChannelContext(8300);
         connector = new ChannelConnector(context, group);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
+        context.addChannelEventListener(new ChannelEventListenerAdapter(){
+            @Override
+            public void channelOpened(NioSocketChannel channel) throws Exception {
+//                channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
+            }
+        });
         context.setProtocolCodec(new FixedLengthCodec());
         connector.connect();
     }
@@ -76,9 +99,7 @@ public class TestLoadClient1 extends ITestThread {
 
     public static void main(String[] args) throws IOException {
 
-        int time = 256 * 10000;
-
-        int core_size = 16;
+        int time = 1024 * 1024 * 4;
 
         ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
     }

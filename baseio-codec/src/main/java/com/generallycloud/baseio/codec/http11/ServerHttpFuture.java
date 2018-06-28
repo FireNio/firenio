@@ -38,7 +38,6 @@ public class ServerHttpFuture extends AbstractHttpFuture {
     }
     
     public ServerHttpFuture(ChannelContext context) {
-        setRequestHeaders(new HashMap<String, String>());
         setResponseHeaders(new HashMap<String, String>());
         setDefaultResponseHeaders(context, getResponseHeaders());
     }
@@ -75,7 +74,7 @@ public class ServerHttpFuture extends AbstractHttpFuture {
 
     @Override
     public boolean updateWebSocketProtocol(NioSocketChannel channel) {
-        String Sec_WebSocket_Key = getRequestHeader(HttpHeader.Req_Sec_WebSocket_Key);
+        String Sec_WebSocket_Key = getRequestHeader(HttpHeader.Low_Sec_WebSocket_Key);
         if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key)) {
             //FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
             String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key
@@ -90,6 +89,16 @@ public class ServerHttpFuture extends AbstractHttpFuture {
             return true;
         }
         return false;
+    }
+    
+    @Override
+    void setReadHeader(String name, String value) {
+        setRequestHeader(name, value);
+    }
+
+    @Override
+    String getReadHeader(String name) {
+        return getRequestHeader(name);
     }
 
     public boolean isUpdateWebSocketProtocol() {

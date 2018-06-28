@@ -62,7 +62,7 @@ public class TestSimpleWebSocketClient {
         NioSocketChannel channel = connector.connect();
         String url = "/web-socket-chat";
         //        url = "/c1020";
-        HttpFuture future = new WsUpgradeRequestFuture(channel.getContext(), url);
+        HttpFuture future = new WsUpgradeRequestFuture(url);
         //		 future.setRequestURL("ws://120.76.222.210:30005/");
         //		future.setResponseHeader("Host", "120.76.222.210:30005");
         //		future.setResponseHeader("Pragma", "no-cache");

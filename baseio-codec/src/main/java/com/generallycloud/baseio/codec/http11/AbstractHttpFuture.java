@@ -39,41 +39,41 @@ import com.generallycloud.baseio.protocol.AbstractFuture;
  */
 public abstract class AbstractHttpFuture extends AbstractFuture implements HttpFuture {
 
-    private static final Map<String, String> REQ_MAPPING    = HttpHeader.REQ_MAPPING;
-    protected static final KMPUtil           KMP_BOUNDARY   = new KMPUtil("boundary=");
+    protected static final Map<String, String> HEADER_LOW_MAPPING    = HttpHeader.LOW_MAPPING;
+    protected static final KMPUtil             KMP_BOUNDARY   = new KMPUtil("boundary=");
 
-    private ByteArrayOutputStream            binaryBuffer;
-    private byte[]                           bodyArray;
-    private int                              bodyLimit;
-    private String                           boundary;
-    private int                              contentLength;
-    private String                           contentType;
-    private List<Cookie>                     cookieList;
-    private Map<String, String>              cookies;
-    private StringBuilder                    currentHeaderLine;
-    private boolean                          hasBodyContent;
-    private boolean                          header_complete;
-    private int                              headerLength;
-    private int                              headerLimit;
-    private String                           host;
-    private String                           method;
-    private Map<String, String>              params;
-    private boolean                          parseFirstLine = true;
-    private String                           readText;
-    private Map<String, String>              request_headers;
-    private String                           requestURI;
-    private String                           requestURL;
-    private Map<String, String>              response_headers;
-    private HttpStatus                       status         = HttpStatus.C200;
-    private String                           version;
+    private ByteArrayOutputStream              binaryBuffer;
+    private byte[]                             bodyArray;
+    private int                                bodyLimit;
+    private String                             boundary;
+    private int                                contentLength;
+    private String                             contentType;
+    private List<Cookie>                       cookieList;
+    private Map<String, String>                cookies;
+    private StringBuilder                      currentHeaderLine;
+    private boolean                            hasBodyContent;
+    private boolean                            header_complete;
+    private int                                headerLength;
+    private int                                headerLimit;
+    private String                             host;
+    private String                             method;
+    private Map<String, String>                params;
+    private boolean                            parseFirstLine = true;
+    private String                             readText;
+    private Map<String, String>                request_headers;
+    private String                             requestURI;
+    private String                             requestURL;
+    private Map<String, String>                response_headers;
+    private HttpStatus                         status         = HttpStatus.C200;
+    private String                             version;
 
     public AbstractHttpFuture(int headerLimit, int bodyLimit) {
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
         this.currentHeaderLine = new StringBuilder();
     }
-    
-    AbstractHttpFuture(){}
+
+    AbstractHttpFuture() {}
 
     @Override
     public void addCookie(Cookie cookie) {
@@ -146,11 +146,15 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
         if (StringUtil.isNullOrBlank(name)) {
             return null;
         }
-        String _name = REQ_MAPPING.get(name);
+        String _name = HEADER_LOW_MAPPING.get(name);
         if (_name == null) {
             _name = name.toLowerCase();
         }
         return request_headers.get(_name);
+    }
+    
+    public String getResponseHeader(String name) {
+        return response_headers.get(name);
     }
 
     @Override
@@ -278,14 +282,14 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
             if (!header_complete) {
                 return false;
             }
-            host = getRequestHeader(HttpHeader.Req_Host);
-            String contentLengthStr = getRequestHeader(HttpHeader.Req_Content_Length);
+            host = getReadHeader(HttpHeader.Low_Host);
+            String contentLengthStr = getReadHeader(HttpHeader.Low_Content_Length);
             if (!StringUtil.isNullOrBlank(contentLengthStr)) {
                 this.contentLength = Integer.parseInt(contentLengthStr);
             }
-            String contentType = getRequestHeader(HttpHeader.Req_Content_Type);
+            String contentType = getReadHeader(HttpHeader.Low_Content_Type);
             parseContentType(contentType);
-            String cookie = getRequestHeader(HttpHeader.Req_Cookie);
+            String cookie = getReadHeader(HttpHeader.Low_Cookie);
             if (!StringUtil.isNullOrBlank(cookie)) {
                 parse_cookies(cookie);
             }
@@ -344,7 +348,7 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
                         }
                         String name = line.substring(0, p).trim();
                         String value = line.substring(p + 1).trim();
-                        setRequestHeader(name, value);
+                        setReadHeader(name, value);
                     }
                     currentHeaderLine.setLength(0);
                 }
@@ -357,12 +361,16 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
         }
     }
 
+    abstract void setReadHeader(String name, String value);
+
+    abstract String getReadHeader(String name);
+
     @Override
     public void setRequestHeader(String name, String value) {
         if (StringUtil.isNullOrBlank(name)) {
             return;
         }
-        String _name = REQ_MAPPING.get(name);
+        String _name = HEADER_LOW_MAPPING.get(name);
         if (_name == null) {
             _name = name.toLowerCase();
         }

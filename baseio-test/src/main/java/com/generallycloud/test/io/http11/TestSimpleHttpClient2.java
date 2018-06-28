@@ -54,7 +54,7 @@ public class TestSimpleHttpClient2 {
         }
         NioSocketChannel channel = connector.connect();
         HttpClient client = new HttpClient(channel);
-        HttpFuture future = new ClientHttpFuture(context, "/");
+        HttpFuture future = new ClientHttpFuture("/");
         HttpFuture res = client.request(future, 99990000);
         System.out.println();
         System.out.println(new String(res.getBodyContent()));

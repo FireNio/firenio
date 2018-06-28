@@ -17,21 +17,20 @@ package com.generallycloud.baseio.codec.http11;
 
 import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.UUIDGenerator;
-import com.generallycloud.baseio.component.ChannelContext;
 
 public class WsUpgradeRequestFuture extends ClientHttpFuture {
 
-    public WsUpgradeRequestFuture(ChannelContext context, String url) {
-        super(context, url, "GET");
-        this.setResponseHeaders();
+    public WsUpgradeRequestFuture(String url) {
+        super(url, "GET");
+        this.setRequestHeaders();
     }
 
-    private void setResponseHeaders() {
-        setResponseHeader("Connection", "Upgrade");
-        setResponseHeader("Upgrade", "websocket");
-        setResponseHeader("Sec-WebSocket-Version", "13");
-        setResponseHeader("Sec-WebSocket-Key",
-                BASE64Util.byteArrayToBase64(UUIDGenerator.random().substring(8, 24).getBytes()));
-        setResponseHeader("Sec-WebSocket-Extensions", "permessage-deflate; client_max_window_bits");
+    private void setRequestHeaders() {
+        setRequestHeader("Connection", "Upgrade");
+        setRequestHeader("Upgrade", "websocket");
+        setRequestHeader("Sec-WebSocket-Version", "13");
+        setRequestHeader("Sec-WebSocket-Key",
+                BASE64Util.byteArrayToBase64(UUIDGenerator.randomMostSignificantBits().getBytes()));
+        setRequestHeader("Sec-WebSocket-Extensions", "permessage-deflate; client_max_window_bits");
     }
 }

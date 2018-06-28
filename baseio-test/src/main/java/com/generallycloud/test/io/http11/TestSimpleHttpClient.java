@@ -51,7 +51,7 @@ public class TestSimpleHttpClient {
 
         HttpClient client = new HttpClient(channel);
 
-        HttpFuture future = new ClientHttpFuture(context, "/test-show-memory");
+        HttpFuture future = new ClientHttpFuture("/test-show-memory");
 
         HttpFuture res = client.request(future, 10000);
         System.out.println();

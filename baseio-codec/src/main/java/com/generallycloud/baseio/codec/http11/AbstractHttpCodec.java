@@ -53,8 +53,7 @@ public abstract class AbstractHttpCodec implements ProtocolCodec {
         buf.putByte(b);
     }
 
-    protected void writeHeaders(HttpFuture f, ByteBuf buf) {
-        Map<String, String> headers = f.getResponseHeaders();
+    protected void writeHeaders(Map<String, String> headers, ByteBuf buf) {
         if (headers == null) {
             return;
         }

@@ -70,7 +70,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
             flush(channel, f, entity);
             return;
         }
-        String ims = f.getRequestHeader(HttpHeader.Req_If_Modified_Since);
+        String ims = f.getRequestHeader(HttpHeader.Low_If_Modified_Since);
         long imsTime = -1;
         if (!StringUtil.isNullOrBlank(ims)) {
             imsTime = HttpHeaderDateFormat.getFormat().parse(ims).getTime();

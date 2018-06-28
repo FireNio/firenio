@@ -15,6 +15,7 @@
  */
 package com.generallycloud.test.io.load.fixedlength;
 
+import java.net.StandardSocketOptions;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,9 +38,11 @@ public class TestLoadServer {
         final boolean batchFlush = true;
 
         NioEventLoopGroup group = new NioEventLoopGroup(8);
-        group.setMemoryPoolCapacity(2560000 / 2);
+        group.setMemoryPoolCapacity(5120000 / 8);
         group.setBufRecycleSize(1024 * 64);
-        group.setMemoryPoolUnit(128);
+        group.setMemoryPoolUnit(512);
+//        group.setEnableMemoryPool(false);
+//        group.setEnableMemoryPoolDirect(false);
         ChannelContext context = new ChannelContext(8300);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
@@ -49,6 +52,7 @@ public class TestLoadServer {
 
             @Override
             public void channelOpened(NioSocketChannel channel) throws Exception {
+//                channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
                 channel.setIoEventHandle(new IoEventHandle() {
                     boolean      addTask = true;
                     List<ByteBuf> fs      = new ArrayList<>(1024 * 4);

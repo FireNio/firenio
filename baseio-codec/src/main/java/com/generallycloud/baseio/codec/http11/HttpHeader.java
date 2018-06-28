@@ -22,66 +22,66 @@ import java.util.Map;
 public class HttpHeader {
 
     //指定客户端能够接收的内容类型  Accept: text/plain, text/html
-    public static final String Req_Accept              = "accept";
+    public static final String Low_Accept              = "accept";
     //浏览器可以接受的字符编码集。  Accept-Charset: iso-8859-5
-    public static final String Req_Accept_Charset      = "accept-charset";
+    public static final String Low_Accept_Charset      = "accept-charset";
     //指定浏览器可以支持的web服务器返回内容压缩编码类型。 Accept-Encoding: compress, gzip
-    public static final String Req_Accept_Encoding     = "accept-encoding";
+    public static final String Low_Accept_Encoding     = "accept-encoding";
     //浏览器可接受的语言   Accept-Language: en,zh
-    public static final String Req_Accept_Language     = "accept-language";
+    public static final String Low_Accept_Language     = "accept-language";
     //可以请求网页实体的一个或者多个子范围字段    Accept-Ranges: bytes
-    public static final String Req_Accept_Ranges       = "accept-ranges";
+    public static final String Low_Accept_Ranges       = "accept-ranges";
     //HTTP授权的授权证书 Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
-    public static final String Req_Authorization       = "authorization";
+    public static final String Low_Authorization       = "authorization";
     //指定请求和响应遵循的缓存机制  Cache-Control: no-cache
-    public static final String Req_Cache_Control       = "cache-control";
+    public static final String Low_Cache_Control       = "cache-control";
     //表示是否需要持久连接。（HTTP 1.1默认进行持久连接）   Connection: close
-    public static final String Req_Connection          = "connection";
+    public static final String Low_Connection          = "connection";
     //HTTP请求发送时，会把保存在该请求域名下的所有cookie值一起发送给web服务器。 Cookie: $Version=1; Skin=new;
-    public static final String Req_Cookie              = "cookie";
+    public static final String Low_Cookie              = "cookie";
     //请求的内容长度 Content-Length: 348
-    public static final String Req_Content_Length      = "content-length";
+    public static final String Low_Content_Length      = "content-length";
     //请求的与实体对应的MIME信息 Content-Type: application/x-www-form-urlencoded
-    public static final String Req_Content_Type        = "content-type";
+    public static final String Low_Content_Type        = "content-type";
     //请求发送的日期和时间  Date: Tue, 15 Nov 2010 08:12:31 GMT
-    public static final String Req_Date                = "date";
+    public static final String Low_Date                = "date";
     //请求的特定的服务器行为 Expect: 100-continue
-    public static final String Req_Expect              = "expect";
+    public static final String Low_Expect              = "expect";
     //发出请求的用户的Email   From: user@email.com
-    public static final String Req_From                = "from";
+    public static final String Low_From                = "from";
     //指定请求的服务器的域名和端口号 Host: www.domain.com
-    public static final String Req_Host                = "host";
+    public static final String Low_Host                = "host";
     //只有请求内容与实体相匹配才有效 If-Match: “737060cd8c284d8af7ad3082f209582d”
-    public static final String Req_If_Match            = "if-match";
+    public static final String Low_If_Match            = "if-match";
     //如果请求的部分在指定时间之后被修改则请求成功，未被修改则返回304代码 If-Modified-Since: Sat, 29 Oct 2010 19:43:31 GMT
-    public static final String Req_If_Modified_Since   = "if-modified-since";
+    public static final String Low_If_Modified_Since   = "if-modified-since";
     //如果内容未改变返回304代码，参数为服务器先前发送的Etag，与服务器回应的Etag比较判断是否改变  If-None-Match: “737060cd8c284d8af7ad3082f209582d”
-    public static final String Req_If_None_Match       = "if-none-match";
+    public static final String Low_If_None_Match       = "if-none-match";
     //如果实体未改变，服务器发送客户端丢失的部分，否则发送整个实体。参数也为Etag If-Range: “737060cd8c284d8af7ad3082f209582d”
-    public static final String Req_If_Range            = "if-range";
+    public static final String Low_If_Range            = "if-range";
     //只在实体在指定时间之后未被修改才请求成功    If-Unmodified-Since: Sat, 29 Oct 2010 19:43:31 GMT
-    public static final String Req_If_Unmodified_Since = "if-unmodified-since";
+    public static final String Low_If_Unmodified_Since = "if-unmodified-since";
     //限制信息通过代理和网关传送的时间    Max-Forwards: 10
-    public static final String Req_Max_Forwards        = "max-forwards";
+    public static final String Low_Max_Forwards        = "max-forwards";
     //用来包含实现特定的指令 Pragma: no-cache
-    public static final String Req_Pragma              = "pragma";
+    public static final String Low_Pragma              = "pragma";
     //连接到代理的授权证书  Proxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
-    public static final String Req_Proxy_Authorization = "proxy-authorization";
+    public static final String Low_Proxy_Authorization = "proxy-authorization";
     //只请求实体的一部分，指定范围  Range: bytes=500-999
-    public static final String Req_Range               = "range";
+    public static final String Low_Range               = "range";
     //先前网页的地址，当前请求网页紧随其后,即来路  Referer: http://www.domain.com/archives/71.html
-    public static final String Req_Referer             = "referer";
+    public static final String Low_Referer             = "referer";
     //客户端愿意接受的传输编码，并通知服务器接受接受尾加头信息    TE: trailers,deflate;q=0.5
-    public static final String Req_TE                  = "te";
+    public static final String Low_TE                  = "te";
     //向服务器指定某种传输协议以便服务器进行转换（如果支持） Upgrade: HTTP/2.0, SHTTP/1.3, IRC/6.9, RTA/x11
-    public static final String Req_Upgrade             = "upgrade";
+    public static final String Low_Upgrade             = "upgrade";
     //User-Agent的内容包含发出请求的用户信息    User-Agent: Mozilla/5.0 (Linux; X11)
-    public static final String Req_User_Agent          = "user-agent";
+    public static final String Low_User_Agent          = "user-agent";
     //通知中间网关或代理服务器地址，通信协议 Via: 1.0 fred, 1.1 nowhere.com (Apache/1.1)
-    public static final String Req_Via                 = "via";
+    public static final String Low_Via                 = "via";
     //关于消息实体的警告信息 Warn: 199 Miscellaneous warning
-    public static final String Req_Warning             = "warning";
-    public static final String Req_Sec_WebSocket_Key   = "sec-websocket-key";
+    public static final String Low_Warning             = "warning";
+    public static final String Low_Sec_WebSocket_Key   = "sec-websocket-key";
     //表明服务器是否支持指定范围请求及哪种类型的分段请求   Accept-Ranges: bytes
     public static final String Accept_Ranges           = "Accept-Ranges";
     //从原始服务器到代理缓存形成的估算时间（以秒计，非负）  Age: 12
@@ -144,7 +144,7 @@ public class HttpHeader {
     //表明客户端请求实体应该使用的授权方案  WWW-Authenticate: Basic
     public static final String              WWW_Authenticate     = "WWW-Authenticate";
 
-    public static final Map<String, String> REQ_MAPPING          = new HashMap<>();
+    public static final Map<String, String> LOW_MAPPING          = new HashMap<>();
 
     static {
         try {
@@ -152,11 +152,11 @@ public class HttpHeader {
             for (Field f : fs) {
                 if (f.getType() == String.class) {
                     String name = f.getName();
-                    if (name.startsWith("Req_")) {
+                    if (name.startsWith("Low_")) {
                         String key = name.substring(4).replace("_", "-");
                         String value = (String) f.get(null);
-                        REQ_MAPPING.put(key, value);
-                        REQ_MAPPING.put(key.toLowerCase(), value);
+                        LOW_MAPPING.put(key, value);
+                        LOW_MAPPING.put(key.toLowerCase(), value);
                     }
                 }
             }

@@ -6,6 +6,8 @@ import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.UnpooledHeapByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -25,20 +27,27 @@ import io.netty.util.CharsetUtil;
 public class TestLoadEchoClient1 extends ITestThread {
 
     private ChannelInboundHandlerAdapter eventHandleAdaptor = null;
-
     private EventLoopGroup               group              = new NioEventLoopGroup();
-
     private ChannelFuture                f;
+    static final int                     core_size          = 16;
+    private static final byte[]          req;
+    private static final String          reqS;
+
+    static {
+        int len = 128;
+        String s = "hello server!";
+        for (int i = 0; i < len; i++) {
+            s += "hello server!";
+        }
+        reqS = s;
+        req = s.getBytes();
+    }
 
     @Override
     public void run() {
-
         int time1 = getTime();
-
         for (int i = 0; i < time1; i++) {
-
-            f.channel().writeAndFlush("hello server !");
-
+            f.channel().writeAndFlush(reqS);
         }
     }
 
@@ -49,12 +58,7 @@ public class TestLoadEchoClient1 extends ITestThread {
 
             @Override
             public void channelRead(ChannelHandlerContext ctx, Object msg) {
-
-                //				System.out.println("_________________"+msg);
-
-                //				ctx.write(msg);
-
-                addCount(1);
+                addCount(1024);
             }
         };
 
@@ -85,9 +89,9 @@ public class TestLoadEchoClient1 extends ITestThread {
 
     public static void main(String[] args) throws IOException {
 
-        int time = 1280000;
+        int time = 1024 * 512;
 
-        int core_size = 4;
+        int core_size = 16;
 
         ITestThreadHandle.doTest(TestLoadEchoClient1.class, core_size, time / core_size);
     }

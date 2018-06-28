@@ -62,7 +62,7 @@ public class ClientHttpCodec extends AbstractHttpCodec {
 
     @Override
     public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        return new ClientHttpFuture(channel.getContext(), headerLimit, bodyLimit);
+        return new ClientHttpFuture(headerLimit, bodyLimit);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ClientHttpCodec extends AbstractHttpCodec {
         buf.putByte(SPACE);
         buf.put(getRequestURI(f).getBytes());
         buf.put(PROTOCOL);
-        writeHeaders(f, buf);
+        writeHeaders(f.getRequestHeaders(), buf);
         List<Cookie> cookieList = f.getCookieList();
         if (cookieList != null && cookieList.size() > 0) {
             buf.put(COOKIE);
