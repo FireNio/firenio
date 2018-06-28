@@ -99,7 +99,7 @@ public class TestLoadClient1 extends ITestThread {
 
     public static void main(String[] args) throws IOException {
 
-        int time = 1024 * 1024 * 4;
+        int time = 1024 * 1024 * 8;
 
         ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
     }

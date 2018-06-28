@@ -19,7 +19,7 @@ public interface PooledByteBuf extends ByteBuf {
 
     int getBeginUnit();
 
-    PooledByteBuf produce(int begin, int end, int newLimit, long version);
+    PooledByteBuf produce(int begin, int end, int newLimit);
 
     PooledByteBuf produce(PooledByteBuf buf);
 

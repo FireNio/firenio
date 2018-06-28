@@ -45,8 +45,7 @@ public final class SimpleByteBufAllocator extends PooledByteBufAllocator {
                 frees.set(blockStart, false);
                 blockEnds[blockStart] = blockEnd1;
                 mask = blockEnd1;
-                return byteBufNew.newByteBuf(this).produce(blockStart, blockEnd1, limit,
-                        bufVersions++);
+                return byteBufNew.newByteBuf(this).produce(blockStart, blockEnd1, limit);
             }
             start++;
         }

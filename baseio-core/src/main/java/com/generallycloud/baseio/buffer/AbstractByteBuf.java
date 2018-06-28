@@ -31,7 +31,6 @@ public abstract class AbstractByteBuf implements ByteBuf {
     protected int              offset;
     protected int              capacity;
     protected int              markLimit;
-    protected long             releaseVersion;
     protected volatile int     referenceCount = 0;
 
     protected AbstractByteBuf(ByteBufAllocator allocator) {
@@ -187,10 +186,7 @@ public abstract class AbstractByteBuf implements ByteBuf {
     }
 
     @Override
-    public void release(long version) {
-        if (releaseVersion != version) {
-            return;
-        }
+    public void release() {
         int referenceCount = this.referenceCount;
         if (referenceCount < 1) {
             return;
@@ -226,11 +222,6 @@ public abstract class AbstractByteBuf implements ByteBuf {
                 break;
             }
         }
-    }
-
-    @Override
-    public long getReleaseVersion() {
-        return releaseVersion;
     }
 
     @Override

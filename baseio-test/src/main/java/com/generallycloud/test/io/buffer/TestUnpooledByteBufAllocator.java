@@ -41,7 +41,7 @@ public class TestUnpooledByteBufAllocator {
 
         buf.flip();
 
-        ReleaseUtil.release(buf, buf.getReleaseVersion());
+        ReleaseUtil.release(buf);
 
         for (;;) {
 

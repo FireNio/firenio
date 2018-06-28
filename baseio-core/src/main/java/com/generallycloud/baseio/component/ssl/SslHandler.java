@@ -26,6 +26,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class SslHandler {
@@ -103,9 +104,7 @@ public class SslHandler {
                 }
             }
         } catch (Throwable e) {
-            if (out != null) {
-                out.release(out.getReleaseVersion());
-            }
+            ReleaseUtil.release(out);
             if (e instanceof IOException) {
                 throw (IOException) e;
             }
@@ -119,7 +118,7 @@ public class SslHandler {
         try {
             out.read(buf);
         } catch (Exception e) {
-            out.release(out.getReleaseVersion());
+            out.release();
             throw e;
         }
         return out.flip();

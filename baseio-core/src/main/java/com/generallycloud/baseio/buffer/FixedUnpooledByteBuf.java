@@ -351,11 +351,6 @@ public final class FixedUnpooledByteBuf implements ByteBuf {
     }
 
     @Override
-    public long getReleaseVersion() {
-        return 0;
-    }
-
-    @Override
     public ByteBuf reallocate(int limit, boolean copyOld) {
         if (limit > unwrap().capacity()) {
             throw new UnsupportedOperationException();
@@ -384,8 +379,8 @@ public final class FixedUnpooledByteBuf implements ByteBuf {
     }
 
     @Override
-    public void release(long version) {
-        byteBuf.release(version);
+    public void release() {
+        byteBuf.release();
     }
 
     @Override

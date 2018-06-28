@@ -269,7 +269,7 @@ public final class NioSocketChannel extends AttributesImpl
             try {
                 buf = handler.wrap(this, old);
             } finally {
-                old.release(old.getReleaseVersion());
+                old.release();
             }
         }
         return buf;
@@ -405,7 +405,7 @@ public final class NioSocketChannel extends AttributesImpl
                 try {
                     buf = handler.wrap(this, old);
                 } finally {
-                    old.release(old.getReleaseVersion());
+                    old.release();
                 }
             }
         } catch (Exception e) {
@@ -719,7 +719,7 @@ public final class NioSocketChannel extends AttributesImpl
             return;
         }
         dst.read(remainingBuf);
-        remainingBuf.release(remainingBuf.getReleaseVersion());
+        remainingBuf.release();
         this.remainingBuf = null;
     }
 
@@ -816,7 +816,7 @@ public final class NioSocketChannel extends AttributesImpl
                 } else {
                     ByteBuf buf = currentWriteBufs[0];
                     currentWriteBufs[0] = null;
-                    buf.release(buf.getReleaseVersion());
+                    buf.release();
                     this.currentWriteBufsLen = 0;
                     interestRead(selectionKey);
                     return;
@@ -842,7 +842,7 @@ public final class NioSocketChannel extends AttributesImpl
                         interestWrite(selectionKey);
                         return;
                     } else {
-                        buf.release(buf.getReleaseVersion());
+                        buf.release();
                     }
                 }
                 for (int j = 0; j < currentWriteBufsLen; j++) {
@@ -867,7 +867,7 @@ public final class NioSocketChannel extends AttributesImpl
                 interestWrite(selectionKey);
                 return;
             } else {
-                buf.release(buf.getReleaseVersion());
+                buf.release();
                 interestRead(selectionKey);
             }
         } catch (Exception e) {

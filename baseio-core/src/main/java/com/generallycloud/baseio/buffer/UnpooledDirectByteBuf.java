@@ -69,10 +69,7 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
     }
 
     @Override
-    public void release(long version) {
-        if (releaseVersion != version) {
-            return;
-        }
+    public void release() {
         int referenceCount = this.referenceCount;
         if (referenceCount < 1) {
             return;

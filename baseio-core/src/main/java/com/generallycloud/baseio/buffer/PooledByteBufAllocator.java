@@ -24,7 +24,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
 
     private final ByteBufFactory   bufFactory;
-    protected long                 bufVersions = 1;
     private final int              capacity;
     private final ReentrantLock    lock        = new ReentrantLock();
     protected int                  mask;

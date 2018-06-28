@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.common;
 
-import java.util.Collection;
 import java.util.List;
 
 import com.generallycloud.baseio.Releasable;
@@ -29,17 +28,6 @@ public class ReleaseUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(ReleaseUtil.class);
 
-    public static void release(Releasable releasable, long version) {
-        if (releasable == null) {
-            return;
-        }
-        try {
-            releasable.release(version);
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
-    
     public static void release(List<ByteBuf> bufs) {
         if (bufs == null) {
             return;
@@ -54,7 +42,7 @@ public class ReleaseUtil {
             return;
         }
         try {
-            releasable.release(releasable.getReleaseVersion());
+            releasable.release();
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }

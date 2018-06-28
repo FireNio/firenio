@@ -256,7 +256,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         closeChannels();
         CloseUtil.close(selector);
         ReleaseUtil.release(sslTemporary, this);
-        ReleaseUtil.release(buf, buf.getReleaseVersion());
+        ReleaseUtil.release(buf);
     }
 
     public final void finishConnect(ChannelContext context, Throwable e) {

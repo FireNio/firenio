@@ -113,7 +113,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
                 writeBuf(buf, array, 0, length);
             }
         } catch (Exception e) {
-            buf.release(buf.getReleaseVersion());
+            buf.release();
             throw e;
         }
         return buf.flip();
