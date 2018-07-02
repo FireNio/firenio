@@ -28,10 +28,15 @@ import com.generallycloud.baseio.common.StringUtil;
  */
 public class HttpHeaderDateFormat {
 
-    private static final HttpHeaderDateFormat HTTP_HEADER_DATE_FORMAT = new HttpHeaderDateFormat();
+    private static final ThreadLocal<HttpHeaderDateFormat> formats = new ThreadLocal<>();
 
     public static HttpHeaderDateFormat getFormat() {
-        return HTTP_HEADER_DATE_FORMAT;
+        HttpHeaderDateFormat f = formats.get();
+        if (f == null) {
+            f = new HttpHeaderDateFormat();
+            formats.set(f);
+        }
+        return f;
     }
 
     private TimeZone GTM = TimeZone.getTimeZone("GTM");
@@ -66,11 +71,11 @@ public class HttpHeaderDateFormat {
 
     public static void main(String[] args) {
         Date d = new Date();
-        System.out.println(DateUtil.formatYyyy_MM_dd_HH_mm_ss(d));
+        System.out.println(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss(d));
         String str = getFormat().format(d.getTime());
         System.out.println(str);
         d = getFormat().parse(str);
-        System.out.println(DateUtil.formatYyyy_MM_dd_HH_mm_ss(d));
+        System.out.println(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss(d));
     }
 
     private int getMonth(String month) {

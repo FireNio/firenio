@@ -17,32 +17,54 @@ package com.generallycloud.baseio.common;
 
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class MD5Util {
 
-    public static String get16(String value) {
+    private static final ThreadLocal<MD5Util> md5Utils = new ThreadLocal<>();
+
+    public static MD5Util get() {
+        MD5Util u = md5Utils.get();
+        if (u == null) {
+            u = new MD5Util();
+            md5Utils.set(u);
+        }
+        return u;
+    }
+
+    private final MessageDigest md5;
+
+    public MD5Util() {
+        try {
+            md5 = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String get16(String value) {
         return get16(value, Encoding.UTF8);
     }
 
-    public static String get16(String value, Charset encoding) {
+    public String get16(String value, Charset encoding) {
         return get32(value.getBytes(encoding)).substring(8, 24);
     }
 
-    public static String get32(String value) {
+    public String get32(String value) {
         return get32(value, Encoding.UTF8);
     }
 
-    public static String get32(String value, Charset encoding) {
+    public String get32(String value, Charset encoding) {
         return get32(value.getBytes(encoding));
     }
 
-    public static String get32(byte[] array) {
+    public String get32(byte[] array) {
         return get32(array, 0, array.length);
     }
 
-    public static String get32(byte[] array, int off, int len) {
+    public String get32(byte[] array, int off, int len) {
         try {
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            md5.reset();
             md5.update(array, off, len);
             return MathUtil.bytes2HexString(md5.digest());
         } catch (Exception e) {

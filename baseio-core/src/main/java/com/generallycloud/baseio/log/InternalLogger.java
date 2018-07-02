@@ -151,7 +151,7 @@ public class InternalLogger implements Logger {
     }
 
     private String getTimeFormat() {
-        return DateUtil.formatYyyy_MM_dd_HH_mm_ss_SSS(new Date());
+        return DateUtil.get().formatYyyy_MM_dd_HH_mm_ss_SSS(new Date());
     }
 
     @Override
