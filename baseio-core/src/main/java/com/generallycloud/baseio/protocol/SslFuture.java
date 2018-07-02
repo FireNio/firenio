@@ -52,10 +52,10 @@ public class SslFuture extends AbstractFuture {
     }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
         if (!header_complete) {
             ByteBuf buf = getByteBuf();
-            buf.read(buffer);
+            buf.read(src);
             if (buf.hasRemaining()) {
                 return false;
             }
@@ -76,7 +76,7 @@ public class SslFuture extends AbstractFuture {
             buf.reallocate(packetLength + 5, limit, true);
         }
         ByteBuf buf = getByteBuf();
-        buf.read(buffer);
+        buf.read(src);
         if (buf.hasRemaining()) {
             return false;
         }

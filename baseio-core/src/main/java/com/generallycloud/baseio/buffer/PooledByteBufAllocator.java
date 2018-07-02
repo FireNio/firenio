@@ -128,6 +128,7 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
         if (copyOld) {
             PooledByteBuf newBuf = allocate(bufFactory, limit);
             if (newBuf == null) {
+                buf.release();
                 throw new BufferException("reallocate failed");
             }
             newBuf.read(buf.flip());
@@ -135,7 +136,7 @@ public abstract class PooledByteBufAllocator extends AbstractByteBufAllocator {
             return buf.newByteBuf(this).produce(newBuf);
         }
         release((PooledByteBuf) buf, true);
-        ByteBuf newBuf = allocate(buf, limit);
+        PooledByteBuf newBuf = allocate(buf, limit);
         if (newBuf == null) {
             throw new BufferException("reallocate failed");
         }

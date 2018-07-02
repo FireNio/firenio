@@ -33,19 +33,19 @@ public final class SimpleByteBufAllocator extends PooledByteBufAllocator {
     PooledByteBuf allocate(ByteBufNew byteBufNew, int limit, int start, int end, int size) {
         int freeSize = 0;
         for (; start < end;) {
-            int blockEnd = start;
-            if (!frees.get(blockEnd)) {
-                start = blockEnds[blockEnd];
+            int pos = start;
+            if (!frees.get(pos)) {
+                start = blockEnds[pos];
                 freeSize = 0;
                 continue;
             }
             if (++freeSize == size) {
-                int blockEnd1 = blockEnd + 1; //blockEnd1=blockEnd+1
-                int blockStart = blockEnd1 - size;
+                int blockEnd = pos + 1;
+                int blockStart = blockEnd - size;
                 frees.set(blockStart, false);
-                blockEnds[blockStart] = blockEnd1;
-                mask = blockEnd1;
-                return byteBufNew.newByteBuf(this).produce(blockStart, blockEnd1, limit);
+                blockEnds[blockStart] = blockEnd;
+                mask = blockEnd;
+                return byteBufNew.newByteBuf(this).produce(blockStart, blockEnd, limit);
             }
             start++;
         }
