@@ -241,7 +241,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         this.buf = UnpooledByteBufAllocator.getDirect().allocate(group.getChannelReadBuffer());
         if (group.isEnableSsl()) {
             ByteBuf buf = UnpooledByteBufAllocator.getHeap().allocate(1024 * 64);
-            this.sslTemporary = new SslFuture(buf, 1024 * 64);
+            this.sslTemporary = new SslFuture(buf);
         }
         this.selector = openSelector();
         this.desc = MessageFormatter.arrayFormat("NioEventLoop(idx:{},sharable:{})",

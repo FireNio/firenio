@@ -42,66 +42,54 @@ public class SslFuture extends AbstractFuture {
 
     public static int SSL_RECORD_HEADER_LENGTH            = 5;
 
-    private boolean   header_complete;
-    private int       limit;
-    private ByteBuf    buf;
+    private ByteBuf   buf;
 
-    public SslFuture(ByteBuf buf, int limit) {
+    public SslFuture(ByteBuf buf) {
         this.buf = buf;
-        this.limit = limit;
     }
 
     @Override
     public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
-        if (!header_complete) {
-            ByteBuf buf = getByteBuf();
-            buf.read(src);
-            if (buf.hasRemaining()) {
-                return false;
-            }
-            header_complete = true;
-            // SSLv3 or TLS - Check ContentType
-            short type = buf.getUnsignedByte(0);
-            if (type < 20 || type > 23) {
-                throw new SSLException("Neither SSLv3 or TLS");
-            }
-            // SSLv3 or TLS - Check ProtocolVersion
-            int majorVersion = buf.getUnsignedByte(1);
-            int packetLength = buf.getUnsignedShort(3);
-            if (majorVersion != 3 || packetLength <= 0) {
-                throw new SSLException("Neither SSLv3 or TLS");
-            } else {
-                // Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
-            }
-            buf.reallocate(packetLength + 5, limit, true);
-        }
-        ByteBuf buf = getByteBuf();
-        buf.read(src);
-        if (buf.hasRemaining()) {
+        if (src.remaining() < 5) {
             return false;
         }
+        // SSLv3 or TLS - Check ContentType
+        int type = src.getUnsignedByte();
+        if (type < 20 || type > 23) {
+            throw new SSLException("Neither SSLv3 or TLS");
+        }
+        // SSLv3 or TLS - Check ProtocolVersion
+        int majorVersion = src.getUnsignedByte();
+        int minorVersion = src.getUnsignedByte();
+        int packetLength = src.getUnsignedShort();
+        if (majorVersion != 3 || packetLength <= 0) {
+            throw new SSLException("Neither SSLv3 or TLS");
+        } else {
+            // Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
+        }
+        int len = packetLength;
+        if (src.remaining() < len) {
+            src.skip(-5);
+            return false;
+        }
+        if (len > 1024 * 64 - 5) {
+            throw new IOException("over limit:" + len);
+        }
+        src.skip(-5);
+        buf.clear();
+        buf.limit(len + 5);
+        buf.read(src);
         buf.flip();
         return true;
     }
 
     @Override
     public SslFuture reset() {
-        this.header_complete = false;
-        getByteBuf().clear().limit(SSL_RECORD_HEADER_LENGTH);
         return this;
     }
-    
+
     public ByteBuf getByteBuf() {
         return buf;
-    }
-
-    public SslFuture copy(NioSocketChannel channel) {
-        ByteBuf src = getByteBuf();
-        ByteBuf buf = allocate(channel, src.limit());
-        buf.read(src.flip());
-        SslFuture copy = new SslFuture(buf, 1024 * 64);
-        copy.header_complete = this.header_complete;
-        return copy;
     }
 
 }

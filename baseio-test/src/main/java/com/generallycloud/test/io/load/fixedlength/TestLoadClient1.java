@@ -73,7 +73,7 @@ public class TestLoadClient1 extends ITestThread {
 
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setMemoryPoolCapacity(5120000 / core_size);
-        group.setMemoryPoolUnit(512);
+        group.setMemoryPoolUnit(256);
         group.setBufRecycleSize(1024 * 8);
 //        group.setEnableMemoryPool(false);
 //        group.setEnableMemoryPoolDirect(false);
@@ -99,7 +99,7 @@ public class TestLoadClient1 extends ITestThread {
 
     public static void main(String[] args) throws IOException {
 
-        int time = 1024 * 1024 * 8;
+        int time = 1024 * 1024 * 4;
 
         ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
     }
