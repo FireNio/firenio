@@ -132,16 +132,23 @@
 		</dependency>
 
 		<dependency>
-		    <groupId>io.undertow</groupId>
-		    <artifactId>undertow-core</artifactId>
-		    <version>1.4.22.Final</version>
+			<groupId>io.undertow</groupId>
+			<artifactId>undertow-core</artifactId>
+			<version>1.4.22.Final</version>
 		</dependency>
 
 		<dependency>
-		    <groupId>org.ow2.asm</groupId>
-		    <artifactId>asm</artifactId>
-		    <version>6.0</version>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm</artifactId>
+			<version>6.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+			<version>3.21.0.1</version>
+		</dependency>
+
 
 	</dependencies>
 
