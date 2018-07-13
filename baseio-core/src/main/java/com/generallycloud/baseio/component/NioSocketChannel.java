@@ -260,13 +260,12 @@ public final class NioSocketChannel extends AttributesImpl
         if (isClosed()) {
             return null;
         }
-        ByteBuf buf = getProtocolCodec().encode(this, future);
+        ByteBuf buf = protocolCodec.encode(this, future);
+        future.flush();
         if (enableSsl) {
-            FastThreadLocal l = FastThreadLocal.get();
             ByteBuf old = buf;
-            SslHandler handler = l.getSslHandler();
             try {
-                buf = handler.wrap(this, old);
+                buf = getSslHandler().wrap(this, old);
             } finally {
                 old.release();
             }
@@ -284,9 +283,11 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
+    @SuppressWarnings("resource")
     public void finishHandshake(Exception e) {
-        if (getContext().getSslContext().isClient()) {
-            ChannelConnector connector = (ChannelConnector) getContext().getChannelService();
+        if (context.getSslContext().isClient()) {
+            ChannelService service = context.getChannelService();
+            ChannelConnector connector = (ChannelConnector) service;
             connector.finishConnect(this, e);
         }
     }
@@ -294,7 +295,7 @@ public final class NioSocketChannel extends AttributesImpl
     private void fireClosed() {
         NioSocketChannel channel = this;
         eventLoop.removeChannel(channel);
-        for (ChannelEventListener l : getContext().getChannelEventListeners()) {
+        for (ChannelEventListener l : context.getChannelEventListeners()) {
             try {
                 l.channelClosed(channel);
             } catch (Exception e) {
@@ -317,7 +318,7 @@ public final class NioSocketChannel extends AttributesImpl
             flush(getSslHandler().wrap(this, EmptyByteBuf.get()));
         }
         eventLoop.putChannel(this);
-        for (ChannelEventListener l : getContext().getChannelEventListeners()) {
+        for (ChannelEventListener l : context.getChannelEventListeners()) {
             try {
                 l.channelOpened(this);
             } catch (Exception e) {
@@ -386,7 +387,7 @@ public final class NioSocketChannel extends AttributesImpl
      * @param f
      */
     public void flush(Future future) {
-        if (future == null || future.flushed()) {
+        if (future == null) {
             return;
         }
         if (isClosed()) {
@@ -395,14 +396,13 @@ public final class NioSocketChannel extends AttributesImpl
         }
         ByteBuf buf = null;
         try {
-            buf = getProtocolCodec().encode(this, future);
+            buf = protocolCodec.encode(this, future);
             future.flush();
             future.release(eventLoop);
             if (enableSsl) {
                 ByteBuf old = buf;
-                SslHandler handler = getSslHandler();
                 try {
-                    buf = handler.wrap(this, old);
+                    buf = getSslHandler().wrap(this, old);
                 } finally {
                     old.release();
                 }
@@ -536,7 +536,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public Charset getCharset() {
-        return getContext().getCharset();
+        return context.getCharset();
     }
 
     public NioEventLoop getEventLoop() {
