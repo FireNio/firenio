@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.NoConnectionPendingException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -65,29 +64,29 @@ import com.generallycloud.baseio.protocol.SslFuture;
  */
 //FIXME 使用ThreadLocal
 public final class NioEventLoop extends AbstractEventLoop implements Attributes {
-    
-    private static final NoConnectionPendingException NoConnectionPendingException    = ThrowableUtil
-            .unknownStackTrace(new NoConnectionPendingException(), NioSocketChannel.class, "javaChannel.finishConnect(...)");
-    private static final Logger                      logger           = LoggerFactory
+
+    private static final IOException                 NOT_FINISH_CONNECT = ThrowableUtil
+            .unknownStackTrace(new IOException(), SocketChannel.class, "finishConnect(...)");
+    private static final Logger                      logger             = LoggerFactory
             .getLogger(NioEventLoop.class);
     private final ByteBufAllocator                   allocator;
-    private final Map<Object, Object>                attributes       = new HashMap<>();
+    private final Map<Object, Object>                attributes         = new HashMap<>();
     private ByteBuf                                  buf;
-    private final IntObjectHashMap<NioSocketChannel> channels         = new IntObjectHashMap<>();
-    private final int                                channelSizeLimit = 1024 * 64;
-    private ChannelContext                           context;                                     // use when not sharable 
+    private final IntObjectHashMap<NioSocketChannel> channels           = new IntObjectHashMap<>();
+    private final int                                channelSizeLimit   = 1024 * 64;
+    private ChannelContext                           context;                                       // use when not sharable 
     private String                                   desc;
-    private BufferedArrayList<Runnable>              events           = new BufferedArrayList<>();
+    private BufferedArrayList<Runnable>              events             = new BufferedArrayList<>();
     private final NioEventLoopGroup                  group;
-    private volatile boolean                         hasTask          = false;
+    private volatile boolean                         hasTask            = false;
     private final int                                index;
-    private long                                     lastIdleTime     = 0;
-    private AtomicBoolean                            selecting        = new AtomicBoolean();
+    private long                                     lastIdleTime       = 0;
+    private AtomicBoolean                            selecting          = new AtomicBoolean();
     private SelectionKeySet                          selectionKeySet;
     private Selector                                 selector;
     private final boolean                            sharable;
     private SslFuture                                sslTemporary;
-    private AtomicBoolean                            wakener          = new AtomicBoolean();      // true eventLooper, false offerer
+    private AtomicBoolean                            wakener            = new AtomicBoolean();      // true eventLooper, false offerer
     private ByteBuffer[]                             writeBuffers;
 
     NioEventLoop(NioEventLoopGroup group, int index) {
@@ -219,14 +218,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     public final void dispatchAfterLoop(Runnable event) {
-        if (inEventLoop()) {
-            events.unsafeOffer(event);
-        } else {
-            if (!isRunning()) {
-                throw new RejectedExecutionException();
-            }
-            events.offer(event);
+        if (!isRunning()) {
+            throw new RejectedExecutionException();
         }
+        events.offer(event);
     }
 
     @Override
@@ -475,7 +470,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     });
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage(),e);
+                logger.error(e.getMessage(), e);
             }
         } else {
             @SuppressWarnings("resource")
@@ -488,7 +483,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 if (!javaChannel.finishConnect()) {
                     key.cancel();
                     key.attach(null);
-                    finishConnect(null, context, NoConnectionPendingException);
+                    finishConnect(null, context, NOT_FINISH_CONNECT);
                     return;
                 }
                 NioEventLoop tempEL = connector.getEventLoop();

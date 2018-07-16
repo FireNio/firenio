@@ -56,10 +56,6 @@ public class BufferedArrayList<T> {
         return lock;
     }
 
-    public void unsafeOffer(T t) {
-        buffer.add(t);
-    }
-
     public void offer(T t) {
         ReentrantLock lock = this.lock;
         lock.lock();
