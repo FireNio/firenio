@@ -56,7 +56,6 @@ public class ChannelAcceptor implements ChannelService {
         Assert.notNull(group, "null group");
         this.context = context;
         this.group = group;
-        this.group.setContext(context);
         this.group.setAcceptor(true);
         this.context.setNioEventLoopGroup(group);
     }

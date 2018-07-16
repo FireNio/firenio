@@ -35,7 +35,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private int                   bufRecycleSize         = 1024 * 4;
     private FixedAtomicInteger    channelIds;
     private int                   channelReadBuffer      = 1024 * 512;
-    private ChannelContext        context;
     private boolean               enableMemoryPool       = true;
     //内存池是否使用启用堆外内存
     private boolean               enableMemoryPoolDirect = true;
@@ -106,10 +105,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     public int getChannelReadBuffer() {
         return channelReadBuffer;
-    }
-
-    public ChannelContext getContext() {
-        return context;
     }
 
     @Override
@@ -185,6 +180,11 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     public void registSelector(ChannelContext context) throws IOException {
+        if (!sharable) {
+            for (int i = 0; i < eventLoops.length; i++) {
+                eventLoops[i].setContext(context);
+            }
+        }
         headEventLoop.registSelector(context);
     }
 
@@ -194,10 +194,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     public void setChannelReadBuffer(int channelReadBuffer) {
         this.channelReadBuffer = channelReadBuffer;
-    }
-
-    public void setContext(ChannelContext context) {
-        this.context = context;
     }
 
     public void setEnableMemoryPool(boolean enableMemoryPool) {

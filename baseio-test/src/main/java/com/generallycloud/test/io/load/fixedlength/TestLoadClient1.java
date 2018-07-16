@@ -81,7 +81,7 @@ public class TestLoadClient1 extends ITestThread {
         connector = new ChannelConnector(context, group);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setIoEventHandle(eventHandleAdaptor);
-        context.addChannelEventListener(new LoggerChannelOpenListener());
+//        context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new ChannelEventListenerAdapter(){
             @Override
             public void channelOpened(NioSocketChannel channel) throws Exception {

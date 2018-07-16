@@ -50,7 +50,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 import com.generallycloud.baseio.protocol.SslFuture;
 
 public final class NioSocketChannel extends AttributesImpl
-        implements NioEventLoopTask, Attributes, Closeable {
+        implements Runnable, Attributes, Closeable {
 
     private static final ClosedChannelException CLOSED_WHEN_FLUSH    = ThrowableUtil
             .unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
@@ -127,19 +127,19 @@ public final class NioSocketChannel extends AttributesImpl
         final ByteBufAllocator allocator = this.allocator;
         final HeartBeatLogger heartBeatLogger = context.getHeartBeatLogger();
         final boolean enableWorkEventLoop = context.isEnableWorkEventLoop();
-        Future future = getReadFuture();
+        Future future = readFuture;
         if (future == null) {
             future = codec.decode(this, src);
         }
         try {
             for (;;) {
                 if (!future.read(this, src)) {
-                    setReadFuture(future);
+                    readFuture = future;
                     if (src.hasRemaining()) {
                         ByteBuf remaining = allocator.allocate(src.remaining());
                         remaining.read(src);
                         remaining.flip();
-                        setRemainingBuf(remaining);
+                        remainingBuf = remaining;
                     }
                     break;
                 }
@@ -165,7 +165,7 @@ public final class NioSocketChannel extends AttributesImpl
                     }
                 }
                 if (!src.hasRemaining()) {
-                    setReadFuture(null);
+                    readFuture = null;
                     break;
                 }
                 future = codec.decode(this, src);
@@ -203,10 +203,9 @@ public final class NioSocketChannel extends AttributesImpl
         if (inEventLoop()) {
             close0();
         } else {
-            eventLoop.dispatch(new NioEventLoopTask() {
-
+            eventLoop.dispatch(new Runnable() {
                 @Override
-                public void fireEvent(NioEventLoop eventLoop) {
+                public void run() {
                     NioSocketChannel.this.close0();
                 }
             });
@@ -305,14 +304,18 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     @Override
-    public void fireEvent(NioEventLoop eventLoop) throws IOException {
+    public void run() {
         if (isClosed()) {
             return;
         }
-        write();
+        try {
+            write();
+        } catch (Exception e) {
+            close();
+        }
     }
 
-    public void fireOpend() throws IOException {
+    protected void fireOpend() throws IOException {
         //FIXME ..如果这时候连接关闭了如何处理
         if (isEnableSsl() && context.getSslContext().isClient()) {
             flush(getSslHandler().wrap(this, EmptyByteBuf.get()));
@@ -583,10 +586,6 @@ public final class NioSocketChannel extends AttributesImpl
         return protocolCodec.getProtocolId();
     }
 
-    public Future getReadFuture() {
-        return readFuture;
-    }
-
     public ByteBuf getRemainingBuf() {
         return remainingBuf;
     }
@@ -743,14 +742,6 @@ public final class NioSocketChannel extends AttributesImpl
 
     public void setProtocolCodec(ProtocolCodec protocolCodec) {
         this.protocolCodec = protocolCodec;
-    }
-
-    public void setReadFuture(Future readFuture) {
-        this.readFuture = readFuture;
-    }
-
-    public void setRemainingBuf(ByteBuf remainingBuf) {
-        this.remainingBuf = remainingBuf;
     }
 
     @Override

@@ -19,6 +19,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -72,7 +73,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private final int                                channelSizeLimit = 1024 * 64;
     private ChannelContext                           context;                                     // use when not sharable 
     private String                                   desc;
-    private BufferedArrayList<NioEventLoopTask>      events           = new BufferedArrayList<>();
+    private BufferedArrayList<Runnable>              events           = new BufferedArrayList<>();
     private final NioEventLoopGroup                  group;
     private volatile boolean                         hasTask          = false;
     private final int                                index;
@@ -80,14 +81,12 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private AtomicBoolean                            selecting        = new AtomicBoolean();
     private SelectionKeySet                          selectionKeySet;
     private Selector                                 selector;
-    private boolean                                  selectorRegisted;
     private final boolean                            sharable;
     private SslFuture                                sslTemporary;
     private AtomicBoolean                            wakener          = new AtomicBoolean();      // true eventLooper, false offerer
     private ByteBuffer[]                             writeBuffers;
 
     NioEventLoop(NioEventLoopGroup group, int index) {
-        this.context = group.getContext();
         this.index = index;
         this.group = group;
         this.sharable = group.isSharable();
@@ -115,7 +114,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 ch.read(buf);
             } catch (Throwable e) {
                 if (e instanceof SSLHandshakeException) {
-                    finishRegistChannel(ch, e);
+                    finishConnect(ch, ch.getContext(), e);
                 }
                 closeSocketChannel(ch, e);
             }
@@ -124,7 +123,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             try {
                 registChannel(k, context);
             } catch (Exception e) {
-                k.channel();
+                k.cancel();
                 k.attach(null);
                 logger.error(e.getMessage(), e);
             }
@@ -169,10 +168,12 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 }
             }
         } else {
-            List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
-            for (ChannelIdleEventListener l : ls) {
-                for (NioSocketChannel channel : channels.values()) {
-                    l.channelIdled(channel, lastIdleTime, currentTime);
+            if (channels.size() > 0) {
+                List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
+                for (ChannelIdleEventListener l : ls) {
+                    for (NioSocketChannel channel : channels.values()) {
+                        l.channelIdled(channel, lastIdleTime, currentTime);
+                    }
                 }
             }
         }
@@ -193,26 +194,22 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    private void closeEvents(BufferedArrayList<NioEventLoopTask> events) {
-        for (NioEventLoopTask event : events.getBuffer()) {
+    private void closeEvents(BufferedArrayList<Runnable> events) {
+        for (Runnable event : events.getBuffer()) {
             if (event instanceof Closeable) {
                 CloseUtil.close((Closeable) event);
             } else {
-                try {
-                    event.fireEvent(this);
-                } catch (Throwable e) {
-                    logger.error(e.getMessage(), e);
-                }
+                handleEvent(event);
             }
         }
     }
 
     private void closeSocketChannel(NioSocketChannel channel, Throwable t) {
         logger.error(t.getMessage() + " channel:" + channel, t);
-        CloseUtil.close(channel);
+        channel.close();
     }
 
-    protected final void dispatch(NioEventLoopTask event) {
+    protected final void dispatch(Runnable event) {
         if (!isRunning()) {
             throw new RejectedExecutionException();
         }
@@ -224,7 +221,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         wakeup();
     }
 
-    public final void dispatchAfterLoop(NioEventLoopTask event) {
+    public final void dispatchAfterLoop(Runnable event) {
         if (inEventLoop()) {
             events.unsafeOffer(event);
         } else {
@@ -259,18 +256,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         ReleaseUtil.release(buf);
     }
 
-    public final void finishConnect(ChannelContext context, Throwable e) {
+    private final void finishConnect(NioSocketChannel ch, ChannelContext context, Throwable e) {
         ChannelService service = context.getChannelService();
         if (service instanceof ChannelConnector) {
-            ((ChannelConnector) service).finishConnect(null, e);
-        }
-    }
-
-    public final void finishRegistChannel(NioSocketChannel channel, Throwable e) {
-        ChannelContext context = channel.getContext();
-        ChannelService service = context.getChannelService();
-        if (service instanceof ChannelConnector) {
-            ((ChannelConnector) service).finishConnect(channel, e);
+            ((ChannelConnector) service).finishConnect(ch, e);
         }
     }
 
@@ -309,9 +298,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return writeBuffers;
     }
 
-    private void handleEvent(NioEventLoopTask event) {
+    private void handleEvent(Runnable event) {
         try {
-            event.fireEvent(this);
+            event.run();
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
@@ -323,7 +312,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         final Selector selector = this.selector;
         final AtomicBoolean selecting = this.selecting;
         final SelectionKeySet keySet = this.selectionKeySet;
-        final BufferedArrayList<NioEventLoopTask> events = this.events;
+        final BufferedArrayList<Runnable> events = this.events;
         long nextIdle = 0;
         long selectTime = idle;
         for (;;) {
@@ -370,7 +359,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     }
                 }
                 if (events.size() > 0) {
-                    List<NioEventLoopTask> es = events.getBuffer();
+                    List<Runnable> es = events.getBuffer();
                     for (int i = 0; i < es.size(); i++) {
                         handleEvent(es.get(i));
                     }
@@ -455,7 +444,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         channel.getContext().getChannelManager().putChannel(channel);
     }
 
-    public void registChannel(final SelectionKey key, final ChannelContext context)
+    private void registChannel(final SelectionKey key, final ChannelContext context)
             throws IOException {
         final NioEventLoop thisEventLoop = this;
         final ChannelService channelService = context.getChannelService();
@@ -472,7 +461,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             if (channel == null) {
                 return;
             }
-            NioEventLoop targetEventLoop = group.getNext();
+            final NioEventLoop targetEventLoop = group.getNext();
             // 配置为非阻塞
             channel.configureBlocking(false);
             // 注册到selector，等待连接
@@ -480,11 +469,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             if (thisEventLoop == targetEventLoop) {
                 registChannel(channel, targetEventLoop, context, channelId);
             } else {
-                targetEventLoop.dispatch(new NioEventLoopTask() {
+                targetEventLoop.dispatch(new Runnable() {
 
                     @Override
-                    public void fireEvent(NioEventLoop eventLoop) throws IOException {
-                        registChannel(channel, eventLoop, context, channelId);
+                    public void run() {
+                        registChannel(channel, targetEventLoop, context, channelId);
                     }
                 });
             }
@@ -499,10 +488,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 if (!javaChannel.finishConnect()) {
                     throw new IOException("connect failed");
                 }
-                NioEventLoop targetEL = connector.getEventLoop();
-                if (targetEL == null) {
-                    targetEL = group.getEventLoop(0);
+                NioEventLoop tempEL = connector.getEventLoop();
+                if (tempEL == null) {
+                    tempEL = group.getEventLoop(0);
                 }
+                final NioEventLoop targetEL = tempEL;
                 SelectionKey sk = javaChannel.keyFor(selector);
                 if (sk != null) {
                     sk.cancel();
@@ -512,62 +502,71 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     selector.selectNow();
                     registChannel(javaChannel, targetEL, context, channelId);
                 } else {
-                    targetEL.dispatch(new NioEventLoopTask() {
+                    targetEL.dispatch(new Runnable() {
                         @Override
-                        public void fireEvent(NioEventLoop eventLoop) throws IOException {
-                            registChannel(javaChannel, eventLoop, context, channelId);
+                        public void run() {
+                            registChannel(javaChannel, targetEL, context, channelId);
                         }
                     });
                 }
             } catch (IOException e) {
-                finishConnect(context, e);
+                key.cancel();
+                key.attach(null);
+                finishConnect(null, context, e);
             }
         }
     }
 
-    private NioSocketChannel registChannel(SocketChannel javaChannel, NioEventLoop eventLoop,
-            ChannelContext context, int channelId) throws IOException {
-        SelectionKey sk = javaChannel.register(eventLoop.selector, SelectionKey.OP_READ);
-        // 绑定SocketChannel到SelectionKey
-        NioSocketChannel channel = (NioSocketChannel) sk.attachment();
-        if (channel != null) {
+    private void registChannel(SocketChannel javaChannel, NioEventLoop eventLoop,
+            ChannelContext context, int channelId) {
+        NioSocketChannel channel = null;
+        try {
+            SelectionKey sk = javaChannel.register(eventLoop.selector, SelectionKey.OP_READ);
+            // 绑定SocketChannel到SelectionKey
+            channel = (NioSocketChannel) sk.attachment();
+            if (channel != null) {
+                CloseUtil.close(channel);
+            }
+            channel = new NioSocketChannel(eventLoop, sk, context, channelId);
+            sk.attach(channel);
+            // fire channel open event
+            channel.fireOpend();
+            if (!channel.isEnableSsl()) {
+                finishConnect(channel, channel.getContext(), null);
+            }
+        } catch (ClosedChannelException e) {
+            logger.error(e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            if (!channel.isEnableSsl()) {
+                finishConnect(channel, channel.getContext(), e);
+            }
             CloseUtil.close(channel);
+            SelectionKey sk = javaChannel.keyFor(eventLoop.selector);
+            if (sk != null) {
+                sk.cancel();
+                sk.attach(null);
+            }
         }
-        channel = new NioSocketChannel(eventLoop, sk, context, channelId);
-        sk.attach(channel);
-        // fire channel open event
-        channel.fireOpend();
-        if (!channel.isEnableSsl()) {
-            finishRegistChannel(channel, null);
-        }
-        return channel;
     }
 
     protected void registSelector(final ChannelContext context) throws IOException {
-        if (!sharable) {
-            if (selectorRegisted) {
-                if (context == this.context) {
-                    return;
-                } else {
-                    throw new IOException("selector registed");
-                }
-            }
-            selectorRegisted = true;
-        }
+        this.context = context;
         if (inEventLoop()) {
             registSelector(this, context);
         } else {
+            final NioEventLoop eventLoop = this;
             final Waiter waiter = new Waiter();
-            dispatch(new NioEventLoopTask() {
+            dispatch(new Runnable() {
 
                 @Override
-                public void fireEvent(NioEventLoop eventLoop) throws IOException {
+                public void run() {
                     try {
                         SelectionKey sk = registSelector(eventLoop, context);
                         waiter.response(sk);
                     } catch (Exception e) {
                         waiter.response(e);
-                        throw e;
+                        logger.error(e.getMessage(), e);
                     }
                 }
             });
@@ -624,6 +623,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     @Override
     public void setAttribute(Object key, Object value) {
         this.attributes.put(key, value);
+    }
+    
+    protected void setContext(ChannelContext context) {
+        this.context = context;
     }
 
     @Override

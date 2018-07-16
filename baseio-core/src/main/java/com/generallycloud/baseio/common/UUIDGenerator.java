@@ -40,5 +40,21 @@ public class UUIDGenerator {
         MathUtil.long2Byte(array, uuid.getLeastSignificantBits(), 0);
         return MathUtil.bytes2HexString(array);
     }
+    
+    
+    public static void main(String[] args) {
+        
+        int count = 1024 * 1024;
+        long start = System.currentTimeMillis();
+        String str = null;
+        for (int i = 0; i < count; i++) {
+            str = random();
+//            str = UUID.randomUUID().toString();
+        }
+        System.out.println(str);
+        System.out.println(System.currentTimeMillis() - start);
+        
+    }
+    
 
 }

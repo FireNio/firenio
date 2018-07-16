@@ -52,7 +52,6 @@ public class ChannelConnector implements ChannelService, Closeable {
         this.context = context;
         this.eventLoop = eventLoop;
         this.group = eventLoop.getGroup();
-        this.group.setContext(context);
         this.context.setNioEventLoopGroup(group);
     }
 
@@ -68,7 +67,6 @@ public class ChannelConnector implements ChannelService, Closeable {
         this.context = context;
         this.group = group;
         this.group.setAcceptor(false);
-        this.group.setContext(context);
         this.context.setNioEventLoopGroup(group);
     }
 
