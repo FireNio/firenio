@@ -423,6 +423,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
             Field field = ClassUtil.getDeclaredFieldFC(getClass(), "classes");
             if (field != null) {
                 field.setAccessible(true);
+                @SuppressWarnings("unchecked")
                 Vector<Class<?>> classes = (Vector<Class<?>>) field.get(this);
                 if (classes != null) {
                     classes.clear();
