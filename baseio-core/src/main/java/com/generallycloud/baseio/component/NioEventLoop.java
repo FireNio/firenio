@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.SSLHandshakeException;
 
@@ -81,12 +81,12 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private volatile boolean                         hasTask            = false;
     private final int                                index;
     private long                                     lastIdleTime       = 0;
-    private AtomicBoolean                            selecting          = new AtomicBoolean();
+    private AtomicInteger                            selecting          = new AtomicInteger();
     private SelectionKeySet                          selectionKeySet;
     private Selector                                 selector;
     private final boolean                            sharable;
     private SslFuture                                sslTemporary;
-    private AtomicBoolean                            wakener            = new AtomicBoolean();      // true eventLooper, false offerer
+    private AtomicInteger                            wakener            = new AtomicInteger();      // true eventLooper, false offerer
     private ByteBuffer[]                             writeBuffers;
 
     NioEventLoop(NioEventLoopGroup group, int index) {
@@ -302,7 +302,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     public void loop() {
         final long idle = group.getIdleTime();
         final Selector selector = this.selector;
-        final AtomicBoolean selecting = this.selecting;
+        final AtomicInteger selecting = this.selecting;
         final SelectionKeySet keySet = this.selectionKeySet;
         final BufferedArrayList<Runnable> events = this.events;
         long nextIdle = 0;
@@ -318,7 +318,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     selected = selector.selectNow();
                     hasTask = false;
                 } else {
-                    if (selecting.compareAndSet(false, true)) {
+                    if (selecting.compareAndSet(0, 1)) {
                         // Im not sure events.size if visible immediately by other thread ?
                         // can we use events.getBufferSize() > 0 ?
                         if (hasTask) {
@@ -328,7 +328,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                             selected = selector.select(selectTime);
                         }
                         hasTask = false;
-                        selecting.set(false);
+                        selecting.set(0);
                     } else {
                         selected = selector.selectNow();
                         hasTask = false;
@@ -631,15 +631,15 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     // 执行stop的时候如果确保不会再有数据进来
     @Override
     public void wakeup() {
-        if (wakener.compareAndSet(false, true)) {
+        if (wakener.compareAndSet(0, 1)) {
             hasTask = true;
-            if (selecting.compareAndSet(false, true)) {
-                selecting.set(false);
+            if (selecting.compareAndSet(0, 1)) {
+                selecting.set(0);
             } else {
                 selector.wakeup();
                 super.wakeup();
             }
-            wakener.set(false);
+            wakener.set(0);
         }
     }
 

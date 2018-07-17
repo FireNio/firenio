@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author wangkai
@@ -23,23 +23,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class AtomicLockImpl implements Lock {
 
-    private AtomicBoolean lock = new AtomicBoolean();
+    private AtomicInteger lock = new AtomicInteger();
 
     @Override
     public boolean tryLock() {
-        return lock.compareAndSet(false, true);
+        return lock.compareAndSet(0, 1);
     }
 
     @Override
     public void unlock() {
-        lock.set(false);
+        lock.set(0);
     }
 
     @Override
     public void lock() {
-        AtomicBoolean lock = this.lock;
-        if (!lock.compareAndSet(false, true)) {
-            for (; !lock.compareAndSet(false, true);) {}
+        AtomicInteger lock = this.lock;
+        if (!lock.compareAndSet(0, 1)) {
+            for (; !lock.compareAndSet(0, 1);) {}
         }
     }
 
