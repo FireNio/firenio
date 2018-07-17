@@ -17,25 +17,23 @@ package com.generallycloud.baseio.concurrent;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
+import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.FastThreadLocalThread;
+import com.generallycloud.baseio.component.RejectedExecutionHandle;
+import com.generallycloud.baseio.component.RejectedExecutionHandle.DefaultRejectedExecutionHandle;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractEventLoop implements EventLoop {
 
     private static final Logger logger       = LoggerFactory.getLogger(AbstractEventLoop.class);
-
-    private Thread              monitor      = null;
-
     private EventLoopGroup      defaultGroup = new DefaultEventLoopGroup(this);
-
-    protected volatile boolean  running      = false;
-
-    private volatile boolean    stopped      = false;
-
+    private Thread              monitor      = null;
     private Object              runLock      = new Object();
+    protected volatile boolean  running      = false;
+    private volatile boolean    stopped      = false;
 
     protected void doLoop() throws Exception {}
 
@@ -45,6 +43,11 @@ public abstract class AbstractEventLoop implements EventLoop {
 
     protected void doStop() {
         LoggerUtil.prettyLog(logger, "event looper {} stopped", this);
+    }
+
+    @Override
+    public EventLoopGroup getGroup() {
+        return defaultGroup;
     }
 
     @Override
@@ -63,13 +66,12 @@ public abstract class AbstractEventLoop implements EventLoop {
     }
 
     @Override
-    public EventLoopGroup getGroup() {
-        return defaultGroup;
-    }
-
-    @Override
     public boolean isRunning() {
         return running;
+    }
+
+    private boolean isStopped() {
+        return stopped;
     }
 
     @Override
@@ -85,6 +87,10 @@ public abstract class AbstractEventLoop implements EventLoop {
                 logger.error(e.getMessage(), e);
             }
         }
+    }
+
+    protected void setStopped(boolean stopped) {
+        this.stopped = stopped;
     }
 
     @Override
@@ -141,25 +147,25 @@ public abstract class AbstractEventLoop implements EventLoop {
         }
     }
 
-    private boolean isStopped() {
-        return stopped;
-    }
-
-    protected void setStopped(boolean stopped) {
-        this.stopped = stopped;
-    }
-
     @Override
     public void wakeup() {}
 
     class DefaultEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
 
-        private EventLoopListener listener;
-
-        private EventLoop         eventLoop;
+        private EventLoop               eventLoop;
+        private EventLoopListener       listener;
+        private RejectedExecutionHandle rejectedExecutionHandle = new DefaultRejectedExecutionHandle();
 
         DefaultEventLoopGroup(EventLoop eventLoop) {
             this.eventLoop = eventLoop;
+        }
+
+        @Override
+        protected void doStart() throws Exception {}
+
+        @Override
+        protected void doStop() throws Exception {
+            LifeCycleUtil.stop(eventLoop);
         }
 
         @Override
@@ -178,16 +184,18 @@ public abstract class AbstractEventLoop implements EventLoop {
         }
 
         @Override
+        public RejectedExecutionHandle getRejectedExecutionHandle() {
+            return rejectedExecutionHandle;
+        }
+
+        @Override
         public void setEventLoopListener(EventLoopListener listener) {
             this.listener = listener;
         }
 
-        @Override
-        protected void doStart() throws Exception {}
-
-        @Override
-        protected void doStop() throws Exception {
-            LifeCycleUtil.stop(eventLoop);
+        public void setRejectedExecutionHandle(RejectedExecutionHandle rejectedExecutionHandle) {
+            Assert.notNull(rejectedExecutionHandle, "null rejectedExecutionHandle");
+            this.rejectedExecutionHandle = rejectedExecutionHandle;
         }
 
     }

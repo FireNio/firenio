@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.RejectedExecutionHandle;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -30,10 +31,12 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
     private ChannelContext         context;
     private static Logger          logger = LoggerFactory.getLogger(ThreadEventLoop.class);
     private ExecutorEventLoopGroup executorEventLoopGroup;
+    private RejectedExecutionHandle rejectedExecutionHandle;
 
     public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, ChannelContext context) {
         this.executorEventLoopGroup = eventLoopGroup;
         this.context = context;
+        this.rejectedExecutionHandle = eventLoopGroup.getRejectedExecutionHandle();
     }
 
     private BlockingQueue<Runnable> jobs;
@@ -57,8 +60,11 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
     //FIXME 观察这里是否部分event没有被fire
     @Override
     public void dispatch(Runnable job) throws RejectedExecutionException {
-        if (!isRunning() || !jobs.offer(job)) {
-            throw new RejectedExecutionException();
+        if (!jobs.offer(job)) {
+            rejectedExecutionHandle.reject(this, job);
+        }
+        if (!isRunning() && jobs.remove(job)) {
+            rejectedExecutionHandle.reject(this, job);
         }
     }
 

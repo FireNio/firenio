@@ -32,10 +32,10 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class WebSocketMsgAdapter extends AbstractEventLoop {
 
-    private Logger                     logger     = LoggerFactory.getLogger(getClass());
+    private Logger                        logger     = LoggerFactory.getLogger(getClass());
     private List<NioSocketChannel>        clients    = new ArrayList<>();
     private Map<String, NioSocketChannel> clientsMap = new HashMap<>();
-    private BlockingQueue<Msg>         msgs       = new ArrayBlockingQueue<>(1024 * 4);
+    private BlockingQueue<Msg>            msgs       = new ArrayBlockingQueue<>(1024 * 4);
 
     public synchronized void addClient(String username, NioSocketChannel channel) {
         clients.add(channel);
@@ -106,7 +106,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
             this.channel = channel;
         }
 
-        String        msg;
+        String           msg;
         NioSocketChannel channel;
     }
 }

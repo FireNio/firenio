@@ -30,7 +30,7 @@ import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
  */
 public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
-    private NioEventLoop          headEventLoop;
+    private boolean               acceptor;
     private ByteBufAllocatorGroup allocatorGroup;
     private int                   bufRecycleSize         = 1024 * 4;
     private FixedAtomicInteger    channelIds;
@@ -40,6 +40,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private boolean               enableMemoryPoolDirect = true;
     private boolean               enableSsl;
     private NioEventLoop[]        eventLoops;
+    private NioEventLoop          headEventLoop;
     private long                  idleTime               = 30 * 1000;
     //内存池内存单元数量（单核）
     private int                   memoryPoolCapacity;
@@ -49,7 +50,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private boolean               sharable;
     //单条连接write(srcs)的数量
     private int                   writeBuffers           = 16;
-    private boolean               acceptor;
 
     public NioEventLoopGroup() {
         this(Runtime.getRuntime().availableProcessors() * 2);
@@ -154,6 +154,10 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         LifeCycleUtil.start(getAllocatorGroup());
     }
 
+    public boolean isAcceptor() {
+        return acceptor;
+    }
+
     public boolean isEnableMemoryPool() {
         return enableMemoryPool;
     }
@@ -186,6 +190,13 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
             }
         }
         headEventLoop.registerSelector(context);
+    }
+
+    public void setAcceptor(boolean acceptor) {
+        this.acceptor = acceptor;
+        if (!acceptor) {
+            setEventLoopSize(1);
+        }
     }
 
     public void setBufRecycleSize(int bufRecycleSize) {
@@ -230,17 +241,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     public void setWriteBuffers(int writeBuffers) {
         this.writeBuffers = writeBuffers;
-    }
-
-    public boolean isAcceptor() {
-        return acceptor;
-    }
-
-    public void setAcceptor(boolean acceptor) {
-        this.acceptor = acceptor;
-        if (!acceptor) {
-            setEventLoopSize(1);
-        }
     }
 
 }

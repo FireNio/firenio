@@ -16,12 +16,14 @@
 package com.generallycloud.baseio.concurrent;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.component.FastThreadLocalThread;
+import com.generallycloud.baseio.component.RejectedExecutionHandle;
 
 public class ExecutorPoolEventLoop implements ExecutorEventLoop {
 
@@ -54,6 +56,14 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
         poolExecutor = new ThreadPoolExecutor(coreEventLoopSize, maxEventLoopSize, keepAliveTime,
                 TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(maxEventQueueSize),
                 threadFactory);
+        final EventLoop eventLoop = this;
+        final RejectedExecutionHandle handle = eventLoopGroup.getRejectedExecutionHandle();
+        poolExecutor.setRejectedExecutionHandler(new RejectedExecutionHandler() {
+            @Override
+            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+                handle.reject(eventLoop, r);
+            }
+        });
     }
 
     @Override

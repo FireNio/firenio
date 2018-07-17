@@ -49,7 +49,6 @@ import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.common.ThrowableUtil;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.concurrent.BufferedArrayList;
@@ -66,11 +65,12 @@ import com.generallycloud.baseio.protocol.SslFuture;
 //FIXME 使用ThreadLocal
 public final class NioEventLoop extends AbstractEventLoop implements Attributes {
 
-    private static final IOException                 NOT_FINISH_CONNECT    = ThrowableUtil
-            .unknownStackTrace(new IOException(), SocketChannel.class, "finishConnect(...)");
+    private static final boolean                     enableSelectionKeySet = checkEnableSelectionKeySet();
     private static final Logger                      logger                = LoggerFactory
             .getLogger(NioEventLoop.class);
-    private static final boolean                     enableSelectionKeySet = checkEnableSelectionKeySet();
+    private static final IOException                 NOT_FINISH_CONNECT    = ThrowableUtil
+            .unknownStackTrace(new IOException(), SocketChannel.class, "finishConnect(...)");
+
     private final ByteBufAllocator                   allocator;
     private final Map<Object, Object>                attributes            = new HashMap<>();
     private ByteBuf                                  buf;
@@ -83,6 +83,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private volatile boolean                         hasTask               = false;
     private final int                                index;
     private long                                     lastIdleTime          = 0;
+    private final RejectedExecutionHandle            rejectedExecutionHandle;
     private final AtomicInteger                      selecting             = new AtomicInteger();
     private final SelectionKeySet                    selectionKeySet;
     private Selector                                 selector;
@@ -96,6 +97,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         this.group = group;
         this.sharable = group.isSharable();
         this.allocator = group.getAllocatorGroup().getNext();
+        this.rejectedExecutionHandle = group.getRejectedExecutionHandle();
         if (enableSelectionKeySet) {
             this.selectionKeySet = new SelectionKeySet(1024);
         } else {
@@ -116,7 +118,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     ch.write();
                 } catch (Throwable e) {
-                    closeSocketChannel(ch, e);
+                    logger.error(e.getMessage() + ch, e);
+                    ch.close();
                 }
                 return;
             }
@@ -124,10 +127,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             try {
                 ch.read(buf);
             } catch (Throwable e) {
+                logger.error(e.getMessage() + ch, e);
+                ch.close();
                 if (e instanceof SSLHandshakeException) {
                     finishConnect(ch, ch.getContext(), e);
                 }
-                closeSocketChannel(ch, e);
             }
         } else {
             final ChannelContext context = (ChannelContext) attach;
@@ -274,28 +278,29 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    private void closeSocketChannel(NioSocketChannel channel, Throwable t) {
-        logger.error(t.getMessage() + " channel:" + channel, t);
-        channel.close();
-    }
-
     protected final void dispatch(Runnable event) {
-        if (!isRunning()) {
-            throw new RejectedExecutionException();
-        }
-        /* ----------------------------------------------------------------- */
-        // 这里不需要再次判断了，因为close方法会延迟执行，
-        // 可以确保event要么被执行，要么被close
-        /* ----------------------------------------------------------------- */
         events.offer(event);
+        if (!isRunning() && events.remove(event)) {
+            rejectedExecutionHandle.reject(this, event);
+            return;
+        }
         wakeup();
     }
 
     public final void dispatchAfterLoop(Runnable event) {
-        if (!isRunning()) {
-            throw new RejectedExecutionException();
-        }
         events.offer(event);
+        if (!isRunning() && events.remove(event)) {
+            rejectedExecutionHandle.reject(this, event);
+        }
+    }
+
+    protected final void dispatchChannel(NioSocketChannel channel) {
+        /* ----------------------------------------------------------------- */
+        // 这里不需要再次判断了，因为该event为channel，EventLoop停止前会将所有
+        // channel 关掉
+        /* ----------------------------------------------------------------- */
+        events.offer(channel);
+        wakeup();
     }
 
     @Override
@@ -313,7 +318,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
 
     @Override
     protected void doStop() {
-        ThreadUtil.sleep(8);
         closeEvents(events);
         closeEvents(events);
         closeChannels();
@@ -441,65 +445,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
-        }
-    }
-
-    @SuppressWarnings("rawtypes")
-    private static Selector openSelector(final SelectionKeySet keySet) throws IOException {
-        final SelectorProvider provider = SelectorProvider.provider();
-        final Selector selector = provider.openSelector();
-        Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            @Override
-            public Object run() {
-                try {
-                    return Class.forName("sun.nio.ch.SelectorImpl");
-                } catch (Throwable cause) {
-                    return cause;
-                }
-            }
-        });
-        if (res instanceof Throwable) {
-            return selector;
-        }
-        final Class selectorImplClass = (Class) res;
-        res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            @Override
-            public Object run() {
-                try {
-                    Field selectedKeysField = selectorImplClass.getDeclaredField("selectedKeys");
-                    Field publicSelectedKeysField = selectorImplClass
-                            .getDeclaredField("publicSelectedKeys");
-                    Throwable cause = ClassUtil.trySetAccessible(selectedKeysField);
-                    if (cause != null) {
-                        return cause;
-                    }
-                    cause = ClassUtil.trySetAccessible(publicSelectedKeysField);
-                    if (cause != null) {
-                        return cause;
-                    }
-                    selectedKeysField.set(selector, keySet);
-                    publicSelectedKeysField.set(selector, keySet);
-                    return null;
-                } catch (Exception e) {
-                    return e;
-                }
-            }
-        });
-        if (res instanceof Throwable) {
-            return selector;
-        }
-        return selector;
-    }
-
-    private static boolean checkEnableSelectionKeySet() {
-        Selector selector = null;
-        try {
-            selector = openSelector(new SelectionKeySet(0));
-            return selector.selectedKeys().getClass() == SelectionKeySet.class;
-        } catch (Throwable e) {
-            return false;
-        } finally {
-            CloseUtil.close(selector);
         }
     }
 
@@ -685,6 +630,65 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         public String toString() {
             return "SelectionKeySet[" + size() + "]";
         }
+    }
+
+    private static boolean checkEnableSelectionKeySet() {
+        Selector selector = null;
+        try {
+            selector = openSelector(new SelectionKeySet(0));
+            return selector.selectedKeys().getClass() == SelectionKeySet.class;
+        } catch (Throwable e) {
+            return false;
+        } finally {
+            CloseUtil.close(selector);
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static Selector openSelector(final SelectionKeySet keySet) throws IOException {
+        final SelectorProvider provider = SelectorProvider.provider();
+        final Selector selector = provider.openSelector();
+        Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                try {
+                    return Class.forName("sun.nio.ch.SelectorImpl");
+                } catch (Throwable cause) {
+                    return cause;
+                }
+            }
+        });
+        if (res instanceof Throwable) {
+            return selector;
+        }
+        final Class selectorImplClass = (Class) res;
+        res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                try {
+                    Field selectedKeysField = selectorImplClass.getDeclaredField("selectedKeys");
+                    Field publicSelectedKeysField = selectorImplClass
+                            .getDeclaredField("publicSelectedKeys");
+                    Throwable cause = ClassUtil.trySetAccessible(selectedKeysField);
+                    if (cause != null) {
+                        return cause;
+                    }
+                    cause = ClassUtil.trySetAccessible(publicSelectedKeysField);
+                    if (cause != null) {
+                        return cause;
+                    }
+                    selectedKeysField.set(selector, keySet);
+                    publicSelectedKeysField.set(selector, keySet);
+                    return null;
+                } catch (Exception e) {
+                    return e;
+                }
+            }
+        });
+        if (res instanceof Throwable) {
+            return selector;
+        }
+        return selector;
     }
 
 }

@@ -203,12 +203,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (inEventLoop()) {
             close0();
         } else {
-            eventLoop.dispatch(new Runnable() {
-                @Override
-                public void run() {
-                    NioSocketChannel.this.close0();
-                }
-            });
+            eventLoop.dispatch(new ChannelCloseEvent(this));
         }
     }
 
@@ -303,18 +298,6 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    @Override
-    public void run() {
-        if (isClosed()) {
-            return;
-        }
-        try {
-            write();
-        } catch (Exception e) {
-            close();
-        }
-    }
-
     protected void fireOpend() throws IOException {
         //FIXME ..如果这时候连接关闭了如何处理
         if (isEnableSsl() && context.getSslContext().isClient()) {
@@ -381,7 +364,7 @@ public final class NioSocketChannel extends AttributesImpl
             } finally {
                 lock.unlock();
             }
-            eventLoop.dispatch(this);
+            eventLoop.dispatchChannel(this);
         }
     }
 
@@ -518,12 +501,16 @@ public final class NioSocketChannel extends AttributesImpl
             } finally {
                 lock.unlock();
             }
-            eventLoop.dispatch(this);
+            eventLoop.dispatchChannel(this);
         }
     }
 
     public Integer getChannelId() {
         return channelId;
+    }
+
+    public Charset getCharset() {
+        return context.getCharset();
     }
 
     private ReentrantLock getCloseLock() {
@@ -536,10 +523,6 @@ public final class NioSocketChannel extends AttributesImpl
 
     public long getCreationTime() {
         return creationTime;
-    }
-
-    public Charset getCharset() {
-        return context.getCharset();
     }
 
     public NioEventLoop getEventLoop() {
@@ -611,6 +594,10 @@ public final class NioSocketChannel extends AttributesImpl
 
     public SSLEngine getSSLEngine() {
         return sslEngine;
+    }
+
+    private SslHandler getSslHandler() {
+        return FastThreadLocal.get().getSslHandler();
     }
 
     public int getWriteBacklog() {
@@ -691,10 +678,6 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    private SslHandler getSslHandler() {
-        return FastThreadLocal.get().getSslHandler();
-    }
-
     public void readRemainingBuf(ByteBuf dst) {
         ByteBuf remainingBuf = this.remainingBuf;
         if (remainingBuf == null) {
@@ -729,6 +712,18 @@ public final class NioSocketChannel extends AttributesImpl
         for (; buf != null;) {
             ReleaseUtil.release(buf);
             buf = wfs.poll();
+        }
+    }
+
+    @Override
+    public void run() {
+        if (isClosed()) {
+            return;
+        }
+        try {
+            write();
+        } catch (Exception e) {
+            close();
         }
     }
 
@@ -843,6 +838,26 @@ public final class NioSocketChannel extends AttributesImpl
             ReleaseUtil.release(buf);
             CloseUtil.close(this);
         }
+    }
+
+    class ChannelCloseEvent implements Runnable, Closeable {
+
+        final NioSocketChannel channel;
+
+        public ChannelCloseEvent(NioSocketChannel channel) {
+            this.channel = channel;
+        }
+
+        @Override
+        public void close() throws IOException {
+            channel.close0();
+        }
+
+        @Override
+        public void run() {
+            channel.close0();
+        }
+
     }
 
 }

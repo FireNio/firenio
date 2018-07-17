@@ -17,13 +17,17 @@ package com.generallycloud.baseio.concurrent;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
+import com.generallycloud.baseio.common.Assert;
+import com.generallycloud.baseio.component.RejectedExecutionHandle;
+import com.generallycloud.baseio.component.RejectedExecutionHandle.DefaultRejectedExecutionHandle;
 
 public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
 
-    private String             eventLoopName;
-    private int                eventLoopSize;
-    private FixedAtomicInteger eventLoopIndex;
-    private EventLoopListener  eventLoopListener;
+    private FixedAtomicInteger      eventLoopIndex;
+    private EventLoopListener       eventLoopListener;
+    private String                  eventLoopName;
+    private int                     eventLoopSize;
+    private RejectedExecutionHandle rejectedExecutionHandle = new DefaultRejectedExecutionHandle();
 
     protected AbstractEventLoopGroup() {}
 
@@ -48,26 +52,11 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
         }
     }
 
-    protected abstract EventLoop[] initEventLoops();
-
-    protected int getNextEventLoopIndex() {
-        return eventLoopIndex.getAndIncrement();
-    }
-
-    public int getEventLoopSize() {
-        return eventLoopSize;
-    }
-
-    public void setEventLoopSize(int eventLoopSize) {
-        this.eventLoopSize = eventLoopSize;
-    }
-
-    public String getEventLoopName() {
-        return eventLoopName;
-    }
-
-    public void setEventLoopName(String eventLoopName) {
-        this.eventLoopName = eventLoopName;
+    @Override
+    protected void doStop() throws Exception {
+        for (int i = 0; i < getEventLoopSize(); i++) {
+            LifeCycleUtil.stop(getEventLoop(i));
+        }
     }
 
     @Override
@@ -75,17 +64,42 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
         return eventLoopListener;
     }
 
+    public String getEventLoopName() {
+        return eventLoopName;
+    }
+
+    public int getEventLoopSize() {
+        return eventLoopSize;
+    }
+
+    protected int getNextEventLoopIndex() {
+        return eventLoopIndex.getAndIncrement();
+    }
+
+    public RejectedExecutionHandle getRejectedExecutionHandle() {
+        return rejectedExecutionHandle;
+    }
+
+    protected abstract EventLoop[] initEventLoops();
+
+    protected abstract EventLoop newEventLoop(int index);
+
     @Override
     public void setEventLoopListener(EventLoopListener listener) {
         this.eventLoopListener = listener;
     }
 
-    protected abstract EventLoop newEventLoop(int index);
-
-    @Override
-    protected void doStop() throws Exception {
-        for (int i = 0; i < getEventLoopSize(); i++) {
-            LifeCycleUtil.stop(getEventLoop(i));
-        }
+    public void setEventLoopName(String eventLoopName) {
+        this.eventLoopName = eventLoopName;
     }
+
+    public void setEventLoopSize(int eventLoopSize) {
+        this.eventLoopSize = eventLoopSize;
+    }
+
+    public void setRejectedExecutionHandle(RejectedExecutionHandle rejectedExecutionHandle) {
+        Assert.notNull(rejectedExecutionHandle, "null rejectedExecutionHandle");
+        this.rejectedExecutionHandle = rejectedExecutionHandle;
+    }
+
 }

@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.concurrent;
 
 import com.generallycloud.baseio.LifeCycle;
+import com.generallycloud.baseio.component.RejectedExecutionHandle;
 
 public interface EventLoopGroup extends LifeCycle {
 
@@ -25,6 +26,10 @@ public interface EventLoopGroup extends LifeCycle {
 
     EventLoop getNext();
 
+    RejectedExecutionHandle getRejectedExecutionHandle();
+
     void setEventLoopListener(EventLoopListener listener);
+
+    void setRejectedExecutionHandle(RejectedExecutionHandle rejectedExecutionHandle);
 
 }

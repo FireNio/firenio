@@ -65,5 +65,15 @@ public class BufferedArrayList<T> {
             lock.unlock();
         }
     }
+    
+    public boolean remove(T t) {
+        ReentrantLock lock = this.lock;
+        lock.lock();
+        try {
+            return buffer.remove(t);
+        } finally {
+            lock.unlock();
+        }
+    }
 
 }

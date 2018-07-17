@@ -17,6 +17,9 @@ package com.generallycloud.baseio.concurrent;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
+import com.generallycloud.baseio.common.Assert;
+import com.generallycloud.baseio.component.RejectedExecutionHandle;
+import com.generallycloud.baseio.component.RejectedExecutionHandle.DefaultRejectedExecutionHandle;
 
 public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
         implements ExecutorEventLoopGroup {
@@ -24,6 +27,7 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
     private ExecutorEventLoop eventLoop;
     private EventLoopListener eventLoopListener;
     private String            eventLoopName;
+    private RejectedExecutionHandle rejectedExecutionHandle = new DefaultRejectedExecutionHandle();
 
     public ExecutorPoolEventLoopGroup(String eventLoopName, int coreEventLoopSize,
             int maxEventLoopSize, int maxEventQueueSize, long keepAliveTime) {
@@ -66,6 +70,16 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
     @Override
     public void setEventLoopListener(EventLoopListener eventLoopListener) {
         this.eventLoopListener = eventLoopListener;
+    }
+
+    @Override
+    public RejectedExecutionHandle getRejectedExecutionHandle() {
+        return rejectedExecutionHandle;
+    }
+
+    public void setRejectedExecutionHandle(RejectedExecutionHandle rejectedExecutionHandle) {
+        Assert.notNull(rejectedExecutionHandle, "null rejectedExecutionHandle");
+        this.rejectedExecutionHandle = rejectedExecutionHandle;
     }
 
 }
