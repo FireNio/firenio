@@ -185,7 +185,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
                 eventLoops[i].setContext(context);
             }
         }
-        headEventLoop.registSelector(context);
+        headEventLoop.registerSelector(context);
     }
 
     public void setBufRecycleSize(int bufRecycleSize) {
