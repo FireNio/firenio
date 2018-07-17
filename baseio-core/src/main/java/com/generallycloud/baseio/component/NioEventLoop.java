@@ -29,6 +29,7 @@ import java.nio.channels.spi.SelectorProvider;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.AbstractSet;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -65,28 +66,29 @@ import com.generallycloud.baseio.protocol.SslFuture;
 //FIXME 使用ThreadLocal
 public final class NioEventLoop extends AbstractEventLoop implements Attributes {
 
-    private static final IOException                 NOT_FINISH_CONNECT = ThrowableUtil
+    private static final IOException                 NOT_FINISH_CONNECT    = ThrowableUtil
             .unknownStackTrace(new IOException(), SocketChannel.class, "finishConnect(...)");
-    private static final Logger                      logger             = LoggerFactory
+    private static final Logger                      logger                = LoggerFactory
             .getLogger(NioEventLoop.class);
+    private static final boolean                     enableSelectionKeySet = checkEnableSelectionKeySet();
     private final ByteBufAllocator                   allocator;
-    private final Map<Object, Object>                attributes         = new HashMap<>();
+    private final Map<Object, Object>                attributes            = new HashMap<>();
     private ByteBuf                                  buf;
-    private final IntObjectHashMap<NioSocketChannel> channels           = new IntObjectHashMap<>();
-    private final int                                channelSizeLimit   = 1024 * 64;
-    private ChannelContext                           context;                                       // use when not sharable 
+    private final IntObjectHashMap<NioSocketChannel> channels              = new IntObjectHashMap<>();
+    private final int                                channelSizeLimit      = 1024 * 64;
+    private ChannelContext                           context;                                             // use when not sharable 
     private String                                   desc;
-    private BufferedArrayList<Runnable>              events             = new BufferedArrayList<>();
+    private final BufferedArrayList<Runnable>        events                = new BufferedArrayList<>();
     private final NioEventLoopGroup                  group;
-    private volatile boolean                         hasTask            = false;
+    private volatile boolean                         hasTask               = false;
     private final int                                index;
-    private long                                     lastIdleTime       = 0;
-    private AtomicInteger                            selecting          = new AtomicInteger();
-    private SelectionKeySet                          selectionKeySet;
+    private long                                     lastIdleTime          = 0;
+    private final AtomicInteger                      selecting             = new AtomicInteger();
+    private final SelectionKeySet                    selectionKeySet;
     private Selector                                 selector;
     private final boolean                            sharable;
     private SslFuture                                sslTemporary;
-    private AtomicInteger                            wakener            = new AtomicInteger();      // true eventLooper, false offerer
+    private final AtomicInteger                      wakener               = new AtomicInteger();         // true eventLooper, false offerer
     private ByteBuffer[]                             writeBuffers;
 
     NioEventLoop(NioEventLoopGroup group, int index) {
@@ -94,6 +96,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         this.group = group;
         this.sharable = group.isSharable();
         this.allocator = group.getAllocatorGroup().getNext();
+        if (enableSelectionKeySet) {
+            this.selectionKeySet = new SelectionKeySet(1024);
+        } else {
+            this.selectionKeySet = null;
+        }
     }
 
     private void accept(SelectionKey k) {
@@ -232,7 +239,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             ByteBuf buf = UnpooledByteBufAllocator.getHeap().allocate(1024 * 64);
             this.sslTemporary = new SslFuture(buf);
         }
-        this.selector = openSelector();
+        this.selector = openSelector(selectionKeySet);
         this.desc = MessageFormatter.arrayFormat("NioEventLoop(idx:{},sharable:{})",
                 new Object[] { index, sharable });
     }
@@ -335,14 +342,14 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     }
                 }
                 if (selected > 0) {
-                    if (keySet != null) {
+                    if (enableSelectionKeySet) {
                         for (int i = 0; i < keySet.size; i++) {
                             SelectionKey k = keySet.keys[i];
                             keySet.keys[i] = null;
                             accept(k);
                         }
                         keySet.reset();
-                    } else {
+                    }else{
                         Set<SelectionKey> sks = selector.selectedKeys();
                         for (SelectionKey k : sks) {
                             accept(k);
@@ -371,8 +378,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     @SuppressWarnings("rawtypes")
-    private Selector openSelector() throws IOException {
-        SelectorProvider provider = SelectorProvider.provider();
+    private static Selector openSelector(final SelectionKeySet keySet) throws IOException {
+        final SelectorProvider provider = SelectorProvider.provider();
+        final Selector selector = provider.openSelector();
         Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
             public Object run() {
@@ -383,13 +391,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 }
             }
         });
-        final Selector selector = provider.openSelector();
         if (res instanceof Throwable) {
             return selector;
         }
-        this.selectionKeySet = new SelectionKeySet();
         final Class selectorImplClass = (Class) res;
-        final SelectionKeySet keySet = this.selectionKeySet;
         res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
             public Object run() {
@@ -397,7 +402,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     Field selectedKeysField = selectorImplClass.getDeclaredField("selectedKeys");
                     Field publicSelectedKeysField = selectorImplClass
                             .getDeclaredField("publicSelectedKeys");
-
                     Throwable cause = ClassUtil.trySetAccessible(selectedKeysField);
                     if (cause != null) {
                         return cause;
@@ -406,7 +410,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     if (cause != null) {
                         return cause;
                     }
-
                     selectedKeysField.set(selector, keySet);
                     publicSelectedKeysField.set(selector, keySet);
                     return null;
@@ -419,6 +422,18 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             return selector;
         }
         return selector;
+    }
+
+    private static boolean checkEnableSelectionKeySet() {
+        Selector selector = null;
+        try {
+            selector = openSelector(new SelectionKeySet(0));
+            return selector.selectedKeys().getClass() == SelectionKeySet.class;
+        } catch (Throwable e) {
+            return false;
+        } finally {
+            CloseUtil.close(selector);
+        }
     }
 
     protected void putChannel(NioSocketChannel channel) throws RejectedExecutionException {
@@ -437,7 +452,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     private void registChannel(final SelectionKey key, final ChannelContext context) {
-        final NioEventLoop thisEventLoop = this;
         final ChannelService channelService = context.getChannelService();
         final FixedAtomicInteger channelIds = group.getChannelIds();
         if (channelService instanceof ChannelAcceptor) {
@@ -458,17 +472,13 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 channel.configureBlocking(false);
                 // 注册到selector，等待连接
                 final int channelId = channelIds.getAndIncrement();
-                if (thisEventLoop == targetEventLoop) {
-                    registChannel(channel, targetEventLoop, context, channelId);
-                } else {
-                    targetEventLoop.dispatch(new Runnable() {
+                targetEventLoop.dispatch(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            registChannel(channel, targetEventLoop, context, channelId);
-                        }
-                    });
-                }
+                    @Override
+                    public void run() {
+                        registChannel(channel, targetEventLoop, context, channelId);
+                    }
+                });
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -486,17 +496,17 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     finishConnect(null, context, NOT_FINISH_CONNECT);
                     return;
                 }
+                SelectionKey sk = javaChannel.keyFor(selector);
+                if (sk != null) {
+                    sk.cancel();
+                }
                 NioEventLoop tempEL = connector.getEventLoop();
                 if (tempEL == null) {
                     tempEL = group.getEventLoop(0);
                 }
                 final NioEventLoop targetEL = tempEL;
-                SelectionKey sk = javaChannel.keyFor(selector);
-                if (sk != null) {
-                    sk.cancel();
-                }
                 final int channelId = channelIds.getAndIncrement();
-                if (thisEventLoop == targetEL) {
+                if (targetEL.inEventLoop()) {
                     selector.selectNow();
                     registChannel(javaChannel, targetEL, context, channelId);
                 } else {
@@ -643,13 +653,13 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    class SelectionKeySet extends AbstractSet<SelectionKey> {
+    static class SelectionKeySet extends AbstractSet<SelectionKey> {
 
         SelectionKey[] keys;
         int            size;
 
-        SelectionKeySet() {
-            keys = new SelectionKey[1024];
+        SelectionKeySet(int cap) {
+            keys = new SelectionKey[cap];
         }
 
         @Override
@@ -667,9 +677,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
 
         private void increaseCapacity() {
-            SelectionKey[] newKeys = new SelectionKey[keys.length << 1];
-            System.arraycopy(keys, 0, newKeys, 0, size);
-            keys = newKeys;
+            keys = Arrays.copyOf(keys, size << 1);
         }
 
         @Override
@@ -689,6 +697,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         @Override
         public int size() {
             return size;
+        }
+
+        @Override
+        public String toString() {
+            return "SelectionKeySet[" + size() + "]";
         }
     }
 
