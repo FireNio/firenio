@@ -84,7 +84,7 @@ public class ClientHttpCodec extends AbstractHttpCodec {
                 writeBuf(buf, c.getValue().getBytes());
                 writeBuf(buf, SEMICOLON);
             }
-            buf.position(buf.position() - 1);
+            buf.skip(-1);
         }
         buf.putByte(R);
         buf.putByte(N);

@@ -17,6 +17,8 @@ package com.generallycloud.baseio.concurrent;
 
 public interface EventLoop {
 
+    void dispatch(Runnable event);
+
     EventLoopGroup getGroup();
 
     Thread getMonitor();
@@ -24,7 +26,7 @@ public interface EventLoop {
     boolean inEventLoop();
 
     boolean inEventLoop(Thread thread);
-
+    
     boolean isRunning();
 
     void loop();

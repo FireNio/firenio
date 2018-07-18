@@ -76,7 +76,7 @@ public final class NioSocketChannel extends AttributesImpl
     private final int                           maxWriteBacklog;
     private boolean                             opened               = true;
     private ProtocolCodec                       protocolCodec;
-    private transient Future                    readFuture;
+    private Future                              readFuture;
     private ByteBuf                             remainingBuf;
     private final String                        remoteAddr;
     private final String                        remoteAddrPort;
@@ -127,11 +127,11 @@ public final class NioSocketChannel extends AttributesImpl
         final ByteBufAllocator allocator = this.allocator;
         final HeartBeatLogger heartBeatLogger = context.getHeartBeatLogger();
         final boolean enableWorkEventLoop = context.isEnableWorkEventLoop();
-        Future future = readFuture;
-        if (future == null) {
-            future = codec.decode(this, src);
-        }
         try {
+            Future future = readFuture;
+            if (future == null) {
+                future = codec.decode(this, src);
+            }
             for (;;) {
                 if (!future.read(this, src)) {
                     readFuture = future;
@@ -248,10 +248,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public ByteBuf encode(Future future) throws IOException {
-        if (future == null) {
-            return null;
-        }
-        if (isClosed()) {
+        if (future == null || isClosed()) {
             return null;
         }
         ByteBuf buf = protocolCodec.encode(this, future);
@@ -373,32 +370,31 @@ public final class NioSocketChannel extends AttributesImpl
      * @param f
      */
     public void flush(Future future) {
-        if (future == null) {
-            return;
-        }
-        if (isClosed()) {
-            exceptionCaught(future, CLOSED_WHEN_FLUSH);
-            return;
-        }
-        ByteBuf buf = null;
-        try {
-            buf = protocolCodec.encode(this, future);
-            future.flush();
-            future.release(eventLoop);
-            if (enableSsl) {
-                ByteBuf old = buf;
-                try {
-                    buf = getSslHandler().wrap(this, old);
-                } finally {
-                    old.release();
-                }
+        if (future != null) {
+            if (isClosed()) {
+                exceptionCaught(future, CLOSED_WHEN_FLUSH);
+                return;
             }
-        } catch (Exception e) {
-            ReleaseUtil.release(buf);
-            exceptionCaught(future, e);
-            return;
+            ByteBuf buf = null;
+            try {
+                buf = protocolCodec.encode(this, future);
+                future.flush();
+                future.release(eventLoop);
+                if (enableSsl) {
+                    ByteBuf old = buf;
+                    try {
+                        buf = getSslHandler().wrap(this, old);
+                    } finally {
+                        old.release();
+                    }
+                }
+            } catch (Exception e) {
+                ReleaseUtil.release(buf);
+                exceptionCaught(future, e);
+                return;
+            }
+            flush(buf);
         }
-        flush(buf);
     }
 
     //FIXME ..使用该方法貌似会性能下降？查找原因

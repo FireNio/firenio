@@ -15,16 +15,13 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-import java.util.concurrent.RejectedExecutionException;
-
 /**
  * @author wangkai
  *
  */
 public interface ExecutorEventLoop extends EventLoop {
 
-    void dispatch(Runnable job) throws RejectedExecutionException;
-
     @Override
     ExecutorEventLoopGroup getGroup();
+    
 }

@@ -278,7 +278,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    protected final void dispatch(Runnable event) {
+    @Override
+    public void dispatch(Runnable event) {
         events.offer(event);
         if (!isRunning() && events.remove(event)) {
             rejectedExecutionHandle.reject(this, event);
@@ -287,14 +288,14 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         wakeup();
     }
 
-    public final void dispatchAfterLoop(Runnable event) {
+    public void dispatchAfterLoop(Runnable event) {
         events.offer(event);
         if (!isRunning() && events.remove(event)) {
             rejectedExecutionHandle.reject(this, event);
         }
     }
 
-    protected final void dispatchChannel(NioSocketChannel channel) {
+    protected void dispatchChannel(NioSocketChannel channel) {
         /* ----------------------------------------------------------------- */
         // 这里不需要再次判断了，因为该event为channel，EventLoop停止前会将所有
         // channel 关掉
@@ -386,7 +387,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         long nextIdle = 0;
         long selectTime = idle;
         for (;;) {
-            if (!running) {
+            if (!isRunning()) {
                 setStopped(true);
                 return;
             }

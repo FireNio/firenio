@@ -32,8 +32,11 @@ public abstract class AbstractEventLoop implements EventLoop {
     private EventLoopGroup      defaultGroup = new DefaultEventLoopGroup(this);
     private Thread              monitor      = null;
     private Object              runLock      = new Object();
-    protected volatile boolean  running      = false;
+    private volatile boolean    running      = false;
     private volatile boolean    stopped      = false;
+
+    @Override
+    public void dispatch(Runnable event) {}
 
     protected void doLoop() throws Exception {}
 
