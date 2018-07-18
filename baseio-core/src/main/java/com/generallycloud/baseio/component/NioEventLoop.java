@@ -309,6 +309,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         this.writeBuffers = new ByteBuffer[group.getWriteBuffers()];
         this.buf = UnpooledByteBufAllocator.getDirect().allocate(group.getChannelReadBuffer());
         if (group.isEnableSsl()) {
+            //FIXME . this can not be direct ?
             ByteBuf buf = UnpooledByteBufAllocator.getHeap().allocate(1024 * 64);
             this.sslTemporary = new SslFuture(buf);
         }

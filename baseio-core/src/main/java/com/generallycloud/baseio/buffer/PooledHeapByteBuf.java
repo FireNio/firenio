@@ -46,8 +46,8 @@ final class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteB
     public PooledHeapByteBuf produce(int begin, int end, int newLimit) {
         this.offset = begin * allocator.getUnitMemorySize();
         this.capacity = (end - begin) * allocator.getUnitMemorySize();
-        this.limit = newLimit;
-        this.position = 0;
+        this.position = offset;
+        this.limit = offset + newLimit;
         this.beginUnit = begin;
         this.referenceCount = 1;
         return this;
@@ -57,8 +57,8 @@ final class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteB
     public PooledByteBuf produce(PooledByteBuf buf) {
         this.offset = buf.offset();
         this.capacity = buf.capacity();
-        this.limit = buf.limit();
-        this.position = buf.position();
+        this.position = offset + buf.position();
+        this.limit = offset + buf.limit();
         this.beginUnit = buf.getBeginUnit();
         this.referenceCount = 1;
         return this;

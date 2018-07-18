@@ -309,6 +309,12 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
         memory.putShort(value);
         memory.order(ByteOrder.BIG_ENDIAN);
     }
+    
+    @Override
+    public ByteBuf skip(int length) {
+        memory.position(memory.position() + length);
+        return this;
+    }
 
     @Override
     public void putUnsignedShort(int value) {
