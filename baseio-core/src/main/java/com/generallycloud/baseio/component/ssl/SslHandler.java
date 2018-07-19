@@ -130,7 +130,7 @@ public class SslHandler {
         for (;;) {
             dst.clear();
             if (sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING) {
-                channel.readRemainingBuf(dst);
+                channel.readPlainRemainingBuf(dst);
             }
             SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
             HandshakeStatus handshakeStatus = result.getHandshakeStatus();

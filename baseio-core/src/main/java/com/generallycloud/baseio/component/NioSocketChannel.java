@@ -77,7 +77,8 @@ public final class NioSocketChannel extends AttributesImpl
     private boolean                             opened               = true;
     private ProtocolCodec                       protocolCodec;
     private Future                              readFuture;
-    private ByteBuf                             remainingBuf;
+    private ByteBuf                             plainRemainBuf;
+    private ByteBuf                             sslRemainBuf;
     private final String                        remoteAddr;
     private final String                        remoteAddrPort;
     private final int                           remotePort;
@@ -139,7 +140,7 @@ public final class NioSocketChannel extends AttributesImpl
                         ByteBuf remaining = allocator.allocate(src.remaining());
                         remaining.read(src);
                         remaining.flip();
-                        remainingBuf = remaining;
+                        plainRemainBuf = remaining;
                     }
                     break;
                 }
@@ -565,10 +566,6 @@ public final class NioSocketChannel extends AttributesImpl
         return protocolCodec.getProtocolId();
     }
 
-    public ByteBuf getRemainingBuf() {
-        return remainingBuf;
-    }
-
     public String getRemoteAddr() {
         return remoteAddr;
     }
@@ -638,50 +635,68 @@ public final class NioSocketChannel extends AttributesImpl
         return opened;
     }
 
-    protected void read(ByteBuf buf) throws Exception {
+    protected void read(ByteBuf src) throws Exception {
         lastAccess = System.currentTimeMillis();
-        buf.clear();
-        if (!isEnableSsl()) {
-            readRemainingBuf(buf);
+        src.clear();
+        if (isEnableSsl()) {
+            readSslPlainRemainingBuf(src);
+        }else{
+            readPlainRemainingBuf(src);
         }
-        int length = channel.read(buf.nioBuffer());
+        int length = channel.read(src.nioBuffer());
         if (length < 1) {
             if (length == -1) {
                 CloseUtil.close(this);
             }
             return;
         }
-        buf.reverse();
-        buf.flip();
+        src.reverse();
+        src.flip();
         if (enableSsl) {
             SslHandler sslHandler = getSslHandler();
             SslFuture future = eventLoop.getSslTemporary();
             ByteBuf sslBuf = future.getByteBuf();
             for (;;) {
-                if (!future.read(this, buf)) {
+                if (!future.read(this, src)) {
+                    if (src.hasRemaining()) {
+                        ByteBuf remaining = allocator.allocate(src.remaining());
+                        remaining.read(src);
+                        remaining.flip();
+                        sslRemainBuf = remaining;
+                    }
                     return;
                 }
                 ByteBuf res = sslHandler.unwrap(this, sslBuf);
                 if (res != null) {
                     accept(res);
                 }
-                if (!buf.hasRemaining()) {
+                if (!src.hasRemaining()) {
                     return;
                 }
             }
         } else {
-            accept(buf);
+            accept(src);
         }
     }
 
-    public void readRemainingBuf(ByteBuf dst) {
-        ByteBuf remainingBuf = this.remainingBuf;
+    public void readPlainRemainingBuf(ByteBuf dst) {
+        ByteBuf remainingBuf = this.plainRemainBuf;
         if (remainingBuf == null) {
             return;
         }
         dst.read(remainingBuf);
         remainingBuf.release();
-        this.remainingBuf = null;
+        this.plainRemainBuf = null;
+    }
+    
+    public void readSslPlainRemainingBuf(ByteBuf dst) {
+        ByteBuf remainingBuf = this.sslRemainBuf;
+        if (remainingBuf == null) {
+            return;
+        }
+        dst.read(remainingBuf);
+        remainingBuf.release();
+        this.sslRemainBuf = null;
     }
 
     private void releaseBufs() {
@@ -699,7 +714,8 @@ public final class NioSocketChannel extends AttributesImpl
         }
         NioEventLoop eventLoop = this.eventLoop;
         ReleaseUtil.release(readFuture, eventLoop);
-        ReleaseUtil.release(remainingBuf);
+        ReleaseUtil.release(sslRemainBuf);
+        ReleaseUtil.release(plainRemainBuf);
         Queue<ByteBuf> wfs = this.writeBufs;
         if (wfs.size() == 0) {
             return;
