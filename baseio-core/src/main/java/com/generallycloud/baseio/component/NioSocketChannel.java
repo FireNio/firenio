@@ -257,7 +257,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (enableSsl) {
             ByteBuf old = buf;
             try {
-                buf = getSslHandler().wrap(this, old);
+                buf = sslHandler().wrap(this, old);
             } finally {
                 old.release();
             }
@@ -298,8 +298,8 @@ public final class NioSocketChannel extends AttributesImpl
 
     protected void fireOpend() throws IOException {
         //FIXME ..如果这时候连接关闭了如何处理
-        if (isEnableSsl() && context.getSslContext().isClient()) {
-            flush(getSslHandler().wrap(this, EmptyByteBuf.get()));
+        if (enableSsl && context.getSslContext().isClient()) {
+            flush(sslHandler().wrap(this, EmptyByteBuf.get()));
         }
         eventLoop.putChannel(this);
         for (ChannelEventListener l : context.getChannelEventListeners()) {
@@ -384,7 +384,7 @@ public final class NioSocketChannel extends AttributesImpl
                 if (enableSsl) {
                     ByteBuf old = buf;
                     try {
-                        buf = getSslHandler().wrap(this, old);
+                        buf = sslHandler().wrap(this, old);
                     } finally {
                         old.release();
                     }
@@ -589,7 +589,7 @@ public final class NioSocketChannel extends AttributesImpl
         return sslEngine;
     }
 
-    private SslHandler getSslHandler() {
+    private SslHandler sslHandler() {
         return FastThreadLocal.get().getSslHandler();
     }
 
@@ -638,7 +638,7 @@ public final class NioSocketChannel extends AttributesImpl
     protected void read(ByteBuf src) throws Exception {
         lastAccess = System.currentTimeMillis();
         src.clear();
-        if (isEnableSsl()) {
+        if (enableSsl) {
             readSslPlainRemainingBuf(src);
         }else{
             readPlainRemainingBuf(src);
@@ -653,7 +653,7 @@ public final class NioSocketChannel extends AttributesImpl
         src.reverse();
         src.flip();
         if (enableSsl) {
-            SslHandler sslHandler = getSslHandler();
+            SslHandler sslHandler = sslHandler();
             SslFuture future = eventLoop.getSslTemporary();
             ByteBuf sslBuf = future.getByteBuf();
             for (;;) {

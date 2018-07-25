@@ -35,12 +35,12 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public final class SslContext {
 
-    private static final Logger  logger = LoggerFactory.getLogger(SslContext.class);
-    private static final boolean openSslAvailable;
-
-    static final List<String>    ENABLED_CIPHERS;
-    static final String[]        ENABLED_PROTOCOLS;
-    static final Set<String>     SUPPORTED_CIPHERS;
+    static final Logger       logger = LoggerFactory.getLogger(SslContext.class);
+    static final boolean      openSslAvailable;
+    static final List<String> ENABLED_CIPHERS;
+    static final String[]     ENABLED_PROTOCOLS;
+    static final Set<String>  SUPPORTED_CIPHERS;
+    static final int          SSL_PACKET_BUFFER_SIZE;
 
     static {
         try {
@@ -59,7 +59,6 @@ public final class SslContext {
             }
         } catch (Exception e) {}
         openSslAvailable = testOpenSsl;
-
         SSLContext context;
         try {
             context = getSSLContext();
@@ -67,9 +66,8 @@ public final class SslContext {
         } catch (Exception e) {
             throw new Error("failed to initialize the default SSL context", e);
         }
-
         SSLEngine engine = context.createSSLEngine();
-
+        SSL_PACKET_BUFFER_SIZE = engine.getSession().getPacketBufferSize();
         // Choose the sensible default list of protocols.
         final String[] supportedProtocols = engine.getSupportedProtocols();
         Set<String> supportedProtocolsSet = new HashSet<>(supportedProtocols.length);
@@ -78,13 +76,11 @@ public final class SslContext {
         }
         List<String> protocols = new ArrayList<>();
         addIfSupported(supportedProtocolsSet, protocols, "TLSv1.2", "TLSv1.1", "TLSv1");
-
         if (!protocols.isEmpty()) {
             ENABLED_PROTOCOLS = protocols.toArray(new String[protocols.size()]);
         } else {
             ENABLED_PROTOCOLS = engine.getEnabledProtocols();
         }
-
         // Choose the sensible default list of cipher suites.
         final String[] supportedCiphers = engine.getSupportedCipherSuites();
         SUPPORTED_CIPHERS = new HashSet<>(supportedCiphers.length);
@@ -118,9 +114,7 @@ public final class SslContext {
             }
         }
         ENABLED_CIPHERS = Collections.unmodifiableList(enabledCiphers);
-
-        LoggerUtil.prettyLog(logger, "Default protocols (JDK): {} ",
-                Arrays.asList(ENABLED_PROTOCOLS));
+        LoggerUtil.prettyLog(logger, "Default protocols (JDK): {} ", Arrays.asList(ENABLED_PROTOCOLS));
         LoggerUtil.prettyLog(logger, "Default cipher suites (JDK): {}", ENABLED_CIPHERS);
     }
 
@@ -144,9 +138,12 @@ public final class SslContext {
     public static boolean isOpenSslAvailable() {
         return openSslAvailable;
     }
+    
+    public static int getPacketBufferSize(){
+        return SSL_PACKET_BUFFER_SIZE;
+    }
 
     private final JdkApplicationProtocolNegotiator apn;
-
     private final String[]                         cipherSuites;
     private final ClientAuth                       clientAuth;
     private final boolean                          isClient;

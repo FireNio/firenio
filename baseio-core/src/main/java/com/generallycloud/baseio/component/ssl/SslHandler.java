@@ -30,21 +30,17 @@ import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class SslHandler {
-    
-    private ByteBuf       tempDst;
 
-    private ByteBuf getTempDst(SSLEngine engine) {
-        if (tempDst == null) {
-            synchronized (this) {
-                if (tempDst != null) {
-                    return tempDst;
-                }
-                ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
-                int packetBufferSize = engine.getSession().getPacketBufferSize();
-                tempDst = allocator.allocate(packetBufferSize * 2);
-            }
-        }
-        return tempDst;
+    private final ByteBuf dstTemp;
+
+    private ByteBuf initBuf() {
+        ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
+        int packetBufferSize = SslContext.SSL_PACKET_BUFFER_SIZE;
+        return allocator.allocate(packetBufferSize * 2);
+    }
+
+    public SslHandler() {
+        this.dstTemp = initBuf();
     }
 
     private ByteBuf allocate(NioSocketChannel channel, int capacity) {
@@ -53,7 +49,7 @@ public class SslHandler {
 
     public ByteBuf wrap(NioSocketChannel channel, ByteBuf src) throws IOException {
         SSLEngine engine = channel.getSSLEngine();
-        ByteBuf dst = getTempDst(engine);
+        ByteBuf dst = dstTemp;
         ByteBuf out = null;
         try {
             for (;;) {
@@ -126,7 +122,7 @@ public class SslHandler {
 
     public ByteBuf unwrap(NioSocketChannel channel, ByteBuf src) throws IOException {
         SSLEngine sslEngine = channel.getSSLEngine();
-        ByteBuf dst = getTempDst(sslEngine);
+        ByteBuf dst = dstTemp;
         for (;;) {
             dst.clear();
             if (sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING) {
