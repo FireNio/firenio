@@ -10,11 +10,10 @@ BaseIO is an io framework which can build network project fast, it based on java
 ## Features
 
  * support protocol extend, known:
-   * Redis protocol, for detail {baseio-test}
-   * Protobuf protocol, for detail {baseio-test}
+   * Redis protocol(for test), for detail {baseio-test}
    * LineBased protocol, for detail {baseio-test}
    * FixedLength protocol, for detail {baseio-test}
-   * HTTP1.1 protocol, for detail: https://www.generallycloud.com/
+   * HTTP1.1 protocol(lite), for detail: https://www.generallycloud.com/
    * WebSocket protocol, for detail: https://www.generallycloud.com/web-socket/chat/index.html 
    * Protobase(custom) support text and binay and text binay mixed transfer, for detail {baseio-test}
  * easy to support reconnect (easy to support heart beat)
@@ -41,19 +40,19 @@ BaseIO is an io framework which can build network project fast, it based on java
   ```Java
 
     public static void main(String[] args) throws Exception {
-        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:", session.getEncoding());
-                future.write(f.getReadText(), session.getEncoding());
-                session.flush(future);
+                future.write("yes server already accept your message:", channel.getCharset());
+                future.write(f.getReadText(), channel.getCharset());
+                channel.flush(future);
             }
         };
         NioEventLoopGroup group = new NioEventLoopGroup();
-        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(8300);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new FixedLengthCodec());
         acceptor.bind();
@@ -66,25 +65,26 @@ BaseIO is an io framework which can build network project fast, it based on java
   ```Java
 
     public static void main(String[] args) throws Exception {
-        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
                 System.out.println();
                 System.out.println("____________________" + f.getReadText());
                 System.out.println();
             }
+
         };
         NioEventLoopGroup group = new NioEventLoopGroup();
-        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(8300);
         ChannelConnector connector = new ChannelConnector(context, group);
         context.setIoEventHandle(eventHandleAdaptor);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
-        SocketSession session = connector.connect();
-        FixedLengthFuture future = new FixedLengthFutureImpl();
-        future.write("hello server!", session);
-        session.flush(future);
+        NioSocketChannel channel = connector.connect();
+        FixedLengthFuture future = new FixedLengthFuture();
+        future.write("hello server!", channel);
+        channel.flush(future);
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);
     }

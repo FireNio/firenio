@@ -10,17 +10,16 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
 ## 项目特色
 
  * 支持协议扩展，已知的扩展协议有：
-   * Redis协议，示例：详见 {baseio-test}
-   * Protobuf协议，示例：详见 {baseio-test}
-   * LineBased协议（基于换行符的消息分割），示例：详见 {baseio-test}
-   * FixedLength协议（固定长度报文头），支持传输文本和二进制数据
-   * HTTP1.1协议（客户端，服务端），示例： https://www.generallycloud.com/
-   * WebSocket协议（客户端，服务端），示例： https://www.generallycloud.com/web-socket/chat/index.html 
-   * Protobase（自定义协议），支持传输文本和二进制数据及混合数据
+   * Redis协议(仅作测试)，示例：详见 {baseio-test}
+   * LineBased协议(基于换行符的消息分割)，示例：详见 {baseio-test}
+   * FixedLength协议(固定长度报文头)，支持传输文本和二进制数据
+   * HTTP1.1协议(lite)，示例： https://www.generallycloud.com/
+   * WebSocket协议，示例： https://www.generallycloud.com/web-socket/chat/index.html 
+   * Protobase(自定义协议)，支持传输文本和二进制数据及混合数据
  * 轻松实现断线重连(轻松实现心跳机制)
  * 简易应用容器：
    * 支持简易热部署，示例： https://www.generallycloud.com/system-redeploy
-   * 支持部署WEB，微服务等（依据协议而定）
+   * 支持部署WEB，微服务等(依据协议而定)
  * 压力测试
    * 超过200W QPS的处理速度(Http1.1,I7-4790,16.04.1-Ubuntu)  [wrk压测](/baseio-documents/load-test/load-test-http.txt)
  
@@ -41,19 +40,19 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
   ```Java
 
     public static void main(String[] args) throws Exception {
-        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:", session.getEncoding());
-                future.write(f.getReadText(), session.getEncoding());
-                session.flush(future);
+                future.write("yes server already accept your message:", channel.getCharset());
+                future.write(f.getReadText(), channel.getCharset());
+                channel.flush(future);
             }
         };
         NioEventLoopGroup group = new NioEventLoopGroup();
-        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(8300);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new FixedLengthCodec());
         acceptor.bind();
@@ -66,25 +65,26 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
   ```Java
 
     public static void main(String[] args) throws Exception {
-        IoEventHandleAdaptor eventHandleAdaptor = new IoEventHandleAdaptor() {
+        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
             @Override
-            public void accept(SocketSession session, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Future future) throws Exception {
                 FixedLengthFuture f = (FixedLengthFuture) future;
                 System.out.println();
                 System.out.println("____________________" + f.getReadText());
                 System.out.println();
             }
+
         };
         NioEventLoopGroup group = new NioEventLoopGroup();
-        ChannelContext context = new ChannelContext(new Configuration(8300));
+        ChannelContext context = new ChannelContext(8300);
         ChannelConnector connector = new ChannelConnector(context, group);
         context.setIoEventHandle(eventHandleAdaptor);
-        context.addSessionEventListener(new LoggerSocketSEListener());
+        context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
-        SocketSession session = connector.connect();
-        FixedLengthFuture future = new FixedLengthFutureImpl();
-        future.write("hello server!", session);
-        session.flush(future);
+        NioSocketChannel channel = connector.connect();
+        FixedLengthFuture future = new FixedLengthFuture();
+        future.write("hello server!", channel);
+        channel.flush(future);
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);
     }
@@ -96,9 +96,9 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
 ## 演示及用例
  * HTTP Demo：https://www.generallycloud.com/index.html
  * WebSocket聊天室 Demo：https://www.generallycloud.com/web-socket/chat/index.html                                
-  （后端基于baseio，前端基于：https://github.com/socketio/socket.io/ ）
+  (后端基于baseio，前端基于：https://github.com/socketio/socket.io/ )
  * WebSocket小蝌蚪 Demo：https://www.generallycloud.com/web-socket/rumpetroll/index.html                                
-  （后端基于baseio，前端基于：https://github.com/danielmahal/Rumpetroll ）
+  (后端基于baseio，前端基于：https://github.com/danielmahal/Rumpetroll )
 
 ## License
 
