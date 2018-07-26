@@ -21,7 +21,6 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractFuture;
-import com.generallycloud.baseio.protocol.ProtocolException;
 import com.generallycloud.baseio.protocol.TextFuture;
 
 public class FixedLengthFuture extends AbstractFuture implements TextFuture {
@@ -65,13 +64,13 @@ public class FixedLengthFuture extends AbstractFuture implements TextFuture {
         return true;
     }
 
-    private void setHeartbeat(int len) {
+    private void setHeartbeat(int len) throws IOException {
         if (len == FixedLengthCodec.PROTOCOL_PING) {
             setPing();
         } else if (len == FixedLengthCodec.PROTOCOL_PONG) {
             setPong();
         } else {
-            throw new ProtocolException("illegal length:" + len);
+            throw new IOException("illegal length:" + len);
         }
     }
 

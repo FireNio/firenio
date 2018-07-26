@@ -15,11 +15,12 @@
  */
 package com.generallycloud.baseio.log;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.file.RAFOutputStream;
 
 /**
  * @author wangkai
@@ -27,19 +28,20 @@ import com.generallycloud.baseio.file.RAFOutputStream;
  */
 public class FileLoggerPrinter implements LoggerPrinter {
 
-    private RAFOutputStream outputStream;
+    private BufferedOutputStream out;
 
     public FileLoggerPrinter(File file) throws IOException {
         if (!file.exists()) {
             FileUtil.createDirectory(file.getParentFile());
         }
-        this.outputStream = new RAFOutputStream(file);
+        this.out = new BufferedOutputStream(new FileOutputStream(file));
     }
 
     @Override
     public synchronized void println(String msg) {
         try {
-            outputStream.write((msg + "\n").getBytes());
+            out.write(msg.getBytes());
+            out.write('\n');
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
