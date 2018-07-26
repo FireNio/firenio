@@ -85,8 +85,8 @@
 
 	<scm>
 		<url>https://github.com/generallycloud/baseio</url>
-		<connection>scm:git:https://github.com/generallycloud/baseio.git</connection>
-		<developerConnection>scm:git:https://github.com/generallycloud/baseio.git</developerConnection>
+		<connection>scm:git:git://github.com/generallycloud/baseio.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/generallycloud/baseio.git</developerConnection>
 	</scm>
 
 	<profiles>
