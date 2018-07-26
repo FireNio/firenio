@@ -31,7 +31,7 @@ BaseIO is an io framework which can build network project fast, it based on java
 	<dependency>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.2.4.RELEASE</version>
+		<version>3.2.5.RELEASE</version>
 	</dependency>  
   ```
   
