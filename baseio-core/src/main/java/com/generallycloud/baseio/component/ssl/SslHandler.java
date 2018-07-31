@@ -28,6 +28,7 @@ import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.ProtectedUtil;
 
 public class SslHandler {
 
@@ -90,7 +91,7 @@ public class SslHandler {
                         out.read(dst.flip());
                         continue;
                     } else if (handshakeStatus == HandshakeStatus.FINISHED) {
-                        channel.finishHandshake(null);
+                        ProtectedUtil.finishHandshake(channel,null);
                         out.read(dst.flip());
                         return out.flip();
                     } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
@@ -126,7 +127,7 @@ public class SslHandler {
         for (;;) {
             dst.clear();
             if (sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING) {
-                channel.readPlainRemainingBuf(dst);
+                ProtectedUtil.readPlainRemainingBuf(channel, dst);
             }
             SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
             HandshakeStatus handshakeStatus = result.getHandshakeStatus();
@@ -142,7 +143,7 @@ public class SslHandler {
                     runDelegatedTasks(sslEngine);
                     continue;
                 } else if (handshakeStatus == HandshakeStatus.FINISHED) {
-                    channel.finishHandshake(null);
+                    ProtectedUtil.finishHandshake(channel,null);
                     return null;
                 } else if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
                     return null;

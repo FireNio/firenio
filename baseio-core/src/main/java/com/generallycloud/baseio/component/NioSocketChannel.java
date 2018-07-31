@@ -36,6 +36,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.AttributesImpl;
+import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.StringUtil;
@@ -59,7 +60,7 @@ public final class NioSocketChannel extends AttributesImpl
             .getLogger(NioSocketChannel.class);
     private final ByteBufAllocator              allocator;
     private final SocketChannel                 channel;
-    private final String                        channelDesc;
+    private final String                        desc;
     private final Integer                       channelId;
     private final ReentrantLock                 closeLock            = new ReentrantLock();
     private final ChannelContext                context;
@@ -111,7 +112,7 @@ public final class NioSocketChannel extends AttributesImpl
         this.remoteAddrPort = remoteAddr + ":" + remotePort;
         this.localAddr = local.getAddress().getHostAddress();
         this.localPort = local.getPort();
-        this.channelDesc = new StringBuilder("[Id(0x")
+        this.desc = new StringBuilder("[Id(0x")
                 .append(StringUtil.getZeroString(8 - idhex.length())).append(idhex).append(")R/")
                 .append(getRemoteAddr()).append(":").append(getRemotePort()).append("; L:")
                 .append(getLocalPort()).append("]").toString();
@@ -204,8 +205,12 @@ public final class NioSocketChannel extends AttributesImpl
         if (inEventLoop()) {
             close0();
         } else {
-            eventLoop.dispatch(new ChannelCloseEvent(this));
+            dispatch(new CloseEvent(this));
         }
+    }
+
+    private void dispatch(Runnable event) {
+        eventLoop.dispatch(event);
     }
 
     private void close0() {
@@ -249,9 +254,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public ByteBuf encode(Future future) throws IOException {
-        if (future == null || isClosed()) {
-            return null;
-        }
+        Assert.notNull(future,"null future");
         ByteBuf buf = protocolCodec.encode(this, future);
         future.flush();
         if (enableSsl) {
@@ -276,7 +279,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     @SuppressWarnings("resource")
-    public void finishHandshake(Exception e) {
+    protected void finishHandshake(Exception e) {
         if (context.getSslContext().isClient()) {
             ChannelService service = context.getChannelService();
             ChannelConnector connector = (ChannelConnector) service;
@@ -315,6 +318,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public void flush(ByteBuf buf) {
+        Assert.notNull(buf, "null buf");
         final Queue<ByteBuf> writeBufs = this.writeBufs;
         if (inEventLoop()) {
             if (isClosed()) {
@@ -363,134 +367,132 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public void flush(Future future) {
-        if (future != null) {
-            if (isClosed()) {
-                exceptionCaught(future, CLOSED_WHEN_FLUSH);
-                return;
-            }
-            ByteBuf buf = null;
-            try {
-                buf = protocolCodec.encode(this, future);
-                future.flush();
-                future.release(eventLoop);
-                if (enableSsl) {
-                    ByteBuf old = buf;
-                    try {
-                        buf = sslHandler().wrap(this, old);
-                    } finally {
-                        old.release();
-                    }
-                }
-            } catch (Exception e) {
-                ReleaseUtil.release(buf);
-                exceptionCaught(future, e);
-                return;
-            }
-            flush(buf);
+        Assert.notNull(future, "null future");
+        if (isClosed()) {
+            exceptionCaught(future, CLOSED_WHEN_FLUSH);
+            return;
         }
+        ByteBuf buf = null;
+        try {
+            buf = protocolCodec.encode(this, future);
+            future.flush();
+            future.release(eventLoop);
+            if (enableSsl) {
+                ByteBuf old = buf;
+                try {
+                    buf = sslHandler().wrap(this, old);
+                } finally {
+                    old.release();
+                }
+            }
+        } catch (Exception e) {
+            ReleaseUtil.release(buf);
+            exceptionCaught(future, e);
+            return;
+        }
+        flush(buf);
     }
 
     //FIXME ..使用该方法貌似会性能下降？查找原因
     public void flush(List<ByteBuf> bufs) {
-        if (bufs == null || bufs.isEmpty()) {
-            return;
-        }
-        if (inEventLoop()) {
-            if (isClosed()) {
-                ReleaseUtil.release(bufs);
-                return;
-            }
-            final int bufsSize = bufs.size();
-            final Queue<ByteBuf> writeBufs = this.writeBufs;
-            if (writeBufs.size() == 0) {
-                final ByteBuf[] currentWriteBufs = this.currentWriteBufs;
-                final int maxLen = currentWriteBufs.length;
-                int currentWriteBufsLen = this.currentWriteBufsLen;
-                if (currentWriteBufsLen == 0) {
-                    if (bufsSize > maxLen) {
-                        for (int i = 0; i < maxLen; i++) {
-                            currentWriteBufs[i] = bufs.get(i);
-                        }
-                        for (int i = maxLen; i < bufsSize; i++) {
-                            writeBufs.offer(bufs.get(i));
-                        }
-                        this.currentWriteBufsLen = maxLen;
-                    } else {
-                        for (int i = 0; i < bufsSize; i++) {
-                            currentWriteBufs[i] = bufs.get(i);
-                        }
-                        this.currentWriteBufsLen = bufsSize;
-                    }
-                } else {
-                    final int currentRemain = maxLen - currentWriteBufsLen;
-                    if (bufsSize > currentRemain) {
-                        for (int i = 0; i < currentRemain; i++) {
-                            currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
-                        }
-                        for (int i = currentRemain; i < bufsSize; i++) {
-                            writeBufs.offer(bufs.get(i));
-                        }
-                        this.currentWriteBufsLen = maxLen;
-                    } else {
-                        for (int i = 0; i < bufsSize; i++) {
-                            currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
-                        }
-                        this.currentWriteBufsLen += bufsSize;
-                    }
-                }
-                try {
-                    write();
-                } catch (Throwable t) {
-                    close();
-                }
-            } else {
-                if (maxWriteBacklog != Integer.MAX_VALUE) {
-                    if (bufsSize + bufs.size() > maxWriteBacklog) {
-                        ReleaseUtil.release(bufs);
-                        close();
-                        return;
-                    }
-                }
-                for (ByteBuf buf : bufs) {
-                    writeBufs.offer(buf);
-                }
-                try {
-                    write();
-                } catch (Throwable t) {
-                    close();
-                }
-            }
-        } else {
-            ReentrantLock lock = getCloseLock();
-            lock.lock();
-            try {
+        if (bufs != null && !bufs.isEmpty()) {
+            if (inEventLoop()) {
                 if (isClosed()) {
                     ReleaseUtil.release(bufs);
                     return;
                 }
+                final int bufsSize = bufs.size();
                 final Queue<ByteBuf> writeBufs = this.writeBufs;
-                if (maxWriteBacklog != Integer.MAX_VALUE) {
-                    if (writeBufs.size() + bufs.size() > maxWriteBacklog) {
-                        ReleaseUtil.release(bufs);
+                if (writeBufs.size() == 0) {
+                    final ByteBuf[] currentWriteBufs = this.currentWriteBufs;
+                    final int maxLen = currentWriteBufs.length;
+                    int currentWriteBufsLen = this.currentWriteBufsLen;
+                    if (currentWriteBufsLen == 0) {
+                        if (bufsSize > maxLen) {
+                            for (int i = 0; i < maxLen; i++) {
+                                currentWriteBufs[i] = bufs.get(i);
+                            }
+                            for (int i = maxLen; i < bufsSize; i++) {
+                                writeBufs.offer(bufs.get(i));
+                            }
+                            this.currentWriteBufsLen = maxLen;
+                        } else {
+                            for (int i = 0; i < bufsSize; i++) {
+                                currentWriteBufs[i] = bufs.get(i);
+                            }
+                            this.currentWriteBufsLen = bufsSize;
+                        }
+                    } else {
+                        final int currentRemain = maxLen - currentWriteBufsLen;
+                        if (bufsSize > currentRemain) {
+                            for (int i = 0; i < currentRemain; i++) {
+                                currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
+                            }
+                            for (int i = currentRemain; i < bufsSize; i++) {
+                                writeBufs.offer(bufs.get(i));
+                            }
+                            this.currentWriteBufsLen = maxLen;
+                        } else {
+                            for (int i = 0; i < bufsSize; i++) {
+                                currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
+                            }
+                            this.currentWriteBufsLen += bufsSize;
+                        }
+                    }
+                    try {
+                        write();
+                    } catch (Throwable t) {
                         close();
-                        return;
+                    }
+                } else {
+                    if (maxWriteBacklog != Integer.MAX_VALUE) {
+                        if (bufsSize + bufs.size() > maxWriteBacklog) {
+                            ReleaseUtil.release(bufs);
+                            close();
+                            return;
+                        }
+                    }
+                    for (ByteBuf buf : bufs) {
+                        writeBufs.offer(buf);
+                    }
+                    try {
+                        write();
+                    } catch (Throwable t) {
+                        close();
                     }
                 }
-                for (ByteBuf buf : bufs) {
-                    writeBufs.offer(buf);
-                }
-                if (writeBufs.size() != bufs.size()) {
+            } else {
+                ReentrantLock lock = getCloseLock();
+                lock.lock();
+                try {
+                    if (isClosed()) {
+                        ReleaseUtil.release(bufs);
+                        return;
+                    }
+                    final Queue<ByteBuf> writeBufs = this.writeBufs;
+                    if (maxWriteBacklog != Integer.MAX_VALUE) {
+                        if (writeBufs.size() + bufs.size() > maxWriteBacklog) {
+                            ReleaseUtil.release(bufs);
+                            close();
+                            return;
+                        }
+                    }
+                    for (ByteBuf buf : bufs) {
+                        writeBufs.offer(buf);
+                    }
+                    if (writeBufs.size() != bufs.size()) {
+                        return;
+                    }
+                } catch (Exception e) {
+                    //will happen ?
+                    ReleaseUtil.release(bufs);
+                    CloseUtil.close(this);
                     return;
+                } finally {
+                    lock.unlock();
                 }
-            } catch (Exception e) {
-                //will happen ?
-                ReleaseUtil.release(bufs);
-                CloseUtil.close(this);
-                return;
-            } finally {
-                lock.unlock();
+                eventLoop.dispatchChannel(this);
             }
-            eventLoop.dispatchChannel(this);
         }
     }
 
@@ -632,7 +634,7 @@ public final class NioSocketChannel extends AttributesImpl
         src.clear();
         if (enableSsl) {
             readSslPlainRemainingBuf(src);
-        }else{
+        } else {
             readPlainRemainingBuf(src);
         }
         int length = channel.read(src.nioBuffer());
@@ -671,7 +673,7 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    public void readPlainRemainingBuf(ByteBuf dst) {
+    protected void readPlainRemainingBuf(ByteBuf dst) {
         ByteBuf remainingBuf = this.plainRemainBuf;
         if (remainingBuf == null) {
             return;
@@ -680,8 +682,8 @@ public final class NioSocketChannel extends AttributesImpl
         remainingBuf.release();
         this.plainRemainBuf = null;
     }
-    
-    public void readSslPlainRemainingBuf(ByteBuf dst) {
+
+    protected void readSslPlainRemainingBuf(ByteBuf dst) {
         ByteBuf remainingBuf = this.sslRemainBuf;
         if (remainingBuf == null) {
             return;
@@ -745,7 +747,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     @Override
     public String toString() {
-        return channelDesc;
+        return desc;
     }
 
     protected void write() throws IOException {
@@ -844,11 +846,11 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    class ChannelCloseEvent implements Runnable, Closeable {
+    class CloseEvent implements Runnable, Closeable {
 
         final NioSocketChannel channel;
 
-        public ChannelCloseEvent(NioSocketChannel channel) {
+        public CloseEvent(NioSocketChannel channel) {
             this.channel = channel;
         }
 
