@@ -21,11 +21,11 @@ import com.generallycloud.baseio.common.MathUtil;
 
 public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
 
+    protected int        limit;
+    protected int        markPos;
     protected byte[]     memory;
     protected ByteBuffer nioBuffer;
-    protected int        limit;
     protected int        position;
-    protected int        markPos;
 
     public AbstractHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
         super(allocator);
@@ -33,57 +33,18 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     }
 
     @Override
+    public int absLimit() {
+        return limit;
+    }
+
+    @Override
+    public int absPos() {
+        return position;
+    }
+
+    @Override
     public byte[] array() {
         return memory;
-    }
-
-    @Override
-    public byte getByte(int index) {
-        return memory[ix(index)];
-    }
-
-    @Override
-    public void get(byte[] dst, int offset, int length) {
-        System.arraycopy(memory, position, dst, offset, length);
-        this.position += length;
-    }
-
-    @Override
-    public boolean hasRemaining() {
-        return position < limit;
-    }
-
-    @Override
-    public int limit() {
-        return limit - offset;
-    }
-
-    @Override
-    public int remaining() {
-        return limit - position;
-    }
-
-    @Override
-    public ByteBuffer nioBuffer() {
-        ByteBuffer buffer = getNioBuffer();
-        return (ByteBuffer) buffer.limit(limit).position(position);
-    }
-
-    @Override
-    public int position() {
-        return position - offset;
-    }
-
-    @Override
-    public ByteBuf position(int position) {
-        this.position = ix(position);
-        return this;
-    }
-
-    @Override
-    public ByteBuf limit(int limit) {
-        this.limit = ix(limit);
-        return this;
     }
 
     @Override
@@ -98,72 +59,6 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
         this.limit = position;
         this.position = offset;
         return this;
-    }
-
-    @Override
-    public int getInt() {
-        int v = MathUtil.byte2Int(memory, position);
-        this.position += 4;
-        return v;
-    }
-
-    @Override
-    public int getInt(int index) {
-        return MathUtil.byte2Int(memory, ix(index));
-    }
-
-    @Override
-    public long getLong() {
-        long v = MathUtil.byte2Long(memory, position);
-        this.position += 8;
-        return v;
-    }
-
-    @Override
-    public long getLong(int index) {
-        return MathUtil.byte2Long(memory, ix(index));
-    }
-
-    @Override
-    public boolean hasArray() {
-        return true;
-    }
-
-    @Override
-    public void put(byte[] src, int offset, int length) {
-        System.arraycopy(src, offset, memory, position, length);
-        this.position += length;
-    }
-
-    @Override
-    public int read0(ByteBuffer src, int srcRemaining, int remaining) {
-        if (srcRemaining > remaining) {
-            src.get(memory, position, remaining);
-            position = limit;
-            return remaining;
-        } else {
-            src.get(memory, position, srcRemaining);
-            skip(srcRemaining);
-            return srcRemaining;
-        }
-    }
-
-    @Override
-    public int read0(ByteBuf src, int srcRemaining, int remaining) {
-        if (srcRemaining > remaining) {
-            src.get(memory, position, remaining);
-            position = limit;
-            return remaining;
-        } else {
-            src.get(memory, position, srcRemaining);
-            skip(srcRemaining);
-            return srcRemaining;
-        }
-    }
-
-    @Override
-    public byte getByte() {
-        return memory[position++];
     }
 
     @Override
@@ -197,8 +92,31 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     }
 
     @Override
-    public void putByte(byte b) {
-        memory[position++] = b;
+    public void get(byte[] dst, int offset, int length) {
+        System.arraycopy(memory, position, dst, offset, length);
+        this.position += length;
+    }
+
+    @Override
+    public byte getByte() {
+        return memory[position++];
+    }
+
+    @Override
+    public byte getByte(int index) {
+        return memory[ix(index)];
+    }
+
+    @Override
+    public int getInt() {
+        int v = MathUtil.byte2Int(memory, position);
+        this.position += 4;
+        return v;
+    }
+
+    @Override
+    public int getInt(int index) {
+        return MathUtil.byte2Int(memory, ix(index));
     }
 
     @Override
@@ -214,6 +132,18 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     }
 
     @Override
+    public long getLong() {
+        long v = MathUtil.byte2Long(memory, position);
+        this.position += 8;
+        return v;
+    }
+
+    @Override
+    public long getLong(int index) {
+        return MathUtil.byte2Long(memory, ix(index));
+    }
+
+    @Override
     public long getLongLE() {
         long v = MathUtil.byte2LongLE(memory, position);
         this.position += 8;
@@ -223,6 +153,14 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     @Override
     public long getLongLE(int index) {
         return MathUtil.byte2LongLE(memory, ix(index));
+    }
+
+    @Override
+    public ByteBuffer getNioBuffer() {
+        if (nioBuffer == null) {
+            nioBuffer = ByteBuffer.wrap(memory);
+        }
+        return nioBuffer;
     }
 
     @Override
@@ -308,35 +246,58 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     }
 
     @Override
-    public ByteBuffer getNioBuffer() {
-        if (nioBuffer == null) {
-            nioBuffer = ByteBuffer.wrap(memory);
-        }
-        return nioBuffer;
+    public boolean hasArray() {
+        return true;
     }
 
     @Override
-    public void putShort(short value) {
-        MathUtil.short2Byte(memory, value, position);
-        position += 2;
+    public boolean hasRemaining() {
+        return position < limit;
     }
 
     @Override
-    public void putShortLE(short value) {
-        MathUtil.short2ByteLE(memory, value, position);
-        position += 2;
+    public int limit() {
+        return limit - offset;
     }
 
     @Override
-    public void putUnsignedShort(int value) {
-        MathUtil.unsignedShort2Byte(memory, value, position);
-        position += 2;
+    public ByteBuf limit(int limit) {
+        this.limit = ix(limit);
+        return this;
     }
 
     @Override
-    public void putUnsignedShortLE(int value) {
-        MathUtil.unsignedShort2ByteLE(memory, value, position);
-        position += 2;
+    public ByteBuf markP() {
+        markPos = position;
+        return this;
+    }
+
+    @Override
+    public ByteBuffer nioBuffer() {
+        ByteBuffer buffer = getNioBuffer();
+        return (ByteBuffer) buffer.limit(limit).position(position);
+    }
+
+    @Override
+    public int position() {
+        return position - offset;
+    }
+
+    @Override
+    public ByteBuf position(int position) {
+        this.position = ix(position);
+        return this;
+    }
+
+    @Override
+    public void put(byte[] src, int offset, int length) {
+        System.arraycopy(src, offset, memory, position, length);
+        this.position += length;
+    }
+
+    @Override
+    public void putByte(byte b) {
+        memory[position++] = b;
     }
 
     @Override
@@ -352,6 +313,30 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     }
 
     @Override
+    public void putLong(long value) {
+        MathUtil.long2Byte(memory, value, position);
+        position += 8;
+    }
+
+    @Override
+    public void putLongLE(long value) {
+        MathUtil.long2ByteLE(memory, value, position);
+        position += 8;
+    }
+
+    @Override
+    public void putShort(short value) {
+        MathUtil.short2Byte(memory, value, position);
+        position += 2;
+    }
+
+    @Override
+    public void putShortLE(short value) {
+        MathUtil.short2ByteLE(memory, value, position);
+        position += 2;
+    }
+
+    @Override
     public void putUnsignedInt(long value) {
         MathUtil.unsignedInt2Byte(memory, value, position);
         position += 4;
@@ -364,21 +349,52 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     }
 
     @Override
-    public void putLong(long value) {
-        MathUtil.long2Byte(memory, value, position);
-        position += 8;
-    }
-    
-    @Override
-    public ByteBuf skip(int length) {
-        position += length;
-        return this;
+    public void putUnsignedShort(int value) {
+        MathUtil.unsignedShort2Byte(memory, value, position);
+        position += 2;
     }
 
     @Override
-    public void putLongLE(long value) {
-        MathUtil.long2ByteLE(memory, value, position);
-        position += 8;
+    public void putUnsignedShortLE(int value) {
+        MathUtil.unsignedShort2ByteLE(memory, value, position);
+        position += 2;
+    }
+
+    @Override
+    public int read0(ByteBuf src, int srcRemaining, int remaining) {
+        if (srcRemaining > remaining) {
+            src.get(memory, position, remaining);
+            position = limit;
+            return remaining;
+        } else {
+            src.get(memory, position, srcRemaining);
+            skip(srcRemaining);
+            return srcRemaining;
+        }
+    }
+
+    @Override
+    public int read0(ByteBuffer src, int srcRemaining, int remaining) {
+        if (srcRemaining > remaining) {
+            src.get(memory, position, remaining);
+            position = limit;
+            return remaining;
+        } else {
+            src.get(memory, position, srcRemaining);
+            skip(srcRemaining);
+            return srcRemaining;
+        }
+    }
+
+    @Override
+    public int remaining() {
+        return limit - position;
+    }
+
+    @Override
+    public ByteBuf resetP() {
+        position = markPos;
+        return this;
     }
 
     @Override
@@ -388,14 +404,8 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     }
 
     @Override
-    public ByteBuf markP() {
-        markPos = position;
-        return this;
-    }
-
-    @Override
-    public ByteBuf resetP() {
-        position = markPos;
+    public ByteBuf skip(int length) {
+        position += length;
         return this;
     }
 

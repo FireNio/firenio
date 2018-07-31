@@ -153,6 +153,10 @@ public class UnsafeUtil {
     public static void putLong(long address, long value) {
         UNSAFE.putLong(address, value);
     }
+    
+    public static void copyMemory(ByteBuffer buf, long targetAddress, long length) {
+        UNSAFE.copyMemory(addressOffset(buf) + buf.position(), targetAddress, length);
+    }
 
     public static void copyMemory(long srcAddress, long targetAddress, long length) {
         UNSAFE.copyMemory(srcAddress, targetAddress, length);
@@ -279,4 +283,68 @@ public class UnsafeUtil {
         }
         return field;
     }
+
+    // This number limits the number of bytes to copy per call to Unsafe's
+    // copyMemory method. A limit is imposed to allow for safepoint polling
+    // during a large copy
+    static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
+
+    // These methods do no bounds checking.  Verification that the copy will not
+    // result in memory corruption should be done prior to invocation.
+    // All positions and lengths are specified in bytes.
+
+    public static void copyFromArray(ByteBuffer buf, long dstAddr, long length) {
+        copyFromArray(buf.array(), buf.position(), dstAddr, length);
+    }
+    
+    /**
+     * Copy from given source array to destination address.
+     *
+     * @param   src
+     *          source array
+     * @param   srcBaseOffset
+     *          offset of first element of storage in source array
+     * @param   srcPos
+     *          offset within source array of the first element to read
+     * @param   dstAddr
+     *          destination address
+     * @param   length
+     *          number of bytes to copy
+     */
+    public static void copyFromArray(byte[] src, long srcPos, long dstAddr, long length) {
+        long offset = ARRAY_BASE_OFFSET + srcPos;
+        while (length > 0) {
+            long size = (length > UNSAFE_COPY_THRESHOLD) ? UNSAFE_COPY_THRESHOLD : length;
+            UNSAFE.copyMemory(src, offset, null, dstAddr, size);
+            length -= size;
+            offset += size;
+            dstAddr += size;
+        }
+    }
+
+    /**
+     * Copy from source address into given destination array.
+     *
+     * @param   srcAddr
+     *          source address
+     * @param   dst
+     *          destination array
+     * @param   dstBaseOffset
+     *          offset of first element of storage in destination array
+     * @param   dstPos
+     *          offset within destination array of the first element to write
+     * @param   length
+     *          number of bytes to copy
+     */
+    public static void copyToArray(long srcAddr, Object dst, long dstPos, long length) {
+        long offset = ARRAY_BASE_OFFSET + dstPos;
+        while (length > 0) {
+            long size = (length > UNSAFE_COPY_THRESHOLD) ? UNSAFE_COPY_THRESHOLD : length;
+            UNSAFE.copyMemory(null, srcAddr, dst, offset, size);
+            length -= size;
+            srcAddr += size;
+            offset += size;
+        }
+    }
+
 }

@@ -21,14 +21,18 @@ import com.generallycloud.baseio.Releasable;
 
 public interface ByteBuf extends ByteBufNew, Releasable {
 
+    int absLimit();
+
+    int absPos();
+
     byte[] array();
 
     int capacity();
 
     ByteBuf clear();
-
+    
     ByteBuf duplicate();
-
+    
     ByteBuf flip();
 
     int forEachByte(ByteProcessor processor);
@@ -103,9 +107,9 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 
     ByteBuf limit(int limit);
 
-    ByteBuf markP();
-
     ByteBuf markL();
+
+    ByteBuf markP();
 
     ByteBuffer nioBuffer();
 
@@ -159,9 +163,9 @@ public interface ByteBuf extends ByteBufNew, Releasable {
 
     int remaining();
 
-    ByteBuf resetP();
-    
     ByteBuf resetL();
+    
+    ByteBuf resetP();
 
     ByteBuf reverse();
 

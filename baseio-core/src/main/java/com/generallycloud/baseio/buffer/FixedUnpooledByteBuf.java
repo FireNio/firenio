@@ -32,6 +32,16 @@ public final class FixedUnpooledByteBuf implements ByteBuf {
     }
 
     @Override
+    public int absLimit() {
+        return unwrap().absLimit();
+    }
+
+    @Override
+    public int absPos() {
+        return unwrap().absPos();
+    }
+
+    @Override
     public byte[] array() {
         return unwrap().array();
     }
@@ -415,7 +425,7 @@ public final class FixedUnpooledByteBuf implements ByteBuf {
         unwrap().markL();
         return this;
     }
-    
+
     @Override
     public ByteBuf resetL() {
         unwrap().resetL();

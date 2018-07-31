@@ -18,6 +18,8 @@ package com.generallycloud.baseio.buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.generallycloud.baseio.common.UnsafeUtil;
+
 public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
 
     protected ByteBuffer memory;
@@ -28,108 +30,31 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     }
 
     @Override
+    public int absLimit() {
+        return memory.limit();
+    }
+
+    @Override
+    public int absPos() {
+        return memory.position();
+    }
+
+    @Override
     public byte[] array() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public byte getByte(int index) {
-        return memory.get(ix(index));
+    public ByteBuf clear() {
+        memory.position(offset).limit(ix(capacity));
+        return this;
     }
 
     @Override
-    public void get(byte[] dst, int offset, int length) {
-        memory.get(dst, offset, length);
-    }
-
-    @Override
-    public int getInt() {
-        return memory.getInt();
-    }
-
-    @Override
-    public int getInt(int index) {
-        return memory.getInt(ix(index));
-    }
-
-    @Override
-    public long getLong() {
-        return memory.getLong();
-    }
-
-    @Override
-    public long getLong(int index) {
-        return memory.getLong(ix(index));
-    }
-
-    @Override
-    public boolean hasArray() {
-        return false;
-    }
-
-    @Override
-    public void put(byte[] src, int offset, int length) {
-        memory.put(src, offset, length);
-    }
-
-    @Override
-    protected int read0(ByteBuffer src, int srcRemaining, int remaining) {
-        if (srcRemaining > remaining) {
-            if (src.hasArray()) {
-                put(src.array(), src.position(), remaining);
-                src.position(src.position() + remaining);
-                return remaining;
-            } else {
-                int oldLimit = src.limit();
-                int oldPos = src.position();
-                src.limit(oldPos + remaining);
-                memory.put(src);
-                src.limit(oldLimit);
-                return remaining;
-            }
-        } else {
-            if (src.hasArray()) {
-                put(src.array(), src.position(), srcRemaining);
-                src.position(src.limit());
-                return srcRemaining;
-            } else {
-                memory.put(src);
-                return srcRemaining;
-            }
-        }
-    }
-
-    @Override
-    protected int read0(ByteBuf src, int srcRemaining, int remaining) {
-        if (srcRemaining > remaining) {
-            if (src.hasArray()) {
-                put(src.array(), src.position(), remaining);
-                src.position(src.position() + remaining);
-                return remaining;
-            } else {
-                ByteBuffer srcBuf = src.nioBuffer();
-                int oldLimit = srcBuf.limit();
-                int oldPos = srcBuf.position();
-                srcBuf.limit(oldPos + remaining);
-                memory.put(srcBuf);
-                srcBuf.limit(oldLimit);
-                return remaining;
-            }
-        } else {
-            if (src.hasArray()) {
-                put(src.array(), src.position(), srcRemaining);
-                src.position(src.limit());
-                return srcRemaining;
-            } else {
-                memory.put(src.nioBuffer());
-                return srcRemaining;
-            }
-        }
-    }
-
-    @Override
-    public byte getByte() {
-        return memory.get();
+    public ByteBuf flip() {
+        memory.limit(memory.position());
+        memory.position(offset);
+        return this;
     }
 
     @Override
@@ -161,8 +86,28 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     }
 
     @Override
-    public void putByte(byte b) {
-        memory.put(b);
+    public void get(byte[] dst, int offset, int length) {
+        memory.get(dst, offset, length);
+    }
+
+    @Override
+    public byte getByte() {
+        return memory.get();
+    }
+
+    @Override
+    public byte getByte(int index) {
+        return memory.get(ix(index));
+    }
+
+    @Override
+    public int getInt() {
+        return memory.getInt();
+    }
+
+    @Override
+    public int getInt(int index) {
+        return memory.getInt(ix(index));
     }
 
     @Override
@@ -182,6 +127,16 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     }
 
     @Override
+    public long getLong() {
+        return memory.getLong();
+    }
+
+    @Override
+    public long getLong(int index) {
+        return memory.getLong(ix(index));
+    }
+
+    @Override
     public long getLongLE() {
         memory.order(ByteOrder.LITTLE_ENDIAN);
         long v = memory.getLong();
@@ -195,6 +150,11 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
         long v = memory.getLong(ix(index));
         memory.order(ByteOrder.BIG_ENDIAN);
         return v;
+    }
+
+    @Override
+    public ByteBuffer getNioBuffer() {
+        return memory;
     }
 
     @Override
@@ -237,13 +197,6 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     public long getUnsignedInt() {
         long v = toUnsignedInt(memory.getInt());
         return v;
-    }
-
-    private long toUnsignedInt(int value) {
-        if (value < 0) {
-            return value & 0xffffffffffffffffL;
-        }
-        return value;
     }
 
     @Override
@@ -294,42 +247,56 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     }
 
     @Override
-    public ByteBuffer getNioBuffer() {
-        return memory;
+    public boolean hasArray() {
+        return false;
     }
 
     @Override
-    public void putShort(short value) {
-        memory.putShort(value);
+    public boolean hasRemaining() {
+        return memory.hasRemaining();
     }
 
     @Override
-    public void putShortLE(short value) {
-        memory.order(ByteOrder.LITTLE_ENDIAN);
-        memory.putShort(value);
-        memory.order(ByteOrder.BIG_ENDIAN);
+    public int limit() {
+        return memory.limit() - offset;
     }
-    
+
     @Override
-    public ByteBuf skip(int length) {
-        memory.position(memory.position() + length);
+    public ByteBuf limit(int limit) {
+        memory.limit(ix(limit));
         return this;
     }
 
     @Override
-    public void putUnsignedShort(int value) {
-        byte b1 = (byte) (value & 0xff);
-        byte b0 = (byte) (value >> 8 * 1);
-        memory.put(b0);
-        memory.put(b1);
+    public ByteBuf markP() {
+        memory.mark();
+        return this;
     }
 
     @Override
-    public void putUnsignedShortLE(int value) {
-        byte b0 = (byte) (value & 0xff);
-        byte b1 = (byte) (value >> 8 * 1);
-        memory.put(b0);
-        memory.put(b1);
+    public ByteBuffer nioBuffer() {
+        return memory;
+    }
+
+    @Override
+    public int position() {
+        return memory.position() - offset;
+    }
+
+    @Override
+    public ByteBuf position(int position) {
+        memory.position(ix(position));
+        return this;
+    }
+
+    @Override
+    public void put(byte[] src, int offset, int length) {
+        memory.put(src, offset, length);
+    }
+
+    @Override
+    public void putByte(byte b) {
+        memory.put(b);
     }
 
     @Override
@@ -341,6 +308,30 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     public void putIntLE(int value) {
         memory.order(ByteOrder.LITTLE_ENDIAN);
         memory.putInt(value);
+        memory.order(ByteOrder.BIG_ENDIAN);
+    }
+
+    @Override
+    public void putLong(long value) {
+        memory.putLong(value);
+    }
+
+    @Override
+    public void putLongLE(long value) {
+        memory.order(ByteOrder.LITTLE_ENDIAN);
+        memory.putLong(value);
+        memory.order(ByteOrder.BIG_ENDIAN);
+    }
+
+    @Override
+    public void putShort(short value) {
+        memory.putShort(value);
+    }
+
+    @Override
+    public void putShortLE(short value) {
+        memory.order(ByteOrder.LITTLE_ENDIAN);
+        memory.putShort(value);
         memory.order(ByteOrder.BIG_ENDIAN);
     }
 
@@ -369,60 +360,69 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     }
 
     @Override
-    public void putLong(long value) {
-        memory.putLong(value);
+    public void putUnsignedShort(int value) {
+        byte b1 = (byte) (value & 0xff);
+        byte b0 = (byte) (value >> 8 * 1);
+        memory.put(b0);
+        memory.put(b1);
     }
 
     @Override
-    public void putLongLE(long value) {
-        memory.order(ByteOrder.LITTLE_ENDIAN);
-        memory.putLong(value);
-        memory.order(ByteOrder.BIG_ENDIAN);
+    public void putUnsignedShortLE(int value) {
+        byte b0 = (byte) (value & 0xff);
+        byte b1 = (byte) (value >> 8 * 1);
+        memory.put(b0);
+        memory.put(b1);
     }
 
     @Override
-    public ByteBuf clear() {
-        memory.position(offset).limit(ix(capacity));
-        return this;
+    protected int read0(ByteBuf src, int srcRemaining, int remaining) {
+        if (srcRemaining > remaining) {
+            long dstAddr = UnsafeUtil.addressOffset(memory) + memory.position();
+            if (src.hasArray()) {
+                UnsafeUtil.copyFromArray(src.array(), src.absPos(), dstAddr, remaining);
+            } else {
+                UnsafeUtil.copyMemory(src.nioBuffer(), dstAddr, remaining);
+            }
+            src.position(src.position() + remaining);
+            memory.position(memory.limit());
+            return remaining;
+        } else {
+            long dstAddr = UnsafeUtil.addressOffset(memory) + memory.position();
+            if (src.hasArray()) {
+                UnsafeUtil.copyFromArray(src.array(), src.absPos(), dstAddr, srcRemaining);
+            } else {
+                UnsafeUtil.copyMemory(src.nioBuffer(), dstAddr, srcRemaining);
+            }
+            src.position(src.limit());
+            memory.position(memory.position() + srcRemaining);
+            return srcRemaining;
+        }
     }
 
     @Override
-    public ByteBuf flip() {
-        memory.limit(memory.position());
-        memory.position(offset);
-        return this;
-    }
-
-    @Override
-    public boolean hasRemaining() {
-        return memory.hasRemaining();
-    }
-
-    @Override
-    public int limit() {
-        return memory.limit() - offset;
-    }
-
-    @Override
-    public ByteBuf limit(int limit) {
-        memory.limit(ix(limit));
-        return this;
-    }
-
-    @Override
-    public ByteBuffer nioBuffer() {
-        return memory;
-    }
-
-    @Override
-    public int position() {
-        return memory.position() - offset;
-    }
-
-    @Override
-    public ByteBuf position(int position) {
-        memory.position(ix(position));
-        return this;
+    protected int read0(ByteBuffer src, int srcRemaining, int remaining) {
+        if (srcRemaining > remaining) {
+            long dstAddr = UnsafeUtil.addressOffset(memory) + memory.position();
+            if (src.hasArray()) {
+                UnsafeUtil.copyFromArray(src, dstAddr, remaining);
+            } else {
+                UnsafeUtil.copyMemory(src, dstAddr, remaining);
+            }
+            src.position(src.position() + remaining);
+            memory.position(memory.limit());
+            return remaining;
+        } else {
+            long dstAddr = UnsafeUtil.addressOffset(memory) + memory.position();
+            if (src.hasArray()) {
+                UnsafeUtil.copyFromArray(src, dstAddr, srcRemaining);
+            } else {
+                UnsafeUtil.copyMemory(src, dstAddr, srcRemaining);
+            }
+            src.position(src.limit());
+            memory.position(memory.position() + srcRemaining);
+            return srcRemaining;
+        }
     }
 
     @Override
@@ -431,20 +431,27 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     }
 
     @Override
+    public ByteBuf resetP() {
+        memory.reset();
+        return this;
+    }
+
+    @Override
     public ByteBuf reverse() {
         return this;
     }
 
     @Override
-    public ByteBuf markP() {
-        memory.mark();
+    public ByteBuf skip(int length) {
+        memory.position(memory.position() + length);
         return this;
     }
 
-    @Override
-    public ByteBuf resetP() {
-        memory.reset();
-        return this;
+    private long toUnsignedInt(int value) {
+        if (value < 0) {
+            return value & 0xffffffffffffffffL;
+        }
+        return value;
     }
 
 }
