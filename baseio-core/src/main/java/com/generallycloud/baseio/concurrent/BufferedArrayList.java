@@ -32,11 +32,9 @@ public class BufferedArrayList<T> {
         try {
             if (buffer == list1) {
                 buffer = list2;
-                buffer.clear();
                 return list1;
             } else {
                 buffer = list1;
-                buffer.clear();
                 return list2;
             }
         } finally {

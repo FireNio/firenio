@@ -314,10 +314,6 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    /**
-     * flush已encode的future
-     * @param buf
-     */
     public void flush(ByteBuf buf) {
         final Queue<ByteBuf> writeBufs = this.writeBufs;
         if (inEventLoop()) {
@@ -366,10 +362,6 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    /**
-     * flush未encode的future
-     * @param f
-     */
     public void flush(Future future) {
         if (future != null) {
             if (isClosed()) {
