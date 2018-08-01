@@ -39,13 +39,9 @@ public abstract class AbstractEventLoop implements EventLoop {
 
     protected void doLoop() throws Exception {}
 
-    protected void doStartup() throws Exception {
-        LoggerUtil.prettyLog(logger, "event looper {} inited", this);
-    }
+    protected void doStartup() throws Exception {}
 
-    protected void doStop() {
-        LoggerUtil.prettyLog(logger, "event looper {} stopped", this);
-    }
+    protected void doStop() {}
 
     @Override
     public EventLoopGroup getGroup() {
@@ -80,6 +76,11 @@ public abstract class AbstractEventLoop implements EventLoop {
     public void run() {
         for (;;) {
             if (!running) {
+                try {
+                    doStop();
+                } catch (Throwable e) {
+                    logger.error(e.getMessage(), e);
+                }
                 stopped = true;
                 return;
             }
@@ -105,6 +106,7 @@ public abstract class AbstractEventLoop implements EventLoop {
             this.stopped = false;
             this.monitor = new FastThreadLocalThread(this, threadName);
             this.doStartup();
+            LoggerUtil.prettyLog(logger, "event looper {} inited", this);
             EventLoopListener listener = getGroup().getEventLoopListener();
             if (listener != null) {
                 listener.onStartup(this);
@@ -128,11 +130,7 @@ public abstract class AbstractEventLoop implements EventLoop {
             for (; !isStopped();) {
                 ThreadUtil.sleep(4);
             }
-            try {
-                doStop();
-            } catch (Throwable e) {
-                logger.error(e.getMessage(), e);
-            }
+            LoggerUtil.prettyLog(logger, "event looper {} stopped", this);
             try {
                 EventLoopListener listener = getGroup().getEventLoopListener();
                 if (listener != null) {

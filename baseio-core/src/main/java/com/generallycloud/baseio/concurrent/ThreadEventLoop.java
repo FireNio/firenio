@@ -20,7 +20,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.RejectedExecutionHandle;
 import com.generallycloud.baseio.log.Logger;
@@ -28,14 +27,14 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventLoop {
 
+    private static final Logger logger = LoggerFactory.getLogger(ThreadEventLoop.class);
     private ChannelContext         context;
-    private static Logger          logger = LoggerFactory.getLogger(ThreadEventLoop.class);
     private ExecutorEventLoopGroup executorEventLoopGroup;
     private RejectedExecutionHandle rejectedExecutionHandle;
 
     public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, ChannelContext context) {
-        this.executorEventLoopGroup = eventLoopGroup;
         this.context = context;
+        this.executorEventLoopGroup = eventLoopGroup;
         this.rejectedExecutionHandle = eventLoopGroup.getRejectedExecutionHandle();
     }
 
@@ -57,7 +56,6 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
         super.doStartup();
     }
 
-    //FIXME 观察这里是否部分event没有被fire
     @Override
     public void dispatch(Runnable job) throws RejectedExecutionException {
         if (!jobs.offer(job)) {
@@ -70,16 +68,10 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 
     @Override
     protected void doStop() {
-        boolean sleeped = false;
         for (;;) {
             Runnable runnable = jobs.poll();
             if (runnable == null) {
-                if (sleeped) {
-                    break;
-                }
-                ThreadUtil.sleep(8);
-                sleeped = true;
-                continue;
+                break;
             }
             try {
                 runnable.run();

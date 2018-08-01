@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -268,16 +267,18 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    private void closeEvents(BufferedArrayList<Runnable> events) {
-        List<Runnable> es = events.getBuffer();
-        for (Runnable event : events.getBuffer()) {
-            if (event instanceof Closeable) {
-                CloseUtil.close((Closeable) event);
-            } else {
-                handleEvent(event);
+    private void handleEvents(BufferedArrayList<Runnable> events) {
+        if (events.size() > 0) {
+            List<Runnable> es = events.getBuffer();
+            for (Runnable event : es) {
+                try {
+                    event.run();
+                } catch (Throwable e) {
+                    logger.error(e.getMessage(), e);
+                }
             }
+            es.clear();
         }
-        es.clear();
     }
 
     @Override
@@ -318,16 +319,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         this.selector = openSelector(selectionKeySet);
         this.desc = MessageFormatter.arrayFormat("NioEventLoop(idx:{},sharable:{})",
                 new Object[] { index, sharable });
-    }
-
-    @Override
-    protected void doStop() {
-        closeEvents(events);
-        closeEvents(events);
-        closeChannels();
-        CloseUtil.close(selector);
-        ReleaseUtil.release(sslTemporary, this);
-        ReleaseUtil.release(buf);
     }
 
     private final void finishConnect(NioSocketChannel ch, ChannelContext context, Throwable e) {
@@ -372,14 +363,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return writeBuffers;
     }
 
-    private void handleEvent(Runnable event) {
-        try {
-            event.run();
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
-
     @Override
     public void run() {
         // does it useful to set variables locally 
@@ -391,10 +374,15 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         long nextIdle = 0;
         long selectTime = idle;
         for (;;) {
-            // when this event loop is going to shutdown, we set stopped to true,
-            // to tell the waiter "I was stopped!"
+            // when this event loop is going to shutdown,we handle the last events 
+            // and set stopped to true, to tell the waiter "I was stopped!"
             // now you can shutdown it safely
             if (!isRunning()) {
+                handleEvents(events);
+                closeChannels();
+                CloseUtil.close(selector);
+                ReleaseUtil.release(sslTemporary, this);
+                ReleaseUtil.release(buf);
                 setStopped(true);
                 return;
             }
@@ -439,13 +427,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         sks.clear();
                     }
                 }
-                if (events.size() > 0) {
-                    List<Runnable> es = events.getBuffer();
-                    for (int i = 0; i < es.size(); i++) {
-                        handleEvent(es.get(i));
-                    }
-                    es.clear();
-                }
+                handleEvents(events);
                 long now = System.currentTimeMillis();
                 if (now >= nextIdle) {
                     channelIdle(now);
