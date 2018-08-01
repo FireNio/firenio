@@ -274,9 +274,7 @@ public final class ChannelContext extends AbstractLifeCycle {
                     throw new IllegalArgumentException("SERVER_SSL_KEYSTORE config error");
                 }
                 File storeFile = FileUtil.readFileByCls(params[0], classLoader);
-                SslContext sslContext = SSLUtil.initServer(storeFile, params[1], params[2],
-                        params[3]);
-                setSslContext(sslContext);
+                setSslContext(SSLUtil.initServer(storeFile, params[1], params[2], params[3]));
                 return;
             }
             throw new IllegalArgumentException("ssl enabled,but there is no config for");
