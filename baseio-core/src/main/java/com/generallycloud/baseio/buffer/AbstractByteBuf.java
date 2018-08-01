@@ -85,74 +85,66 @@ public abstract class AbstractByteBuf implements ByteBuf {
     @Override
     public int read(ByteBuffer src) {
         int srcRemaining = src.remaining();
-        if (srcRemaining == 0) {
+        int read = remaining();
+        if (read > srcRemaining) {
+            read = srcRemaining;
+        }
+        if (read == 0) {
             return 0;
         }
-        int remaining = this.remaining();
-        if (remaining == 0) {
-            return 0;
-        }
-        return read0(src, srcRemaining, remaining);
+        return read0(src, read);
     }
 
     @Override
     public int read(ByteBuffer src, int length) {
         int srcRemaining = src.remaining();
-        if (srcRemaining == 0) {
+        int remaining = remaining();
+        int read = length;
+        if (read > srcRemaining) {
+            read = srcRemaining;
+        }
+        if (read > remaining) {
+            read = remaining;
+        }
+        if (read == 0) {
             return 0;
         }
-        int remaining = this.remaining();
-        if (remaining == 0) {
-            return 0;
-        }
-        if (srcRemaining > length) {
-            int oldLimit = src.limit();
-            src.limit(src.position() + length);
-            int len = read0(src, length, remaining);
-            src.limit(oldLimit);
-            return len;
-        } else {
-            return read0(src, srcRemaining, remaining);
-        }
+        return read0(src, read);
     }
 
-    protected abstract int read0(ByteBuffer src, int srcRemaining, int remaining);
+    protected abstract int read0(ByteBuffer src, int read);
 
     @Override
     public int read(ByteBuf src) {
         int srcRemaining = src.remaining();
-        if (srcRemaining == 0) {
+        int read = remaining();
+        if (read > srcRemaining) {
+            read = srcRemaining;
+        }
+        if (read == 0) {
             return 0;
         }
-        int remaining = this.remaining();
-        if (remaining == 0) {
-            return 0;
-        }
-        return read0(src, srcRemaining, remaining);
+        return read0(src, read);
     }
 
     @Override
     public int read(ByteBuf src, int length) {
         int srcRemaining = src.remaining();
-        if (srcRemaining == 0) {
+        int remaining = remaining();
+        int read = length;
+        if (read > srcRemaining) {
+            read = srcRemaining;
+        }
+        if (read > remaining) {
+            read = remaining;
+        }
+        if (read == 0) {
             return 0;
         }
-        int remaining = this.remaining();
-        if (remaining == 0) {
-            return 0;
-        }
-        if (srcRemaining > length) {
-            int oldLimit = src.limit();
-            src.limit(src.position() + length);
-            int len = read0(src, length, remaining);
-            src.limit(oldLimit);
-            return len;
-        } else {
-            return read0(src, srcRemaining, remaining);
-        }
+        return read0(src, read);
     }
 
-    protected abstract int read0(ByteBuf src, int srcRemaining, int remaining);
+    protected abstract int read0(ByteBuf src, int read);
 
     @Override
     public ByteBuf reallocate(int limit) {

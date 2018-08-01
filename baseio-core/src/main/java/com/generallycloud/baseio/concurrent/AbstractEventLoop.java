@@ -28,12 +28,11 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public abstract class AbstractEventLoop implements EventLoop {
 
-    private static final Logger logger       = LoggerFactory.getLogger(AbstractEventLoop.class);
-    private EventLoopGroup      defaultGroup = new DefaultEventLoopGroup(this);
-    private Thread              monitor      = null;
-    private Object              runLock      = new Object();
-    private volatile boolean    running      = false;
-    private volatile boolean    stopped      = false;
+    private static final Logger   logger       = LoggerFactory.getLogger(AbstractEventLoop.class);
+    private EventLoopGroup        defaultGroup = new DefaultEventLoopGroup(this);
+    private FastThreadLocalThread monitor      = null;
+    private volatile boolean      running      = false;
+    private volatile boolean      stopped      = false;
 
     @Override
     public void dispatch(Runnable event) {}
@@ -54,7 +53,7 @@ public abstract class AbstractEventLoop implements EventLoop {
     }
 
     @Override
-    public Thread getMonitor() {
+    public FastThreadLocalThread getMonitor() {
         return monitor;
     }
 
@@ -78,7 +77,7 @@ public abstract class AbstractEventLoop implements EventLoop {
     }
 
     @Override
-    public void loop() {
+    public void run() {
         for (;;) {
             if (!running) {
                 stopped = true;
@@ -98,18 +97,13 @@ public abstract class AbstractEventLoop implements EventLoop {
 
     @Override
     public void startup(String threadName) throws Exception {
-        synchronized (runLock) {
+        synchronized (this) {
             if (running) {
                 return;
             }
-            running = true;
-            stopped = false;
-            this.monitor = new FastThreadLocalThread(new Runnable() {
-                @Override
-                public void run() {
-                    loop();
-                }
-            }, threadName);
+            this.running = true;
+            this.stopped = false;
+            this.monitor = new FastThreadLocalThread(this, threadName);
             this.doStartup();
             EventLoopListener listener = getGroup().getEventLoopListener();
             if (listener != null) {
@@ -121,7 +115,7 @@ public abstract class AbstractEventLoop implements EventLoop {
 
     @Override
     public void stop() {
-        synchronized (runLock) {
+        synchronized (this) {
             if (!running) {
                 return;
             }

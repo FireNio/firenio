@@ -376,53 +376,29 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     }
 
     @Override
-    protected int read0(ByteBuf src, int srcRemaining, int remaining) {
-        if (srcRemaining > remaining) {
-            long dstAddr = UnsafeUtil.addressOffset(memory) + memory.position();
-            if (src.hasArray()) {
-                UnsafeUtil.copyFromArray(src.array(), src.absPos(), dstAddr, remaining);
-            } else {
-                UnsafeUtil.copyMemory(src.nioBuffer(), dstAddr, remaining);
-            }
-            src.position(src.position() + remaining);
-            memory.position(memory.limit());
-            return remaining;
+    protected int read0(ByteBuf src, int read) {
+        long dstAddr = UnsafeUtil.addressOffset(memory) + memory.position();
+        if (src.hasArray()) {
+            UnsafeUtil.copyFromArray(src.array(), src.absPos(), dstAddr, read);
         } else {
-            long dstAddr = UnsafeUtil.addressOffset(memory) + memory.position();
-            if (src.hasArray()) {
-                UnsafeUtil.copyFromArray(src.array(), src.absPos(), dstAddr, srcRemaining);
-            } else {
-                UnsafeUtil.copyMemory(src.nioBuffer(), dstAddr, srcRemaining);
-            }
-            src.position(src.limit());
-            memory.position(memory.position() + srcRemaining);
-            return srcRemaining;
+            UnsafeUtil.copyMemory(src.nioBuffer(), dstAddr, read);
         }
+        src.skip(read);
+        skip(read);
+        return read;
     }
 
     @Override
-    protected int read0(ByteBuffer src, int srcRemaining, int remaining) {
-        if (srcRemaining > remaining) {
-            long dstAddr = UnsafeUtil.addressOffset(memory) + memory.position();
-            if (src.hasArray()) {
-                UnsafeUtil.copyFromArray(src, dstAddr, remaining);
-            } else {
-                UnsafeUtil.copyMemory(src, dstAddr, remaining);
-            }
-            src.position(src.position() + remaining);
-            memory.position(memory.limit());
-            return remaining;
+    protected int read0(ByteBuffer src, int read) {
+        long dstAddr = UnsafeUtil.addressOffset(memory) + memory.position();
+        if (src.hasArray()) {
+            UnsafeUtil.copyFromArray(src, dstAddr, read);
         } else {
-            long dstAddr = UnsafeUtil.addressOffset(memory) + memory.position();
-            if (src.hasArray()) {
-                UnsafeUtil.copyFromArray(src, dstAddr, srcRemaining);
-            } else {
-                UnsafeUtil.copyMemory(src, dstAddr, srcRemaining);
-            }
-            src.position(src.limit());
-            memory.position(memory.position() + srcRemaining);
-            return srcRemaining;
+            UnsafeUtil.copyMemory(src, dstAddr, read);
         }
+        src.position(src.position() + read);
+        skip(read);
+        return read;
     }
 
     @Override

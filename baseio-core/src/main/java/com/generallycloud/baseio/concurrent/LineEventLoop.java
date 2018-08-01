@@ -62,7 +62,7 @@ public class LineEventLoop implements ExecutorEventLoop {
     public void startup(String threadName) throws Exception {}
 
     @Override
-    public void loop() {
+    public void run() {
         throw new UnsupportedOperationException();
     }
 

@@ -381,7 +381,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     @Override
-    public void loop() {
+    public void run() {
         // does it useful to set variables locally 
         final long idle = group.getIdleTime();
         final Selector selector = this.selector;

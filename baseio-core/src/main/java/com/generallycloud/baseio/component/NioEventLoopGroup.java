@@ -21,6 +21,7 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.buffer.ByteBufAllocatorGroup;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocatorGroup;
+import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.concurrent.AbstractEventLoopGroup;
 import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 
@@ -72,6 +73,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     @Override
     protected void doStart() throws Exception {
+        SSLUtil.setENABLE_SSL(enableSsl);
         this.channelIds = createChannelIdsSequence(getEventLoopSize());
         if (memoryPoolCapacity == 0) {
             long total = Runtime.getRuntime().maxMemory();
@@ -80,8 +82,8 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         }
         String name = isAcceptor() ? "nio-acceptor" : "nio-processor";
         this.initializeByteBufAllocator();
-        headEventLoop = new NioEventLoop(this, 0);
-        headEventLoop.startup(name);
+        this.headEventLoop = new NioEventLoop(this, 0);
+        this.headEventLoop.startup(name);
         super.doStart();
     }
 

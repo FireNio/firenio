@@ -32,7 +32,9 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class SSLUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(SSLUtil.class);
+    private static boolean ENABLE_SSL = false;
+
+    private static Logger  logger     = LoggerFactory.getLogger(SSLUtil.class);
 
     public synchronized static SslContext initServer(File privateKey, File certificate)
             throws IOException {
@@ -98,6 +100,14 @@ public class SSLUtil {
             CloseUtil.close(keyInput);
             CloseUtil.close(certInput);
         }
+    }
+
+    public static boolean isENABLE_SSL() {
+        return ENABLE_SSL;
+    }
+
+    public static void setENABLE_SSL(boolean ENABLE_SSL) {
+        SSLUtil.ENABLE_SSL = SSLUtil.ENABLE_SSL || ENABLE_SSL;
     }
 
 }

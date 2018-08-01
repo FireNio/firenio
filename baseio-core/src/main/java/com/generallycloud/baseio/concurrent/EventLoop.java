@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-public interface EventLoop {
+public interface EventLoop extends Runnable{
 
     void dispatch(Runnable event);
 
@@ -28,8 +28,6 @@ public interface EventLoop {
     boolean inEventLoop(Thread thread);
     
     boolean isRunning();
-
-    void loop();
 
     void startup(String threadName) throws Exception;
 

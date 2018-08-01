@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.AttributesImpl;
+import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 
 /**
@@ -35,6 +36,55 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
     private static final AtomicInteger                indexedVarsIndex   = new AtomicInteger(0);
     private static final int                          maxIndexedVarsSize = 16;
     private static final ThreadLocal<FastThreadLocal> slowThreadLocal    = new ThreadLocal<>();
+
+    private Map<Charset, CharsetDecoder>              charsetDecoders    = new IdentityHashMap<>();
+    private Map<Charset, CharsetEncoder>              charsetEncoders    = new IdentityHashMap<>();
+    private Object[]                                  indexedVariables   = new Object[maxIndexedVarsSize];
+    private SslHandler                                sslHandler;
+
+    public FastThreadLocal() {
+        init();
+    }
+
+    private void destroy0() {
+        //FIXME ..destroy0
+    }
+
+    public CharsetDecoder getCharsetDecoder(Charset charset) {
+        CharsetDecoder decoder = charsetDecoders.get(charset);
+        if (decoder == null) {
+            decoder = charset.newDecoder();
+            charsetDecoders.put(charset, decoder);
+        }
+        return decoder;
+    }
+
+    public CharsetEncoder getCharsetEncoder(Charset charset) {
+        CharsetEncoder encoder = charsetEncoders.get(charset);
+        if (encoder == null) {
+            encoder = charset.newEncoder();
+            charsetEncoders.put(charset, encoder);
+        }
+        return encoder;
+    }
+
+    public Object getIndexedVariable(int index) {
+        return indexedVariables[index];
+    }
+
+    public SslHandler getSslHandler() {
+        return sslHandler;
+    }
+
+    private void init() {
+        if (SSLUtil.isENABLE_SSL()) {
+            sslHandler = new SslHandler();
+        }
+    }
+
+    public void setIndexedVariable(int index, Object value) {
+        indexedVariables[index] = value;
+    }
 
     public static void destroy() {
         Thread thread = Thread.currentThread();
@@ -85,45 +135,6 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
             }
             return l;
         }
-    }
-
-    private Map<Charset, CharsetDecoder> charsetDecoders  = new IdentityHashMap<>();
-    private Map<Charset, CharsetEncoder> charsetEncoders  = new IdentityHashMap<>();
-    private Object[]                     indexedVariables = new Object[maxIndexedVarsSize];
-    private SslHandler                   sslHandler       = new SslHandler();
-
-    private void destroy0() {
-        //FIXME ..destroy0
-    }
-
-    public CharsetDecoder getCharsetDecoder(Charset charset) {
-        CharsetDecoder decoder = charsetDecoders.get(charset);
-        if (decoder == null) {
-            decoder = charset.newDecoder();
-            charsetDecoders.put(charset, decoder);
-        }
-        return decoder;
-    }
-
-    public CharsetEncoder getCharsetEncoder(Charset charset) {
-        CharsetEncoder encoder = charsetEncoders.get(charset);
-        if (encoder == null) {
-            encoder = charset.newEncoder();
-            charsetEncoders.put(charset, encoder);
-        }
-        return encoder;
-    }
-
-    public Object getIndexedVariable(int index) {
-        return indexedVariables[index];
-    }
-
-    public SslHandler getSslHandler() {
-        return sslHandler;
-    }
-
-    public void setIndexedVariable(int index, Object value) {
-        indexedVariables[index] = value;
     }
 
 }

@@ -23,30 +23,12 @@ public class FastThreadLocalThread extends Thread {
 
     private final FastThreadLocal threadLocal = new FastThreadLocal();
 
-    public FastThreadLocalThread() { }
-
-    public FastThreadLocalThread(Runnable target) {
-        super(target);
-    }
-
-    public FastThreadLocalThread(ThreadGroup group, Runnable target) {
-        super(group, target);
-    }
-
-    public FastThreadLocalThread(String name) {
-        super(name);
-    }
-
-    public FastThreadLocalThread(ThreadGroup group, String name) {
-        super(group, name);
-    }
-
     public FastThreadLocalThread(Runnable target, String name) {
-        super(target, name);
+        this(null, target, name);
     }
 
     public FastThreadLocalThread(ThreadGroup group, Runnable target, String name) {
-        super(group, target, name);
+        this(group, target, name, 0);
     }
 
     public FastThreadLocalThread(ThreadGroup group, Runnable target, String name, long stackSize) {
