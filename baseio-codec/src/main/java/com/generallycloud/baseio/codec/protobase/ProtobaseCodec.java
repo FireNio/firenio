@@ -20,7 +20,6 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -41,7 +40,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  *  
  * </pre>
  */
-public class ProtobaseCodec implements ProtocolCodec {
+public class ProtobaseCodec extends ProtocolCodec {
 
     public static final int      PROTOCOL_PING = -1;
     public static final int      PROTOCOL_PONG = -2;
@@ -78,17 +77,12 @@ public class ProtobaseCodec implements ProtocolCodec {
     }
 
     @Override
-    public Future createPINGPacket(NioSocketChannel channel) {
+    public Future ping(NioSocketChannel channel) {
         return new ProtobaseFuture().setPing();
     }
 
     @Override
-    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
-        return ping.setPong();
-    }
-
-    @Override
-    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public Future decode(NioSocketChannel channel, ByteBuf buffer) {
         return new ProtobaseFuture(textLenLimit, binaryLenLimit);
     }
 
@@ -161,8 +155,5 @@ public class ProtobaseCodec implements ProtocolCodec {
     public String getProtocolId() {
         return "Protobase";
     }
-
-    @Override
-    public void initialize(ChannelContext context) {}
 
 }

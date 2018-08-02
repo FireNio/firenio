@@ -148,7 +148,7 @@ public final class NioSocketChannel extends AttributesImpl
                 if (future.isSilent()) {
                     if (future.isPing()) {
                         heartBeatLogger.logPing(this);
-                        Future f = codec.createPONGPacket(this, future);
+                        Future f = codec.pong(this, future);
                         if (f != null) {
                             flush(f);
                         }

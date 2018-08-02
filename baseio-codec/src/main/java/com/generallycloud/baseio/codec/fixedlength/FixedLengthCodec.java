@@ -20,7 +20,6 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -44,7 +43,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  * 
  * </pre>
  */
-public class FixedLengthCodec implements ProtocolCodec {
+public class FixedLengthCodec extends ProtocolCodec {
 
     private static final ByteBuf PING;
     private static final ByteBuf PONG;
@@ -72,17 +71,12 @@ public class FixedLengthCodec implements ProtocolCodec {
     }
 
     @Override
-    public Future createPINGPacket(NioSocketChannel channel) {
+    public Future ping(NioSocketChannel channel) {
         return new FixedLengthFuture().setPing();
     }
 
     @Override
-    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
-        return ping.setPong();
-    }
-
-    @Override
-    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public Future decode(NioSocketChannel channel, ByteBuf buffer) {
         return new FixedLengthFuture(limit);
     }
 
@@ -107,8 +101,5 @@ public class FixedLengthCodec implements ProtocolCodec {
     public String getProtocolId() {
         return "FixedLength";
     }
-
-    @Override
-    public void initialize(ChannelContext context) {}
 
 }

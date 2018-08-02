@@ -28,7 +28,6 @@ import com.generallycloud.baseio.codec.http2.future.Http2SettingsFrame;
 import com.generallycloud.baseio.codec.http2.hpack.DefaultHttp2HeadersEncoder;
 import com.generallycloud.baseio.codec.http2.hpack.Http2HeadersEncoder;
 import com.generallycloud.baseio.common.MathUtil;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -97,7 +96,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  * 
  */
 //http://httpwg.org/specs/rfc7540.html
-public class Http2Codec implements ProtocolCodec {
+public class Http2Codec extends ProtocolCodec {
 
     public static final int     PROTOCOL_HEADER         = 9;
     public static final int     PROTOCOL_PING           = -1;
@@ -107,16 +106,6 @@ public class Http2Codec implements ProtocolCodec {
 
     private ByteBuf allocate(NioSocketChannel channel, int capacity) {
         return channel.allocator().allocate(capacity);
-    }
-
-    @Override
-    public Future createPINGPacket(NioSocketChannel channel) {
-        return null;
-    }
-
-    @Override
-    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
-        return null;
     }
 
     @Override
@@ -193,8 +182,5 @@ public class Http2Codec implements ProtocolCodec {
     public String getProtocolId() {
         return "Http2";
     }
-
-    @Override
-    public void initialize(ChannelContext context) {}
 
 }

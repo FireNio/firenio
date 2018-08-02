@@ -52,7 +52,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 * </pre>
 *
 */
-public class WebSocketCodec implements ProtocolCodec {
+public class WebSocketCodec extends ProtocolCodec {
 
     public static final String   FUTURE_STACK_KEY   = "FixedThreadStack_WebSocketFuture";
     public static final int      PROTOCOL_HEADER    = 2;
@@ -79,7 +79,7 @@ public class WebSocketCodec implements ProtocolCodec {
     }
 
     @Override
-    public Future createPINGPacket(NioSocketChannel channel) {
+    public Future ping(NioSocketChannel channel) {
         if (WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
             return new WebSocketFuture().setPing();
         }
@@ -87,7 +87,7 @@ public class WebSocketCodec implements ProtocolCodec {
     }
 
     @Override
-    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
+    public Future pong(NioSocketChannel channel, Future ping) {
         if (WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
             return ping.setPong();
         }
@@ -152,9 +152,6 @@ public class WebSocketCodec implements ProtocolCodec {
     public String getProtocolId() {
         return PROTOCOL_ID;
     }
-
-    @Override
-    public void initialize(ChannelContext context) {}
 
     //  public IOWriteFuture encodeWithMask(BaseContext context, IOReadFuture readFuture) throws IOException {
     //      

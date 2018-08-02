@@ -41,7 +41,7 @@ public class ParamedProtobaseCodec extends ProtobaseCodec {
     }
 
     @Override
-    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public Future decode(NioSocketChannel channel, ByteBuf buffer) {
         return new ParamedProtobaseFuture(getTextLenLimit(),getBinaryLenLimit());
     }
     

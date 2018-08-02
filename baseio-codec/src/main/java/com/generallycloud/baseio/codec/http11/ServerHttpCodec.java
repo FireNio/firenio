@@ -59,16 +59,6 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     }
 
     @Override
-    public Future createPINGPacket(NioSocketChannel channel) {
-        return null;
-    }
-
-    @Override
-    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
-        return null;
-    }
-
-    @Override
     public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         if (httpFutureStackSize > 0) {
             //            NioEventLoop eventLoop = channel.getEventLoop();

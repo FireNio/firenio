@@ -26,7 +26,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  * @author wangkai
  *
  */
-public abstract class AbstractHttpCodec implements ProtocolCodec {
+public abstract class AbstractHttpCodec extends ProtocolCodec {
 
     protected static final byte R     = '\r';
     protected static final byte N     = '\n';

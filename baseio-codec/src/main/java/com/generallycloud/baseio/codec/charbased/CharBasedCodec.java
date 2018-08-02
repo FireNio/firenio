@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -28,7 +27,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  * @author wangkai
  *
  */
-public class CharBasedCodec implements ProtocolCodec {
+public class CharBasedCodec extends ProtocolCodec {
 
     private int  limit;
 
@@ -45,16 +44,6 @@ public class CharBasedCodec implements ProtocolCodec {
     public CharBasedCodec(int limit, byte splitor) {
         this.limit = limit;
         this.splitor = splitor;
-    }
-
-    @Override
-    public Future createPINGPacket(NioSocketChannel channel) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -80,8 +69,5 @@ public class CharBasedCodec implements ProtocolCodec {
     public String getProtocolId() {
         return "LineBased";
     }
-
-    @Override
-    public void initialize(ChannelContext context) {}
 
 }

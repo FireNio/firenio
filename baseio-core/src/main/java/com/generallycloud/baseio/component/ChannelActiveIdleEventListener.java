@@ -38,7 +38,7 @@ public class ChannelActiveIdleEventListener implements ChannelIdleEventListener 
             CloseUtil.close(channel);
         } else {
             ProtocolCodec codec = channel.getProtocolCodec();
-            Future future = codec.createPINGPacket(channel);
+            Future future = codec.ping(channel);
             if (future == null) {
                 // 该channel无需心跳,比如HTTP协议
                 return;

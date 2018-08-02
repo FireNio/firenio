@@ -20,7 +20,6 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.codec.redis.RedisFuture.RedisCommand;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -29,7 +28,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  * @author wangkai
  *
  */
-public class RedisCodec implements ProtocolCodec {
+public class RedisCodec extends ProtocolCodec {
 
     @Override
     public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
@@ -37,7 +36,7 @@ public class RedisCodec implements ProtocolCodec {
     }
 
     @Override
-    public Future createPINGPacket(NioSocketChannel channel) {
+    public Future ping(NioSocketChannel channel) {
         RedisCmdFuture f = new RedisCmdFuture();
         f.setPing();
         f.writeCommand(RedisCommand.PING.raw);
@@ -45,7 +44,7 @@ public class RedisCodec implements ProtocolCodec {
     }
 
     @Override
-    public Future createPONGPacket(NioSocketChannel channel, Future ping) {
+    public Future pong(NioSocketChannel channel, Future ping) {
         RedisCmdFuture f = (RedisCmdFuture) ping;
         f.setPong();
         f.writeCommand(RedisCommand.PONG.raw);
@@ -67,8 +66,5 @@ public class RedisCodec implements ProtocolCodec {
     public String getProtocolId() {
         return "Redis";
     }
-
-    @Override
-    public void initialize(ChannelContext context) {}
 
 }
