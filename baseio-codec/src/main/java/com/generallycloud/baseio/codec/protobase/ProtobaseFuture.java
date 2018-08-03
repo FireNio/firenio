@@ -16,20 +16,17 @@
 package com.generallycloud.baseio.codec.protobase;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.AbstractFuture;
+import com.generallycloud.baseio.protocol.BinaryFuture;
 import com.generallycloud.baseio.protocol.TextFuture;
 
-public class ProtobaseFuture extends AbstractFuture implements TextFuture {
+public class ProtobaseFuture extends BinaryFuture implements TextFuture {
 
     private int     binaryLenLimit;
     private byte[]  binaryReadBuffer;
-    private byte[]  binaryWriteBuffer;
-    private int     binaryWriteSize;
     private int     futureId;
     private byte    futureType;
     private boolean isBroadcast;
@@ -78,14 +75,6 @@ public class ProtobaseFuture extends AbstractFuture implements TextFuture {
 
     public int getChannelKey() {
         return channelId;
-    }
-
-    public byte[] getWriteBinary() {
-        return binaryWriteBuffer;
-    }
-
-    public int getWriteBinarySize() {
-        return binaryWriteSize;
     }
 
     public boolean hasReadBinary() {
@@ -181,43 +170,6 @@ public class ProtobaseFuture extends AbstractFuture implements TextFuture {
     @Override
     public String toString() {
         return getReadText();
-    }
-
-    public void writeBinary(byte b) {
-        if (binaryWriteBuffer == null) {
-            binaryWriteBuffer = new byte[256];
-        }
-        int newcount = binaryWriteSize + 1;
-        if (newcount > binaryWriteBuffer.length) {
-            binaryWriteBuffer = Arrays.copyOf(binaryWriteBuffer, binaryWriteBuffer.length << 1);
-        }
-        binaryWriteBuffer[binaryWriteSize] = b;
-        binaryWriteSize = newcount;
-    }
-
-    public void writeBinary(byte[] bytes) {
-        writeBinary(bytes, 0, bytes.length);
-    }
-
-    public void writeBinary(byte[] bytes, int off, int len) {
-        if (binaryWriteBuffer == null) {
-            if ((len - off) != bytes.length) {
-                binaryWriteBuffer = new byte[len];
-                binaryWriteSize = len;
-                System.arraycopy(bytes, off, binaryWriteBuffer, 0, len);
-                return;
-            }
-            binaryWriteBuffer = bytes;
-            binaryWriteSize = len;
-            return;
-        }
-        int newcount = binaryWriteSize + len;
-        if (newcount > binaryWriteBuffer.length) {
-            binaryWriteBuffer = Arrays.copyOf(binaryWriteBuffer,
-                    Math.max(binaryWriteBuffer.length << 1, newcount));
-        }
-        System.arraycopy(bytes, off, binaryWriteBuffer, binaryWriteSize, len);
-        binaryWriteSize = newcount;
     }
 
 }

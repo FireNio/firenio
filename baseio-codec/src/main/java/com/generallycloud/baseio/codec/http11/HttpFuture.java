@@ -18,7 +18,6 @@ package com.generallycloud.baseio.codec.http11;
 import java.util.List;
 import java.util.Map;
 
-import com.generallycloud.baseio.component.ByteArrayOutputStream;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public interface HttpFuture extends HttpMessage {
@@ -74,15 +73,13 @@ public interface HttpFuture extends HttpMessage {
      */
     String getRequestURI();
 
-    String getRequestURL();
-
     void setRequestURL(String url);
 
     List<Cookie> getCookieList();
 
-    String getMethod();
+    HttpMethod getMethod();
 
-    String getVersion();
+    HttpVersion getVersion();
 
     String getBoundary();
 
@@ -112,5 +109,4 @@ public interface HttpFuture extends HttpMessage {
 
     void writeBinary(byte[] binary);
 
-    ByteArrayOutputStream getBinaryBuffer();
 }

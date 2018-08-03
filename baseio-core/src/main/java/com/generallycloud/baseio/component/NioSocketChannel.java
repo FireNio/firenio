@@ -203,7 +203,7 @@ public final class NioSocketChannel extends AttributesImpl
             return;
         }
         if (inEventLoop()) {
-            close0();
+            safeClose();
         } else {
             dispatch(new CloseEvent(this));
         }
@@ -213,7 +213,7 @@ public final class NioSocketChannel extends AttributesImpl
         eventLoop.dispatch(event);
     }
 
-    private void close0() {
+    private void safeClose() {
         if (isClosed()) {
             return;
         }
@@ -856,12 +856,12 @@ public final class NioSocketChannel extends AttributesImpl
 
         @Override
         public void close() throws IOException {
-            channel.close0();
+            channel.safeClose();
         }
 
         @Override
         public void run() {
-            channel.close0();
+            channel.safeClose();
         }
 
     }

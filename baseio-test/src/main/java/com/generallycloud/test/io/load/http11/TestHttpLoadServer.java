@@ -25,28 +25,29 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
 public class TestHttpLoadServer {
+    
 
     public static void main(String[] args) throws Exception {
-
+        
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
             public void accept(NioSocketChannel channel, Future future) throws Exception {
-                future.write("hello world!8080", channel.getContext());
+                future.write("Hello World",channel);
                 channel.flush(future);
             }
 
         };
 
-        int core = 32;
+        int core = 4;
         NioEventLoopGroup group = new NioEventLoopGroup(core);
-        group.setMemoryPoolCapacity(1024 * 1024 * 2 / core);
-        group.setMemoryPoolUnit(256);
+        group.setMemoryPoolCapacity(1024 * 256 / core);
+        group.setMemoryPoolUnit(512);
         group.setEnableMemoryPoolDirect(true);
         group.setEnableMemoryPool(true);
         ChannelContext context = new ChannelContext(8087);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
-        context.setProtocolCodec(new ServerHttpCodec());
+        context.setProtocolCodec(new ServerHttpCodec(4));
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
 

@@ -21,7 +21,7 @@ import com.generallycloud.baseio.common.UUIDGenerator;
 public class WsUpgradeRequestFuture extends ClientHttpFuture {
 
     public WsUpgradeRequestFuture(String url) {
-        super(url, "GET");
+        super(url);
         this.setRequestHeaders();
     }
 

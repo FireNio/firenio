@@ -60,7 +60,14 @@ public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
         this.limit = limit;
         return this;
     }
-
+    
+    @Override
+    public ByteBuf clear() {
+        this.position = 0;
+        this.limit = capacity;
+        return this;
+    }
+    
     @Override
     public ByteBuf duplicate() {
         return new DuplicatedByteBuf(new UnpooledHeapByteBuf(allocator, memory).produce(this),

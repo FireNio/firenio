@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
+import com.generallycloud.baseio.collection.IntObjectHashMap;
+
 public enum HttpStatus {
 
     /**
@@ -196,18 +198,25 @@ public enum HttpStatus {
     public byte[] getHeaderBinary() {
         return headerBinary;
     }
-
-    public static HttpStatus getHttpStatus(int status) {
+    
+    private static final IntObjectHashMap<HttpStatus> STATUS = new IntObjectHashMap<>();
+    
+    static{
         HttpStatus[] values = HttpStatus.values();
-
         for (HttpStatus v : values) {
-
-            if (v.getStatus() == status) {
-                return v;
-            }
+            STATUS.put(v.status, v);
         }
-
-        return C505;
+    }
+    
+    public static HttpStatus getStatus(int status) {
+        if (status == 200) {
+            return C200;
+        }
+        HttpStatus s = STATUS.get(status);
+        if (s == null) {
+            return C505;
+        }
+        return s;
     }
 
 }

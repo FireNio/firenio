@@ -93,6 +93,18 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
             }
         }
     }
+    
+    @Override
+    public ByteBuf clear() {
+        memory.clear();
+        return this;
+    }
+    
+    @Override
+    public ByteBuf flip() {
+        memory.flip();
+        return this;
+    }
 
     @Override
     public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {

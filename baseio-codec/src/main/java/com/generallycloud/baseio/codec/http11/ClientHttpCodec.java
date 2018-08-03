@@ -105,7 +105,7 @@ public class ClientHttpCodec extends AbstractHttpCodec {
     private String getRequestURI(HttpFuture future) {
         Map<String, String> params = future.getRequestParams();
         if (params == null) {
-            return future.getRequestURL();
+            return future.getRequestURI();
         }
         String url = future.getRequestURI();
         StringBuilder u = new StringBuilder(url);

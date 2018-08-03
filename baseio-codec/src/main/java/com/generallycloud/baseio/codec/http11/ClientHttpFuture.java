@@ -22,7 +22,7 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class ClientHttpFuture extends AbstractHttpFuture {
 
-    public ClientHttpFuture(String url, String method) {
+    public ClientHttpFuture(String url, HttpMethod method) {
         this.setMethod(method);
         this.setRequestURL(url);
         setRequestHeaders(new HashMap<String,String>());
@@ -30,7 +30,7 @@ public class ClientHttpFuture extends AbstractHttpFuture {
     }
 
     public ClientHttpFuture(String url) {
-        this(url, "GET");
+        this(url, HttpMethod.GET);
     }
 
     public ClientHttpFuture(int headerLimit, int bodyLimit) {
@@ -105,8 +105,8 @@ public class ClientHttpFuture extends AbstractHttpFuture {
     protected void parseFirstLine(String line) {
         int index = line.indexOf(' ');
         int status = Integer.parseInt(line.substring(index + 1, index + 4));
-        setVersion(line.substring(0, index));
-        setStatus(HttpStatus.getHttpStatus(status));
+        setVersion(HttpVersion.getVersion(line.substring(0, index)));
+        setStatus(HttpStatus.getStatus(status));
     }
 
 }

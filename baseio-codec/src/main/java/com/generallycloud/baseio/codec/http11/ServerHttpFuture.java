@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.codec.http11;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.generallycloud.baseio.common.BASE64Util;
@@ -23,6 +24,7 @@ import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.SHAUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class ServerHttpFuture extends AbstractHttpFuture {
@@ -36,7 +38,7 @@ public class ServerHttpFuture extends AbstractHttpFuture {
         setResponseHeaders(new HashMap<String, String>());
         setDefaultResponseHeaders(context, getResponseHeaders());
     }
-    
+
     public ServerHttpFuture(ChannelContext context) {
         setResponseHeaders(new HashMap<String, String>());
         setDefaultResponseHeaders(context, getResponseHeaders());
@@ -90,7 +92,7 @@ public class ServerHttpFuture extends AbstractHttpFuture {
         }
         return false;
     }
-    
+
     @Override
     void setReadHeader(String name, String value) {
         setRequestHeader(name, value);
@@ -110,29 +112,26 @@ public class ServerHttpFuture extends AbstractHttpFuture {
         int index1 = line.indexOf(' ');
         int index2 = line.indexOf(' ', index1 + 1);
         setRequestURL(line.substring(index1 + 1, index2));
-        setMethod(line.substring(0, index1));
-        setVersion(line.substring(index2 + 1));
+        setMethod(HttpMethod.getMethod(line.substring(0, index1)));
+        setVersion(HttpVersion.getVersion(line.substring(index2 + 1)));
     }
 
-    //    @Override
-    //    public void release(NioEventLoop eventLoop) {
-    //        super.release(eventLoop);
-    //        //FIXME ..final statck is null or not null
-    //        FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
-    //                .getAttribute(ServerHttpCodec.FUTURE_STACK_KEY);
-    //        if (stack != null) {
-    //            stack.push(this);
-    //        }
-    //    }
-
+    @SuppressWarnings("unchecked")
     @Override
-    public ServerHttpFuture reset(NioSocketChannel channel, int headerLimit, int bodyLimit) {
-        super.reset(channel, headerLimit, bodyLimit);
+    public void release(NioEventLoop eventLoop) {
+        super.release(eventLoop);
+        //FIXME ..final statck is null or not null
+        List<ServerHttpFuture> stack = (List<ServerHttpFuture>) eventLoop
+                .getAttribute(ServerHttpCodec.FUTURE_STACK_KEY);
+        if (stack != null) {
+            stack.add(this);
+        }
+    }
+
+    public ServerHttpFuture reset(NioSocketChannel channel) {
+        super.reset();
         this.updateWebSocketProtocol = false;
-        getRequestParams().clear();
-        getResponseHeaders().clear();
-        setRequestParams(getRequestParams());
-        setDefaultResponseHeaders(channel.getContext(), getResponseHeaders());
+        this.setDefaultResponseHeaders(channel.getContext(), getResponseHeaders());
         return this;
     }
 

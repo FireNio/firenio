@@ -89,6 +89,7 @@ public abstract class AbstractFuture implements Future {
         this.futureType = 0;
         this.isSilent = false;
         this.writeSize = 0;
+        this.writeBuffer = null;
         return this;
     }
 

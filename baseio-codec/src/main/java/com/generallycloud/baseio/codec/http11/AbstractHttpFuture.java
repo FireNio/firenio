@@ -26,9 +26,8 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.KMPUtil;
 import com.generallycloud.baseio.common.StringLexer;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.ByteArrayOutputStream;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.AbstractFuture;
+import com.generallycloud.baseio.protocol.BinaryFuture;
 
 //FIXME 改进header parser
 /**
@@ -37,12 +36,11 @@ import com.generallycloud.baseio.protocol.AbstractFuture;
  * multipart/form-data; boundary=----WebKitFormBoundaryKA6dsRskWA4CdJek
  *
  */
-public abstract class AbstractHttpFuture extends AbstractFuture implements HttpFuture {
+public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFuture {
 
-    protected static final Map<String, String> HEADER_LOW_MAPPING    = HttpHeader.LOW_MAPPING;
-    protected static final KMPUtil             KMP_BOUNDARY   = new KMPUtil("boundary=");
+    protected static final Map<String, String> HEADER_LOW_MAPPING = HttpHeader.LOW_MAPPING;
+    protected static final KMPUtil             KMP_BOUNDARY       = new KMPUtil("boundary=");
 
-    private ByteArrayOutputStream              binaryBuffer;
     private byte[]                             bodyArray;
     private int                                bodyLimit;
     private String                             boundary;
@@ -56,16 +54,15 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
     private int                                headerLength;
     private int                                headerLimit;
     private String                             host;
-    private String                             method;
+    private HttpMethod                         method;
     private Map<String, String>                params;
-    private boolean                            parseFirstLine = true;
+    private boolean                            parseFirstLine     = true;
     private String                             readText;
     private Map<String, String>                request_headers;
     private String                             requestURI;
-    private String                             requestURL;
     private Map<String, String>                response_headers;
-    private HttpStatus                         status         = HttpStatus.C200;
-    private String                             version;
+    private HttpStatus                         status             = HttpStatus.C200;
+    private HttpVersion                        version;
 
     public AbstractHttpFuture(int headerLimit, int bodyLimit) {
         this.headerLimit = headerLimit;
@@ -81,11 +78,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
             cookieList = new ArrayList<>();
         }
         cookieList.add(cookie);
-    }
-
-    @Override
-    public ByteArrayOutputStream getBinaryBuffer() {
-        return binaryBuffer;
     }
 
     @Override
@@ -132,7 +124,7 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
     }
 
     @Override
-    public String getMethod() {
+    public HttpMethod getMethod() {
         return method;
     }
 
@@ -152,7 +144,7 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
         }
         return request_headers.get(_name);
     }
-    
+
     public String getResponseHeader(String name) {
         return response_headers.get(name);
     }
@@ -178,11 +170,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
     }
 
     @Override
-    public String getRequestURL() {
-        return requestURL;
-    }
-
-    @Override
     public Map<String, String> getResponseHeaders() {
         return response_headers;
     }
@@ -193,7 +180,7 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
     }
 
     @Override
-    public String getVersion() {
+    public HttpVersion getVersion() {
         return version;
     }
 
@@ -389,7 +376,6 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
 
     @Override
     public void setRequestURL(String url) {
-        this.requestURL = url;
         int index = url.indexOf("?");
         if (index > -1) {
             String paramString = url.substring(index + 1, url.length());
@@ -425,19 +411,10 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
 
     @Override
     public String toString() {
-        return getRequestURL();
+        return getRequestURI();
     }
 
-    @Override
-    public void writeBinary(byte[] binary) {
-        if (binaryBuffer == null) {
-            binaryBuffer = new ByteArrayOutputStream(binary);
-            return;
-        }
-        binaryBuffer.write(binary);
-    }
-
-    protected void setMethod(String method) {
+    protected void setMethod(HttpMethod method) {
         this.method = method;
     }
 
@@ -449,7 +426,7 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
         this.boundary = boundary;
     }
 
-    protected void setVersion(String version) {
+    protected void setVersion(HttpVersion version) {
         this.version = version;
     }
 
@@ -467,8 +444,7 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
         map.clear();
     }
 
-    protected HttpFuture reset(NioSocketChannel channel, int headerLimit, int bodyLimit) {
-        this.binaryBuffer = null;
+    protected HttpFuture reset() {
         this.bodyArray = null;
         this.boundary = null;
         this.contentLength = 0;
@@ -478,19 +454,14 @@ public abstract class AbstractHttpFuture extends AbstractFuture implements HttpF
         this.hasBodyContent = false;
         this.header_complete = false;
         this.headerLength = 0;
-        this.headerLimit = headerLimit;
         this.host = null;
         this.method = null;
         this.parseFirstLine = true;
         this.readText = null;
         this.requestURI = null;
-        this.requestURL = null;
         this.clear(response_headers);
-
         this.status = HttpStatus.C200;
         this.version = null;
-        this.headerLimit = headerLimit;
-        this.bodyLimit = bodyLimit;
         if (currentHeaderLine == null) {
             currentHeaderLine = new StringBuilder();
         } else {

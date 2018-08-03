@@ -16,12 +16,13 @@
 package com.generallycloud.baseio.codec.http11;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.component.ByteArrayOutputStream;
 import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 
@@ -58,21 +59,27 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         this.httpFutureStackSize = httpFutureStackSize;
     }
 
+    public ServerHttpCodec(int httpFutureStackSize) {
+        this.httpFutureStackSize = httpFutureStackSize;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         if (httpFutureStackSize > 0) {
-            //            NioEventLoop eventLoop = channel.getEventLoop();
-            //            FixedThreadStack<ServerHttpFuture> stack = (FixedThreadStack<ServerHttpFuture>) eventLoop
-            //                    .getAttribute(FUTURE_STACK_KEY);
-            //            if (stack == null) {
-            //                stack = new FixedThreadStack<>(httpFutureStackSize);
-            //                eventLoop.setAttribute(FUTURE_STACK_KEY, stack);
-            //            }
-            //            ServerHttpFuture future = stack.pop();
-            //            if (future == null) {
-            //                return new ServerHttpFuture(channel, headerLimit, bodyLimit);
-            //            }
-            //            return future.reset(channel, headerLimit, bodyLimit);
+            NioEventLoop eventLoop = channel.getEventLoop();
+            List<ServerHttpFuture> stack = (List<ServerHttpFuture>) eventLoop
+                    .getAttribute(FUTURE_STACK_KEY);
+            if (stack == null) {
+                stack = new ArrayList<>(httpFutureStackSize);
+                eventLoop.setAttribute(FUTURE_STACK_KEY, stack);
+            }
+            if (stack.isEmpty()) {
+                return new ServerHttpFuture(channel.getContext(), headerLimit, bodyLimit);
+            } else {
+                ServerHttpFuture future = stack.remove(stack.size() - 1);
+                return future.reset(channel);
+            }
         }
         return new ServerHttpFuture(channel.getContext(), headerLimit, bodyLimit);
     }
@@ -119,9 +126,9 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         }
         f.setResponseHeader("Date",
                 HttpHeaderDateFormat.getFormat().format(System.currentTimeMillis()));
-        ByteArrayOutputStream os = f.getBinaryBuffer();
-        if (os != null) {
-            return encode(allocator, f, os.size(), os.array());
+        byte[] writeBinary = f.getWriteBinary();
+        if (writeBinary != null) {
+            return encode(allocator, f, f.getWriteBinarySize(), writeBinary);
         }
         int writeSize = f.getWriteSize();
         if (writeSize == 0) {
