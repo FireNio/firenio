@@ -79,23 +79,23 @@ public class WebSocketCodec extends ProtocolCodec {
     }
 
     @Override
-    public Future ping(NioSocketChannel channel) {
-        if (WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
+    public Future ping(NioSocketChannel ch) {
+        if (WebSocketCodec.PROTOCOL_ID.equals(ch.getProtocolId())) {
             return new WebSocketFuture().setPing();
         }
         return null;
     }
 
     @Override
-    public Future pong(NioSocketChannel channel, Future ping) {
-        if (WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
+    public Future pong(NioSocketChannel ch, Future ping) {
+        if (WebSocketCodec.PROTOCOL_ID.equals(ch.getProtocolId())) {
             return ping.setPong();
         }
         return null;
     }
 
     @Override
-    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public Future decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         if (futureStackSize > 0) {
 //            NioEventLoop eventLoop = channel.getEventLoop();
 //            FixedThreadStack<WebSocketFuture> stack = (FixedThreadStack<WebSocketFuture>) eventLoop
@@ -110,12 +110,12 @@ public class WebSocketCodec extends ProtocolCodec {
 //            }
 //            return future.reset(channel, limit);
         }
-        return new WebSocketFuture(channel, limit);
+        return new WebSocketFuture(ch, limit);
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
-        ByteBufAllocator allocator = channel.allocator();
+    public ByteBuf encode(NioSocketChannel ch, Future future) throws IOException {
+        ByteBufAllocator allocator = ch.alloc();
         WebSocketFuture f = (WebSocketFuture) future;
         byte[] header;
         byte[] data = f.getWriteBuffer();

@@ -18,9 +18,12 @@ package com.generallycloud.baseio.codec.http11;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -34,8 +37,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
 
     public static final String  FUTURE_STACK_KEY         = "FixedThreadStack_ServerHttpFuture";
     private static final byte[] PROTOCOL                 = "HTTP/1.1 ".getBytes();
-    private static final byte[] SERVER_CL                = "\r\nServer: baseio/0.0.1\r\nContent-Length: "
-            .getBytes();
+    private static final byte[] CONTENT_LENGTH           = "\r\nContent-Length: ".getBytes();
     private static final byte[] SET_COOKIE               = "Set-Cookie:".getBytes();
     private int                 bodyLimit                = 1024 * 512;
     private int                 headerLimit              = 1024 * 8;
@@ -83,14 +85,14 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         }
         return new ServerHttpFuture(channel.getContext(), headerLimit, bodyLimit);
     }
-
+    
     private ByteBuf encode(ByteBufAllocator allocator, ServerHttpFuture f, int length, byte[] array)
             throws IOException {
         ByteBuf buf = allocator.allocate(256);
         try {
             buf.put(PROTOCOL);
-            buf.put(f.getStatus().getHeaderBinary());
-            buf.put(SERVER_CL);
+            buf.put(f.getStatus().getBinary());
+            buf.put(CONTENT_LENGTH);
             buf.put(String.valueOf(length).getBytes());
             buf.putByte(R);
             buf.putByte(N);
@@ -115,20 +117,33 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         }
         return buf.flip();
     }
-
+    
+    private void writeHeaders(Map<byte[], byte[]> headers, ByteBuf buf) {
+        if (headers == null) {
+            return;
+        }
+        for (Entry<byte[], byte[]> header : headers.entrySet()) {
+            writeBuf(buf, header.getKey());
+            writeBuf(buf, COLON);
+            writeBuf(buf, SPACE);
+            writeBuf(buf, header.getValue());
+            writeBuf(buf, R);
+            writeBuf(buf, N);
+        }
+    }
+    
     @Override
-    public ByteBuf encode(NioSocketChannel channel, Future readFuture) throws IOException {
-        ByteBufAllocator allocator = channel.allocator();
+    public ByteBuf encode(NioSocketChannel ch, Future readFuture) throws IOException {
+        ByteBufAllocator allocator = ch.alloc();
         ServerHttpFuture f = (ServerHttpFuture) readFuture;
         if (f.isUpdateWebSocketProtocol()) {
-            channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
-            channel.setAttribute(WebSocketFuture.CHANNEL_KEY_SERVICE_NAME, f.getFutureName());
+            ch.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+            ch.setAttribute(WebSocketFuture.CHANNEL_KEY_SERVICE_NAME, f.getFutureName());
         }
-        f.setResponseHeader("Date",
-                HttpHeaderDateFormat.getFormat().format(System.currentTimeMillis()));
+        f.setResponseHeader(HttpHeader.Date_Bytes, DateUtil.get().formatHttpBytes());
         byte[] writeBinary = f.getWriteBinary();
         if (writeBinary != null) {
-            return encode(allocator, f, f.getWriteBinarySize(), writeBinary);
+            return encode(ch.alloc(), f, f.getWriteBinarySize(), writeBinary);
         }
         int writeSize = f.getWriteSize();
         if (writeSize == 0) {

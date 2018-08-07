@@ -149,5 +149,25 @@ public class StringUtil {
     public static boolean isTrueValue(String value) {
         return "true".equals(value) || "1".equals(value);
     }
+    
+    public static int indexOf(StringBuilder sb,char ch){
+        int count = sb.length();
+        for (int i = 0; i < count; i++) {
+            if (ch == sb.charAt(i)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    public static int lastIndexOf(StringBuilder sb,char ch){
+        int count = sb.length();
+        for (int i = count -1; i > -1; i--) {
+            if (ch == sb.charAt(i)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
 }

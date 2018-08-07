@@ -30,6 +30,13 @@ public abstract class BinaryFuture extends AbstractFuture {
         return binaryWriteSize;
     }
 
+    @Override
+    protected Future reset() {
+        this.binaryWriteSize = 0;
+        this.binaryWriteBuffer = null;
+        return super.reset();
+    }
+
     public void writeBinary(byte b) {
         if (binaryWriteBuffer == null) {
             binaryWriteBuffer = new byte[256];
@@ -40,13 +47,6 @@ public abstract class BinaryFuture extends AbstractFuture {
         }
         binaryWriteBuffer[binaryWriteSize] = b;
         binaryWriteSize = newcount;
-    }
-    
-    @Override
-    protected Future reset() {
-        this.binaryWriteSize = 0;
-        this.binaryWriteBuffer = null;
-        return super.reset();
     }
 
     public void writeBinary(byte[] bytes) {

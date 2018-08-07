@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import com.generallycloud.baseio.buffer.ByteBufAllocatorGroup;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpHeader;
+import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -110,7 +112,7 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
 
         future.write(builder.toString(), session.getEncoding());
 
-        future.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
+        future.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
 
         session.flush(future);
     }

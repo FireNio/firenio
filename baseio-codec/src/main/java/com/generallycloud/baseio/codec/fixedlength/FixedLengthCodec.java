@@ -81,8 +81,7 @@ public class FixedLengthCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
-        ByteBufAllocator allocator = channel.allocator();
+    public ByteBuf encode(NioSocketChannel ch, Future future) throws IOException {
         if (future.isSilent()) {
             return future.isPing() ? PING.duplicate() : PONG.duplicate();
         }
@@ -91,7 +90,7 @@ public class FixedLengthCodec extends ProtocolCodec {
         if (writeSize == 0) {
             throw new IOException("null write buffer");
         }
-        ByteBuf buf = allocator.allocate(writeSize + 4);
+        ByteBuf buf = ch.alloc().allocate(writeSize + 4);
         buf.putInt(writeSize);
         buf.put(f.getWriteBuffer(), 0, writeSize);
         return buf.flip();

@@ -22,6 +22,8 @@ import java.util.Random;
 import org.springframework.stereotype.Service;
 
 import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpHeader;
+import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.common.EmojiUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.StringUtil;
@@ -66,12 +68,12 @@ public class TestEmojiServlet extends HttpFutureAcceptorService {
 
         builder.append("\t\t</div>\n");
         builder.append(HtmlUtil.HTML_POWER_BY);
-        builder.append(getScript());
+//        builder.append(getScript());
         builder.append(HtmlUtil.HTML_BOTTOM);
 
         future.write(builder.toString(), channel.getEncoding());
 
-        future.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
+        future.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
 
         channel.flush(future);
     }

@@ -38,15 +38,15 @@ public interface HttpFuture extends HttpMessage {
 
     void setRequestHeader(String name, String value);
 
-    void setResponseHeader(String name, String value);
+    void setResponseHeader(byte[] name, byte[] value);
 
     Map<String, String> getRequestHeaders();
 
-    Map<String, String> getResponseHeaders();
+    Map<byte[], byte[]> getResponseHeaders();
 
     void setRequestHeaders(Map<String, String> headers);
 
-    void setResponseHeaders(Map<String, String> headers);
+    void setResponseHeaders(Map<byte[], byte[]> headers);
 
     String getHost();
 
@@ -72,8 +72,6 @@ public interface HttpFuture extends HttpMessage {
      * </table>
      */
     String getRequestURI();
-
-    void setRequestURL(String url);
 
     List<Cookie> getCookieList();
 

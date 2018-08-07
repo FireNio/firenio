@@ -26,6 +26,8 @@ import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.*;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.*;
 
 public class ServerHttpFuture extends AbstractHttpFuture {
 
@@ -35,22 +37,23 @@ public class ServerHttpFuture extends AbstractHttpFuture {
         super(bodyLimit, bodyLimit);
         setRequestHeaders(new HashMap<String, String>());
         setRequestParams(new HashMap<String, String>());
-        setResponseHeaders(new HashMap<String, String>());
+        setResponseHeaders(new HashMap<byte[], byte[]>());
         setDefaultResponseHeaders(context, getResponseHeaders());
     }
 
     public ServerHttpFuture(ChannelContext context) {
-        setResponseHeaders(new HashMap<String, String>());
+        setResponseHeaders(new HashMap<byte[], byte[]>());
         setDefaultResponseHeaders(context, getResponseHeaders());
     }
 
-    private void setDefaultResponseHeaders(ChannelContext context, Map<String, String> headers) {
+    private void setDefaultResponseHeaders(ChannelContext context, Map<byte[], byte[]> headers) {
         if (context.getCharset() == Encoding.GBK) {
-            headers.put(HttpHeader.Content_Type, "text/plain;charset=gbk");
+            headers.put(Content_Type_Bytes, plain_gbk_bytes);
         } else {
-            headers.put(HttpHeader.Content_Type, "text/plain;charset=utf-8");
+            headers.put(Content_Type_Bytes, plain_utf8_bytes);
         }
-        headers.put(HttpHeader.Connection, "keep-alive"); // or close
+        headers.put(Server_Bytes, server_baseio_bytes);
+        headers.put(Connection_Bytes, keep_alive_bytes); // or close
     }
 
     @Override
@@ -71,12 +74,13 @@ public class ServerHttpFuture extends AbstractHttpFuture {
             setContentType(CONTENT_TYPE_MULTIPART);
         } else {
             // FIXME other content-type
+            setContentType(contentType);
         }
     }
 
     @Override
     public boolean updateWebSocketProtocol(NioSocketChannel channel) {
-        String Sec_WebSocket_Key = getRequestHeader(HttpHeader.Low_Sec_WebSocket_Key);
+        String Sec_WebSocket_Key = getRequestHeader(Low_Sec_WebSocket_Key);
         if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key)) {
             //FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
             String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key
@@ -84,9 +88,9 @@ public class ServerHttpFuture extends AbstractHttpFuture {
             byte[] key_array = SHAUtil.SHA1(Sec_WebSocket_Key_Magic);
             String acceptKey = BASE64Util.byteArrayToBase64(key_array);
             setStatus(HttpStatus.C101);
-            setResponseHeader(HttpHeader.Connection, "Upgrade");
-            setResponseHeader(HttpHeader.Upgrade, "WebSocket");
-            setResponseHeader(HttpHeader.Sec_WebSocket_Accept, acceptKey);
+            setResponseHeader(Connection_Bytes, upgrade_bytes);
+            setResponseHeader(Upgrade_Bytes, websocket_bytes);
+            setResponseHeader(Sec_WebSocket_Accept_Bytes, acceptKey.getBytes());
             updateWebSocketProtocol = true;
             return true;
         }
@@ -108,12 +112,29 @@ public class ServerHttpFuture extends AbstractHttpFuture {
     }
 
     @Override
-    protected void parseFirstLine(String line) {
-        int index1 = line.indexOf(' ');
-        int index2 = line.indexOf(' ', index1 + 1);
-        setRequestURL(line.substring(index1 + 1, index2));
-        setMethod(HttpMethod.getMethod(line.substring(0, index1)));
-        setVersion(HttpVersion.getVersion(line.substring(index2 + 1)));
+    protected void parseFirstLine(StringBuilder line) {
+        if (line.charAt(0) == 'G' 
+                && line.charAt(1) == 'E' 
+                && line.charAt(2) == 'T'
+                && line.charAt(3) == ' ') {
+            setMethod(HttpMethod.GET);
+        } else {
+            setMethod(HttpMethod.POST);
+        }
+        parseRequestURL(line);
+        setVersion(HttpVersion.HTTP1_1);
+    }
+
+    protected void parseRequestURL(StringBuilder line) {
+        int index = line.indexOf("?");
+        int lastSpace = StringUtil.lastIndexOf(line, ' ');
+        if (index > -1) {
+            String paramString = line.substring(index + 1, lastSpace);
+            parseParamString(paramString);
+            setRequestURI(line.substring(4, index));
+        } else {
+             setRequestURI(line.substring(4, lastSpace));
+        }
     }
 
     @SuppressWarnings("unchecked")

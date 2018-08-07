@@ -17,7 +17,7 @@ package com.generallycloud.baseio.container.http11;
 
 import java.io.File;
 
-import com.generallycloud.baseio.codec.http11.HttpHeaderDateFormat;
+import com.generallycloud.baseio.common.DateUtil;
 
 /**
  * @author wangkai
@@ -31,6 +31,8 @@ public class HttpEntity {
     private long   lastModifyGTMTime;
     private byte[] binary;
     private String lastModifyGTM;
+    private byte[] lastModifyGTMBytes;
+    private byte[] contentTypeBytes;
 
     public String getContentType() {
         return contentType;
@@ -38,6 +40,7 @@ public class HttpEntity {
 
     public void setContentType(String contentType) {
         this.contentType = contentType;
+        this.contentTypeBytes = contentType.getBytes();
     }
 
     public File getFile() {
@@ -53,10 +56,11 @@ public class HttpEntity {
     }
 
     public void setLastModify(long lastModify) {
-        HttpHeaderDateFormat format = HttpHeaderDateFormat.getFormat();
+        DateUtil format = DateUtil.get();
         this.lastModify = lastModify;
-        this.lastModifyGTM = format.format(lastModify);
-        this.lastModifyGTMTime = format.parse(lastModifyGTM).getTime();
+        this.lastModifyGTMBytes = format.formatHttpBytes(lastModify);
+        this.lastModifyGTM = new String(lastModifyGTMBytes);
+        this.lastModifyGTMTime = format.parseHttp(lastModifyGTM).getTime();
     }
 
     public byte[] getBinary() {
@@ -74,4 +78,13 @@ public class HttpEntity {
     public long getLastModifyGTMTime() {
         return lastModifyGTMTime;
     }
+    
+    public byte[] getLastModifyGTMBytes() {
+        return lastModifyGTMBytes;
+    }
+    
+    public byte[] getContentTypeBytes() {
+        return contentTypeBytes;
+    }
+    
 }

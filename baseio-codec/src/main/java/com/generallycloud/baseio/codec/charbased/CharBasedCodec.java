@@ -18,7 +18,6 @@ package com.generallycloud.baseio.codec.charbased;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -53,13 +52,12 @@ public class CharBasedCodec extends ProtocolCodec {
 
     @Override
     public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
-        ByteBufAllocator allocator = channel.allocator();
         CharBasedFuture f = (CharBasedFuture) future;
         int writeSize = f.getWriteSize();
         if (writeSize == 0) {
             throw new IOException("null write buffer");
         }
-        ByteBuf buf = allocator.allocate(writeSize + 1);
+        ByteBuf buf = channel.alloc().allocate(writeSize + 1);
         buf.put(f.getWriteBuffer(), 0, writeSize);
         buf.putByte(splitor);
         return buf.flip();

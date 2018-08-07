@@ -24,9 +24,9 @@ public class ClientHttpFuture extends AbstractHttpFuture {
 
     public ClientHttpFuture(String url, HttpMethod method) {
         this.setMethod(method);
-        this.setRequestURL(url);
-        setRequestHeaders(new HashMap<String,String>());
-        setRequestParams(new HashMap<String,String>());
+        this.setRequestURI(url);
+        setRequestHeaders(new HashMap<String, String>());
+        setRequestParams(new HashMap<String, String>());
     }
 
     public ClientHttpFuture(String url) {
@@ -35,51 +35,26 @@ public class ClientHttpFuture extends AbstractHttpFuture {
 
     public ClientHttpFuture(int headerLimit, int bodyLimit) {
         super(headerLimit, bodyLimit);
-        setResponseHeaders(new HashMap<String,String>());
     }
 
     @Override
     public boolean updateWebSocketProtocol(NioSocketChannel channel) {
-        String key = getResponseHeader(HttpHeader.Sec_WebSocket_Accept);
+        String key = getRequestHeader(HttpHeader.Sec_WebSocket_Accept);
         if (StringUtil.isNullOrBlank(key)) {
             return false;
         }
         channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
         return true;
     }
-    
+
     @Override
     void setReadHeader(String name, String value) {
-        setResponseHeader(name, value);
+        setRequestHeader(name, value);
     }
 
     @Override
     String getReadHeader(String name) {
-        return getResponseHeader(name);
-    }
-    
-    @Override
-    public void setResponseHeader(String name, String value) {
-        if (StringUtil.isNullOrBlank(name)) {
-            return;
-        }
-        String _name = HEADER_LOW_MAPPING.get(name);
-        if (_name == null) {
-            _name = name.toLowerCase();
-        }
-        super.setResponseHeader(_name, value);
-    }
-    
-    @Override
-    public String getResponseHeader(String name) {
-        if (StringUtil.isNullOrBlank(name)) {
-            return null;
-        }
-        String _name = HEADER_LOW_MAPPING.get(name);
-        if (_name == null) {
-            _name = name.toLowerCase();
-        }
-        return super.getResponseHeader(_name);
+        return getRequestHeader(name);
     }
 
     @Override
@@ -102,10 +77,10 @@ public class ClientHttpFuture extends AbstractHttpFuture {
     }
 
     @Override
-    protected void parseFirstLine(String line) {
-        int index = line.indexOf(' ');
+    protected void parseFirstLine(StringBuilder line) {
+        int index = StringUtil.indexOf(line, ' ');
         int status = Integer.parseInt(line.substring(index + 1, index + 4));
-        setVersion(HttpVersion.getVersion(line.substring(0, index)));
+        setVersion(HttpVersion.HTTP1_1);
         setStatus(HttpStatus.getStatus(status));
     }
 

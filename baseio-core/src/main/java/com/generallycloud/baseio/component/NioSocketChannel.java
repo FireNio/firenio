@@ -58,7 +58,6 @@ public final class NioSocketChannel extends AttributesImpl
     private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
     private static final Logger                 logger               = LoggerFactory
             .getLogger(NioSocketChannel.class);
-    private final ByteBufAllocator              allocator;
     private final SocketChannel                 channel;
     private final String                        desc;
     private final Integer                       channelId;
@@ -95,7 +94,6 @@ public final class NioSocketChannel extends AttributesImpl
         this.channelId = channelId;
         this.selectionKey = selectionKey;
         this.enableSsl = context.isEnableSsl();
-        this.allocator = eventLoop.allocator();
         this.protocolCodec = context.getProtocolCodec();
         this.maxWriteBacklog = context.getMaxWriteBacklog();
         this.currentWriteBufs = new ByteBuf[group.getWriteBuffers()];
@@ -112,10 +110,10 @@ public final class NioSocketChannel extends AttributesImpl
         this.remoteAddrPort = remoteAddr + ":" + remotePort;
         this.localAddr = local.getAddress().getHostAddress();
         this.localPort = local.getPort();
-        this.desc = new StringBuilder("[Id(0x")
-                .append(StringUtil.getZeroString(8 - idhex.length())).append(idhex).append(")R/")
-                .append(getRemoteAddr()).append(":").append(getRemotePort()).append("; L:")
-                .append(getLocalPort()).append("]").toString();
+        this.desc = new StringBuilder("[Id(0x").append(StringUtil.getZeroString(8 - idhex.length()))
+                .append(idhex).append(")R/").append(getRemoteAddr()).append(":")
+                .append(getRemotePort()).append("; L:").append(getLocalPort()).append("]")
+                .toString();
         if (context.isEnableSsl()) {
             this.sslEngine = context.getSslContext().newEngine(remoteAddr, remotePort);
         } else {
@@ -126,7 +124,7 @@ public final class NioSocketChannel extends AttributesImpl
     private void accept(ByteBuf src) throws Exception {
         final ProtocolCodec codec = this.protocolCodec;
         final IoEventHandle eventHandle = this.ioEventHandle;
-        final ByteBufAllocator allocator = this.allocator;
+        final ByteBufAllocator alloc = alloc();
         final HeartBeatLogger heartBeatLogger = context.getHeartBeatLogger();
         final boolean enableWorkEventLoop = context.isEnableWorkEventLoop();
         try {
@@ -138,7 +136,7 @@ public final class NioSocketChannel extends AttributesImpl
                 if (!future.read(this, src)) {
                     readFuture = future;
                     if (src.hasRemaining()) {
-                        ByteBuf remaining = allocator.allocate(src.remaining());
+                        ByteBuf remaining = alloc.allocate(src.remaining());
                         remaining.read(src);
                         remaining.flip();
                         plainRemainBuf = remaining;
@@ -193,8 +191,8 @@ public final class NioSocketChannel extends AttributesImpl
         });
     }
 
-    public ByteBufAllocator allocator() {
-        return allocator;
+    public ByteBufAllocator alloc() {
+        return eventLoop.alloc();
     }
 
     @Override
@@ -254,7 +252,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public ByteBuf encode(Future future) throws IOException {
-        Assert.notNull(future,"null future");
+        Assert.notNull(future, "null future");
         ByteBuf buf = protocolCodec.encode(this, future);
         future.flush();
         if (enableSsl) {
@@ -653,7 +651,8 @@ public final class NioSocketChannel extends AttributesImpl
             for (;;) {
                 if (!future.read(this, src)) {
                     if (src.hasRemaining()) {
-                        ByteBuf remaining = allocator.allocate(src.remaining());
+                        int remain = src.remaining();
+                        ByteBuf remaining = alloc().allocate(remain);
                         remaining.read(src);
                         remaining.flip();
                         sslRemainBuf = remaining;

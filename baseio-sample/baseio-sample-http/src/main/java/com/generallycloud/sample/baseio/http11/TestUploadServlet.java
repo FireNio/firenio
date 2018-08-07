@@ -18,6 +18,8 @@ package com.generallycloud.sample.baseio.http11;
 import org.springframework.stereotype.Service;
 
 import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpHeader;
+import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
 
@@ -34,7 +36,7 @@ public class TestUploadServlet extends HttpFutureAcceptorService {
         } else {
             res = "yes server already accept your message :) " + future.getRequestParams();
         }
-        future.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
+        future.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
         future.write(res, channel.getEncoding());
         channel.flush(future);
     }

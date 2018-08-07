@@ -37,6 +37,7 @@ import java.util.Vector;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
@@ -81,13 +82,8 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         matchStartWith.addAll(systemMatch);
     }
 
-    private void addResource(URL url, String pathName, String fileName)
+    private void storeResource(URL url, String pathName, String fileName)
             throws DuplicateClassException {
-
-        //		if (resourceMap.containsKey(pathName) && !pathName.equals(".")) {
-        //			throw new DuplicateClassException(pathName);
-        //		}
-
         resourceMap.put(pathName, url);
         List<URL> urls = resourcesMap.get(fileName);
         if (urls == null) {
@@ -240,36 +236,29 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
     @Override
     public synchronized void scan(String file) throws IOException {
-        if (file == null) {
-            throw new IllegalArgumentException("null file");
-        }
-        File root = new File(file);
-        scan0(root);
+        Assert.notNull(file, "null file");
+        scan(new File(file));
     }
 
     @Override
     public synchronized void scan(File file) throws IOException {
-        if (file == null) {
-            throw new IllegalArgumentException("null file");
-        }
-        scan0(file);
+        Assert.notNull(file, "null file");
+        scanFile(file);
     }
 
-    private void scan0(File file) throws IOException {
+    private void scanFile(File file) throws IOException {
         if (!file.exists()) {
             return;
         }
-        this.scanFile(file, "");
-        this.addResource(file, "/.", ".");
+        this.scanFile(file, null);
+        this.scanFile(file, ".", ".");
     }
 
     @Override
     public synchronized void scan(File[] files) throws IOException {
-        if (files == null) {
-            throw new IllegalArgumentException("null files");
-        }
+        Assert.notNull(files, "null files");
         for (File file : files) {
-            scan0(file);
+            scanFile(file);
         }
     }
 
@@ -282,36 +271,37 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         }
         if (file.isDirectory()) {
             File[] files = file.listFiles();
-            for (File _file : files) {
-                scanFile(_file, pathName + "/" + _file.getName());
+            for (File f : files) {
+                if (pathName == null) {
+                    scanFile(f, f.getName());
+                } else {
+                    scanFile(f, pathName + "/" + f.getName());
+                }
             }
-            return;
+        } else {
+            scanFile(file, pathName, file.getName());
         }
-        addResource(file, pathName);
     }
 
-    private void addResource(File file, String pathName) throws IOException {
-        String fileName = file.getName();
-        addResource(file, pathName, fileName);
-    }
-
-    private void addResource(File file, String filePathName, String fileName) throws IOException {
+    private void scanFile(File file, String filePathName, String fileName) throws IOException {
         URL url = file.toURI().toURL();
         if (fileName.endsWith(".jar")) {
             scanZip(file, new JarFile(file));
             addURL(url);
             return;
         }
-        filePathName = filePathName.substring(1);
         if (endWidthClass(filePathName)) {
+            //store class
             ClassEntry classEntry = storeClass(filePathName, url.openStream());
             if (classEntry == null) {
                 return;
             }
             classEntry.codeBase = url;
             return;
+        } else {
+            //store resource
+            storeResource(url, filePathName, fileName);
         }
-        addResource(url, filePathName, fileName);
     }
 
     private void scanZip(File realFile, JarFile file) throws IOException {

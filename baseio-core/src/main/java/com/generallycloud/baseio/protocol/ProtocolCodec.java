@@ -29,20 +29,20 @@ public abstract class ProtocolCodec {
 
     // 可能会遭受一种攻击，比如最大可接收数据为100，客户端传输到99后暂停，
     // 这样多次以后可能会导致内存溢出
-    public abstract Future decode(NioSocketChannel channel, ByteBuf src) throws IOException;
+    public abstract Future decode(NioSocketChannel ch, ByteBuf src) throws IOException;
 
     // 注意：encode失败要release掉encode过程中申请的内存
-    public abstract ByteBuf encode(NioSocketChannel channel, Future future) throws IOException;
+    public abstract ByteBuf encode(NioSocketChannel ch, Future future) throws IOException;
 
     public abstract String getProtocolId();
 
     public void initialize(ChannelContext context) {}
 
-    public Future ping(NioSocketChannel channel) {
+    public Future ping(NioSocketChannel ch) {
         return null;
     }
 
-    public Future pong(NioSocketChannel channel, Future ping) {
+    public Future pong(NioSocketChannel ch, Future ping) {
         return ping.setPong();
     }
 

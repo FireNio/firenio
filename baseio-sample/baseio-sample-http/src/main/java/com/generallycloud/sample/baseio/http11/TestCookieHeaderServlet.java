@@ -42,7 +42,7 @@ public class TestCookieHeaderServlet extends HttpFutureAcceptorService {
         c.setComment("comment");
         c.setMaxAge(999999);
         future.addCookie(c);
-        future.setResponseHeader(name, value);
+        future.setResponseHeader(name.getBytes(), value.getBytes());
         future.write(res, channel.getEncoding());
         channel.flush(future);
     }

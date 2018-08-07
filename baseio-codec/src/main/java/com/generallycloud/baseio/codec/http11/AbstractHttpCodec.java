@@ -15,10 +15,6 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
@@ -51,21 +47,6 @@ public abstract class AbstractHttpCodec extends ProtocolCodec {
             buf.limit(buf.capacity());
         }
         buf.putByte(b);
-    }
-
-    protected void writeHeaders(Map<String, String> headers, ByteBuf buf) {
-        if (headers == null) {
-            return;
-        }
-        Set<Entry<String, String>> hs = headers.entrySet();
-        for (Entry<String, String> header : hs) {
-            writeBuf(buf, header.getKey().getBytes());
-            writeBuf(buf, COLON);
-            writeBuf(buf, SPACE);
-            writeBuf(buf, header.getValue().getBytes());
-            writeBuf(buf, R);
-            writeBuf(buf, N);
-        }
     }
 
 }

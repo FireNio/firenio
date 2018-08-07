@@ -18,7 +18,6 @@ package com.generallycloud.baseio.protocol;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -30,19 +29,11 @@ public abstract class AbstractFuture implements Future {
     private static final byte TYPE_SILENT = 0;
 
     //FIXME isX 使用 byte & x ?
-    private boolean  flushed;
-    private boolean  isSilent;
-    private byte     futureType;
-    protected byte[] writeBuffer;
-    protected int    writeSize;
-
-    protected ByteBuf allocate(NioSocketChannel channel, int capacity) {
-        return channel.allocator().allocate(capacity);
-    }
-
-    protected ByteBuf allocate(NioSocketChannel channel, int capacity, int maxLimit) {
-        return channel.allocator().allocate(capacity, maxLimit);
-    }
+    private boolean flushed;
+    private boolean isSilent;
+    private byte    futureType;
+    private byte[]  writeBuffer;
+    private int     writeSize;
 
     @Override
     public final Future flush() {
@@ -81,8 +72,7 @@ public abstract class AbstractFuture implements Future {
     }
 
     @Override
-    public void release(NioEventLoop eventLoop) {
-    }
+    public void release(NioEventLoop eventLoop) {}
 
     protected Future reset() {
         this.flushed = false;

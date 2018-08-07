@@ -95,8 +95,7 @@ public class ProtobaseCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
-        ByteBufAllocator allocator = channel.allocator();
+    public ByteBuf encode(NioSocketChannel ch, Future future) throws IOException {
         if (future.isSilent()) {
             return future.isPing() ? PING.duplicate() : PONG.duplicate();
         }
@@ -126,7 +125,7 @@ public class ProtobaseCodec extends ProtocolCodec {
             allLen += 4;
             allLen += binaryWriteSize;
         }
-        ByteBuf buf = allocator.allocate(allLen);
+        ByteBuf buf = ch.alloc().allocate(allLen);
         buf.putInt(allLen - 4);
         buf.putByte(h1);
         buf.putByte(f.getFutureType());

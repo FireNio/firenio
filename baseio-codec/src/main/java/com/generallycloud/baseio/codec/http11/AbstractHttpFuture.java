@@ -38,39 +38,40 @@ import com.generallycloud.baseio.protocol.BinaryFuture;
  */
 public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFuture {
 
-    protected static final Map<String, String> HEADER_LOW_MAPPING = HttpHeader.LOW_MAPPING;
-    protected static final KMPUtil             KMP_BOUNDARY       = new KMPUtil("boundary=");
+    protected static final Map<String, String>      HEADER_LOW_MAPPING = HttpHeader.LOW_MAPPING;
 
-    private byte[]                             bodyArray;
-    private int                                bodyLimit;
-    private String                             boundary;
-    private int                                contentLength;
-    private String                             contentType;
-    private List<Cookie>                       cookieList;
-    private Map<String, String>                cookies;
-    private StringBuilder                      currentHeaderLine;
-    private boolean                            hasBodyContent;
-    private boolean                            header_complete;
-    private int                                headerLength;
-    private int                                headerLimit;
-    private String                             host;
-    private HttpMethod                         method;
-    private Map<String, String>                params;
-    private boolean                            parseFirstLine     = true;
-    private String                             readText;
-    private Map<String, String>                request_headers;
-    private String                             requestURI;
-    private Map<String, String>                response_headers;
-    private HttpStatus                         status             = HttpStatus.C200;
-    private HttpVersion                        version;
+    protected static final KMPUtil                  KMP_BOUNDARY       = new KMPUtil("boundary=");
+    private static final ThreadLocal<StringBuilder> stringBuilder      = new ThreadLocal<>();
+
+    private byte[]                                  bodyArray;
+    private int                                     bodyLimit;
+    private String                                  boundary;
+    private int                                     contentLength;
+    private String                                  contentType;
+    private List<Cookie>                            cookieList;
+    private Map<String, String>                     cookies;
+    private StringBuilder                           currentHeaderLine;
+    private boolean                                 hasBodyContent;
+    private boolean                                 header_complete;
+    private int                                     headerLength;
+    private int                                     headerLimit;
+    private String                                  host;
+    private HttpMethod                              method;
+    private Map<String, String>                     params;
+    private boolean                                 parseFirstLine     = true;
+    private String                                  readText;
+    private Map<String, String>                     request_headers;
+    private String                                  requestURI;
+    private Map<byte[], byte[]>                    response_headers;
+    private HttpStatus                              status             = HttpStatus.C200;
+    private HttpVersion                             version;
+
+    AbstractHttpFuture() {}
 
     public AbstractHttpFuture(int headerLimit, int bodyLimit) {
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
-        this.currentHeaderLine = new StringBuilder();
     }
-
-    AbstractHttpFuture() {}
 
     @Override
     public void addCookie(Cookie cookie) {
@@ -78,6 +79,20 @@ public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFut
             cookieList = new ArrayList<>();
         }
         cookieList.add(cookie);
+    }
+
+    protected void clear(Collection<?> coll) {
+        if (coll == null) {
+            return;
+        }
+        coll.clear();
+    }
+
+    protected void clear(Map<?, ?> map) {
+        if (map == null) {
+            return;
+        }
+        map.clear();
     }
 
     @Override
@@ -128,6 +143,8 @@ public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFut
         return method;
     }
 
+    abstract String getReadHeader(String name);
+
     @Override
     public String getReadText() {
         return readText;
@@ -143,10 +160,6 @@ public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFut
             _name = name.toLowerCase();
         }
         return request_headers.get(_name);
-    }
-
-    public String getResponseHeader(String name) {
-        return response_headers.get(name);
     }
 
     @Override
@@ -170,7 +183,7 @@ public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFut
     }
 
     @Override
-    public Map<String, String> getResponseHeaders() {
+    public Map<byte[], byte[]> getResponseHeaders() {
         return response_headers;
     }
 
@@ -233,7 +246,7 @@ public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFut
 
     protected abstract void parseContentType(String contentType);
 
-    protected abstract void parseFirstLine(String line);
+    protected abstract void parseFirstLine(StringBuilder line);
 
     protected void parseParamString(String paramString) {
         boolean findKey = true;
@@ -314,6 +327,10 @@ public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFut
 
     private void readHeader(ByteBuf buffer) throws IOException {
         StringBuilder currentHeaderLine = this.currentHeaderLine;
+        if (currentHeaderLine == null) {
+            currentHeaderLine = getCacheStringBuilder();
+            currentHeaderLine.setLength(0);
+        }
         for (; buffer.hasRemaining();) {
             if (++headerLength > headerLimit) {
                 throw new IOException("max http header length " + headerLimit);
@@ -324,17 +341,16 @@ public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFut
                     header_complete = true;
                     break;
                 } else {
-                    String line = currentHeaderLine.toString();
                     if (parseFirstLine) {
                         parseFirstLine = false;
-                        parseFirstLine(line);
+                        parseFirstLine(currentHeaderLine);
                     } else {
-                        int p = line.indexOf(":");
+                        int p = StringUtil.indexOf(currentHeaderLine, ':');
                         if (p == -1) {
                             continue;
                         }
-                        String name = line.substring(0, p).trim();
-                        String value = line.substring(p + 1).trim();
+                        String name = currentHeaderLine.substring(0, p).trim();
+                        String value = currentHeaderLine.substring(p + 1).trim();
                         setReadHeader(name, value);
                     }
                     currentHeaderLine.setLength(0);
@@ -346,102 +362,12 @@ public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFut
                 currentHeaderLine.append((char) b);
             }
         }
-    }
-
-    abstract void setReadHeader(String name, String value);
-
-    abstract String getReadHeader(String name);
-
-    @Override
-    public void setRequestHeader(String name, String value) {
-        if (StringUtil.isNullOrBlank(name)) {
-            return;
+        if (!header_complete) {
+            if (this.currentHeaderLine == null) {
+                this.currentHeaderLine = new StringBuilder(currentHeaderLine.length() + 32);
+                this.currentHeaderLine.append(currentHeaderLine);
+            }
         }
-        String _name = HEADER_LOW_MAPPING.get(name);
-        if (_name == null) {
-            _name = name.toLowerCase();
-        }
-        request_headers.put(_name, value);
-    }
-
-    @Override
-    public void setRequestHeaders(Map<String, String> headers) {
-        this.request_headers = headers;
-    }
-
-    @Override
-    public void setRequestParams(Map<String, String> params) {
-        this.params = params;
-    }
-
-    @Override
-    public void setRequestURL(String url) {
-        int index = url.indexOf("?");
-        if (index > -1) {
-            String paramString = url.substring(index + 1, url.length());
-            parseParamString(paramString);
-            requestURI = url.substring(0, index);
-        } else {
-            this.requestURI = url;
-        }
-    }
-
-    @Override
-    public void setResponseHeader(String name, String value) {
-        response_headers.put(name, value);
-    }
-
-    @Override
-    public void setResponseHeaders(Map<String, String> headers) {
-        this.response_headers = headers;
-    }
-
-    @Override
-    public void setReuestParam(String key, String value) {
-        if (params == null) {
-            params = new HashMap<>();
-        }
-        this.params.put(key, value);
-    }
-
-    @Override
-    public void setStatus(HttpStatus status) {
-        this.status = status;
-    }
-
-    @Override
-    public String toString() {
-        return getRequestURI();
-    }
-
-    protected void setMethod(HttpMethod method) {
-        this.method = method;
-    }
-
-    protected void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    protected void setBoundary(String boundary) {
-        this.boundary = boundary;
-    }
-
-    protected void setVersion(HttpVersion version) {
-        this.version = version;
-    }
-
-    protected void clear(Collection<?> coll) {
-        if (coll == null) {
-            return;
-        }
-        coll.clear();
-    }
-
-    protected void clear(Map<?, ?> map) {
-        if (map == null) {
-            return;
-        }
-        map.clear();
     }
 
     protected HttpFuture reset() {
@@ -479,6 +405,87 @@ public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFut
         }
         super.reset();
         return this;
+    }
+
+    protected void setBoundary(String boundary) {
+        this.boundary = boundary;
+    }
+
+    protected void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    protected void setMethod(HttpMethod method) {
+        this.method = method;
+    }
+
+    abstract void setReadHeader(String name, String value);
+
+    @Override
+    public void setRequestHeader(String name, String value) {
+        if (StringUtil.isNullOrBlank(name)) {
+            return;
+        }
+        String _name = HEADER_LOW_MAPPING.get(name);
+        if (_name == null) {
+            _name = name.toLowerCase();
+        }
+        request_headers.put(_name, value);
+    }
+
+    @Override
+    public void setRequestHeaders(Map<String, String> headers) {
+        this.request_headers = headers;
+    }
+
+    @Override
+    public void setRequestParams(Map<String, String> params) {
+        this.params = params;
+    }
+
+    protected void setRequestURI(String requestURI) {
+        this.requestURI = requestURI;
+    }
+
+    @Override
+    public void setResponseHeader(byte[] name, byte[] value) {
+        response_headers.put(name, value);
+    }
+
+    @Override
+    public void setResponseHeaders(Map<byte[], byte[]> headers) {
+        this.response_headers = headers;
+    }
+
+    @Override
+    public void setReuestParam(String key, String value) {
+        if (params == null) {
+            params = new HashMap<>();
+        }
+        this.params.put(key, value);
+    }
+
+    @Override
+    public void setStatus(HttpStatus status) {
+        this.status = status;
+    }
+
+    protected void setVersion(HttpVersion version) {
+        this.version = version;
+    }
+
+    @Override
+    public String toString() {
+        return getRequestURI();
+    }
+
+    private static StringBuilder getCacheStringBuilder() {
+        StringBuilder cache = stringBuilder.get();
+        if (cache == null) {
+            cache = new StringBuilder(32);
+            stringBuilder.set(cache);
+        }
+        return cache;
     }
 
 }

@@ -41,7 +41,7 @@ public class TestSimpleHttpClient2 {
         host = "generallycloud.com";
         host = "127.0.0.1";
         int port = 443;
-        port = 8080;
+        port = 8087;
 
         HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
         ChannelContext context = new ChannelContext(host, port);

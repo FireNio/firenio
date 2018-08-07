@@ -104,8 +104,8 @@ public class Http2Codec extends ProtocolCodec {
     public static final int     PROTOCOL_PREFACE_HEADER = 24;
     private Http2HeadersEncoder http2HeadersEncoder     = new DefaultHttp2HeadersEncoder();
 
-    private ByteBuf allocate(NioSocketChannel channel, int capacity) {
-        return channel.allocator().allocate(capacity);
+    private ByteBuf allocate(NioSocketChannel ch, int capacity) {
+        return ch.alloc().allocate(capacity);
     }
 
     @Override
@@ -118,8 +118,7 @@ public class Http2Codec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
-        ByteBufAllocator allocator = channel.allocator();
+    public ByteBuf encode(NioSocketChannel ch, Future future) throws IOException {
         Http2Frame frame = (Http2Frame) future;
         Http2FrameType frameType = frame.getHttp2FrameType();
         byte[] payload = null;
@@ -163,7 +162,7 @@ public class Http2Codec extends ProtocolCodec {
                 break;
         }
         int length = payload.length;
-        ByteBuf buf = allocator.allocate(length + PROTOCOL_HEADER);
+        ByteBuf buf = ch.alloc().allocate(length + PROTOCOL_HEADER);
         byte b2 = (byte) ((length & 0xff));
         byte b1 = (byte) ((length >> 8 * 1) & 0xff);
         byte b0 = (byte) ((length >> 8 * 2) & 0xff);

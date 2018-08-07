@@ -18,6 +18,7 @@ package com.generallycloud.baseio.codec.http2.future;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -87,7 +88,8 @@ public class Http2FrameHeaderImpl extends AbstractFuture implements Http2FrameHe
         return frame;
     }
 
-    private SocketHttp2Frame genFrame(NioSocketChannel channel, Http2FrameType type, int length) {
+    private SocketHttp2Frame genFrame(NioSocketChannel ch, Http2FrameType type, int length) {
+        ByteBufAllocator allocator = ch.alloc();
         switch (type) {
             case FRAME_TYPE_CONTINUATION:
                 break;
@@ -96,7 +98,7 @@ public class Http2FrameHeaderImpl extends AbstractFuture implements Http2FrameHe
             case FRAME_TYPE_GOAWAY:
                 break;
             case FRAME_TYPE_HEADERS:
-                return new Http2HeadersFrameImpl(allocate(channel, length), this);
+                return new Http2HeadersFrameImpl(allocator.allocate(length), this);
             case FRAME_TYPE_PING:
                 break;
             case FRAME_TYPE_PRIORITY:
@@ -106,9 +108,9 @@ public class Http2FrameHeaderImpl extends AbstractFuture implements Http2FrameHe
             case FRAME_TYPE_RST_STREAM:
                 break;
             case FRAME_TYPE_SETTINGS:
-                return new Http2SettingsFrameImpl(allocate(channel, length), this);
+                return new Http2SettingsFrameImpl(allocator.allocate(length), this);
             case FRAME_TYPE_WINDOW_UPDATE:
-                return new Http2WindowUpdateFrameImpl(allocate(channel, length), this);
+                return new Http2WindowUpdateFrameImpl(allocator.allocate(length), this);
             default:
                 break;
         }

@@ -44,12 +44,9 @@ public class SslHandler {
         this.dstTemp = initBuf();
     }
 
-    private ByteBuf allocate(NioSocketChannel channel, int capacity) {
-        return channel.allocator().allocate(capacity);
-    }
-
-    public ByteBuf wrap(NioSocketChannel channel, ByteBuf src) throws IOException {
-        SSLEngine engine = channel.getSSLEngine();
+    public ByteBuf wrap(NioSocketChannel ch, ByteBuf src) throws IOException {
+        SSLEngine engine = ch.getSSLEngine();
+        ByteBufAllocator allocator = ch.alloc();
         ByteBuf dst = dstTemp;
         ByteBuf out = null;
         try {
@@ -60,14 +57,14 @@ public class SslHandler {
                 HandshakeStatus handshakeStatus = result.getHandshakeStatus();
                 synchByteBuf(result, src, dst);
                 if (status == Status.CLOSED) {
-                    return gc(channel, dst.flip());
+                    return gc(allocator, dst.flip());
                 }
                 if (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING) {
                     if (src.hasRemaining()) {
                         if (out == null) {
                             int outLength = ((src.limit() / src.position()) + 1)
                                     * (dst.position() - src.position()) + src.limit();
-                            out = allocate(channel, outLength);
+                            out = allocator.allocate(outLength);
                         }
                         out.read(dst.flip());
                         continue;
@@ -76,22 +73,22 @@ public class SslHandler {
                         out.read(dst.flip());
                         return out.flip();
                     }
-                    return gc(channel, dst.flip());
+                    return gc(allocator, dst.flip());
                 } else {
                     if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
                         if (out != null) {
                             out.read(dst.flip());
                             return out.flip();
                         }
-                        return gc(channel, dst.flip());
+                        return gc(allocator, dst.flip());
                     } else if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
                         if (out == null) {
-                            out = allocate(channel, 256);
+                            out = allocator.allocate(256);
                         }
                         out.read(dst.flip());
                         continue;
                     } else if (handshakeStatus == HandshakeStatus.FINISHED) {
-                        ProtectedUtil.finishHandshake(channel,null);
+                        ProtectedUtil.finishHandshake(ch,null);
                         out.read(dst.flip());
                         return out.flip();
                     } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
@@ -110,8 +107,8 @@ public class SslHandler {
     }
 
     //FIXME 部分buf不需要gc
-    private ByteBuf gc(NioSocketChannel channel, ByteBuf buf) throws IOException {
-        ByteBuf out = allocate(channel, buf.limit());
+    private ByteBuf gc(ByteBufAllocator allocator, ByteBuf buf) throws IOException {
+        ByteBuf out = allocator.allocate(buf.limit());
         try {
             out.read(buf);
         } catch (Exception e) {
@@ -177,4 +174,5 @@ public class SslHandler {
             task.run();
         }
     }
+    
 }

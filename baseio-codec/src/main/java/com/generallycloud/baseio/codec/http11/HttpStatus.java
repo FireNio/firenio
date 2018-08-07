@@ -172,15 +172,15 @@ public enum HttpStatus {
 
     private String description;
 
-    private String headerText;
+    private String text;
 
-    private byte[] headerBinary;
+    private byte[] binary;
 
     private HttpStatus(int status, String description, String headerText) {
         this.status = status;
         this.description = description;
-        this.headerText = headerText;
-        this.headerBinary = headerText.getBytes();
+        this.text = headerText;
+        this.binary = headerText.getBytes();
     }
 
     public int getStatus() {
@@ -191,12 +191,12 @@ public enum HttpStatus {
         return description;
     }
 
-    public String getHeaderText() {
-        return headerText;
+    public String getText() {
+        return text;
     }
 
-    public byte[] getHeaderBinary() {
-        return headerBinary;
+    public byte[] getBinary() {
+        return binary;
     }
     
     private static final IntObjectHashMap<HttpStatus> STATUS = new IntObjectHashMap<>();

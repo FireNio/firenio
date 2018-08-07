@@ -23,10 +23,11 @@ import java.util.Map;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
-import com.generallycloud.baseio.codec.http11.HttpHeaderDateFormat;
+import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.codec.http11.HttpStatus;
 import com.generallycloud.baseio.codec.http11.ServerHttpFuture;
 import com.generallycloud.baseio.codec.http11.WebSocketFuture;
+import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
@@ -73,7 +74,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         String ims = f.getRequestHeader(HttpHeader.Low_If_Modified_Since);
         long imsTime = -1;
         if (!StringUtil.isNullOrBlank(ims)) {
-            imsTime = HttpHeaderDateFormat.getFormat().parse(ims).getTime();
+            imsTime = DateUtil.get().parseHttp(ims).getTime();
         }
         if (imsTime < entity.getLastModifyGTMTime()) {
             flush(channel, f, entity);
@@ -123,13 +124,13 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
         builder.append(HtmlUtil.HTML_BOTTOM);
         f.write(builder.toString(), channel.getCharset());
         f.setStatus(HttpStatus.C500);
-        f.setResponseHeader("Content-Type", HttpFuture.CONTENT_TYPE_TEXT_HTML);
+        f.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
         channel.flush(f);
     }
 
     private void flush(NioSocketChannel channel, ServerHttpFuture future, HttpEntity entity) {
-        future.setResponseHeader(HttpHeader.Content_Type, entity.getContentType());
-        future.setResponseHeader(HttpHeader.Last_Modified, entity.getLastModifyGTM());
+        future.setResponseHeader(HttpHeader.Content_Type_Bytes, entity.getContentTypeBytes());
+        future.setResponseHeader(HttpHeader.Last_Modified_Bytes, entity.getLastModifyGTMBytes());
         future.write(entity.getBinary());
         channel.flush(future);
     }

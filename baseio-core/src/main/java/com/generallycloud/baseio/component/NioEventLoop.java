@@ -70,7 +70,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private static final IOException                 NOT_FINISH_CONNECT    = ThrowableUtil
             .unknownStackTrace(new IOException(), SocketChannel.class, "finishConnect(...)");
 
-    private final ByteBufAllocator                   allocator;
+    private final ByteBufAllocator                   alloc;
     private final Map<Object, Object>                attributes            = new HashMap<>();
     private ByteBuf                                  buf;
     private final IntObjectHashMap<NioSocketChannel> channels              = new IntObjectHashMap<>();
@@ -95,7 +95,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         this.index = index;
         this.group = group;
         this.sharable = group.isSharable();
-        this.allocator = group.getAllocatorGroup().getNext();
+        this.alloc = group.getAllocatorGroup().getNext();
         this.rejectedExecutionHandle = group.getRejectedExecutionHandle();
         if (enableSelectionKeySet) {
             this.selectionKeySet = new SelectionKeySet(1024);
@@ -208,8 +208,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    public ByteBufAllocator allocator() {
-        return allocator;
+    public ByteBufAllocator alloc() {
+        return alloc;
     }
 
     @Override

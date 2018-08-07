@@ -22,7 +22,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Future;
@@ -57,9 +56,8 @@ public class ClientHttpCodec extends AbstractHttpCodec {
 
     @Override
     public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
-        ByteBufAllocator allocator = channel.allocator();
         ClientHttpFuture f = (ClientHttpFuture) future;
-        ByteBuf buf = allocator.allocate(256);
+        ByteBuf buf = channel.alloc().allocate(256);
         buf.put(f.getMethod().getBytes());
         buf.putByte(SPACE);
         buf.put(getRequestURI(f).getBytes());
@@ -79,6 +77,20 @@ public class ClientHttpCodec extends AbstractHttpCodec {
         buf.putByte(R);
         buf.putByte(N);
         return buf.flip();
+    }
+
+    private void writeHeaders(Map<String, String> headers, ByteBuf buf) {
+        if (headers == null) {
+            return;
+        }
+        for (Entry<String, String> header : headers.entrySet()) {
+            writeBuf(buf, header.getKey().getBytes());
+            writeBuf(buf, COLON);
+            writeBuf(buf, SPACE);
+            writeBuf(buf, header.getValue().getBytes());
+            writeBuf(buf, R);
+            writeBuf(buf, N);
+        }
     }
 
     @Override
