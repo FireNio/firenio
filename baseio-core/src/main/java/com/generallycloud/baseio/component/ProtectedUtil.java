@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.component;
 
+import java.io.IOException;
+
 import com.generallycloud.baseio.buffer.ByteBuf;
 
 /**
@@ -23,7 +25,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
  */
 public class ProtectedUtil {
 
-    public static void finishHandshake(NioSocketChannel ch, Exception e) {
+    public static void finishHandshake(NioSocketChannel ch, Exception e) throws IOException {
         ch.finishHandshake(e);
     }
 

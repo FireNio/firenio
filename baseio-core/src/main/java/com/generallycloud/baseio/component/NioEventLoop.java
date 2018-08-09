@@ -41,6 +41,7 @@ import javax.net.ssl.SSLHandshakeException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.IntObjectHashMap;
@@ -82,7 +83,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private volatile boolean                         hasTask               = false;
     private final int                                index;
     private long                                     lastIdleTime          = 0;
-    private final RejectedExecutionHandle            rejectedExecutionHandle;
     private final AtomicInteger                      selecting             = new AtomicInteger();
     private final SelectionKeySet                    selectionKeySet;
     private Selector                                 selector;
@@ -96,7 +96,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         this.group = group;
         this.sharable = group.isSharable();
         this.alloc = group.getAllocatorGroup().getNext();
-        this.rejectedExecutionHandle = group.getRejectedExecutionHandle();
         if (enableSelectionKeySet) {
             this.selectionKeySet = new SelectionKeySet(1024);
         } else {
@@ -113,23 +112,25 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         if (attach instanceof NioSocketChannel) {
             final NioSocketChannel ch = (NioSocketChannel) attach;
             final int readyOps = key.readyOps();
+            boolean writeComplete = true;
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                 try {
-                    ch.write();
+                    writeComplete = ch.write(key.interestOps());
                 } catch (Throwable e) {
                     logger.error(e.getMessage() + ch, e);
                     ch.close();
                 }
-                return;
             }
             //FIXME 观察这里不写完不让读的模式是否可行
-            try {
-                ch.read(buf);
-            } catch (Throwable e) {
-                logger.error(e.getMessage() + ch, e);
-                ch.close();
-                if (e instanceof SSLHandshakeException) {
-                    finishConnect(ch, ch.getContext(), e);
+            if (writeComplete && (readyOps & SelectionKey.OP_READ) != 0) {
+                try {
+                    ch.read(buf);
+                } catch (Throwable e) {
+                    logger.error(e.getMessage() + ch, e);
+                    ch.close();
+                    if (e instanceof SSLHandshakeException) {
+                        finishConnect(ch, ch.getContext(), e);
+                    }
                 }
             }
         } else {
@@ -285,7 +286,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     public void dispatch(Runnable event) {
         events.offer(event);
         if (!isRunning() && events.remove(event)) {
-            rejectedExecutionHandle.reject(this, event);
+            group.getRejectedExecutionHandle().reject(this, event);
             return;
         }
         wakeup();
@@ -294,7 +295,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     public void dispatchAfterLoop(Runnable event) {
         events.offer(event);
         if (!isRunning() && events.remove(event)) {
-            rejectedExecutionHandle.reject(this, event);
+            group.getRejectedExecutionHandle().reject(this, event);
         }
     }
 
@@ -459,29 +460,35 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
 
     private void registChannel(SocketChannel javaChannel, NioEventLoop eventLoop,
             ChannelContext context, int channelId) {
-        NioSocketChannel channel = null;
+        NioSocketChannel ch = null;
         try {
             SelectionKey sk = javaChannel.register(eventLoop.selector, SelectionKey.OP_READ);
             // 绑定SocketChannel到SelectionKey
-            channel = (NioSocketChannel) sk.attachment();
-            if (channel != null) {
-                CloseUtil.close(channel);
+            ch = (NioSocketChannel) sk.attachment();
+            if (ch != null) {
+                ch.close();
             }
-            channel = new NioSocketChannel(eventLoop, sk, context, channelId);
-            sk.attach(channel);
-            // fire channel open event
-            channel.fireOpend();
-            if (!channel.isEnableSsl()) {
-                finishConnect(channel, channel.getContext(), null);
+            ch = new NioSocketChannel(eventLoop, sk, context, channelId);
+            sk.attach(ch);
+            putChannel(ch);
+            if (ch.isEnableSsl()) {
+                // fire open event later
+                if (context.getSslContext().isClient()) {
+                    ch.flush(ch.sslHandler().wrap(ch, EmptyByteBuf.get()));
+                }
+            }else{
+                // fire open event when plain channel
+                ch.fireOpend();
+                finishConnect(ch, ch.getContext(), null);
             }
         } catch (ClosedChannelException e) {
             logger.error(e.getMessage(), e);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            if (!channel.isEnableSsl()) {
-                finishConnect(channel, channel.getContext(), e);
+            if (!ch.isEnableSsl()) {
+                finishConnect(ch, ch.getContext(), e);
             }
-            CloseUtil.close(channel);
+            CloseUtil.close(ch);
         }
     }
 

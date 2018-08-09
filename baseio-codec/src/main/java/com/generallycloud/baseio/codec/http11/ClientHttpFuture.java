@@ -35,6 +35,7 @@ public class ClientHttpFuture extends AbstractHttpFuture {
 
     public ClientHttpFuture(int headerLimit, int bodyLimit) {
         super(headerLimit, bodyLimit);
+        setRequestHeaders(new HashMap<String, String>());
     }
 
     @Override
