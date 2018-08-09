@@ -64,7 +64,7 @@ public class TestUndertow {
                         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
                         exchange.getResponseSender().send("Hello World");
                     }
-                }).build();
+                }).setIoThreads(2).build();
         server.start();
     }
 

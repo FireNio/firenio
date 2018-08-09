@@ -36,6 +36,9 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
     }
 
     protected AbstractEventLoopGroup(String eventLoopName, int eventLoopSize) {
+        if (eventLoopSize < 1) {
+            eventLoopSize = 1;
+        }
         this.eventLoopName = eventLoopName;
         this.eventLoopSize = eventLoopSize;
     }

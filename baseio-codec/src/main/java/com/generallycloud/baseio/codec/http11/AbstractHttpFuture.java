@@ -39,7 +39,6 @@ import com.generallycloud.baseio.protocol.BinaryFuture;
 public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFuture {
 
     protected static final Map<String, String>      HEADER_LOW_MAPPING = HttpHeader.LOW_MAPPING;
-
     protected static final KMPUtil                  KMP_BOUNDARY       = new KMPUtil("boundary=");
     private static final ThreadLocal<StringBuilder> stringBuilder      = new ThreadLocal<>();
 
@@ -329,7 +328,6 @@ public abstract class AbstractHttpFuture extends BinaryFuture implements HttpFut
         StringBuilder currentHeaderLine = this.currentHeaderLine;
         if (currentHeaderLine == null) {
             currentHeaderLine = getCacheStringBuilder();
-            currentHeaderLine.setLength(0);
         }
         for (; buffer.hasRemaining();) {
             if (++headerLength > headerLimit) {

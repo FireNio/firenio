@@ -42,15 +42,14 @@ public class TestHttpLoadServer {
 
         };
 
-        int core = 4;
-        NioEventLoopGroup group = new NioEventLoopGroup(core);
-        group.setMemoryPoolCapacity(1024 * 256 / core);
+        NioEventLoopGroup group = new NioEventLoopGroup();
+        group.setMemoryPoolCapacity(1024 * 64);
         group.setMemoryPoolUnit(512);
         group.setEnableMemoryPoolDirect(true);
         group.setEnableMemoryPool(true);
         ChannelContext context = new ChannelContext(8087);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
-        context.setProtocolCodec(new ServerHttpCodec(0));
+        context.setProtocolCodec(new ServerHttpCodec(4));
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
 

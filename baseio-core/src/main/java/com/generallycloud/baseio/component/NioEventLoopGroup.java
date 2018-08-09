@@ -53,7 +53,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private int                   writeBuffers           = 16;
 
     public NioEventLoopGroup() {
-        this(Runtime.getRuntime().availableProcessors() * 2);
+        this(Runtime.getRuntime().availableProcessors() / 2);
     }
 
     public NioEventLoopGroup(int eventLoopSize) {

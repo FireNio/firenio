@@ -22,9 +22,9 @@ import com.generallycloud.baseio.component.NioEventLoopGroup;
 public class PooledByteBufAllocatorGroup extends AbstractLifeCycle
         implements ByteBufAllocatorGroup {
 
-    private PooledByteBufAllocator[] allocators = null;
-    private PooledByteBufAllocator   allocator  = null;
-    private NioEventLoopGroup   group;
+    private PooledByteBufAllocator[] allocators;
+    private PooledByteBufAllocator   allocator;
+    private NioEventLoopGroup        group;
 
     public PooledByteBufAllocatorGroup(NioEventLoopGroup group) {
         this.group = group;
@@ -34,14 +34,13 @@ public class PooledByteBufAllocatorGroup extends AbstractLifeCycle
     protected void doStart() throws Exception {
         if (allocators == null) {
             int core = group.getEventLoopSize();
-            int capacity = group.getMemoryPoolCapacity();
-            int unitMemorySize = group.getMemoryPoolUnit();
-            int bufRecycleSize = group.getBufRecycleSize();
+            int cap = group.getMemoryPoolCapacity();
+            int unit = group.getMemoryPoolUnit();
+            int recycle = group.getBufRecycleSize();
             boolean direct = group.isEnableMemoryPoolDirect();
             this.allocators = new PooledByteBufAllocator[core];
             for (int i = 0; i < allocators.length; i++) {
-                allocators[i] = new SimpleByteBufAllocator(capacity, unitMemorySize, bufRecycleSize,
-                        direct);
+                allocators[i] = new SimpleByteBufAllocator(cap, unit, recycle, direct);
             }
         }
         PooledByteBufAllocator first = allocators[0];
