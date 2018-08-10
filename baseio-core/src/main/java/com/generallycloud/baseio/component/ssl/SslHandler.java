@@ -29,52 +29,70 @@ import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ProtectedUtil;
+import static com.generallycloud.baseio.component.ssl.SslContext.SSL_PACKET_BUFFER_SIZE;
 
 public class SslHandler {
 
     private final ByteBuf dstTemp;
 
-    private ByteBuf initBuf() {
+    public SslHandler() {
         ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
-        int packetBufferSize = SslContext.SSL_PACKET_BUFFER_SIZE;
-        return allocator.allocate(packetBufferSize * 2);
+        this.dstTemp = allocator.allocate(SSL_PACKET_BUFFER_SIZE);
     }
 
-    public SslHandler() {
-        this.dstTemp = initBuf();
+    //FIXME not correct ,fix this
+    private int guessWrapOut(int src, int ext) {
+        return (((src + 1) / SSL_PACKET_BUFFER_SIZE) + 2) * (SSL_PACKET_BUFFER_SIZE + ext);
     }
 
     public ByteBuf wrap(NioSocketChannel ch, ByteBuf src) throws IOException {
         SSLEngine engine = ch.getSSLEngine();
         ByteBufAllocator allocator = ch.alloc();
-        ByteBuf dst = dstTemp;
         ByteBuf out = null;
         try {
-            for (;;) {
-                dst.clear();
-                SSLEngineResult result = engine.wrap(src.nioBuffer(), dst.nioBuffer());
-                Status status = result.getStatus();
-                HandshakeStatus handshakeStatus = result.getHandshakeStatus();
-                synchByteBuf(result, src, dst);
-                if (status == Status.CLOSED) {
-                    return gc(allocator, dst.flip());
+            if (ProtectedUtil.isSslHandshakeFinished(ch)) {
+                byte sslWrapExt = ProtectedUtil.getSslWrapExt(ch);
+                if (sslWrapExt == 0) {
+                    out = allocator.allocate(guessWrapOut(src.limit(), 0xff));
+                } else {
+                    out = allocator.allocate(guessWrapOut(src.limit(), sslWrapExt & 0xff));
                 }
-                if (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING) {
-                    if (src.hasRemaining()) {
-                        if (out == null) {
-                            int outLength = ((src.limit() / src.position()) + 1)
-                                    * (dst.position() - src.position()) + src.limit();
-                            out = allocator.allocate(outLength);
-                        }
-                        out.read(dst.flip());
+                for (;;) {
+                    SSLEngineResult result = engine.wrap(src.nioBuffer(), out.nioBuffer());
+                    Status status = result.getStatus();
+                    HandshakeStatus handshakeStatus = result.getHandshakeStatus();
+                    synchByteBuf(result, src, out);
+                    if (status == Status.CLOSED) {
+                        return out.flip();
+                    } else if (status == Status.BUFFER_OVERFLOW) {
+                        out.reallocate(out.capacity() + (out.capacity() >> 1), true);
                         continue;
                     }
-                    if (out != null) {
-                        out.read(dst.flip());
+                    if (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING) {
+                        if (src.hasRemaining()) {
+                            continue;
+                        }
+                        if (sslWrapExt == 0) {
+                            int srcLen = src.limit();
+                            int outLen = out.position();
+                            int y = ((srcLen + 1) / SSL_PACKET_BUFFER_SIZE) + 1;
+                            int u = (outLen - srcLen) / y;
+                            ProtectedUtil.setSslWrapExt(ch, (byte) u);
+                        }
                         return out.flip();
                     }
-                    return gc(allocator, dst.flip());
-                } else {
+                }
+            } else {
+                ByteBuf dst = dstTemp;
+                for (;;) {
+                    dst.clear();
+                    SSLEngineResult result = engine.wrap(src.nioBuffer(), dst.nioBuffer());
+                    Status status = result.getStatus();
+                    HandshakeStatus handshakeStatus = result.getHandshakeStatus();
+                    synchByteBuf(result, src, dst);
+                    if (status == Status.CLOSED) {
+                        return gc(allocator, dst.flip());
+                    }
                     if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
                         if (out != null) {
                             out.read(dst.flip());
@@ -88,9 +106,12 @@ public class SslHandler {
                         out.read(dst.flip());
                         continue;
                     } else if (handshakeStatus == HandshakeStatus.FINISHED) {
-                        ProtectedUtil.finishHandshake(ch,null);
-                        out.read(dst.flip());
-                        return out.flip();
+                        ProtectedUtil.finishHandshake(ch, null);
+                        if (out != null) {
+                            out.read(dst.flip());
+                            return out.flip();
+                        }
+                        return gc(allocator, dst.flip());
                     } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
                         runDelegatedTasks(engine);
                         continue;
@@ -118,29 +139,29 @@ public class SslHandler {
         return out.flip();
     }
 
-    public ByteBuf unwrap(NioSocketChannel channel, ByteBuf src) throws IOException {
-        SSLEngine sslEngine = channel.getSSLEngine();
+    public ByteBuf unwrap(NioSocketChannel ch, ByteBuf src) throws IOException {
+        SSLEngine sslEngine = ch.getSSLEngine();
         ByteBuf dst = dstTemp;
-        for (;;) {
+        if (ProtectedUtil.isSslHandshakeFinished(ch)) {
             dst.clear();
-            if (sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING) {
-                ProtectedUtil.readPlainRemainingBuf(channel, dst);
-            }
+            ProtectedUtil.readPlainRemainingBuf(ch, dst);
             SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
-            HandshakeStatus handshakeStatus = result.getHandshakeStatus();
-            if (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING) {
-                synchByteBuf(result, src, dst);
-                return dst.flip();
-            } else {
+            synchByteBuf(result, src, dst);
+            return dst.flip();
+        } else {
+            for (;;) {
+                dst.clear();
+                SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
+                HandshakeStatus handshakeStatus = result.getHandshakeStatus();
                 synchByteBuf(result, src, dst);
                 if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
-                    channel.flush(wrap(channel, EmptyByteBuf.get()));
+                    ch.flush(wrap(ch, EmptyByteBuf.get()));
                     return null;
                 } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
                     runDelegatedTasks(sslEngine);
                     continue;
                 } else if (handshakeStatus == HandshakeStatus.FINISHED) {
-                    ProtectedUtil.finishHandshake(channel,null);
+                    ProtectedUtil.finishHandshake(ch, null);
                     return null;
                 } else if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
                     return null;
@@ -174,5 +195,5 @@ public class SslHandler {
             task.run();
         }
     }
-    
+
 }

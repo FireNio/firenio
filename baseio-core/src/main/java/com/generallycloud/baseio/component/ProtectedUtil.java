@@ -29,12 +29,24 @@ public class ProtectedUtil {
         ch.finishHandshake(e);
     }
 
+    public static boolean isSslHandshakeFinished(NioSocketChannel ch) {
+        return ch.isSslHandshakeFinished();
+    }
+
     public static void readPlainRemainingBuf(NioSocketChannel ch, ByteBuf dst) {
         ch.readPlainRemainingBuf(dst);
     }
 
     public static void readSslPlainRemainingBuf(NioSocketChannel ch, ByteBuf dst) {
         ch.readSslPlainRemainingBuf(dst);
+    }
+    
+    public static byte getSslWrapExt(NioSocketChannel ch) {
+        return ch.getSslWrapExt();
+    }
+
+    public static void setSslWrapExt(NioSocketChannel ch,byte sslWrapExt) {
+        ch.setSslWrapExt(sslWrapExt);
     }
 
 }
