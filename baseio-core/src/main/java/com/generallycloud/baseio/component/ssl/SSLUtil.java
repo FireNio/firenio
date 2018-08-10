@@ -31,6 +31,8 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class SSLUtil {
+    
+    public static final String ENABLE_OPENSSL_SYS_KEY = "com.generallycloud.baseio.ssl.enableOpenSsl";
 
     private static boolean ENABLE_SSL = false;
 

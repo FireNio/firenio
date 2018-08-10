@@ -106,7 +106,7 @@ public abstract class AbstractEventLoop implements EventLoop {
             this.stopped = false;
             this.monitor = new FastThreadLocalThread(this, threadName);
             this.doStartup();
-            LoggerUtil.prettyLog(logger, "event looper {} inited", this);
+            LoggerUtil.prettyLog(logger, "loaded [ {} ]", this);
             EventLoopListener listener = getGroup().getEventLoopListener();
             if (listener != null) {
                 listener.onStartup(this);

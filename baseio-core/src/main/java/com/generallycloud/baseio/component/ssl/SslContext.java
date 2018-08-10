@@ -34,7 +34,7 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public final class SslContext {
-
+    
     static final Logger       logger = LoggerFactory.getLogger(SslContext.class);
     static final boolean      openSslAvailable;
     static final List<String> ENABLED_CIPHERS;
@@ -50,8 +50,7 @@ public final class SslContext {
         }
         boolean testOpenSsl = false;
         try {
-            String enableOpenSsl = System
-                    .getProperty("com.generallycloud.baseio.ssl.enableOpenSsl");
+            String enableOpenSsl = System.getProperty(SSLUtil.ENABLE_OPENSSL_SYS_KEY);
             if ("true".equals(enableOpenSsl)) {
                 Class.forName("org.wildfly.openssl.OpenSSLProvider");
                 org.wildfly.openssl.OpenSSLProvider.register();

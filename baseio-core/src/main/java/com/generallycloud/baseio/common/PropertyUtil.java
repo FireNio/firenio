@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.sample.baseio.http11.startup;
-
-import com.generallycloud.baseio.common.PropertyUtil;
-import com.generallycloud.baseio.component.ssl.SSLUtil;
-import com.generallycloud.baseio.container.http11.HttpStartup;
+package com.generallycloud.baseio.common;
 
 /**
  * @author wangkai
  *
  */
-public class TestHttpStartup {
-
-    public static void main(String[] args) throws Exception {
-        
-        PropertyUtil.setSystemPropertiesIfNull(SSLUtil.ENABLE_OPENSSL_SYS_KEY, "false");
-
-        HttpStartup.main(args);
+public class PropertyUtil {
+    
+    public static void setSystemPropertiesIfNull(String key, String value) {
+        String pro = System.getProperty(key);
+        if (StringUtil.isNullOrBlank(pro)) {
+            System.setProperty(key, value);
+        }
     }
 
 }

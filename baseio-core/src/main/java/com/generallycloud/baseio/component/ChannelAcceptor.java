@@ -67,10 +67,10 @@ public class ChannelAcceptor implements ChannelService {
         Assert.notNull(context, "null context");
         Assert.notNull(group, "null group");
         this.group.setEnableSsl(context.isEnableSsl());
-        LifeCycleUtil.stop(getContext());
-        LifeCycleUtil.start(group);
         this.context.setChannelService(this);
+        LifeCycleUtil.stop(getContext());
         LifeCycleUtil.start(getContext());
+        LifeCycleUtil.start(group);
         this.serverAddress = new InetSocketAddress(context.getPort());
         this.selectableChannel = ServerSocketChannel.open();
         this.selectableChannel.configureBlocking(false);

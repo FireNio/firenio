@@ -31,6 +31,7 @@ import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
+import com.generallycloud.baseio.common.PropertyUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
@@ -42,14 +43,17 @@ import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public final class ChannelContext extends AbstractLifeCycle {
-
+    
     private Map<Object, Object>            attributes         = new HashMap<>();
+    private List<ChannelEventListener>     cels               = new ArrayList<>();
     private String                         certCrt;
     private String                         certKey;
     private ChannelManager                 channelManager     = new ChannelManager();
     private ChannelService                 channelService;
     private Charset                        charset            = Encoding.UTF8;
+    private List<ChannelIdleEventListener> ciels              = new ArrayList<>();
     private boolean                        enableHeartbeatLog = true;
+    private boolean                        enableOpenSsl;
     private boolean                        enableSsl;
     //是否启用work event loop，如果启用，则future在work event loop中处理
     private boolean                        enableWorkEventLoop;
@@ -63,8 +67,6 @@ public final class ChannelContext extends AbstractLifeCycle {
     private NioEventLoopGroup              nioEventLoopGroup;
     private int                            port;
     private ProtocolCodec                  protocolCodec;
-    private List<ChannelEventListener>     cels               = new ArrayList<>();
-    private List<ChannelIdleEventListener> ciels              = new ArrayList<>();
     private SslContext                     sslContext;
     private String                         sslKeystore;
     private long                           startupTime        = System.currentTimeMillis();
@@ -99,6 +101,18 @@ public final class ChannelContext extends AbstractLifeCycle {
             throw new UnsupportedOperationException("already running");
         }
     }
+    
+    private String sslType(){
+        if (enableSsl) {
+            if ("true".equals(System.getProperty(SSLUtil.ENABLE_OPENSSL_SYS_KEY))) {
+                return "openssl";
+            }else{
+                return "jdkssl";
+            }
+        }else{
+            return "false";
+        }
+    }
 
     @Override
     protected void doStart() throws Exception {
@@ -116,7 +130,7 @@ public final class ChannelContext extends AbstractLifeCycle {
         LoggerUtil.prettyLog(logger, "charset               :{ {} }", charset);
         LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
         LoggerUtil.prettyLog(logger, "event loop size       :{ {} }", eventLoopSize);
-        LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", isEnableSsl());
+        LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", sslType());
         LoggerUtil.prettyLog(logger, "channel idle          :{ {} }", g.getIdleTime());
         LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", port);
         if (g.isEnableMemoryPool()) {
@@ -260,6 +274,9 @@ public final class ChannelContext extends AbstractLifeCycle {
 
     private void initSslContext(ClassLoader classLoader) throws IOException {
         if (isEnableSsl() && getSslContext() == null) {
+            if (enableOpenSsl) {
+                PropertyUtil.setSystemPropertiesIfNull(SSLUtil.ENABLE_OPENSSL_SYS_KEY, "true");
+            }
             if (!StringUtil.isNullOrBlank(getCertCrt())) {
                 File certificate = FileUtil.readFileByCls(getCertCrt(), classLoader);
                 File privateKey = FileUtil.readFileByCls(getCertKey(), classLoader);
@@ -283,6 +300,10 @@ public final class ChannelContext extends AbstractLifeCycle {
 
     public boolean isEnableHeartbeatLog() {
         return enableHeartbeatLog;
+    }
+
+    public boolean isEnableOpenSsl() {
+        return enableOpenSsl;
     }
 
     public boolean isEnableSsl() {
@@ -326,6 +347,11 @@ public final class ChannelContext extends AbstractLifeCycle {
         this.enableHeartbeatLog = enableHeartbeatLog;
     }
 
+    public void setEnableOpenSsl(boolean enableOpenSsl) {
+        checkNotRunning();
+        this.enableOpenSsl = enableOpenSsl;
+    }
+
     public void setEnableSsl(boolean enableSsl) {
         checkNotRunning();
         this.enableSsl = enableSsl;
@@ -360,7 +386,7 @@ public final class ChannelContext extends AbstractLifeCycle {
         checkNotRunning();
         this.nioEventLoopGroup = nioEventLoopGroup;
     }
-
+    
     public void setPort(int port) {
         checkNotRunning();
         this.port = port;
