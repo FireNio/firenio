@@ -74,6 +74,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private final ByteBufAllocator                   alloc;
     private final Map<Object, Object>                attributes            = new HashMap<>();
     private ByteBuf                                  buf;
+    private final boolean                            ignoreIdle;
     private final IntObjectHashMap<NioSocketChannel> channels              = new IntObjectHashMap<>();
     private final int                                channelSizeLimit      = 1024 * 64;
     private ChannelContext                           context;                                             // use when not sharable 
@@ -91,10 +92,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private final AtomicInteger                      wakener               = new AtomicInteger();         // true eventLooper, false offerer
     private ByteBuffer[]                             writeBuffers;
 
-    NioEventLoop(NioEventLoopGroup group, int index) {
+    NioEventLoop(NioEventLoopGroup group, int index, boolean ignoreIdle) {
         this.index = index;
         this.group = group;
         this.sharable = group.isSharable();
+        this.ignoreIdle = ignoreIdle;
         this.alloc = group.getAllocatorGroup().getNext();
         if (enableSelectionKeySet) {
             this.selectionKeySet = new SelectionKeySet(1024);
@@ -368,6 +370,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     public void run() {
         // does it useful to set variables locally 
         final long idle = group.getIdleTime();
+        final boolean ignoreIdle = this.ignoreIdle;
         final Selector selector = this.selector;
         final AtomicInteger selecting = this.selecting;
         final SelectionKeySet keySet = this.selectionKeySet;
@@ -430,12 +433,16 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 }
                 handleEvents(events);
                 long now = System.currentTimeMillis();
-                if (now >= nextIdle) {
-                    channelIdle(now);
-                    nextIdle = now + idle;
+                if (ignoreIdle) {
                     selectTime = idle;
                 } else {
-                    selectTime = nextIdle - now;
+                    if (now >= nextIdle) {
+                        channelIdle(now);
+                        nextIdle = now + idle;
+                        selectTime = idle;
+                    } else {
+                        selectTime = nextIdle - now;
+                    }
                 }
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
@@ -463,7 +470,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         NioSocketChannel ch = null;
         try {
             SelectionKey sk = javaChannel.register(eventLoop.selector, SelectionKey.OP_READ);
-            // 绑定SocketChannel到SelectionKey
             ch = (NioSocketChannel) sk.attachment();
             if (ch != null) {
                 ch.close();
@@ -476,8 +482,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 if (context.getSslContext().isClient()) {
                     ch.flush(ch.sslHandler().wrap(ch, EmptyByteBuf.get()));
                 }
-            }else{
-                // fire open event when plain channel
+            } else {
+                // fire open event immediately when plain channel
                 ch.fireOpend();
                 finishConnect(ch, ch.getContext(), null);
             }

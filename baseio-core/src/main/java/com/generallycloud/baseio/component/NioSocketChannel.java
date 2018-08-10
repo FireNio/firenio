@@ -287,7 +287,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private void fireClosed() {
-        NioSocketChannel channel = this;
+        final NioSocketChannel channel = this;
         eventLoop.removeChannel(channel);
         for (ChannelEventListener l : context.getChannelEventListeners()) {
             try {
@@ -299,9 +299,10 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     protected void fireOpend() throws IOException {
+        final NioSocketChannel channel = this;
         for (ChannelEventListener l : context.getChannelEventListeners()) {
             try {
-                l.channelOpened(this);
+                l.channelOpened(channel);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }

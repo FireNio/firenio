@@ -82,7 +82,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         }
         String name = isAcceptor() ? "nio-acceptor" : "nio-processor";
         this.initializeByteBufAllocator();
-        this.headEventLoop = new NioEventLoop(this, 0);
+        this.headEventLoop = new NioEventLoop(this, 0, true);
         this.headEventLoop.startup(name);
         super.doStart();
     }
@@ -179,7 +179,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     @Override
     protected NioEventLoop newEventLoop(int index) {
         if (acceptor) {
-            return new NioEventLoop(this, index);
+            return new NioEventLoop(this, index, false);
         }
         eventLoops[0] = headEventLoop;
         return headEventLoop;

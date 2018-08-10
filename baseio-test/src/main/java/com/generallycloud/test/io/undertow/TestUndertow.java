@@ -37,7 +37,7 @@ public class TestUndertow {
         FormParserFactory.Builder builder = FormParserFactory.builder();
         builder.setDefaultCharset(Encoding.UTF8.name());
         FormParserFactory formParserFactory = builder.build();
-        Undertow server = Undertow.builder().addHttpListener(8088, "0.0.0.0")
+        Undertow server = Undertow.builder().addHttpListener(8087, "0.0.0.0")
                 .setHandler(new HttpHandler() { //设置HttpHandler回调方法  
 
                     private boolean hasBody(HttpServerExchange exchange) {

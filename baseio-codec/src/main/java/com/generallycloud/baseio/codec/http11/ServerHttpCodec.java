@@ -44,6 +44,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     private int                 websocketLimit           = 1024 * 128;
     private final int           httpFutureStackSize;
     private int                 websocketFutureStackSize = 0;
+//    private static final ThreadLocal<HttpDateBytesHolder> dateBytes = new ThreadLocal<>();
 
     public ServerHttpCodec() {
         this.httpFutureStackSize = 0;
@@ -132,6 +133,21 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         }
     }
     
+    private byte[] getHttpDateBytes(){
+        return DateUtil.get().formatHttpBytes();
+        //        HttpDateBytesHolder h = dateBytes.get();
+        //        if (h == null) {
+        //            h = new HttpDateBytesHolder();
+        //            dateBytes.set(h);
+        //        }
+        //        long now = System.currentTimeMillis();
+        //        if ((now >> 10) != h.time) {
+        //            h.time = now >> 10;
+        //            h.value = DateUtil.get().formatHttpBytes(now);
+        //        }
+        //        return h.value;
+    }
+    
     @Override
     public ByteBuf encode(NioSocketChannel ch, Future readFuture) throws IOException {
         ByteBufAllocator allocator = ch.alloc();
@@ -140,7 +156,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
             ch.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
             ch.setAttribute(WebSocketFuture.CHANNEL_KEY_SERVICE_NAME, f.getFutureName());
         }
-        f.setResponseHeader(HttpHeader.Date_Bytes, DateUtil.get().formatHttpBytes());
+        f.setResponseHeader(HttpHeader.Date_Bytes, getHttpDateBytes());
         byte[] writeBinary = f.getWriteBinary();
         if (writeBinary != null) {
             return encode(ch.alloc(), f, f.getWriteBinarySize(), writeBinary);
@@ -188,6 +204,11 @@ public class ServerHttpCodec extends AbstractHttpCodec {
 
     public void setWebsocketFutureStackSize(int websocketFutureStackSize) {
         this.websocketFutureStackSize = websocketFutureStackSize;
+    }
+    
+    class HttpDateBytesHolder {
+        long time;
+        byte [] value;
     }
 
 }
