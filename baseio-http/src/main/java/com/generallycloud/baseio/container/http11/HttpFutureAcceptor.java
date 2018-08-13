@@ -51,6 +51,30 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     public void accept(NioSocketChannel channel, Future future) throws Exception {
         acceptHtml(channel, (NamedFuture) future);
     }
+    
+    protected void printHtml(NioSocketChannel channel, Future future, String content) {
+        if (channel.isClosed()) {
+            return;
+        }
+        if (future instanceof WebSocketFuture) {
+            future.write(content, channel);
+            channel.flush(future);
+            return;
+        }
+        ServerHttpFuture f = new ServerHttpFuture(channel.getContext());
+        StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
+        builder.append("        <div style=\"margin-left:20px;\">\n");
+        builder.append("            ");
+        builder.append(content);
+        builder.append("            </div>\n");
+        builder.append("        </div>\n");
+        builder.append(HtmlUtil.HTML_POWER_BY);
+        builder.append(HtmlUtil.HTML_BOTTOM);
+        f.write(builder.toString(), channel.getCharset());
+        f.setStatus(HttpStatus.C500);
+        f.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
+        channel.flush(f);
+    }
 
     protected void acceptHtml(NioSocketChannel channel, NamedFuture future) throws IOException {
         HttpEntity entity = htmlCache.get(future.getFutureName());
@@ -60,7 +84,8 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
             f.setStatus(HttpStatus.C404);
             entity = htmlCache.get("/404.html");
             if (entity == null) {
-                throw new IOException("404 page not found");
+                printHtml(channel, future, "404 page not found");
+                return;
             }
         }
         File file = entity.getFile();
@@ -93,17 +118,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
     @Override
     public void exceptionCaught(NioSocketChannel channel, Future future, Exception ex) {
         logger.error(ex.getMessage(), ex);
-        if (channel.isClosed()) {
-            return;
-        }
-        if (future instanceof WebSocketFuture) {
-            future.write(String.valueOf(ex.getMessage()), channel);
-            channel.flush(future);
-            return;
-        }
-        ServerHttpFuture f = new ServerHttpFuture(channel.getContext());
-        StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
-        builder.append("        <div style=\"margin-left:20px;\">\n");
+        StringBuilder builder = new StringBuilder();
         builder.append(
                 "            <div>oops, server threw an inner exception, the stack trace is :</div>\n");
         builder.append("            <div style=\"font-family:serif;color:#5c5c5c;\">\n");
@@ -118,14 +133,7 @@ public class HttpFutureAcceptor extends ContainerIoEventHandle {
             builder.append(e.toString());
             builder.append("</BR>\n");
         }
-        builder.append("            </div>\n");
-        builder.append("        </div>\n");
-        builder.append(HtmlUtil.HTML_POWER_BY);
-        builder.append(HtmlUtil.HTML_BOTTOM);
-        f.write(builder.toString(), channel.getCharset());
-        f.setStatus(HttpStatus.C500);
-        f.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
-        channel.flush(f);
+        printHtml(channel, future, builder.toString());
     }
 
     private void flush(NioSocketChannel channel, ServerHttpFuture future, HttpEntity entity) {

@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.protocol.Future;
 
 /**
@@ -58,24 +57,27 @@ public class ChannelManager {
         broadcast(buf, channels.values());
     }
 
-    public void broadcast(Future future, Collection<NioSocketChannel> channels) throws IOException {
-        if (channels.size() == 0) {
+    public void broadcast(Future future, Collection<NioSocketChannel> chs) throws IOException {
+        if (chs.size() == 0) {
             return;
         }
-        NioSocketChannel channel = channels.iterator().next();
-        broadcast(channel.encode(future), channels);
+        NioSocketChannel ch = chs.iterator().next();
+        if (ch != null) {
+            broadcast(ch.encode(future), chs);
+        }
     }
 
-    public void broadcast(ByteBuf buf, Collection<NioSocketChannel> channels) {
-        if (channels.size() == 0) {
+    public void broadcast(ByteBuf buf, Collection<NioSocketChannel> chs) {
+        if (chs.size() == 0) {
+            buf.release();
             return;
         }
-        try{
-            for (NioSocketChannel ch : channels) {
+        try {
+            for (NioSocketChannel ch : chs) {
                 ch.flush(buf.duplicate());
             }
-        }finally{
-            ReleaseUtil.release(buf);
+        } finally {
+            buf.release();
         }
     }
 
