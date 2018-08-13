@@ -268,6 +268,12 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     }
 
     @Override
+    public ByteBuf markL() {
+        markLimit = memory.limit();
+        return this;
+    }
+
+    @Override
     public ByteBuf markP() {
         memory.mark();
         return this;
@@ -406,6 +412,12 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
         return memory.remaining();
     }
 
+    @Override
+    public ByteBuf resetL() {
+        memory.limit(markLimit);
+        return this;
+    }
+    
     @Override
     public ByteBuf resetP() {
         memory.reset();

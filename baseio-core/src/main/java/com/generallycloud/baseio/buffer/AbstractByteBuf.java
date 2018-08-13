@@ -234,15 +234,4 @@ public abstract class AbstractByteBuf implements ByteBuf {
         return b.toString();
     }
 
-    @Override
-    public ByteBuf markL() {
-        markLimit = limit();
-        return this;
-    }
-    
-    @Override
-    public ByteBuf resetL() {
-        return limit(markLimit);
-    }
-
 }

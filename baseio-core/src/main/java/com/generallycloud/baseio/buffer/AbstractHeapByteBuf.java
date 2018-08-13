@@ -267,6 +267,12 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     }
 
     @Override
+    public ByteBuf markL() {
+        markLimit = limit;
+        return this;
+    }
+
+    @Override
     public ByteBuf markP() {
         markPos = position;
         return this;
@@ -377,6 +383,12 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     @Override
     public int remaining() {
         return limit - position;
+    }
+    
+    @Override
+    public ByteBuf resetL() {
+        limit = markLimit;
+        return this;
     }
 
     @Override

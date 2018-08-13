@@ -620,16 +620,17 @@ public final class NioSocketChannel extends AttributesImpl
         if (src.remaining() < 5) {
             return false;
         }
+        int pos = src.position();
         // SSLv3 or TLS - Check ContentType
-        int type = src.getUnsignedByte(0);
+        int type = src.getUnsignedByte(pos);
         if (type < 20 || type > 23) {
             throw NEITHER_SSLV3_OR_TLS;
         }
         // SSLv3 or TLS - Check ProtocolVersion
-        int majorVersion = src.getUnsignedByte(1);
+        int majorVersion = src.getUnsignedByte(pos + 1);
         // minorVersion
         // int minorVersion = src.getUnsignedByte(2);
-        int packetLength = src.getUnsignedShort(3);
+        int packetLength = src.getUnsignedShort(pos + 3);
         if (majorVersion != 3 || packetLength <= 0) {
             // Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
             throw NEITHER_SSLV3_OR_TLS;
@@ -641,6 +642,8 @@ public final class NioSocketChannel extends AttributesImpl
         if (len > 1024 * 64 - 5) {
             throw SSL_OVER_LIMIT;
         }
+        src.markL();
+        src.limit(pos + len);
         return true;
     }
 
@@ -669,6 +672,7 @@ public final class NioSocketChannel extends AttributesImpl
                     if (res != null) {
                         accept(res);
                     }
+                    src.resetL();
                     if (!src.hasRemaining()) {
                         return;
                     }
