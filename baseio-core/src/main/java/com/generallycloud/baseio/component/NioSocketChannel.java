@@ -53,14 +53,15 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public final class NioSocketChannel extends AttributesImpl
         implements Runnable, Attributes, Closeable {
 
+    private static final int                    ssl_limit            = 1024 * 64;
     private static final ClosedChannelException CLOSED_WHEN_FLUSH    = ThrowableUtil
             .unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
     private static final SSLException           NEITHER_SSLV3_OR_TLS = ThrowableUtil
-            .unknownStackTrace(new SSLException("Neither SSLv3 or TLS"), NioSocketChannel.class,
+            .unknownStackTrace(new SSLException(""), NioSocketChannel.class,
                     "isEnoughSslUnwrap(Neither SSLv3 or TLS)");
     private static final SSLException           SSL_OVER_LIMIT       = ThrowableUtil
-            .unknownStackTrace(new SSLException("over limit (1024 * 64)"), NioSocketChannel.class,
-                    "isEnoughSslUnwrap(over limit (1024 * 64))");
+            .unknownStackTrace(new SSLException(""), NioSocketChannel.class,
+                    "isEnoughSslUnwrap(over limit (" + ssl_limit + "))");
     private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
     private static final Logger                 logger               = LoggerFactory
             .getLogger(NioSocketChannel.class);
@@ -639,7 +640,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (src.remaining() < len) {
             return false;
         }
-        if (len > 1024 * 64 - 5) {
+        if (len > ssl_limit) {
             throw SSL_OVER_LIMIT;
         }
         src.markL();

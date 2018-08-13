@@ -28,11 +28,11 @@ import java.security.PrivilegedExceptionAction;
 @SuppressWarnings("restriction")
 public class UnsafeUtil {
 
-    private static final sun.misc.Unsafe UNSAFE                           = getUnsafe();
-    public static final boolean          HAS_UNSAFE_BYTEBUFFER_OPERATIONS = supportsUnsafeByteBufferOperations();
-    public static final boolean          HAS_UNSAFE_ARRAY_OPERATIONS      = supportsUnsafeArrayOperations();
-    public static final long             ARRAY_BASE_OFFSET                = byteArrayBaseOffset();
-    public static final long             BUFFER_ADDRESS_OFFSET            = fieldOffset(
+    public static final sun.misc.Unsafe UNSAFE                           = getUnsafe();
+    public static final boolean         HAS_UNSAFE_BYTEBUFFER_OPERATIONS = supportsUnsafeByteBufferOperations();
+    public static final boolean         HAS_UNSAFE_ARRAY_OPERATIONS      = supportsUnsafeArrayOperations();
+    public static final long            ARRAY_BASE_OFFSET                = byteArrayBaseOffset();
+    public static final long            BUFFER_ADDRESS_OFFSET            = fieldOffset(
             field(Buffer.class, "address"));
 
     private UnsafeUtil() {}
@@ -153,7 +153,7 @@ public class UnsafeUtil {
     public static void putLong(long address, long value) {
         UNSAFE.putLong(address, value);
     }
-    
+
     public static void copyMemory(ByteBuffer buf, long targetAddress, long length) {
         UNSAFE.copyMemory(addressOffset(buf) + buf.position(), targetAddress, length);
     }
@@ -296,7 +296,7 @@ public class UnsafeUtil {
     public static void copyFromArray(ByteBuffer buf, long dstAddr, long length) {
         copyFromArray(buf.array(), buf.position(), dstAddr, length);
     }
-    
+
     /**
      * Copy from given source array to destination address.
      *
