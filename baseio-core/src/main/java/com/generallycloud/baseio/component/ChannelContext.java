@@ -31,7 +31,6 @@ import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.common.PropertyUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
@@ -42,7 +41,7 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
-public final class ChannelContext extends AbstractLifeCycle {
+public final class ChannelContext extends AbstractLifeCycle implements Configuration{
     
     private Map<Object, Object>            attributes         = new HashMap<>();
     private List<ChannelEventListener>     cels               = new ArrayList<>();
@@ -96,24 +95,13 @@ public final class ChannelContext extends AbstractLifeCycle {
         ciels.add(listener);
     }
 
-    private void checkNotRunning() {
-        if (isRunning()) {
-            throw new UnsupportedOperationException("already running");
+    @Override
+    public void configurationChanged() {
+        if (enableOpenSsl) {
+            System.setProperty(SSLUtil.ENABLE_OPENSSL_SYS_KEY, "true");
         }
     }
     
-    private String sslType(){
-        if (enableSsl) {
-            if ("true".equals(System.getProperty(SSLUtil.ENABLE_OPENSSL_SYS_KEY))) {
-                return "openssl";
-            }else{
-                return "jdkssl";
-            }
-        }else{
-            return "false";
-        }
-    }
-
     @Override
     protected void doStart() throws Exception {
         Assert.notNull(ioEventHandle, "null ioEventHandle");
@@ -274,9 +262,6 @@ public final class ChannelContext extends AbstractLifeCycle {
 
     private void initSslContext(ClassLoader classLoader) throws IOException {
         if (isEnableSsl() && getSslContext() == null) {
-            if (enableOpenSsl) {
-                PropertyUtil.setSystemPropertiesIfNull(SSLUtil.ENABLE_OPENSSL_SYS_KEY, "true");
-            }
             if (!StringUtil.isNullOrBlank(getCertCrt())) {
                 File certificate = FileUtil.readFileByCls(getCertCrt(), classLoader);
                 File privateKey = FileUtil.readFileByCls(getCertKey(), classLoader);
@@ -349,6 +334,7 @@ public final class ChannelContext extends AbstractLifeCycle {
 
     public void setEnableOpenSsl(boolean enableOpenSsl) {
         checkNotRunning();
+        System.setProperty(SSLUtil.ENABLE_OPENSSL_SYS_KEY, "true");
         this.enableOpenSsl = enableOpenSsl;
     }
 
@@ -414,6 +400,10 @@ public final class ChannelContext extends AbstractLifeCycle {
     public void setWorkEventQueueSize(int workEventQueueSize) {
         checkNotRunning();
         this.workEventQueueSize = workEventQueueSize;
+    }
+    
+    private String sslType() {
+        return enableSsl ? enableOpenSsl ? "openssl" : "jdkssl" : "false";
     }
 
     public interface HeartBeatLogger {

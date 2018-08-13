@@ -56,7 +56,6 @@ import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.SslFuture;
 
 /**
  * @author wangkai
@@ -88,7 +87,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private final SelectionKeySet                    selectionKeySet;
     private Selector                                 selector;
     private final boolean                            sharable;
-    private SslFuture                                sslTemporary;
     private final AtomicInteger                      wakener               = new AtomicInteger();         // true eventLooper, false offerer
     private ByteBuffer[]                             writeBuffers;
 
@@ -314,11 +312,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     protected void doStartup() throws IOException {
         this.writeBuffers = new ByteBuffer[group.getWriteBuffers()];
         this.buf = UnpooledByteBufAllocator.getDirect().allocate(group.getChannelReadBuffer());
-        if (group.isEnableSsl()) {
-            //FIXME . this can not be direct ?
-            ByteBuf buf = UnpooledByteBufAllocator.getHeap().allocate(1024 * 64);
-            this.sslTemporary = new SslFuture(buf);
-        }
         this.selector = openSelector(selectionKeySet);
         this.desc = MessageFormatter.arrayFormat("NioEventLoop(idx:{},sharable:{})",
                 new Object[] { index, sharable });
@@ -358,10 +351,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return selector;
     }
 
-    protected SslFuture getSslTemporary() {
-        return sslTemporary;
-    }
-
     protected ByteBuffer[] getWriteBuffers() {
         return writeBuffers;
     }
@@ -385,7 +374,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 handleEvents(events);
                 closeChannels();
                 CloseUtil.close(selector);
-                ReleaseUtil.release(sslTemporary, this);
                 ReleaseUtil.release(buf);
                 setStopped(true);
                 return;

@@ -39,6 +39,12 @@ public abstract class AbstractLifeCycle implements LifeCycle {
             Collections.sort(lifeCycleListeners, new LifeCycleListenerSorter());
         }
     }
+    
+    protected void checkNotRunning() {
+        if (isRunning()) {
+            throw new UnsupportedOperationException("already running");
+        }
+    }
 
     protected abstract void doStart() throws Exception;
 

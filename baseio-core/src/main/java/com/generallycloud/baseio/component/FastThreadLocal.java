@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.AttributesImpl;
-import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 
 /**
@@ -43,7 +42,6 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
     private SslHandler                                sslHandler;
 
     public FastThreadLocal() {
-        init();
     }
 
     private void destroy0() {
@@ -73,13 +71,10 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
     }
 
     public SslHandler getSslHandler() {
-        return sslHandler;
-    }
-
-    private void init() {
-        if (SSLUtil.isENABLE_SSL()) {
+        if (sslHandler == null) {
             sslHandler = new SslHandler();
         }
+        return sslHandler;
     }
 
     public void setIndexedVariable(int index, Object value) {

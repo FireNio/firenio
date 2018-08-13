@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.component.ssl;
 
+import static com.generallycloud.baseio.component.ssl.SslContext.SSL_PACKET_BUFFER_SIZE;
+
 import java.io.IOException;
 
 import javax.net.ssl.SSLEngine;
@@ -29,10 +31,15 @@ import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ProtectedUtil;
-import static com.generallycloud.baseio.component.ssl.SslContext.SSL_PACKET_BUFFER_SIZE;
 
 public class SslHandler {
 
+    public static int     SSL_CONTENT_TYPE_ALERT              = 21;
+    public static int     SSL_CONTENT_TYPE_APPLICATION_DATA   = 23;
+    public static int     SSL_CONTENT_TYPE_CHANGE_CIPHER_SPEC = 20;
+    public static int     SSL_CONTENT_TYPE_HANDSHAKE          = 22;
+    public static int     SSL_RECORD_HEADER_LENGTH            = 5;
+    
     private final ByteBuf dstTemp;
 
     public SslHandler() {
@@ -164,6 +171,9 @@ public class SslHandler {
                     ProtectedUtil.finishHandshake(ch, null);
                     return null;
                 } else if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
+                    if (src.hasRemaining()) {
+                        continue;
+                    }
                     return null;
                 }
             }

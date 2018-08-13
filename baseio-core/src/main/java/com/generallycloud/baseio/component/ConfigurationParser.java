@@ -31,12 +31,15 @@ public class ConfigurationParser {
     public static void parseConfiguration(String prefix, Object cfg, Properties properties)
             throws Exception {
         Class<?> clazz = cfg.getClass();
-        for(;;){
+        for (;;) {
             if (clazz == Object.class) {
-                return;
+                break;
             }
             parseConfiguration(prefix, cfg, clazz, properties);
             clazz = clazz.getSuperclass();
+        }
+        if (cfg instanceof Configuration) {
+            ((Configuration) cfg).configurationChanged();
         }
     }
 

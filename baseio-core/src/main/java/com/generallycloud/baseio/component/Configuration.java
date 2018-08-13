@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.sample.baseio.http11.startup;
+package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.container.http11.HttpStartup;
+import java.util.EventListener;
 
 /**
  * @author wangkai
  *
  */
-public class TestHttpStartup {
+public interface Configuration extends EventListener{
 
-    public static void main(String[] args) throws Exception {
-        
-        HttpStartup.main(args);
-    }
-
+    void configurationChanged();
 }

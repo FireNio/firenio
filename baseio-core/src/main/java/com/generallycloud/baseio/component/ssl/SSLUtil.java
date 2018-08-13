@@ -24,6 +24,7 @@ import javax.net.ssl.SSLException;
 
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
+import com.generallycloud.baseio.common.PropertiesUtil;
 import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.Protocol;
 import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
 import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
@@ -31,12 +32,10 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class SSLUtil {
-    
+
     public static final String ENABLE_OPENSSL_SYS_KEY = "com.generallycloud.baseio.ssl.enableOpenSsl";
-
-    private static boolean ENABLE_SSL = false;
-
-    private static Logger  logger     = LoggerFactory.getLogger(SSLUtil.class);
+    public static final String ENABLE_SSL_SYS_KEY     = "com.generallycloud.baseio.ssl.enableSsl";
+    private static Logger      logger                 = LoggerFactory.getLogger(SSLUtil.class);
 
     public synchronized static SslContext initServer(File privateKey, File certificate)
             throws IOException {
@@ -104,12 +103,12 @@ public class SSLUtil {
         }
     }
 
-    public static boolean isENABLE_SSL() {
-        return ENABLE_SSL;
+    public static boolean enableSsl() {
+        return PropertiesUtil.isSystemTrue(ENABLE_SSL_SYS_KEY);
     }
 
-    public static void setENABLE_SSL(boolean ENABLE_SSL) {
-        SSLUtil.ENABLE_SSL = SSLUtil.ENABLE_SSL || ENABLE_SSL;
+    public static boolean enableOpenssl() {
+        return PropertiesUtil.isSystemTrue(ENABLE_OPENSSL_SYS_KEY);
     }
 
 }

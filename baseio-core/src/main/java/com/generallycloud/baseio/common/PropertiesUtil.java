@@ -19,13 +19,22 @@ package com.generallycloud.baseio.common;
  * @author wangkai
  *
  */
-public class PropertyUtil {
+public class PropertiesUtil {
     
     public static void setSystemPropertiesIfNull(String key, String value) {
         String pro = System.getProperty(key);
         if (StringUtil.isNullOrBlank(pro)) {
             System.setProperty(key, value);
         }
+    }
+    
+    public static boolean isSystemTrue(String key){
+        String v = System.getProperty(key);
+        if (v == null) {
+            return false;
+        }
+        v = v.toLowerCase();
+        return "true".equals(v) || "1".equals(v);
     }
 
 }

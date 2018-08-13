@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
@@ -48,13 +49,18 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Future;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
-import com.generallycloud.baseio.protocol.SslFuture;
 
 public final class NioSocketChannel extends AttributesImpl
         implements Runnable, Attributes, Closeable {
 
     private static final ClosedChannelException CLOSED_WHEN_FLUSH    = ThrowableUtil
             .unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
+    private static final SSLException           NEITHER_SSLV3_OR_TLS = ThrowableUtil
+            .unknownStackTrace(new SSLException("Neither SSLv3 or TLS"), NioSocketChannel.class,
+                    "isEnoughSslUnwrap(Neither SSLv3 or TLS)");
+    private static final SSLException           SSL_OVER_LIMIT       = ThrowableUtil
+            .unknownStackTrace(new SSLException("over limit (1024 * 64)"), NioSocketChannel.class,
+                    "isEnoughSslUnwrap(over limit (1024 * 64))");
     private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
     private static final Logger                 logger               = LoggerFactory
             .getLogger(NioSocketChannel.class);
@@ -610,6 +616,34 @@ public final class NioSocketChannel extends AttributesImpl
         return sslHandshakeFinished;
     }
 
+    private boolean isEnoughSslUnwrap(ByteBuf src) throws SSLException {
+        if (src.remaining() < 5) {
+            return false;
+        }
+        // SSLv3 or TLS - Check ContentType
+        int type = src.getUnsignedByte(0);
+        if (type < 20 || type > 23) {
+            throw NEITHER_SSLV3_OR_TLS;
+        }
+        // SSLv3 or TLS - Check ProtocolVersion
+        int majorVersion = src.getUnsignedByte(1);
+        // minorVersion
+        // int minorVersion = src.getUnsignedByte(2);
+        int packetLength = src.getUnsignedShort(3);
+        if (majorVersion != 3 || packetLength <= 0) {
+            // Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
+            throw NEITHER_SSLV3_OR_TLS;
+        }
+        int len = packetLength + 5;
+        if (src.remaining() < len) {
+            return false;
+        }
+        if (len > 1024 * 64 - 5) {
+            throw SSL_OVER_LIMIT;
+        }
+        return true;
+    }
+
     protected void read(ByteBuf src) throws Exception {
         lastAccess = System.currentTimeMillis();
         src.clear();
@@ -629,10 +663,16 @@ public final class NioSocketChannel extends AttributesImpl
         src.flip();
         if (enableSsl) {
             SslHandler sslHandler = sslHandler();
-            SslFuture future = eventLoop.getSslTemporary();
-            ByteBuf sslBuf = future.getByteBuf();
             for (;;) {
-                if (!future.read(this, src)) {
+                if (isEnoughSslUnwrap(src)) {
+                    ByteBuf res = sslHandler.unwrap(this, src);
+                    if (res != null) {
+                        accept(res);
+                    }
+                    if (!src.hasRemaining()) {
+                        return;
+                    }
+                } else {
                     if (src.hasRemaining()) {
                         int remain = src.remaining();
                         ByteBuf remaining = alloc().allocate(remain);
@@ -640,14 +680,6 @@ public final class NioSocketChannel extends AttributesImpl
                         remaining.flip();
                         sslRemainBuf = remaining;
                     }
-                    return;
-                }
-                ByteBuf res = sslHandler.unwrap(this, sslBuf);
-                if (res != null) {
-                    accept(res);
-                }
-                if (!src.hasRemaining()) {
-                    return;
                 }
             }
         } else {

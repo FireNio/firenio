@@ -21,7 +21,6 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.buffer.ByteBufAllocatorGroup;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocatorGroup;
-import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.concurrent.AbstractEventLoopGroup;
 import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 
@@ -39,7 +38,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private boolean               enableMemoryPool       = true;
     //内存池是否使用启用堆外内存
     private boolean               enableMemoryPoolDirect = true;
-    private boolean               enableSsl;
     private NioEventLoop[]        eventLoops;
     private NioEventLoop          headEventLoop;
     private long                  idleTime               = 30 * 1000;
@@ -73,7 +71,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     @Override
     protected void doStart() throws Exception {
-        SSLUtil.setENABLE_SSL(enableSsl);
         this.channelIds = createChannelIdsSequence(getEventLoopSize());
         if (memoryPoolCapacity == 0) {
             long total = Runtime.getRuntime().maxMemory();
@@ -86,7 +83,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         this.headEventLoop.startup(name);
         super.doStart();
     }
-
+    
     @Override
     protected void doStop() throws Exception {
         LifeCycleUtil.stop(headEventLoop);
@@ -168,10 +165,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         return enableMemoryPoolDirect;
     }
 
-    public boolean isEnableSsl() {
-        return enableSsl;
-    }
-
     public boolean isSharable() {
         return sharable;
     }
@@ -195,6 +188,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     public void setAcceptor(boolean acceptor) {
+        checkNotRunning();
         this.acceptor = acceptor;
         if (!acceptor) {
             setEventLoopSize(1);
@@ -202,46 +196,52 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     public void setBufRecycleSize(int bufRecycleSize) {
+        checkNotRunning();
         this.bufRecycleSize = bufRecycleSize;
     }
 
     public void setChannelReadBuffer(int channelReadBuffer) {
+        checkNotRunning();
         this.channelReadBuffer = channelReadBuffer;
     }
 
     public void setEnableMemoryPool(boolean enableMemoryPool) {
+        checkNotRunning();
         this.enableMemoryPool = enableMemoryPool;
     }
 
     public void setEnableMemoryPoolDirect(boolean enableMemoryPoolDirect) {
+        checkNotRunning();
         this.enableMemoryPoolDirect = enableMemoryPoolDirect;
     }
 
-    public void setEnableSsl(boolean enableSsl) {
-        this.enableSsl = this.enableSsl || enableSsl;
-    }
-
     public void setIdleTime(long idleTime) {
+        checkNotRunning();
         this.idleTime = idleTime;
     }
 
     public void setMemoryPoolCapacity(int memoryPoolCapacity) {
+        checkNotRunning();
         this.memoryPoolCapacity = memoryPoolCapacity;
     }
 
     public void setMemoryPoolRate(int memoryPoolRate) {
+        checkNotRunning();
         this.memoryPoolRate = memoryPoolRate;
     }
 
     public void setMemoryPoolUnit(int memoryPoolUnit) {
+        checkNotRunning();
         this.memoryPoolUnit = memoryPoolUnit;
     }
 
     public void setSharable(boolean sharable) {
+        checkNotRunning();
         this.sharable = sharable;
     }
 
     public void setWriteBuffers(int writeBuffers) {
+        checkNotRunning();
         this.writeBuffers = writeBuffers;
     }
 
