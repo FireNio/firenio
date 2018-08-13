@@ -54,6 +54,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     private boolean                        enableHeartbeatLog = true;
     private boolean                        enableOpenSsl;
     private boolean                        enableSsl;
+    private String                          openSslPath;
     //是否启用work event loop，如果启用，则future在work event loop中处理
     private boolean                        enableWorkEventLoop;
     private ExecutorEventLoopGroup         executorEventLoopGroup;
@@ -99,6 +100,9 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     public void configurationChanged() {
         if (enableOpenSsl) {
             System.setProperty(SSLUtil.ENABLE_OPENSSL_SYS_KEY, "true");
+        }
+        if (!StringUtil.isNullOrBlank(openSslPath)) {
+            System.setProperty(SSLUtil.WILDFLY_OPENSSL_PATH, openSslPath);
         }
     }
     
@@ -381,6 +385,15 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     public void setProtocolCodec(ProtocolCodec protocolCodec) {
         checkNotRunning();
         this.protocolCodec = protocolCodec;
+    }
+    
+    public String getOpenSslPath() {
+        return openSslPath;
+    }
+
+    public void setOpenSslPath(String openSslPath) {
+        checkNotRunning();
+        this.openSslPath = openSslPath;
     }
 
     public void setSslContext(SslContext sslContext) {

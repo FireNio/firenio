@@ -33,6 +33,7 @@ import com.generallycloud.baseio.log.LoggerFactory;
 
 public class SSLUtil {
 
+    public static final String WILDFLY_OPENSSL_PATH   = "org.wildfly.openssl.path";
     public static final String ENABLE_OPENSSL_SYS_KEY = "com.generallycloud.baseio.ssl.enableOpenSsl";
     public static final String ENABLE_SSL_SYS_KEY     = "com.generallycloud.baseio.ssl.enableSsl";
     private static Logger      logger                 = LoggerFactory.getLogger(SSLUtil.class);
