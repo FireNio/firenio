@@ -181,8 +181,8 @@ public abstract class AbstractByteBuf implements ByteBuf {
         if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount - 1)) {
             if (referenceCount == 1) {
                 allocator.release(this);
-                return;
             }
+            return;
         }
         for (;;) {
             referenceCount = this.referenceCount;
@@ -192,8 +192,8 @@ public abstract class AbstractByteBuf implements ByteBuf {
             if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount - 1)) {
                 if (referenceCount == 1) {
                     allocator.release(this);
-                    return;
                 }
+                return;
             }
         }
     }

@@ -26,7 +26,8 @@ import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
 
 /**
  * @author wangkai
- *
+ * 注意：如需共享group，且group担当acceptor和connector时，一定要先起acceptor，
+ * 或者显示调用group.setAcceptor(true)
  */
 public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
@@ -79,7 +80,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         }
         String name = isAcceptor() ? "nio-acceptor" : "nio-processor";
         this.initializeByteBufAllocator();
-        this.headEventLoop = new NioEventLoop(this, 0, true);
+        this.headEventLoop = new NioEventLoop(this, 0, isAcceptor());
         this.headEventLoop.startup(name);
         super.doStart();
     }
@@ -188,9 +189,11 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     public void setAcceptor(boolean acceptor) {
-        checkNotRunning();
-        this.acceptor = acceptor;
-        if (!acceptor) {
+        if (isRunning()) {
+            return;
+        }
+        this.acceptor = this.acceptor || acceptor;
+        if (!this.acceptor) {
             setEventLoopSize(1);
         }
     }
