@@ -80,7 +80,7 @@ public class WebSocketCodec extends ProtocolCodec {
 
     @Override
     public Future ping(NioSocketChannel ch) {
-        if (WebSocketCodec.PROTOCOL_ID.equals(ch.getProtocolId())) {
+        if (WebSocketCodec.PROTOCOL_ID.equals(ch.getCodecId())) {
             return new WebSocketFuture().setPing();
         }
         return null;
@@ -88,7 +88,7 @@ public class WebSocketCodec extends ProtocolCodec {
 
     @Override
     public Future pong(NioSocketChannel ch, Future ping) {
-        if (WebSocketCodec.PROTOCOL_ID.equals(ch.getProtocolId())) {
+        if (WebSocketCodec.PROTOCOL_ID.equals(ch.getCodecId())) {
             return ping.setPong();
         }
         return null;

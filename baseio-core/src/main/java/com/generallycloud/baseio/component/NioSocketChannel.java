@@ -83,7 +83,7 @@ public final class NioSocketChannel extends AttributesImpl
     private final int                           maxWriteBacklog;
     private boolean                             opened               = true;
     private ByteBuf                             plainRemainBuf;
-    private ProtocolCodec                       protocolCodec;
+    private ProtocolCodec                       codec;
     private Future                              readFuture;
     private final String                        remoteAddr;
     private final String                        remoteAddrPort;
@@ -103,7 +103,7 @@ public final class NioSocketChannel extends AttributesImpl
         this.eventLoop = eventLoop;
         this.channelId = channelId;
         this.enableSsl = context.isEnableSsl();
-        this.protocolCodec = context.getProtocolCodec();
+        this.codec = context.getProtocolCodec();
         this.maxWriteBacklog = context.getMaxWriteBacklog();
         this.currentWriteBufs = new ByteBuf[group.getWriteBuffers()];
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
@@ -132,7 +132,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     private void accept(ByteBuf src) throws Exception {
         final ByteBufAllocator alloc = alloc();
-        final ProtocolCodec codec = this.protocolCodec;
+        final ProtocolCodec codec = this.codec;
         final IoEventHandle eventHandle = this.ioEventHandle;
         final HeartBeatLogger heartBeatLogger = context.getHeartBeatLogger();
         final boolean enableWorkEventLoop = context.isEnableWorkEventLoop();
@@ -239,21 +239,6 @@ public final class NioSocketChannel extends AttributesImpl
         eventLoop.dispatch(event);
     }
 
-    public ByteBuf encode(Future future) throws IOException {
-        Assert.notNull(future, "null future");
-        ByteBuf buf = protocolCodec.encode(this, future);
-        future.flush();
-        if (enableSsl) {
-            ByteBuf old = buf;
-            try {
-                buf = sslHandler().wrap(this, old);
-            } finally {
-                old.release();
-            }
-        }
-        return buf;
-    }
-
     private void exceptionCaught(Future future, Exception ex) {
         future.release(eventLoop);
         try {
@@ -303,6 +288,16 @@ public final class NioSocketChannel extends AttributesImpl
 
     public void flush(ByteBuf buf) {
         Assert.notNull(buf, "null buf");
+        if (enableSsl) {
+            ByteBuf old = buf;
+            try {
+                buf = sslHandler().wrap(this, old);
+            } catch (Exception e) {
+                logger.error(e.getMessage(),e);
+            } finally {
+                old.release();
+            }
+        }
         final Queue<ByteBuf> writeBufs = this.writeBufs;
         if (inEventLoop()) {
             if (isClosed()) {
@@ -358,17 +353,9 @@ public final class NioSocketChannel extends AttributesImpl
         }
         ByteBuf buf = null;
         try {
-            buf = protocolCodec.encode(this, future);
+            buf = codec.encode(this, future);
             future.flush();
             future.release(eventLoop);
-            if (enableSsl) {
-                ByteBuf old = buf;
-                try {
-                    buf = sslHandler().wrap(this, old);
-                } finally {
-                    old.release();
-                }
-            }
         } catch (Exception e) {
             ReleaseUtil.release(buf);
             exceptionCaught(future, e);
@@ -536,12 +523,12 @@ public final class NioSocketChannel extends AttributesImpl
         return channel.getOption(name);
     }
 
-    public ProtocolCodec getProtocolCodec() {
-        return protocolCodec;
+    public ProtocolCodec getCodec() {
+        return codec;
     }
 
-    public Object getProtocolId() {
-        return protocolCodec.getProtocolId();
+    public String getCodecId() {
+        return codec.getProtocolId();
     }
 
     public String getRemoteAddr() {
@@ -781,8 +768,8 @@ public final class NioSocketChannel extends AttributesImpl
         channel.setOption(name, value);
     }
 
-    public void setProtocolCodec(ProtocolCodec protocolCodec) {
-        this.protocolCodec = protocolCodec;
+    public void setCodec(ProtocolCodec codec) {
+        this.codec = codec;
     }
 
     protected void setSslWrapExt(byte sslWrapExt) {

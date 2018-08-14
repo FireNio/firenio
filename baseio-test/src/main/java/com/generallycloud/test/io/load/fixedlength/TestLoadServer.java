@@ -15,7 +15,6 @@
  */
 package com.generallycloud.test.io.load.fixedlength;
 
-import java.net.StandardSocketOptions;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +60,7 @@ public class TestLoadServer {
                         TextFuture f = (TextFuture) future;
                         f.write(f.getReadText(), channel);
                         if (batchFlush) {
-                            fs.add(channel.encode(future));
+                            fs.add(channel.getCodec().encode(channel, future));
                             if (addTask) {
                                 addTask = false;
                                 channel.getEventLoop().dispatchAfterLoop(() -> {

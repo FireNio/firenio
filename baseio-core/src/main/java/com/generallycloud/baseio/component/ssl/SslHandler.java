@@ -162,7 +162,7 @@ public class SslHandler {
                 HandshakeStatus handshakeStatus = result.getHandshakeStatus();
                 synchByteBuf(result, src, dst);
                 if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
-                    ch.flush(wrap(ch, EmptyByteBuf.get()));
+                    ch.flush(EmptyByteBuf.get());
                     return null;
                 } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
                     runDelegatedTasks(sslEngine);

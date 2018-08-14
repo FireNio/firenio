@@ -26,7 +26,7 @@ public class WebSocketChannelListener extends ChannelEventListenerAdapter {
 
     @Override
     public void channelClosed(NioSocketChannel channel) {
-        if (!WebSocketCodec.PROTOCOL_ID.equals(channel.getProtocolId())) {
+        if (!WebSocketCodec.PROTOCOL_ID.equals(channel.getCodecId())) {
             return;
         }
         WebSocketFuture future = new WebSocketFuture();

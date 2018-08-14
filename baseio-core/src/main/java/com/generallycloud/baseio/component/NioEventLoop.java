@@ -468,7 +468,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             if (ch.isEnableSsl()) {
                 // fire open event later
                 if (context.getSslContext().isClient()) {
-                    ch.flush(ch.sslHandler().wrap(ch, EmptyByteBuf.get()));
+                    ch.flush(EmptyByteBuf.get());
                 }
             } else {
                 // fire open event immediately when plain channel

@@ -63,7 +63,7 @@ public class ChannelManager {
         }
         NioSocketChannel ch = chs.iterator().next();
         if (ch != null) {
-            broadcast(ch.encode(future), chs);
+            broadcast(ch.getCodec().encode(ch, future), chs);
         }
     }
 

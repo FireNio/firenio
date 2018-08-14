@@ -44,7 +44,7 @@ public class ClientHttpFuture extends AbstractHttpFuture {
         if (StringUtil.isNullOrBlank(key)) {
             return false;
         }
-        channel.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+        channel.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
         return true;
     }
 

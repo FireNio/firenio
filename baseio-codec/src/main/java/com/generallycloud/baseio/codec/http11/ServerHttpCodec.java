@@ -153,7 +153,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         ByteBufAllocator allocator = ch.alloc();
         ServerHttpFuture f = (ServerHttpFuture) readFuture;
         if (f.isUpdateWebSocketProtocol()) {
-            ch.setProtocolCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+            ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
             ch.setAttribute(WebSocketFuture.CHANNEL_KEY_SERVICE_NAME, f.getFutureName());
         }
         f.setResponseHeader(HttpHeader.Date_Bytes, getHttpDateBytes());
