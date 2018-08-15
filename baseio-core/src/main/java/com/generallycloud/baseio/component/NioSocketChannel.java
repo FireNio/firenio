@@ -223,9 +223,8 @@ public final class NioSocketChannel extends AttributesImpl
             }
             sslEngine.closeOutbound();
             if (context.getSslContext().isClient()) {
-                SslHandler handler = FastThreadLocal.get().getSslHandler();
                 try {
-                    writeBufs.offer(handler.wrap(this, EmptyByteBuf.get()));
+                    writeBufs.offer(sslHandler().wrap(this, EmptyByteBuf.get()));
                     write(selKey.interestOps());
                 } catch (Exception e) {}
             }
@@ -250,12 +249,12 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     @SuppressWarnings("resource")
-    protected void finishHandshake(Exception e) throws IOException {
+    protected void finishHandshake() throws IOException {
         sslHandshakeFinished = true;
         if (context.getSslContext().isClient()) {
             ChannelService service = context.getChannelService();
             ChannelConnector connector = (ChannelConnector) service;
-            connector.finishConnect(this, e);
+            connector.finishConnect(this, null);
         }
         fireOpend();
     }
@@ -293,7 +292,7 @@ public final class NioSocketChannel extends AttributesImpl
             try {
                 buf = sslHandler().wrap(this, old);
             } catch (Exception e) {
-                logger.error(e.getMessage(),e);
+                logger.error(e.getMessage(), e);
             } finally {
                 old.release();
             }

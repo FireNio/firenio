@@ -105,8 +105,7 @@ public class ChannelConnector implements ChannelService, Closeable {
 
     }
 
-    //FIXME protected
-    public void finishConnect(NioSocketChannel channel, Throwable exception) {
+    protected void finishConnect(NioSocketChannel channel, Throwable exception) {
         Waiter waiter = this.waiter;
         if (waiter == null) {
             CloseUtil.close(channel);

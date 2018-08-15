@@ -36,7 +36,6 @@ public class TestLog {
     static void testInternalLogger() throws IOException {
         LoggerFactory.setEnableSLF4JLogger(false);
         LoggerFactory.setInternalLogFile(new File("D://test/main.log"));
-        LoggerFactory.setEnableDebug(true);
         Logger logger = LoggerFactory.getLogger(TestLog.class);
 
         for (int i = 0; i < 1000; i++) {

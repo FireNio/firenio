@@ -117,7 +117,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     writeComplete = ch.write(key.interestOps());
                 } catch (Throwable e) {
-                    logger.error(e.getMessage() + ch, e);
+                    logger.warn(e.getMessage() + ch, e);
                     ch.close();
                 }
             }
@@ -126,7 +126,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     ch.read(buf);
                 } catch (Throwable e) {
-                    logger.error(e.getMessage() + ch, e);
+                    logger.warn(e.getMessage() + ch, e);
                     ch.close();
                     if (e instanceof SSLHandshakeException) {
                         finishConnect(ch, ch.getContext(), e);
@@ -163,7 +163,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         }
                     });
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    logger.warn(e.getMessage(), e);
                 }
             } else {
                 @SuppressWarnings("resource")
@@ -233,14 +233,14 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     try {
                         ls.get(0).channelIdled(channel, lastIdleTime, currentTime);
                     } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
+                        logger.warn(e.getMessage(), e);
                     }
                 } else {
                     for (ChannelIdleEventListener l : ls) {
                         try {
                             l.channelIdled(channel, lastIdleTime, currentTime);
                         } catch (Exception e) {
-                            logger.error(e.getMessage(), e);
+                            logger.warn(e.getMessage(), e);
                         }
                     }
                 }
@@ -275,7 +275,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     event.run();
                 } catch (Throwable e) {
-                    logger.error(e.getMessage(), e);
+                    logger.warn(e.getMessage(), e);
                 }
             }
             es.clear();
@@ -433,7 +433,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     }
                 }
             } catch (Throwable e) {
-                logger.error(e.getMessage(), e);
+                logger.warn(e.getMessage(), e);
             }
         }
     }
@@ -476,9 +476,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 finishConnect(ch, ch.getContext(), null);
             }
         } catch (ClosedChannelException e) {
-            logger.error(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
             if (!ch.isEnableSsl()) {
                 finishConnect(ch, ch.getContext(), e);
             }
@@ -504,7 +504,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     waiter.response(null);
                 } catch (Exception e) {
                     waiter.response(e);
-                    logger.error(e.getMessage(), e);
+                    logger.warn(e.getMessage(), e);
                 }
             }
         });

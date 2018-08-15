@@ -219,10 +219,6 @@ public final class SslContext {
         return configureAndWrapEngine(context().createSSLEngine(peerHost, peerPort));
     }
 
-    public SslHandler newSslHandler() {
-        return new SslHandler();
-    }
-
     public final long sessionCacheSize() {
         return sessionContext().getSessionCacheSize();
     }

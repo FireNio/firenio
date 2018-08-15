@@ -41,18 +41,4 @@ public class CompoundLoggerPrinter implements LoggerPrinter {
         }
     }
 
-    @Override
-    public void errPrintln(String msg) {
-        for (LoggerPrinter p : printers) {
-            p.errPrintln(msg);
-        }
-    }
-
-    @Override
-    public void errPrintThrowable(Throwable t) {
-        for (LoggerPrinter p : printers) {
-            p.errPrintThrowable(t);
-        }
-    }
-
 }

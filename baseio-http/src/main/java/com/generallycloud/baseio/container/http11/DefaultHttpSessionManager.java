@@ -24,9 +24,9 @@ import com.generallycloud.baseio.codec.http11.Cookie;
 import com.generallycloud.baseio.codec.http11.HttpFuture;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
-import com.generallycloud.baseio.log.DebugUtil;
 
 //FIXME 限制最大session数量
 //FIXME 根据当前是否正在redeploy来保存和恢复session
@@ -87,13 +87,7 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
     }
 
     private void sleep(long time) {
-        synchronized (sleepLock) {
-            try {
-                sleepLock.wait(time);
-            } catch (InterruptedException e) {
-                DebugUtil.debug(e);
-            }
-        }
+        ThreadUtil.wait(sleepLock, time);
     }
 
     @Override

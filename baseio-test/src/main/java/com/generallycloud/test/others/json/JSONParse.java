@@ -64,7 +64,7 @@ public class JSONParse {
                     JSON.stringToArray(
                             "[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
                 } catch (JSONSyntaxException e) {
-                    logger.debug(e);
+                    logger.error(e);
                 }
             }
         }, 1500000, "My Json");
@@ -83,7 +83,7 @@ public class JSONParse {
                             "[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]",
                             List.class);
                 } catch (Exception e) {
-                    logger.debug(e);
+                    logger.error(e);
                 }
             }
         }, 1500000, "Jackson");

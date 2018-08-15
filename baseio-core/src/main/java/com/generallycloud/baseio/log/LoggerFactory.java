@@ -21,28 +21,16 @@ import java.io.IOException;
 public class LoggerFactory {
 
     private static boolean       enableSLF4JLogger = false;
-    private static boolean       enableDebug       = false;
-    private static boolean       enableInfo       = true;
     private static File          internalLogFile;
+    public static final int      LEVEL_DEBUG       = 1;
+    public static final int      LEVEL_ERROR       = 4;
+    public static final int      LEVEL_INFO        = 3;
+    public static final int      LEVEL_WARN        = 2;
+    private static int           logLevel          = 0;
     private static LoggerPrinter printer           = SysLoggerPrinter.get();
 
     static {
         configure();
-    }
-
-    public static void setEnableSLF4JLogger(boolean enable) {
-        enableSLF4JLogger = enable;
-    }
-    
-    public static Logger getLogger(String name) {
-        if (!enableSLF4JLogger) {
-            return new InternalLogger(printer, name);
-        }
-        return new SLF4JLogger(name);
-    }
-
-    public static Logger getLogger(Class<?> clazz) {
-        return getLogger(clazz.getSimpleName());
     }
 
     private static void configure() {
@@ -52,28 +40,47 @@ public class LoggerFactory {
         } catch (ClassNotFoundException e) {}
     }
 
+    public static File getInternalLogFile() {
+        return internalLogFile;
+    }
+
+    public static Logger getLogger(Class<?> clazz) {
+        return getLogger(clazz.getSimpleName());
+    }
+
+    public static Logger getLogger(String name) {
+        if (!enableSLF4JLogger) {
+            return new InternalLogger(printer, name);
+        }
+        return new SLF4JLogger(name);
+    }
+
+    public static int getLogLevel() {
+        return logLevel;
+    }
+
+    public static boolean isDebugEnabled() {
+        return logLevel > LEVEL_DEBUG;
+    }
+
     public static boolean isEnableSLF4JLogger() {
         return enableSLF4JLogger;
     }
 
-    public static boolean isEnableDebug() {
-        return enableDebug;
+    public static boolean isErrorEnabled() {
+        return logLevel > LEVEL_ERROR;
     }
 
-    public static void setEnableDebug(boolean enableDebug) {
-        LoggerFactory.enableDebug = enableDebug;
-    }
-    
-    public static boolean isEnableInfo() {
-        return enableInfo;
+    public static boolean isInfoEnabled() {
+        return logLevel > LEVEL_INFO;
     }
 
-    public static void setEnableInfo(boolean enableInfo) {
-        LoggerFactory.enableInfo = enableInfo;
+    public static boolean isWarnEnabled() {
+        return logLevel > LEVEL_WARN;
     }
 
-    public static File getInternalLogFile() {
-        return internalLogFile;
+    public static void setEnableSLF4JLogger(boolean enable) {
+        enableSLF4JLogger = enable;
     }
 
     public static void setInternalLogFile(File internalLogFile) throws IOException {
@@ -82,6 +89,10 @@ public class LoggerFactory {
         printers[0] = SysLoggerPrinter.get();
         printers[1] = new FileLoggerPrinter(internalLogFile);
         printer = new CompoundLoggerPrinter(printers);
+    }
+
+    public static void setLogLevel(int logLevel) {
+        LoggerFactory.logLevel = logLevel - 1;
     }
 
 }

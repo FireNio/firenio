@@ -53,14 +53,4 @@ public class FileLoggerPrinter implements LoggerPrinter {
         println(msg);
     }
 
-    @Override
-    public void errPrintln(String msg) {
-        println(msg);
-    }
-
-    @Override
-    public void errPrintThrowable(Throwable t) {
-        printThrowable(t);
-    }
-
 }

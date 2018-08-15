@@ -60,7 +60,7 @@ public class SslHandler {
             if (ProtectedUtil.isSslHandshakeFinished(ch)) {
                 byte sslWrapExt = ProtectedUtil.getSslWrapExt(ch);
                 if (sslWrapExt == 0) {
-                    out = allocator.allocate(guessWrapOut(src.limit(), 0xff));
+                    out = allocator.allocate(guessWrapOut(src.limit(), 0xff + 1));
                 } else {
                     out = allocator.allocate(guessWrapOut(src.limit(), sslWrapExt & 0xff));
                 }
@@ -72,7 +72,7 @@ public class SslHandler {
                     if (status == Status.CLOSED) {
                         return out.flip();
                     } else if (status == Status.BUFFER_OVERFLOW) {
-                        out.reallocate(out.capacity() + (out.capacity() >> 1), true);
+                        out.reallocate(out.capacity() + SSL_PACKET_BUFFER_SIZE, true);
                         continue;
                     }
                     if (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING) {
@@ -98,14 +98,14 @@ public class SslHandler {
                     HandshakeStatus handshakeStatus = result.getHandshakeStatus();
                     synchByteBuf(result, src, dst);
                     if (status == Status.CLOSED) {
-                        return gc(allocator, dst.flip());
+                        return swap(allocator, dst.flip());
                     }
                     if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
                         if (out != null) {
                             out.read(dst.flip());
                             return out.flip();
                         }
-                        return gc(allocator, dst.flip());
+                        return swap(allocator, dst.flip());
                     } else if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
                         if (out == null) {
                             out = allocator.allocate(256);
@@ -113,12 +113,12 @@ public class SslHandler {
                         out.read(dst.flip());
                         continue;
                     } else if (handshakeStatus == HandshakeStatus.FINISHED) {
-                        ProtectedUtil.finishHandshake(ch, null);
+                        ProtectedUtil.finishHandshake(ch);
                         if (out != null) {
                             out.read(dst.flip());
                             return out.flip();
                         }
-                        return gc(allocator, dst.flip());
+                        return swap(allocator, dst.flip());
                     } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
                         runDelegatedTasks(engine);
                         continue;
@@ -135,7 +135,7 @@ public class SslHandler {
     }
 
     //FIXME 部分buf不需要gc
-    private ByteBuf gc(ByteBufAllocator allocator, ByteBuf buf) throws IOException {
+    private ByteBuf swap(ByteBufAllocator allocator, ByteBuf buf) throws IOException {
         ByteBuf out = allocator.allocate(buf.limit());
         try {
             out.read(buf);
@@ -168,7 +168,7 @@ public class SslHandler {
                     runDelegatedTasks(sslEngine);
                     continue;
                 } else if (handshakeStatus == HandshakeStatus.FINISHED) {
-                    ProtectedUtil.finishHandshake(ch, null);
+                    ProtectedUtil.finishHandshake(ch);
                     return null;
                 } else if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
                     if (src.hasRemaining()) {

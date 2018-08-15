@@ -25,14 +25,4 @@ public class DebugLogger extends InternalLogger {
         super(SysLoggerPrinter.get(), clazz);
     }
 
-    @Override
-    public void setEnableDebug(boolean enable) {
-        DebugUtil.setEnableDebug(enable);
-    }
-
-    @Override
-    public boolean isEnableDebug() {
-        return DebugUtil.isEnableDebug();
-    }
-
 }

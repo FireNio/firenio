@@ -25,6 +25,8 @@ public class TestHttpStartup {
 
     public static void main(String[] args) throws Exception {
         
+        System.setProperty("org.wildfly.openssl.path", "C:\\OpenSSL-Win64\\bin");
+        
         HttpStartup.main(args);
     }
 

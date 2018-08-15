@@ -25,7 +25,4 @@ public interface LoggerPrinter {
 
     void printThrowable(Throwable t);
 
-    void errPrintln(String msg);
-
-    void errPrintThrowable(Throwable t);
 }

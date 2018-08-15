@@ -30,8 +30,6 @@ public class TestServer {
 
     public static void main(String[] args) throws Exception {
 
-        DebugUtil.setEnableDebug(true);
-
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override

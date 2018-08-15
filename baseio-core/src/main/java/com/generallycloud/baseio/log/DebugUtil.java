@@ -17,9 +17,7 @@ package com.generallycloud.baseio.log;
 
 public class DebugUtil {
 
-    private static DebugLogger logger      = new DebugLogger(DebugUtil.class);
-
-    private static boolean     enableDebug = false;
+    private static DebugLogger logger = new DebugLogger(DebugUtil.class);
 
     public static void debug(String message) {
         logger.debug(message);
@@ -37,8 +35,8 @@ public class DebugUtil {
         logger.debug(message, param);
     }
 
-    public static void debug(Throwable e) {
-        logger.debug(e);
+    public static void debug(String msg, Throwable e) {
+        logger.debug(msg, e);
     }
 
     public static void error(String message) {
@@ -80,16 +78,12 @@ public class DebugUtil {
         logger.info(message, param);
     }
 
-    public static void setEnableDebug(boolean enable) {
-        enableDebug = enable;
-    }
-
-    public static boolean isEnableDebug() {
-        return enableDebug;
-    }
-
     public static DebugLogger getLogger() {
         return logger;
+    }
+
+    public static void debug(Exception e) {
+        debug(e.getMessage(), e);
     }
 
 }

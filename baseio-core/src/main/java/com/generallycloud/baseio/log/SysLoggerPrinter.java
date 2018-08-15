@@ -37,14 +37,4 @@ public class SysLoggerPrinter implements LoggerPrinter {
         t.printStackTrace(System.out);
     }
 
-    @Override
-    public void errPrintln(String msg) {
-        System.err.println(msg);
-    }
-
-    @Override
-    public void errPrintThrowable(Throwable t) {
-        t.printStackTrace(System.err);
-    }
-
 }

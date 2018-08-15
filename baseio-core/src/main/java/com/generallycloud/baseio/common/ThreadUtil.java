@@ -15,16 +15,12 @@
  */
 package com.generallycloud.baseio.common;
 
-import com.generallycloud.baseio.log.DebugUtil;
-
 public class ThreadUtil {
 
     public static void sleep(long millis) {
         try {
             Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            DebugUtil.debug(e);
-        }
+        } catch (InterruptedException e) {}
     }
 
     public static void exec(Runnable runnable) {
@@ -46,9 +42,11 @@ public class ThreadUtil {
     }
 
     public static void wait(Object o, long timeout) {
-        try {
-            o.wait(timeout);
-        } catch (InterruptedException e) {}
+        synchronized (o) {
+            try {
+                o.wait(timeout);
+            } catch (InterruptedException e) {}
+        }
     }
 
 }

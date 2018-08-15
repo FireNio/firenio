@@ -19,9 +19,12 @@ import java.io.Closeable;
 import java.nio.channels.Selector;
 
 import com.generallycloud.baseio.component.ChannelAcceptor;
-import com.generallycloud.baseio.log.DebugUtil;
+import com.generallycloud.baseio.log.Logger;
+import com.generallycloud.baseio.log.LoggerFactory;
 
 public class CloseUtil {
+
+    private static Logger logger = LoggerFactory.getLogger(CloseUtil.class);
 
     public static void close(Closeable closeable) {
         if (closeable == null) {
@@ -30,7 +33,7 @@ public class CloseUtil {
         try {
             closeable.close();
         } catch (Exception e) {
-            DebugUtil.debug(e);
+            logger.warn(e.getMessage(), e);
         }
     }
 
@@ -41,7 +44,7 @@ public class CloseUtil {
         try {
             closeable.close();
         } catch (Exception e) {
-            DebugUtil.debug(e);
+            logger.warn(e.getMessage(), e);
         }
     }
 
@@ -52,7 +55,7 @@ public class CloseUtil {
         try {
             selector.close();
         } catch (Exception e) {
-            DebugUtil.debug(e);
+            logger.warn(e.getMessage(), e);
         }
     }
 
@@ -63,7 +66,7 @@ public class CloseUtil {
         try {
             unbindable.unbind();
         } catch (Exception e) {
-            DebugUtil.debug(e);
+            logger.warn(e.getMessage(), e);
         }
     }
 }

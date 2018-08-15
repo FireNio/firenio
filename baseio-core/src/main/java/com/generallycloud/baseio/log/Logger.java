@@ -17,40 +17,54 @@ package com.generallycloud.baseio.log;
 
 public interface Logger {
 
-    void info(String message);
+    void debug(String msg);
 
-    void info(String message, Object param);
+    void debug(String msg, Object param);
 
-    void info(String message, Object param, Object param1);
+    void debug(String msg, Object... params);
 
-    void info(String message, Object... params);
+    void debug(String msg, Object param, Object param1);
 
-    void debug(String message);
+    void debug(String msg, Throwable t);
 
-    void debug(Throwable throwable);
+    void error(String msg);
 
-    void debug(String message, Object param);
+    void error(String msg, Object param);
 
-    void debug(String message, Object param, Object param1);
+    void error(String msg, Object... params);
 
-    void debug(String message, Object... params);
+    void error(String msg, Object param, Object param1);
 
-    void error(String message);
+    void error(String msg, Throwable t);
 
-    void error(String message, Object param);
-
-    void error(String message, Object param, Object param1);
-
-    void error(String message, Object... params);
-
-    void error(String message, Throwable throwable);
+    void error(Throwable e);
 
     String getName();
 
-    boolean isEnableDebug();
+    void info(String msg);
 
-    boolean isEnableInfo();
+    void info(String msg, Object param);
 
-    void error(Throwable e);
+    void info(String msg, Object... params);
+
+    void info(String msg, Object param, Object param1);
+
+    boolean isDebugEnabled();
+
+    boolean isErrorEnabled();
+
+    boolean isInfoEnabled();
+
+    boolean isWarnEnabled();
+
+    void warn(String msg);
+
+    void warn(String msg, Object param);
+
+    void warn(String msg, Object... params);
+
+    void warn(String msg, Object param, Object param1);
+
+    void warn(String msg, Throwable t);
 
 }

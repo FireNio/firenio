@@ -38,58 +38,58 @@ public class SLF4JLogger implements Logger {
     }
 
     @Override
-    public void info(String message) {
-        logger.info(message);
+    public void info(String msg) {
+        logger.info(msg);
     }
 
     @Override
-    public void info(String message, Object param) {
-        logger.info(message, param);
+    public void info(String msg, Object param) {
+        logger.info(msg, param);
     }
 
     @Override
-    public void info(String message, Object param, Object param1) {
-        logger.info(message, param, param1);
+    public void info(String msg, Object param, Object param1) {
+        logger.info(msg, param, param1);
     }
 
     @Override
-    public void info(String message, Object... param) {
-        logger.info(message, param);
+    public void info(String msg, Object... param) {
+        logger.info(msg, param);
     }
 
     @Override
-    public void debug(String message) {
-        logger.debug(message);
+    public void debug(String msg) {
+        logger.debug(msg);
     }
 
     @Override
-    public void debug(String message, Object param) {
-        logger.debug(message, param);
+    public void debug(String msg, Object param) {
+        logger.debug(msg, param);
     }
 
     @Override
-    public void debug(String message, Object param, Object param1) {
-        logger.debug(message, param, param1);
+    public void debug(String msg, Object param, Object param1) {
+        logger.debug(msg, param, param1);
     }
 
     @Override
-    public void debug(String message, Object... param) {
-        logger.debug(message, param);
+    public void debug(String msg, Object... param) {
+        logger.debug(msg, param);
     }
 
     @Override
-    public void error(String message, Object param) {
-        logger.error(message, param);
+    public void error(String msg, Object param) {
+        logger.error(msg, param);
     }
 
     @Override
-    public void error(String message, Object param, Object param1) {
-        logger.error(message, param, param1);
+    public void error(String msg, Object param, Object param1) {
+        logger.error(msg, param, param1);
     }
 
     @Override
-    public void error(String message, Object... params) {
-        logger.error(message, params);
+    public void error(String msg, Object... params) {
+        logger.error(msg, params);
     }
 
     @Override
@@ -103,20 +103,55 @@ public class SLF4JLogger implements Logger {
     }
 
     @Override
-    public void debug(Throwable throwable) {
+    public void warn(String msg) {
+        logger.warn(msg);
+    }
+
+    @Override
+    public void warn(String msg, Object param) {
+        logger.warn(msg, param);
+    }
+
+    @Override
+    public void warn(String msg, Object... params) {
+        logger.warn(msg, params);
+    }
+
+    @Override
+    public void warn(String msg, Object param, Object param1) {
+        logger.warn(msg, param, param1);
+    }
+
+    @Override
+    public void warn(String msg, Throwable throwable) {
+        logger.warn(msg, throwable);
+    }
+
+    @Override
+    public void debug(String msg, Throwable throwable) {
         if (logger.isDebugEnabled()) {
-            logger.error(throwable.getMessage(), throwable);
+            logger.error(msg, throwable);
         }
     }
 
     @Override
-    public boolean isEnableDebug() {
+    public boolean isDebugEnabled() {
         return logger.isDebugEnabled();
     }
 
     @Override
-    public boolean isEnableInfo() {
+    public boolean isErrorEnabled() {
+        return logger.isErrorEnabled();
+    }
+
+    @Override
+    public boolean isInfoEnabled() {
         return logger.isInfoEnabled();
+    }
+
+    @Override
+    public boolean isWarnEnabled() {
+        return logger.isWarnEnabled();
     }
 
     @Override

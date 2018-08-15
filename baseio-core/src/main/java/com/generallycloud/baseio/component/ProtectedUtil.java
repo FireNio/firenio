@@ -25,8 +25,8 @@ import com.generallycloud.baseio.buffer.ByteBuf;
  */
 public class ProtectedUtil {
 
-    public static void finishHandshake(NioSocketChannel ch, Exception e) throws IOException {
-        ch.finishHandshake(e);
+    public static void finishHandshake(NioSocketChannel ch) throws IOException {
+        ch.finishHandshake();
     }
 
     public static boolean isSslHandshakeFinished(NioSocketChannel ch) {

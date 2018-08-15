@@ -27,13 +27,10 @@ import com.generallycloud.baseio.common.MessageFormatter;
 public class InternalLogger implements Logger {
 
     private String        debugClassName;
-
     private String        errorClassName;
-
     private String        infoClassName;
-
+    private String        warnClassName;
     private String        name;
-
     private LoggerPrinter printer;
 
     public InternalLogger(LoggerPrinter printer, Class<?> clazz) {
@@ -46,92 +43,87 @@ public class InternalLogger implements Logger {
         this.debugClassName = " [DEBUG] " + className;
         this.infoClassName = " [INFO] " + className;
         this.errorClassName = " [ERROR] " + className;
+        this.warnClassName = " [WARN] " + className;
         this.name = name;
     }
 
     @Override
-    public void debug(String message) {
-        if (isEnableDebug()) {
-            info0(debugClassName, message);
+    public void debug(String msg) {
+        if (isDebugEnabled()) {
+            print(debugClassName, msg);
         }
     }
 
     @Override
-    public void debug(String message, Object param) {
-        if (isEnableDebug()) {
-            info0(debugClassName, message, param);
+    public void debug(String msg, Object param) {
+        if (isDebugEnabled()) {
+            print(debugClassName, msg, param);
         }
     }
 
     @Override
-    public void debug(String message, Object... param) {
-        if (isEnableDebug()) {
-            info0(debugClassName, message, param);
+    public void debug(String msg, Object... param) {
+        if (isDebugEnabled()) {
+            print(debugClassName, msg, param);
         }
     }
 
     @Override
-    public void debug(String message, Object param, Object param1) {
-        if (isEnableDebug()) {
-            info0(debugClassName, message, param, param1);
+    public void debug(String msg, Object param, Object param1) {
+        if (isDebugEnabled()) {
+            print(debugClassName, msg, param, param1);
         }
     }
 
     @Override
-    public void debug(Throwable e) {
-        if (isEnableDebug()) {
-            printStackTrace(e);
+    public void debug(String msg, Throwable t) {
+        if (isDebugEnabled()) {
+            print(debugClassName, msg);
+            printer.printThrowable(t);
         }
     }
 
     @Override
-    public void error(String message) {
-        error0(message);
+    public void error(String msg) {
+        if (isErrorEnabled()) {
+            print(errorClassName, msg);
+        }
     }
 
     @Override
-    public void error(String message, Object param) {
-        error0(message, param);
+    public void error(String msg, Object param) {
+        if (isErrorEnabled()) {
+            print(errorClassName, msg, param);
+        }
     }
 
     @Override
-    public void error(String message, Object... params) {
-        error0(message, params);
+    public void error(String msg, Object... params) {
+        if (isErrorEnabled()) {
+            print(errorClassName, msg, params);
+        }
     }
 
     @Override
-    public void error(String message, Object param, Object param1) {
-        error0(message, param, param1);
+    public void error(String msg, Object param, Object param1) {
+        if (isErrorEnabled()) {
+            print(errorClassName, msg, param, param1);
+        }
     }
 
     @Override
-    public void error(String message, Throwable e) {
-        error(message);
-        printStackTrace(e);
+    public void error(String msg, Throwable e) {
+        if (isErrorEnabled()) {
+            error(msg);
+            printer.printThrowable(e);
+        }
     }
 
     @Override
     public void error(Throwable e) {
-        printStackTrace(e);
-    }
-
-    private void error0(String message) {
-        printer.errPrintln(getTimeFormat() + errorClassName + message);
-    }
-
-    private void error0(String message, Object param) {
-        printer.errPrintln(
-                getTimeFormat() + errorClassName + MessageFormatter.format(message, param));
-    }
-
-    private void error0(String message, Object... param) {
-        printer.errPrintln(
-                getTimeFormat() + errorClassName + MessageFormatter.arrayFormat(message, param));
-    }
-
-    private void error0(String message, Object param, Object param1) {
-        printer.errPrintln(
-                getTimeFormat() + errorClassName + MessageFormatter.format(message, param, param1));
+        if (isErrorEnabled()) {
+            printer.printThrowable(e);
+        }
     }
 
     public String exception2string(Throwable exception) {
@@ -155,67 +147,103 @@ public class InternalLogger implements Logger {
     }
 
     @Override
-    public void info(String message) {
-        info0(infoClassName, message);
-    }
-
-    @Override
-    public void info(String message, Object param) {
-        info0(infoClassName, message, param);
-    }
-
-    @Override
-    public void info(String message, Object... param) {
-        info0(infoClassName, message, param);
-    }
-
-    @Override
-    public void info(String message, Object param, Object param1) {
-        info0(infoClassName, message, param, param1);
-    }
-
-    private void info0(String className, String message) {
-        if (isEnableInfo()) {
-            printer.println(getTimeFormat() + className + message);
-        }
-    }
-
-    private void info0(String className, String message, Object param) {
-        if (isEnableInfo()) {
-            printer.println(getTimeFormat() + className + MessageFormatter.format(message, param));
-        }
-    }
-
-    private void info0(String className, String message, Object... param) {
-        if (isEnableInfo()) {
-            printer.println(
-                    getTimeFormat() + className + MessageFormatter.arrayFormat(message, param));
-        }
-    }
-
-    private void info0(String className, String message, Object param, Object param1) {
-        if (isEnableInfo()) {
-            printer.println(
-                    getTimeFormat() + className + MessageFormatter.format(message, param, param1));
+    public void info(String msg) {
+        if (isInfoEnabled()) {
+            print(infoClassName, msg);
         }
     }
 
     @Override
-    public boolean isEnableDebug() {
-        return LoggerFactory.isEnableDebug();
+    public void info(String msg, Object param) {
+        if (isInfoEnabled()) {
+            print(infoClassName, msg, param);
+        }
     }
 
     @Override
-    public boolean isEnableInfo() {
-        return LoggerFactory.isEnableInfo();
+    public void info(String msg, Object... param) {
+        if (isInfoEnabled()) {
+            print(infoClassName, msg, param);
+        }
     }
 
-    public void printStackTrace(Throwable t) {
-        printer.errPrintThrowable(t);
+    @Override
+    public void info(String msg, Object param, Object param1) {
+        if (isInfoEnabled()) {
+            print(infoClassName, msg, param, param1);
+        }
     }
 
-    public void setEnableDebug(boolean enable) {
-        LoggerFactory.setEnableDebug(enable);
+    private void print(String className, String msg) {
+        printer.println(getTimeFormat() + className + msg);
+    }
+
+    private void print(String className, String msg, Object param) {
+        printer.println(getTimeFormat() + className + MessageFormatter.format(msg, param));
+    }
+
+    private void print(String className, String msg, Object... param) {
+        printer.println(getTimeFormat() + className + MessageFormatter.arrayFormat(msg, param));
+    }
+
+    private void print(String className, String msg, Object param, Object param1) {
+        printer.println(getTimeFormat() + className + MessageFormatter.format(msg, param, param1));
+    }
+
+    @Override
+    public void warn(String msg) {
+        if (isWarnEnabled()) {
+            print(warnClassName, msg);
+        }
+    }
+
+    @Override
+    public void warn(String msg, Object param) {
+        if (isWarnEnabled()) {
+            print(warnClassName, msg, param);
+        }
+    }
+
+    @Override
+    public void warn(String msg, Object... params) {
+        if (isWarnEnabled()) {
+            print(warnClassName, msg, params);
+        }
+    }
+
+    @Override
+    public void warn(String msg, Object param, Object param1) {
+        if (isWarnEnabled()) {
+            print(warnClassName, msg, param, param1);
+        }
+    }
+
+    @Override
+    public void warn(String msg, Throwable throwable) {
+        if (isWarnEnabled()) {
+            print(warnClassName, msg);
+            printer.printThrowable(throwable);
+        }
+    }
+
+    @Override
+    public boolean isDebugEnabled() {
+        return LoggerFactory.isDebugEnabled();
+    }
+
+    @Override
+    public boolean isErrorEnabled() {
+        return LoggerFactory.isErrorEnabled();
+    }
+
+    @Override
+    public boolean isInfoEnabled() {
+        return LoggerFactory.isInfoEnabled();
+    }
+
+    @Override
+    public boolean isWarnEnabled() {
+        return LoggerFactory.isWarnEnabled();
     }
 
 }

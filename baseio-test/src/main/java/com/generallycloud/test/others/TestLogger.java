@@ -28,7 +28,6 @@ public class TestLogger {
     public static void main(String[] args) {
 
         LoggerFactory.setEnableSLF4JLogger(false);
-        DebugUtil.setEnableDebug(true);
 
         Logger logger = LoggerFactory.getLogger(TestLogger.class);
 
