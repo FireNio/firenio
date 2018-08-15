@@ -60,7 +60,7 @@ public class TestLoadServer {
                         TextFuture f = (TextFuture) future;
                         f.write(f.getReadText(), channel);
                         if (batchFlush) {
-                            fs.add(channel.getCodec().encode(channel, future));
+                            fs.add(channel.encode(future));
                             if (addTask) {
                                 addTask = false;
                                 channel.getEventLoop().dispatchAfterLoop(() -> {

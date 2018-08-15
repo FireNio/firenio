@@ -237,6 +237,10 @@ public final class NioSocketChannel extends AttributesImpl
     private void dispatch(Runnable event) {
         eventLoop.dispatch(event);
     }
+    
+    public ByteBuf encode(Future future) throws IOException{
+        return codec.encode(this, future);
+    }
 
     private void exceptionCaught(Future future, Exception ex) {
         future.release(eventLoop);

@@ -70,8 +70,7 @@ public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
     
     @Override
     public ByteBuf duplicate() {
-        return new DuplicatedByteBuf(new UnpooledHeapByteBuf(allocator, memory).produce(this),
-                this);
+        return new DuplicatedHeapByteBuf(memory, this).produce(this);
     }
 
     @Override

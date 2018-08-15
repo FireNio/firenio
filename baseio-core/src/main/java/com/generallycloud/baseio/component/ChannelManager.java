@@ -57,17 +57,18 @@ public class ChannelManager {
         broadcast(buf, channels.values());
     }
 
-    public void broadcast(Future future, Collection<NioSocketChannel> chs) throws IOException {
+    public static void broadcast(Future future, Collection<NioSocketChannel> chs)
+            throws IOException {
         if (chs.size() == 0) {
             return;
         }
         NioSocketChannel ch = chs.iterator().next();
         if (ch != null) {
-            broadcast(ch.getCodec().encode(ch, future), chs);
+            broadcast(ch.encode(future), chs);
         }
     }
 
-    public void broadcast(ByteBuf buf, Collection<NioSocketChannel> chs) {
+    public static void broadcast(ByteBuf buf, Collection<NioSocketChannel> chs) {
         if (chs.size() == 0) {
             buf.release();
             return;

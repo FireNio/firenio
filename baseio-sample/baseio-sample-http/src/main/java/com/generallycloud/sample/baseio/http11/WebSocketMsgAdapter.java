@@ -24,7 +24,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import com.generallycloud.baseio.codec.http11.WebSocketFuture;
+import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.ChannelManager;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.log.Logger;
@@ -84,16 +86,12 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
                 f.write(msg.msg, channel);
                 channel.flush(f);
             } else {
-                for (int i = 0; i < clients.size(); i++) {
-                    NioSocketChannel s = clients.get(i);
-                    if (s.isOpened()) {
-                        WebSocketFuture f = new WebSocketFuture();
-                        f.write(msg.msg, s);
-                        s.flush(f);
-                    } else {
-                        removeClient(s);
-                        i--;
-                    }
+                WebSocketFuture f = new WebSocketFuture();
+                f.write(msg.msg, Encoding.UTF8);
+                try {
+                    ChannelManager.broadcast(f, clients);
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
                 }
             }
         }
