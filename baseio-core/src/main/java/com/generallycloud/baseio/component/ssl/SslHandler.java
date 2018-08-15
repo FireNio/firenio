@@ -39,7 +39,7 @@ public class SslHandler {
     public static int     SSL_CONTENT_TYPE_CHANGE_CIPHER_SPEC = 20;
     public static int     SSL_CONTENT_TYPE_HANDSHAKE          = 22;
     public static int     SSL_RECORD_HEADER_LENGTH            = 5;
-    
+
     private final ByteBuf dstTemp;
 
     public SslHandler() {
@@ -49,7 +49,11 @@ public class SslHandler {
 
     //FIXME not correct ,fix this
     private int guessWrapOut(int src, int ext) {
-        return (((src + 1) / SSL_PACKET_BUFFER_SIZE) + 2) * (SSL_PACKET_BUFFER_SIZE + ext);
+        if (SslContext.isOpenSslAvailable()) {
+            return ((src + SSL_PACKET_BUFFER_SIZE - 1) / SSL_PACKET_BUFFER_SIZE + 1) * ext + src;
+        } else {
+            return ((src + SSL_PACKET_BUFFER_SIZE - 1) / SSL_PACKET_BUFFER_SIZE) * (ext + SSL_PACKET_BUFFER_SIZE);
+        }
     }
 
     public ByteBuf wrap(NioSocketChannel ch, ByteBuf src) throws IOException {
@@ -83,7 +87,7 @@ public class SslHandler {
                             int srcLen = src.limit();
                             int outLen = out.position();
                             int y = ((srcLen + 1) / SSL_PACKET_BUFFER_SIZE) + 1;
-                            int u = (outLen - srcLen) / y;
+                            int u = ((outLen - srcLen) / y) * 2;
                             ProtectedUtil.setSslWrapExt(ch, (byte) u);
                         }
                         return out.flip();
