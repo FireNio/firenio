@@ -23,13 +23,68 @@ public class SLF4JLogger implements Logger {
 
     private String           name;
 
+    public SLF4JLogger(Class<?> clazz) {
+        this(clazz.getSimpleName());
+    }
+
     public SLF4JLogger(String name) {
         this.logger = LoggerFactory.getLogger(name);
         this.name = name;
     }
 
-    public SLF4JLogger(Class<?> clazz) {
-        this(clazz.getSimpleName());
+    @Override
+    public void debug(String msg) {
+        logger.debug(msg);
+    }
+
+    @Override
+    public void debug(String msg, Object param) {
+        logger.debug(msg, param);
+    }
+
+    @Override
+    public void debug(String msg, Object... param) {
+        logger.debug(msg, param);
+    }
+
+    @Override
+    public void debug(String msg, Object param, Object param1) {
+        logger.debug(msg, param, param1);
+    }
+
+    @Override
+    public void debug(String msg, Throwable throwable) {
+        logger.debug(msg, throwable);
+    }
+
+    @Override
+    public void error(String object) {
+        logger.error(object);
+    }
+
+    @Override
+    public void error(String msg, Object param) {
+        logger.error(msg, param);
+    }
+
+    @Override
+    public void error(String msg, Object... params) {
+        logger.error(msg, params);
+    }
+
+    @Override
+    public void error(String msg, Object param, Object param1) {
+        logger.error(msg, param, param1);
+    }
+
+    @Override
+    public void error(String object, Throwable throwable) {
+        logger.error(object, throwable);
+    }
+
+    @Override
+    public void error(Throwable e) {
+        logger.error(e.getMessage(), e);
     }
 
     @Override
@@ -48,58 +103,33 @@ public class SLF4JLogger implements Logger {
     }
 
     @Override
-    public void info(String msg, Object param, Object param1) {
-        logger.info(msg, param, param1);
-    }
-
-    @Override
     public void info(String msg, Object... param) {
         logger.info(msg, param);
     }
 
     @Override
-    public void debug(String msg) {
-        logger.debug(msg);
+    public void info(String msg, Object param, Object param1) {
+        logger.info(msg, param, param1);
     }
 
     @Override
-    public void debug(String msg, Object param) {
-        logger.debug(msg, param);
+    public boolean isDebugEnabled() {
+        return logger.isDebugEnabled();
     }
 
     @Override
-    public void debug(String msg, Object param, Object param1) {
-        logger.debug(msg, param, param1);
+    public boolean isErrorEnabled() {
+        return logger.isErrorEnabled();
     }
 
     @Override
-    public void debug(String msg, Object... param) {
-        logger.debug(msg, param);
+    public boolean isInfoEnabled() {
+        return logger.isInfoEnabled();
     }
 
     @Override
-    public void error(String msg, Object param) {
-        logger.error(msg, param);
-    }
-
-    @Override
-    public void error(String msg, Object param, Object param1) {
-        logger.error(msg, param, param1);
-    }
-
-    @Override
-    public void error(String msg, Object... params) {
-        logger.error(msg, params);
-    }
-
-    @Override
-    public void error(String object, Throwable throwable) {
-        logger.error(object, throwable);
-    }
-
-    @Override
-    public void error(String object) {
-        logger.error(object);
+    public boolean isWarnEnabled() {
+        return logger.isWarnEnabled();
     }
 
     @Override
@@ -125,38 +155,6 @@ public class SLF4JLogger implements Logger {
     @Override
     public void warn(String msg, Throwable throwable) {
         logger.warn(msg, throwable);
-    }
-
-    @Override
-    public void debug(String msg, Throwable throwable) {
-        if (logger.isDebugEnabled()) {
-            logger.error(msg, throwable);
-        }
-    }
-
-    @Override
-    public boolean isDebugEnabled() {
-        return logger.isDebugEnabled();
-    }
-
-    @Override
-    public boolean isErrorEnabled() {
-        return logger.isErrorEnabled();
-    }
-
-    @Override
-    public boolean isInfoEnabled() {
-        return logger.isInfoEnabled();
-    }
-
-    @Override
-    public boolean isWarnEnabled() {
-        return logger.isWarnEnabled();
-    }
-
-    @Override
-    public void error(Throwable e) {
-        logger.info(e.getMessage(), e);
     }
 
 }

@@ -65,7 +65,7 @@ public final class NioSocketChannel extends AttributesImpl
     private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
     private static final Logger                 logger               = LoggerFactory
             .getLogger(NioSocketChannel.class);
-    private final SocketChannel                 ch;
+    private final SocketChannel                 channel;
     private final Integer                       channelId;
     private final ReentrantLock                 closeLock            = new ReentrantLock();
     private final ChannelContext                context;
@@ -84,7 +84,7 @@ public final class NioSocketChannel extends AttributesImpl
     private boolean                             opened               = true;
     private ByteBuf                             plainRemainBuf;
     private ProtocolCodec                       codec;
-    private Frame                              readFrame;
+    private Frame                               readFrame;
     private final String                        remoteAddr;
     private final String                        remoteAddrPort;
     private final int                           remotePort;
@@ -107,7 +107,7 @@ public final class NioSocketChannel extends AttributesImpl
         this.maxWriteBacklog = context.getMaxWriteBacklog();
         this.currentWriteBufs = new ByteBuf[group.getWriteBuffers()];
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
-        this.ch = (SocketChannel) selectionKey.channel();
+        this.channel = (SocketChannel) selectionKey.channel();
         this.lastAccess = creationTime + group.getIdleTime();
         this.writeBufs = new ConcurrentLinkedQueue<>();
         //请勿使用remote.getRemoteHost(),可能出现阻塞
@@ -211,7 +211,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     private void closeSsl() {
         if (enableSsl) {
-            if (!ch.isOpen()) {
+            if (!channel.isOpen()) {
                 return;
             }
             sslEngine.closeOutbound();
@@ -240,8 +240,8 @@ public final class NioSocketChannel extends AttributesImpl
         try {
             getIoEventHandle().exceptionCaught(this, frame, ex);
         } catch (Throwable e) {
-            logger.error(ex.getMessage(), ex);
-            logger.error(e.getMessage(), e);
+            logger.debug(ex.getMessage(), ex);
+            logger.debug(e.getMessage(), e);
         }
     }
 
@@ -275,6 +275,8 @@ public final class NioSocketChannel extends AttributesImpl
                 l.channelOpened(ch);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
+                CloseUtil.close(ch);
+                return;
             }
         }
         if (ioEventHandle == null) {
@@ -289,7 +291,7 @@ public final class NioSocketChannel extends AttributesImpl
             try {
                 buf = sslHandler().wrap(this, old);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logger.debug(e.getMessage(), e);
             } finally {
                 old.release();
             }
@@ -509,14 +511,14 @@ public final class NioSocketChannel extends AttributesImpl
 
     private InetSocketAddress getLocalSocketAddress0() {
         try {
-            return (InetSocketAddress) ch.getLocalAddress();
+            return (InetSocketAddress) channel.getLocalAddress();
         } catch (IOException e) {
             return ERROR_SOCKET_ADDRESS;
         }
     }
 
     public <T> T getOption(SocketOption<T> name) throws IOException {
-        return ch.getOption(name);
+        return channel.getOption(name);
     }
 
     public ProtocolCodec getCodec() {
@@ -541,7 +543,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     private InetSocketAddress getRemoteSocketAddress0() {
         try {
-            return (InetSocketAddress) ch.getRemoteAddress();
+            return (InetSocketAddress) channel.getRemoteAddress();
         } catch (Exception e) {}
         return ERROR_SOCKET_ADDRESS;
     }
@@ -581,7 +583,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public boolean isBlocking() {
-        return ch.isBlocking();
+        return channel.isBlocking();
     }
 
     public boolean isClosed() {
@@ -639,7 +641,7 @@ public final class NioSocketChannel extends AttributesImpl
         } else {
             readPlainRemainingBuf(src);
         }
-        int length = ch.read(src.nioBuffer());
+        int length = channel.read(src.nioBuffer());
         if (length < 1) {
             if (length == -1) {
                 CloseUtil.close(this);
@@ -746,7 +748,7 @@ public final class NioSocketChannel extends AttributesImpl
                 opened = false;
                 closeSsl();
                 releaseBufs();
-                CloseUtil.close(ch);
+                CloseUtil.close(channel);
                 selKey.attach(null);
                 selKey.cancel();
                 fireClosed();
@@ -761,7 +763,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public <T> void setOption(SocketOption<T> name, T value) throws IOException {
-        ch.setOption(name, value);
+        channel.setOption(name, value);
     }
 
     public void setCodec(ProtocolCodec codec) {
@@ -783,7 +785,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     private void write(ByteBuf buf) {
         try {
-            ch.write(buf.nioBuffer());
+            channel.write(buf.nioBuffer());
             buf.reverse();
             int interestOps = selKey.interestOps();
             if (buf.hasRemaining()) {
@@ -828,7 +830,7 @@ public final class NioSocketChannel extends AttributesImpl
             }
             if (currentWriteBufsLen == 1) {
                 ByteBuffer nioBuf = writeBuffers[0];
-                ch.write(nioBuf);
+                channel.write(nioBuf);
                 if (nioBuf.hasRemaining()) {
                     this.currentWriteBufsLen = 1;
                     currentWriteBufs[0].reverse();
@@ -843,7 +845,7 @@ public final class NioSocketChannel extends AttributesImpl
                     return true;
                 }
             } else {
-                ch.write(writeBuffers, 0, currentWriteBufsLen);
+                channel.write(writeBuffers, 0, currentWriteBufsLen);
                 for (int i = 0; i < currentWriteBufsLen; i++) {
                     ByteBuf buf = currentWriteBufs[i];
                     if (writeBuffers[i].hasRemaining()) {

@@ -117,7 +117,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     writeComplete = ch.write(key.interestOps());
                 } catch (Throwable e) {
-                    logger.warn(e.getMessage() + ch, e);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(e.getMessage() + ch, e);
+                    }
                     ch.close();
                 }
             }
@@ -126,7 +128,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     ch.read(buf);
                 } catch (Throwable e) {
-                    logger.warn(e.getMessage() + ch, e);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(e.getMessage() + ch, e);
+                    }
                     ch.close();
                     if (e instanceof SSLHandshakeException) {
                         finishConnect(ch, ch.getContext(), e);
@@ -163,7 +167,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         }
                     });
                 } catch (Exception e) {
-                    logger.warn(e.getMessage(), e);
+                    logger.debug(e.getMessage(), e);
                 }
             } else {
                 @SuppressWarnings("resource")
@@ -233,14 +237,14 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     try {
                         ls.get(0).channelIdled(ch, lastIdleTime, currentTime);
                     } catch (Exception e) {
-                        logger.warn(e.getMessage(), e);
+                        logger.error(e.getMessage(), e);
                     }
                 } else {
                     for (ChannelIdleEventListener l : ls) {
                         try {
                             l.channelIdled(ch, lastIdleTime, currentTime);
                         } catch (Exception e) {
-                            logger.warn(e.getMessage(), e);
+                            logger.error(e.getMessage(), e);
                         }
                     }
                 }
@@ -250,7 +254,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
                 for (ChannelIdleEventListener l : ls) {
                     for (NioSocketChannel ch : channels.values()) {
-                        l.channelIdled(ch, lastIdleTime, currentTime);
+                        try {
+                            l.channelIdled(ch, lastIdleTime, currentTime);
+                        } catch (Exception e) {
+                            logger.error(e.getMessage(), e);
+                        }
                     }
                 }
             }
@@ -275,7 +283,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     event.run();
                 } catch (Throwable e) {
-                    logger.warn(e.getMessage(), e);
+                    logger.debug(e.getMessage(), e);
                 }
             }
             es.clear();
@@ -433,7 +441,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     }
                 }
             } catch (Throwable e) {
-                logger.warn(e.getMessage(), e);
+                logger.debug(e.getMessage(), e);
             }
         }
     }
@@ -476,9 +484,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 finishConnect(ch, ch.getContext(), null);
             }
         } catch (ClosedChannelException e) {
-            logger.warn(e.getMessage(), e);
+            logger.debug(e.getMessage(), e);
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            logger.debug(e.getMessage(), e);
             if (!ch.isEnableSsl()) {
                 finishConnect(ch, ch.getContext(), e);
             }
@@ -504,7 +512,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     waiter.response(null);
                 } catch (Exception e) {
                     waiter.response(e);
-                    logger.warn(e.getMessage(), e);
+                    logger.debug(e.getMessage(), e);
                 }
             }
         });

@@ -62,7 +62,6 @@ public class ReConnector implements Closeable {
             return;
         }
         NioSocketChannel ch = connector.getChannel();
-        ThreadUtil.sleep(300);
         for (;;) {
             if (ch != null && ch.isOpened()) {
                 break;

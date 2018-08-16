@@ -52,20 +52,33 @@
 
 	<dependencies>
 	
-	    <dependency>
-            <groupId>org.wildfly.openssl</groupId>
-            <artifactId>wildfly-openssl</artifactId>
-            <version>1.0.2.Final</version>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.7</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.2</version>
+			<scope>provided</scope>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.mortbay.jetty.alpn/alpn-boot -->
-        <dependency>
-            <groupId>org.mortbay.jetty.alpn</groupId>
-            <artifactId>alpn-boot</artifactId>
-            <version>8.1.10.v20161026</version>
-            <scope>provided</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.wildfly.openssl</groupId>
+			<artifactId>wildfly-openssl</artifactId>
+			<version>1.0.2.Final</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mortbay.jetty.alpn</groupId>
+			<artifactId>alpn-boot</artifactId>
+			<version>8.1.10.v20161026</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>${project.groupId}</groupId>

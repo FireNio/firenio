@@ -73,7 +73,7 @@
 			<onMismatch>DENY</onMismatch>
 		</filter>
 	</appender>
-	<root level="INFO">
+	<root level="DEBUG">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="INFO_FILE" />
 		<appender-ref ref="DEBUG_FILE" />

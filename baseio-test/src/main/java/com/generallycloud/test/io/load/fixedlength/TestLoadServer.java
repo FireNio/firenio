@@ -50,7 +50,7 @@ public class TestLoadServer {
         context.addChannelEventListener(new ChannelEventListenerAdapter() {
 
             @Override
-            public void channelOpened(NioSocketChannel channel) throws Exception {
+            public void channelOpened(NioSocketChannel channel) {
 //                channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
                 channel.setIoEventHandle(new IoEventHandle() {
                     boolean      addTask = true;
