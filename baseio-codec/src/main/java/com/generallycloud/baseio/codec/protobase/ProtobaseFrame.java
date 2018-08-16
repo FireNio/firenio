@@ -96,7 +96,7 @@ public class ProtobaseFrame extends BinaryFrame implements TextFrame {
     }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
+    public boolean read(NioSocketChannel ch, ByteBuf src) throws IOException {
         if (src.remaining() < 4) {
             return false;
         }
@@ -137,7 +137,7 @@ public class ProtobaseFrame extends BinaryFrame implements TextFrame {
         if (hasText) {
             src.markL();
             src.limit(src.position() + textLen);
-            readText = StringUtil.decode(channel.getCharset(), src.nioBuffer());
+            readText = StringUtil.decode(ch.getCharset(), src.nioBuffer());
             src.reverse();
             src.resetL();
         }

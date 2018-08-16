@@ -25,7 +25,7 @@ public class HttpIOEventHandle extends IoEventHandle {
     private Waiter waiter;
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
         HttpFrame f = (HttpFrame) frame;
         Waiter waiter = this.waiter;
         if (waiter != null) {

@@ -31,24 +31,24 @@ public class SpringHttpFrameAcceptor extends HttpFrameAcceptor {
     private FrameAcceptor                 filter;
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
         NamedFrame f = (NamedFrame) frame;
         if (checkFilter) {
             checkFilter = false;
             filter = getFrameAcceptor("http-filter");
         }
         if (filter != null) {
-            filter.accept(channel, frame);
+            filter.accept(ch, frame);
             if (frame.flushed()) {
                 return;
             }
         }
         FrameAcceptor acceptor = getFrameAcceptor(f.getFrameName());
         if (acceptor == null) {
-            acceptHtml(channel, f);
+            acceptHtml(ch, f);
             return;
         }
-        acceptor.accept(channel, frame);
+        acceptor.accept(ch, frame);
     }
 
     private FrameAcceptor getFrameAcceptor(String name) {

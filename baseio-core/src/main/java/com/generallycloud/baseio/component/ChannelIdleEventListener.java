@@ -19,6 +19,6 @@ import java.util.EventListener;
 
 public interface ChannelIdleEventListener extends EventListener {
 
-    void channelIdled(NioSocketChannel channel, long lastIdleTime, long currentTime);
+    void channelIdled(NioSocketChannel ch, long lastIdleTime, long currentTime);
 
 }

@@ -31,12 +31,12 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public class RedisCodec extends ProtocolCodec {
 
     @Override
-    public Frame decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public Frame decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         return new RedisFrameImpl();
     }
 
     @Override
-    public Frame ping(NioSocketChannel channel) {
+    public Frame ping(NioSocketChannel ch) {
         RedisCmdFrame f = new RedisCmdFrame();
         f.setPing();
         f.writeCommand(RedisCommand.PING.raw);
@@ -44,7 +44,7 @@ public class RedisCodec extends ProtocolCodec {
     }
 
     @Override
-    public Frame pong(NioSocketChannel channel, Frame ping) {
+    public Frame pong(NioSocketChannel ch, Frame ping) {
         RedisCmdFrame f = (RedisCmdFrame) ping;
         f.setPong();
         f.writeCommand(RedisCommand.PONG.raw);
@@ -52,7 +52,7 @@ public class RedisCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel channel, Frame frame) throws IOException {
+    public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
         RedisFrame f = (RedisFrame) frame;
         int writeSize = f.getWriteSize();
         if (writeSize == 0) {

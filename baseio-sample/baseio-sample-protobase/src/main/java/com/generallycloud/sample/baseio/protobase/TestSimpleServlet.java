@@ -25,10 +25,10 @@ public class TestSimpleServlet extends ProtobaseFrameAcceptorService {
     private TestSimple1 simple1 = new TestSimple1();
 
     @Override
-    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame) throws Exception {
+    protected void doAccept(NioSocketChannel ch, ParamedProtobaseFrame frame) throws Exception {
         frame.put("dynamic",simple1.dynamic());
         frame.put("param",frame.getFrameName());
-        channel.flush(frame);
+        ch.flush(frame);
     }
 
 }

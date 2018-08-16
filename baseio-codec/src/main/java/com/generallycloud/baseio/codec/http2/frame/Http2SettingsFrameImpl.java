@@ -30,8 +30,8 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
         this.setByteBuf(buf);
     }
 
-    private void doComplete(NioSocketChannel channel, ByteBuf buf) throws IOException {
-        Http2Session session = Http2Session.getHttp2Session(channel);
+    private void doComplete(NioSocketChannel ch, ByteBuf buf) throws IOException {
+        Http2Session session = Http2Session.getHttp2Session(ch);
         int settings = buf.limit() / 6;
         for (int i = 0; i < settings; i++) {
             int key = buf.getShort();
@@ -39,17 +39,17 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
             session.setSettings(key, value);
         }
         this.settings = session.getSettings();
-        channel.flush(this);
+        ch.flush(this);
     }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         ByteBuf buf = getByteBuf();
         buf.read(buffer);
         if (buf.hasRemaining()) {
             return false;
         }
-        doComplete(channel, buf.flip());
+        doComplete(ch, buf.flip());
         return true;
     }
 

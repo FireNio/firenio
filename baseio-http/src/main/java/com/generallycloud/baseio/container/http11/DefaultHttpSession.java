@@ -26,33 +26,33 @@ import com.generallycloud.baseio.protocol.Frame;
 public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
     private long               createTime     = System.currentTimeMillis();
-    private NioSocketChannel      channel;
+    private NioSocketChannel      ch;
     private long               lastAccessTime = createTime;
     private String             sessionId;
     private HttpFrameAcceptor context;
 
     protected DefaultHttpSession(HttpFrameAcceptor context, NioSocketChannel ioSession) {
         this.context = context;
-        this.channel = ioSession;
+        this.ch = ioSession;
         this.sessionId = UUIDGenerator.random();
     }
 
     protected DefaultHttpSession(HttpFrameAcceptor context, NioSocketChannel ioSession,
             String sessionId) {
         this.context = context;
-        this.channel = ioSession;
+        this.ch = ioSession;
         this.sessionId = sessionId;
     }
 
     @Override
     public void active(NioSocketChannel ioSession) {
-        this.channel = ioSession;
+        this.ch = ioSession;
         this.lastAccessTime = System.currentTimeMillis();
     }
 
     @Override
     public void flush(Frame frame) throws IOException {
-        channel.flush(frame);
+        ch.flush(frame);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
     @Override
     public NioSocketChannel getChannel() {
-        return channel;
+        return ch;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
     @Override
     public Charset getEncoding() {
-        return channel.getCharset();
+        return ch.getCharset();
     }
 
     @Override

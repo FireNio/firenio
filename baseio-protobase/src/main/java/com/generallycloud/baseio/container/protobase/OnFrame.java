@@ -20,5 +20,5 @@ import com.generallycloud.baseio.protocol.Frame;
 
 public interface OnFrame {
 
-    public abstract void onResponse(NioSocketChannel channel, Frame frame);
+    public abstract void onResponse(NioSocketChannel ch, Frame frame);
 }

@@ -48,20 +48,20 @@ public class HttpFrameAcceptor extends ContainerIoEventHandle {
     private Logger                  logger    = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-        acceptHtml(channel, (NamedFrame) frame);
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
+        acceptHtml(ch, (NamedFrame) frame);
     }
     
-    protected void printHtml(NioSocketChannel channel, Frame frame, String content) {
-        if (channel.isClosed()) {
+    protected void printHtml(NioSocketChannel ch, Frame frame, String content) {
+        if (ch.isClosed()) {
             return;
         }
         if (frame instanceof WebSocketFrame) {
-            frame.write(content, channel);
-            channel.flush(frame);
+            frame.write(content, ch);
+            ch.flush(frame);
             return;
         }
-        ServerHttpFrame f = new ServerHttpFrame(channel.getContext());
+        ServerHttpFrame f = new ServerHttpFrame(ch.getContext());
         StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
         builder.append("        <div style=\"margin-left:20px;\">\n");
         builder.append("            ");
@@ -70,13 +70,13 @@ public class HttpFrameAcceptor extends ContainerIoEventHandle {
         builder.append("        </div>\n");
         builder.append(HtmlUtil.HTML_POWER_BY);
         builder.append(HtmlUtil.HTML_BOTTOM);
-        f.write(builder.toString(), channel.getCharset());
+        f.write(builder.toString(), ch.getCharset());
         f.setStatus(HttpStatus.C500);
         f.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
-        channel.flush(f);
+        ch.flush(f);
     }
 
-    protected void acceptHtml(NioSocketChannel channel, NamedFrame frame) throws IOException {
+    protected void acceptHtml(NioSocketChannel ch, NamedFrame frame) throws IOException {
         HttpEntity entity = htmlCache.get(frame.getFrameName());
         HttpStatus status = HttpStatus.C200;
         ServerHttpFrame f = (ServerHttpFrame) frame;
@@ -84,16 +84,16 @@ public class HttpFrameAcceptor extends ContainerIoEventHandle {
             f.setStatus(HttpStatus.C404);
             entity = htmlCache.get("/404.html");
             if (entity == null) {
-                printHtml(channel, frame, "404 page not found");
+                printHtml(ch, frame, "404 page not found");
                 return;
             }
         }
         File file = entity.getFile();
         if (file != null && file.lastModified() > entity.getLastModify()) {
             synchronized (entity) {
-                reloadEntity(entity, channel.getContext(), status);
+                reloadEntity(entity, ch.getContext(), status);
             }
-            flush(channel, f, entity);
+            flush(ch, f, entity);
             return;
         }
         String ims = f.getRequestHeader(HttpHeader.Low_If_Modified_Since);
@@ -102,11 +102,11 @@ public class HttpFrameAcceptor extends ContainerIoEventHandle {
             imsTime = DateUtil.get().parseHttp(ims).getTime();
         }
         if (imsTime < entity.getLastModifyGTMTime()) {
-            flush(channel, f, entity);
+            flush(ch, f, entity);
             return;
         }
         f.setStatus(HttpStatus.C304);
-        channel.flush(f);
+        ch.flush(f);
     }
 
     @Override
@@ -116,7 +116,7 @@ public class HttpFrameAcceptor extends ContainerIoEventHandle {
     }
 
     @Override
-    public void exceptionCaught(NioSocketChannel channel, Frame frame, Exception ex) {
+    public void exceptionCaught(NioSocketChannel ch, Frame frame, Exception ex) {
         logger.error(ex.getMessage(), ex);
         StringBuilder builder = new StringBuilder();
         builder.append(
@@ -133,14 +133,14 @@ public class HttpFrameAcceptor extends ContainerIoEventHandle {
             builder.append(e.toString());
             builder.append("</BR>\n");
         }
-        printHtml(channel, frame, builder.toString());
+        printHtml(ch, frame, builder.toString());
     }
 
-    private void flush(NioSocketChannel channel, ServerHttpFrame frame, HttpEntity entity) {
+    private void flush(NioSocketChannel ch, ServerHttpFrame frame, HttpEntity entity) {
         frame.setResponseHeader(HttpHeader.Content_Type_Bytes, entity.getContentTypeBytes());
         frame.setResponseHeader(HttpHeader.Last_Modified_Bytes, entity.getLastModifyGTMBytes());
         frame.write(entity.getBinary());
-        channel.flush(frame);
+        ch.flush(frame);
     }
 
     private ApplicationIoEventHandle getApplicationIoEventHandle(ChannelContext context) {
@@ -201,7 +201,7 @@ public class HttpFrameAcceptor extends ContainerIoEventHandle {
         ApplicationIoEventHandle handle = getApplicationIoEventHandle(context);
         if (handle.getConfiguration().isEnableHttpSession()) {
             httpSessionManager = new DefaultHttpSessionManager();
-            httpSessionManager.startup("http-channel-manager");
+            httpSessionManager.startup("http-ch-manager");
         } else {
             httpSessionManager = new FakeHttpSessionManager();
         }

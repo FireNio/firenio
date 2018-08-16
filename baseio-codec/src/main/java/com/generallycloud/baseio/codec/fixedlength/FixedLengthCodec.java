@@ -71,12 +71,12 @@ public class FixedLengthCodec extends ProtocolCodec {
     }
 
     @Override
-    public Frame ping(NioSocketChannel channel) {
+    public Frame ping(NioSocketChannel ch) {
         return new FixedLengthFrame().setPing();
     }
 
     @Override
-    public Frame decode(NioSocketChannel channel, ByteBuf buffer) {
+    public Frame decode(NioSocketChannel ch, ByteBuf buffer) {
         return new FixedLengthFrame(limit);
     }
 

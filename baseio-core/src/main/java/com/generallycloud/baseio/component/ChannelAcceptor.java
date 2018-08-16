@@ -20,7 +20,6 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.channels.ServerSocketChannel;
-import java.util.Collection;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
@@ -92,16 +91,8 @@ public class ChannelAcceptor implements ChannelService {
         channelManager.broadcast(frame);
     }
 
-    public void broadcast(Frame frame, Collection<NioSocketChannel> channels) throws IOException {
-        broadcast(frame, channels);
-    }
-
     public void broadcast(ByteBuf buf) throws IOException {
         channelManager.broadcast(buf);
-    }
-
-    public void broadcast(ByteBuf buf, Collection<NioSocketChannel> channels) {
-        broadcast(buf, channels);
     }
 
     @Override

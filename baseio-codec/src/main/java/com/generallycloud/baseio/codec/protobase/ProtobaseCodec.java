@@ -77,12 +77,12 @@ public class ProtobaseCodec extends ProtocolCodec {
     }
 
     @Override
-    public Frame ping(NioSocketChannel channel) {
+    public Frame ping(NioSocketChannel ch) {
         return new ProtobaseFrame().setPing();
     }
 
     @Override
-    public Frame decode(NioSocketChannel channel, ByteBuf buffer) {
+    public Frame decode(NioSocketChannel ch, ByteBuf buffer) {
         return new ProtobaseFrame(textLenLimit, binaryLenLimit);
     }
 

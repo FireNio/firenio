@@ -27,8 +27,8 @@ public class TestUploadServlet extends ProtobaseFrameAcceptorService {
     private FileReceiveUtil    fileReceiveUtil = new FileReceiveUtil("upload-");
 
     @Override
-    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame) throws Exception {
+    protected void doAccept(NioSocketChannel ch, ParamedProtobaseFrame frame) throws Exception {
 
-        fileReceiveUtil.accept(channel, frame, true);
+        fileReceiveUtil.accept(ch, frame, true);
     }
 }

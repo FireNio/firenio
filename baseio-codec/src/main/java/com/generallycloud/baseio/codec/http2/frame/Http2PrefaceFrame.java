@@ -45,15 +45,6 @@ public class Http2PrefaceFrame extends AbstractFrame {
         return true;
     }
 
-    private void doComplete(NioSocketChannel channel, ByteBuf buf) throws IOException {
-        Http2Session session = Http2Session.getHttp2Session(channel);
-        session.setPrefaceRead(false);
-        if (!isPreface(buf)) {
-            throw new IOException("not http2 preface");
-        }
-        channel.flush(PREFACE_BUF.duplicate());
-    }
-
     private boolean isPreface(ByteBuf buf) {
         if (PREFACE_BINARY.length > buf.remaining()) {
             return false;
@@ -67,13 +58,19 @@ public class Http2PrefaceFrame extends AbstractFrame {
     }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         ByteBuf buf = this.buf;
         buf.read(buffer);
         if (buf.hasRemaining()) {
             return false;
         }
-        doComplete(channel, buf.flip());
+        buf.flip();
+        Http2Session session = Http2Session.getHttp2Session(ch);
+        session.setPrefaceRead(false);
+        if (!isPreface(buf)) {
+            throw new IOException("not http2 preface");
+        }
+        ch.flush(PREFACE_BUF.duplicate());
         return true;
     }
 

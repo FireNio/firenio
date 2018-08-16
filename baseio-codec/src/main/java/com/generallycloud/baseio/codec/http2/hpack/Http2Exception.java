@@ -169,7 +169,7 @@ public class Http2Exception extends IOException {
      */
     public static enum ShutdownHint {
         /**
-         * Do not shutdown the underlying channel.
+         * Do not shutdown the underlying ch.
          */
         NO_SHUTDOWN,
         /**
@@ -178,7 +178,7 @@ public class Http2Exception extends IOException {
          */
         GRACEFUL_SHUTDOWN,
         /**
-         * Close the channel immediately after a {@code GOAWAY} is sent.
+         * Close the ch immediately after a {@code GOAWAY} is sent.
          */
         HARD_SHUTDOWN;
     }

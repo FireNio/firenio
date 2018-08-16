@@ -109,12 +109,12 @@ public class Http2Codec extends ProtocolCodec {
     }
 
     @Override
-    public Frame decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        Http2Session session = Http2Session.getHttp2Session(channel);
+    public Frame decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
+        Http2Session session = Http2Session.getHttp2Session(ch);
         if (session.isPrefaceRead()) {
-            return new Http2PrefaceFrame(allocate(channel, PROTOCOL_PREFACE_HEADER));
+            return new Http2PrefaceFrame(allocate(ch, PROTOCOL_PREFACE_HEADER));
         }
-        return new Http2FrameHeaderImpl(allocate(channel, PROTOCOL_HEADER));
+        return new Http2FrameHeaderImpl(allocate(ch, PROTOCOL_HEADER));
     }
 
     @Override

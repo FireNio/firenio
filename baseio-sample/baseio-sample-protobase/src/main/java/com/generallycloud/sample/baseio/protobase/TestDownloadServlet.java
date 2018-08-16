@@ -30,19 +30,19 @@ public class TestDownloadServlet extends ProtobaseFrameAcceptorService {
     public static final String SERVICE_NAME = TestDownloadServlet.class.getSimpleName();
 
     @Override
-    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame) throws Exception {
+    protected void doAccept(NioSocketChannel ch, ParamedProtobaseFrame frame) throws Exception {
         FileSendUtil fileSendUtil = new FileSendUtil();
         File file = new File(frame.getParameters().getParameter(FileReceiveUtil.FILE_NAME));
         if (!file.exists()) {
-            fileNotFound(channel, frame, "file not found");
+            fileNotFound(ch, frame, "file not found");
             return;
         }
-        fileSendUtil.sendFile(channel, frame.getFrameName(), file, 1024 * 800);
+        fileSendUtil.sendFile(ch, frame.getFrameName(), file, 1024 * 800);
     }
 
-    private void fileNotFound(NioSocketChannel channel, ParamedProtobaseFrame frame, String msg)
+    private void fileNotFound(NioSocketChannel ch, ParamedProtobaseFrame frame, String msg)
             throws IOException {
         frame.put("code", 404);
-        channel.flush(frame);
+        ch.flush(frame);
     }
 }

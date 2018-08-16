@@ -27,7 +27,7 @@ public abstract class ContainerIoEventHandle extends IoEventHandle {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void exceptionCaught(NioSocketChannel channel, Frame frame, Exception ex) {
+    public void exceptionCaught(NioSocketChannel ch, Frame frame, Exception ex) {
         logger.error(ex.getMessage(), ex);
     }
 

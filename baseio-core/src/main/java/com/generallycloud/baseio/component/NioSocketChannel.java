@@ -65,7 +65,7 @@ public final class NioSocketChannel extends AttributesImpl
     private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
     private static final Logger                 logger               = LoggerFactory
             .getLogger(NioSocketChannel.class);
-    private final SocketChannel                 channel;
+    private final SocketChannel                 ch;
     private final Integer                       channelId;
     private final ReentrantLock                 closeLock            = new ReentrantLock();
     private final ChannelContext                context;
@@ -107,7 +107,7 @@ public final class NioSocketChannel extends AttributesImpl
         this.maxWriteBacklog = context.getMaxWriteBacklog();
         this.currentWriteBufs = new ByteBuf[group.getWriteBuffers()];
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
-        this.channel = (SocketChannel) selectionKey.channel();
+        this.ch = (SocketChannel) selectionKey.channel();
         this.lastAccess = creationTime + group.getIdleTime();
         this.writeBufs = new ConcurrentLinkedQueue<>();
         //请勿使用remote.getRemoteHost(),可能出现阻塞
@@ -211,7 +211,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     private void closeSsl() {
         if (enableSsl) {
-            if (!channel.isOpen()) {
+            if (!ch.isOpen()) {
                 return;
             }
             sslEngine.closeOutbound();
@@ -257,11 +257,11 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private void fireClosed() {
-        final NioSocketChannel channel = this;
-        eventLoop.removeChannel(channel);
+        final NioSocketChannel ch = this;
+        eventLoop.removeChannel(ch);
         for (ChannelEventListener l : context.getChannelEventListeners()) {
             try {
-                l.channelClosed(channel);
+                l.channelClosed(ch);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -269,10 +269,10 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     protected void fireOpend() throws IOException {
-        final NioSocketChannel channel = this;
+        final NioSocketChannel ch = this;
         for (ChannelEventListener l : context.getChannelEventListeners()) {
             try {
-                l.channelOpened(channel);
+                l.channelOpened(ch);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -509,14 +509,14 @@ public final class NioSocketChannel extends AttributesImpl
 
     private InetSocketAddress getLocalSocketAddress0() {
         try {
-            return (InetSocketAddress) channel.getLocalAddress();
+            return (InetSocketAddress) ch.getLocalAddress();
         } catch (IOException e) {
             return ERROR_SOCKET_ADDRESS;
         }
     }
 
     public <T> T getOption(SocketOption<T> name) throws IOException {
-        return channel.getOption(name);
+        return ch.getOption(name);
     }
 
     public ProtocolCodec getCodec() {
@@ -541,7 +541,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     private InetSocketAddress getRemoteSocketAddress0() {
         try {
-            return (InetSocketAddress) channel.getRemoteAddress();
+            return (InetSocketAddress) ch.getRemoteAddress();
         } catch (Exception e) {}
         return ERROR_SOCKET_ADDRESS;
     }
@@ -581,7 +581,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public boolean isBlocking() {
-        return channel.isBlocking();
+        return ch.isBlocking();
     }
 
     public boolean isClosed() {
@@ -639,7 +639,7 @@ public final class NioSocketChannel extends AttributesImpl
         } else {
             readPlainRemainingBuf(src);
         }
-        int length = channel.read(src.nioBuffer());
+        int length = ch.read(src.nioBuffer());
         if (length < 1) {
             if (length == -1) {
                 CloseUtil.close(this);
@@ -746,7 +746,7 @@ public final class NioSocketChannel extends AttributesImpl
                 opened = false;
                 closeSsl();
                 releaseBufs();
-                CloseUtil.close(channel);
+                CloseUtil.close(ch);
                 selKey.attach(null);
                 selKey.cancel();
                 fireClosed();
@@ -761,7 +761,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public <T> void setOption(SocketOption<T> name, T value) throws IOException {
-        channel.setOption(name, value);
+        ch.setOption(name, value);
     }
 
     public void setCodec(ProtocolCodec codec) {
@@ -783,7 +783,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     private void write(ByteBuf buf) {
         try {
-            channel.write(buf.nioBuffer());
+            ch.write(buf.nioBuffer());
             buf.reverse();
             int interestOps = selKey.interestOps();
             if (buf.hasRemaining()) {
@@ -828,7 +828,7 @@ public final class NioSocketChannel extends AttributesImpl
             }
             if (currentWriteBufsLen == 1) {
                 ByteBuffer nioBuf = writeBuffers[0];
-                channel.write(nioBuf);
+                ch.write(nioBuf);
                 if (nioBuf.hasRemaining()) {
                     this.currentWriteBufsLen = 1;
                     currentWriteBufs[0].reverse();
@@ -843,7 +843,7 @@ public final class NioSocketChannel extends AttributesImpl
                     return true;
                 }
             } else {
-                channel.write(writeBuffers, 0, currentWriteBufsLen);
+                ch.write(writeBuffers, 0, currentWriteBufsLen);
                 for (int i = 0; i < currentWriteBufsLen; i++) {
                     ByteBuf buf = currentWriteBufs[i];
                     if (writeBuffers[i].hasRemaining()) {
@@ -880,20 +880,20 @@ public final class NioSocketChannel extends AttributesImpl
 
     class CloseEvent implements Runnable, Closeable {
 
-        final NioSocketChannel channel;
+        final NioSocketChannel ch;
 
-        public CloseEvent(NioSocketChannel channel) {
-            this.channel = channel;
+        public CloseEvent(NioSocketChannel ch) {
+            this.ch = ch;
         }
 
         @Override
         public void close() throws IOException {
-            channel.safeClose();
+            ch.safeClose();
         }
 
         @Override
         public void run() {
-            channel.safeClose();
+            ch.safeClose();
         }
 
     }

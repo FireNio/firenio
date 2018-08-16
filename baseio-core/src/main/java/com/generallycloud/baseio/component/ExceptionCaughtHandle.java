@@ -23,6 +23,6 @@ import com.generallycloud.baseio.protocol.Frame;
  */
 public interface ExceptionCaughtHandle {
 
-    void exceptionCaught(NioSocketChannel channel, Frame frame, Exception ex);
+    void exceptionCaught(NioSocketChannel ch, Frame frame, Exception ex);
 
 }

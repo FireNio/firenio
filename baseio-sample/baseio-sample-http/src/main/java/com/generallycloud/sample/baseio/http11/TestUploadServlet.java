@@ -27,7 +27,7 @@ import com.generallycloud.baseio.container.http11.HttpSession;
 public class TestUploadServlet extends HttpFrameAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession channel, HttpFrame frame) throws Exception {
+    protected void doAccept(HttpSession ch, HttpFrame frame) throws Exception {
         String res;
         if (frame.hasBodyContent()) {
             res = "yes server already accept your message :) " + frame.getRequestParams()
@@ -37,8 +37,8 @@ public class TestUploadServlet extends HttpFrameAcceptorService {
             res = "yes server already accept your message :) " + frame.getRequestParams();
         }
         frame.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
-        frame.write(res, channel.getEncoding());
-        channel.flush(frame);
+        frame.write(res, ch.getEncoding());
+        ch.flush(frame);
     }
 
 }

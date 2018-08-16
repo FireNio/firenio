@@ -24,6 +24,6 @@ import com.generallycloud.baseio.protocol.Frame;
 public class SilentExceptionCaughtHandle implements ExceptionCaughtHandle {
 
     @Override
-    public void exceptionCaught(NioSocketChannel channel, Frame frame, Exception ex) {}
+    public void exceptionCaught(NioSocketChannel ch, Frame frame, Exception ex) {}
 
 }

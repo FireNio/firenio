@@ -39,14 +39,14 @@ public class FileReceiveUtil {
         this.prefix = prefix;
     }
 
-    public void accept(NioSocketChannel channel, ParamedProtobaseFrame frame, boolean callback)
+    public void accept(NioSocketChannel ch, ParamedProtobaseFrame frame, boolean callback)
             throws Exception {
         Parameters parameters = frame.getParameters();
-        OutputStream outputStream = (OutputStream) channel.getAttribute(ACCEPT_FILE);
+        OutputStream outputStream = (OutputStream) ch.getAttribute(ACCEPT_FILE);
         if (outputStream == null) {
             String fileName = prefix + parameters.getParameter(FILE_NAME);
             outputStream = new FileOutputStream(new File(fileName));
-            channel.setAttribute(ACCEPT_FILE, outputStream);
+            ch.setAttribute(ACCEPT_FILE, outputStream);
             logger.info("accept...................open,file={}", fileName);
         }
         byte[] data = frame.getReadBinary();
@@ -56,10 +56,10 @@ public class FileReceiveUtil {
         if (isEnd) {
             logger.info("accept...................close,stream={}", outputStream);
             CloseUtil.close(outputStream);
-            channel.removeAttribute(ACCEPT_FILE);
+            ch.removeAttribute(ACCEPT_FILE);
             if (callback) {
-                frame.write("传输成功！", channel.getCharset());
-                channel.flush(frame);
+                frame.write("传输成功！", ch.getCharset());
+                ch.flush(frame);
             }
         }
     }

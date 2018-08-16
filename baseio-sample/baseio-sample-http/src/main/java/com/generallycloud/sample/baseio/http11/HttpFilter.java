@@ -44,8 +44,8 @@ public class HttpFilter implements FrameAcceptor {
     private Set<String> noneLoggerUrlSet    = new HashSet<>();
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-        log(channel, frame);
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
+        log(ch, frame);
     }
 
     private boolean endContains(String frameName) {
@@ -70,13 +70,13 @@ public class HttpFilter implements FrameAcceptor {
         noneLoggerSuffixSet.add(".scss");
     }
 
-    private void log(NioSocketChannel channel, Frame frame) throws Exception {
+    private void log(NioSocketChannel ch, Frame frame) throws Exception {
         HttpMessage m = (HttpMessage) frame;
         String frameName = m.getFrameName();
         if (noneLoggerUrlSet.contains(frameName) || endContains(frameName)) {
             return;
         }
-        String remoteAddr = channel.getRemoteAddr();
+        String remoteAddr = ch.getRemoteAddr();
         String readText = m.getReadText();
         if (!StringUtil.isNullOrBlank(readText)) {
             logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, frameName,

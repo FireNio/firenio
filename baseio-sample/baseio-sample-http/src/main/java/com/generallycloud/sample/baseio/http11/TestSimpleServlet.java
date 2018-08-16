@@ -25,9 +25,9 @@ import com.generallycloud.baseio.container.http11.HttpSession;
 public class TestSimpleServlet extends HttpFrameAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession channel, HttpFrame frame) throws Exception {
+    protected void doAccept(HttpSession ch, HttpFrame frame) throws Exception {
         String res = "yes server already accept your message :) " + frame.getRequestParams();
-        frame.write(res, channel.getEncoding());
-        channel.flush(frame);
+        frame.write(res, ch.getEncoding());
+        ch.flush(frame);
     }
 }

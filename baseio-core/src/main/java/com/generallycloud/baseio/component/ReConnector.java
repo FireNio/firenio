@@ -62,10 +62,10 @@ public class ReConnector implements Closeable {
             logger.info("connection is closed, stop to reconnect");
             return;
         }
-        NioSocketChannel channel = connector.getChannel();
+        NioSocketChannel ch = connector.getChannel();
         ThreadUtil.sleep(300);
         for (;;) {
-            if (channel != null && channel.isOpened()) {
+            if (ch != null && ch.isOpened()) {
                 break;
             }
             logger.info("begin try to connect");
@@ -83,7 +83,7 @@ public class ReConnector implements Closeable {
     private ChannelEventListenerAdapter newReconnectSEListener() {
         return new ChannelEventListenerAdapter() {
             @Override
-            public void channelClosed(NioSocketChannel channel) {
+            public void channelClosed(NioSocketChannel ch) {
                 reconnect(reConnector);
             }
         };

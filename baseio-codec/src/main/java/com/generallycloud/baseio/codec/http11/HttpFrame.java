@@ -103,7 +103,7 @@ public interface HttpFrame extends HttpMessage {
 
     void addCookie(Cookie cookie);
 
-    boolean updateWebSocketProtocol(NioSocketChannel channel);
+    boolean updateWebSocketProtocol(NioSocketChannel ch);
 
     void writeBinary(byte[] binary);
 

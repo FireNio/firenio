@@ -55,33 +55,33 @@ public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptorService {
     }
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
         if (frame instanceof HttpFrame) {
-            super.accept(channel, frame);
+            super.accept(ch, frame);
             return;
         }
         WebSocketFrame f = (WebSocketFrame) frame;
         // CLOSE
         if (f.isCloseFrame()) {
-            if(msgAdapter.removeClient(channel)){
+            if(msgAdapter.removeClient(ch)){
                 JSONObject o = new JSONObject();
                 o.put("type", "closed");
-                o.put("id", channel.getChannelId());
+                o.put("id", ch.getChannelId());
                 msgAdapter.sendMsg(o.toJSONString());
-                logger.info("客户端主动关闭连接：{}", channel);
+                logger.info("客户端主动关闭连接：{}", ch);
             }
-            if (channel.isOpened()) {
-                channel.flush(f);
+            if (ch.isOpened()) {
+                ch.flush(f);
             }
         } else {
             String msg = f.getReadText();
             JSONObject o = JSON.parseObject(msg);
             String name = o.getString("name");
             if (StringUtil.isNullOrBlank(name)) {
-                name = channel.getRemoteAddrPort();
+                name = ch.getRemoteAddrPort();
             }
             o.put("name", name);
-            o.put("id", channel.getChannelId());
+            o.put("id", ch.getChannelId());
             String type = o.getString("type");
             if ("update".equals(type)) {
                 o.put("life", "1");

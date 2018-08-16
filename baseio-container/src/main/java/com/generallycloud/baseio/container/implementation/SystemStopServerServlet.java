@@ -31,10 +31,10 @@ public class SystemStopServerServlet implements FrameAcceptor {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-        ChannelContext context = channel.getContext();
-        frame.write("server is stopping", channel.getCharset());
-        channel.flush(frame);
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
+        ChannelContext context = ch.getContext();
+        frame.write("server is stopping", ch.getCharset());
+        ch.flush(frame);
         ThreadUtil.exec(new StopServer(context));
     }
 

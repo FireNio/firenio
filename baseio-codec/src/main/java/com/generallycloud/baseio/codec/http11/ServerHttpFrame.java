@@ -79,7 +79,7 @@ public class ServerHttpFrame extends AbstractHttpFrame {
     }
 
     @Override
-    public boolean updateWebSocketProtocol(NioSocketChannel channel) {
+    public boolean updateWebSocketProtocol(NioSocketChannel ch) {
         String Sec_WebSocket_Key = getRequestHeader(Low_Sec_WebSocket_Key);
         if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key)) {
             //FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
@@ -149,10 +149,10 @@ public class ServerHttpFrame extends AbstractHttpFrame {
         }
     }
 
-    public ServerHttpFrame reset(NioSocketChannel channel) {
+    public ServerHttpFrame reset(NioSocketChannel ch) {
         super.reset();
         this.updateWebSocketProtocol = false;
-        this.setDefaultResponseHeaders(channel.getContext(), getResponseHeaders());
+        this.setDefaultResponseHeaders(ch.getContext(), getResponseHeaders());
         return this;
     }
 

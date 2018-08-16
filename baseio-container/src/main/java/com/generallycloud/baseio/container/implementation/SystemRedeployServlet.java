@@ -31,12 +31,12 @@ import com.generallycloud.baseio.protocol.Frame;
 public class SystemRedeployServlet implements FrameAcceptor {
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws IOException {
+    public void accept(NioSocketChannel ch, Frame frame) throws IOException {
         ApplicationIoEventHandle applicationIoEventHandle = 
-                (ApplicationIoEventHandle) channel.getIoEventHandle();
+                (ApplicationIoEventHandle) ch.getIoEventHandle();
         AtomicInteger redeployTime = applicationIoEventHandle.getRedeployTime();
         long startTime = System.currentTimeMillis();
-        Charset charset = channel.getCharset();
+        Charset charset = ch.getCharset();
         if (applicationIoEventHandle.redeploy()) {
             int time = redeployTime.incrementAndGet();
             frame.write("redeploy successful_", charset);
@@ -47,7 +47,7 @@ public class SystemRedeployServlet implements FrameAcceptor {
             frame.write("redeploy failed,spent time:", charset);
             frame.write(String.valueOf(System.currentTimeMillis() - startTime), charset);
         }
-        channel.flush(frame);
+        ch.flush(frame);
     }
 
 }

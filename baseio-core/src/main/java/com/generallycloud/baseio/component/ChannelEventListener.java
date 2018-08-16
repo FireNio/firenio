@@ -19,8 +19,8 @@ import java.util.EventListener;
 
 public interface ChannelEventListener extends EventListener {
 
-    void channelOpened(NioSocketChannel channel) throws Exception;
+    void channelOpened(NioSocketChannel ch) throws Exception;
 
-    void channelClosed(NioSocketChannel channel);
+    void channelClosed(NioSocketChannel ch);
 
 }

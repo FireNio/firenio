@@ -28,12 +28,12 @@ public class FixedChannel {
 
     private ChannelContext      context     = null;
     private boolean             logined     = false;
-    private NioSocketChannel    channel     = null;
+    private NioSocketChannel    ch     = null;
     private long                timeout     = 50000;
     private SimpleIoEventHandle eventHandle = null;
 
-    public FixedChannel(NioSocketChannel channel) {
-        update(channel);
+    public FixedChannel(NioSocketChannel ch) {
+        update(ch);
     }
 
     public void setTimeout(long timeout) {
@@ -52,7 +52,7 @@ public class FixedChannel {
     }
 
     public NioSocketChannel getChannel() {
-        return channel;
+        return ch;
     }
 
     public boolean isLogined() {
@@ -79,19 +79,19 @@ public class FixedChannel {
         }
         WaiterOnFrame onReadFrame = new WaiterOnFrame();
         waiterListen(serviceName, onReadFrame);
-        channel.flush(frame);
+        ch.flush(frame);
         // FIXME 连接丢失时叫醒我
         if (onReadFrame.await(timeout)) {
-            CloseUtil.close(channel);
+            CloseUtil.close(ch);
             throw new TimeoutException("timeout");
         }
         return (ParamedProtobaseFrame) onReadFrame.getReadFrame();
     }
 
-    public void update(NioSocketChannel channel) {
-        this.channel = channel;
-        this.context = channel.getContext();
-        this.eventHandle = (SimpleIoEventHandle) channel.getIoEventHandle();
+    public void update(NioSocketChannel ch) {
+        this.ch = ch;
+        this.context = ch.getContext();
+        this.eventHandle = (SimpleIoEventHandle) ch.getIoEventHandle();
     }
 
     private void waiterListen(String serviceName, WaiterOnFrame onReadFrame) throws IOException {
@@ -123,7 +123,7 @@ public class FixedChannel {
         if (binary != null) {
             frame.writeBinary(binary);
         }
-        channel.flush(frame);
+        ch.flush(frame);
     }
 
     public void listen(String serviceName, OnFrame onReadFrame) throws IOException {

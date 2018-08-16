@@ -23,11 +23,11 @@ import com.generallycloud.baseio.protocol.Frame;
 public abstract class ProtobaseFrameAcceptorService implements FrameAcceptor {
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-        this.doAccept(channel, (ParamedProtobaseFrame) frame);
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
+        this.doAccept(ch, (ParamedProtobaseFrame) frame);
     }
 
-    protected abstract void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame)
+    protected abstract void doAccept(NioSocketChannel ch, ParamedProtobaseFrame frame)
             throws Exception;
 
 }

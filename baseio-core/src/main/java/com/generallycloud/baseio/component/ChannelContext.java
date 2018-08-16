@@ -123,7 +123,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
         LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
         LoggerUtil.prettyLog(logger, "event loop size       :{ {} }", eventLoopSize);
         LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", sslType());
-        LoggerUtil.prettyLog(logger, "channel idle          :{ {} }", g.getIdleTime());
+        LoggerUtil.prettyLog(logger, "ch idle          :{ {} }", g.getIdleTime());
         LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", port);
         if (g.isEnableMemoryPool()) {
             long memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();
@@ -240,25 +240,25 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
         if (isEnableHeartbeatLog()) {
             heartBeatLogger = new HeartBeatLogger() {
                 @Override
-                public void logPing(NioSocketChannel channel) {
-                    logger.info("heart beat req from: {}", channel);
+                public void logPing(NioSocketChannel ch) {
+                    logger.info("heart beat req from: {}", ch);
                 }
 
                 @Override
-                public void logPong(NioSocketChannel channel) {
-                    logger.info("heart beat res from: {}", channel);
+                public void logPong(NioSocketChannel ch) {
+                    logger.info("heart beat res from: {}", ch);
                 }
             };
         } else {
             heartBeatLogger = new HeartBeatLogger() {
                 @Override
-                public void logPing(NioSocketChannel channel) {
-                    logger.debug("hb req from: {}", channel);
+                public void logPing(NioSocketChannel ch) {
+                    logger.debug("hb req from: {}", ch);
                 }
 
                 @Override
-                public void logPong(NioSocketChannel channel) {
-                    logger.debug("hb res from: {}", channel);
+                public void logPong(NioSocketChannel ch) {
+                    logger.debug("hb res from: {}", ch);
                 }
             };
         }
@@ -421,9 +421,9 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
 
     public interface HeartBeatLogger {
 
-        void logPing(NioSocketChannel channel);
+        void logPing(NioSocketChannel ch);
 
-        void logPong(NioSocketChannel channel);
+        void logPong(NioSocketChannel ch);
     }
 
 }

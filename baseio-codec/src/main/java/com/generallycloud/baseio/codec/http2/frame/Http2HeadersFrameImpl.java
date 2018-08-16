@@ -36,8 +36,8 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
         this.setByteBuf(buf);
     }
 
-    private void doComplete(NioSocketChannel channel, ByteBuf buf) throws IOException {
-        Http2Session session = Http2Session.getHttp2Session(channel);
+    private void doComplete(NioSocketChannel ch, ByteBuf buf) throws IOException {
+        Http2Session session = Http2Session.getHttp2Session(ch);
         byte flags = getHeader().getFlags();
         this.endStream = (flags & FLAG_END_STREAM) > 0;
         if ((flags & FLAG_PADDED) > 0) {
@@ -55,13 +55,13 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
     }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         ByteBuf buf = getByteBuf();
         buf.read(buffer);
         if (buf.hasRemaining()) {
             return false;
         }
-        doComplete(channel, buf.flip());
+        doComplete(ch, buf.flip());
         return true;
     }
 

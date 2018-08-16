@@ -97,7 +97,7 @@ public class WebSocketCodec extends ProtocolCodec {
     @Override
     public Frame decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         if (frameStackSize > 0) {
-//            NioEventLoop eventLoop = channel.getEventLoop();
+//            NioEventLoop eventLoop = ch.getEventLoop();
 //            FixedThreadStack<WebSocketFrame> stack = (FixedThreadStack<WebSocketFrame>) eventLoop
 //                    .getAttribute(FRAME_STACK_KEY);
 //            if (stack == null) {
@@ -106,9 +106,9 @@ public class WebSocketCodec extends ProtocolCodec {
 //            }
 //            WebSocketFrame frame = stack.pop();
 //            if (frame == null) {
-//                return new WebSocketFrame(channel, limit);
+//                return new WebSocketFrame(ch, limit);
 //            }
-//            return frame.reset(channel, limit);
+//            return frame.reset(ch, limit);
         }
         return new WebSocketFrame(ch, limit);
     }

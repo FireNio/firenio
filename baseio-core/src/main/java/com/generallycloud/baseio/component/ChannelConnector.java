@@ -42,7 +42,7 @@ public class ChannelConnector implements ChannelService, Closeable {
     private Logger            logger  = LoggerFactory.getLogger(getClass());
     private SocketChannel     socketChannel;
     private InetSocketAddress serverAddress;
-    private NioSocketChannel  channel;
+    private NioSocketChannel  ch;
     private long              timeout = 3000;
     private Waiter            waiter;
 
@@ -84,13 +84,13 @@ public class ChannelConnector implements ChannelService, Closeable {
 
     public synchronized NioSocketChannel connect() throws IOException {
         if (isActive()) {
-            return channel;
+            return ch;
         }
         LifeCycleUtil.stop(getContext());
         LifeCycleUtil.start(group);
         String host = context.getHost();
         int port = context.getPort();
-        this.channel = null;
+        this.ch = null;
         this.context.setChannelService(this);
         LifeCycleUtil.start(getContext());
         this.waiter = new Waiter();
@@ -105,20 +105,20 @@ public class ChannelConnector implements ChannelService, Closeable {
 
     }
 
-    protected void finishConnect(NioSocketChannel channel, Throwable exception) {
+    protected void finishConnect(NioSocketChannel ch, Throwable exception) {
         Waiter waiter = this.waiter;
         if (waiter == null) {
-            CloseUtil.close(channel);
+            CloseUtil.close(ch);
             return;
         }
-        this.channel = channel;
+        this.ch = ch;
         if (exception != null) {
             waiter.response(exception);
         } else {
-            waiter.response(channel);
+            waiter.response(ch);
         }
         if (waiter.isTimeouted()) {
-            CloseUtil.close(channel);
+            CloseUtil.close(ch);
         }
     }
 
@@ -142,7 +142,7 @@ public class ChannelConnector implements ChannelService, Closeable {
     }
 
     public NioSocketChannel getChannel() {
-        return channel;
+        return ch;
     }
 
     public long getTimeout() {
@@ -183,7 +183,7 @@ public class ChannelConnector implements ChannelService, Closeable {
                     ex.getMessage());
             throw new IOException(errorMsg, ex);
         }
-        this.channel = (NioSocketChannel) waiter.getResponse();
+        this.ch = (NioSocketChannel) waiter.getResponse();
         this.waiter = null;
         LoggerUtil.prettyLog(logger, "connected to server @{}", getServerAddress());
     }

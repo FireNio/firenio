@@ -39,19 +39,19 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
     private Map<String, NioSocketChannel> clientsMap = new HashMap<>();
     private BlockingQueue<Msg>            msgs       = new ArrayBlockingQueue<>(1024 * 4);
 
-    public synchronized void addClient(String username, NioSocketChannel channel) {
-        clients.add(channel);
-        clientsMap.put(username, channel);
-        logger.info("client joined {} ,clients size: {}", channel, clients.size());
+    public synchronized void addClient(String username, NioSocketChannel ch) {
+        clients.add(ch);
+        clientsMap.put(username, ch);
+        logger.info("client joined {} ,clients size: {}", ch, clients.size());
     }
 
-    public synchronized boolean removeClient(NioSocketChannel channel) {
-        if (clients.remove(channel)) {
-            String username = (String) channel.getAttribute("username");
+    public synchronized boolean removeClient(NioSocketChannel ch) {
+        if (clients.remove(ch)) {
+            String username = (String) ch.getAttribute("username");
             if (!StringUtil.isNullOrBlank(username)) {
                 clientsMap.remove(username);
             }
-            logger.info("client left {} ,clients size: {}", channel, clients.size());
+            logger.info("client left {} ,clients size: {}", ch, clients.size());
             return true;
         }
         return false;
@@ -65,8 +65,8 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
         sendMsg(null, msg);
     }
 
-    public void sendMsg(NioSocketChannel channel, String msg) {
-        msgs.offer(new Msg(channel, msg));
+    public void sendMsg(NioSocketChannel ch, String msg) {
+        msgs.offer(new Msg(ch, msg));
     }
 
     public int getClientSize() {
@@ -80,11 +80,11 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
             return;
         }
         synchronized (this) {
-            NioSocketChannel channel = msg.channel;
-            if (channel != null) {
+            NioSocketChannel ch = msg.ch;
+            if (ch != null) {
                 WebSocketFrame f = new WebSocketFrame();
-                f.write(msg.msg, channel);
-                channel.flush(f);
+                f.write(msg.msg, ch);
+                ch.flush(f);
             } else {
                 WebSocketFrame f = new WebSocketFrame();
                 f.write(msg.msg, Encoding.UTF8);
@@ -99,12 +99,12 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
     class Msg {
 
-        Msg(NioSocketChannel channel, String msg) {
+        Msg(NioSocketChannel ch, String msg) {
             this.msg = msg;
-            this.channel = channel;
+            this.ch = ch;
         }
 
         String           msg;
-        NioSocketChannel channel;
+        NioSocketChannel ch;
     }
 }

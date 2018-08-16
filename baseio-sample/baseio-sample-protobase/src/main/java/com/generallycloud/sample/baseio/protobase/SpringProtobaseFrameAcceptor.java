@@ -34,15 +34,15 @@ public class SpringProtobaseFrameAcceptor extends ProtobaseFrameAcceptor {
     private ClassPathXmlApplicationContext applicationContext;
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
         ParamedProtobaseFrame f = (ParamedProtobaseFrame) frame;
         FrameAcceptor acceptor = (FrameAcceptor) ContextUtil.getBean(f.getFrameName());
         if (acceptor == null) {
             f.put("code", 404);
-            channel.flush(frame);
+            ch.flush(frame);
             return;
         }
-        acceptor.accept(channel, frame);
+        acceptor.accept(ch, frame);
     }
 
     @Override

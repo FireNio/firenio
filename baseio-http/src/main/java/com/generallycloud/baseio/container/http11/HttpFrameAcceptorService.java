@@ -24,15 +24,15 @@ import com.generallycloud.baseio.protocol.Frame;
 public abstract class HttpFrameAcceptorService implements FrameAcceptor {
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-        ApplicationIoEventHandle handle = (ApplicationIoEventHandle) channel.getIoEventHandle();
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
+        ApplicationIoEventHandle handle = (ApplicationIoEventHandle) ch.getIoEventHandle();
         HttpFrameAcceptor containerHandle = (HttpFrameAcceptor) handle.getFrameAcceptor();
         HttpSessionManager manager = containerHandle.getHttpSessionManager();
         HttpFrame httpReadFrame = (HttpFrame) frame;
-        HttpSession httpSession = manager.getHttpSession(containerHandle, channel, httpReadFrame);
+        HttpSession httpSession = manager.getHttpSession(containerHandle, ch, httpReadFrame);
         doAccept(httpSession, httpReadFrame);
     }
 
-    protected abstract void doAccept(HttpSession channel, HttpFrame frame) throws Exception;
+    protected abstract void doAccept(HttpSession ch, HttpFrame frame) throws Exception;
 
 }

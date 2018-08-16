@@ -27,7 +27,7 @@ import com.generallycloud.baseio.container.http11.HttpSession;
 public class TestHttpExceptionServlet extends HttpFrameAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession channel, HttpFrame frame) throws Exception {
+    protected void doAccept(HttpSession ch, HttpFrame frame) throws Exception {
         throw new IOException("test http error");
     }
 

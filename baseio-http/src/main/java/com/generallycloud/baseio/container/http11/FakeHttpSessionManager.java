@@ -30,7 +30,7 @@ public class FakeHttpSessionManager extends AbstractEventLoop implements HttpSes
     private final String HTTP_SESSION_KEY = "_HTTP_SESSION_KEY";
 
     @Override
-    public void putSession(String sessionId, HttpSession channel) {
+    public void putSession(String sessionId, HttpSession ch) {
         throw new UnsupportedOperationException();
     }
 

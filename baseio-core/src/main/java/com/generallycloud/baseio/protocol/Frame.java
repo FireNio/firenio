@@ -41,12 +41,12 @@ public interface Frame {
 
     /**
      * return true if the frame read complete
-     * @param channel
+     * @param ch
      * @param src
      * @return
      * @throws IOException
      */
-    boolean read(NioSocketChannel channel, ByteBuf src) throws IOException;
+    boolean read(NioSocketChannel ch, ByteBuf src) throws IOException;
 
     void release(NioEventLoop loop);
 
@@ -66,6 +66,6 @@ public interface Frame {
 
     void write(String text, Charset charset);
 
-    void write(String text, NioSocketChannel channel);
+    void write(String text, NioSocketChannel ch);
 
 }

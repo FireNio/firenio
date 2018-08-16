@@ -38,8 +38,8 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
     private Map<String, HttpSession> readOnlySessions      = Collections.unmodifiableMap(sessions);
 
     @Override
-    public void putSession(String sessionId, HttpSession channel) {
-        sessions.put(sessionId, channel);
+    public void putSession(String sessionId, HttpSession ch) {
+        sessions.put(sessionId, ch);
     }
 
     @Override
@@ -52,12 +52,12 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
             HttpFrame frame) {
         String sessionId = frame.getCookie(COOKIE_NAME_SESSIONID);
         if (StringUtil.isNullOrBlank(sessionId)) {
-            DefaultHttpSession channel = new DefaultHttpSession(context, ioSession);
-            sessionId = channel.getSessionId();
+            DefaultHttpSession ch = new DefaultHttpSession(context, ioSession);
+            sessionId = ch.getSessionId();
             Cookie cookie = new Cookie(COOKIE_NAME_SESSIONID, sessionId);
             frame.addCookie(cookie);
-            this.sessions.put(sessionId, channel);
-            return channel;
+            this.sessions.put(sessionId, ch);
+            return ch;
         }
         HttpSession session = sessions.get(sessionId);
         if (session == null) {

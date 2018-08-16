@@ -25,19 +25,19 @@ public class WebSocketChannelListener extends ChannelEventListenerAdapter {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void channelClosed(NioSocketChannel channel) {
-        if (!WebSocketCodec.PROTOCOL_ID.equals(channel.getCodecId())) {
+    public void channelClosed(NioSocketChannel ch) {
+        if (!WebSocketCodec.PROTOCOL_ID.equals(ch.getCodecId())) {
             return;
         }
         WebSocketFrame frame = new WebSocketFrame();
         frame.setType(WebSocketCodec.TYPE_CLOSE);
-        frame.setServiceName(channel);
+        frame.setServiceName(ch);
         try {
-            channel.getIoEventHandle().accept(channel, frame);
+            ch.getIoEventHandle().accept(ch, frame);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        super.channelClosed(channel);
+        super.channelClosed(ch);
     }
 
 }

@@ -36,7 +36,7 @@ public class DefaultIoEventHandle extends IoEventHandle {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
         logger.info("you did not set IoEventHandleAdaptor and the msg is coming:{}", frame);
     }
 

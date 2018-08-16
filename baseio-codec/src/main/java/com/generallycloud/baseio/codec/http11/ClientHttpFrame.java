@@ -39,12 +39,12 @@ public class ClientHttpFrame extends AbstractHttpFrame {
     }
 
     @Override
-    public boolean updateWebSocketProtocol(NioSocketChannel channel) {
+    public boolean updateWebSocketProtocol(NioSocketChannel ch) {
         String key = getRequestHeader(HttpHeader.Sec_WebSocket_Accept);
         if (StringUtil.isNullOrBlank(key)) {
             return false;
         }
-        channel.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+        ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
         return true;
     }
 

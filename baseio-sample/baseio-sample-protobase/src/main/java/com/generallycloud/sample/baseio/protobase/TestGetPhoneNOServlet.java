@@ -29,13 +29,13 @@ public class TestGetPhoneNOServlet extends ProtobaseFrameAcceptorService {
     private int                index        = 0;
 
     @Override
-    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame) throws Exception {
+    protected void doAccept(NioSocketChannel ch, ParamedProtobaseFrame frame) throws Exception {
         String phone = NOS[index++];
         if (index == 4) {
             index = 0;
         }
         frame.put("phone", phone);
-        channel.flush(frame);
+        ch.flush(frame);
     }
 
 }

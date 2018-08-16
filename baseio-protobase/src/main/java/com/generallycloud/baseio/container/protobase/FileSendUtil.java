@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class FileSendUtil {
 
-    public void sendFile(NioSocketChannel channel, String serviceName, File file, int cacheSize)
+    public void sendFile(NioSocketChannel ch, String serviceName, File file, int cacheSize)
             throws Exception {
         FileInputStream inputStream = new FileInputStream(file);
         int available = (int) file.length();
@@ -40,16 +40,16 @@ public class FileSendUtil {
         for (int i = 0; i < time; i++) {
             FileUtil.readInputStream(inputStream, cache);
             ProtobaseFrame f = new ParamedProtobaseFrame(serviceName);
-            f.write(jsonString, channel.getCharset());
+            f.write(jsonString, ch.getCharset());
             f.writeBinary(cache);
-            channel.flush(f);
+            ch.flush(f);
         }
         int r = FileUtil.readInputStream(inputStream, cache);
         json.put(FileReceiveUtil.IS_END, true);
         ParamedProtobaseFrame f = new ParamedProtobaseFrame(serviceName);
-        f.write(json.toJSONString(), channel.getCharset());
+        f.write(json.toJSONString(), ch.getCharset());
         f.writeBinary(cache, 0, r);
-        channel.flush(f);
+        ch.flush(f);
         CloseUtil.close(inputStream);
     }
 

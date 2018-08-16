@@ -48,9 +48,9 @@ public class CharBasedFrame extends AbstractFrame implements TextFrame {
     }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         ByteArrayOutputStream cache = this.cache;
-        Charset charset = channel.getCharset();
+        Charset charset = ch.getCharset();
         for (; buffer.hasRemaining();) {
             byte b = buffer.getByte();
             if (b == splitor) {

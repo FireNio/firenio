@@ -27,26 +27,26 @@ import com.generallycloud.baseio.concurrent.Waiter;
 public class RedisClient {
 
     private ChannelContext     context;
-    private NioSocketChannel      channel;
+    private NioSocketChannel      ch;
     private RedisIOEventHandle ioEventHandle;
     private long               timeout;
 
-    public RedisClient(NioSocketChannel channel) {
-        this(channel, 3000);
+    public RedisClient(NioSocketChannel ch) {
+        this(ch, 3000);
     }
 
-    public RedisClient(NioSocketChannel channel, long timeout) {
+    public RedisClient(NioSocketChannel ch, long timeout) {
         this.timeout = timeout;
-        this.channel = channel;
-        this.context = channel.getContext();
-        this.ioEventHandle = (RedisIOEventHandle) channel.getIoEventHandle();
+        this.ch = ch;
+        this.context = ch.getContext();
+        this.ioEventHandle = (RedisIOEventHandle) ch.getIoEventHandle();
     }
 
     private synchronized RedisNode sendCommand(byte[] command, byte[]... args) throws IOException {
         RedisFrame frame = new RedisCmdFrame();
         frame.writeCommand(command, args);
         Waiter waiter = ioEventHandle.newWaiter();
-        channel.flush(frame);
+        ch.flush(frame);
         if (waiter.await(timeout)) {
             throw new TimeoutException("timeout");
         }

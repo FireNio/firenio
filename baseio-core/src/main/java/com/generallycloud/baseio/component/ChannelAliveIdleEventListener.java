@@ -24,13 +24,13 @@ public class ChannelAliveIdleEventListener implements ChannelIdleEventListener {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void channelIdled(NioSocketChannel channel, long lastIdleTime, long currentTime) {
+    public void channelIdled(NioSocketChannel ch, long lastIdleTime, long currentTime) {
 
-        if (channel.getLastAccessTime() < lastIdleTime) {
+        if (ch.getLastAccessTime() < lastIdleTime) {
             logger.info(
                     "Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",
-                    channel);
-            CloseUtil.close(channel);
+                    ch);
+            CloseUtil.close(ch);
         }
     }
 }

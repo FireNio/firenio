@@ -18,9 +18,9 @@ package com.generallycloud.baseio.component;
 public class ChannelEventListenerAdapter implements ChannelEventListener {
 
     @Override
-    public void channelOpened(NioSocketChannel channel) throws Exception {}
+    public void channelOpened(NioSocketChannel ch) throws Exception {}
 
     @Override
-    public void channelClosed(NioSocketChannel channel) {}
+    public void channelClosed(NioSocketChannel ch) {}
 
 }

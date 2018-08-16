@@ -45,7 +45,7 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
     private ApplicationExtLoader           applicationExtLoader;
     private String                         appLocalAddres;
     private FrameAcceptor                 appOnRedeployService;
-    private ChannelContext                 channelContext;
+    private ChannelContext                 context;
     private URLDynamicClassLoader          classLoader;
     private ApplicationConfiguration       configuration;
     private ApplicationConfigurationLoader configurationLoader;
@@ -66,20 +66,20 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
     }
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
         if (deploying) {
-            appOnRedeployService.accept(channel, frame);
+            appOnRedeployService.accept(ch, frame);
             return;
         }
         try {
-            frameAcceptor.accept(channel, frame);
+            frameAcceptor.accept(ch, frame);
         } catch (Exception e) {
-            frameAcceptor.exceptionCaught(channel, frame, e);
+            frameAcceptor.exceptionCaught(ch, frame, e);
         }
     }
 
     public void addChannelEventListener(ChannelEventListener listener) {
-        channelContext.addChannelEventListener(listener);
+        context.addChannelEventListener(listener);
     }
 
     private void destroy(ChannelContext context) throws Exception {
@@ -93,8 +93,8 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
     }
 
     @Override
-    public void exceptionCaught(NioSocketChannel channel, Frame frame, Exception ex) {
-        ioExceptionCaughtHandle.exceptionCaught(channel, frame, ex);
+    public void exceptionCaught(NioSocketChannel ch, Frame frame, Exception ex) {
+        ioExceptionCaughtHandle.exceptionCaught(ch, frame, ex);
     }
 
     public ApplicationExtLoader getApplicationExtLoader() {
@@ -106,7 +106,7 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
     }
 
     public ChannelContext getChannelContext() {
-        return channelContext;
+        return context;
     }
 
     public DynamicClassLoader getClassLoader() {
@@ -142,7 +142,7 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
     }
 
     private void initialize(ChannelContext context) throws Exception {
-        this.channelContext = context;
+        this.context = context;
         if (StringUtil.isNullOrBlank(rootLocalAddress)) {
             throw new IllegalArgumentException("rootLocalAddress");
         }
@@ -153,7 +153,7 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
             configurationLoader = new FileSystemACLoader();
         }
         this.rootLocalAddress = FileUtil.getPrettyPath(rootLocalAddress);
-        this.encoding = channelContext.getCharset();
+        this.encoding = context.getCharset();
         this.appLocalAddres = FileUtil.getPrettyPath(getRootLocalAddress() + "app");
         LoggerUtil.prettyLog(logger, "application path      :{ {} }", appLocalAddres);
         this.initializeHandle(context, false);
@@ -181,7 +181,7 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
         }
         Class<?> clazz = classLoader.loadClass(configuration.getFrameAcceptor());
         frameAcceptor = (ContainerIoEventHandle) clazz.newInstance();
-        frameAcceptor.initialize(channelContext, redeploy);
+        frameAcceptor.initialize(context, redeploy);
     }
 
     private Object newInstanceFromClass(String className, Object defaultObj) throws Exception {
@@ -201,17 +201,17 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
     }
 
     // FIXME 考虑部署失败后如何再次部署
-    // FIXME keep http channel
+    // FIXME keep http ch
     public synchronized boolean redeploy() {
         this.deploying = true;
         try {
             LoggerUtil.prettyLog(logger,
                     "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  开始卸载服务  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-            destroyHandle(channelContext, true);
+            destroyHandle(context, true);
 
             LoggerUtil.prettyLog(logger,
                     "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  开始加载服务  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-            initializeHandle(channelContext, true);
+            initializeHandle(context, true);
             deploying = false;
             LoggerUtil.prettyLog(logger,
                     "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  加载服务完成  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
@@ -236,7 +236,7 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
     }
 
     public void setChannelContext(ChannelContext context) {
-        this.channelContext = context;
+        this.context = context;
     }
 
     public void setAppOnRedeployService(FrameAcceptor appOnRedeployService) {

@@ -40,7 +40,7 @@ public class FixedLengthFrame extends AbstractFrame implements TextFrame {
     }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
+    public boolean read(NioSocketChannel ch, ByteBuf src) throws IOException {
         if (src.remaining() < 4) {
             return false;
         }
@@ -58,7 +58,7 @@ public class FixedLengthFrame extends AbstractFrame implements TextFrame {
         }
         src.markL();
         src.limit(src.position() + len);
-        readText = StringUtil.decode(channel.getCharset(), src.nioBuffer());
+        readText = StringUtil.decode(ch.getCharset(), src.nioBuffer());
         src.reverse();
         src.resetL();
         return true;

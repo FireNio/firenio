@@ -23,17 +23,17 @@ import com.generallycloud.baseio.concurrent.Waiter;
 
 public class HttpClient {
 
-    private NioSocketChannel  channel;
+    private NioSocketChannel  ch;
     private HttpIOEventHandle ioEventHandle;
 
-    public HttpClient(NioSocketChannel channel) {
-        this.channel = channel;
-        this.ioEventHandle = (HttpIOEventHandle) channel.getIoEventHandle();
+    public HttpClient(NioSocketChannel ch) {
+        this.ch = ch;
+        this.ioEventHandle = (HttpIOEventHandle) ch.getIoEventHandle();
     }
 
     public synchronized HttpFrame request(HttpFrame frame, long timeout) throws IOException {
         Waiter waiter = ioEventHandle.newWaiter();
-        channel.flush(frame);
+        ch.flush(frame);
         if (waiter.await(timeout)) {
             throw new TimeoutException("timeout");
         }

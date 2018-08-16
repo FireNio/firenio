@@ -28,7 +28,7 @@ import com.generallycloud.baseio.container.http11.HttpSession;
 public class TestCookieHeaderServlet extends HttpFrameAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession channel, HttpFrame frame) throws Exception {
+    protected void doAccept(HttpSession ch, HttpFrame frame) throws Exception {
         String name = frame.getRequestParam("name");
         String value = frame.getRequestParam("value");
         if (StringUtil.isNullOrBlank(name)) {
@@ -43,8 +43,8 @@ public class TestCookieHeaderServlet extends HttpFrameAcceptorService {
         c.setMaxAge(999999);
         frame.addCookie(c);
         frame.setResponseHeader(name.getBytes(), value.getBytes());
-        frame.write(res, channel.getEncoding());
-        channel.flush(frame);
+        frame.write(res, ch.getEncoding());
+        ch.flush(frame);
     }
 
 }

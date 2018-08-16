@@ -46,18 +46,18 @@ public class CharBasedCodec extends ProtocolCodec {
     }
 
     @Override
-    public Frame decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public Frame decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         return new CharBasedFrame(limit, splitor);
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel channel, Frame frame) throws IOException {
+    public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
         CharBasedFrame f = (CharBasedFrame) frame;
         int writeSize = f.getWriteSize();
         if (writeSize == 0) {
             throw new IOException("null write buffer");
         }
-        ByteBuf buf = channel.alloc().allocate(writeSize + 1);
+        ByteBuf buf = ch.alloc().allocate(writeSize + 1);
         buf.put(f.getWriteBuffer(), 0, writeSize);
         buf.putByte(splitor);
         return buf.flip();

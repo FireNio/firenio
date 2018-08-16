@@ -41,12 +41,12 @@ public class ChannelManager {
         return channels.get(channelId);
     }
 
-    public void putChannel(NioSocketChannel channel) {
-        channels.put(channel.getChannelId(), channel);
+    public void putChannel(NioSocketChannel ch) {
+        channels.put(ch.getChannelId(), ch);
     }
 
-    public void removeChannel(NioSocketChannel channel) {
-        channels.remove(channel.getChannelId());
+    public void removeChannel(NioSocketChannel ch) {
+        channels.remove(ch.getChannelId());
     }
 
     public void broadcast(Frame frame) throws IOException {

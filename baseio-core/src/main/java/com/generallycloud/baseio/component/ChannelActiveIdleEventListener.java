@@ -26,24 +26,24 @@ public class ChannelActiveIdleEventListener implements ChannelIdleEventListener 
     private Logger logger = LoggerFactory.getLogger(ChannelActiveIdleEventListener.class);
 
     @Override
-    public void channelIdled(NioSocketChannel channel, long lastIdleTime, long currentTime) {
-        if (channel.isClosed()) {
-            logger.info("closed channel");
+    public void channelIdled(NioSocketChannel ch, long lastIdleTime, long currentTime) {
+        if (ch.isClosed()) {
+            logger.info("closed ch");
             return;
         }
-        if (channel.getLastAccessTime() < lastIdleTime) {
+        if (ch.getLastAccessTime() < lastIdleTime) {
             logger.info(
                     "Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",
-                    channel);
-            CloseUtil.close(channel);
+                    ch);
+            CloseUtil.close(ch);
         } else {
-            ProtocolCodec codec = channel.getCodec();
-            Frame frame = codec.ping(channel);
+            ProtocolCodec codec = ch.getCodec();
+            Frame frame = codec.ping(ch);
             if (frame == null) {
                 // 该channel无需心跳,比如HTTP协议
                 return;
             }
-            channel.flush(frame);
+            ch.flush(frame);
         }
     }
 }

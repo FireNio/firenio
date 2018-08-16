@@ -27,12 +27,12 @@ public class TestChannelDisconnectServlet extends ProtobaseFrameAcceptorService 
     private TestSimple1        simple1      = new TestSimple1();
 
     @Override
-    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame) throws Exception {
+    protected void doAccept(NioSocketChannel ch, ParamedProtobaseFrame frame) throws Exception {
         Parameters p = frame.getParameters();
         frame.put("dynamic",simple1.dynamic());
         frame.put("param",frame.getFrameName());
-        channel.flush(frame);
-        channel.close();
+        ch.flush(frame);
+        ch.close();
     }
 
 }

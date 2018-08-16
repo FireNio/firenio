@@ -19,6 +19,6 @@ import com.generallycloud.baseio.protocol.Frame;
 
 public interface FrameAcceptor {
 
-    void accept(NioSocketChannel channel, Frame frame) throws Exception;
+    void accept(NioSocketChannel ch, Frame frame) throws Exception;
 
 }

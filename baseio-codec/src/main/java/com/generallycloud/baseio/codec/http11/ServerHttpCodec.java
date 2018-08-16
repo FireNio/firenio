@@ -68,9 +68,9 @@ public class ServerHttpCodec extends AbstractHttpCodec {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Frame decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public Frame decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         if (httpFrameStackSize > 0) {
-            NioEventLoop eventLoop = channel.getEventLoop();
+            NioEventLoop eventLoop = ch.getEventLoop();
             List<ServerHttpFrame> stack = (List<ServerHttpFrame>) eventLoop
                     .getAttribute(FRAME_STACK_KEY);
             if (stack == null) {
@@ -78,13 +78,13 @@ public class ServerHttpCodec extends AbstractHttpCodec {
                 eventLoop.setAttribute(FRAME_STACK_KEY, stack);
             }
             if (stack.isEmpty()) {
-                return new ServerHttpFrame(channel.getContext(), headerLimit, bodyLimit);
+                return new ServerHttpFrame(ch.getContext(), headerLimit, bodyLimit);
             } else {
                 ServerHttpFrame frame = stack.remove(stack.size() - 1);
-                return frame.reset(channel);
+                return frame.reset(ch);
             }
         }
-        return new ServerHttpFrame(channel.getContext(), headerLimit, bodyLimit);
+        return new ServerHttpFrame(ch.getContext(), headerLimit, bodyLimit);
     }
     
     private ByteBuf encode(ByteBufAllocator allocator, ServerHttpFrame f, int length, byte[] array)

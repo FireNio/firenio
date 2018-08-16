@@ -46,7 +46,7 @@ public class TestShowMemoryServlet extends HttpFrameAcceptorService {
         WebSocketMsgAdapter chatMsgAdapter = chatServlet.getMsgAdapter();
         WebSocketMsgAdapter rumpetrollMsgAdapter = rumpetrollServlet.getMsgAdapter();
 
-        NioSocketChannel channel = session.getChannel();
+        NioSocketChannel ch = session.getChannel();
         ChannelContext context = session.getChannel().getContext();
         HttpFrameAcceptor httpContext = session.getContext();
 
@@ -54,7 +54,7 @@ public class TestShowMemoryServlet extends HttpFrameAcceptorService {
         BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
         BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
 
-        NioEventLoopGroup group = channel.getEventLoop().getGroup();
+        NioEventLoopGroup group = ch.getEventLoop().getGroup();
 
         ByteBufAllocatorGroup allocator = group.getAllocatorGroup();
 

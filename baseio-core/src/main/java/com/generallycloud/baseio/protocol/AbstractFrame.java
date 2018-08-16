@@ -153,8 +153,8 @@ public abstract class AbstractFrame implements Frame {
     }
 
     @Override
-    public void write(String text, NioSocketChannel channel) {
-        write(text, channel.getContext());
+    public void write(String text, NioSocketChannel ch) {
+        write(text, ch.getContext());
     }
 
 }

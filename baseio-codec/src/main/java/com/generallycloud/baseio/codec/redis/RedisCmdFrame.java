@@ -23,7 +23,7 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 public class RedisCmdFrame extends AbstractRedisFrame {
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         return true;
     }
 

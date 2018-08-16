@@ -28,13 +28,13 @@ public class OnFrameWrapper implements OnFrame {
     private BlockingQueue<WaiterOnFrame> waiters  = new ArrayBlockingQueue<>(1024 * 8);
 
     @Override
-    public void onResponse(final NioSocketChannel channel, final Frame frame) {
+    public void onResponse(final NioSocketChannel ch, final Frame frame) {
 
         WaiterOnFrame waiter = waiters.poll();
 
         if (waiter != null) {
 
-            waiter.onResponse(channel, frame);
+            waiter.onResponse(ch, frame);
 
             return;
         }
@@ -43,7 +43,7 @@ public class OnFrameWrapper implements OnFrame {
             return;
         }
 
-        listener.onResponse(channel, frame);
+        listener.onResponse(ch, frame);
     }
 
     public void listen(WaiterOnFrame onReadFrame) {

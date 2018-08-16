@@ -53,16 +53,16 @@ public class Http2Session {
         this.prefaceRead = prefaceRead;
     }
     
-    public static Http2Session getHttp2Session(NioSocketChannel channel){
-        Http2Session session = (Http2Session) channel.getAttribute(http2SessionChannelKey);
+    public static Http2Session getHttp2Session(NioSocketChannel ch){
+        Http2Session session = (Http2Session) ch.getAttribute(http2SessionChannelKey);
         if (session == null) {
-            synchronized (channel.attributes()) {
-                session = (Http2Session) channel.getAttribute(http2SessionChannelKey);
+            synchronized (ch.attributes()) {
+                session = (Http2Session) ch.getAttribute(http2SessionChannelKey);
                 if (session != null) {
                     return session;
                 }
                 session = new Http2Session();
-                channel.setAttribute(http2SessionChannelKey, session);
+                ch.setAttribute(http2SessionChannelKey, session);
             }
         }
         return session;

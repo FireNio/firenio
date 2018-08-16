@@ -26,7 +26,7 @@ public class TestExceptionServlet extends ProtobaseFrameAcceptorService {
     public static final String SERVICE_NAME = TestExceptionServlet.class.getSimpleName();
 
     @Override
-    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame) throws Exception {
+    protected void doAccept(NioSocketChannel ch, ParamedProtobaseFrame frame) throws Exception {
         throw new IOException("测试啊");
     }
 

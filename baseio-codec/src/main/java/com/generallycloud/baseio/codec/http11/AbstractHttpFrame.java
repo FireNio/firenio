@@ -275,7 +275,7 @@ public abstract class AbstractHttpFrame extends BinaryFrame implements HttpFrame
     }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
+    public boolean read(NioSocketChannel ch, ByteBuf src) throws IOException {
         if (!header_complete) {
             readHeader(src);
             if (!header_complete) {
@@ -315,7 +315,7 @@ public abstract class AbstractHttpFrame extends BinaryFrame implements HttpFrame
         }
         if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
             // FIXME encoding
-            String paramString = new String(bodyArray, channel.getCharset());
+            String paramString = new String(bodyArray, ch.getCharset());
             parseParamString(paramString);
             this.readText = paramString;
         } else {

@@ -40,7 +40,7 @@ public class RedisFrameImpl extends AbstractRedisFrame {
     }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         if (complete) {
             return true;
         }

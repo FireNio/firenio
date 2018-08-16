@@ -27,7 +27,7 @@ import com.generallycloud.baseio.concurrent.EventLoop;
  */
 public interface HttpSessionManager extends EventLoop {
 
-    void putSession(String sessionId, HttpSession channel);
+    void putSession(String sessionId, HttpSession ch);
 
     void removeSession(String sessionId);
 

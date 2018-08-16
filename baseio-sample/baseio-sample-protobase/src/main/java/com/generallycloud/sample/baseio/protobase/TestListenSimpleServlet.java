@@ -25,18 +25,18 @@ public class TestListenSimpleServlet extends ProtobaseFrameAcceptorService {
     public static final String SERVICE_NAME = TestListenSimpleServlet.class.getSimpleName();
 
     @Override
-    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame)
+    protected void doAccept(NioSocketChannel ch, ParamedProtobaseFrame frame)
             throws Exception {
         String test = frame.getReadText();
         if (StringUtil.isNullOrBlank(test)) {
             test = "test";
         }
         frame.put("param",frame.getFrameName());
-        channel.flush(frame);
+        ch.flush(frame);
         for (int i = 0; i < 5; i++) {
             ParamedProtobaseFrame f = new ParamedProtobaseFrame(frame.getFrameId(), frame.getFrameName());
             f.put("param",frame.getFrameName());
-            channel.flush(f);
+            ch.flush(f);
         }
 
     }

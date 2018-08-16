@@ -38,7 +38,7 @@ public class Http2FrameHeaderImpl extends AbstractFrame implements Http2FrameHea
 
     public Http2FrameHeaderImpl() {}
 
-    private void doHeaderComplete(NioSocketChannel channel, ByteBuf buf) {
+    private void doHeaderComplete(NioSocketChannel ch, ByteBuf buf) {
         byte b0 = buf.getByte();
         byte b1 = buf.getByte();
         byte b2 = buf.getByte();
@@ -46,11 +46,11 @@ public class Http2FrameHeaderImpl extends AbstractFrame implements Http2FrameHea
         int type = buf.getUnsignedByte();
         this.flags = buf.getByte();
         this.streamIdentifier = MathUtil.int2int31(buf.getInt());
-        this.frame = genFrame(channel, type, length);
+        this.frame = genFrame(ch, type, length);
     }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         ByteBuf buf = this.buf;
         if (!header_complete) {
             buf.read(buffer);
@@ -58,9 +58,9 @@ public class Http2FrameHeaderImpl extends AbstractFrame implements Http2FrameHea
                 return false;
             }
             header_complete = true;
-            doHeaderComplete(channel, buf.flip());
+            doHeaderComplete(ch, buf.flip());
         }
-        return frame.read(channel, buffer);
+        return frame.read(ch, buffer);
     }
 
     @Override
@@ -117,8 +117,8 @@ public class Http2FrameHeaderImpl extends AbstractFrame implements Http2FrameHea
         throw new IllegalArgumentException(type.toString());
     }
 
-    private SocketHttp2Frame genFrame(NioSocketChannel channel, int type, int length) {
-        return genFrame(channel, Http2FrameType.getValue(type), length);
+    private SocketHttp2Frame genFrame(NioSocketChannel ch, int type, int length) {
+        return genFrame(ch, Http2FrameType.getValue(type), length);
     }
 
     @Override

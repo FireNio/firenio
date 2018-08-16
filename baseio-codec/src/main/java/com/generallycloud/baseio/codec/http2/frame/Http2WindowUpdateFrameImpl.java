@@ -31,19 +31,15 @@ public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame
         this.setByteBuf(buf);
     }
 
-    private void doComplete(NioSocketChannel channel, ByteBuf buf) throws IOException {
-
-        this.updateValue = MathUtil.int2int31(buf.getInt());
-    }
-
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         ByteBuf buf = getByteBuf();
         buf.read(buffer);
         if (buf.hasRemaining()) {
             return false;
         }
-        doComplete(channel, buf.flip());
+        buf.flip();
+        this.updateValue = MathUtil.int2int31(buf.getInt());
         return true;
     }
 

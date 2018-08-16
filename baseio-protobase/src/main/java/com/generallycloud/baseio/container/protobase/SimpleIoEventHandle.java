@@ -30,11 +30,11 @@ public class SimpleIoEventHandle extends IoEventHandle {
     private Map<String, OnFrameWrapper> listeners = new HashMap<>();
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
         NamedFrame f = (NamedFrame) frame;
         OnFrameWrapper onReadFrame = listeners.get(f.getFrameName());
         if (onReadFrame != null) {
-            onReadFrame.onResponse(channel, f);
+            onReadFrame.onResponse(ch, f);
         }
     }
 

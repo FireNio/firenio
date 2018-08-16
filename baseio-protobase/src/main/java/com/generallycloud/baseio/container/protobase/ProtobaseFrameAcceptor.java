@@ -26,7 +26,7 @@ import com.generallycloud.baseio.protocol.Frame;
 public class ProtobaseFrameAcceptor extends ContainerIoEventHandle {
 
     @Override
-    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
 
     }
 

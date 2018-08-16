@@ -36,7 +36,7 @@ public class WaiterOnFrame implements OnFrame {
     }
 
     @Override
-    public void onResponse(NioSocketChannel channel, Frame frame) {
+    public void onResponse(NioSocketChannel ch, Frame frame) {
         this.waiter.response(frame);
     }
 }

@@ -45,9 +45,9 @@ public class WebSocketFrame extends AbstractFrame implements HttpMessage {
         this.type = WebSocketCodec.TYPE_TEXT;
     }
 
-    public WebSocketFrame(NioSocketChannel channel,int limit) {
+    public WebSocketFrame(NioSocketChannel ch,int limit) {
         this.limit = limit;
-        this.setServiceName(channel);
+        this.setServiceName(ch);
     }
 
     public byte[] getByteArray() {
@@ -87,7 +87,7 @@ public class WebSocketFrame extends AbstractFrame implements HttpMessage {
     }
 
     @Override
-    public boolean read(NioSocketChannel channel, ByteBuf src) throws IOException {
+    public boolean read(NioSocketChannel ch, ByteBuf src) throws IOException {
         if (src.remaining() < 2) {
             return false;
         }
@@ -191,8 +191,8 @@ public class WebSocketFrame extends AbstractFrame implements HttpMessage {
         return super.setPong();
     }
 
-    protected void setServiceName(NioSocketChannel channel) {
-        this.serviceName = (String) channel.getAttribute(CHANNEL_KEY_SERVICE_NAME);
+    protected void setServiceName(NioSocketChannel ch) {
+        this.serviceName = (String) ch.getAttribute(CHANNEL_KEY_SERVICE_NAME);
     }
 
     protected void setType(byte type) {
@@ -218,13 +218,13 @@ public class WebSocketFrame extends AbstractFrame implements HttpMessage {
     //        }
     //    }
 
-    protected WebSocketFrame reset(NioSocketChannel channel, int limit) {
+    protected WebSocketFrame reset(NioSocketChannel ch, int limit) {
         this.byteArray = null;
         this.eof = false;
         this.readText = null;
         this.type = 0;
         this.limit = limit;
-        this.setServiceName(channel);
+        this.setServiceName(ch);
         super.reset();
         return this;
     }
