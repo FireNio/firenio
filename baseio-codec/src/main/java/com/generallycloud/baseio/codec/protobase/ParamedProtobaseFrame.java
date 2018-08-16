@@ -17,7 +17,6 @@ package com.generallycloud.baseio.codec.protobase;
 
 import java.util.Map;
 
-import com.generallycloud.baseio.collection.JsonParameters;
 import com.generallycloud.baseio.collection.Parameters;
 import com.generallycloud.baseio.protocol.NamedFrame;
 import com.generallycloud.baseio.protocol.ParametersFrame;

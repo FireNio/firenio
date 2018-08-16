@@ -18,7 +18,6 @@ package com.generallycloud.baseio.collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSON;
 import com.generallycloud.baseio.common.StringUtil;
 
 public class MapParameters implements Parameters {
@@ -118,11 +117,6 @@ public class MapParameters implements Parameters {
     @Override
     public Map<String, Object> getMap() {
         return map;
-    }
-
-    @Override
-    public String toString() {
-        return JSON.toJSONString(map);
     }
 
 }

@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.collection;
+package com.generallycloud.baseio.codec.protobase;
 
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.generallycloud.baseio.collection.Parameters;
 import com.generallycloud.baseio.common.StringUtil;
 
 public class JsonParameters implements Parameters {

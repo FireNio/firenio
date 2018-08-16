@@ -5,8 +5,8 @@
 	<artifactId>baseio-protobase</artifactId>
 	<name>${project.artifactId}</name>
 	<packaging>jar</packaging>
-	<description>The protobase of baseio</description>  
-	
+	<description>The protobase of baseio</description>
+
 	<parent>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>baseio</artifactId>
@@ -15,17 +15,23 @@
 	</parent>
 
 	<dependencies>
-			
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-codec</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-container</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.7</version>
 		</dependency>
 
 	</dependencies>

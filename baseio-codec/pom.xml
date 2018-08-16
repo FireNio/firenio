@@ -5,7 +5,7 @@
 	<artifactId>baseio-codec</artifactId>
 	<name>${project.artifactId}</name>
 	<packaging>jar</packaging>
-	<description>The codec of baseio</description>  
+	<description>The codec of baseio</description>
 
 	<parent>
 		<groupId>com.generallycloud</groupId>
@@ -15,20 +15,26 @@
 	</parent>
 
 	<dependencies>
-		
+
 		<dependency>
 			<groupId>com.generallycloud</groupId>
 			<artifactId>baseio-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-	
-		<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
+
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
 			<version>3.1.0</version>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.7</version>
+			<scope>provided</scope>
+		</dependency>
+
 	</dependencies>
 
 </project>
