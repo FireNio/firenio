@@ -123,7 +123,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
         LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
         LoggerUtil.prettyLog(logger, "event loop size       :{ {} }", eventLoopSize);
         LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", sslType());
-        LoggerUtil.prettyLog(logger, "ch idle          :{ {} }", g.getIdleTime());
+        LoggerUtil.prettyLog(logger, "channel idle          :{ {} }", g.getIdleTime());
         LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", port);
         if (g.isEnableMemoryPool()) {
             long memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();

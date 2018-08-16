@@ -24,12 +24,12 @@ public class LoggerChannelOpenListener implements ChannelEventListener {
 
     @Override
     public void channelOpened(NioSocketChannel ch) {
-        logger.info("ch opened:{}", ch);
+        logger.info("channel opened:{}", ch);
     }
 
     @Override
     public void channelClosed(NioSocketChannel ch) {
-        logger.info("ch closed:{}", ch);
+        logger.info("channel closed:{}", ch);
     }
 
 }
