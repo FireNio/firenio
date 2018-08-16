@@ -338,7 +338,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
 
     public void setEnableOpenSsl(boolean enableOpenSsl) {
         checkNotRunning();
-        System.setProperty(SSLUtil.ENABLE_OPENSSL_SYS_KEY, "true");
+        System.setProperty(SSLUtil.ENABLE_OPENSSL_SYS_KEY, enableOpenSsl ? "true" : "false");
         this.enableOpenSsl = enableOpenSsl;
     }
 

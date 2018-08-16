@@ -130,65 +130,58 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    private void accept(ByteBuf src) throws Exception {
+    private void accept(ByteBuf src) throws IOException {
         final ByteBufAllocator alloc = alloc();
         final ProtocolCodec codec = this.codec;
         final IoEventHandle eventHandle = this.ioEventHandle;
         final HeartBeatLogger heartBeatLogger = context.getHeartBeatLogger();
         final boolean enableWorkEventLoop = context.isEnableWorkEventLoop();
-        try {
-            Future future = readFuture;
-            if (future == null) {
-                future = codec.decode(this, src);
-            }
-            for (;;) {
-                if (!future.read(this, src)) {
-                    readFuture = future;
-                    if (src.hasRemaining()) {
-                        ByteBuf remaining = alloc.allocate(src.remaining());
-                        remaining.read(src);
-                        remaining.flip();
-                        plainRemainBuf = remaining;
-                    }
-                    break;
+        Future future = readFuture;
+        if (future == null) {
+            future = codec.decode(this, src);
+        }
+        for (;;) {
+            if (!future.read(this, src)) {
+                readFuture = future;
+                if (src.hasRemaining()) {
+                    ByteBuf remaining = alloc.allocate(src.remaining());
+                    remaining.read(src);
+                    remaining.flip();
+                    plainRemainBuf = remaining;
                 }
-                if (future.isSilent()) {
-                    if (future.isPing()) {
-                        heartBeatLogger.logPing(this);
-                        Future f = codec.pong(this, future);
-                        if (f != null) {
-                            flush(f);
-                        }
-                    } else if (future.isPong()) {
-                        heartBeatLogger.logPong(this);
+                break;
+            }
+            if (future.isSilent()) {
+                if (future.isPing()) {
+                    heartBeatLogger.logPing(this);
+                    Future f = codec.pong(this, future);
+                    if (f != null) {
+                        flush(f);
                     }
+                } else if (future.isPong()) {
+                    heartBeatLogger.logPong(this);
+                }
+            } else {
+                if (enableWorkEventLoop) {
+                    accept(eventHandle, future);
                 } else {
-                    if (enableWorkEventLoop) {
-                        accept(eventHandle, future);
-                    } else {
-                        try {
-                            eventHandle.accept(this, future);
-                        } catch (Exception e) {
-                            eventHandle.exceptionCaught(this, future, e);
-                        }
+                    try {
+                        eventHandle.accept(this, future);
+                    } catch (Exception e) {
+                        eventHandle.exceptionCaught(this, future, e);
                     }
                 }
-                if (!src.hasRemaining()) {
-                    readFuture = null;
-                    break;
-                }
-                future = codec.decode(this, src);
             }
-        } catch (Throwable e) {
-            if (e instanceof IOException) {
-                throw (IOException) e;
+            if (!src.hasRemaining()) {
+                readFuture = null;
+                break;
             }
-            throw new IOException("exception occurred when do decode," + e.getMessage(), e);
+            future = codec.decode(this, src);
         }
     }
 
     private void accept(final IoEventHandle eventHandle, final Future future) {
-        getExecutorEventLoop().dispatch(new Runnable() {
+        getExecutorEventLoop().execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -212,7 +205,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (inEventLoop()) {
             safeClose();
         } else {
-            dispatch(new CloseEvent(this));
+            execute(new CloseEvent(this));
         }
     }
 
@@ -234,11 +227,11 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    private void dispatch(Runnable event) {
-        eventLoop.dispatch(event);
+    private void execute(Runnable event) {
+        eventLoop.execute(event);
     }
-    
-    public ByteBuf encode(Future future) throws IOException{
+
+    public ByteBuf encode(Future future) throws IOException {
         return codec.encode(this, future);
     }
 
@@ -638,7 +631,7 @@ public final class NioSocketChannel extends AttributesImpl
         return true;
     }
 
-    protected void read(ByteBuf src) throws Exception {
+    protected void read(ByteBuf src) throws IOException {
         lastAccess = System.currentTimeMillis();
         src.clear();
         if (enableSsl) {

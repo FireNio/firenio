@@ -35,7 +35,7 @@ public abstract class AbstractEventLoop implements EventLoop {
     private volatile boolean      stopped      = false;
 
     @Override
-    public void dispatch(Runnable event) {}
+    public void execute(Runnable event) {}
 
     protected void doLoop() throws Exception {}
 

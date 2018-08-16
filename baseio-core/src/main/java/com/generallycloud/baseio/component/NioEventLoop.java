@@ -155,7 +155,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     channel.configureBlocking(false);
                     // 注册到selector，等待连接
                     final int channelId = channelIds.getAndIncrement();
-                    targetEventLoop.dispatch(new Runnable() {
+                    targetEventLoop.execute(new Runnable() {
 
                         @Override
                         public void run() {
@@ -193,7 +193,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         selector.selectNow();
                         registChannel(javaChannel, targetEL, context, channelId);
                     } else {
-                        targetEL.dispatch(new Runnable() {
+                        targetEL.execute(new Runnable() {
                             @Override
                             public void run() {
                                 registChannel(javaChannel, targetEL, context, channelId);
@@ -283,7 +283,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     @Override
-    public void dispatch(Runnable event) {
+    public void execute(Runnable event) {
         events.offer(event);
         if (!isRunning() && events.remove(event)) {
             group.getRejectedExecutionHandle().reject(this, event);
@@ -292,7 +292,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         wakeup();
     }
 
-    public void dispatchAfterLoop(Runnable event) {
+    public void executeAfterLoop(Runnable event) {
         events.offer(event);
         if (!isRunning() && events.remove(event)) {
             group.getRejectedExecutionHandle().reject(this, event);
@@ -489,7 +489,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     protected void registerSelector(final ChannelContext context) throws IOException {
         final Selector selector = this.selector;
         final Waiter waiter = new Waiter();
-        dispatch(new Runnable() {
+        execute(new Runnable() {
             @Override
             public void run() {
                 try {

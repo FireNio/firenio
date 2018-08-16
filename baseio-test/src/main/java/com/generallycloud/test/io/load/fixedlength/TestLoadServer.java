@@ -63,7 +63,7 @@ public class TestLoadServer {
                             fs.add(channel.encode(future));
                             if (addTask) {
                                 addTask = false;
-                                channel.getEventLoop().dispatchAfterLoop(() -> {
+                                channel.getEventLoop().executeAfterLoop(() -> {
                                     channel.flush(fs);
                                     addTask = true;
                                     fs.clear();

@@ -22,11 +22,11 @@ public class LoggerFactory {
 
     private static boolean       enableSLF4JLogger = false;
     private static File          internalLogFile;
-    public static final int      LEVEL_DEBUG       = 1;
-    public static final int      LEVEL_ERROR       = 4;
+    public static final int      LEVEL_DEBUG       = 4;
+    public static final int      LEVEL_ERROR       = 1;
     public static final int      LEVEL_INFO        = 3;
     public static final int      LEVEL_WARN        = 2;
-    private static int           logLevel          = 0;
+    private static int           logLevel          = Integer.MAX_VALUE;
     private static LoggerPrinter printer           = SysLoggerPrinter.get();
 
     static {

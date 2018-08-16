@@ -72,7 +72,7 @@ public class HelloGeneratorClass implements Opcodes {
             mv.visitEnd();
         }
         {
-            mv = cw.visitMethod(ACC_PUBLIC, "display", "()V", null, null);
+            mv = cw.visitMethod(ACC_PUBLIC, "🐳", "()V", null, null);
             mv.visitCode();
             Label l0 = new Label();
             mv.visitLabel(l0);
@@ -255,6 +255,17 @@ public class HelloGeneratorClass implements Opcodes {
      * @author SHANHY
      * @create 2016年2月3日
      */
+    public static void main3(String[] args) {
+        
+    }
+
+    /**
+     * AOP测试
+     *
+     * @param args
+     * @author SHANHY
+     * @create  2016年2月3日
+     */
     public static void main(String[] args) {
         try {
             byte[] data = generatorHelloClass();
@@ -265,16 +276,7 @@ public class HelloGeneratorClass implements Opcodes {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * AOP测试
-     *
-     * @param args
-     * @author SHANHY
-     * @create  2016年2月3日
-     */
-    public static void main3(String[] args) {
+        
         try {
             byte[] data = generatorHelloClass();
 
@@ -288,7 +290,7 @@ public class HelloGeneratorClass implements Opcodes {
             Class<?> helloClass = myClassLoader
                     .defineClass("com.generallycloud.test.others.asm.Hello", data);
             Object obj = helloClass.newInstance();
-            Method method = helloClass.getMethod("display", null);
+            Method method = helloClass.getMethod("🐳", null);
             method.invoke(obj, null);
 
             method = helloClass.getMethod("testList", null);

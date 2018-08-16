@@ -57,9 +57,10 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
     }
 
     @Override
-    public void dispatch(Runnable job) throws RejectedExecutionException {
+    public void execute(Runnable job) throws RejectedExecutionException {
         if (!jobs.offer(job)) {
             rejectedExecutionHandle.reject(this, job);
+            return;
         }
         if (!isRunning() && jobs.remove(job)) {
             rejectedExecutionHandle.reject(this, job);

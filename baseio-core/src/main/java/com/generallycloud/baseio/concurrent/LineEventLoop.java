@@ -15,8 +15,6 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-import java.util.concurrent.RejectedExecutionException;
-
 public class LineEventLoop implements ExecutorEventLoop {
 
     private ExecutorEventLoopGroup eventLoopGroup;
@@ -27,7 +25,7 @@ public class LineEventLoop implements ExecutorEventLoop {
     }
 
     @Override
-    public void dispatch(Runnable job) throws RejectedExecutionException {
+    public void execute(Runnable job) {
         if (job == null) {
             return;
         }

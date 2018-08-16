@@ -93,7 +93,7 @@ public class ChannelAcceptor implements ChannelService {
     }
 
     public void broadcast(Future future, Collection<NioSocketChannel> channels) throws IOException {
-        channelManager.broadcast(future, channels);
+        broadcast(future, channels);
     }
 
     public void broadcast(ByteBuf buf) throws IOException {
@@ -101,7 +101,7 @@ public class ChannelAcceptor implements ChannelService {
     }
 
     public void broadcast(ByteBuf buf, Collection<NioSocketChannel> channels) {
-        channelManager.broadcast(buf, channels);
+        broadcast(buf, channels);
     }
 
     @Override

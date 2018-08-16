@@ -46,7 +46,7 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
     private ThreadPoolExecutor poolExecutor;
 
     @Override
-    public void dispatch(Runnable job) {
+    public void execute(Runnable job) {
         this.poolExecutor.execute(job);
     }
 
