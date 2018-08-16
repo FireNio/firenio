@@ -27,7 +27,7 @@ import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 /**
  * @author wangkai
@@ -35,59 +35,59 @@ import com.generallycloud.baseio.protocol.Future;
  */
 public class ServerHttpCodec extends AbstractHttpCodec {
 
-    public static final String  FUTURE_STACK_KEY         = "FixedThreadStack_ServerHttpFuture";
+    public static final String  FRAME_STACK_KEY         = "FixedThreadStack_ServerHttpFrame";
     private static final byte[] PROTOCOL                 = "HTTP/1.1 ".getBytes();
     private static final byte[] CONTENT_LENGTH           = "\r\nContent-Length: ".getBytes();
     private static final byte[] SET_COOKIE               = "Set-Cookie:".getBytes();
     private int                 bodyLimit                = 1024 * 512;
     private int                 headerLimit              = 1024 * 8;
     private int                 websocketLimit           = 1024 * 128;
-    private final int           httpFutureStackSize;
-    private int                 websocketFutureStackSize = 0;
+    private final int           httpFrameStackSize;
+    private int                 websocketFrameStackSize = 0;
 //    private static final ThreadLocal<HttpDateBytesHolder> dateBytes = new ThreadLocal<>();
 
     public ServerHttpCodec() {
-        this.httpFutureStackSize = 0;
+        this.httpFrameStackSize = 0;
     }
 
     public ServerHttpCodec(int headerLimit, int bodyLimit) {
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
-        this.httpFutureStackSize = 0;
+        this.httpFrameStackSize = 0;
     }
 
-    public ServerHttpCodec(int headerLimit, int bodyLimit, int httpFutureStackSize) {
+    public ServerHttpCodec(int headerLimit, int bodyLimit, int httpFrameStackSize) {
         this.headerLimit = headerLimit;
         this.bodyLimit = bodyLimit;
-        this.httpFutureStackSize = httpFutureStackSize;
+        this.httpFrameStackSize = httpFrameStackSize;
     }
 
-    public ServerHttpCodec(int httpFutureStackSize) {
-        this.httpFutureStackSize = httpFutureStackSize;
+    public ServerHttpCodec(int httpFrameStackSize) {
+        this.httpFrameStackSize = httpFrameStackSize;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        if (httpFutureStackSize > 0) {
+    public Frame decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+        if (httpFrameStackSize > 0) {
             NioEventLoop eventLoop = channel.getEventLoop();
-            List<ServerHttpFuture> stack = (List<ServerHttpFuture>) eventLoop
-                    .getAttribute(FUTURE_STACK_KEY);
+            List<ServerHttpFrame> stack = (List<ServerHttpFrame>) eventLoop
+                    .getAttribute(FRAME_STACK_KEY);
             if (stack == null) {
-                stack = new ArrayList<>(httpFutureStackSize);
-                eventLoop.setAttribute(FUTURE_STACK_KEY, stack);
+                stack = new ArrayList<>(httpFrameStackSize);
+                eventLoop.setAttribute(FRAME_STACK_KEY, stack);
             }
             if (stack.isEmpty()) {
-                return new ServerHttpFuture(channel.getContext(), headerLimit, bodyLimit);
+                return new ServerHttpFrame(channel.getContext(), headerLimit, bodyLimit);
             } else {
-                ServerHttpFuture future = stack.remove(stack.size() - 1);
-                return future.reset(channel);
+                ServerHttpFrame frame = stack.remove(stack.size() - 1);
+                return frame.reset(channel);
             }
         }
-        return new ServerHttpFuture(channel.getContext(), headerLimit, bodyLimit);
+        return new ServerHttpFrame(channel.getContext(), headerLimit, bodyLimit);
     }
     
-    private ByteBuf encode(ByteBufAllocator allocator, ServerHttpFuture f, int length, byte[] array)
+    private ByteBuf encode(ByteBufAllocator allocator, ServerHttpFrame f, int length, byte[] array)
             throws IOException {
         ByteBuf buf = allocator.allocate(256);
         try {
@@ -149,12 +149,12 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     }
     
     @Override
-    public ByteBuf encode(NioSocketChannel ch, Future readFuture) throws IOException {
+    public ByteBuf encode(NioSocketChannel ch, Frame readFrame) throws IOException {
         ByteBufAllocator allocator = ch.alloc();
-        ServerHttpFuture f = (ServerHttpFuture) readFuture;
+        ServerHttpFrame f = (ServerHttpFrame) readFrame;
         if (f.isUpdateWebSocketProtocol()) {
             ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
-            ch.setAttribute(WebSocketFuture.CHANNEL_KEY_SERVICE_NAME, f.getFutureName());
+            ch.setAttribute(WebSocketFrame.CHANNEL_KEY_SERVICE_NAME, f.getFrameName());
         }
         f.setResponseHeader(HttpHeader.Date_Bytes, getHttpDateBytes());
         byte[] writeBinary = f.getWriteBinary();
@@ -175,7 +175,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
 
     @Override
     public void initialize(ChannelContext context) {
-        WebSocketCodec.init(context, websocketLimit, websocketFutureStackSize);
+        WebSocketCodec.init(context, websocketLimit, websocketFrameStackSize);
     }
 
     public int getBodyLimit() {
@@ -190,20 +190,20 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         return websocketLimit;
     }
 
-    public int getHttpFutureStackSize() {
-        return httpFutureStackSize;
+    public int getHttpFrameStackSize() {
+        return httpFrameStackSize;
     }
 
-    public int getWebsocketFutureStackSize() {
-        return websocketFutureStackSize;
+    public int getWebsocketFrameStackSize() {
+        return websocketFrameStackSize;
     }
 
     public void setWebsocketLimit(int websocketLimit) {
         this.websocketLimit = websocketLimit;
     }
 
-    public void setWebsocketFutureStackSize(int websocketFutureStackSize) {
-        this.websocketFutureStackSize = websocketFutureStackSize;
+    public void setWebsocketFrameStackSize(int websocketFrameStackSize) {
+        this.websocketFrameStackSize = websocketFrameStackSize;
     }
     
     class HttpDateBytesHolder {

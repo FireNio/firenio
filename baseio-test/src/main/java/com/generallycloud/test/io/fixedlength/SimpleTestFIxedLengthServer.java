@@ -16,25 +16,25 @@
 package com.generallycloud.test.io.fixedlength;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class SimpleTestFIxedLengthServer {
 
     public static void main(String[] args) throws Exception {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:", channel.getCharset());
-                future.write(f.getReadText(), channel.getCharset());
-                channel.flush(future);
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                FixedLengthFrame f = (FixedLengthFrame) frame;
+                frame.write("yes server already accept your message:", channel.getCharset());
+                frame.write(f.getReadText(), channel.getCharset());
+                channel.flush(frame);
             }
         };
         NioEventLoopGroup group = new NioEventLoopGroup();

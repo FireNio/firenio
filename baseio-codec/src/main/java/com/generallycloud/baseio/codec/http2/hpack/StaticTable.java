@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.generallycloud.baseio.codec.http2.future.Http2Header;
+import com.generallycloud.baseio.codec.http2.frame.Http2Header;
 
 final class StaticTable {
 

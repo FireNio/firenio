@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -42,10 +42,10 @@ public class TestRedeploy {
         context.setProtocolCodec(new ProtobaseCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         FixedChannel channel = new FixedChannel(connector.connect());
-        ParamedProtobaseFuture future = channel.request(serviceKey, params);
-        System.out.println(future.getReadText());
+        ParamedProtobaseFrame frame = channel.request(serviceKey, params);
+        System.out.println(frame.getReadText());
         for (int i = 0; i < 0; i++) {
-            future = channel.request(serviceKey, params);
+            frame = channel.request(serviceKey, params);
         }
         CloseUtil.close(connector);
     }

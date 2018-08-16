@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.StandardSocketOptions;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -28,7 +28,7 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
@@ -54,9 +54,9 @@ public class TestLoadClient1 extends ITestThread {
         int time1 = getTime();
         NioSocketChannel channel = connector.getChannel();
         for (int i = 0; i < time1; i++) {
-            Future future = new FixedLengthFuture();
-            future.write(req);
-            channel.flush(future);
+            Frame frame = new FixedLengthFrame();
+            frame.write(req);
+            channel.flush(frame);
         }
     }
 
@@ -66,7 +66,7 @@ public class TestLoadClient1 extends ITestThread {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
             
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 addCount(40000);
             }
         };

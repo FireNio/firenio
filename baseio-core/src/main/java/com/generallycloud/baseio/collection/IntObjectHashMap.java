@@ -379,7 +379,7 @@ public class IntObjectHashMap<V> implements Iterable<IntObjectEntry<V>> {
 
         // In the interval from index to the next available entry, the arrays may have entries
         // that are displaced from their base position due to prior conflicts. Iterate these
-        // entries and move them back if possible, optimizing future lookups.
+        // entries and move them back if possible, optimizing frame lookups.
         // Knuth Section 6.4 Algorithm R, also used by the JDK's IdentityHashMap.
 
         int nextFree = index;

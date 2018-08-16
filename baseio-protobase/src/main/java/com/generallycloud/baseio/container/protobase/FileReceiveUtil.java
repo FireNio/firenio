@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.collection.Parameters;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -39,9 +39,9 @@ public class FileReceiveUtil {
         this.prefix = prefix;
     }
 
-    public void accept(NioSocketChannel channel, ParamedProtobaseFuture future, boolean callback)
+    public void accept(NioSocketChannel channel, ParamedProtobaseFrame frame, boolean callback)
             throws Exception {
-        Parameters parameters = future.getParameters();
+        Parameters parameters = frame.getParameters();
         OutputStream outputStream = (OutputStream) channel.getAttribute(ACCEPT_FILE);
         if (outputStream == null) {
             String fileName = prefix + parameters.getParameter(FILE_NAME);
@@ -49,17 +49,17 @@ public class FileReceiveUtil {
             channel.setAttribute(ACCEPT_FILE, outputStream);
             logger.info("accept...................open,file={}", fileName);
         }
-        byte[] data = future.getReadBinary();
-        outputStream.write(data, 0, future.getReadBinarySize());
-        logger.info("accept...................{},{}", future.getReadBinarySize(), (num++));
+        byte[] data = frame.getReadBinary();
+        outputStream.write(data, 0, frame.getReadBinarySize());
+        logger.info("accept...................{},{}", frame.getReadBinarySize(), (num++));
         boolean isEnd = parameters.getBooleanParameter(IS_END);
         if (isEnd) {
             logger.info("accept...................close,stream={}", outputStream);
             CloseUtil.close(outputStream);
             channel.removeAttribute(ACCEPT_FILE);
             if (callback) {
-                future.write("传输成功！", channel.getCharset());
-                channel.flush(future);
+                frame.write("传输成功！", channel.getCharset());
+                channel.flush(frame);
             }
         }
     }

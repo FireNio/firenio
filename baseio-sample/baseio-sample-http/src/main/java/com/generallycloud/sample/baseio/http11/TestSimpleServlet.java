@@ -17,17 +17,17 @@ package com.generallycloud.sample.baseio.http11;
 
 import org.springframework.stereotype.Service;
 
-import com.generallycloud.baseio.codec.http11.HttpFuture;
-import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
+import com.generallycloud.baseio.codec.http11.HttpFrame;
+import com.generallycloud.baseio.container.http11.HttpFrameAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
 
 @Service("/test")
-public class TestSimpleServlet extends HttpFutureAcceptorService {
+public class TestSimpleServlet extends HttpFrameAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession channel, HttpFuture future) throws Exception {
-        String res = "yes server already accept your message :) " + future.getRequestParams();
-        future.write(res, channel.getEncoding());
-        channel.flush(future);
+    protected void doAccept(HttpSession channel, HttpFrame frame) throws Exception {
+        String res = "yes server already accept your message :) " + frame.getRequestParams();
+        frame.write(res, channel.getEncoding());
+        channel.flush(frame);
     }
 }

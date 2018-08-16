@@ -31,17 +31,17 @@ public class HttpClient {
         this.ioEventHandle = (HttpIOEventHandle) channel.getIoEventHandle();
     }
 
-    public synchronized HttpFuture request(HttpFuture future, long timeout) throws IOException {
+    public synchronized HttpFrame request(HttpFrame frame, long timeout) throws IOException {
         Waiter waiter = ioEventHandle.newWaiter();
-        channel.flush(future);
+        channel.flush(frame);
         if (waiter.await(timeout)) {
             throw new TimeoutException("timeout");
         }
-        return (HttpFuture) waiter.getResponse();
+        return (HttpFrame) waiter.getResponse();
     }
 
-    public synchronized HttpFuture request(HttpFuture future) throws IOException {
-        return request(future, 3000);
+    public synchronized HttpFrame request(HttpFrame frame) throws IOException {
+        return request(frame, 3000);
     }
 
 }

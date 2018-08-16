@@ -15,13 +15,13 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import com.generallycloud.baseio.protocol.NamedFuture;
-import com.generallycloud.baseio.protocol.TextFuture;
+import com.generallycloud.baseio.protocol.NamedFrame;
+import com.generallycloud.baseio.protocol.TextFrame;
 
 /**
  * @author wangkai
  *
  */
-public interface HttpMessage extends NamedFuture, TextFuture {
+public interface HttpMessage extends NamedFrame, TextFrame {
 
 }

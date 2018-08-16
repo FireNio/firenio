@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -24,9 +24,9 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.FixedChannel;
-import com.generallycloud.baseio.container.protobase.OnFuture;
+import com.generallycloud.baseio.container.protobase.OnFrame;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestListenSimple {
 
@@ -40,12 +40,12 @@ public class TestListenSimple {
         context.setProtocolCodec(new ProtobaseCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         FixedChannel channel = new FixedChannel(connector.connect());
-        ParamedProtobaseFuture future = channel.request(serviceKey);
-        System.out.println(future.getReadText());
-        channel.listen(serviceKey, new OnFuture() {
+        ParamedProtobaseFrame frame = channel.request(serviceKey);
+        System.out.println(frame.getReadText());
+        channel.listen(serviceKey, new OnFrame() {
             @Override
-            public void onResponse(NioSocketChannel channel, Future future) {
-                ParamedProtobaseFuture f = (ParamedProtobaseFuture) future;
+            public void onResponse(NioSocketChannel channel, Frame frame) {
+                ParamedProtobaseFrame f = (ParamedProtobaseFrame) frame;
                 System.out.println(f.getReadText());
             }
         });

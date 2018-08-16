@@ -18,7 +18,7 @@ package com.generallycloud.baseio.codec.protobuf;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFrame;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.Parser;
@@ -44,22 +44,22 @@ public class ProtobufUtil {
         return parser;
     }
 
-    public MessageLite getMessage(ProtobaseFuture future) throws InvalidProtocolBufferException {
-        Parser<? extends MessageLite> parser = getParser(future.getReadText());
-        return parser.parseFrom(future.getReadBinary());
+    public MessageLite getMessage(ProtobaseFrame frame) throws InvalidProtocolBufferException {
+        Parser<? extends MessageLite> parser = getParser(frame.getReadText());
+        return parser.parseFrom(frame.getReadBinary());
     }
 
-    public void writeProtobuf(MessageLite messageLite, ProtobaseFuture future)
+    public void writeProtobuf(MessageLite messageLite, ProtobaseFrame frame)
             throws InvalidProtocolBufferException {
-        writeProtobuf(messageLite.getClass().getName(), messageLite, future);
+        writeProtobuf(messageLite.getClass().getName(), messageLite, frame);
     }
 
-    public void writeProtobuf(String parserName, MessageLite messageLite, ProtobaseFuture future)
+    public void writeProtobuf(String parserName, MessageLite messageLite, ProtobaseFrame frame)
             throws InvalidProtocolBufferException {
-        future.write(parserName.getBytes());
+        frame.write(parserName.getBytes());
         // FIXME 判断array是否过大
         byte[] array = messageLite.toByteArray();
-        future.writeBinary(array, 0, array.length);
+        frame.writeBinary(array, 0, array.length);
     }
 
 }

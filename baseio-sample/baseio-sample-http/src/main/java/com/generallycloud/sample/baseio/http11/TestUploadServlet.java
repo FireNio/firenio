@@ -17,28 +17,28 @@ package com.generallycloud.sample.baseio.http11;
 
 import org.springframework.stereotype.Service;
 
-import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpStatic;
-import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
+import com.generallycloud.baseio.container.http11.HttpFrameAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
 
 @Service("/upload")
-public class TestUploadServlet extends HttpFutureAcceptorService {
+public class TestUploadServlet extends HttpFrameAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession channel, HttpFuture future) throws Exception {
+    protected void doAccept(HttpSession channel, HttpFrame frame) throws Exception {
         String res;
-        if (future.hasBodyContent()) {
-            res = "yes server already accept your message :) " + future.getRequestParams()
+        if (frame.hasBodyContent()) {
+            res = "yes server already accept your message :) " + frame.getRequestParams()
                     + " </BR><PRE style='font-size: 18px;color: #FF9800;'>"
-                    + new String(future.getBodyContent()) + "</PRE>";
+                    + new String(frame.getBodyContent()) + "</PRE>";
         } else {
-            res = "yes server already accept your message :) " + future.getRequestParams();
+            res = "yes server already accept your message :) " + frame.getRequestParams();
         }
-        future.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
-        future.write(res, channel.getEncoding());
-        channel.flush(future);
+        frame.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
+        frame.write(res, channel.getEncoding());
+        channel.flush(frame);
     }
 
 }

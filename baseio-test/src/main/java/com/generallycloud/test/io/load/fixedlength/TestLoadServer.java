@@ -27,8 +27,8 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.baseio.protocol.TextFuture;
+import com.generallycloud.baseio.protocol.Frame;
+import com.generallycloud.baseio.protocol.TextFrame;
 
 public class TestLoadServer {
 
@@ -56,11 +56,11 @@ public class TestLoadServer {
                     boolean      addTask = true;
                     List<ByteBuf> fs      = new ArrayList<>(1024 * 4);
                     @Override
-                    public void accept(NioSocketChannel channel, Future future) throws Exception {
-                        TextFuture f = (TextFuture) future;
+                    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                        TextFrame f = (TextFrame) frame;
                         f.write(f.getReadText(), channel);
                         if (batchFlush) {
-                            fs.add(channel.encode(future));
+                            fs.add(channel.encode(frame));
                             if (addTask) {
                                 addTask = false;
                                 channel.getEventLoop().executeAfterLoop(() -> {
@@ -70,7 +70,7 @@ public class TestLoadServer {
                                 });
                             }
                         } else {
-                            channel.flush(future);
+                            channel.flush(frame);
                         }
                     }
                 });

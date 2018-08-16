@@ -15,27 +15,27 @@
  */
 package com.generallycloud.sample.baseio.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
+import com.generallycloud.baseio.container.protobase.ProtobaseFrameAcceptorService;
 
-public class TestListenSimpleServlet extends ProtobaseFutureAcceptorService {
+public class TestListenSimpleServlet extends ProtobaseFrameAcceptorService {
 
     public static final String SERVICE_NAME = TestListenSimpleServlet.class.getSimpleName();
 
     @Override
-    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future)
+    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame)
             throws Exception {
-        String test = future.getReadText();
+        String test = frame.getReadText();
         if (StringUtil.isNullOrBlank(test)) {
             test = "test";
         }
-        future.put("param",future.getFutureName());
-        channel.flush(future);
+        frame.put("param",frame.getFrameName());
+        channel.flush(frame);
         for (int i = 0; i < 5; i++) {
-            ParamedProtobaseFuture f = new ParamedProtobaseFuture(future.getFutureId(), future.getFutureName());
-            f.put("param",future.getFutureName());
+            ParamedProtobaseFrame f = new ParamedProtobaseFrame(frame.getFrameId(), frame.getFrameName());
+            f.put("param",frame.getFrameName());
             channel.flush(f);
         }
 

@@ -22,21 +22,21 @@ public class ApplicationConfiguration {
     private boolean    enableHttpSession;
     private boolean    enableRedeploy   = true;
     private boolean    enableStopServer = true;
-    private String     futureAcceptor;
+    private String     frameAcceptor;
     private String     ioExceptionCaughtHandle;
-    private String     onRedeployFutureAcceptor;
+    private String     onRedeployFrameAcceptor;
     private Properties properties;
 
-    public String getFutureAcceptor() {
-        return futureAcceptor;
+    public String getFrameAcceptor() {
+        return frameAcceptor;
     }
 
     public String getIoExceptionCaughtHandle() {
         return ioExceptionCaughtHandle;
     }
 
-    public String getOnRedeployFutureAcceptor() {
-        return onRedeployFutureAcceptor;
+    public String getOnRedeployFrameAcceptor() {
+        return onRedeployFrameAcceptor;
     }
 
     public Properties getProperties() {
@@ -67,16 +67,16 @@ public class ApplicationConfiguration {
         this.enableStopServer = enableStopServer;
     }
 
-    public void setFutureAcceptor(String futureAcceptor) {
-        this.futureAcceptor = futureAcceptor;
+    public void setFrameAcceptor(String frameAcceptor) {
+        this.frameAcceptor = frameAcceptor;
     }
 
     public void setIoExceptionCaughtHandle(String ioExceptionCaughtHandle) {
         this.ioExceptionCaughtHandle = ioExceptionCaughtHandle;
     }
 
-    public void setOnRedeployFutureAcceptor(String onRedeployFutureAcceptor) {
-        this.onRedeployFutureAcceptor = onRedeployFutureAcceptor;
+    public void setOnRedeployFrameAcceptor(String onRedeployFrameAcceptor) {
+        this.onRedeployFrameAcceptor = onRedeployFrameAcceptor;
     }
 
     public void setProperties(Properties properties) {

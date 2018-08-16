@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 /**
  * @author wangkai
@@ -49,22 +49,22 @@ public class ChannelManager {
         channels.remove(channel.getChannelId());
     }
 
-    public void broadcast(Future future) throws IOException {
-        broadcast(future, channels.values());
+    public void broadcast(Frame frame) throws IOException {
+        broadcast(frame, channels.values());
     }
 
     public void broadcast(ByteBuf buf) {
         broadcast(buf, channels.values());
     }
 
-    public static void broadcast(Future future, Collection<NioSocketChannel> chs)
+    public static void broadcast(Frame frame, Collection<NioSocketChannel> chs)
             throws IOException {
         if (chs.size() == 0) {
             return;
         }
         NioSocketChannel ch = chs.iterator().next();
         if (ch != null) {
-            broadcast(ch.encode(future), chs);
+            broadcast(ch.encode(frame), chs);
         }
     }
 

@@ -19,19 +19,19 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.generallycloud.baseio.component.FutureAcceptor;
+import com.generallycloud.baseio.component.FrameAcceptor;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.ApplicationIoEventHandle;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 /**
  * @author wangkai
  *
  */
-public class SystemRedeployServlet implements FutureAcceptor {
+public class SystemRedeployServlet implements FrameAcceptor {
 
     @Override
-    public void accept(NioSocketChannel channel, Future future) throws IOException {
+    public void accept(NioSocketChannel channel, Frame frame) throws IOException {
         ApplicationIoEventHandle applicationIoEventHandle = 
                 (ApplicationIoEventHandle) channel.getIoEventHandle();
         AtomicInteger redeployTime = applicationIoEventHandle.getRedeployTime();
@@ -39,15 +39,15 @@ public class SystemRedeployServlet implements FutureAcceptor {
         Charset charset = channel.getCharset();
         if (applicationIoEventHandle.redeploy()) {
             int time = redeployTime.incrementAndGet();
-            future.write("redeploy successful_", charset);
-            future.write(String.valueOf(time), charset);
-            future.write(",spent time:", charset);
-            future.write(String.valueOf(System.currentTimeMillis() - startTime), charset);
+            frame.write("redeploy successful_", charset);
+            frame.write(String.valueOf(time), charset);
+            frame.write(",spent time:", charset);
+            frame.write(String.valueOf(System.currentTimeMillis() - startTime), charset);
         } else {
-            future.write("redeploy failed,spent time:", charset);
-            future.write(String.valueOf(System.currentTimeMillis() - startTime), charset);
+            frame.write("redeploy failed,spent time:", charset);
+            frame.write(String.valueOf(System.currentTimeMillis() - startTime), charset);
         }
-        channel.flush(future);
+        channel.flush(frame);
     }
 
 }

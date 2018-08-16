@@ -15,11 +15,11 @@
  */
 package com.generallycloud.sample.baseio.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
+import com.generallycloud.baseio.container.protobase.ProtobaseFrameAcceptorService;
 
-public class TestGetPhoneNOServlet extends ProtobaseFutureAcceptorService {
+public class TestGetPhoneNOServlet extends ProtobaseFrameAcceptorService {
 
     public static final String SERVICE_NAME = TestGetPhoneNOServlet.class.getSimpleName();
 
@@ -29,13 +29,13 @@ public class TestGetPhoneNOServlet extends ProtobaseFutureAcceptorService {
     private int                index        = 0;
 
     @Override
-    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
+    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame) throws Exception {
         String phone = NOS[index++];
         if (index == 4) {
             index = 0;
         }
-        future.put("phone", phone);
-        channel.flush(future);
+        frame.put("phone", phone);
+        channel.flush(frame);
     }
 
 }

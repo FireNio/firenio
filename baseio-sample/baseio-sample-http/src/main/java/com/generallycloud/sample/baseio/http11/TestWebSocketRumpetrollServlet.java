@@ -23,44 +23,44 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.LifeCycleUtil;
-import com.generallycloud.baseio.codec.http11.HttpFuture;
-import com.generallycloud.baseio.codec.http11.WebSocketFuture;
+import com.generallycloud.baseio.codec.http11.HttpFrame;
+import com.generallycloud.baseio.codec.http11.WebSocketFrame;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
+import com.generallycloud.baseio.container.http11.HttpFrameAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 // FIXME ________根据当前是否正在redeploy来保存和恢复client
 @Service("/web-socket-rumpetroll")
-public class TestWebSocketRumpetrollServlet extends HttpFutureAcceptorService {
+public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptorService {
 
     private Logger              logger     = LoggerFactory.getLogger(getClass());
     private WebSocketMsgAdapter msgAdapter = new WebSocketMsgAdapter();
 
     @Override
-    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
-        future.updateWebSocketProtocol(session.getChannel());
-        session.flush(future);
+    protected void doAccept(HttpSession session, HttpFrame frame) throws Exception {
+        frame.updateWebSocketProtocol(session.getChannel());
+        session.flush(frame);
         NioSocketChannel ioChannel = session.getChannel();
         msgAdapter.addClient(ioChannel.getRemoteAddrPort(), ioChannel);
         JSONObject o = new JSONObject();
         o.put("type", "welcome");
         o.put("id", ioChannel.getChannelId());
-        WebSocketFuture f = new WebSocketFuture();
+        WebSocketFrame f = new WebSocketFrame();
         f.write(o.toJSONString(), session.getEncoding());
         session.flush(f);
     }
 
     @Override
-    public void accept(NioSocketChannel channel, Future future) throws Exception {
-        if (future instanceof HttpFuture) {
-            super.accept(channel, future);
+    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+        if (frame instanceof HttpFrame) {
+            super.accept(channel, frame);
             return;
         }
-        WebSocketFuture f = (WebSocketFuture) future;
+        WebSocketFrame f = (WebSocketFrame) frame;
         // CLOSE
         if (f.isCloseFrame()) {
             if(msgAdapter.removeClient(channel)){

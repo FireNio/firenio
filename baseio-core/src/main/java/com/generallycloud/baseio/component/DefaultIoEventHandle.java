@@ -17,7 +17,7 @@ package com.generallycloud.baseio.component;
 
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 /**
  * @author wangkai
@@ -36,8 +36,8 @@ public class DefaultIoEventHandle extends IoEventHandle {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void accept(NioSocketChannel channel, Future future) throws Exception {
-        logger.info("you did not set IoEventHandleAdaptor and the msg is coming:{}", future);
+    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+        logger.info("you did not set IoEventHandleAdaptor and the msg is coming:{}", frame);
     }
 
 }

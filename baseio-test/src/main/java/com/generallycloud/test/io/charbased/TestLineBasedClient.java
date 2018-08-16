@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.charbased;
 
 import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
-import com.generallycloud.baseio.codec.charbased.CharBasedFuture;
+import com.generallycloud.baseio.codec.charbased.CharBasedFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -24,7 +24,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestLineBasedClient {
 
@@ -33,9 +33,9 @@ public class TestLineBasedClient {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 System.out.println();
-                System.out.println("____________________" + future);
+                System.out.println("____________________" + frame);
                 System.out.println();
             }
         };
@@ -46,9 +46,9 @@ public class TestLineBasedClient {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new CharBasedCodec());
         NioSocketChannel channel = connector.connect();
-        CharBasedFuture future = new CharBasedFuture();
-        future.write("hello server!", channel);
-        channel.flush(future);
+        CharBasedFrame frame = new CharBasedFrame();
+        frame.write("hello server!", channel);
+        channel.flush(frame);
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);
 

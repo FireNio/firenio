@@ -26,7 +26,7 @@ import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestLineBasedServer {
 
@@ -35,10 +35,10 @@ public class TestLineBasedServer {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                String res = "yes server already accept your message:" + future;
-                future.write(res, channel.getCharset());
-                channel.flush(future);
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                String res = "yes server already accept your message:" + frame;
+                frame.write(res, channel.getCharset());
+                channel.flush(frame);
             }
         };
 

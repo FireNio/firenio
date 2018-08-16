@@ -16,9 +16,9 @@
 package com.generallycloud.test.io.http11;
 
 import com.generallycloud.baseio.codec.http11.ClientHttpCodec;
-import com.generallycloud.baseio.codec.http11.ClientHttpFuture;
+import com.generallycloud.baseio.codec.http11.ClientHttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpClient;
-import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -51,9 +51,9 @@ public class TestSimpleHttpClient {
 
         HttpClient client = new HttpClient(channel);
 
-        HttpFuture future = new ClientHttpFuture("/test-show-memory");
+        HttpFrame frame = new ClientHttpFrame("/test-show-memory");
 
-        HttpFuture res = client.request(future, 10000);
+        HttpFrame res = client.request(frame, 10000);
         System.out.println();
         System.out.println(new String(res.getBodyContent()));
         System.out.println();

@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.fixedlength;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelActiveIdleEventListener;
@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.DebugUtil;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestHeartBeat {
 
@@ -36,8 +36,8 @@ public class TestHeartBeat {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                DebugUtil.debug("______________" + future);
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                DebugUtil.debug("______________" + frame);
             }
         };
 
@@ -53,9 +53,9 @@ public class TestHeartBeat {
         String param = "tttt";
         long old = System.currentTimeMillis();
         for (int i = 0; i < 5; i++) {
-            Future future = new FixedLengthFuture();
-            future.write(param, context);
-            channel.flush(future);
+            Frame frame = new FixedLengthFrame();
+            frame.write(param, context);
+            channel.flush(frame);
             ThreadUtil.sleep(300);
         }
         System.out.println("Time:" + (System.currentTimeMillis() - old));

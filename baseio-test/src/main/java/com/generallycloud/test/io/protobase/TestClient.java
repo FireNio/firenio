@@ -15,9 +15,9 @@
  */
 package com.generallycloud.test.io.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestClient {
 
@@ -34,9 +34,9 @@ public class TestClient {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 System.out.println();
-                System.out.println("____________________" + future);
+                System.out.println("____________________" + frame);
                 System.out.println();
             }
         };
@@ -48,9 +48,9 @@ public class TestClient {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new ProtobaseCodec());
         NioSocketChannel channel = connector.connect();
-        ParamedProtobaseFuture future = new ParamedProtobaseFuture("test222");
-        future.write("hello server!", channel);
-        channel.flush(future);
+        ParamedProtobaseFrame frame = new ParamedProtobaseFrame("test222");
+        frame.write("hello server!", channel);
+        channel.flush(frame);
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);
 

@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.generallycloud.baseio.codec.http11.Cookie;
-import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
@@ -48,14 +48,14 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
     }
 
     @Override
-    public HttpSession getHttpSession(HttpFutureAcceptor context, NioSocketChannel ioSession,
-            HttpFuture future) {
-        String sessionId = future.getCookie(COOKIE_NAME_SESSIONID);
+    public HttpSession getHttpSession(HttpFrameAcceptor context, NioSocketChannel ioSession,
+            HttpFrame frame) {
+        String sessionId = frame.getCookie(COOKIE_NAME_SESSIONID);
         if (StringUtil.isNullOrBlank(sessionId)) {
             DefaultHttpSession channel = new DefaultHttpSession(context, ioSession);
             sessionId = channel.getSessionId();
             Cookie cookie = new Cookie(COOKIE_NAME_SESSIONID, sessionId);
-            future.addCookie(cookie);
+            frame.addCookie(cookie);
             this.sessions.put(sessionId, channel);
             return channel;
         }
@@ -68,7 +68,7 @@ public class DefaultHttpSessionManager extends AbstractEventLoop implements Http
         if (!session.isValidate()) {
             sessions.remove(sessionId);
             CloseUtil.close(session.getChannel());
-            return getHttpSession(context, ioSession, future);
+            return getHttpSession(context, ioSession, frame);
         }
         session.active(ioSession);
         return session;

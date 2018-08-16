@@ -16,10 +16,10 @@
 package com.generallycloud.test.io.http11;
 
 import com.generallycloud.baseio.codec.http11.ClientHttpCodec;
-import com.generallycloud.baseio.codec.http11.ClientHttpFuture;
-import com.generallycloud.baseio.codec.http11.HttpFuture;
-import com.generallycloud.baseio.codec.http11.WebSocketFuture;
-import com.generallycloud.baseio.codec.http11.WsUpgradeRequestFuture;
+import com.generallycloud.baseio.codec.http11.ClientHttpFrame;
+import com.generallycloud.baseio.codec.http11.HttpFrame;
+import com.generallycloud.baseio.codec.http11.WebSocketFrame;
+import com.generallycloud.baseio.codec.http11.WsUpgradeRequestFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -28,7 +28,7 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestSimpleWebSocketClient {
 
@@ -37,17 +37,17 @@ public class TestSimpleWebSocketClient {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                if (future instanceof ClientHttpFuture) {
-                    ClientHttpFuture f = (ClientHttpFuture) future;
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                if (frame instanceof ClientHttpFrame) {
+                    ClientHttpFrame f = (ClientHttpFrame) frame;
                     if (f.updateWebSocketProtocol(channel)) {
-                        WebSocketFuture f2 = new WebSocketFuture();
+                        WebSocketFrame f2 = new WebSocketFrame();
                         f2.write("{action: \"add-user\", username: \"火星人\"}", channel);
                         channel.flush(f2);
                     }
                     System.out.println(f.getRequestHeaders());
                 } else {
-                    WebSocketFuture f = (WebSocketFuture) future;
+                    WebSocketFrame f = (WebSocketFrame) frame;
                     System.out.println(f.getReadText());
                 }
             }
@@ -62,17 +62,17 @@ public class TestSimpleWebSocketClient {
         NioSocketChannel channel = connector.connect();
         String url = "/web-socket-chat";
         //        url = "/c1020";
-        HttpFuture future = new WsUpgradeRequestFuture(url);
-        //		 future.setRequestURL("ws://120.76.222.210:30005/");
-        //		future.setResponseHeader("Host", "120.76.222.210:30005");
-        //		future.setResponseHeader("Pragma", "no-cache");
-        //		future.setResponseHeader("Cache-Control", "no-cache");
-        //		future.setResponseHeader("User-Agent",
+        HttpFrame frame = new WsUpgradeRequestFrame(url);
+        //		 frame.setRequestURL("ws://120.76.222.210:30005/");
+        //		frame.setResponseHeader("Host", "120.76.222.210:30005");
+        //		frame.setResponseHeader("Pragma", "no-cache");
+        //		frame.setResponseHeader("Cache-Control", "no-cache");
+        //		frame.setResponseHeader("User-Agent",
         //				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36");
-        //		future.setResponseHeader("Accept-Encoding", "gzip, deflate, sdch");
-        //		future.setResponseHeader("Accept-Language", "zh-CN,zh;q=0.8");
-        // future.setRequestHeader("", "");
-        channel.flush(future);
+        //		frame.setResponseHeader("Accept-Encoding", "gzip, deflate, sdch");
+        //		frame.setResponseHeader("Accept-Language", "zh-CN,zh;q=0.8");
+        // frame.setRequestHeader("", "");
+        channel.flush(frame);
         ThreadUtil.sleep(999999999);
         CloseUtil.close(connector);
 

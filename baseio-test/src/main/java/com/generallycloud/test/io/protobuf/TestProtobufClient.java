@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.protobuf;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFrame;
 import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.test.io.protobuf.TestProtoBufBean.SearchRequest;
 import com.generallycloud.test.io.protobuf.TestProtoBufBean.SearchRequest.Corpus;
 import com.google.protobuf.ByteString;
@@ -41,9 +41,9 @@ public class TestProtobufClient {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
 
-                ProtobaseFuture f = (ProtobaseFuture) future;
+                ProtobaseFrame f = (ProtobaseFrame) frame;
 
                 SearchRequest res = (SearchRequest) protobufUtil.getMessage(f);
 
@@ -63,13 +63,13 @@ public class TestProtobufClient {
 
         //		context.addChannelEventListener(new ChannelActiveSEListener());
 
-        //		context.setBeatFutureFactory(new FLBeatFutureFactory());
+        //		context.setBeatFrameFactory(new FLBeatFrameFactory());
 
         context.setProtocolCodec(new ProtobaseCodec());
 
         NioSocketChannel channel = connector.connect();
 
-        ProtobaseFuture f = new ProtobaseFuture();
+        ProtobaseFrame f = new ProtobaseFrame();
 
         ByteString byteString = ByteString.copyFrom("222".getBytes());
 

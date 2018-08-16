@@ -18,7 +18,7 @@ package com.generallycloud.test.io.fixedlength;
 import java.io.File;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ssl.SSLUtil;
 import com.generallycloud.baseio.component.ssl.SslContext;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestFIxedLengthServer {
 
@@ -36,11 +36,11 @@ public class TestFIxedLengthServer {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:", channel);
-                future.write(f.getReadText(), channel);
-                channel.flush(future);
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                FixedLengthFrame f = (FixedLengthFrame) frame;
+                frame.write("yes server already accept your message:", channel);
+                frame.write(f.getReadText(), channel);
+                channel.flush(frame);
             }
         };
         ChannelContext context = new ChannelContext(8300);

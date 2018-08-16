@@ -15,20 +15,20 @@
  */
 package com.generallycloud.sample.baseio.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.FileReceiveUtil;
-import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
+import com.generallycloud.baseio.container.protobase.ProtobaseFrameAcceptorService;
 
-public class TestUploadServlet extends ProtobaseFutureAcceptorService {
+public class TestUploadServlet extends ProtobaseFrameAcceptorService {
 
     public static final String SERVICE_NAME    = TestUploadServlet.class.getSimpleName();
 
     private FileReceiveUtil    fileReceiveUtil = new FileReceiveUtil("upload-");
 
     @Override
-    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
+    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame) throws Exception {
 
-        fileReceiveUtil.accept(channel, future, true);
+        fileReceiveUtil.accept(channel, frame, true);
     }
 }

@@ -21,22 +21,22 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 /**
  * <pre>
  *  B0 -B3  : 报文总长度        大于0:普通消息 -1:心跳PING -2:心跳PONG
  *  B4 :0   : 广播类型          0:P2P           1:BRODCAST
- *  B4 :1   : 是否包含FutureId  4 byte   
+ *  B4 :1   : 是否包含FrameId  4 byte   
  *  B4 :2   : 是否包含ChannelId 4 byte
  *  B4 :3   : 是否包含Text      4 byte
  *  B4 :4   : 是否包含Binary    4 byte
  *  B4 :5   : 预留
  *  B4 :6   : 预留
  *  B4 :7   : 预留
- *  B5      : 消息类型FutureType
- *  .....   ：FutureId,ChannelId,Text,Binary
+ *  B5      : 消息类型FrameType
+ *  .....   ：FrameId,ChannelId,Text,Binary
  *  
  * </pre>
  */
@@ -77,13 +77,13 @@ public class ProtobaseCodec extends ProtocolCodec {
     }
 
     @Override
-    public Future ping(NioSocketChannel channel) {
-        return new ProtobaseFuture().setPing();
+    public Frame ping(NioSocketChannel channel) {
+        return new ProtobaseFrame().setPing();
     }
 
     @Override
-    public Future decode(NioSocketChannel channel, ByteBuf buffer) {
-        return new ProtobaseFuture(textLenLimit, binaryLenLimit);
+    public Frame decode(NioSocketChannel channel, ByteBuf buffer) {
+        return new ProtobaseFrame(textLenLimit, binaryLenLimit);
     }
 
     public int getTextLenLimit() {
@@ -95,11 +95,11 @@ public class ProtobaseCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel ch, Future future) throws IOException {
-        if (future.isSilent()) {
-            return future.isPing() ? PING.duplicate() : PONG.duplicate();
+    public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
+        if (frame.isSilent()) {
+            return frame.isPing() ? PING.duplicate() : PONG.duplicate();
         }
-        ProtobaseFuture f = (ProtobaseFuture) future;
+        ProtobaseFrame f = (ProtobaseFrame) frame;
         int allLen = 6;
         int textWriteSize = f.getWriteSize();
         int binaryWriteSize = f.getWriteBinarySize();
@@ -107,7 +107,7 @@ public class ProtobaseCodec extends ProtocolCodec {
         if (f.isBroadcast()) {
             h1 |= 0b10000000;
         }
-        if (f.getFutureId() > 0) {
+        if (f.getFrameId() > 0) {
             h1 |= 0b01000000;
             allLen += 4;
         }
@@ -128,9 +128,9 @@ public class ProtobaseCodec extends ProtocolCodec {
         ByteBuf buf = ch.alloc().allocate(allLen);
         buf.putInt(allLen - 4);
         buf.putByte(h1);
-        buf.putByte(f.getFutureType());
-        if (f.getFutureId() > 0) {
-            buf.putInt(f.getFutureId());
+        buf.putByte(f.getFrameType());
+        if (f.getFrameId() > 0) {
+            buf.putInt(f.getFrameId());
         }
         if (f.getChannelId() > 0) {
             buf.putInt(f.getChannelId());

@@ -55,7 +55,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     private boolean                        enableOpenSsl;
     private boolean                        enableSsl;
     private String                          openSslPath;
-    //是否启用work event loop，如果启用，则future在work event loop中处理
+    //是否启用work event loop，如果启用，则frame在work event loop中处理
     private boolean                        enableWorkEventLoop;
     private ExecutorEventLoopGroup         executorEventLoopGroup;
     private HeartBeatLogger                heartBeatLogger;

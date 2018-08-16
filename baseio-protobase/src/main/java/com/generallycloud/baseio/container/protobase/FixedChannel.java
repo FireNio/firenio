@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -59,33 +59,33 @@ public class FixedChannel {
         return logined;
     }
 
-    public ParamedProtobaseFuture request(String serviceName) throws IOException {
+    public ParamedProtobaseFrame request(String serviceName) throws IOException {
         return request(serviceName, null, null);
     }
 
-    public ParamedProtobaseFuture request(String serviceName, Map<String, Object> params)
+    public ParamedProtobaseFrame request(String serviceName, Map<String, Object> params)
             throws IOException {
         return request(serviceName, params, null);
     }
 
-    public ParamedProtobaseFuture request(String serviceName, Map<String, Object> params,
+    public ParamedProtobaseFrame request(String serviceName, Map<String, Object> params,
             byte[] binary) throws IOException {
-        ParamedProtobaseFuture future = new ParamedProtobaseFuture(serviceName);
+        ParamedProtobaseFrame frame = new ParamedProtobaseFrame(serviceName);
         if (params != null) {
-            future.putAll(params);
+            frame.putAll(params);
         }
         if (binary != null) {
-            future.writeBinary(binary);
+            frame.writeBinary(binary);
         }
-        WaiterOnFuture onReadFuture = new WaiterOnFuture();
-        waiterListen(serviceName, onReadFuture);
-        channel.flush(future);
+        WaiterOnFrame onReadFrame = new WaiterOnFrame();
+        waiterListen(serviceName, onReadFrame);
+        channel.flush(frame);
         // FIXME 连接丢失时叫醒我
-        if (onReadFuture.await(timeout)) {
+        if (onReadFrame.await(timeout)) {
             CloseUtil.close(channel);
             throw new TimeoutException("timeout");
         }
-        return (ParamedProtobaseFuture) onReadFuture.getReadFuture();
+        return (ParamedProtobaseFrame) onReadFrame.getReadFrame();
     }
 
     public void update(NioSocketChannel channel) {
@@ -94,16 +94,16 @@ public class FixedChannel {
         this.eventHandle = (SimpleIoEventHandle) channel.getIoEventHandle();
     }
 
-    private void waiterListen(String serviceName, WaiterOnFuture onReadFuture) throws IOException {
-        if (onReadFuture == null) {
-            throw new IOException("empty onReadFuture");
+    private void waiterListen(String serviceName, WaiterOnFrame onReadFrame) throws IOException {
+        if (onReadFrame == null) {
+            throw new IOException("empty onReadFrame");
         }
-        OnFutureWrapper wrapper = eventHandle.getOnReadFutureWrapper(serviceName);
+        OnFrameWrapper wrapper = eventHandle.getOnReadFrameWrapper(serviceName);
         if (wrapper == null) {
-            wrapper = new OnFutureWrapper();
-            eventHandle.putOnReadFutureWrapper(serviceName, wrapper);
+            wrapper = new OnFrameWrapper();
+            eventHandle.putOnReadFrameWrapper(serviceName, wrapper);
         }
-        wrapper.listen(onReadFuture);
+        wrapper.listen(onReadFrame);
     }
 
     public void write(String serviceName) throws IOException {
@@ -116,18 +116,18 @@ public class FixedChannel {
 
     public void write(String serviceName, Map<String, Object> params, byte[] binary)
             throws IOException {
-        ParamedProtobaseFuture future = new ParamedProtobaseFuture(serviceName);
+        ParamedProtobaseFrame frame = new ParamedProtobaseFrame(serviceName);
         if (params != null) {
-            future.putAll(params);
+            frame.putAll(params);
         }
         if (binary != null) {
-            future.writeBinary(binary);
+            frame.writeBinary(binary);
         }
-        channel.flush(future);
+        channel.flush(frame);
     }
 
-    public void listen(String serviceName, OnFuture onReadFuture) throws IOException {
-        eventHandle.listen(serviceName, onReadFuture);
+    public void listen(String serviceName, OnFrame onReadFrame) throws IOException {
+        eventHandle.listen(serviceName, onReadFrame);
     }
 
 }

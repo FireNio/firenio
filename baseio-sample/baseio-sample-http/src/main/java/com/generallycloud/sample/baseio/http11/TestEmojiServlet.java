@@ -21,21 +21,21 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
-import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.common.EmojiUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.container.http11.HtmlUtil;
-import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
+import com.generallycloud.baseio.container.http11.HttpFrameAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
 
 @Service("/test-emoji")
-public class TestEmojiServlet extends HttpFutureAcceptorService {
+public class TestEmojiServlet extends HttpFrameAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession channel, HttpFuture future) throws Exception {
+    protected void doAccept(HttpSession channel, HttpFrame frame) throws Exception {
 
         String emoji = EmojiUtil.EMOJI_ALL;
 
@@ -46,7 +46,7 @@ public class TestEmojiServlet extends HttpFutureAcceptorService {
 
         List<String> emojiList = EmojiUtil.bytes2Emojis(emoji.getBytes(Encoding.UTF8));
 
-        String limitStr = future.getRequestParam("limit");
+        String limitStr = frame.getRequestParam("limit");
         int limit;
         if (StringUtil.isNullOrBlank(limitStr)) {
             limit = emojiList.size();
@@ -71,11 +71,11 @@ public class TestEmojiServlet extends HttpFutureAcceptorService {
 //        builder.append(getScript());
         builder.append(HtmlUtil.HTML_BOTTOM);
 
-        future.write(builder.toString(), channel.getEncoding());
+        frame.write(builder.toString(), channel.getEncoding());
 
-        future.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
+        frame.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
 
-        channel.flush(future);
+        channel.flush(frame);
     }
 
     private String getScript() {

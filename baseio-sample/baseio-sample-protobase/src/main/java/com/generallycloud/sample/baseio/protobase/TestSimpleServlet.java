@@ -15,20 +15,20 @@
  */
 package com.generallycloud.sample.baseio.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
+import com.generallycloud.baseio.container.protobase.ProtobaseFrameAcceptorService;
 
-public class TestSimpleServlet extends ProtobaseFutureAcceptorService {
+public class TestSimpleServlet extends ProtobaseFrameAcceptorService {
 
     public static final String SERVICE_NAME = TestSimpleServlet.class.getSimpleName();
     private TestSimple1 simple1 = new TestSimple1();
 
     @Override
-    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
-        future.put("dynamic",simple1.dynamic());
-        future.put("param",future.getFutureName());
-        channel.flush(future);
+    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame) throws Exception {
+        frame.put("dynamic",simple1.dynamic());
+        frame.put("param",frame.getFrameName());
+        channel.flush(frame);
     }
 
 }

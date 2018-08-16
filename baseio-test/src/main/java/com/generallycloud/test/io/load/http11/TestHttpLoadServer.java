@@ -23,7 +23,7 @@ import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestHttpLoadServer {
     
@@ -35,9 +35,9 @@ public class TestHttpLoadServer {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                future.write("Hello World",channel);
-                channel.flush(future);
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                frame.write("Hello World",channel);
+                channel.flush(frame);
             }
 
         };

@@ -29,7 +29,7 @@ public class DatagramRequest {
         this.serviceName = parameters.getParameter("serviceName");
     }
 
-    public String getFutureName() {
+    public String getFrameName() {
         return serviceName;
     }
 

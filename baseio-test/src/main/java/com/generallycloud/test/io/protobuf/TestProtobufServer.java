@@ -16,14 +16,14 @@
 package com.generallycloud.test.io.protobuf;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFrame;
 import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.test.io.protobuf.TestProtoBufBean.SearchRequest;
 
 public class TestProtobufServer {
@@ -37,9 +37,9 @@ public class TestProtobufServer {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
 
-                ProtobaseFuture f = (ProtobaseFuture) future;
+                ProtobaseFrame f = (ProtobaseFrame) frame;
 
                 SearchRequest req = (SearchRequest) protobufUtil.getMessage(f);
 
@@ -52,7 +52,7 @@ public class TestProtobufServer {
 
                 protobufUtil.writeProtobuf(res.getClass().getName(), res, f);
 
-                channel.flush(future);
+                channel.flush(frame);
             }
         };
 
@@ -66,7 +66,7 @@ public class TestProtobufServer {
 
         context.setIoEventHandle(eventHandleAdaptor);
 
-        //		context.setBeatFutureFactory(new NIOBeatFutureFactory());
+        //		context.setBeatFrameFactory(new NIOBeatFrameFactory());
 
         context.setProtocolCodec(new ProtobaseCodec());
 

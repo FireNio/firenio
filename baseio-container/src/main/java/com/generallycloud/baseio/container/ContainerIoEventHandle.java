@@ -20,14 +20,14 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public abstract class ContainerIoEventHandle extends IoEventHandle {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void exceptionCaught(NioSocketChannel channel, Future future, Exception ex) {
+    public void exceptionCaught(NioSocketChannel channel, Frame frame, Exception ex) {
         logger.error(ex.getMessage(), ex);
     }
 

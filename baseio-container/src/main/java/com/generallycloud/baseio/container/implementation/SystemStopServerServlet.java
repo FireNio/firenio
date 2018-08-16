@@ -20,21 +20,21 @@ import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.FutureAcceptor;
+import com.generallycloud.baseio.component.FrameAcceptor;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
-public class SystemStopServerServlet implements FutureAcceptor {
+public class SystemStopServerServlet implements FrameAcceptor {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void accept(NioSocketChannel channel, Future future) throws Exception {
+    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
         ChannelContext context = channel.getContext();
-        future.write("server is stopping", channel.getCharset());
-        channel.flush(future);
+        frame.write("server is stopping", channel.getCharset());
+        channel.flush(frame);
         ThreadUtil.exec(new StopServer(context));
     }
 

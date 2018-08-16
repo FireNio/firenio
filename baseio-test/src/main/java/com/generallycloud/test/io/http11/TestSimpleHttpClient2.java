@@ -18,9 +18,9 @@ package com.generallycloud.test.io.http11;
 import java.io.IOException;
 
 import com.generallycloud.baseio.codec.http11.ClientHttpCodec;
-import com.generallycloud.baseio.codec.http11.ClientHttpFuture;
+import com.generallycloud.baseio.codec.http11.ClientHttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpClient;
-import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -54,8 +54,8 @@ public class TestSimpleHttpClient2 {
         }
         NioSocketChannel channel = connector.connect();
         HttpClient client = new HttpClient(channel);
-        HttpFuture future = new ClientHttpFuture("/");
-        HttpFuture res = client.request(future, 99990000);
+        HttpFrame frame = new ClientHttpFrame("/");
+        HttpFrame res = client.request(frame, 99990000);
         System.out.println();
         System.out.println(new String(res.getBodyContent()));
         System.out.println();

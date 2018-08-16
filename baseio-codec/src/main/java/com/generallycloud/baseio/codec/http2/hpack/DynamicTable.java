@@ -21,7 +21,7 @@ import static com.generallycloud.baseio.codec.http2.hpack.Http2CodecUtil.MIN_HEA
 import java.util.ArrayList;
 import java.util.List;
 
-import com.generallycloud.baseio.codec.http2.future.Http2Header;
+import com.generallycloud.baseio.codec.http2.frame.Http2Header;
 
 final class DynamicTable {
 

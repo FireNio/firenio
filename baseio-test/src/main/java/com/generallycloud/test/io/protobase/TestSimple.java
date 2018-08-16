@@ -15,9 +15,9 @@
  */
 package com.generallycloud.test.io.protobase;
 
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -25,7 +25,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestSimple {
 
@@ -35,8 +35,8 @@ public class TestSimple {
         IoEventHandle eventHandle = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                System.out.println("________________________" + future);
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                System.out.println("________________________" + frame);
             }
         };
         ChannelContext context = new ChannelContext(8300);
@@ -45,7 +45,7 @@ public class TestSimple {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandle);
         NioSocketChannel channel = connector.connect();
-        ParamedProtobaseFuture f = new ParamedProtobaseFuture(serviceKey);
+        ParamedProtobaseFrame f = new ParamedProtobaseFrame(serviceKey);
         f.write(param, channel);
         channel.flush(f);
         ThreadUtil.sleep(500);

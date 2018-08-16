@@ -22,7 +22,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class ReleaseUtil {
 
@@ -48,12 +48,12 @@ public class ReleaseUtil {
         }
     }
 
-    public static void release(Future future, NioEventLoop eventLoop) {
-        if (future == null) {
+    public static void release(Frame frame, NioEventLoop eventLoop) {
+        if (frame == null) {
             return;
         }
         try {
-            future.release(eventLoop);
+            frame.release(eventLoop);
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }

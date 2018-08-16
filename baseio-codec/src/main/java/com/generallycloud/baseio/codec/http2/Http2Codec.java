@@ -19,17 +19,17 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.codec.http2.future.Http2Frame;
-import com.generallycloud.baseio.codec.http2.future.Http2FrameHeaderImpl;
-import com.generallycloud.baseio.codec.http2.future.Http2FrameType;
-import com.generallycloud.baseio.codec.http2.future.Http2HeadersFrame;
-import com.generallycloud.baseio.codec.http2.future.Http2PrefaceFuture;
-import com.generallycloud.baseio.codec.http2.future.Http2SettingsFrame;
+import com.generallycloud.baseio.codec.http2.frame.Http2Frame;
+import com.generallycloud.baseio.codec.http2.frame.Http2FrameHeaderImpl;
+import com.generallycloud.baseio.codec.http2.frame.Http2FrameType;
+import com.generallycloud.baseio.codec.http2.frame.Http2HeadersFrame;
+import com.generallycloud.baseio.codec.http2.frame.Http2PrefaceFrame;
+import com.generallycloud.baseio.codec.http2.frame.Http2SettingsFrame;
 import com.generallycloud.baseio.codec.http2.hpack.DefaultHttp2HeadersEncoder;
 import com.generallycloud.baseio.codec.http2.hpack.Http2HeadersEncoder;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 /**
@@ -109,18 +109,18 @@ public class Http2Codec extends ProtocolCodec {
     }
 
     @Override
-    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+    public Frame decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
         Http2Session session = Http2Session.getHttp2Session(channel);
         if (session.isPrefaceRead()) {
-            return new Http2PrefaceFuture(allocate(channel, PROTOCOL_PREFACE_HEADER));
+            return new Http2PrefaceFrame(allocate(channel, PROTOCOL_PREFACE_HEADER));
         }
         return new Http2FrameHeaderImpl(allocate(channel, PROTOCOL_HEADER));
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel ch, Future future) throws IOException {
-        Http2Frame frame = (Http2Frame) future;
-        Http2FrameType frameType = frame.getHttp2FrameType();
+    public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
+        Http2Frame f = (Http2Frame) frame;
+        Http2FrameType frameType = f.getHttp2FrameType();
         byte[] payload = null;
         switch (frameType) {
             case FRAME_TYPE_CONTINUATION:
@@ -132,7 +132,7 @@ public class Http2Codec extends ProtocolCodec {
             case FRAME_TYPE_GOAWAY:
                 break;
             case FRAME_TYPE_HEADERS:
-                Http2HeadersFrame hf = (Http2HeadersFrame) frame;
+                Http2HeadersFrame hf = (Http2HeadersFrame) f;
                 //          http2HeadersEncoder.encodeHeaders(headers, buffer);
                 break;
             case FRAME_TYPE_PING:
@@ -146,7 +146,7 @@ public class Http2Codec extends ProtocolCodec {
             case FRAME_TYPE_RST_STREAM:
                 break;
             case FRAME_TYPE_SETTINGS:
-                Http2SettingsFrame sf = (Http2SettingsFrame) frame;
+                Http2SettingsFrame sf = (Http2SettingsFrame) f;
                 long[] settings = sf.getSettings();
                 payload = new byte[6 * 6];
                 for (int i = 0; i < 6; i++) {
@@ -172,7 +172,7 @@ public class Http2Codec extends ProtocolCodec {
         buf.putByte(b2);
         buf.putByte(b3);
         buf.putByte((byte) 0);
-        buf.putInt(frame.getHeader().getStreamIdentifier());
+        buf.putInt(f.getHeader().getStreamIdentifier());
         buf.put(payload);
         return buf.flip();
     }

@@ -18,7 +18,7 @@ package com.generallycloud.test.io.fixedlength;
 import java.util.Scanner;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -26,7 +26,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class SimpleTestFIxedLengthClientPush {
 
@@ -34,8 +34,8 @@ public class SimpleTestFIxedLengthClientPush {
     public static void main(String[] args) throws Exception {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                System.out.println(">msg from server: " + future);
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                System.out.println(">msg from server: " + frame);
             }
         };
         ChannelContext context = new ChannelContext(8300);
@@ -65,9 +65,9 @@ public class SimpleTestFIxedLengthClientPush {
                         CloseUtil.close(channel);
                         break;
                     }
-                    FixedLengthFuture future = new FixedLengthFuture();
-                    future.write(line, context);
-                    channel.flush(future);
+                    FixedLengthFrame frame = new FixedLengthFrame();
+                    frame.write(line, context);
+                    channel.flush(frame);
                 }
             }
         });

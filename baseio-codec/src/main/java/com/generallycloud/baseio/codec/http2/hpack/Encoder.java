@@ -36,7 +36,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http2.future.Http2Header;
+import com.generallycloud.baseio.codec.http2.frame.Http2Header;
 import com.generallycloud.baseio.codec.http2.hpack.Http2HeadersEncoder.SensitivityDetector;
 
 public final class Encoder {

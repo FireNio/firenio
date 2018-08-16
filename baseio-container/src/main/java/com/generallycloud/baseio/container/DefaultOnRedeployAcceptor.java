@@ -15,20 +15,20 @@
  */
 package com.generallycloud.baseio.container;
 
-import com.generallycloud.baseio.component.FutureAcceptor;
+import com.generallycloud.baseio.component.FrameAcceptor;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 /**
  * @author wangkai
  *
  */
-public class DefaultOnRedeployAcceptor implements FutureAcceptor {
+public class DefaultOnRedeployAcceptor implements FrameAcceptor {
 
     @Override
-    public void accept(NioSocketChannel channel, Future future) throws Exception {
-        future.write("server is upgrading , please wait ...", channel.getCharset());
-        channel.flush(future);
+    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+        frame.write("server is upgrading , please wait ...", channel.getCharset());
+        channel.flush(frame);
     }
 
 }

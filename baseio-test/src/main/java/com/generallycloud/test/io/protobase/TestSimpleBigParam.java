@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -44,8 +44,8 @@ public class TestSimpleBigParam {
         for (int i = 0; i < 600000; i++) {
             params.put(String.valueOf(i), "网易科技腾讯科技阿里巴巴");
         }
-        ParamedProtobaseFuture future = channel.request(serviceKey, params);
-        FileUtil.writeByCls(TestSimpleBigParam.class.getName(), future.getReadText());
+        ParamedProtobaseFrame frame = channel.request(serviceKey, params);
+        FileUtil.writeByCls(TestSimpleBigParam.class.getName(), frame.getReadText());
         System.out.println("处理完成");
         CloseUtil.close(connector);
     }

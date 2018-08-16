@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 /**
  * @author wangkai
@@ -23,6 +23,6 @@ import com.generallycloud.baseio.protocol.Future;
  */
 public interface ExceptionCaughtHandle {
 
-    void exceptionCaught(NioSocketChannel channel, Future future, Exception ex);
+    void exceptionCaught(NioSocketChannel channel, Frame frame, Exception ex);
 
 }

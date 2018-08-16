@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFrame;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelAliveIdleEventListener;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -24,7 +24,7 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.DebugUtil;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestServer {
 
@@ -33,17 +33,17 @@ public class TestServer {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                ProtobaseFuture f = (ProtobaseFuture) future;
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                ProtobaseFrame f = (ProtobaseFrame) frame;
                 DebugUtil.debug("receive text:" + f.getReadText());
-                future.write("yes server already accept your text message:", channel);
-                future.write(f.getReadText(), channel);
+                frame.write("yes server already accept your text message:", channel);
+                frame.write(f.getReadText(), channel);
                 if (f.getReadBinarySize() > 0) {
                     DebugUtil.debug("receive binary:" + new String(f.getReadBinary()));
                     f.writeBinary("yes server already accept your binary message:".getBytes());
                     f.writeBinary(f.getReadBinary());
                 }
-                channel.flush(future);
+                channel.flush(frame);
             }
         };
 

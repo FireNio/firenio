@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.fixedlength;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -25,15 +25,15 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class SimpleTestFIxedLengthClient {
 
     public static void main(String[] args) throws Exception {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                FixedLengthFuture f = (FixedLengthFuture) future;
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                FixedLengthFrame f = (FixedLengthFrame) frame;
                 System.out.println();
                 System.out.println("____________________" + f.getReadText());
                 System.out.println();
@@ -47,9 +47,9 @@ public class SimpleTestFIxedLengthClient {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
         NioSocketChannel channel = connector.connect();
-        FixedLengthFuture future = new FixedLengthFuture();
-        future.write("hello server!", channel);
-        channel.flush(future);
+        FixedLengthFrame frame = new FixedLengthFrame();
+        frame.write("hello server!", channel);
+        channel.flush(frame);
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);
     }

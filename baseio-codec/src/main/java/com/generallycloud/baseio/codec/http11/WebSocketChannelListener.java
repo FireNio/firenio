@@ -29,11 +29,11 @@ public class WebSocketChannelListener extends ChannelEventListenerAdapter {
         if (!WebSocketCodec.PROTOCOL_ID.equals(channel.getCodecId())) {
             return;
         }
-        WebSocketFuture future = new WebSocketFuture();
-        future.setType(WebSocketCodec.TYPE_CLOSE);
-        future.setServiceName(channel);
+        WebSocketFrame frame = new WebSocketFrame();
+        frame.setType(WebSocketCodec.TYPE_CLOSE);
+        frame.setServiceName(channel);
         try {
-            channel.getIoEventHandle().accept(channel, future);
+            channel.getIoEventHandle().accept(channel, frame);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

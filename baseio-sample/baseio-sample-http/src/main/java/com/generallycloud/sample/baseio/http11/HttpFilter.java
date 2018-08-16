@@ -25,35 +25,35 @@ import org.springframework.stereotype.Service;
 import com.generallycloud.baseio.codec.http11.HttpMessage;
 import com.generallycloud.baseio.collection.Parameters;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.FutureAcceptor;
+import com.generallycloud.baseio.component.FrameAcceptor;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.baseio.protocol.ParametersFuture;
+import com.generallycloud.baseio.protocol.Frame;
+import com.generallycloud.baseio.protocol.ParametersFrame;
 
 /**
  * @author wangkai
  *
  */
 @Service("http-filter")
-public class HttpFilter implements FutureAcceptor {
+public class HttpFilter implements FrameAcceptor {
 
     private Logger      logger              = LoggerFactory.getLogger(getClass());
     private Set<String> noneLoggerSuffixSet = new HashSet<>();
     private Set<String> noneLoggerUrlSet    = new HashSet<>();
 
     @Override
-    public void accept(NioSocketChannel channel, Future future) throws Exception {
-        log(channel, future);
+    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+        log(channel, frame);
     }
 
-    private boolean endContains(String futureName) {
-        int idx = StringUtil.lastIndexOf(futureName, '.', 5);
+    private boolean endContains(String frameName) {
+        int idx = StringUtil.lastIndexOf(frameName, '.', 5);
         if (idx == -1) {
             return false;
         }
-        String suffix = futureName.substring(idx);
+        String suffix = frameName.substring(idx);
         return noneLoggerSuffixSet.contains(suffix);
     }
 
@@ -70,28 +70,28 @@ public class HttpFilter implements FutureAcceptor {
         noneLoggerSuffixSet.add(".scss");
     }
 
-    private void log(NioSocketChannel channel, Future future) throws Exception {
-        HttpMessage m = (HttpMessage) future;
-        String futureName = m.getFutureName();
-        if (noneLoggerUrlSet.contains(futureName) || endContains(futureName)) {
+    private void log(NioSocketChannel channel, Frame frame) throws Exception {
+        HttpMessage m = (HttpMessage) frame;
+        String frameName = m.getFrameName();
+        if (noneLoggerUrlSet.contains(frameName) || endContains(frameName)) {
             return;
         }
         String remoteAddr = channel.getRemoteAddr();
         String readText = m.getReadText();
         if (!StringUtil.isNullOrBlank(readText)) {
-            logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, futureName,
+            logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, frameName,
                     readText);
             return;
         }
-        if (future instanceof ParametersFuture) {
-            Parameters parameters = ((ParametersFuture) future).getParameters();
+        if (frame instanceof ParametersFrame) {
+            Parameters parameters = ((ParametersFrame) frame).getParameters();
             if (parameters.size() > 0) {
-                logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, futureName,
+                logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, frameName,
                         parameters.toString());
                 return;
             }
         }
-        logger.info("request ip:{}, service name:{}", remoteAddr, futureName);
+        logger.info("request ip:{}, service name:{}", remoteAddr, frameName);
     }
 
 }

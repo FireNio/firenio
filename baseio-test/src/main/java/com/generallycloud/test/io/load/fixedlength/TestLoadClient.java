@@ -20,7 +20,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -30,7 +30,7 @@ import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestLoadClient {
 
@@ -48,7 +48,7 @@ public class TestLoadClient {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 //				latch.countDown();
                 //				long count = latch.getCount();
                 //				if (count % 10 == 0) {
@@ -71,9 +71,9 @@ public class TestLoadClient {
         long old = System.currentTimeMillis();
 
         for (int i = 0; i < time; i++) {
-            FixedLengthFuture future = new FixedLengthFuture();
-            future.write("hello server!", channel);
-            channel.flush(future);
+            FixedLengthFrame frame = new FixedLengthFrame();
+            frame.write("hello server!", channel);
+            channel.flush(frame);
         }
 
         latch.await();

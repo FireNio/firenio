@@ -20,35 +20,35 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 
-import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.common.UUIDGenerator;
-import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
+import com.generallycloud.baseio.container.http11.HttpFrameAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
 
 @Service("/test-mm")
-public class TestMmServlet extends HttpFutureAcceptorService {
+public class TestMmServlet extends HttpFrameAcceptorService {
 
     private Map<String, String> mm         = new ConcurrentHashMap<>();
     private Map<String, String> mm_reverse = new ConcurrentHashMap<>();
     private String              url        = "https://www.generallycloud.com/test-mm";
 
     @Override
-    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
+    protected void doAccept(HttpSession session, HttpFrame frame) throws Exception {
         if (mm.size() > 1024) {
             mm.clear();
         }
-        String k = future.getRequestParam("p");
+        String k = frame.getRequestParam("p");
         if (StringUtil.isNullOrBlank(k)) {
-            future.write("input your p :)", session.getChannel().getContext());
-            session.flush(future);
+            frame.write("input your p :)", session.getChannel().getContext());
+            session.flush(frame);
             return;
         }
         String v = mm.remove(k);
         if (StringUtil.isNullOrBlank(v)) {
             if (k.length() == 32) {
-                future.write("input your p :)", session.getChannel().getContext());
-                session.flush(future);
+                frame.write("input your p :)", session.getChannel().getContext());
+                session.flush(frame);
                 return;
             }
             String rk = mm_reverse.get(k);
@@ -57,12 +57,12 @@ public class TestMmServlet extends HttpFutureAcceptorService {
                 mm.put(rk, k);
                 mm_reverse.put(k, rk);
             }
-            future.write(url + "?p=" + rk, session.getChannel().getContext());
+            frame.write(url + "?p=" + rk, session.getChannel().getContext());
         } else {
             mm_reverse.remove(v);
-            future.write(v, session.getChannel().getContext());
+            frame.write(v, session.getChannel().getContext());
         }
-        session.flush(future);
+        session.flush(frame);
     }
 
     public String getUrl() {

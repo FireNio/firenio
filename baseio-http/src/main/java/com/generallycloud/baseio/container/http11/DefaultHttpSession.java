@@ -21,7 +21,7 @@ import java.nio.charset.Charset;
 import com.generallycloud.baseio.collection.AttributesImpl;
 import com.generallycloud.baseio.common.UUIDGenerator;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class DefaultHttpSession extends AttributesImpl implements HttpSession {
 
@@ -29,15 +29,15 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
     private NioSocketChannel      channel;
     private long               lastAccessTime = createTime;
     private String             sessionId;
-    private HttpFutureAcceptor context;
+    private HttpFrameAcceptor context;
 
-    protected DefaultHttpSession(HttpFutureAcceptor context, NioSocketChannel ioSession) {
+    protected DefaultHttpSession(HttpFrameAcceptor context, NioSocketChannel ioSession) {
         this.context = context;
         this.channel = ioSession;
         this.sessionId = UUIDGenerator.random();
     }
 
-    protected DefaultHttpSession(HttpFutureAcceptor context, NioSocketChannel ioSession,
+    protected DefaultHttpSession(HttpFrameAcceptor context, NioSocketChannel ioSession,
             String sessionId) {
         this.context = context;
         this.channel = ioSession;
@@ -51,8 +51,8 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
     }
 
     @Override
-    public void flush(Future future) throws IOException {
-        channel.flush(future);
+    public void flush(Frame frame) throws IOException {
+        channel.flush(frame);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class DefaultHttpSession extends AttributesImpl implements HttpSession {
     }
 
     @Override
-    public HttpFutureAcceptor getContext() {
+    public HttpFrameAcceptor getContext() {
         return context;
     }
 }

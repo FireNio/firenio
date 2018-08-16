@@ -18,7 +18,7 @@ package com.generallycloud.test.io.protobase;
 import java.io.File;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.FileSendUtil;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestUpload {
 
@@ -40,8 +40,8 @@ public class TestUpload {
         IoEventHandle eventHandle = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                ParamedProtobaseFuture f = (ParamedProtobaseFuture) future;
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                ParamedProtobaseFrame f = (ParamedProtobaseFrame) frame;
                 System.out.println();
                 System.out.println(f.getReadText());
                 System.out.println();

@@ -19,9 +19,9 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
-import com.generallycloud.baseio.codec.redis.RedisFuture.RedisCommand;
+import com.generallycloud.baseio.codec.redis.RedisFrame.RedisCommand;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 /**
@@ -31,29 +31,29 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public class RedisCodec extends ProtocolCodec {
 
     @Override
-    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        return new RedisFutureImpl();
+    public Frame decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+        return new RedisFrameImpl();
     }
 
     @Override
-    public Future ping(NioSocketChannel channel) {
-        RedisCmdFuture f = new RedisCmdFuture();
+    public Frame ping(NioSocketChannel channel) {
+        RedisCmdFrame f = new RedisCmdFrame();
         f.setPing();
         f.writeCommand(RedisCommand.PING.raw);
         return f;
     }
 
     @Override
-    public Future pong(NioSocketChannel channel, Future ping) {
-        RedisCmdFuture f = (RedisCmdFuture) ping;
+    public Frame pong(NioSocketChannel channel, Frame ping) {
+        RedisCmdFrame f = (RedisCmdFrame) ping;
         f.setPong();
         f.writeCommand(RedisCommand.PONG.raw);
         return f;
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
-        RedisFuture f = (RedisFuture) future;
+    public ByteBuf encode(NioSocketChannel channel, Frame frame) throws IOException {
+        RedisFrame f = (RedisFrame) frame;
         int writeSize = f.getWriteSize();
         if (writeSize == 0) {
             throw new IOException("null write buffer");

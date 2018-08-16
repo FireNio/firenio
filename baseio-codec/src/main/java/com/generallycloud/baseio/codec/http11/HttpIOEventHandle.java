@@ -18,15 +18,15 @@ package com.generallycloud.baseio.codec.http11;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.Waiter;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class HttpIOEventHandle extends IoEventHandle {
 
     private Waiter waiter;
 
     @Override
-    public void accept(NioSocketChannel channel, Future future) throws Exception {
-        HttpFuture f = (HttpFuture) future;
+    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+        HttpFrame f = (HttpFrame) frame;
         Waiter waiter = this.waiter;
         if (waiter != null) {
             this.waiter = null;

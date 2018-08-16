@@ -18,33 +18,33 @@ package com.generallycloud.sample.baseio.http11;
 import org.springframework.stereotype.Service;
 
 import com.generallycloud.baseio.codec.http11.Cookie;
-import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.common.UUIDGenerator;
-import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
+import com.generallycloud.baseio.container.http11.HttpFrameAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
 
 @Service("/test-cookie")
-public class TestCookieHeaderServlet extends HttpFutureAcceptorService {
+public class TestCookieHeaderServlet extends HttpFrameAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession channel, HttpFuture future) throws Exception {
-        String name = future.getRequestParam("name");
-        String value = future.getRequestParam("value");
+    protected void doAccept(HttpSession channel, HttpFrame frame) throws Exception {
+        String name = frame.getRequestParam("name");
+        String value = frame.getRequestParam("value");
         if (StringUtil.isNullOrBlank(name)) {
             name = "test8";
         }
         if (StringUtil.isNullOrBlank(value)) {
             value = UUIDGenerator.random();
         }
-        String res = "yes server already accept your message :) " + future.getRequestParams();
+        String res = "yes server already accept your message :) " + frame.getRequestParams();
         Cookie c = new Cookie(name, value);
         c.setComment("comment");
         c.setMaxAge(999999);
-        future.addCookie(c);
-        future.setResponseHeader(name.getBytes(), value.getBytes());
-        future.write(res, channel.getEncoding());
-        channel.flush(future);
+        frame.addCookie(c);
+        frame.setResponseHeader(name.getBytes(), value.getBytes());
+        frame.write(res, channel.getEncoding());
+        channel.flush(frame);
     }
 
 }

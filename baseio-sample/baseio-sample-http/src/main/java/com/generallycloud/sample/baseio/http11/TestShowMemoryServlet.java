@@ -22,22 +22,22 @@ import org.springframework.stereotype.Service;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocatorGroup;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
-import com.generallycloud.baseio.codec.http11.HttpFuture;
+import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.http11.HtmlUtil;
-import com.generallycloud.baseio.container.http11.HttpFutureAcceptor;
-import com.generallycloud.baseio.container.http11.HttpFutureAcceptorService;
+import com.generallycloud.baseio.container.http11.HttpFrameAcceptor;
+import com.generallycloud.baseio.container.http11.HttpFrameAcceptorService;
 import com.generallycloud.baseio.container.http11.HttpSession;
 
 @Service("/test-show-memory")
-public class TestShowMemoryServlet extends HttpFutureAcceptorService {
+public class TestShowMemoryServlet extends HttpFrameAcceptorService {
 
     @Override
-    protected void doAccept(HttpSession session, HttpFuture future) throws Exception {
+    protected void doAccept(HttpSession session, HttpFrame frame) throws Exception {
 
         TestWebSocketChatServlet chatServlet = ContextUtil.getBean(TestWebSocketChatServlet.class);
         TestWebSocketRumpetrollServlet rumpetrollServlet = ContextUtil
@@ -48,7 +48,7 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
 
         NioSocketChannel channel = session.getChannel();
         ChannelContext context = session.getChannel().getContext();
-        HttpFutureAcceptor httpContext = session.getContext();
+        HttpFrameAcceptor httpContext = session.getContext();
 
         BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
         BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
@@ -110,11 +110,11 @@ public class TestShowMemoryServlet extends HttpFutureAcceptorService {
         builder.append(HtmlUtil.HTML_POWER_BY);
         builder.append(HtmlUtil.HTML_BOTTOM);
 
-        future.write(builder.toString(), session.getEncoding());
+        frame.write(builder.toString(), session.getEncoding());
 
-        future.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
+        frame.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
 
-        session.flush(future);
+        session.flush(frame);
     }
 
 }

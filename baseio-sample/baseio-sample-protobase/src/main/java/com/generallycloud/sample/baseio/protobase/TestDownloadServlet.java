@@ -18,31 +18,31 @@ package com.generallycloud.sample.baseio.protobase;
 import java.io.File;
 import java.io.IOException;
 
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
-import com.generallycloud.baseio.codec.protobase.ProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
+import com.generallycloud.baseio.codec.protobase.ProtobaseFrame;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.FileReceiveUtil;
 import com.generallycloud.baseio.container.protobase.FileSendUtil;
-import com.generallycloud.baseio.container.protobase.ProtobaseFutureAcceptorService;
+import com.generallycloud.baseio.container.protobase.ProtobaseFrameAcceptorService;
 
-public class TestDownloadServlet extends ProtobaseFutureAcceptorService {
+public class TestDownloadServlet extends ProtobaseFrameAcceptorService {
 
     public static final String SERVICE_NAME = TestDownloadServlet.class.getSimpleName();
 
     @Override
-    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFuture future) throws Exception {
+    protected void doAccept(NioSocketChannel channel, ParamedProtobaseFrame frame) throws Exception {
         FileSendUtil fileSendUtil = new FileSendUtil();
-        File file = new File(future.getParameters().getParameter(FileReceiveUtil.FILE_NAME));
+        File file = new File(frame.getParameters().getParameter(FileReceiveUtil.FILE_NAME));
         if (!file.exists()) {
-            fileNotFound(channel, future, "file not found");
+            fileNotFound(channel, frame, "file not found");
             return;
         }
-        fileSendUtil.sendFile(channel, future.getFutureName(), file, 1024 * 800);
+        fileSendUtil.sendFile(channel, frame.getFrameName(), file, 1024 * 800);
     }
 
-    private void fileNotFound(NioSocketChannel channel, ParamedProtobaseFuture future, String msg)
+    private void fileNotFound(NioSocketChannel channel, ParamedProtobaseFrame frame, String msg)
             throws IOException {
-        future.put("code", 404);
-        channel.flush(future);
+        frame.put("code", 404);
+        channel.flush(frame);
     }
 }

@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -35,8 +35,8 @@ public class TestStopServer {
         context.setProtocolCodec(new ProtobaseCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         FixedChannel channel = new FixedChannel(connector.connect());
-        ParamedProtobaseFuture future = channel.request("test-stop-server2.auth", null);
-        System.out.println(future.getReadText());
+        ParamedProtobaseFrame frame = channel.request("test-stop-server2.auth", null);
+        System.out.println(frame.getReadText());
         CloseUtil.close(connector);
     }
 

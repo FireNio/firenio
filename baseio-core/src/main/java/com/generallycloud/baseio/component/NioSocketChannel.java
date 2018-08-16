@@ -47,7 +47,7 @@ import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public final class NioSocketChannel extends AttributesImpl
@@ -84,7 +84,7 @@ public final class NioSocketChannel extends AttributesImpl
     private boolean                             opened               = true;
     private ByteBuf                             plainRemainBuf;
     private ProtocolCodec                       codec;
-    private Future                              readFuture;
+    private Frame                              readFrame;
     private final String                        remoteAddr;
     private final String                        remoteAddrPort;
     private final int                           remotePort;
@@ -136,13 +136,13 @@ public final class NioSocketChannel extends AttributesImpl
         final IoEventHandle eventHandle = this.ioEventHandle;
         final HeartBeatLogger heartBeatLogger = context.getHeartBeatLogger();
         final boolean enableWorkEventLoop = context.isEnableWorkEventLoop();
-        Future future = readFuture;
-        if (future == null) {
-            future = codec.decode(this, src);
+        Frame frame = readFrame;
+        if (frame == null) {
+            frame = codec.decode(this, src);
         }
         for (;;) {
-            if (!future.read(this, src)) {
-                readFuture = future;
+            if (!frame.read(this, src)) {
+                readFrame = frame;
                 if (src.hasRemaining()) {
                     ByteBuf remaining = alloc.allocate(src.remaining());
                     remaining.read(src);
@@ -151,43 +151,43 @@ public final class NioSocketChannel extends AttributesImpl
                 }
                 break;
             }
-            if (future.isSilent()) {
-                if (future.isPing()) {
+            if (frame.isSilent()) {
+                if (frame.isPing()) {
                     heartBeatLogger.logPing(this);
-                    Future f = codec.pong(this, future);
+                    Frame f = codec.pong(this, frame);
                     if (f != null) {
                         flush(f);
                     }
-                } else if (future.isPong()) {
+                } else if (frame.isPong()) {
                     heartBeatLogger.logPong(this);
                 }
             } else {
                 if (enableWorkEventLoop) {
-                    accept(eventHandle, future);
+                    accept(eventHandle, frame);
                 } else {
                     try {
-                        eventHandle.accept(this, future);
+                        eventHandle.accept(this, frame);
                     } catch (Exception e) {
-                        eventHandle.exceptionCaught(this, future, e);
+                        eventHandle.exceptionCaught(this, frame, e);
                     }
                 }
             }
             if (!src.hasRemaining()) {
-                readFuture = null;
+                readFrame = null;
                 break;
             }
-            future = codec.decode(this, src);
+            frame = codec.decode(this, src);
         }
     }
 
-    private void accept(final IoEventHandle eventHandle, final Future future) {
+    private void accept(final IoEventHandle eventHandle, final Frame frame) {
         getExecutorEventLoop().execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    eventHandle.accept(NioSocketChannel.this, future);
+                    eventHandle.accept(NioSocketChannel.this, frame);
                 } catch (Exception e) {
-                    eventHandle.exceptionCaught(NioSocketChannel.this, future, e);
+                    eventHandle.exceptionCaught(NioSocketChannel.this, frame, e);
                 }
             }
         });
@@ -231,14 +231,14 @@ public final class NioSocketChannel extends AttributesImpl
         eventLoop.execute(event);
     }
 
-    public ByteBuf encode(Future future) throws IOException {
-        return codec.encode(this, future);
+    public ByteBuf encode(Frame frame) throws IOException {
+        return codec.encode(this, frame);
     }
 
-    private void exceptionCaught(Future future, Exception ex) {
-        future.release(eventLoop);
+    private void exceptionCaught(Frame frame, Exception ex) {
+        frame.release(eventLoop);
         try {
-            getIoEventHandle().exceptionCaught(this, future, ex);
+            getIoEventHandle().exceptionCaught(this, frame, ex);
         } catch (Throwable e) {
             logger.error(ex.getMessage(), ex);
             logger.error(e.getMessage(), e);
@@ -341,20 +341,20 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    public void flush(Future future) {
-        Assert.notNull(future, "null future");
+    public void flush(Frame frame) {
+        Assert.notNull(frame, "null frame");
         if (isClosed()) {
-            exceptionCaught(future, CLOSED_WHEN_FLUSH);
+            exceptionCaught(frame, CLOSED_WHEN_FLUSH);
             return;
         }
         ByteBuf buf = null;
         try {
-            buf = codec.encode(this, future);
-            future.flush();
-            future.release(eventLoop);
+            buf = codec.encode(this, frame);
+            frame.flush();
+            frame.release(eventLoop);
         } catch (Exception e) {
             ReleaseUtil.release(buf);
-            exceptionCaught(future, e);
+            exceptionCaught(frame, e);
             return;
         }
         flush(buf);
@@ -698,8 +698,8 @@ public final class NioSocketChannel extends AttributesImpl
     private void releaseBufs() {
         final ByteBuf[] cwbs = this.currentWriteBufs;
         final int maxLen = cwbs.length;
-        // 这里有可能是因为异常关闭，currentWriteFutureLen不准确
-        // 对所有不为空的future release
+        // 这里有可能是因为异常关闭，currentWriteFrameLen不准确
+        // 对所有不为空的frame release
         for (int i = 0; i < maxLen; i++) {
             ByteBuf buf = cwbs[i];
             if (buf == null) {
@@ -709,7 +709,7 @@ public final class NioSocketChannel extends AttributesImpl
             cwbs[i] = null;
         }
         NioEventLoop eventLoop = this.eventLoop;
-        ReleaseUtil.release(readFuture, eventLoop);
+        ReleaseUtil.release(readFrame, eventLoop);
         ReleaseUtil.release(sslRemainBuf);
         ReleaseUtil.release(plainRemainBuf);
         Queue<ByteBuf> wfs = this.writeBufs;

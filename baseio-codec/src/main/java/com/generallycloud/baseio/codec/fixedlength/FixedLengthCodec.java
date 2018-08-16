@@ -21,7 +21,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 /**
@@ -71,21 +71,21 @@ public class FixedLengthCodec extends ProtocolCodec {
     }
 
     @Override
-    public Future ping(NioSocketChannel channel) {
-        return new FixedLengthFuture().setPing();
+    public Frame ping(NioSocketChannel channel) {
+        return new FixedLengthFrame().setPing();
     }
 
     @Override
-    public Future decode(NioSocketChannel channel, ByteBuf buffer) {
-        return new FixedLengthFuture(limit);
+    public Frame decode(NioSocketChannel channel, ByteBuf buffer) {
+        return new FixedLengthFrame(limit);
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel ch, Future future) throws IOException {
-        if (future.isSilent()) {
-            return future.isPing() ? PING.duplicate() : PONG.duplicate();
+    public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
+        if (frame.isSilent()) {
+            return frame.isPing() ? PING.duplicate() : PONG.duplicate();
         }
-        FixedLengthFuture f = (FixedLengthFuture) future;
+        FixedLengthFrame f = (FixedLengthFrame) frame;
         int writeSize = f.getWriteSize();
         if (writeSize == 0) {
             throw new IOException("null write buffer");

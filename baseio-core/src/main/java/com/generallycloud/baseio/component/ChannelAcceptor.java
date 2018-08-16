@@ -30,7 +30,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 /**
  * @author wangkai
@@ -88,12 +88,12 @@ public class ChannelAcceptor implements ChannelService {
         LoggerUtil.prettyLog(logger, "server listening @{}", getServerAddress());
     }
 
-    public void broadcast(Future future) throws IOException {
-        channelManager.broadcast(future);
+    public void broadcast(Frame frame) throws IOException {
+        channelManager.broadcast(frame);
     }
 
-    public void broadcast(Future future, Collection<NioSocketChannel> channels) throws IOException {
-        broadcast(future, channels);
+    public void broadcast(Frame frame, Collection<NioSocketChannel> channels) throws IOException {
+        broadcast(frame, channels);
     }
 
     public void broadcast(ByteBuf buf) throws IOException {

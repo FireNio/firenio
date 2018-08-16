@@ -22,7 +22,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 //FIXME 心跳貌似由服务端发起
@@ -54,7 +54,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 */
 public class WebSocketCodec extends ProtocolCodec {
 
-    public static final String   FUTURE_STACK_KEY   = "FixedThreadStack_WebSocketFuture";
+    public static final String   FRAME_STACK_KEY   = "FixedThreadStack_WebSocketFrame";
     public static final int      PROTOCOL_HEADER    = 2;
     public static final String   PROTOCOL_ID        = "WebSocket";
     public static final byte     TYPE_BINARY        = 2;
@@ -65,29 +65,29 @@ public class WebSocketCodec extends ProtocolCodec {
     public static final int      MAX_UNSIGNED_SHORT = (1 << 16) - 1;
     public static WebSocketCodec WS_PROTOCOL_CODEC;
 
-    static void init(ChannelContext context, int limit, int futureStackSize) {
-        WS_PROTOCOL_CODEC = new WebSocketCodec(limit, futureStackSize);
+    static void init(ChannelContext context, int limit, int frameStackSize) {
+        WS_PROTOCOL_CODEC = new WebSocketCodec(limit, frameStackSize);
         WS_PROTOCOL_CODEC.initialize(context);
     }
 
     private final int limit;
-    private final int futureStackSize;
+    private final int frameStackSize;
 
-    public WebSocketCodec(int limit, int futureStackSize) {
+    public WebSocketCodec(int limit, int frameStackSize) {
         this.limit = limit;
-        this.futureStackSize = futureStackSize;
+        this.frameStackSize = frameStackSize;
     }
 
     @Override
-    public Future ping(NioSocketChannel ch) {
+    public Frame ping(NioSocketChannel ch) {
         if (WebSocketCodec.PROTOCOL_ID.equals(ch.getCodecId())) {
-            return new WebSocketFuture().setPing();
+            return new WebSocketFrame().setPing();
         }
         return null;
     }
 
     @Override
-    public Future pong(NioSocketChannel ch, Future ping) {
+    public Frame pong(NioSocketChannel ch, Frame ping) {
         if (WebSocketCodec.PROTOCOL_ID.equals(ch.getCodecId())) {
             return ping.setPong();
         }
@@ -95,28 +95,28 @@ public class WebSocketCodec extends ProtocolCodec {
     }
 
     @Override
-    public Future decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
-        if (futureStackSize > 0) {
+    public Frame decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
+        if (frameStackSize > 0) {
 //            NioEventLoop eventLoop = channel.getEventLoop();
-//            FixedThreadStack<WebSocketFuture> stack = (FixedThreadStack<WebSocketFuture>) eventLoop
-//                    .getAttribute(FUTURE_STACK_KEY);
+//            FixedThreadStack<WebSocketFrame> stack = (FixedThreadStack<WebSocketFrame>) eventLoop
+//                    .getAttribute(FRAME_STACK_KEY);
 //            if (stack == null) {
-//                stack = new FixedThreadStack<>(futureStackSize);
-//                eventLoop.setAttribute(FUTURE_STACK_KEY, stack);
+//                stack = new FixedThreadStack<>(frameStackSize);
+//                eventLoop.setAttribute(FRAME_STACK_KEY, stack);
 //            }
-//            WebSocketFuture future = stack.pop();
-//            if (future == null) {
-//                return new WebSocketFuture(channel, limit);
+//            WebSocketFrame frame = stack.pop();
+//            if (frame == null) {
+//                return new WebSocketFrame(channel, limit);
 //            }
-//            return future.reset(channel, limit);
+//            return frame.reset(channel, limit);
         }
-        return new WebSocketFuture(ch, limit);
+        return new WebSocketFrame(ch, limit);
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel ch, Future future) throws IOException {
+    public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
         ByteBufAllocator allocator = ch.alloc();
-        WebSocketFuture f = (WebSocketFuture) future;
+        WebSocketFrame f = (WebSocketFrame) frame;
         byte[] header;
         byte[] data = f.getWriteBuffer();
         int size = f.getWriteSize();
@@ -144,8 +144,8 @@ public class WebSocketCodec extends ProtocolCodec {
         return buf.flip();
     }
 
-    public int getFutureStackSize() {
-        return futureStackSize;
+    public int getFrameStackSize() {
+        return frameStackSize;
     }
 
     @Override
@@ -153,17 +153,17 @@ public class WebSocketCodec extends ProtocolCodec {
         return PROTOCOL_ID;
     }
 
-    //  public IOWriteFuture encodeWithMask(BaseContext context, IOReadFuture readFuture) throws IOException {
+    //  public IOWriteFrame encodeWithMask(BaseContext context, IOReadFrame readFrame) throws IOException {
     //      
-    //      WebSocketReadFuture future = (WebSocketReadFuture) readFuture;
+    //      WebSocketReadFrame frame = (WebSocketReadFrame) readFrame;
     //
-    //      BufferedOutputStream o = future.getWriteBuffer();
+    //      BufferedOutputStream o = frame.getWriteBuffer();
     //
     //      byte [] header;
     //      
     //      int size = o.size();
     //      
-    //      byte header0 = (byte) (0x8f & (future.getType() | 0xf0));
+    //      byte header0 = (byte) (0x8f & (frame.getType() | 0xf0));
     //      
     //      if (size < 126) {
     //          header = new byte[2];
@@ -201,7 +201,7 @@ public class WebSocketCodec extends ProtocolCodec {
     //      
     //      buffer.flip();
     //
-    //      return new IOWriteFutureImpl(readFuture, buffer);
+    //      return new IOWriteFrameImpl(readFrame, buffer);
     //  }
 
 }

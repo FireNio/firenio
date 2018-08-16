@@ -21,7 +21,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestLineBasedBroadcastServer {
 
@@ -30,11 +30,11 @@ public class TestLineBasedBroadcastServer {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 long old = System.currentTimeMillis();
                 String res = "hello world!";
-                future.write(res, channel);
-                channel.getContext().getChannelManager().broadcast(future);
+                frame.write(res, channel);
+                channel.getContext().getChannelManager().broadcast(frame);
                 long now = System.currentTimeMillis();
                 System.out.println("广播花费时间：" + (now - old) + ",连接数："
                         + channel.getContext().getChannelManager().getManagedChannelSize());

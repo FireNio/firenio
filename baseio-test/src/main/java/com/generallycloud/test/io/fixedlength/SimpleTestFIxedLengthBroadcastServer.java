@@ -18,14 +18,14 @@ package com.generallycloud.test.io.fixedlength;
 import java.io.IOException;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
-import com.generallycloud.baseio.codec.fixedlength.FixedLengthFuture;
+import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class SimpleTestFIxedLengthBroadcastServer {
 
@@ -34,10 +34,10 @@ public class SimpleTestFIxedLengthBroadcastServer {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:", channel);
-                future.write(f.getReadText(), channel);
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                FixedLengthFrame f = (FixedLengthFrame) frame;
+                frame.write("yes server already accept your message:", channel);
+                frame.write(f.getReadText(), channel);
                 channel.flush(f);
             }
         };
@@ -56,10 +56,10 @@ public class SimpleTestFIxedLengthBroadcastServer {
             public void run() {
                 for (;;) {
                     ThreadUtil.sleep(1000);
-                    FixedLengthFuture future = new FixedLengthFuture();
-                    future.write("broadcast msg .........................", context);
+                    FixedLengthFrame frame = new FixedLengthFrame();
+                    frame.write("broadcast msg .........................", context);
                     try {
-                        acceptor.broadcast(future);
+                        acceptor.broadcast(frame);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

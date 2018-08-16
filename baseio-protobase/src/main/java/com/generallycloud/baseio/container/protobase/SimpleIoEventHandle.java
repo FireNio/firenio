@@ -22,42 +22,42 @@ import java.util.Map;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
-import com.generallycloud.baseio.protocol.NamedFuture;
+import com.generallycloud.baseio.protocol.Frame;
+import com.generallycloud.baseio.protocol.NamedFrame;
 
 public class SimpleIoEventHandle extends IoEventHandle {
 
-    private Map<String, OnFutureWrapper> listeners = new HashMap<>();
+    private Map<String, OnFrameWrapper> listeners = new HashMap<>();
 
     @Override
-    public void accept(NioSocketChannel channel, Future future) throws Exception {
-        NamedFuture f = (NamedFuture) future;
-        OnFutureWrapper onReadFuture = listeners.get(f.getFutureName());
-        if (onReadFuture != null) {
-            onReadFuture.onResponse(channel, f);
+    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+        NamedFrame f = (NamedFrame) frame;
+        OnFrameWrapper onReadFrame = listeners.get(f.getFrameName());
+        if (onReadFrame != null) {
+            onReadFrame.onResponse(channel, f);
         }
     }
 
-    public void listen(String serviceName, OnFuture onReadFuture) throws IOException {
+    public void listen(String serviceName, OnFrame onReadFrame) throws IOException {
         if (StringUtil.isNullOrBlank(serviceName)) {
             throw new IOException("empty service name");
         }
-        OnFutureWrapper wrapper = listeners.get(serviceName);
+        OnFrameWrapper wrapper = listeners.get(serviceName);
         if (wrapper == null) {
-            wrapper = new OnFutureWrapper();
+            wrapper = new OnFrameWrapper();
             listeners.put(serviceName, wrapper);
         }
-        if (onReadFuture == null) {
+        if (onReadFrame == null) {
             return;
         }
-        wrapper.setListener(onReadFuture);
+        wrapper.setListener(onReadFrame);
     }
 
-    public OnFutureWrapper getOnReadFutureWrapper(String serviceName) {
+    public OnFrameWrapper getOnReadFrameWrapper(String serviceName) {
         return listeners.get(serviceName);
     }
 
-    public void putOnReadFutureWrapper(String serviceName, OnFutureWrapper wrapper) {
+    public void putOnReadFrameWrapper(String serviceName, OnFrameWrapper wrapper) {
         listeners.put(serviceName, wrapper);
     }
 }

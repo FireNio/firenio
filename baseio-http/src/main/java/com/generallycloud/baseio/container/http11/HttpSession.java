@@ -19,13 +19,13 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public interface HttpSession {
 
     void active(NioSocketChannel ioSession);
 
-    void flush(Future future) throws IOException;
+    void flush(Frame frame) throws IOException;
 
     long getCreateTime();
 
@@ -39,6 +39,6 @@ public interface HttpSession {
 
     Charset getEncoding();
 
-    HttpFutureAcceptor getContext();
+    HttpFrameAcceptor getContext();
 
 }

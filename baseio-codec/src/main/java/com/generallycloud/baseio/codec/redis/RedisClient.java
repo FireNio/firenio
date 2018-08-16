@@ -18,7 +18,7 @@ package com.generallycloud.baseio.codec.redis;
 import java.io.IOException;
 
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.codec.redis.RedisFuture.RedisCommand;
+import com.generallycloud.baseio.codec.redis.RedisFrame.RedisCommand;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.Waiter;
@@ -43,10 +43,10 @@ public class RedisClient {
     }
 
     private synchronized RedisNode sendCommand(byte[] command, byte[]... args) throws IOException {
-        RedisFuture future = new RedisCmdFuture();
-        future.writeCommand(command, args);
+        RedisFrame frame = new RedisCmdFrame();
+        frame.writeCommand(command, args);
         Waiter waiter = ioEventHandle.newWaiter();
-        channel.flush(future);
+        channel.flush(frame);
         if (waiter.await(timeout)) {
             throw new TimeoutException("timeout");
         }

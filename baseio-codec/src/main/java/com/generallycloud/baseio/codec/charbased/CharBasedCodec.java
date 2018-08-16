@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 /**
@@ -46,13 +46,13 @@ public class CharBasedCodec extends ProtocolCodec {
     }
 
     @Override
-    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        return new CharBasedFuture(limit, splitor);
+    public Frame decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+        return new CharBasedFrame(limit, splitor);
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
-        CharBasedFuture f = (CharBasedFuture) future;
+    public ByteBuf encode(NioSocketChannel channel, Frame frame) throws IOException {
+        CharBasedFrame f = (CharBasedFrame) frame;
         int writeSize = f.getWriteSize();
         if (writeSize == 0) {
             throw new IOException("null write buffer");

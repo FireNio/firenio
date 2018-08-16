@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.ChannelEventListener;
 import com.generallycloud.baseio.component.DynamicClassLoader;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
-import com.generallycloud.baseio.component.FutureAcceptor;
+import com.generallycloud.baseio.component.FrameAcceptor;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerExceptionCaughtHandle;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -38,13 +38,13 @@ import com.generallycloud.baseio.container.configuration.ApplicationConfiguratio
 import com.generallycloud.baseio.container.configuration.FileSystemACLoader;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycleListener{
 
     private ApplicationExtLoader           applicationExtLoader;
     private String                         appLocalAddres;
-    private FutureAcceptor                 appOnRedeployService;
+    private FrameAcceptor                 appOnRedeployService;
     private ChannelContext                 channelContext;
     private URLDynamicClassLoader          classLoader;
     private ApplicationConfiguration       configuration;
@@ -52,7 +52,7 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
     private volatile boolean               deploying    = true;
     private String                         runtimeMode;
     private Charset                        encoding;
-    private ContainerIoEventHandle         futureAcceptor;
+    private ContainerIoEventHandle         frameAcceptor;
     private ExceptionCaughtHandle          ioExceptionCaughtHandle;
     private Logger                         logger       = LoggerFactory.getLogger(getClass());
     private AtomicInteger                  redeployTime = new AtomicInteger();
@@ -66,15 +66,15 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
     }
 
     @Override
-    public void accept(NioSocketChannel channel, Future future) throws Exception {
+    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
         if (deploying) {
-            appOnRedeployService.accept(channel, future);
+            appOnRedeployService.accept(channel, frame);
             return;
         }
         try {
-            futureAcceptor.accept(channel, future);
+            frameAcceptor.accept(channel, frame);
         } catch (Exception e) {
-            futureAcceptor.exceptionCaught(channel, future, e);
+            frameAcceptor.exceptionCaught(channel, frame, e);
         }
     }
 
@@ -88,13 +88,13 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
     }
 
     private void destroyHandle(ChannelContext context, boolean redeploy) {
-        futureAcceptor.destroy(context, redeploy);
+        frameAcceptor.destroy(context, redeploy);
         classLoader.unloadClassLoader();
     }
 
     @Override
-    public void exceptionCaught(NioSocketChannel channel, Future future, Exception ex) {
-        ioExceptionCaughtHandle.exceptionCaught(channel, future, ex);
+    public void exceptionCaught(NioSocketChannel channel, Frame frame, Exception ex) {
+        ioExceptionCaughtHandle.exceptionCaught(channel, frame, ex);
     }
 
     public ApplicationExtLoader getApplicationExtLoader() {
@@ -125,8 +125,8 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
         return encoding;
     }
 
-    public ContainerIoEventHandle getFutureAcceptor() {
-        return futureAcceptor;
+    public ContainerIoEventHandle getFrameAcceptor() {
+        return frameAcceptor;
     }
 
     public ExceptionCaughtHandle getIoExceptionCaughtHandle() {
@@ -166,8 +166,8 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
                 rootLocalAddress, ApplicationBootstrap.withDefault());
         this.applicationExtLoader.loadExts(this, classLoader);
         this.configuration = configurationLoader.loadConfiguration(classLoader);
-        this.appOnRedeployService = (FutureAcceptor) newInstanceFromClass(
-                configuration.getOnRedeployFutureAcceptor(), appOnRedeployService);
+        this.appOnRedeployService = (FrameAcceptor) newInstanceFromClass(
+                configuration.getOnRedeployFrameAcceptor(), appOnRedeployService);
         if (appOnRedeployService == null) {
             appOnRedeployService = new DefaultOnRedeployAcceptor();
         }
@@ -176,12 +176,12 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
         if (ioExceptionCaughtHandle == null) {
             ioExceptionCaughtHandle = new LoggerExceptionCaughtHandle();
         }
-        if (StringUtil.isNullOrBlank(configuration.getFutureAcceptor())) {
-            throw new IllegalArgumentException("APP_FUTURE_ACCEPTOR");
+        if (StringUtil.isNullOrBlank(configuration.getFrameAcceptor())) {
+            throw new IllegalArgumentException("APP_FRAME_ACCEPTOR");
         }
-        Class<?> clazz = classLoader.loadClass(configuration.getFutureAcceptor());
-        futureAcceptor = (ContainerIoEventHandle) clazz.newInstance();
-        futureAcceptor.initialize(channelContext, redeploy);
+        Class<?> clazz = classLoader.loadClass(configuration.getFrameAcceptor());
+        frameAcceptor = (ContainerIoEventHandle) clazz.newInstance();
+        frameAcceptor.initialize(channelContext, redeploy);
     }
 
     private Object newInstanceFromClass(String className, Object defaultObj) throws Exception {
@@ -239,7 +239,7 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
         this.channelContext = context;
     }
 
-    public void setAppOnRedeployService(FutureAcceptor appOnRedeployService) {
+    public void setAppOnRedeployService(FrameAcceptor appOnRedeployService) {
         this.appOnRedeployService = appOnRedeployService;
     }
 

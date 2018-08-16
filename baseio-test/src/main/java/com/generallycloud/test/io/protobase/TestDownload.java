@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.protobase;
 
 import com.alibaba.fastjson.JSONObject;
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFuture;
+import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
@@ -26,10 +26,10 @@ import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.container.protobase.FileReceiveUtil;
 import com.generallycloud.baseio.container.protobase.FixedChannel;
-import com.generallycloud.baseio.container.protobase.OnFuture;
+import com.generallycloud.baseio.container.protobase.OnFrame;
 import com.generallycloud.baseio.container.protobase.SimpleIoEventHandle;
 import com.generallycloud.baseio.log.DebugUtil;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestDownload {
 
@@ -47,11 +47,11 @@ public class TestDownload {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         FixedChannel channel = new FixedChannel(connector.connect());
         final FileReceiveUtil fileReceiveUtil = new FileReceiveUtil("download-");
-        channel.listen(serviceName, new OnFuture() {
+        channel.listen(serviceName, new OnFrame() {
             @Override
-            public void onResponse(NioSocketChannel channel, Future future) {
+            public void onResponse(NioSocketChannel channel, Frame frame) {
                 try {
-                    fileReceiveUtil.accept(channel, (ParamedProtobaseFuture) future, false);
+                    fileReceiveUtil.accept(channel, (ParamedProtobaseFrame) frame, false);
                 } catch (Exception e) {
                     DebugUtil.debug(e);
                 }

@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 /**
  * @author wangkai
@@ -24,6 +24,6 @@ import com.generallycloud.baseio.protocol.Future;
 public class SilentExceptionCaughtHandle implements ExceptionCaughtHandle {
 
     @Override
-    public void exceptionCaught(NioSocketChannel channel, Future future, Exception ex) {}
+    public void exceptionCaught(NioSocketChannel channel, Frame frame, Exception ex) {}
 
 }

@@ -24,7 +24,7 @@ import java.util.Set;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Future;
+import com.generallycloud.baseio.protocol.Frame;
 
 /**
  * @author wangkai
@@ -38,7 +38,7 @@ public class ClientHttpCodec extends AbstractHttpCodec {
     private int                 bodyLimit;
     private int                 headerLimit;
     private int                 websocketLimit           = 1024 * 128;
-    private int                 websocketFutureStackSize = 0;
+    private int                 websocketFrameStackSize = 0;
 
     public ClientHttpCodec() {
         this(1024 * 8, 1024 * 512);
@@ -50,13 +50,13 @@ public class ClientHttpCodec extends AbstractHttpCodec {
     }
 
     @Override
-    public Future decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
-        return new ClientHttpFuture(headerLimit, bodyLimit);
+    public Frame decode(NioSocketChannel channel, ByteBuf buffer) throws IOException {
+        return new ClientHttpFrame(headerLimit, bodyLimit);
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel channel, Future future) throws IOException {
-        ClientHttpFuture f = (ClientHttpFuture) future;
+    public ByteBuf encode(NioSocketChannel channel, Frame frame) throws IOException {
+        ClientHttpFrame f = (ClientHttpFrame) frame;
         ByteBuf buf = channel.alloc().allocate(256);
         buf.put(f.getMethod().getBytes());
         buf.putByte(SPACE);
@@ -106,20 +106,20 @@ public class ClientHttpCodec extends AbstractHttpCodec {
         this.websocketLimit = websocketLimit;
     }
 
-    public int getWebsocketFutureStackSize() {
-        return websocketFutureStackSize;
+    public int getWebsocketFrameStackSize() {
+        return websocketFrameStackSize;
     }
 
-    public void setWebsocketFutureStackSize(int websocketFutureStackSize) {
-        this.websocketFutureStackSize = websocketFutureStackSize;
+    public void setWebsocketFrameStackSize(int websocketFrameStackSize) {
+        this.websocketFrameStackSize = websocketFrameStackSize;
     }
 
-    private String getRequestURI(HttpFuture future) {
-        Map<String, String> params = future.getRequestParams();
+    private String getRequestURI(HttpFrame frame) {
+        Map<String, String> params = frame.getRequestParams();
         if (params == null) {
-            return future.getRequestURI();
+            return frame.getRequestURI();
         }
-        String url = future.getRequestURI();
+        String url = frame.getRequestURI();
         StringBuilder u = new StringBuilder(url);
         u.append("?");
         Set<Entry<String, String>> ps = params.entrySet();
@@ -134,7 +134,7 @@ public class ClientHttpCodec extends AbstractHttpCodec {
 
     @Override
     public void initialize(ChannelContext context) {
-        WebSocketCodec.init(context, websocketLimit, websocketFutureStackSize);
+        WebSocketCodec.init(context, websocketLimit, websocketFrameStackSize);
     }
 
 }
