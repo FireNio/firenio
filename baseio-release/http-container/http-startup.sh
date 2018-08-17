@@ -22,4 +22,4 @@ PRG="$0"
 PRGDIR=`dirname "$PRG"`
 # java -cp $CLASSPATH com.generallycloud.baseio.container.startup.ApplicationBootstrap $PRGDIR true
 
-java -XX:+PrintGCDetails -Xloggc:gc.log -cp $CLASSPATH -Dcontainer.runtime=prod com.generallycloud.baseio.container.http11.HttpStartup
+java -XX:+PrintGCDetails -Xloggc:gc.log -cp $CLASSPATH -Dcontainer.runtime=prod -Dcom.generallycloud.baseio.develop.debug=true com.generallycloud.baseio.container.http11.HttpStartup

@@ -25,6 +25,8 @@ import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
 import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpStatic;
+import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -38,7 +40,6 @@ public class TestShowMemoryServlet extends HttpFrameAcceptorService {
 
     @Override
     protected void doAccept(HttpSession session, HttpFrame frame) throws Exception {
-
         TestWebSocketChatServlet chatServlet = ContextUtil.getBean(TestWebSocketChatServlet.class);
         TestWebSocketRumpetrollServlet rumpetrollServlet = ContextUtil
                 .getBean(TestWebSocketRumpetrollServlet.class);
@@ -49,6 +50,12 @@ public class TestShowMemoryServlet extends HttpFrameAcceptorService {
         NioSocketChannel ch = session.getChannel();
         ChannelContext context = session.getChannel().getContext();
         HttpFrameAcceptor httpContext = session.getContext();
+        
+        String kill = frame.getRequestParam("kill");
+        if (!StringUtil.isNullOrBlank(kill)) {
+            Integer id = Integer.valueOf(kill,16);
+            CloseUtil.close(context.getChannelManager().getChannel(id));
+        }
 
         BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
         BigDecimal anHour = new BigDecimal(60 * 60 * 1000);

@@ -672,6 +672,7 @@ public final class NioSocketChannel extends AttributesImpl
                         remaining.flip();
                         sslRemainBuf = remaining;
                     }
+                    return;
                 }
             }
         } else {
