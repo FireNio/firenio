@@ -270,7 +270,7 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    protected void fireOpend() throws IOException {
+    protected void fireOpend() {
         final NioSocketChannel ch = this;
         for (ChannelEventListener l : context.getChannelEventListeners()) {
             try {
