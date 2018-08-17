@@ -15,6 +15,9 @@
  */
 package com.generallycloud.baseio.component;
 
+import static com.generallycloud.baseio.Develop.DEBUG;
+import static com.generallycloud.baseio.Develop.printException;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -117,8 +120,12 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     writeComplete = ch.write(key.interestOps());
                 } catch (Throwable e) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(e.getMessage() + ch, e);
+                    if (DEBUG) {
+                        logger.error(e.getMessage() + ch, e);
+                    } else {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(e.getMessage() + ch, e);
+                        }
                     }
                     ch.close();
                 }
@@ -128,8 +135,12 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     ch.read(buf);
                 } catch (Throwable e) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(e.getMessage() + ch, e);
+                    if (DEBUG) {
+                        logger.error(e.getMessage() + ch, e);
+                    } else {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(e.getMessage() + ch, e);
+                        }
                     }
                     ch.close();
                     if (e instanceof SSLHandshakeException) {
@@ -167,7 +178,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         }
                     });
                 } catch (Exception e) {
-                    logger.debug(e.getMessage(), e);
+                    printException(logger, e);
                 }
             } else {
                 @SuppressWarnings("resource")
@@ -212,6 +223,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             }
         }
     }
+    
+    
 
     public ByteBufAllocator alloc() {
         return alloc;
@@ -283,7 +296,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     event.run();
                 } catch (Throwable e) {
-                    logger.debug(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                 }
             }
             es.clear();
@@ -441,7 +454,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     }
                 }
             } catch (Throwable e) {
-                logger.debug(e.getMessage(), e);
+                printException(logger, e);
             }
         }
     }
@@ -484,9 +497,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 finishConnect(ch, ch.getContext(), null);
             }
         } catch (ClosedChannelException e) {
-            logger.debug(e.getMessage(), e);
+            printException(logger, e);
         } catch (Exception e) {
-            logger.debug(e.getMessage(), e);
+            printException(logger, e);
             if (!ch.isEnableSsl()) {
                 finishConnect(ch, ch.getContext(), e);
             }
@@ -512,7 +525,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     waiter.response(null);
                 } catch (Exception e) {
                     waiter.response(e);
-                    logger.debug(e.getMessage(), e);
+                    printException(logger, e);
                 }
             }
         });

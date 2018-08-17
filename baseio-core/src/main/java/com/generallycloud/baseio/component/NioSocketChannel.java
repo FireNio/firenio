@@ -15,6 +15,9 @@
  */
 package com.generallycloud.baseio.component;
 
+import static com.generallycloud.baseio.Develop.printException;
+import static com.generallycloud.baseio.common.ThrowableUtil.unknownStackTrace;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -41,7 +44,6 @@ import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.common.ThrowableUtil;
 import com.generallycloud.baseio.component.ChannelContext.HeartBeatLogger;
 import com.generallycloud.baseio.component.ssl.SslHandler;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
@@ -54,14 +56,14 @@ public final class NioSocketChannel extends AttributesImpl
         implements Runnable, Attributes, Closeable {
 
     private static final int                    ssl_limit            = 1024 * 64;
-    private static final ClosedChannelException CLOSED_WHEN_FLUSH    = ThrowableUtil
-            .unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
-    private static final SSLException           NEITHER_SSLV3_OR_TLS = ThrowableUtil
-            .unknownStackTrace(new SSLException(""), NioSocketChannel.class,
-                    "isEnoughSslUnwrap(Neither SSLv3 or TLS)");
-    private static final SSLException           SSL_OVER_LIMIT       = ThrowableUtil
-            .unknownStackTrace(new SSLException(""), NioSocketChannel.class,
-                    "isEnoughSslUnwrap(over limit (" + ssl_limit + "))");
+    private static final ClosedChannelException CLOSED_WHEN_FLUSH    = unknownStackTrace(
+            new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
+    private static final SSLException           NEITHER_SSLV3_OR_TLS = unknownStackTrace(
+            new SSLException(""), NioSocketChannel.class,
+            "isEnoughSslUnwrap(Neither SSLv3 or TLS)");
+    private static final SSLException           SSL_OVER_LIMIT       = unknownStackTrace(
+            new SSLException(""), NioSocketChannel.class,
+            "isEnoughSslUnwrap(over limit (" + ssl_limit + "))");
     private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
     private static final Logger                 logger               = LoggerFactory
             .getLogger(NioSocketChannel.class);
@@ -240,8 +242,8 @@ public final class NioSocketChannel extends AttributesImpl
         try {
             getIoEventHandle().exceptionCaught(this, frame, ex);
         } catch (Throwable e) {
-            logger.debug(ex.getMessage(), ex);
-            logger.debug(e.getMessage(), e);
+            printException(logger, e);
+            printException(logger, ex);
         }
     }
 
@@ -291,7 +293,7 @@ public final class NioSocketChannel extends AttributesImpl
             try {
                 buf = sslHandler().wrap(this, old);
             } catch (Exception e) {
-                logger.debug(e.getMessage(), e);
+                printException(logger, e);
             } finally {
                 old.release();
             }

@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
+import com.generallycloud.baseio.Constants;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.Encoding;
@@ -99,10 +100,10 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     @Override
     public void configurationChanged() {
         if (enableOpenSsl) {
-            System.setProperty(SSLUtil.ENABLE_OPENSSL_SYS_KEY, "true");
+            System.setProperty(Constants.ENABLE_OPENSSL_SYS_KEY, "true");
         }
         if (!StringUtil.isNullOrBlank(openSslPath)) {
-            System.setProperty(SSLUtil.WILDFLY_OPENSSL_PATH, openSslPath);
+            System.setProperty(Constants.WILDFLY_OPENSSL_PATH, openSslPath);
         }
     }
     
@@ -338,7 +339,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
 
     public void setEnableOpenSsl(boolean enableOpenSsl) {
         checkNotRunning();
-        System.setProperty(SSLUtil.ENABLE_OPENSSL_SYS_KEY, enableOpenSsl ? "true" : "false");
+        System.setProperty(Constants.ENABLE_OPENSSL_SYS_KEY, enableOpenSsl ? "true" : "false");
         this.enableOpenSsl = enableOpenSsl;
     }
 
