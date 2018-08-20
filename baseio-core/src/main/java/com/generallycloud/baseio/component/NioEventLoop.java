@@ -69,9 +69,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private static final Logger                      logger                  = LoggerFactory
             .getLogger(NioEventLoop.class);
     private static final IOException                 NOT_FINISH_CONNECT      = ThrowableUtil
-            .unknownStackTrace(new IOException(), SocketChannel.class, "finishConnect(...)");
+            .unknownStackTrace(new IOException("not finish connect"), SocketChannel.class,
+                    "finishConnect(...)");
     private static final IOException                 OVER_CHANNEL_SIZE_LIMIT = ThrowableUtil
-            .unknownStackTrace(new IOException(), NioEventLoop.class, "registChannel(...)");
+            .unknownStackTrace(new IOException("over channel size limit"), NioEventLoop.class,
+                    "registChannel(...)");
 
     private final ByteBufAllocator                   alloc;
     private final Map<Object, Object>                attributes              = new HashMap<>();

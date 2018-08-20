@@ -34,12 +34,6 @@ import com.generallycloud.baseio.component.ProtectedUtil;
 
 public class SslHandler {
 
-    public static int     SSL_CONTENT_TYPE_ALERT              = 21;
-    public static int     SSL_CONTENT_TYPE_APPLICATION_DATA   = 23;
-    public static int     SSL_CONTENT_TYPE_CHANGE_CIPHER_SPEC = 20;
-    public static int     SSL_CONTENT_TYPE_HANDSHAKE          = 22;
-    public static int     SSL_RECORD_HEADER_LENGTH            = 5;
-
     private final ByteBuf dstTemp;
 
     public SslHandler() {

@@ -55,15 +55,14 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public final class NioSocketChannel extends AttributesImpl
         implements Runnable, Attributes, Closeable {
 
-    private static final int                    ssl_limit            = 1024 * 64;
+    private static final int                    SSL_PACKET_LIMIT     = 1024 * 64;
     private static final ClosedChannelException CLOSED_WHEN_FLUSH    = unknownStackTrace(
             new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
-    private static final SSLException           NEITHER_SSLV3_OR_TLS = unknownStackTrace(
-            new SSLException(""), NioSocketChannel.class,
-            "isEnoughSslUnwrap(Neither SSLv3 or TLS)");
+    private static final SSLException           NOT_TLS              = unknownStackTrace(
+            new SSLException("NOT TLS"), NioSocketChannel.class, "isEnoughSslUnwrap()");
     private static final SSLException           SSL_OVER_LIMIT       = unknownStackTrace(
-            new SSLException(""), NioSocketChannel.class,
-            "isEnoughSslUnwrap(over limit (" + ssl_limit + "))");
+            new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"), NioSocketChannel.class,
+            "isEnoughSslUnwrap()");
     private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
     private static final Logger                 logger               = LoggerFactory
             .getLogger(NioSocketChannel.class);
@@ -604,30 +603,61 @@ public final class NioSocketChannel extends AttributesImpl
         return sslHandshakeFinished;
     }
 
+    /**
+     <pre>
+               record type (1 byte)
+            /
+           /    version (1 byte major, 1 byte minor)
+          /    /
+         /    /         length (2 bytes)
+        /    /         /
+     +----+----+----+----+----+
+     |    |    |    |    |    |
+     |    |    |    |    |    | TLS Record header
+     +----+----+----+----+----+
+    
+    
+     Record Type Values       dec      hex
+     -------------------------------------
+     CHANGE_CIPHER_SPEC        20     0x14
+     ALERT                     21     0x15
+     HANDSHAKE                 22     0x16
+     APPLICATION_DATA          23     0x17
+    
+    
+     Version Values            dec     hex
+     -------------------------------------
+     SSL 3.0                   3,0  0x0300
+     TLS 1.0                   3,1  0x0301
+     TLS 1.1                   3,2  0x0302
+     TLS 1.2                   3,3  0x0303
+     
+     ref:http://blog.fourthbit.com/2014/12/23/traffic-analysis-of-an-ssl-slash-tls-session/
+     </pre>
+    */
     private boolean isEnoughSslUnwrap(ByteBuf src) throws SSLException {
         if (src.remaining() < 5) {
             return false;
         }
         int pos = src.position();
-        // SSLv3 or TLS - Check ContentType
+        // TLS - Check ContentType
         int type = src.getUnsignedByte(pos);
         if (type < 20 || type > 23) {
-            throw NEITHER_SSLV3_OR_TLS;
+            throw NOT_TLS;
         }
-        // SSLv3 or TLS - Check ProtocolVersion
+        // TLS - Check ProtocolVersion
         int majorVersion = src.getUnsignedByte(pos + 1);
-        // minorVersion
-        // int minorVersion = src.getUnsignedByte(2);
+        int minorVersion = src.getUnsignedByte(2);
         int packetLength = src.getUnsignedShort(pos + 3);
-        if (majorVersion != 3 || packetLength <= 0) {
-            // Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
-            throw NEITHER_SSLV3_OR_TLS;
+        if (majorVersion != 3 || minorVersion < 1) {
+            // NOT TLS (i.e. SSLv2,3 or bad data)
+            throw NOT_TLS;
         }
         int len = packetLength + 5;
         if (src.remaining() < len) {
             return false;
         }
-        if (len > ssl_limit) {
+        if (len > SSL_PACKET_LIMIT) {
             throw SSL_OVER_LIMIT;
         }
         src.markL();
