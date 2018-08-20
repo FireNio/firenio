@@ -37,10 +37,6 @@ public class ProtectedUtil {
         ch.readPlainRemainingBuf(dst);
     }
 
-    public static void readSslPlainRemainingBuf(NioSocketChannel ch, ByteBuf dst) {
-        ch.readSslPlainRemainingBuf(dst);
-    }
-    
     public static byte getSslWrapExt(NioSocketChannel ch) {
         return ch.getSslWrapExt();
     }

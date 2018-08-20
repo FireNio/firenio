@@ -647,7 +647,7 @@ public final class NioSocketChannel extends AttributesImpl
         }
         // TLS - Check ProtocolVersion
         int majorVersion = src.getUnsignedByte(pos + 1);
-        int minorVersion = src.getUnsignedByte(2);
+        int minorVersion = src.getUnsignedByte(pos + 2);
         int packetLength = src.getUnsignedShort(pos + 3);
         if (majorVersion != 3 || minorVersion < 1) {
             // NOT TLS (i.e. SSLv2,3 or bad data)
@@ -669,7 +669,7 @@ public final class NioSocketChannel extends AttributesImpl
         lastAccess = System.currentTimeMillis();
         src.clear();
         if (enableSsl) {
-            readSslPlainRemainingBuf(src);
+            readSslRemainingBuf(src);
         } else {
             readPlainRemainingBuf(src);
         }
@@ -720,7 +720,7 @@ public final class NioSocketChannel extends AttributesImpl
         this.plainRemainBuf = null;
     }
 
-    protected void readSslPlainRemainingBuf(ByteBuf dst) {
+    private void readSslRemainingBuf(ByteBuf dst) {
         ByteBuf remainingBuf = this.sslRemainBuf;
         if (remainingBuf == null) {
             return;
