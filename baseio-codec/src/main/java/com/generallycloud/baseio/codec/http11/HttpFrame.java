@@ -32,7 +32,7 @@ public interface HttpFrame extends HttpMessage {
     String CONTENT_TYPE_IMAGE_ICON          = "image/x-icon";
     String CONTENT_APPLICATION_URLENCODED   = "application/x-www-form-urlencoded";
     String CONTENT_APPLICATION_OCTET_STREAM = "application/octet-stream";
-    String CONTENT_APPLICATION_JAVASCRIPT   = "application/x-javascript";
+    String CONTENT_APPLICATION_JAVASCRIPT   = "application/x-javascript;charset=utf-8";
 
     String getRequestHeader(String name);
 

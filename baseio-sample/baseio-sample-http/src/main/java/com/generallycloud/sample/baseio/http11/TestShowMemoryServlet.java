@@ -17,6 +17,7 @@ package com.generallycloud.sample.baseio.http11;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Date;
 
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
@@ -106,7 +108,7 @@ public class TestShowMemoryServlet extends HttpFrameAcceptorService {
             builder.append("\n</BR>");
             builder.append(s);
             builder.append(",opened:");
-            builder.append(s.isOpened());
+            builder.append(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss(new Date(s.getCreationTime())));
         }
         builder.append(";\n</BR>服务器当前会话数（http-session）：");
         builder.append(httpContext.getHttpSessionManager().getManagedSessionSize());
