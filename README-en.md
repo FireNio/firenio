@@ -17,9 +17,7 @@ BaseIO is an io framework which can build network project fast, it based on java
    * WebSocket protocol, for detail: https://www.generallycloud.com/web-socket/chat/index.html 
    * Protobase(custom) support text and binay and text binay mixed transfer, for detail {baseio-test}
  * easy to support reconnect (easy to support heart beat)
- * simple application container
-   * simple hot deploy , eg: https://www.generallycloud.com/system-redeploy
-   * support deploy http , micro service (depend on your protocol)
+ * supported ssl (jdkssl, openssl)
  * load test
    * over 200W QPS (Http1.1,I7-4790,16.04.1-Ubuntu)  [wrk load test](/baseio-documents/load-test/load-test-http.txt)
  
