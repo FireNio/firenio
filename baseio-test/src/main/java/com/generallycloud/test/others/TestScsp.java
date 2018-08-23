@@ -15,11 +15,8 @@
  */
 package com.generallycloud.test.others;
 
-import java.lang.reflect.Field;
-
-import com.generallycloud.baseio.common.UnsafeUtil;
-import com.generallycloud.baseio.concurrent.Linkable;
-import com.generallycloud.baseio.concurrent.ScspLinkedQueue;
+import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.concurrent.ScmpLinkedQueue;
 
 /**
  * @author wangkai
@@ -29,58 +26,21 @@ public class TestScsp {
 
     public static void main(String[] args) throws Exception {
 
-        ScspLinkedQueue<String> queue = new ScspLinkedQueue<>(new StringLink("h"));
+        ScmpLinkedQueue<String> queue = new ScmpLinkedQueue<>();
 
-        Field head = queue.getClass().getDeclaredField("head");
-        Field tail = queue.getClass().getDeclaredField("tail");
-
-        long h = UnsafeUtil.objectFieldOffset(head);
-
-        long t = UnsafeUtil.objectFieldOffset(tail);
-
-        System.out.println(h);
-        System.out.println(t);
-
-        System.out.println(t - h);
-
-    }
-
-    static class StringLink implements Linkable {
-
-        private String     value;
-
-        private StringLink next;
-
-        private boolean    validate;
-
-        public StringLink(String value) {
-            this.value = value;
+        for (int i = 0; i < 4; i++) {
+            ThreadUtil.exec(() -> {
+                for (int j = 0; j < 32; j++) {
+                    queue.offer(String.valueOf(j));
+                }
+            });
         }
-
-        @Override
-        public Linkable getNext() {
-            return next;
+        
+        ThreadUtil.sleep(100);
+        System.out.println(queue.size());
+        for(;queue.size() > 0;){
+            System.out.println(queue.poll());
         }
-
-        @Override
-        public void setNext(Linkable next) {
-            this.next = (StringLink) next;
-        }
-
-        @Override
-        public boolean isValidate() {
-            return validate;
-        }
-
-        @Override
-        public void setValidate(boolean validate) {
-            this.validate = validate;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
     }
 
 }

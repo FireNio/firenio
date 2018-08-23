@@ -17,53 +17,80 @@ package com.generallycloud.baseio.concurrent;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class ScspLinkedQueue<T> implements LinkedQueue<T> {
+public class ScspLinkedQueue<V> {
 
     private AtomicInteger size = new AtomicInteger();
-    private Linkable      head = null;               // volatile ?
-    private Linkable      tail = null;               // volatile ?
+    private Node<V>       head = null;               // volatile ?
+    private Node<V>       tail = null;               // volatile ?
 
-    public ScspLinkedQueue(Linkable linkable) {
-        linkable.setValidate(false);
-        this.head = linkable;
-        this.tail = linkable;
+    public ScspLinkedQueue() {
+        this.head = new Node<>(null);
+        this.tail = head;
+        this.tail.validate = false;
     }
 
-    @Override
-    public void offer(Linkable linkable) {
-        tail.setNext(linkable);
-        tail = linkable;
+    public void offer(V v) {
+        Node<V> node = new Node<>(v);
+        tail.next = node;
+        tail = node;
         size.incrementAndGet();
     }
 
-    @Override
-    public T poll() {
+    public V poll() {
         if (size.get() == 0) {
             return null;
         }
         return get(head);
     }
 
-    @SuppressWarnings("unchecked")
-    private T get(Linkable h) {
-        if (h.isValidate()) {
-            Linkable next = h.getNext();
+    private V get(Node<V> h) {
+        if (h.validate) {
+            Node<V> next = h.next;
             if (next == null) {
-                h.setValidate(false);
+                h.validate = false;
                 head = h;
             } else {
                 head = next;
             }
             this.size.decrementAndGet();
-            return (T) h;
+            return h.v;
         } else {
-            return get(h.getNext());
+            return get(h.next);
         }
     }
+    
+    public Node<V> getHead() {
+        return head;
+    }
 
-    @Override
+    public void setHead(Node<V> head) {
+        this.head = head;
+    }
+
+    public Node<V> getTail() {
+        return tail;
+    }
+
+    public void setTail(Node<V> tail) {
+        this.tail = tail;
+    }
+
     public int size() {
         return size.get();
+    }
+    
+    protected int incrementAndGet(){
+        return size.incrementAndGet();
+    }
+
+    static class Node<V> {
+        public Node(V v) {
+            this.v = v;
+        }
+
+        final V v;
+        Node<V> next;
+        boolean validate = true;
     }
 
     //     not sure if this useful
