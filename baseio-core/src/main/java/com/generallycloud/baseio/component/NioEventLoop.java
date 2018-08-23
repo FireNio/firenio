@@ -463,7 +463,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             CloseUtil.close((NioSocketChannel) sk.attachment());
             NioSocketChannel ch = new NioSocketChannel(el, sk, context, channelId);
             sk.attach(ch);
-            IntObjectHashMap<NioSocketChannel> channels = this.channels;
+            IntObjectHashMap<NioSocketChannel> channels = el.channels;
             CloseUtil.close(channels.get(ch.getChannelId()));
             if (channels.size() >= channelSizeLimit) {
                 printException(logger, OVER_CHANNEL_SIZE_LIMIT);

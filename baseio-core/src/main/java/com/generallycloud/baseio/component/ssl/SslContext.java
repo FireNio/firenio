@@ -35,13 +35,13 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public final class SslContext {
-    
+
     static final Logger       logger = LoggerFactory.getLogger(SslContext.class);
     static final boolean      openSslAvailable;
     static final List<String> ENABLED_CIPHERS;
     static final String[]     ENABLED_PROTOCOLS;
     static final Set<String>  SUPPORTED_CIPHERS;
-    static final int          SSL_PACKET_BUFFER_SIZE;
+    public static final int   SSL_PACKET_BUFFER_SIZE;
 
     static {
         try {
@@ -57,7 +57,9 @@ public final class SslContext {
                 org.wildfly.openssl.OpenSSLProvider.register();
                 testOpenSsl = true;
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            logger.error("openssl enabled but load failed, the reason is:" + e.getMessage(), e);
+        }
         openSslAvailable = testOpenSsl;
         SSLContext context;
         try {
@@ -114,7 +116,8 @@ public final class SslContext {
             }
         }
         ENABLED_CIPHERS = Collections.unmodifiableList(enabledCiphers);
-        LoggerUtil.prettyLog(logger, "Default protocols (JDK): {} ", Arrays.asList(ENABLED_PROTOCOLS));
+        LoggerUtil.prettyLog(logger, "Default protocols (JDK): {} ",
+                Arrays.asList(ENABLED_PROTOCOLS));
         LoggerUtil.prettyLog(logger, "Default cipher suites (JDK): {}", ENABLED_CIPHERS);
     }
 
@@ -138,8 +141,8 @@ public final class SslContext {
     public static boolean isOpenSslAvailable() {
         return openSslAvailable;
     }
-    
-    public static int getPacketBufferSize(){
+
+    public static int getPacketBufferSize() {
         return SSL_PACKET_BUFFER_SIZE;
     }
 

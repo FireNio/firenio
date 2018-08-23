@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.buffer;
 
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.buffer.SimpleByteBufAllocator;
+import com.generallycloud.baseio.buffer.PooledByteBufAllocator;
 
 /**
  * @author wangkai
@@ -25,13 +25,13 @@ import com.generallycloud.baseio.buffer.SimpleByteBufAllocator;
 public class TestAlloc {
 
     public static ByteBufAllocator direct() throws Exception {
-        ByteBufAllocator a = new SimpleByteBufAllocator(1024, 4, 0, true);
+        ByteBufAllocator a = new PooledByteBufAllocator(1024, 4, 0, true);
         a.start();
         return a;
     }
 
     public static ByteBufAllocator heap() throws Exception {
-        ByteBufAllocator a = new SimpleByteBufAllocator(1024, 4, 0, false);
+        ByteBufAllocator a = new PooledByteBufAllocator(1024, 4, 0, false);
         a.start();
         return a;
     }

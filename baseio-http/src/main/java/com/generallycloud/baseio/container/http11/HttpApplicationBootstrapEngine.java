@@ -35,12 +35,11 @@ public class HttpApplicationBootstrapEngine extends ApplicationBootstrapEngine {
     protected void enrichSocketChannelContext(ChannelContext context) {
         ApplicationIoEventHandle handle = (ApplicationIoEventHandle) context.getIoEventHandle();
         handle.setApplicationExtLoader(new HttpExtLoader());
-        handle.setApplicationConfigurationLoader(new FileSystemACLoader());
         handle.setAppOnRedeployService(new HttpOnRedeployAcceptor());
+        handle.setApplicationConfigurationLoader(new FileSystemACLoader());
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.getNioEventLoopGroup().setIdleTime(1000 * 60 * 30);
-        context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
         context.addChannelEventListener(new WebSocketChannelListener());
+        context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
         context.setProtocolCodec(new ServerHttpCodec());
         context.setExecutorEventLoopGroup(new ExecutorPoolEventLoopGroup("http-event-processor", 16,
                 64, 1024 * 64, 1000 * 60 * 30));

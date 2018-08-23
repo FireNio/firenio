@@ -22,9 +22,12 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.AttributesImpl;
-import com.generallycloud.baseio.component.ssl.SslHandler;
+import com.generallycloud.baseio.component.ssl.SslContext;
 
 /**
  * @author wangkai
@@ -39,10 +42,9 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
     private Map<Charset, CharsetDecoder>              charsetDecoders    = new IdentityHashMap<>();
     private Map<Charset, CharsetEncoder>              charsetEncoders    = new IdentityHashMap<>();
     private Object[]                                  indexedVariables   = new Object[maxIndexedVarsSize];
-    private SslHandler                                sslHandler;
+    private ByteBuf                                   sslTempBuf;
 
-    public FastThreadLocal() {
-    }
+    public FastThreadLocal() {}
 
     private void destroy0() {
         //FIXME ..destroy0
@@ -70,11 +72,12 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
         return indexedVariables[index];
     }
 
-    public SslHandler getSslHandler() {
-        if (sslHandler == null) {
-            sslHandler = new SslHandler();
+    public ByteBuf getSslTempBuf() {
+        if (sslTempBuf == null) {
+            ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
+            sslTempBuf = allocator.allocate(SslContext.SSL_PACKET_BUFFER_SIZE);
         }
-        return sslHandler;
+        return sslTempBuf;
     }
 
     public void setIndexedVariable(int index, Object value) {

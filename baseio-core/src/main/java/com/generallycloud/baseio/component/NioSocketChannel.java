@@ -33,6 +33,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLEngineResult;
+import javax.net.ssl.SSLEngineResult.HandshakeStatus;
+import javax.net.ssl.SSLEngineResult.Status;
 import javax.net.ssl.SSLException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
@@ -45,7 +48,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext.HeartBeatLogger;
-import com.generallycloud.baseio.component.ssl.SslHandler;
+import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -58,17 +61,19 @@ public final class NioSocketChannel extends AttributesImpl
     private static final int                    SSL_PACKET_LIMIT     = 1024 * 64;
     private static final ClosedChannelException CLOSED_WHEN_FLUSH    = unknownStackTrace(
             new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
+    private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
+    private static final Logger                 logger               = LoggerFactory
+            .getLogger(NioSocketChannel.class);
     private static final SSLException           NOT_TLS              = unknownStackTrace(
             new SSLException("NOT TLS"), NioSocketChannel.class, "isEnoughSslUnwrap()");
     private static final SSLException           SSL_OVER_LIMIT       = unknownStackTrace(
             new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"), NioSocketChannel.class,
             "isEnoughSslUnwrap()");
-    private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
-    private static final Logger                 logger               = LoggerFactory
-            .getLogger(NioSocketChannel.class);
+
     private final SocketChannel                 channel;
     private final Integer                       channelId;
     private final ReentrantLock                 closeLock            = new ReentrantLock();
+    private ProtocolCodec                       codec;
     private final ChannelContext                context;
     private final long                          creationTime         = System.currentTimeMillis();
     private final ByteBuf[]                     currentWriteBufs;
@@ -84,7 +89,6 @@ public final class NioSocketChannel extends AttributesImpl
     private final int                           maxWriteBacklog;
     private boolean                             opened               = true;
     private ByteBuf                             plainRemainBuf;
-    private ProtocolCodec                       codec;
     private Frame                               readFrame;
     private final String                        remoteAddr;
     private final String                        remoteAddrPort;
@@ -132,7 +136,6 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private void accept(ByteBuf src) throws IOException {
-        final ByteBufAllocator alloc = alloc();
         final ProtocolCodec codec = this.codec;
         final IoEventHandle eventHandle = this.ioEventHandle;
         final HeartBeatLogger heartBeatLogger = context.getHeartBeatLogger();
@@ -145,10 +148,7 @@ public final class NioSocketChannel extends AttributesImpl
             if (!frame.read(this, src)) {
                 readFrame = frame;
                 if (src.hasRemaining()) {
-                    ByteBuf remaining = alloc.allocate(src.remaining());
-                    remaining.read(src);
-                    remaining.flip();
-                    plainRemainBuf = remaining;
+                    plainRemainBuf = sliceRemain(src);
                 }
                 break;
             }
@@ -218,7 +218,7 @@ public final class NioSocketChannel extends AttributesImpl
             sslEngine.closeOutbound();
             if (context.getSslContext().isClient()) {
                 try {
-                    writeBufs.offer(sslHandler().wrap(this, EmptyByteBuf.get()));
+                    writeBufs.offer(wrap(EmptyByteBuf.get()));
                     write(selKey.interestOps());
                 } catch (Exception e) {}
             }
@@ -226,10 +226,6 @@ public final class NioSocketChannel extends AttributesImpl
                 sslEngine.closeInbound();
             } catch (Exception e) {}
         }
-    }
-
-    private void execute(Runnable event) {
-        eventLoop.execute(event);
     }
 
     public ByteBuf encode(Frame frame) throws IOException {
@@ -246,8 +242,12 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
+    private void execute(Runnable event) {
+        eventLoop.execute(event);
+    }
+
     @SuppressWarnings("resource")
-    protected void finishHandshake() throws IOException {
+    private void finishHandshake() throws IOException {
         sslHandshakeFinished = true;
         if (context.getSslContext().isClient()) {
             ChannelService service = context.getChannelService();
@@ -290,7 +290,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (enableSsl) {
             ByteBuf old = buf;
             try {
-                buf = sslHandler().wrap(this, old);
+                buf = wrap(old);
             } catch (Exception e) {
                 printException(logger, e);
             } finally {
@@ -478,6 +478,14 @@ public final class NioSocketChannel extends AttributesImpl
         return closeLock;
     }
 
+    public ProtocolCodec getCodec() {
+        return codec;
+    }
+
+    public String getCodecId() {
+        return codec.getProtocolId();
+    }
+
     public ChannelContext getContext() {
         return context;
     }
@@ -522,14 +530,6 @@ public final class NioSocketChannel extends AttributesImpl
         return channel.getOption(name);
     }
 
-    public ProtocolCodec getCodec() {
-        return codec;
-    }
-
-    public String getCodecId() {
-        return codec.getProtocolId();
-    }
-
     public String getRemoteAddr() {
         return remoteAddr;
     }
@@ -553,13 +553,25 @@ public final class NioSocketChannel extends AttributesImpl
         return sslEngine;
     }
 
-    protected byte getSslWrapExt() {
-        return sslWrapExt;
+    private ByteBuf getSslTempBuf() {
+        return FastThreadLocal.get().getSslTempBuf();
     }
 
     public int getWriteBacklog() {
         //忽略current write[]
         return writeBufs.size();
+    }
+
+    //FIXME not correct ,fix this
+    private int guessWrapOut(int src, int ext) {
+        if (SslContext.isOpenSslAvailable()) {
+            return ((src + SslContext.SSL_PACKET_BUFFER_SIZE - 1)
+                    / SslContext.SSL_PACKET_BUFFER_SIZE + 1) * ext + src;
+        } else {
+            return ((src + SslContext.SSL_PACKET_BUFFER_SIZE - 1)
+                    / SslContext.SSL_PACKET_BUFFER_SIZE)
+                    * (ext + SslContext.SSL_PACKET_BUFFER_SIZE);
+        }
     }
 
     @Override
@@ -593,14 +605,6 @@ public final class NioSocketChannel extends AttributesImpl
 
     public boolean isEnableSsl() {
         return enableSsl;
-    }
-
-    public boolean isOpened() {
-        return opened;
-    }
-
-    protected boolean isSslHandshakeFinished() {
-        return sslHandshakeFinished;
     }
 
     /**
@@ -665,6 +669,10 @@ public final class NioSocketChannel extends AttributesImpl
         return true;
     }
 
+    public boolean isOpened() {
+        return opened;
+    }
+
     protected void read(ByteBuf src) throws IOException {
         lastAccess = System.currentTimeMillis();
         src.clear();
@@ -683,10 +691,9 @@ public final class NioSocketChannel extends AttributesImpl
         src.reverse();
         src.flip();
         if (enableSsl) {
-            SslHandler sslHandler = sslHandler();
             for (;;) {
                 if (isEnoughSslUnwrap(src)) {
-                    ByteBuf res = sslHandler.unwrap(this, src);
+                    ByteBuf res = unwrap(src);
                     if (res != null) {
                         accept(res);
                     }
@@ -696,11 +703,7 @@ public final class NioSocketChannel extends AttributesImpl
                     }
                 } else {
                     if (src.hasRemaining()) {
-                        int remain = src.remaining();
-                        ByteBuf remaining = alloc().allocate(remain);
-                        remaining.read(src);
-                        remaining.flip();
-                        sslRemainBuf = remaining;
+                        sslRemainBuf = sliceRemain(src);
                     }
                     return;
                 }
@@ -709,8 +712,15 @@ public final class NioSocketChannel extends AttributesImpl
             accept(src);
         }
     }
+    
+    private ByteBuf sliceRemain(ByteBuf src){
+        int remain = src.remaining();
+        ByteBuf remaining = alloc().allocate(remain);
+        remaining.read(src);
+        return remaining.flip();
+    }
 
-    protected void readPlainRemainingBuf(ByteBuf dst) {
+    private void readPlainRemainingBuf(ByteBuf dst) {
         ByteBuf remainingBuf = this.plainRemainBuf;
         if (remainingBuf == null) {
             return;
@@ -770,6 +780,16 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
+    private void runDelegatedTasks(SSLEngine engine) {
+        for (;;) {
+            Runnable task = engine.getDelegatedTask();
+            if (task == null) {
+                break;
+            }
+            task.run();
+        }
+    }
+
     private void safeClose() {
         if (isClosed()) {
             return;
@@ -791,6 +811,10 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
+    public void setCodec(ProtocolCodec codec) {
+        this.codec = codec;
+    }
+
     public void setIoEventHandle(IoEventHandle ioEventHandle) {
         this.ioEventHandle = ioEventHandle;
     }
@@ -799,21 +823,154 @@ public final class NioSocketChannel extends AttributesImpl
         channel.setOption(name, value);
     }
 
-    public void setCodec(ProtocolCodec codec) {
-        this.codec = codec;
+    //FIXME 部分buf不需要gc
+    private ByteBuf swap(ByteBufAllocator allocator, ByteBuf buf) throws IOException {
+        ByteBuf out = allocator.allocate(buf.limit());
+        try {
+            out.read(buf);
+        } catch (Exception e) {
+            out.release();
+            throw e;
+        }
+        return out.flip();
     }
 
-    protected void setSslWrapExt(byte sslWrapExt) {
-        this.sslWrapExt = sslWrapExt;
-    }
-
-    protected SslHandler sslHandler() {
-        return FastThreadLocal.get().getSslHandler();
+    private void synchByteBuf(SSLEngineResult result, ByteBuf src, ByteBuf dst) {
+        //FIXME 同步。。。。。
+        src.reverse();
+        dst.reverse();
+        //      int bytesConsumed = result.bytesConsumed();
+        //      int bytesProduced = result.bytesProduced();
+        //      
+        //      if (bytesConsumed > 0) {
+        //          src.skipBytes(bytesConsumed);
+        //      }
+        //
+        //      if (bytesProduced > 0) {
+        //          dst.skipBytes(bytesProduced);
+        //      }
     }
 
     @Override
     public String toString() {
         return desc;
+    }
+
+    private ByteBuf unwrap(ByteBuf src) throws IOException {
+        SSLEngine sslEngine = getSSLEngine();
+        ByteBuf dst = getSslTempBuf();
+        if (sslHandshakeFinished) {
+            dst.clear();
+            readPlainRemainingBuf(dst);
+            SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
+            synchByteBuf(result, src, dst);
+            return dst.flip();
+        } else {
+            for (;;) {
+                dst.clear();
+                SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
+                HandshakeStatus handshakeStatus = result.getHandshakeStatus();
+                synchByteBuf(result, src, dst);
+                if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
+                    flush(EmptyByteBuf.get());
+                    return null;
+                } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
+                    runDelegatedTasks(sslEngine);
+                    continue;
+                } else if (handshakeStatus == HandshakeStatus.FINISHED) {
+                    finishHandshake();
+                    return null;
+                } else if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
+                    if (src.hasRemaining()) {
+                        continue;
+                    }
+                    return null;
+                }
+            }
+        }
+    }
+
+    private ByteBuf wrap(ByteBuf src) throws IOException {
+        SSLEngine engine = getSSLEngine();
+        ByteBufAllocator allocator = alloc();
+        ByteBuf out = null;
+        try {
+            if (sslHandshakeFinished) {
+                byte sslWrapExt = this.sslWrapExt;
+                if (sslWrapExt == 0) {
+                    out = allocator.allocate(guessWrapOut(src.limit(), 0xff + 1));
+                } else {
+                    out = allocator.allocate(guessWrapOut(src.limit(), sslWrapExt & 0xff));
+                }
+                final int SSL_PACKET_BUFFER_SIZE = SslContext.SSL_PACKET_BUFFER_SIZE;
+                for (;;) {
+                    SSLEngineResult result = engine.wrap(src.nioBuffer(), out.nioBuffer());
+                    Status status = result.getStatus();
+                    HandshakeStatus handshakeStatus = result.getHandshakeStatus();
+                    synchByteBuf(result, src, out);
+                    if (status == Status.CLOSED) {
+                        return out.flip();
+                    } else if (status == Status.BUFFER_OVERFLOW) {
+                        out.reallocate(out.capacity() + SSL_PACKET_BUFFER_SIZE, true);
+                        continue;
+                    }
+                    if (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING) {
+                        if (src.hasRemaining()) {
+                            continue;
+                        }
+                        if (sslWrapExt == 0) {
+                            int srcLen = src.limit();
+                            int outLen = out.position();
+                            int y = ((srcLen + 1) / SSL_PACKET_BUFFER_SIZE) + 1;
+                            int u = ((outLen - srcLen) / y) * 2;
+                            this.sslWrapExt = (byte) u;
+                        }
+                        return out.flip();
+                    }
+                }
+            } else {
+                ByteBuf dst = getSslTempBuf();
+                for (;;) {
+                    dst.clear();
+                    SSLEngineResult result = engine.wrap(src.nioBuffer(), dst.nioBuffer());
+                    Status status = result.getStatus();
+                    HandshakeStatus handshakeStatus = result.getHandshakeStatus();
+                    synchByteBuf(result, src, dst);
+                    if (status == Status.CLOSED) {
+                        return swap(allocator, dst.flip());
+                    }
+                    if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
+                        if (out != null) {
+                            out.read(dst.flip());
+                            return out.flip();
+                        }
+                        return swap(allocator, dst.flip());
+                    } else if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
+                        if (out == null) {
+                            out = allocator.allocate(256);
+                        }
+                        out.read(dst.flip());
+                        continue;
+                    } else if (handshakeStatus == HandshakeStatus.FINISHED) {
+                        finishHandshake();
+                        if (out != null) {
+                            out.read(dst.flip());
+                            return out.flip();
+                        }
+                        return swap(allocator, dst.flip());
+                    } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
+                        runDelegatedTasks(engine);
+                        continue;
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            ReleaseUtil.release(out);
+            if (e instanceof IOException) {
+                throw (IOException) e;
+            }
+            throw new IOException(e);
+        }
     }
 
     private void write(ByteBuf buf) {
