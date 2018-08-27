@@ -26,7 +26,7 @@ public class WebSocketChannelListener extends ChannelEventListenerAdapter {
 
     @Override
     public void channelClosed(NioSocketChannel ch) {
-        if (!WebSocketCodec.PROTOCOL_ID.equals(ch.getCodecId())) {
+        if (!ch.isCodec(WebSocketCodec.PROTOCOL_ID)) {
             return;
         }
         WebSocketFrame frame = new WebSocketFrame();

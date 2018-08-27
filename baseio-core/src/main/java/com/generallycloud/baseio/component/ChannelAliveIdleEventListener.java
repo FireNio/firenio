@@ -25,12 +25,14 @@ public class ChannelAliveIdleEventListener implements ChannelIdleEventListener {
 
     @Override
     public void channelIdled(NioSocketChannel ch, long lastIdleTime, long currentTime) {
-
-        if (ch.getLastAccessTime() < lastIdleTime) {
-            logger.info(
-                    "Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",
-                    ch);
+        if (matched(ch) && ch.getLastAccessTime() < lastIdleTime) {
+            logger.info("Did not detect hb in hb cycle, prepare to disconnect {}", ch);
             CloseUtil.close(ch);
         }
     }
+
+    protected boolean matched(NioSocketChannel ch) {
+        return true;
+    }
+
 }

@@ -46,7 +46,6 @@ import com.generallycloud.baseio.collection.AttributesImpl;
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext.HeartBeatLogger;
 import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
@@ -57,7 +56,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public final class NioSocketChannel extends AttributesImpl
         implements Runnable, Attributes, Closeable {
-
+    
     private static final int                    SSL_PACKET_LIMIT     = 1024 * 64;
     private static final ClosedChannelException CLOSED_WHEN_FLUSH    = unknownStackTrace(
             new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
@@ -124,17 +123,14 @@ public final class NioSocketChannel extends AttributesImpl
         this.remoteAddrPort = remoteAddr + ":" + remotePort;
         this.localAddr = local.getAddress().getHostAddress();
         this.localPort = local.getPort();
-        this.desc = new StringBuilder("[Id(0x").append(StringUtil.getZeroString(8 - idhex.length()))
-                .append(idhex).append(")R/").append(getRemoteAddr()).append(":")
-                .append(getRemotePort()).append("; L:").append(getLocalPort()).append("]")
-                .toString();
+        this.desc = desc(idhex);
         if (context.isEnableSsl()) {
             this.sslEngine = context.getSslContext().newEngine(remoteAddr, remotePort);
         } else {
             this.sslEngine = null;
         }
     }
-
+    
     private void accept(ByteBuf src) throws IOException {
         final ProtocolCodec codec = this.codec;
         final IoEventHandle eventHandle = this.ioEventHandle;
@@ -227,6 +223,13 @@ public final class NioSocketChannel extends AttributesImpl
             } catch (Exception e) {}
         }
     }
+    
+    private String desc(String idhex){
+        return new StringBuilder("[id(0x")
+        .append(idhex).append(")R/").append(getRemoteAddr()).append(":")
+        .append(getRemotePort()).append("; L:").append(getLocalPort()).append("]")
+        .toString();
+    }
 
     public ByteBuf encode(Frame frame) throws IOException {
         return codec.encode(this, frame);
@@ -247,7 +250,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     @SuppressWarnings("resource")
-    private void finishHandshake() throws IOException {
+    private void finishHandshake() {
         sslHandshakeFinished = true;
         if (context.getSslContext().isClient()) {
             ChannelService service = context.getChannelService();
@@ -603,6 +606,10 @@ public final class NioSocketChannel extends AttributesImpl
         return !opened;
     }
 
+    public boolean isCodec(String codecId){
+        return codec.getProtocolId().equals(codecId);
+    }
+
     public boolean isEnableSsl() {
         return enableSsl;
     }
@@ -672,7 +679,7 @@ public final class NioSocketChannel extends AttributesImpl
     public boolean isOpened() {
         return opened;
     }
-
+    
     protected void read(ByteBuf src) throws IOException {
         lastAccess = System.currentTimeMillis();
         src.clear();
@@ -711,13 +718,6 @@ public final class NioSocketChannel extends AttributesImpl
         } else {
             accept(src);
         }
-    }
-    
-    private ByteBuf sliceRemain(ByteBuf src){
-        int remain = src.remaining();
-        ByteBuf remaining = alloc().allocate(remain);
-        remaining.read(src);
-        return remaining.flip();
     }
 
     private void readPlainRemainingBuf(ByteBuf dst) {
@@ -821,6 +821,13 @@ public final class NioSocketChannel extends AttributesImpl
 
     public <T> void setOption(SocketOption<T> name, T value) throws IOException {
         channel.setOption(name, value);
+    }
+
+    private ByteBuf sliceRemain(ByteBuf src){
+        int remain = src.remaining();
+        ByteBuf remaining = alloc().allocate(remain);
+        remaining.read(src);
+        return remaining.flip();
     }
 
     //FIXME 部分buf不需要gc
@@ -972,7 +979,7 @@ public final class NioSocketChannel extends AttributesImpl
             throw new IOException(e);
         }
     }
-
+    
     private void write(ByteBuf buf) {
         try {
             channel.write(buf.nioBuffer());

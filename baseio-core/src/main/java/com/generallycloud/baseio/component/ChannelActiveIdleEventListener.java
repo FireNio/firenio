@@ -23,27 +23,24 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class ChannelActiveIdleEventListener implements ChannelIdleEventListener {
 
-    private Logger logger = LoggerFactory.getLogger(ChannelActiveIdleEventListener.class);
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
     public void channelIdled(NioSocketChannel ch, long lastIdleTime, long currentTime) {
-        if (ch.isClosed()) {
-            logger.info("closed ch");
-            return;
-        }
-        if (ch.getLastAccessTime() < lastIdleTime) {
-            logger.info(
-                    "Did not detect heartbeat messages in heartbeat cycle, prepare to disconnect {}",
-                    ch);
-            CloseUtil.close(ch);
-        } else {
-            ProtocolCodec codec = ch.getCodec();
-            Frame frame = codec.ping(ch);
-            if (frame == null) {
-                // 该channel无需心跳,比如HTTP协议
-                return;
+        if (ch.isOpened()) {
+            if (ch.getLastAccessTime() < lastIdleTime) {
+                logger.info("Did not detect hb in hb cycle, prepare to disconnect {}", ch);
+                CloseUtil.close(ch);
+            } else {
+                ProtocolCodec codec = ch.getCodec();
+                Frame frame = codec.ping(ch);
+                if (frame == null) {
+                    // 该channel无需心跳,比如HTTP协议
+                    return;
+                }
+                ch.flush(frame);
             }
-            ch.flush(frame);
         }
     }
+
 }
