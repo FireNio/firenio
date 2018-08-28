@@ -331,8 +331,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         this.writeBuffers = new ByteBuffer[group.getWriteBuffers()];
         this.buf = UnpooledByteBufAllocator.getDirect().allocate(group.getChannelReadBuffer());
         this.selector = openSelector(selectionKeySet);
-        this.desc = MessageFormatter.arrayFormat("NioEventLoop(idx:{},sharable:{})",
-                new Object[] { index, sharable });
+        this.desc = MessageFormatter.arrayFormat("NioEventLoop[idx:{},sharable:{},ignoreIdle:{}]",
+                new Object[] { index, sharable, ignoreIdle });
     }
 
     private final void finishConnect(NioSocketChannel ch, ChannelContext context, Throwable e) {

@@ -155,7 +155,7 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
         this.rootLocalAddress = FileUtil.getPrettyPath(rootLocalAddress);
         this.encoding = context.getCharset();
         this.appLocalAddres = FileUtil.getPrettyPath(getRootLocalAddress() + "app");
-        LoggerUtil.prettyLog(logger, "application path      :{ {} }", appLocalAddres);
+        LoggerUtil.prettyLog(logger, "application path      :[ {} ]", appLocalAddres);
         this.initializeHandle(context, false);
         this.deploying = false;
     }

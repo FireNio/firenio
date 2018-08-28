@@ -567,7 +567,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     //FIXME not correct ,fix this
     private int guessWrapOut(int src, int ext) {
-        if (SslContext.isOpenSslAvailable()) {
+        if (SslContext.OPENSSL_AVAILABLE) {
             return ((src + SslContext.SSL_PACKET_BUFFER_SIZE - 1)
                     / SslContext.SSL_PACKET_BUFFER_SIZE + 1) * ext + src;
         } else {

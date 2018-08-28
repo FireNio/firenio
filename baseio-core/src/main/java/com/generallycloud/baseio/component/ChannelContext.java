@@ -42,8 +42,8 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
-public final class ChannelContext extends AbstractLifeCycle implements Configuration{
-    
+public final class ChannelContext extends AbstractLifeCycle implements Configuration {
+
     private Map<Object, Object>            attributes         = new HashMap<>();
     private List<ChannelEventListener>     cels               = new ArrayList<>();
     private String                         certCrt;
@@ -55,7 +55,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     private boolean                        enableHeartbeatLog = true;
     private boolean                        enableOpenSsl;
     private boolean                        enableSsl;
-    private String                          openSslPath;
+    private String                         openSslPath;
     //是否启用work event loop，如果启用，则frame在work event loop中处理
     private boolean                        enableWorkEventLoop;
     private ExecutorEventLoopGroup         executorEventLoopGroup;
@@ -106,7 +106,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
             System.setProperty(Constants.WILDFLY_OPENSSL_PATH, openSslPath);
         }
     }
-    
+
     @Override
     protected void doStart() throws Exception {
         Assert.notNull(ioEventHandle, "null ioEventHandle");
@@ -120,19 +120,30 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
         NioEventLoopGroup g = this.nioEventLoopGroup;
         String protocolId = protocolCodec.getProtocolId();
         int eventLoopSize = g.getEventLoopSize();
-        LoggerUtil.prettyLog(logger, "charset               :{ {} }", charset);
-        LoggerUtil.prettyLog(logger, "protocol              :{ {} }", protocolId);
-        LoggerUtil.prettyLog(logger, "event loop size       :{ {} }", eventLoopSize);
-        LoggerUtil.prettyLog(logger, "enable ssl            :{ {} }", sslType());
-        LoggerUtil.prettyLog(logger, "channel idle          :{ {} }", g.getIdleTime());
-        LoggerUtil.prettyLog(logger, "listen port(tcp)      :{ {} }", port);
+        LoggerUtil.prettyLog(logger, "charset               :[ {} ]", charset);
+        LoggerUtil.prettyLog(logger, "protocol              :[ {} ]", protocolId);
+        LoggerUtil.prettyLog(logger, "event loop size       :[ {} ]", eventLoopSize);
+        LoggerUtil.prettyLog(logger, "enable ssl            :[ {} ]", sslType());
+        LoggerUtil.prettyLog(logger, "channel idle          :[ {} ]", g.getIdleTime());
+        LoggerUtil.prettyLog(logger, "listen port(tcp)      :[ {} ]", port);
         if (g.isEnableMemoryPool()) {
             long memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();
             long memoryPoolByteSize = memoryPoolCapacity * g.getMemoryPoolUnit();
             double memoryPoolSize = memoryPoolByteSize / (1024 * 1024);
-            LoggerUtil.prettyLog(logger, "memory pool           :{ {} * {} ≈ {} M }",
+            LoggerUtil.prettyLog(logger, "memory pool           :[ {} * {} ≈ {} M ]",
                     new Object[] { g.getMemoryPoolUnit(), memoryPoolCapacity,
                             new BigDecimal(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP) });
+        }
+        if (isEnableSsl()) {
+            StringBuilder sb = new StringBuilder();
+            for (String p : SslContext.ENABLED_PROTOCOLS) {
+                sb.append(p);
+                sb.append(',');
+                sb.append(' ');
+            }
+            sb.setLength(sb.length() - 2);
+            LoggerUtil.prettyLog(logger, "default protocols     :[ {} ] ", sb.toString());
+            //LoggerUtil.prettyLog(logger, "default cipher suites: {}", ENABLED_CIPHERS);
         }
         protocolCodec.initialize(this);
         if (executorEventLoopGroup == null) {
@@ -377,7 +388,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
         checkNotRunning();
         this.nioEventLoopGroup = nioEventLoopGroup;
     }
-    
+
     public void setPort(int port) {
         checkNotRunning();
         this.port = port;
@@ -387,7 +398,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
         checkNotRunning();
         this.protocolCodec = protocolCodec;
     }
-    
+
     public String getOpenSslPath() {
         return openSslPath;
     }
@@ -415,7 +426,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
         checkNotRunning();
         this.workEventQueueSize = workEventQueueSize;
     }
-    
+
     private String sslType() {
         return enableSsl ? enableOpenSsl ? "openssl" : "jdkssl" : "false";
     }

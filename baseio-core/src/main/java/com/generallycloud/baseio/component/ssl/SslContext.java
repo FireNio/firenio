@@ -30,18 +30,17 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLSessionContext;
 
 import com.generallycloud.baseio.Constants;
-import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public final class SslContext {
 
-    static final Logger       logger = LoggerFactory.getLogger(SslContext.class);
-    static final boolean      openSslAvailable;
-    static final List<String> ENABLED_CIPHERS;
-    static final String[]     ENABLED_PROTOCOLS;
-    static final Set<String>  SUPPORTED_CIPHERS;
-    public static final int   SSL_PACKET_BUFFER_SIZE;
+    static final Logger              logger = LoggerFactory.getLogger(SslContext.class);
+    public static final boolean      OPENSSL_AVAILABLE;
+    public static final List<String> ENABLED_CIPHERS;
+    public static final String[]     ENABLED_PROTOCOLS;
+    public static final Set<String>  SUPPORTED_CIPHERS;
+    public static final int          SSL_PACKET_BUFFER_SIZE;
 
     static {
         try {
@@ -60,7 +59,7 @@ public final class SslContext {
         } catch (Exception e) {
             logger.error("openssl enabled but load failed, the reason is:" + e.getMessage(), e);
         }
-        openSslAvailable = testOpenSsl;
+        OPENSSL_AVAILABLE = testOpenSsl;
         SSLContext context;
         try {
             context = getSSLContext();
@@ -116,9 +115,6 @@ public final class SslContext {
             }
         }
         ENABLED_CIPHERS = Collections.unmodifiableList(enabledCiphers);
-        LoggerUtil.prettyLog(logger, "Default protocols (JDK): {} ",
-                Arrays.asList(ENABLED_PROTOCOLS));
-        LoggerUtil.prettyLog(logger, "Default cipher suites (JDK): {}", ENABLED_CIPHERS);
     }
 
     private static void addIfSupported(Set<String> supported, List<String> enabled,
@@ -131,15 +127,11 @@ public final class SslContext {
     }
 
     static SSLContext getSSLContext() throws NoSuchAlgorithmException {
-        if (isOpenSslAvailable()) {
+        if (OPENSSL_AVAILABLE) {
             return SSLContext.getInstance("openssl.TLS");
         } else {
             return SSLContext.getInstance("TLS");
         }
-    }
-
-    public static boolean isOpenSslAvailable() {
-        return openSslAvailable;
     }
 
     public static int getPacketBufferSize() {
