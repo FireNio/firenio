@@ -38,7 +38,7 @@ BaseIO is an io framework which can build network project fast, it based on java
   ```Java
 
     public static void main(String[] args) throws Exception {
-        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
+        IoEventHandle eventHandle = new IoEventHandle() {
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 FixedLengthFrame f = (FixedLengthFrame) frame;
@@ -47,11 +47,10 @@ BaseIO is an io framework which can build network project fast, it based on java
                 channel.flush(frame);
             }
         };
-        NioEventLoopGroup group = new NioEventLoopGroup();
         ChannelContext context = new ChannelContext(8300);
-        ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
+        ChannelAcceptor acceptor = new ChannelAcceptor(context);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.setIoEventHandle(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new FixedLengthCodec());
         acceptor.bind();
     }
@@ -63,7 +62,7 @@ BaseIO is an io framework which can build network project fast, it based on java
   ```Java
 
     public static void main(String[] args) throws Exception {
-        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
+        IoEventHandle eventHandle = new IoEventHandle() {
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 FixedLengthFrame f = (FixedLengthFrame) frame;
@@ -73,10 +72,9 @@ BaseIO is an io framework which can build network project fast, it based on java
             }
 
         };
-        NioEventLoopGroup group = new NioEventLoopGroup();
         ChannelContext context = new ChannelContext(8300);
-        ChannelConnector connector = new ChannelConnector(context, group);
-        context.setIoEventHandle(eventHandleAdaptor);
+        ChannelConnector connector = new ChannelConnector(context);
+        context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
         NioSocketChannel channel = connector.connect();

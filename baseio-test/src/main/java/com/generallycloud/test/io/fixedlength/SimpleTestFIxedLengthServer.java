@@ -21,14 +21,13 @@ import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
-import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 
 public class SimpleTestFIxedLengthServer {
 
     public static void main(String[] args) throws Exception {
-        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
+        IoEventHandle eventHandle = new IoEventHandle() {
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 FixedLengthFrame f = (FixedLengthFrame) frame;
@@ -37,11 +36,10 @@ public class SimpleTestFIxedLengthServer {
                 channel.flush(frame);
             }
         };
-        NioEventLoopGroup group = new NioEventLoopGroup();
         ChannelContext context = new ChannelContext(8300);
-        ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
+        ChannelAcceptor acceptor = new ChannelAcceptor(context);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.setIoEventHandle(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandle);
         context.setProtocolCodec(new FixedLengthCodec());
         acceptor.bind();
     }
