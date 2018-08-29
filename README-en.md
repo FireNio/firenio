@@ -2,7 +2,7 @@
 # BaseIO Project
 
 [![Website](https://img.shields.io/badge/website-generallycloud-green.svg)](https://www.generallycloud.com)
-[![Maven central](https://img.shields.io/badge/maven%20central-3.2.5.Release-green.svg)](http://mvnrepository.com/artifact/com.generallycloud/baseio-all)
+[![Maven central](https://img.shields.io/badge/maven%20central-3.2.6.Release-green.svg)](http://mvnrepository.com/artifact/com.generallycloud/baseio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/generallycloud/baseio/blob/master/LICENSE.txt)
 
 BaseIO is an io framework which can build network project fast, it based on java nio, it is popular with Developers because of simple and easy of use APIs and high-performance.
@@ -29,7 +29,7 @@ BaseIO is an io framework which can build network project fast, it based on java
 	<dependency>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.2.5.RELEASE</version>
+		<version>3.2.6.RELEASE</version>
 	</dependency>  
   ```
   
@@ -40,11 +40,11 @@ BaseIO is an io framework which can build network project fast, it based on java
     public static void main(String[] args) throws Exception {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                FixedLengthFuture f = (FixedLengthFuture) future;
-                future.write("yes server already accept your message:", channel.getCharset());
-                future.write(f.getReadText(), channel.getCharset());
-                channel.flush(future);
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                FixedLengthFrame f = (FixedLengthFrame) frame;
+                frame.write("yes server already accept your message:", channel.getCharset());
+                frame.write(f.getReadText(), channel.getCharset());
+                channel.flush(frame);
             }
         };
         NioEventLoopGroup group = new NioEventLoopGroup();
@@ -65,8 +65,8 @@ BaseIO is an io framework which can build network project fast, it based on java
     public static void main(String[] args) throws Exception {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
             @Override
-            public void accept(NioSocketChannel channel, Future future) throws Exception {
-                FixedLengthFuture f = (FixedLengthFuture) future;
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                FixedLengthFrame f = (FixedLengthFrame) frame;
                 System.out.println();
                 System.out.println("____________________" + f.getReadText());
                 System.out.println();
@@ -80,9 +80,9 @@ BaseIO is an io framework which can build network project fast, it based on java
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
         NioSocketChannel channel = connector.connect();
-        FixedLengthFuture future = new FixedLengthFuture();
-        future.write("hello server!", channel);
-        channel.flush(future);
+        FixedLengthFrame frame = new FixedLengthFrame();
+        frame.write("hello server!", channel);
+        channel.flush(frame);
         ThreadUtil.sleep(100);
         CloseUtil.close(connector);
     }
