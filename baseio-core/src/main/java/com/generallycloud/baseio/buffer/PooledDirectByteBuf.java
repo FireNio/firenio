@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
 
 final class PooledDirectByteBuf extends AbstractDirectByteBuf implements PooledByteBuf {
 
-    protected PooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
+    PooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
         super(allocator, memory);
     }
 
@@ -41,7 +41,7 @@ final class PooledDirectByteBuf extends AbstractDirectByteBuf implements PooledB
             throw new ReleasedException("released");
         }
         addReferenceCount();
-        return new DuplicatedDirectByteBuf(memory.duplicate(), this).produce(this);
+        return new DuplicatedDirectByteBuf(memory.duplicate(), this);
     }
 
     @Override

@@ -21,9 +21,9 @@ import java.nio.ByteBuffer;
  * @author wangkai
  *
  */
-public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
+final class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
 
-    protected UnpooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
+    UnpooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
         super(allocator, memory);
         this.produce(memory.capacity());
     }
@@ -62,9 +62,9 @@ public class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
         if (isReleased()) {
             throw new ReleasedException("released");
         }
-        //请勿移除此行，DirectByteBuffer需要手动回收，doRelease要确保被执行
+        //请勿移除此行，DirectByteBuffer需要手动回收，release要确保被执行
         addReferenceCount();
-        return new DuplicatedDirectByteBuf(memory.duplicate(), this).produce(this);
+        return new DuplicatedDirectByteBuf(memory.duplicate(), this);
     }
 
     @Override

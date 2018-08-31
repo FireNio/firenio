@@ -56,7 +56,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public final class NioSocketChannel extends AttributesImpl
         implements Runnable, Attributes, Closeable {
-    
+
     private static final int                    SSL_PACKET_LIMIT     = 1024 * 64;
     private static final ClosedChannelException CLOSED_WHEN_FLUSH    = unknownStackTrace(
             new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
@@ -123,14 +123,14 @@ public final class NioSocketChannel extends AttributesImpl
         this.remoteAddrPort = remoteAddr + ":" + remotePort;
         this.localAddr = local.getAddress().getHostAddress();
         this.localPort = local.getPort();
-        this.desc = desc(idhex);
+        this.desc = "[id(0x" + idhex + ")R/" + remoteAddrPort + "; L:" + getLocalPort() + "]";
         if (context.isEnableSsl()) {
             this.sslEngine = context.getSslContext().newEngine(remoteAddr, remotePort);
         } else {
             this.sslEngine = null;
         }
     }
-    
+
     private void accept(ByteBuf src) throws IOException {
         final ProtocolCodec codec = this.codec;
         final IoEventHandle eventHandle = this.ioEventHandle;
@@ -222,13 +222,6 @@ public final class NioSocketChannel extends AttributesImpl
                 sslEngine.closeInbound();
             } catch (Exception e) {}
         }
-    }
-    
-    private String desc(String idhex){
-        return new StringBuilder("[id(0x")
-        .append(idhex).append(")R/").append(getRemoteAddr()).append(":")
-        .append(getRemotePort()).append("; L:").append(getLocalPort()).append("]")
-        .toString();
     }
 
     public ByteBuf encode(Frame frame) throws IOException {
@@ -606,7 +599,7 @@ public final class NioSocketChannel extends AttributesImpl
         return !opened;
     }
 
-    public boolean isCodec(String codecId){
+    public boolean isCodec(String codecId) {
         return codec.getProtocolId().equals(codecId);
     }
 
@@ -679,7 +672,7 @@ public final class NioSocketChannel extends AttributesImpl
     public boolean isOpened() {
         return opened;
     }
-    
+
     protected void read(ByteBuf src) throws IOException {
         lastAccess = System.currentTimeMillis();
         src.clear();
@@ -823,7 +816,7 @@ public final class NioSocketChannel extends AttributesImpl
         channel.setOption(name, value);
     }
 
-    private ByteBuf sliceRemain(ByteBuf src){
+    private ByteBuf sliceRemain(ByteBuf src) {
         int remain = src.remaining();
         ByteBuf remaining = alloc().allocate(remain);
         remaining.read(src);
@@ -979,7 +972,7 @@ public final class NioSocketChannel extends AttributesImpl
             throw new IOException(e);
         }
     }
-    
+
     private void write(ByteBuf buf) {
         try {
             channel.write(buf.nioBuffer());

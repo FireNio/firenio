@@ -244,18 +244,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 ChannelContext context = ch.getContext();
                 List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
                 if (ls.size() == 1) {
-                    try {
-                        ls.get(0).channelIdled(ch, lastIdleTime, currentTime);
-                    } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
-                    }
+                    channelIdle(ls.get(0), ch, lastIdleTime, currentTime);
                 } else {
                     for (ChannelIdleEventListener l : ls) {
-                        try {
-                            l.channelIdled(ch, lastIdleTime, currentTime);
-                        } catch (Exception e) {
-                            logger.error(e.getMessage(), e);
-                        }
+                        channelIdle(l, ch, lastIdleTime, currentTime);
                     }
                 }
             }
@@ -264,14 +256,19 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
                 for (ChannelIdleEventListener l : ls) {
                     for (NioSocketChannel ch : channels.values()) {
-                        try {
-                            l.channelIdled(ch, lastIdleTime, currentTime);
-                        } catch (Exception e) {
-                            logger.error(e.getMessage(), e);
-                        }
+                        channelIdle(l, ch, lastIdleTime, currentTime);
                     }
                 }
             }
+        }
+    }
+
+    private void channelIdle(ChannelIdleEventListener l, NioSocketChannel ch, long lastIdleTime,
+            long currentTime) {
+        try {
+            l.channelIdled(ch, lastIdleTime, currentTime);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -375,7 +372,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
 
     @Override
     public void run() {
-        // does it useful to set variables locally 
+        // does it useful to set variables locally ?
         final long idle = group.getIdleTime();
         final boolean ignoreIdle = this.ignoreIdle;
         final Selector selector = this.selector;

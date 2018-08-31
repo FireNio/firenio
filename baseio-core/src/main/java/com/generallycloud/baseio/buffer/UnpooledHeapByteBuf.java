@@ -19,9 +19,9 @@ package com.generallycloud.baseio.buffer;
  * @author wangkai
  *
  */
-public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
+class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
 
-    protected UnpooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
+    UnpooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
         super(allocator, memory);
         this.produce(memory.length);
     }
@@ -70,7 +70,7 @@ public class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
     
     @Override
     public ByteBuf duplicate() {
-        return new DuplicatedHeapByteBuf(memory, this).produce(this);
+        return new DuplicatedHeapByteBuf(memory, this);
     }
 
     @Override

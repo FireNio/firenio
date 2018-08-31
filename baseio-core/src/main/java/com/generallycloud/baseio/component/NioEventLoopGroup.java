@@ -64,15 +64,9 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         this.idleTime = idleTime;
     }
 
-    private FixedAtomicInteger createChannelIdsSequence(int eventLoopSize) {
-        int min = (10000 / eventLoopSize) * eventLoopSize - 1;
-        int max = (Integer.MAX_VALUE / eventLoopSize) * eventLoopSize - 1;
-        return new FixedAtomicInteger(min, max);
-    }
-
     @Override
     protected void doStart() throws Exception {
-        this.channelIds = createChannelIdsSequence(getEventLoopSize());
+        this.channelIds = new FixedAtomicInteger(0x1000, Integer.MAX_VALUE); 
         if (memoryPoolCapacity == 0) {
             long total = Runtime.getRuntime().maxMemory();
             memoryPoolCapacity = (int) (total

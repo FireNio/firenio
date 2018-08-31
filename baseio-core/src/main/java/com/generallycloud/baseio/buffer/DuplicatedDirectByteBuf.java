@@ -22,13 +22,14 @@ import java.nio.ByteBuffer;
  *
  */
 //FIXME ..make this readonly
-public class DuplicatedDirectByteBuf extends AbstractDirectByteBuf {
+final class DuplicatedDirectByteBuf extends AbstractDirectByteBuf {
 
     private ByteBuf proto;
 
-    public DuplicatedDirectByteBuf(ByteBuffer memory, ByteBuf proto) {
+    DuplicatedDirectByteBuf(ByteBuffer memory, ByteBuf proto) {
         super(null, memory);
         this.proto = proto;
+        this.produce(proto);
     }
 
     @Override
@@ -46,7 +47,7 @@ public class DuplicatedDirectByteBuf extends AbstractDirectByteBuf {
         throw new UnsupportedOperationException();
     }
 
-    protected ByteBuf produce(ByteBuf buf) {
+    private ByteBuf produce(ByteBuf buf) {
         this.offset = buf.offset();
         this.capacity = buf.capacity();
         this.limit(buf.limit());

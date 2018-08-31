@@ -17,7 +17,7 @@ package com.generallycloud.baseio.buffer;
 
 final class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteBuf {
 
-    protected PooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
+    PooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
         super(allocator, memory);
     }
 
@@ -39,8 +39,7 @@ final class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteB
             throw new ReleasedException("released");
         }
         addReferenceCount();
-//        return new DuplicatedByteBuf(new PooledHeapByteBuf(allocator, memory).produce(this), this);
-        return new DuplicatedHeapByteBuf(memory, this).produce(this);
+        return new DuplicatedHeapByteBuf(memory, this);
     }
 
     @Override

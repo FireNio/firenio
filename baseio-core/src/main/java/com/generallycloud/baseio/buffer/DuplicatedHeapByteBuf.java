@@ -20,13 +20,14 @@ package com.generallycloud.baseio.buffer;
  *
  */
 //FIXME ..make this readonly
-public class DuplicatedHeapByteBuf extends AbstractHeapByteBuf {
+final class DuplicatedHeapByteBuf extends AbstractHeapByteBuf {
 
     private ByteBuf proto;
 
-    public DuplicatedHeapByteBuf(byte[] memory, ByteBuf proto) {
+    DuplicatedHeapByteBuf(byte[] memory, ByteBuf proto) {
         super(null, memory);
         this.proto = proto;
+        this.produce(proto);
     }
 
     @Override
@@ -44,7 +45,7 @@ public class DuplicatedHeapByteBuf extends AbstractHeapByteBuf {
         throw new UnsupportedOperationException();
     }
 
-    protected ByteBuf produce(ByteBuf buf) {
+    private ByteBuf produce(ByteBuf buf) {
         this.offset = buf.offset();
         this.capacity = buf.capacity();
         this.position = offset + buf.position();
