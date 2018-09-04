@@ -31,6 +31,7 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSessionContext;
 
 import com.generallycloud.baseio.Constants;
+import com.generallycloud.baseio.common.PropertiesUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -52,15 +53,12 @@ public final class SslContext {
         }
         boolean testOpenSsl = false;
         try {
-            String enableOpenSsl = System.getProperty(Constants.ENABLE_OPENSSL_SYS_KEY);
-            if ("true".equals(enableOpenSsl)) {
+            if (!PropertiesUtil.isSystemTrue(Constants.DISABLE_OPENSSL_SYS_KEY)) {
                 Class.forName("org.wildfly.openssl.OpenSSLProvider");
                 org.wildfly.openssl.OpenSSLProvider.register();
                 testOpenSsl = true;
             }
-        } catch (Exception e) {
-            logger.error("openssl enabled but load failed, the reason is:" + e.getMessage(), e);
-        }
+        } catch (Exception e) {}
         OPENSSL_AVAILABLE = testOpenSsl;
         SSLContext context;
         try {
@@ -143,7 +141,7 @@ public final class SslContext {
     private final boolean      isClient;
     private final SSLContext   sslContext;
     private final List<String> unmodifiableCipherSuites;
-    private final String[] applicationProtocols;
+    private final String[]     applicationProtocols;
 
     SslContext(SSLContext sslContext, boolean isClient, List<String> ciphers, ClientAuth clientAuth,
             String[] applicationProtocols) throws SSLException {

@@ -25,8 +25,8 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.ssl.SSLUtil;
-import com.generallycloud.baseio.component.ssl.SslContext;
+import com.generallycloud.baseio.component.SslContext;
+import com.generallycloud.baseio.component.SslContextBuilder;
 import com.generallycloud.baseio.protocol.Frame;
 
 public class TestFIxedLengthServer {
@@ -51,7 +51,7 @@ public class TestFIxedLengthServer {
         context.setProtocolCodec(new FixedLengthCodec());
         File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
         File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
-        SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
+        SslContext sslContext = SslContextBuilder.forServer().keyManager(privateKey, certificate).build();
         context.setSslContext(sslContext);
         acceptor.bind();
     }

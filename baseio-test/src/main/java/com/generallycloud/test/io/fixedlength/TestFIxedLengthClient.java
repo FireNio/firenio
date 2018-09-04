@@ -24,8 +24,8 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.ssl.SSLUtil;
-import com.generallycloud.baseio.component.ssl.SslContext;
+import com.generallycloud.baseio.component.SslContext;
+import com.generallycloud.baseio.component.SslContextBuilder;
 import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Frame;
 
@@ -43,7 +43,7 @@ public class TestFIxedLengthClient {
             }
         };
 
-        SslContext sslContext = SSLUtil.initClient(true);
+        SslContext sslContext = SslContextBuilder.forClient(true).build();
         ChannelContext context = new ChannelContext(8300);
         ChannelConnector connector = new ChannelConnector(context);
         context.setIoEventHandle(eventHandleAdaptor);

@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.test.io.charbased;
+package com.generallycloud.test.io.http2;
 
-import java.io.File;
-
-import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
-import com.generallycloud.baseio.common.FileUtil;
+import com.generallycloud.baseio.codec.http2.Http2Codec;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
+import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.SslContext;
-import com.generallycloud.baseio.component.SslContextBuilder;
 import com.generallycloud.baseio.protocol.Frame;
 
-public class TestLineBasedServer {
+public class TestHttp2Server {
 
     public static void main(String[] args) throws Exception {
 
@@ -36,22 +32,27 @@ public class TestLineBasedServer {
 
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-                String res = "yes server already accept your message:" + frame;
-                frame.write(res, channel.getCharset());
+                frame.write("Hello World", channel);
                 channel.flush(frame);
             }
+
         };
-
-        ChannelContext context = new ChannelContext(8300);
-        ChannelAcceptor acceptor = new ChannelAcceptor(context);
-        context.addChannelEventListener(new LoggerChannelOpenListener());
+        
+        NioEventLoopGroup group = new NioEventLoopGroup();
+        group.setMemoryPoolCapacity(1024 * 64);
+        group.setMemoryPoolUnit(512);
+        group.setEnableMemoryPoolDirect(true);
+        group.setEnableMemoryPool(true);
+        ChannelContext context = new ChannelContext(443);
+        context.setCertCrt("localhost.crt");
+        context.setCertKey("localhost.key");
+        context.setEnableSsl(true);
+        context.setProtocolCodec(new Http2Codec());
         context.setIoEventHandle(eventHandleAdaptor);
-        context.setProtocolCodec(new CharBasedCodec());
-        File certificate = FileUtil.readFileByCls("generallycloud.com.crt");
-        File privateKey = FileUtil.readFileByCls("generallycloud.com.key");
-        SslContext sslContext = SslContextBuilder.forServer().keyManager(privateKey, certificate).build();
-        context.setSslContext(sslContext);
-        acceptor.bind();
+        context.setApplicationProtocols(new String[] { "h2", "http/1.1" });
+        context.addChannelEventListener(new LoggerChannelOpenListener());
 
+        ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
+        acceptor.bind();
     }
 }

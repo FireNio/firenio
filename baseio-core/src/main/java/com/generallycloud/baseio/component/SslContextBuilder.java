@@ -85,10 +85,6 @@ public final class SslContextBuilder {
         return PropertiesUtil.isSystemTrue(Constants.ENABLE_SSL_SYS_KEY);
     }
 
-    public static boolean enableOpenssl() {
-        return PropertiesUtil.isSystemTrue(Constants.ENABLE_OPENSSL_SYS_KEY);
-    }
-
     private String[] applicationProtocols;
 
     public SslContextBuilder(boolean isServer) {

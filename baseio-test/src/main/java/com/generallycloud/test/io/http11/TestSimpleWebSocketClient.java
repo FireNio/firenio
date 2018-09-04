@@ -27,7 +27,7 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.component.ssl.SSLUtil;
+import com.generallycloud.baseio.component.SslContextBuilder;
 import com.generallycloud.baseio.protocol.Frame;
 
 public class TestSimpleWebSocketClient {
@@ -58,7 +58,7 @@ public class TestSimpleWebSocketClient {
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ClientHttpCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.setSslContext(SSLUtil.initClient(true));
+        context.setSslContext(SslContextBuilder.forClient(true).build());
         NioSocketChannel channel = connector.connect();
         String url = "/web-socket-chat";
         //        url = "/c1020";

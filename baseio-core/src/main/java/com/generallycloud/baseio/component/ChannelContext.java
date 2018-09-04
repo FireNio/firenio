@@ -55,7 +55,6 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     private Charset                        charset            = Encoding.UTF8;
     private List<ChannelIdleEventListener> ciels              = new ArrayList<>();
     private boolean                        enableHeartbeatLog = true;
-    private boolean                        enableOpenSsl;
     private boolean                        enableSsl;
     //是否启用work event loop，如果启用，则frame在work event loop中处理
     private boolean                        enableWorkEventLoop;
@@ -102,9 +101,6 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
 
     @Override
     public void configurationChanged(Properties properties) {
-        if (enableOpenSsl) {
-            System.setProperty(Constants.ENABLE_OPENSSL_SYS_KEY, "true");
-        }
         if (!StringUtil.isNullOrBlank(openSslPath)) {
             System.setProperty(Constants.WILDFLY_OPENSSL_PATH, openSslPath);
         }
@@ -326,10 +322,6 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
         return enableHeartbeatLog;
     }
 
-    public boolean isEnableOpenSsl() {
-        return enableOpenSsl;
-    }
-
     public boolean isEnableSsl() {
         return enableSsl;
     }
@@ -373,12 +365,6 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     public void setEnableHeartbeatLog(boolean enableHeartbeatLog) {
         checkNotRunning();
         this.enableHeartbeatLog = enableHeartbeatLog;
-    }
-
-    public void setEnableOpenSsl(boolean enableOpenSsl) {
-        checkNotRunning();
-        System.setProperty(Constants.ENABLE_OPENSSL_SYS_KEY, enableOpenSsl ? "true" : "false");
-        this.enableOpenSsl = enableOpenSsl;
     }
 
     public void setEnableSsl(boolean enableSsl) {
@@ -456,7 +442,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     }
 
     private String sslType() {
-        return enableSsl ? enableOpenSsl ? "openssl" : "jdkssl" : "false";
+        return enableSsl ? SslContext.OPENSSL_AVAILABLE ? "openssl" : "jdkssl" : "false";
     }
 
     public interface HeartBeatLogger {
