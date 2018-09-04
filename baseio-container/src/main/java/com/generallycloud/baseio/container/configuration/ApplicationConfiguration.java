@@ -19,6 +19,7 @@ import com.generallycloud.baseio.common.Properties;
 
 public class ApplicationConfiguration {
 
+    private boolean    enableHttp2;
     private boolean    enableHttpSession;
     private boolean    enableRedeploy   = true;
     private boolean    enableStopServer = true;
@@ -43,6 +44,10 @@ public class ApplicationConfiguration {
         return properties;
     }
 
+    public boolean isEnableHttp2() {
+        return enableHttp2;
+    }
+
     public boolean isEnableHttpSession() {
         return enableHttpSession;
     }
@@ -50,9 +55,13 @@ public class ApplicationConfiguration {
     public boolean isEnableRedeploy() {
         return enableRedeploy;
     }
-
+    
     public boolean isEnableStopServer() {
         return enableStopServer;
+    }
+
+    public void setEnableHttp2(boolean enableHttp2) {
+        this.enableHttp2 = enableHttp2;
     }
 
     public void setEnableHttpSession(boolean enableHttpSession) {

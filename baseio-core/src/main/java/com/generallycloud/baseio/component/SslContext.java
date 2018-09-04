@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component.ssl;
+package com.generallycloud.baseio.component;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -27,12 +27,14 @@ import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSessionContext;
 
 import com.generallycloud.baseio.Constants;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
+//ref from netty && undertow
 public final class SslContext {
 
     static final Logger              logger = LoggerFactory.getLogger(SslContext.class);
@@ -90,8 +92,6 @@ public final class SslContext {
         }
         List<String> enabledCiphers = new ArrayList<>();
         addIfSupported(SUPPORTED_CIPHERS, enabledCiphers,
-                // XXX: Make sure to sync this list with
-                // OpenSslEngineFactory.
                 // GCM (Galois/Counter Mode) requires JDK 8.
                 "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
                 "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
@@ -138,25 +138,24 @@ public final class SslContext {
         return SSL_PACKET_BUFFER_SIZE;
     }
 
-    private final JdkApplicationProtocolNegotiator apn;
-    private final String[]                         cipherSuites;
-    private final ClientAuth                       clientAuth;
-    private final boolean                          isClient;
-    private final SSLContext                       sslContext;
-    private final List<String>                     unmodifiableCipherSuites;
+    private final String[]     cipherSuites;
+    private final ClientAuth   clientAuth;
+    private final boolean      isClient;
+    private final SSLContext   sslContext;
+    private final List<String> unmodifiableCipherSuites;
+    private final String[] applicationProtocols;
 
-    protected SslContext(SSLContext sslContext, boolean isClient, List<String> ciphers,
-            JdkApplicationProtocolNegotiator apn, ClientAuth clientAuth) {
-        this.apn = apn;
+    SslContext(SSLContext sslContext, boolean isClient, List<String> ciphers, ClientAuth clientAuth,
+            String[] applicationProtocols) throws SSLException {
+        this.applicationProtocols = applicationProtocols;
         this.clientAuth = clientAuth;
         this.cipherSuites = filterCipherSuites(ciphers, ENABLED_CIPHERS, SUPPORTED_CIPHERS);
         this.unmodifiableCipherSuites = Collections.unmodifiableList(Arrays.asList(cipherSuites));
         this.sslContext = sslContext;
         this.isClient = isClient;
-    }
-
-    public final JdkApplicationProtocolNegotiator applicationProtocolNegotiator() {
-        return apn;
+        if (applicationProtocols != null && !OPENSSL_AVAILABLE) {
+            throw new SSLException("http2 enabled but openssl not available");
+        }
     }
 
     public final List<String> cipherSuites() {
@@ -174,7 +173,11 @@ public final class SslContext {
                 engine.setNeedClientAuth(true);
             }
         }
-        return apn.wrapperFactory().wrapSslEngine(engine, apn, isServer());
+        if (applicationProtocols == null) {
+            return engine;
+        }
+        ((org.wildfly.openssl.OpenSSLEngine) engine).setApplicationProtocols(applicationProtocols);
+        return engine;
     }
 
     private final SSLContext context() {
@@ -205,10 +208,6 @@ public final class SslContext {
 
     public final boolean isServer() {
         return !isClient();
-    }
-
-    public final SSLEngine newEngine() {
-        return configureAndWrapEngine(context().createSSLEngine());
     }
 
     public final SSLEngine newEngine(String peerHost, int peerPort) {

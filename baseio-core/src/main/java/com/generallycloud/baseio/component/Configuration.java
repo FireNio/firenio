@@ -17,11 +17,13 @@ package com.generallycloud.baseio.component;
 
 import java.util.EventListener;
 
+import com.generallycloud.baseio.common.Properties;
+
 /**
  * @author wangkai
  *
  */
 public interface Configuration extends EventListener{
 
-    void configurationChanged();
+    void configurationChanged(Properties properties);
 }

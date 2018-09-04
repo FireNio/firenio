@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component.ssl;
+package com.generallycloud.baseio.component;
 
 /**
  * Indicates the state of the {@link javax.net.ssl.SSLEngine} with respect to client authentication.
  * This configuration item really only applies when building the server-side {@link SslContext}.
  */
+//copy from netty
 public enum ClientAuth {
     /**
      * Indicates that the {@link javax.net.ssl.SSLEngine} will not request client authentication.

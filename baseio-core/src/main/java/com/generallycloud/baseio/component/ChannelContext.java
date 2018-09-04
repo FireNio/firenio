@@ -16,6 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
@@ -32,9 +33,8 @@ import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
+import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.ssl.SSLUtil;
-import com.generallycloud.baseio.component.ssl.SslContext;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.concurrent.LineEventLoopGroup;
 import com.generallycloud.baseio.concurrent.ThreadEventLoopGroup;
@@ -44,6 +44,8 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public final class ChannelContext extends AbstractLifeCycle implements Configuration {
 
+    
+    private String[]                       applicationProtocols;
     private Map<Object, Object>            attributes         = new HashMap<>();
     private List<ChannelEventListener>     cels               = new ArrayList<>();
     private String                         certCrt;
@@ -55,7 +57,6 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     private boolean                        enableHeartbeatLog = true;
     private boolean                        enableOpenSsl;
     private boolean                        enableSsl;
-    private String                         openSslPath;
     //是否启用work event loop，如果启用，则frame在work event loop中处理
     private boolean                        enableWorkEventLoop;
     private ExecutorEventLoopGroup         executorEventLoopGroup;
@@ -66,7 +67,9 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     private Logger                         logger             = LoggerFactory.getLogger(getClass());
     private int                            maxWriteBacklog    = 256;
     private NioEventLoopGroup              nioEventLoopGroup;
+    private String                         openSslPath;
     private int                            port;
+    private Properties properties;
     private ProtocolCodec                  protocolCodec;
     private SslContext                     sslContext;
     private String                         sslKeystore;
@@ -98,13 +101,14 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     }
 
     @Override
-    public void configurationChanged() {
+    public void configurationChanged(Properties properties) {
         if (enableOpenSsl) {
             System.setProperty(Constants.ENABLE_OPENSSL_SYS_KEY, "true");
         }
         if (!StringUtil.isNullOrBlank(openSslPath)) {
             System.setProperty(Constants.WILDFLY_OPENSSL_PATH, openSslPath);
         }
+        this.properties = properties;
     }
 
     @Override
@@ -161,6 +165,10 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     protected void doStop() throws Exception {
         LifeCycleUtil.stop(executorEventLoopGroup);
         this.attributes.clear();
+    }
+
+    public String[] getApplicationProtocols() {
+        return applicationProtocols;
     }
 
     public Object getAttribute(Object key) {
@@ -223,8 +231,16 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
         return nioEventLoopGroup;
     }
 
+    public String getOpenSslPath() {
+        return openSslPath;
+    }
+
     public int getPort() {
         return port;
+    }
+
+    public Properties getProperties() {
+        return properties;
     }
 
     public ProtocolCodec getProtocolCodec() {
@@ -278,10 +294,13 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
 
     private void initSslContext(ClassLoader classLoader) throws IOException {
         if (isEnableSsl() && getSslContext() == null) {
+            SslContextBuilder builder = new SslContextBuilder(true);
             if (!StringUtil.isNullOrBlank(getCertCrt())) {
                 File certificate = FileUtil.readFileByCls(getCertCrt(), classLoader);
                 File privateKey = FileUtil.readFileByCls(getCertKey(), classLoader);
-                SslContext sslContext = SSLUtil.initServer(privateKey, certificate);
+                builder.keyManager(privateKey, certificate);
+                builder.setApplicationProtocols(applicationProtocols);
+                SslContext sslContext = builder.build();
                 setSslContext(sslContext);
                 return;
             }
@@ -292,7 +311,11 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
                     throw new IllegalArgumentException("SERVER_SSL_KEYSTORE config error");
                 }
                 File storeFile = FileUtil.readFileByCls(params[0], classLoader);
-                setSslContext(SSLUtil.initServer(storeFile, params[1], params[2], params[3]));
+                FileInputStream is = new FileInputStream(storeFile);
+                builder.keyManager(is, params[1], params[2], params[3]);
+                builder.setApplicationProtocols(applicationProtocols);
+                SslContext sslContext = builder.build();
+                setSslContext(sslContext);
                 return;
             }
             throw new IllegalArgumentException("ssl enabled,but there is no config for");
@@ -317,6 +340,10 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
 
     public Object removeAttribute(Object key) {
         return this.attributes.remove(key);
+    }
+
+    public void setApplicationProtocols(String[] applicationProtocols) {
+        this.applicationProtocols = applicationProtocols;
     }
 
     public void setAttribute(Object key, Object value) {
@@ -389,23 +416,24 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
         this.nioEventLoopGroup = nioEventLoopGroup;
     }
 
+    public void setOpenSslPath(String openSslPath) {
+        checkNotRunning();
+        this.openSslPath = openSslPath;
+    }
+
     public void setPort(int port) {
         checkNotRunning();
         this.port = port;
     }
 
+    public void setProperties(Properties properties) {
+        checkNotRunning();
+        this.properties = properties;
+    }
+
     public void setProtocolCodec(ProtocolCodec protocolCodec) {
         checkNotRunning();
         this.protocolCodec = protocolCodec;
-    }
-
-    public String getOpenSslPath() {
-        return openSslPath;
-    }
-
-    public void setOpenSslPath(String openSslPath) {
-        checkNotRunning();
-        this.openSslPath = openSslPath;
     }
 
     public void setSslContext(SslContext sslContext) {
@@ -421,7 +449,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
         checkNotRunning();
         this.sslKeystore = sslKeystore;
     }
-
+    
     public void setWorkEventQueueSize(int workEventQueueSize) {
         checkNotRunning();
         this.workEventQueueSize = workEventQueueSize;

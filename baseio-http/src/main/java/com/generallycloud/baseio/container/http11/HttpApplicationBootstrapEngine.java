@@ -17,6 +17,8 @@ package com.generallycloud.baseio.container.http11;
 
 import com.generallycloud.baseio.codec.http11.ServerHttpCodec;
 import com.generallycloud.baseio.codec.http11.WebSocketChannelListener;
+import com.generallycloud.baseio.codec.http2.Http2Codec;
+import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.component.ChannelAliveIdleEventListener;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -34,15 +36,21 @@ public class HttpApplicationBootstrapEngine extends ApplicationBootstrapEngine {
     @Override
     protected void enrichSocketChannelContext(ChannelContext context) {
         ApplicationIoEventHandle handle = (ApplicationIoEventHandle) context.getIoEventHandle();
+        Properties cfg = context.getProperties();
         handle.setApplicationExtLoader(new HttpExtLoader());
         handle.setAppOnRedeployService(new HttpOnRedeployAcceptor());
         handle.setApplicationConfigurationLoader(new FileSystemACLoader());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new WebSocketChannelListener());
         context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
-        context.setProtocolCodec(new ServerHttpCodec());
         context.setExecutorEventLoopGroup(new ExecutorPoolEventLoopGroup("http-event-processor", 16,
                 64, 1024 * 64, 1000 * 60 * 30));
+        if (cfg.getBooleanProperty("app.enableHttp2")) {
+            context.setProtocolCodec(new Http2Codec());
+            context.setApplicationProtocols(new String[] { "h2", "http/1.1" });
+        } else {
+            context.setProtocolCodec(new ServerHttpCodec());
+        }
     }
 
 }

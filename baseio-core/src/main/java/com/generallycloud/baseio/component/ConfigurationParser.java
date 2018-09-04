@@ -39,7 +39,7 @@ public class ConfigurationParser {
             clazz = clazz.getSuperclass();
         }
         if (cfg instanceof Configuration) {
-            ((Configuration) cfg).configurationChanged();
+            ((Configuration) cfg).configurationChanged(properties);
         }
     }
 

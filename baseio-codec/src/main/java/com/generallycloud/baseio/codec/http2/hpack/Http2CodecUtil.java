@@ -20,7 +20,6 @@ import static com.generallycloud.baseio.codec.http2.hpack.Http2Exception.streamE
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
-import com.generallycloud.baseio.component.ssl.ApplicationProtocolNames;
 
 public final class Http2CodecUtil {
     public static final int          CONNECTION_STREAM_ID             = 0;
@@ -28,7 +27,7 @@ public final class Http2CodecUtil {
     public static final CharSequence HTTP_UPGRADE_SETTINGS_HEADER     = new String(
             "HTTP2-Settings");
     public static final CharSequence HTTP_UPGRADE_PROTOCOL_NAME       = "h2c";
-    public static final CharSequence TLS_UPGRADE_PROTOCOL_NAME        = ApplicationProtocolNames.HTTP_2;
+    public static final CharSequence TLS_UPGRADE_PROTOCOL_NAME        = "h2";
 
     public static final int          PING_FRAME_PAYLOAD_LENGTH        = 8;
     public static final short        MAX_UNSIGNED_BYTE                = 0xFF;

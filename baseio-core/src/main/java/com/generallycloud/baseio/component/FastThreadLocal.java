@@ -27,7 +27,6 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.AttributesImpl;
-import com.generallycloud.baseio.component.ssl.SslContext;
 
 /**
  * @author wangkai

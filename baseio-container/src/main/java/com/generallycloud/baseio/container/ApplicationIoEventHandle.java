@@ -25,6 +25,7 @@ import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.ChannelEventListener;
+import com.generallycloud.baseio.component.ConfigurationParser;
 import com.generallycloud.baseio.component.DynamicClassLoader;
 import com.generallycloud.baseio.component.ExceptionCaughtHandle;
 import com.generallycloud.baseio.component.FrameAcceptor;
@@ -40,11 +41,11 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Frame;
 
-public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycleListener{
+public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycleListener {
 
     private ApplicationExtLoader           applicationExtLoader;
     private String                         appLocalAddres;
-    private FrameAcceptor                 appOnRedeployService;
+    private FrameAcceptor                  appOnRedeployService;
     private ChannelContext                 context;
     private URLDynamicClassLoader          classLoader;
     private ApplicationConfiguration       configuration;
@@ -152,6 +153,10 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
         if (configurationLoader == null) {
             configurationLoader = new FileSystemACLoader();
         }
+        if (configuration == null) {
+            configuration = new ApplicationConfiguration();
+            ConfigurationParser.parseConfiguration("app.", configuration, context.getProperties());
+        }
         this.rootLocalAddress = FileUtil.getPrettyPath(rootLocalAddress);
         this.encoding = context.getCharset();
         this.appLocalAddres = FileUtil.getPrettyPath(getRootLocalAddress() + "app");
@@ -165,7 +170,6 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
         this.classLoader = ApplicationBootstrap.newClassLoader(parent, runtimeMode, true,
                 rootLocalAddress, ApplicationBootstrap.withDefault());
         this.applicationExtLoader.loadExts(this, classLoader);
-        this.configuration = configurationLoader.loadConfiguration(classLoader);
         this.appOnRedeployService = (FrameAcceptor) newInstanceFromClass(
                 configuration.getOnRedeployFrameAcceptor(), appOnRedeployService);
         if (appOnRedeployService == null) {
@@ -254,35 +258,35 @@ public class ApplicationIoEventHandle extends IoEventHandle implements LifeCycle
 
     @Override
     public void lifeCycleStarting(LifeCycle lifeCycle) {
-        
+
     }
 
     @Override
     public void lifeCycleStarted(LifeCycle lifeCycle) {
         try {
-            initialize((ChannelContext)lifeCycle);
+            initialize((ChannelContext) lifeCycle);
         } catch (Exception e) {
-           logger.error(e.getMessage(),e);
+            logger.error(e.getMessage(), e);
         }
     }
 
     @Override
     public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
-        
+
     }
 
     @Override
     public void lifeCycleStopping(LifeCycle lifeCycle) {
         try {
-            destroy((ChannelContext)lifeCycle);
+            destroy((ChannelContext) lifeCycle);
         } catch (Exception e) {
-           logger.error(e.getMessage(),e);
+            logger.error(e.getMessage(), e);
         }
     }
 
     @Override
     public void lifeCycleStopped(LifeCycle lifeCycle) {
-        
+
     }
 
 }

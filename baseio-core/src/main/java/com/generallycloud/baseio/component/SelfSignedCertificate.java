@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component.ssl;
+package com.generallycloud.baseio.component;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,6 +51,7 @@ import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 
 @SuppressWarnings("restriction")
+//ref from netty
 public final class SelfSignedCertificate {
 
     /** The maximum possible value in X.509 specification: 9999-12-31 23:59:59 */

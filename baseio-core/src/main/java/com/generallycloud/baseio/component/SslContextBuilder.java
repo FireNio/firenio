@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.component.ssl;
+package com.generallycloud.baseio.component;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
@@ -31,6 +34,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.crypto.Cipher;
@@ -48,44 +52,60 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import com.generallycloud.baseio.Constants;
+import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Encoding;
+import com.generallycloud.baseio.common.FileUtil;
+import com.generallycloud.baseio.common.PropertiesUtil;
 import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.ByteArrayInputStream;
-import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.Protocol;
-import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
-import com.generallycloud.baseio.component.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
 
 /**
  * Builder for configuring a new SslContext for creation.
  */
+//ref from netty & undertow
 public final class SslContextBuilder {
+
+    public static SslContextBuilder forServer() {
+        return new SslContextBuilder(true);
+    }
+
+    public SslContextBuilder keyManager(File privateKey, File certificate) throws IOException {
+        FileInputStream keyInput = new FileInputStream(privateKey);
+        FileInputStream certInput = new FileInputStream(certificate);
+        try {
+            return keyManager(certInput, keyInput, null);
+        } finally {
+            CloseUtil.close(keyInput);
+            CloseUtil.close(certInput);
+        }
+    }
+
+    public static boolean enableSsl() {
+        return PropertiesUtil.isSystemTrue(Constants.ENABLE_SSL_SYS_KEY);
+    }
+
+    public static boolean enableOpenssl() {
+        return PropertiesUtil.isSystemTrue(Constants.ENABLE_OPENSSL_SYS_KEY);
+    }
+
+    private String[] applicationProtocols;
 
     public SslContextBuilder(boolean isServer) {
         this.isServer = isServer;
     }
 
+    public String[] getApplicationProtocols() {
+        return applicationProtocols;
+    }
+
+    public SslContextBuilder setApplicationProtocols(String[] applicationProtocols) {
+        this.applicationProtocols = applicationProtocols;
+        return this;
+    }
+
     public static SslContextBuilder forClient(boolean trustAll) {
         return new SslContextBuilder(false).trustManager(trustAll);
-    }
-
-    public static SslContextBuilder forServer(InputStream certChainInputStream,
-            InputStream keyInputStream, String keyPassword) {
-        return new SslContextBuilder(true).keyManager(certChainInputStream, keyInputStream,
-                keyPassword);
-    }
-
-    public static SslContextBuilder forServer(PrivateKey key, String keyPassword,
-            X509Certificate... keyCertChain) {
-        return new SslContextBuilder(true).keyManager(key, keyPassword, keyCertChain);
-    }
-
-    public static SslContextBuilder forServer(KeyManagerFactory keyManagerFactory) {
-        return new SslContextBuilder(true).keyManager(keyManagerFactory);
-    }
-
-    public static SslContextBuilder forServer(InputStream ks, String storePassword, String alias,
-            String keyPassword) throws SSLException {
-        return new SslContextBuilder(true).keyManager(ks, storePassword, alias, keyPassword);
     }
 
     private PKCS8EncodedKeySpec generateKeySpec(String password, byte[] key)
@@ -131,42 +151,6 @@ public final class SslContextBuilder {
         } catch (InvalidKeySpecException e) {
             throw new InvalidKeySpecException("Neither RSA, DSA nor EC worked", e);
         }
-    }
-
-    private JdkApplicationProtocolNegotiator toNegotiator(ApplicationProtocolConfig config,
-            boolean isServer) {
-        if (config == null) {
-            return new JdkDefaultApplicationProtocolNegotiator();
-        }
-        Protocol p = config.protocol();
-        if (p == Protocol.NONE) {
-            return new JdkDefaultApplicationProtocolNegotiator();
-        } else if (p == Protocol.ALPN) {
-            if (isServer) {
-                SelectorFailureBehavior sfb = config.selectorFailureBehavior();
-                if (sfb == SelectorFailureBehavior.FATAL_ALERT) {
-                    return new JdkAlpnApplicationProtocolNegotiator(true,
-                            config.supportedProtocols());
-                } else if (sfb == SelectorFailureBehavior.NO_ADVERTISE) {
-                    new JdkAlpnApplicationProtocolNegotiator(false, config.supportedProtocols());
-                }
-                throw new UnsupportedOperationException("JDK provider does not support "
-                        + config.selectorFailureBehavior() + " failure behavior");
-            } else {
-                SelectedListenerFailureBehavior slfb = config.selectedListenerFailureBehavior();
-                if (slfb == SelectedListenerFailureBehavior.ACCEPT) {
-                    return new JdkAlpnApplicationProtocolNegotiator(false,
-                            config.supportedProtocols());
-                } else if (slfb == SelectedListenerFailureBehavior.FATAL_ALERT) {
-                    return new JdkAlpnApplicationProtocolNegotiator(true,
-                            config.supportedProtocols());
-                }
-                throw new UnsupportedOperationException("JDK provider does not support "
-                        + config.selectedListenerFailureBehavior() + " failure behavior");
-            }
-        }
-        throw new UnsupportedOperationException(
-                "JDK provider does not support " + config.protocol() + " protocol");
     }
 
     private SSLContext newSSLContext() throws SSLException {
@@ -312,22 +296,62 @@ public final class SslContextBuilder {
         if (keyInputStream == null) {
             return null;
         }
-        return getPrivateKeyFromByteBuffer(PemReader.readCertificates(keyInputStream).get(0),
-                keyPassword);
+        return getPrivateKeyFromByteBuffer(readCertificates(keyInputStream).get(0), keyPassword);
     }
 
     private X509Certificate[] toX509Certificates(InputStream in) throws CertificateException {
         if (in == null) {
             throw new IllegalArgumentException("null inputstream");
         }
-        return getCertificatesFromBuffers(PemReader.readCertificates(in));
+        return getCertificatesFromBuffers(readCertificates(in));
     }
 
-    private ApplicationProtocolConfig apn;
+    static List<byte[]> readCertificates(File file) throws CertificateException {
+        try {
+            InputStream in = new FileInputStream(file);
+            try {
+                return readCertificates(in);
+            } finally {
+                CloseUtil.close(in);
+            }
+        } catch (FileNotFoundException e) {
+            throw new CertificateException("could not find certificate file: " + file);
+        }
+    }
 
-    private long                      sessionCacheSize;
-    private long                      sessionTimeout;
-    private boolean                   isServer;
+    static List<byte[]> readCertificates(InputStream in) throws CertificateException {
+        List<String> ls;
+        try {
+            ls = FileUtil.readLines(in, Encoding.UTF8);
+        } catch (IOException e) {
+            throw new CertificateException("failed to read certificate input stream", e);
+        }
+        List<byte[]> certs = new ArrayList<>();
+        StringBuilder b = new StringBuilder();
+        int readEnd = 0;
+
+        for (String s : ls) {
+            if (s.startsWith("----")) {
+                readEnd++;
+                if (readEnd == 2) {
+                    byte[] data = BASE64Util.base64ToByteArray(b.toString());
+                    certs.add(data);
+                    readEnd = 0;
+                    b.setLength(0);
+                }
+                continue;
+            }
+            b.append(s.trim().replace("\r", ""));
+        }
+        if (certs.isEmpty()) {
+            throw new CertificateException("found no certificates in input stream");
+        }
+        return certs;
+    }
+
+    private long    sessionCacheSize;
+    private long    sessionTimeout;
+    private boolean isServer;
 
     private void needServer() {
         if (!isServer) {
@@ -339,11 +363,6 @@ public final class SslContextBuilder {
         if (isServer) {
             throw new IllegalArgumentException("client context mode");
         }
-    }
-
-    public SslContextBuilder applicationProtocolConfig(ApplicationProtocolConfig apn) {
-        this.apn = apn;
-        return this;
     }
 
     public SslContextBuilder sessionCacheSize(long sessionCacheSize) {
@@ -400,6 +419,8 @@ public final class SslContextBuilder {
             return this;
         } catch (Exception e) {
             throw new SSLException(e);
+        } finally {
+            CloseUtil.close(keystoreInput);
         }
     }
 
@@ -450,8 +471,7 @@ public final class SslContextBuilder {
 
     public SslContext build() throws SSLException {
         SSLContext context = newSSLContext();
-        JdkApplicationProtocolNegotiator negotiator = toNegotiator(apn, isServer);
-        return new SslContext(context, !isServer, ciphers, negotiator, clientAuth);
+        return new SslContext(context, !isServer, ciphers, clientAuth, applicationProtocols);
     }
 
     /*----------------------------------------- server end --------------------------------------*/
