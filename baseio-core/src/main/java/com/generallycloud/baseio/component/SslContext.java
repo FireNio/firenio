@@ -152,7 +152,7 @@ public final class SslContext {
         this.sslContext = sslContext;
         this.isClient = isClient;
         if (applicationProtocols != null && !OPENSSL_AVAILABLE) {
-            throw new SSLException("http2 enabled but openssl not available");
+            throw new SSLException("applicationProtocols enabled but openssl not available");
         }
     }
 
@@ -160,7 +160,7 @@ public final class SslContext {
         return unmodifiableCipherSuites;
     }
 
-    private SSLEngine configureAndWrapEngine(SSLEngine engine) {
+    private SSLEngine configureEngine(SSLEngine engine) {
         engine.setEnabledCipherSuites(cipherSuites);
         engine.setEnabledProtocols(ENABLED_PROTOCOLS);
         engine.setUseClientMode(isClient());
@@ -176,10 +176,6 @@ public final class SslContext {
         }
         ((org.wildfly.openssl.OpenSSLEngine) engine).setApplicationProtocols(applicationProtocols);
         return engine;
-    }
-
-    private final SSLContext context() {
-        return sslContext;
     }
 
     private String[] filterCipherSuites(List<String> ciphers, List<String> defaultCiphers,
@@ -209,7 +205,7 @@ public final class SslContext {
     }
 
     public final SSLEngine newEngine(String peerHost, int peerPort) {
-        return configureAndWrapEngine(context().createSSLEngine(peerHost, peerPort));
+        return configureEngine(sslContext.createSSLEngine(peerHost, peerPort));
     }
 
     public final long sessionCacheSize() {
@@ -218,9 +214,9 @@ public final class SslContext {
 
     public final SSLSessionContext sessionContext() {
         if (isServer()) {
-            return context().getServerSessionContext();
+            return sslContext.getServerSessionContext();
         } else {
-            return context().getClientSessionContext();
+            return sslContext.getClientSessionContext();
         }
     }
 
