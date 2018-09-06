@@ -76,14 +76,14 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     "registChannel(...)");
 
     private final ByteBufAllocator                   alloc;
-    private final Map<Object, Object>                attributes              = new HashMap<>();
+    private final Map<Object, Object>                attributes;
     private ByteBuf                                  buf;
     private final boolean                            ignoreIdle;
-    private final IntObjectHashMap<NioSocketChannel> channels                = new IntObjectHashMap<>();
+    private final IntObjectHashMap<NioSocketChannel> channels;
     private final int                                channelSizeLimit        = 1024 * 64;
     private ChannelContext                           context;                                               // use when not sharable 
     private String                                   desc;
-    private final BufferedArrayList<Runnable>        events                  = new BufferedArrayList<>();
+    private final BufferedArrayList<Runnable>        events;
     private final NioEventLoopGroup                  group;
     private volatile boolean                         hasTask                 = false;
     private final int                                index;
@@ -106,6 +106,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         } else {
             this.selectionKeySet = null;
         }
+        attributes = new HashMap<>();
+        events = new BufferedArrayList<>(channelSizeLimit);
+        channels = new IntObjectHashMap<>();
     }
 
     private void accept(final SelectionKey key) {
@@ -314,11 +317,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    protected void dispatchChannel(NioSocketChannel ch) {
-        /* ----------------------------------------------------------------- */
-        // 这里不需要再次判断了，因为该event为channel，EventLoop停止前会将所有
-        // ch 关掉
-        /* ----------------------------------------------------------------- */
+    protected void flush(NioSocketChannel ch) {
+        events.offer(ch);
+    }
+
+    protected void flushAndWakeup(NioSocketChannel ch) {
         events.offer(ch);
         wakeup();
     }
@@ -434,7 +437,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         sks.clear();
                     }
                 }
-                handleEvents(events);
                 long now = System.currentTimeMillis();
                 if (ignoreIdle) {
                     selectTime = idle;
@@ -447,6 +449,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         selectTime = nextIdle - now;
                     }
                 }
+                handleEvents(events);
             } catch (Throwable e) {
                 printException(logger, e);
             }

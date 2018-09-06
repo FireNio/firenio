@@ -274,10 +274,14 @@ public class MathUtil {
      * @return
      */
     public static boolean getBoolean(byte b, int pos) {
+        return getBit(b, pos) == 1;
+    }
+    
+    public static byte getBit(byte b, int pos) {
         if (pos < 0 || pos > 8) {
             throw new IllegalArgumentException("illegal pos," + pos);
         }
-        return (b & (1 << pos)) >> pos == 1;
+        return (byte) ((b >> pos) & 1);
     }
 
     public static void int2Byte(byte[] bytes, int value, int offset) {

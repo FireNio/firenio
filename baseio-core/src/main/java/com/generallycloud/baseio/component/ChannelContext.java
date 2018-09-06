@@ -44,7 +44,6 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public final class ChannelContext extends AbstractLifeCycle implements Configuration {
 
-    
     private String[]                       applicationProtocols;
     private Map<Object, Object>            attributes         = new HashMap<>();
     private List<ChannelEventListener>     cels               = new ArrayList<>();
@@ -68,7 +67,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     private NioEventLoopGroup              nioEventLoopGroup;
     private String                         openSslPath;
     private int                            port;
-    private Properties properties;
+    private Properties                     properties;
     private ProtocolCodec                  protocolCodec;
     private SslContext                     sslContext;
     private String                         sslKeystore;
@@ -143,7 +142,6 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
             }
             sb.setLength(sb.length() - 2);
             LoggerUtil.prettyLog(logger, "default protocols     :[ {} ] ", sb.toString());
-            //LoggerUtil.prettyLog(logger, "default cipher suites: {}", ENABLED_CIPHERS);
         }
         protocolCodec.initialize(this);
         if (executorEventLoopGroup == null) {
@@ -335,6 +333,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     }
 
     public void setApplicationProtocols(String[] applicationProtocols) {
+        checkNotRunning();
         this.applicationProtocols = applicationProtocols;
     }
 
@@ -435,7 +434,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
         checkNotRunning();
         this.sslKeystore = sslKeystore;
     }
-    
+
     public void setWorkEventQueueSize(int workEventQueueSize) {
         checkNotRunning();
         this.workEventQueueSize = workEventQueueSize;

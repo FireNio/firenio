@@ -21,10 +21,17 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class BufferedArrayList<T> {
 
-    private List<T>       list1  = new ArrayList<>();
-    private List<T>       list2  = new ArrayList<>();
-    private ReentrantLock lock   = new ReentrantLock();
-    private List<T>       buffer = list1;
+    private final List<T> list1;
+    private final List<T> list2;
+    private ReentrantLock lock;
+    private List<T>       buffer;
+
+    public BufferedArrayList(int cap) {
+        list1 = new ArrayList<>(cap);
+        list2 = new ArrayList<>(cap);
+        lock = new ReentrantLock();
+        buffer = list1;
+    }
 
     public List<T> getBuffer() {
         ReentrantLock lock = this.lock;
@@ -59,7 +66,7 @@ public class BufferedArrayList<T> {
             lock.unlock();
         }
     }
-    
+
     public boolean remove(T t) {
         ReentrantLock lock = this.lock;
         lock.lock();

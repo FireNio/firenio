@@ -15,14 +15,11 @@
  */
 package com.generallycloud.test.io.load.fixedlength;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
@@ -31,10 +28,20 @@ import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.TextFrame;
 
 public class TestLoadServer {
+    
+    public static final AtomicInteger recv = new AtomicInteger();
 
     public static void main(String[] args) throws Exception {
-
-        final boolean batchFlush = true;
+        
+        IoEventHandle eventHandle = new IoEventHandle() {
+            @Override
+            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                TextFrame f = (TextFrame) frame;
+                f.write(f.getReadText(), channel);
+                channel.flush(frame);
+//                recv.getAndIncrement();
+            }
+        };
 
         NioEventLoopGroup group = new NioEventLoopGroup(8);
         group.setMemoryPoolCapacity(1024 * 512);
@@ -46,37 +53,11 @@ public class TestLoadServer {
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setProtocolCodec(new FixedLengthCodec());
+        context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addChannelEventListener(new ChannelEventListenerAdapter() {
-
-            @Override
-            public void channelOpened(NioSocketChannel channel) {
-//                channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
-                channel.setIoEventHandle(new IoEventHandle() {
-                    boolean      addTask = true;
-                    List<ByteBuf> fs      = new ArrayList<>(1024 * 4);
-                    @Override
-                    public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-                        TextFrame f = (TextFrame) frame;
-                        f.write(f.getReadText(), channel);
-                        if (batchFlush) {
-                            fs.add(channel.encode(frame));
-                            if (addTask) {
-                                addTask = false;
-                                channel.getEventLoop().executeAfterLoop(() -> {
-                                    channel.flush(fs);
-                                    addTask = true;
-                                    fs.clear();
-                                });
-                            }
-                        } else {
-                            channel.flush(frame);
-                        }
-                    }
-                });
-            }
-        });
         acceptor.bind();
+        
+
     }
 
 }

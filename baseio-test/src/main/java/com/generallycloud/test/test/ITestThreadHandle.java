@@ -23,11 +23,13 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public class ITestThreadHandle {
 
     private static Logger logger = LoggerFactory.getLogger(ITestThreadHandle.class);
+    
+    public static ITestThread[] ts;
 
     public static void doTest(Class<? extends ITestThread> clazz, int threads, int time) {
         logger.info("################## Test start ####################");
         int allTime = time * threads;
-        ITestThread[] ts = new ITestThread[threads];
+        ts = new ITestThread[threads];
         for (int i = 0; i < threads; i++) {
             try {
                 ITestThread t = clazz.newInstance();

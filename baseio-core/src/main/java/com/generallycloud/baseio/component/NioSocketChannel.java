@@ -97,6 +97,7 @@ public final class NioSocketChannel extends AttributesImpl
     private ByteBuf                             sslRemainBuf;
     private byte                                sslWrapExt;
     private final Queue<ByteBuf>                writeBufs;
+    private boolean                             inEventBuffer;
 
     NioSocketChannel(NioEventLoop eventLoop, SelectionKey selectionKey, ChannelContext context,
             int channelId) {
@@ -138,6 +139,10 @@ public final class NioSocketChannel extends AttributesImpl
         Frame frame = readFrame;
         if (frame == null) {
             frame = codec.decode(this, src);
+            if (frame == null) {
+                plainRemainBuf = sliceRemain(src);
+                return;
+            }
         }
         for (;;) {
             if (!frame.read(this, src)) {
@@ -173,6 +178,11 @@ public final class NioSocketChannel extends AttributesImpl
                 break;
             }
             frame = codec.decode(this, src);
+            if (frame == null) {
+                plainRemainBuf = sliceRemain(src);
+                readFrame = null;
+                break;
+            }
         }
     }
 
@@ -292,29 +302,18 @@ public final class NioSocketChannel extends AttributesImpl
                 old.release();
             }
         }
-        final Queue<ByteBuf> writeBufs = this.writeBufs;
         if (inEventLoop()) {
             if (isClosed()) {
                 buf.release();
                 return;
             }
-            if (currentWriteBufsLen == 0 && writeBufs.size() == 0) {
-                write(buf);
-            } else {
-                writeBufs.offer(buf);
-                if (maxWriteBacklog != Integer.MAX_VALUE) {
-                    if (writeBufs.size() > maxWriteBacklog) {
-                        close();
-                        return;
-                    }
-                }
-                try {
-                    write(selKey.interestOps());
-                } catch (Throwable t) {
-                    close();
-                }
+            writeBufs.offer(buf);
+            if (!inEventBuffer) {
+                inEventBuffer = true;
+                eventLoop.flush(this);
             }
         } else {
+            Queue<ByteBuf> writeBufs = this.writeBufs;
             ReentrantLock lock = getCloseLock();
             lock.lock();
             try {
@@ -323,19 +322,19 @@ public final class NioSocketChannel extends AttributesImpl
                     return;
                 }
                 writeBufs.offer(buf);
-                if (maxWriteBacklog != Integer.MAX_VALUE) {
-                    if (writeBufs.size() > maxWriteBacklog) {
-                        close();
-                        return;
-                    }
+                int wbsSize = writeBufs.size();
+                        
+                if (maxWriteBacklog != Integer.MAX_VALUE && writeBufs.size() > maxWriteBacklog) {
+                    close();
+                    return;
                 }
-                if (writeBufs.size() != 1) {
+                if (wbsSize != 1) {
                     return;
                 }
             } finally {
                 lock.unlock();
             }
-            eventLoop.dispatchChannel(this);
+            eventLoop.flushAndWakeup(this);
         }
     }
 
@@ -404,29 +403,23 @@ public final class NioSocketChannel extends AttributesImpl
                             this.currentWriteBufsLen += bufsSize;
                         }
                     }
-                    try {
-                        write(selKey.interestOps());
-                    } catch (Throwable t) {
-                        close();
-                    }
                 } else {
-                    if (maxWriteBacklog != Integer.MAX_VALUE) {
-                        if (bufsSize + bufs.size() > maxWriteBacklog) {
-                            ReleaseUtil.release(bufs);
-                            close();
-                            return;
-                        }
+                    if (maxWriteBacklog != Integer.MAX_VALUE
+                            && bufsSize + bufs.size() > maxWriteBacklog) {
+                        ReleaseUtil.release(bufs);
+                        close();
+                        return;
                     }
                     for (ByteBuf buf : bufs) {
                         writeBufs.offer(buf);
                     }
-                    try {
-                        write(selKey.interestOps());
-                    } catch (Throwable t) {
-                        close();
-                    }
+                }
+                if (!inEventBuffer) {
+                    inEventBuffer = true;
+                    eventLoop.flush(this);
                 }
             } else {
+                Queue<ByteBuf> writeBufs = this.writeBufs;
                 ReentrantLock lock = getCloseLock();
                 lock.lock();
                 try {
@@ -434,13 +427,11 @@ public final class NioSocketChannel extends AttributesImpl
                         ReleaseUtil.release(bufs);
                         return;
                     }
-                    final Queue<ByteBuf> writeBufs = this.writeBufs;
-                    if (maxWriteBacklog != Integer.MAX_VALUE) {
-                        if (writeBufs.size() + bufs.size() > maxWriteBacklog) {
-                            ReleaseUtil.release(bufs);
-                            close();
-                            return;
-                        }
+                    if (maxWriteBacklog != Integer.MAX_VALUE
+                            && writeBufs.size() + bufs.size() > maxWriteBacklog) {
+                        ReleaseUtil.release(bufs);
+                        close();
+                        return;
                     }
                     for (ByteBuf buf : bufs) {
                         writeBufs.offer(buf);
@@ -456,11 +447,11 @@ public final class NioSocketChannel extends AttributesImpl
                 } finally {
                     lock.unlock();
                 }
-                eventLoop.dispatchChannel(this);
+                eventLoop.flushAndWakeup(this);
             }
         }
     }
-
+    
     public Integer getChannelId() {
         return channelId;
     }
@@ -765,6 +756,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (isClosed()) {
             return;
         }
+        inEventBuffer = false;
         try {
             write(selKey.interestOps());
         } catch (Exception e) {
@@ -972,25 +964,6 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    private void write(ByteBuf buf) {
-        try {
-            channel.write(buf.nioBuffer());
-            buf.reverse();
-            int interestOps = selKey.interestOps();
-            if (buf.hasRemaining()) {
-                currentWriteBufsLen = 1;
-                currentWriteBufs[0] = buf;
-                interestWrite(selKey, interestOps);
-                return;
-            } else {
-                buf.release();
-                interestRead(selKey, interestOps);
-            }
-        } catch (Exception e) {
-            ReleaseUtil.release(buf);
-            CloseUtil.close(this);
-        }
-    }
 
     protected boolean write(final int interestOps) throws IOException {
         final NioEventLoop eventLoop = this.eventLoop;
@@ -999,6 +972,9 @@ public final class NioSocketChannel extends AttributesImpl
         final ByteBuf[] currentWriteBufs = this.currentWriteBufs;
         final ByteBuffer[] writeBuffers = eventLoop.getWriteBuffers();
         final int maxLen = currentWriteBufs.length;
+        if (writeBufs.isEmpty()) {
+            return true;
+        }
         for (;;) {
             int currentWriteBufsLen = this.currentWriteBufsLen;
             for (; currentWriteBufsLen < maxLen;) {
@@ -1030,8 +1006,11 @@ public final class NioSocketChannel extends AttributesImpl
                     currentWriteBufs[0] = null;
                     buf.release();
                     this.currentWriteBufsLen = 0;
-                    interestRead(selectionKey, interestOps);
-                    return true;
+                    if (writeBufs.isEmpty()) {
+                        interestRead(selectionKey, interestOps);
+                        return true;
+                    }
+                    continue;
                 }
             } else {
                 channel.write(writeBuffers, 0, currentWriteBufsLen);
@@ -1061,10 +1040,16 @@ public final class NioSocketChannel extends AttributesImpl
                     currentWriteBufs[j] = null;
                 }
                 this.currentWriteBufsLen = 0;
-                if (currentWriteBufsLen != maxLen) {
+                // use this is better ?
+//                if (currentWriteBufsLen != maxLen) {
+//                    interestRead(selectionKey, interestOps);
+//                    return true;
+//                }
+                if (writeBufs.isEmpty()) {
                     interestRead(selectionKey, interestOps);
                     return true;
                 }
+                continue;
             }
         }
     }

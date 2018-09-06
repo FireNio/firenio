@@ -16,7 +16,6 @@
 package com.generallycloud.test.io.load.fixedlength;
 
 import java.io.IOException;
-import java.net.StandardSocketOptions;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
@@ -25,7 +24,6 @@ import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
 import com.generallycloud.baseio.component.IoEventHandle;
-import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
@@ -33,11 +31,11 @@ import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
 public class TestLoadClient1 extends ITestThread {
-    
-    static final int core_size = 16;
-    
-    private static final byte [] req;
-    
+
+    static final int            core_size = 16;
+
+    private static final byte[] req;
+
     static {
         int len = 1;
         String s = "hello server!";
@@ -64,7 +62,7 @@ public class TestLoadClient1 extends ITestThread {
     public void prepare() throws Exception {
 
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
-            
+
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 addCount(40000);
@@ -75,17 +73,17 @@ public class TestLoadClient1 extends ITestThread {
         group.setMemoryPoolCapacity(5120000 / core_size);
         group.setMemoryPoolUnit(256);
         group.setBufRecycleSize(1024 * 8);
-//        group.setEnableMemoryPool(false);
-//        group.setEnableMemoryPoolDirect(false);
+        //        group.setEnableMemoryPool(false);
+        //        group.setEnableMemoryPoolDirect(false);
         ChannelContext context = new ChannelContext(8300);
         connector = new ChannelConnector(context, group);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setIoEventHandle(eventHandleAdaptor);
-//        context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addChannelEventListener(new ChannelEventListenerAdapter(){
+        //        context.addChannelEventListener(new LoggerChannelOpenListener());
+        context.addChannelEventListener(new ChannelEventListenerAdapter() {
             @Override
             public void channelOpened(NioSocketChannel channel) throws Exception {
-//                channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
+                //                channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
             }
         });
         context.setProtocolCodec(new FixedLengthCodec());
