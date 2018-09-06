@@ -66,42 +66,99 @@ import com.generallycloud.baseio.common.StringUtil;
 //ref from netty & undertow
 public final class SslContextBuilder {
 
-    public static SslContextBuilder forServer() {
-        return new SslContextBuilder(true);
-    }
+    private String[]            applicationProtocols;
+    private List<String>        ciphers;
+    private ClientAuth          clientAuth = ClientAuth.NONE;
+    private boolean             isServer;
+    private PrivateKey          key;
+    private X509Certificate[]   keyCertChain;
+    private KeyManagerFactory   keyManagerFactory;
+    private String              keyPassword;
+    private long                sessionCacheSize;
+    private long                sessionTimeout;
+    private boolean             trustAll;
+    private X509Certificate[]   trustCertCollection;
+    private TrustManagerFactory trustManagerFactory;
+    private X509TrustManager    x509TrustManager;
 
-    public SslContextBuilder keyManager(File privateKey, File certificate) throws IOException {
-        FileInputStream keyInput = new FileInputStream(privateKey);
-        FileInputStream certInput = new FileInputStream(certificate);
-        try {
-            return keyManager(certInput, keyInput, null);
-        } finally {
-            CloseUtil.close(keyInput);
-            CloseUtil.close(certInput);
-        }
-    }
-
-    public static boolean enableSsl() {
-        return PropertiesUtil.isSystemTrue(Constants.ENABLE_SSL_SYS_KEY);
-    }
-
-    private String[] applicationProtocols;
-
-    public SslContextBuilder(boolean isServer) {
+    SslContextBuilder(boolean isServer) {
         this.isServer = isServer;
     }
 
-    public String[] getApplicationProtocols() {
-        return applicationProtocols;
+    public SslContext build() throws SSLException {
+        SSLContext context = newSSLContext();
+        return new SslContext(context, !isServer, ciphers, clientAuth, applicationProtocols);
     }
 
-    public SslContextBuilder setApplicationProtocols(String[] applicationProtocols) {
-        this.applicationProtocols = applicationProtocols;
+    private KeyManagerFactory buildKeyManagerFactory(KeyStore ks, char[] keyPasswordChars)
+            throws SSLException {
+        String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
+        if (algorithm == null) {
+            algorithm = "SunX509";
+        }
+        // Set up key manager factory to use our key store
+        try {
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+            kmf.init(ks, keyPasswordChars);
+            return kmf;
+        } catch (Exception e) {
+            throw new SSLException(e);
+        }
+    }
+
+    private KeyManagerFactory buildKeyManagerFactory(X509Certificate[] certChain, PrivateKey key,
+            String keyPassword) throws SSLException {
+        if (keyPassword == null) {
+            keyPassword = "";
+        }
+        char[] keyPasswordChars = StringUtil.stringToCharArray(keyPassword);
+        KeyStore ks = buildKeyStore(certChain, key, keyPasswordChars);
+        return buildKeyManagerFactory(ks, keyPasswordChars);
+    }
+
+    private KeyStore buildKeyStore(X509Certificate[] certChain, PrivateKey key,
+            char[] keyPasswordChars) throws SSLException {
+        try {
+            KeyStore ks = KeyStore.getInstance("JKS");
+            ks.load(null, null);
+            ks.setKeyEntry("key", key, keyPasswordChars, certChain);
+            return ks;
+        } catch (Exception e) {
+            throw new SSLException(e);
+        }
+    }
+
+    private TrustManagerFactory buildTrustManagerFactory(X509Certificate[] certCollection)
+            throws SSLException {
+        try {
+            KeyStore ks = KeyStore.getInstance("JKS");
+            ks.load(null, null);
+            int i = 1;
+            for (X509Certificate cert : certCollection) {
+                String alias = Integer.toString(i);
+                ks.setCertificateEntry(alias, cert);
+                i++;
+            }
+            // Set up trust manager factory to use our key store.
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory
+                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(ks);
+            return trustManagerFactory;
+        } catch (Exception e) {
+            throw new SSLException(e);
+        }
+    }
+
+    public SslContextBuilder ciphers(List<String> ciphers) {
+        needServer();
+        this.ciphers = ciphers;
         return this;
     }
 
-    public static SslContextBuilder forClient(boolean trustAll) {
-        return new SslContextBuilder(false).trustManager(trustAll);
+    public SslContextBuilder clientAuth(ClientAuth clientAuth) {
+        needServer();
+        this.clientAuth = clientAuth;
+        return this;
     }
 
     private PKCS8EncodedKeySpec generateKeySpec(String password, byte[] key)
@@ -118,6 +175,10 @@ public final class SslContextBuilder {
         Cipher cipher = Cipher.getInstance(encryptedPrivateKeyInfo.getAlgName());
         cipher.init(Cipher.DECRYPT_MODE, pbeKey, encryptedPrivateKeyInfo.getAlgParameters());
         return encryptedPrivateKeyInfo.getKeySpec(cipher);
+    }
+
+    public String[] getApplicationProtocols() {
+        return applicationProtocols;
     }
 
     private X509Certificate[] getCertificatesFromBuffers(List<byte[]> certs)
@@ -146,6 +207,111 @@ public final class SslContextBuilder {
             return KeyFactory.getInstance("EC").generatePrivate(encodedKeySpec);
         } catch (InvalidKeySpecException e) {
             throw new InvalidKeySpecException("Neither RSA, DSA nor EC worked", e);
+        }
+    }
+
+    public SslContextBuilder keyManager(File privateKey, File certificate) throws IOException {
+        FileInputStream keyInput = new FileInputStream(privateKey);
+        FileInputStream certInput = new FileInputStream(certificate);
+        try {
+            return keyManager(certInput, keyInput, null);
+        } finally {
+            CloseUtil.close(keyInput);
+            CloseUtil.close(certInput);
+        }
+    }
+
+    public SslContextBuilder keyManager(InputStream certChainInputStream,
+            InputStream keyInputStream, String keyPassword) {
+        needServer();
+        X509Certificate[] keyCertChain;
+        PrivateKey key;
+        try {
+            keyCertChain = toX509Certificates(certChainInputStream);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Input stream not contain valid certificates.", e);
+        } finally {
+            CloseUtil.close(certChainInputStream);
+        }
+        try {
+            key = toPrivateKey(keyInputStream, keyPassword);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Input stream does not contain valid private key.",
+                    e);
+        } finally {
+            CloseUtil.close(keyInputStream);
+        }
+        return keyManager(key, keyPassword, keyCertChain);
+    }
+
+    public SslContextBuilder keyManager(File keystoreFile, String storePassword, String alias,
+            String keyPassword) throws SSLException {
+        try {
+            return keyManager(new FileInputStream(keystoreFile), storePassword, alias, keyPassword);
+        } catch (FileNotFoundException e) {
+            throw new SSLException(e);
+        }
+    }
+
+    public SslContextBuilder keyManager(InputStream keystoreInput, String storePassword,
+            String alias, String keyPassword) throws SSLException {
+        needServer();
+        try {
+            KeyStore keystore = KeyStore.getInstance("JKS");
+            keystore.load(keystoreInput, StringUtil.stringToCharArray(storePassword));
+            if (keyPassword == null) {
+                keyPassword = "";
+            }
+            this.keyManagerFactory = buildKeyManagerFactory(keystore,
+                    StringUtil.stringToCharArray(keyPassword));
+            return this;
+        } catch (Exception e) {
+            throw new SSLException(e);
+        } finally {
+            CloseUtil.close(keystoreInput);
+        }
+    }
+
+    public SslContextBuilder keyManager(KeyManagerFactory keyManagerFactory) {
+        needServer();
+        this.keyCertChain = null;
+        this.key = null;
+        this.keyPassword = null;
+        this.keyManagerFactory = keyManagerFactory;
+        return this;
+    }
+
+    public SslContextBuilder keyManager(PrivateKey key, String keyPassword,
+            X509Certificate... keyCertChain) {
+        needServer();
+        if (keyCertChain.length == 0) {
+            throw new IllegalArgumentException("keyCertChain must be non-empty");
+        }
+        if (keyCertChain == null || keyCertChain.length == 0) {
+            this.keyCertChain = null;
+        } else {
+            for (X509Certificate cert : keyCertChain) {
+                if (cert == null) {
+                    throw new IllegalArgumentException("keyCertChain contains null entry");
+                }
+            }
+            this.keyCertChain = keyCertChain.clone();
+        }
+        this.key = key;
+        this.keyPassword = keyPassword;
+        this.keyManagerFactory = null;
+        return this;
+    }
+
+    private void needClient() {
+        if (isServer) {
+            throw new IllegalArgumentException("client context mode");
+        }
+    }
+
+    private void needServer() {
+        if (!isServer) {
+            throw new IllegalArgumentException("server context mode");
         }
     }
 
@@ -227,63 +393,19 @@ public final class SslContextBuilder {
         }
     }
 
-    private TrustManagerFactory buildTrustManagerFactory(X509Certificate[] certCollection)
-            throws SSLException {
-        try {
-            KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(null, null);
-            int i = 1;
-            for (X509Certificate cert : certCollection) {
-                String alias = Integer.toString(i);
-                ks.setCertificateEntry(alias, cert);
-                i++;
-            }
-            // Set up trust manager factory to use our key store.
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory
-                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(ks);
-            return trustManagerFactory;
-        } catch (Exception e) {
-            throw new SSLException(e);
-        }
+    public SslContextBuilder sessionCacheSize(long sessionCacheSize) {
+        this.sessionCacheSize = sessionCacheSize;
+        return this;
     }
 
-    private KeyManagerFactory buildKeyManagerFactory(X509Certificate[] certChain, PrivateKey key,
-            String keyPassword) throws SSLException {
-        if (keyPassword == null) {
-            keyPassword = "";
-        }
-        char[] keyPasswordChars = StringUtil.stringToCharArray(keyPassword);
-        KeyStore ks = buildKeyStore(certChain, key, keyPasswordChars);
-        return buildKeyManagerFactory(ks, keyPasswordChars);
+    public SslContextBuilder sessionTimeout(long sessionTimeout) {
+        this.sessionTimeout = sessionTimeout;
+        return this;
     }
 
-    private KeyManagerFactory buildKeyManagerFactory(KeyStore ks, char[] keyPasswordChars)
-            throws SSLException {
-        String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
-        if (algorithm == null) {
-            algorithm = "SunX509";
-        }
-        // Set up key manager factory to use our key store
-        try {
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-            kmf.init(ks, keyPasswordChars);
-            return kmf;
-        } catch (Exception e) {
-            throw new SSLException(e);
-        }
-    }
-
-    private KeyStore buildKeyStore(X509Certificate[] certChain, PrivateKey key,
-            char[] keyPasswordChars) throws SSLException {
-        try {
-            KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(null, null);
-            ks.setKeyEntry("key", key, keyPasswordChars, certChain);
-            return ks;
-        } catch (Exception e) {
-            throw new SSLException(e);
-        }
+    public SslContextBuilder setApplicationProtocols(String[] applicationProtocols) {
+        this.applicationProtocols = applicationProtocols;
+        return this;
     }
 
     private PrivateKey toPrivateKey(InputStream keyInputStream, String keyPassword)
@@ -300,6 +422,58 @@ public final class SslContextBuilder {
             throw new IllegalArgumentException("null inputstream");
         }
         return getCertificatesFromBuffers(readCertificates(in));
+    }
+
+    public SslContextBuilder trustManager(boolean trustAll) {
+        needClient();
+        this.trustAll = trustAll;
+        this.x509TrustManager = null;
+        return this;
+    }
+
+    public SslContextBuilder trustManager(InputStream trustCertCollectionInputStream) {
+        needClient();
+        try {
+            return trustManager(toX509Certificates(trustCertCollectionInputStream));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Input stream does not contain valid certificates.",
+                    e);
+        }
+    }
+
+    public SslContextBuilder trustManager(TrustManagerFactory trustManagerFactory) {
+        needClient();
+        this.trustCertCollection = null;
+        this.trustManagerFactory = trustManagerFactory;
+        return this;
+    }
+
+    public SslContextBuilder trustManager(X509Certificate... trustCertCollection) {
+        needClient();
+        if (trustCertCollection != null) {
+            this.trustCertCollection = trustCertCollection.clone();
+        }
+        this.trustManagerFactory = null;
+        return this;
+    }
+
+    public SslContextBuilder trustManager(X509TrustManager x509TrustManager) {
+        needClient();
+        this.x509TrustManager = x509TrustManager;
+        this.trustAll = false;
+        return this;
+    }
+
+    public static boolean enableSsl() {
+        return PropertiesUtil.isSystemTrue(Constants.ENABLE_SSL_SYS_KEY);
+    }
+
+    public static SslContextBuilder forClient(boolean trustAll) {
+        return new SslContextBuilder(false).trustManager(trustAll);
+    }
+
+    public static SslContextBuilder forServer() {
+        return new SslContextBuilder(true);
     }
 
     static List<byte[]> readCertificates(File file) throws CertificateException {
@@ -344,181 +518,5 @@ public final class SslContextBuilder {
         }
         return certs;
     }
-
-    private long    sessionCacheSize;
-    private long    sessionTimeout;
-    private boolean isServer;
-
-    private void needServer() {
-        if (!isServer) {
-            throw new IllegalArgumentException("server context mode");
-        }
-    }
-
-    private void needClient() {
-        if (isServer) {
-            throw new IllegalArgumentException("client context mode");
-        }
-    }
-
-    public SslContextBuilder sessionCacheSize(long sessionCacheSize) {
-        this.sessionCacheSize = sessionCacheSize;
-        return this;
-    }
-
-    public SslContextBuilder sessionTimeout(long sessionTimeout) {
-        this.sessionTimeout = sessionTimeout;
-        return this;
-    }
-
-    /*----------------------------------------- server begin --------------------------------------*/
-
-    private List<String>      ciphers;
-    private ClientAuth        clientAuth = ClientAuth.NONE;
-    private PrivateKey        key;
-    private X509Certificate[] keyCertChain;
-    private KeyManagerFactory keyManagerFactory;
-    private String            keyPassword;
-
-    public SslContextBuilder ciphers(List<String> ciphers) {
-        needServer();
-        this.ciphers = ciphers;
-        return this;
-    }
-
-    public SslContextBuilder clientAuth(ClientAuth clientAuth) {
-        needServer();
-        this.clientAuth = clientAuth;
-        return this;
-    }
-
-    public SslContextBuilder keyManager(KeyManagerFactory keyManagerFactory) {
-        needServer();
-        this.keyCertChain = null;
-        this.key = null;
-        this.keyPassword = null;
-        this.keyManagerFactory = keyManagerFactory;
-        return this;
-    }
-
-    public SslContextBuilder keyManager(InputStream keystoreInput, String storePassword,
-            String alias, String keyPassword) throws SSLException {
-        needServer();
-        try {
-            KeyStore keystore = KeyStore.getInstance("JKS");
-            keystore.load(keystoreInput, StringUtil.stringToCharArray(storePassword));
-            if (keyPassword == null) {
-                keyPassword = "";
-            }
-            this.keyManagerFactory = buildKeyManagerFactory(keystore,
-                    StringUtil.stringToCharArray(keyPassword));
-            return this;
-        } catch (Exception e) {
-            throw new SSLException(e);
-        } finally {
-            CloseUtil.close(keystoreInput);
-        }
-    }
-
-    public SslContextBuilder keyManager(PrivateKey key, String keyPassword,
-            X509Certificate... keyCertChain) {
-        needServer();
-        if (keyCertChain.length == 0) {
-            throw new IllegalArgumentException("keyCertChain must be non-empty");
-        }
-        if (keyCertChain == null || keyCertChain.length == 0) {
-            this.keyCertChain = null;
-        } else {
-            for (X509Certificate cert : keyCertChain) {
-                if (cert == null) {
-                    throw new IllegalArgumentException("keyCertChain contains null entry");
-                }
-            }
-            this.keyCertChain = keyCertChain.clone();
-        }
-        this.key = key;
-        this.keyPassword = keyPassword;
-        this.keyManagerFactory = null;
-        return this;
-    }
-
-    public SslContextBuilder keyManager(InputStream certChainInputStream,
-            InputStream keyInputStream, String keyPassword) {
-        needServer();
-        X509Certificate[] keyCertChain;
-        PrivateKey key;
-        try {
-            keyCertChain = toX509Certificates(certChainInputStream);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Input stream not contain valid certificates.", e);
-        } finally {
-            CloseUtil.close(certChainInputStream);
-        }
-        try {
-            key = toPrivateKey(keyInputStream, keyPassword);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Input stream does not contain valid private key.",
-                    e);
-        } finally {
-            CloseUtil.close(keyInputStream);
-        }
-        return keyManager(key, keyPassword, keyCertChain);
-    }
-
-    public SslContext build() throws SSLException {
-        SSLContext context = newSSLContext();
-        return new SslContext(context, !isServer, ciphers, clientAuth, applicationProtocols);
-    }
-
-    /*----------------------------------------- server end --------------------------------------*/
-
-    /*----------------------------------------- client begin --------------------------------------*/
-
-    private X509Certificate[]   trustCertCollection;
-    private TrustManagerFactory trustManagerFactory;
-    private boolean             trustAll;
-    private X509TrustManager    x509TrustManager;
-
-    public SslContextBuilder trustManager(InputStream trustCertCollectionInputStream) {
-        needClient();
-        try {
-            return trustManager(toX509Certificates(trustCertCollectionInputStream));
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Input stream does not contain valid certificates.",
-                    e);
-        }
-    }
-
-    public SslContextBuilder trustManager(TrustManagerFactory trustManagerFactory) {
-        needClient();
-        this.trustCertCollection = null;
-        this.trustManagerFactory = trustManagerFactory;
-        return this;
-    }
-
-    public SslContextBuilder trustManager(boolean trustAll) {
-        needClient();
-        this.trustAll = trustAll;
-        this.x509TrustManager = null;
-        return this;
-    }
-
-    public SslContextBuilder trustManager(X509TrustManager x509TrustManager) {
-        needClient();
-        this.x509TrustManager = x509TrustManager;
-        this.trustAll = false;
-        return this;
-    }
-
-    public SslContextBuilder trustManager(X509Certificate... trustCertCollection) {
-        needClient();
-        if (trustCertCollection != null) {
-            this.trustCertCollection = trustCertCollection.clone();
-        }
-        this.trustManagerFactory = null;
-        return this;
-    }
-
-    /*----------------------------------------- client end --------------------------------------*/
 
 }

@@ -323,11 +323,12 @@ public final class NioSocketChannel extends AttributesImpl
                 }
                 writeBufs.offer(buf);
                 int wbsSize = writeBufs.size();
-                        
+
                 if (maxWriteBacklog != Integer.MAX_VALUE && writeBufs.size() > maxWriteBacklog) {
                     close();
                     return;
                 }
+                //FIXME 确认这里这么判断是否有问题
                 if (wbsSize != 1) {
                     return;
                 }
@@ -436,6 +437,7 @@ public final class NioSocketChannel extends AttributesImpl
                     for (ByteBuf buf : bufs) {
                         writeBufs.offer(buf);
                     }
+                    //FIXME 确认这里这么判断是否有问题
                     if (writeBufs.size() != bufs.size()) {
                         return;
                     }
@@ -451,7 +453,7 @@ public final class NioSocketChannel extends AttributesImpl
             }
         }
     }
-    
+
     public Integer getChannelId() {
         return channelId;
     }
@@ -964,7 +966,6 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-
     protected boolean write(final int interestOps) throws IOException {
         final NioEventLoop eventLoop = this.eventLoop;
         final Queue<ByteBuf> writeBufs = this.writeBufs;
@@ -972,9 +973,6 @@ public final class NioSocketChannel extends AttributesImpl
         final ByteBuf[] currentWriteBufs = this.currentWriteBufs;
         final ByteBuffer[] writeBuffers = eventLoop.getWriteBuffers();
         final int maxLen = currentWriteBufs.length;
-        if (writeBufs.isEmpty()) {
-            return true;
-        }
         for (;;) {
             int currentWriteBufsLen = this.currentWriteBufsLen;
             for (; currentWriteBufsLen < maxLen;) {
@@ -1041,10 +1039,10 @@ public final class NioSocketChannel extends AttributesImpl
                 }
                 this.currentWriteBufsLen = 0;
                 // use this is better ?
-//                if (currentWriteBufsLen != maxLen) {
-//                    interestRead(selectionKey, interestOps);
-//                    return true;
-//                }
+                //                if (currentWriteBufsLen != maxLen) {
+                //                    interestRead(selectionKey, interestOps);
+                //                    return true;
+                //                }
                 if (writeBufs.isEmpty()) {
                     interestRead(selectionKey, interestOps);
                     return true;
