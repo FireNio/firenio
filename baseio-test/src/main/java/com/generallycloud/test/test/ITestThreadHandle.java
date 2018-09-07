@@ -53,12 +53,16 @@ public class ITestThreadHandle {
             throw new RuntimeException(e);
         }
         long spend = (System.currentTimeMillis() - old);
-        logger.info("## Execute Time:" + allTime);
-        logger.info("## OP/S:" + new BigDecimal(allTime * 1000L).divide(new BigDecimal(spend), 2,
-                BigDecimal.ROUND_HALF_UP));
-        logger.info("## Expend Time:" + spend);
         for (int i = 0; i < ts.length; i++) {
             ts[i].stop();
         }
+        double ops = new BigDecimal(allTime * 1000L).divide(new BigDecimal(spend), 2,
+                BigDecimal.ROUND_HALF_UP).doubleValue();
+//        System.err.println("## Execute Time:" + allTime);
+//        System.err.println("## OP/S:" + ops);
+//        System.err.println("## Expend Time:" + spend);
+        logger.info("## Execute Time:" + allTime);
+        logger.info("## OP/S:" + ops);
+        logger.info("## Expend Time:" + spend);
     }
 }

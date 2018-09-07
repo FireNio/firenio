@@ -16,10 +16,12 @@
 package com.generallycloud.test.io.load.fixedlength;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
@@ -29,16 +31,22 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
+import static com.generallycloud.test.io.load.fixedlength.TestLoadServer.debug;
 
 public class TestLoadClient1 extends ITestThread {
 
+    static final Object lock = new Object();
+    static boolean running = true;
     static final int            core_size = 16;
-
+    final AtomicInteger count = new AtomicInteger();
+    
+    
+    
     private static final byte[] req;
 
     static {
-        int len = 1;
-        String s = "hello server!!!";
+        int len = 2;
+        String s = "";
         for (int i = 0; i < len; i++) {
             s += "hello server!";
         }
@@ -55,6 +63,9 @@ public class TestLoadClient1 extends ITestThread {
             Frame frame = new FixedLengthFrame();
             frame.write(req);
             channel.flush(frame);
+            if (debug) {
+                count.incrementAndGet();
+            }
         }
     }
 
@@ -66,6 +77,9 @@ public class TestLoadClient1 extends ITestThread {
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 addCount(40000);
+                if (debug) {
+                    count.decrementAndGet();
+                }
             }
         };
 
@@ -94,10 +108,29 @@ public class TestLoadClient1 extends ITestThread {
     @Override
     public void stop() {
         CloseUtil.close(connector);
+        running = false;
+        synchronized (lock) {
+            lock.notify();
+        }
     }
 
     public static void main(String[] args) throws IOException {
 
+        if (debug) {
+            ThreadUtil.exec(() -> {
+                ThreadUtil.sleep(7000);
+                for(;running;){
+                    ThreadUtil.wait(lock, 3000);
+                    for(ITestThread tt : ITestThreadHandle.ts){
+                        TestLoadClient1 t = (TestLoadClient1) tt;
+                        if (t.count.get() > 0) {
+                            System.out.println("count:"+t.count.get()+"ch:"+t.connector.getChannel());
+                        }
+                    }
+                }
+            });
+        }
+        
         int time = 1024 * 1024 * 4;
 
         ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);

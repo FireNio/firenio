@@ -18,6 +18,7 @@ package com.generallycloud.test.io.load.fixedlength;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
+import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
@@ -28,18 +29,22 @@ import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.TextFrame;
 
 public class TestLoadServer {
-    
-    public static final AtomicInteger recv = new AtomicInteger();
+
+    public static final AtomicInteger recv  = new AtomicInteger();
+
+    public static final boolean       debug = true;
 
     public static void main(String[] args) throws Exception {
-        
+
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 TextFrame f = (TextFrame) frame;
                 f.write(f.getReadText(), channel);
                 channel.flush(frame);
-//                recv.getAndIncrement();
+                if (debug) {
+                    recv.getAndIncrement();
+                }
             }
         };
 
@@ -48,8 +53,8 @@ public class TestLoadServer {
         group.setBufRecycleSize(1024 * 64);
         group.setWriteBuffers(16);
         group.setMemoryPoolUnit(256);
-//        group.setEnableMemoryPool(false);
-//        group.setEnableMemoryPoolDirect(false);
+        //        group.setEnableMemoryPool(false);
+        //        group.setEnableMemoryPoolDirect(false);
         ChannelContext context = new ChannelContext(8300);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
@@ -57,8 +62,15 @@ public class TestLoadServer {
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         acceptor.bind();
-        
 
+        if (debug) {
+            ThreadUtil.exec(() -> {
+                for(;;){
+                    ThreadUtil.sleep(3000);
+                    System.out.println("recv:"+recv.get());
+                }
+            });
+        }
     }
 
 }
