@@ -36,7 +36,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -53,7 +55,6 @@ import com.generallycloud.baseio.common.MessageFormatter;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.ThrowableUtil;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
-import com.generallycloud.baseio.concurrent.BufferedArrayList;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -83,7 +84,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private final int                                channelSizeLimit        = 1024 * 64;
     private ChannelContext                           context;                                               // use when not sharable 
     private String                                   desc;
-    private final BufferedArrayList<Runnable>        events;
+    private final Queue<Runnable>                    events;
     private final NioEventLoopGroup                  group;
     private volatile boolean                         hasTask                 = false;
     private final int                                index;
@@ -107,7 +108,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             this.selectionKeySet = null;
         }
         attributes = new HashMap<>();
-        events = new BufferedArrayList<>(channelSizeLimit);
+        events = new LinkedBlockingQueue<>();
         channels = new IntObjectHashMap<>();
     }
 
@@ -286,17 +287,19 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    private void handleEvents(BufferedArrayList<Runnable> events) {
+    private void handleEvents(Queue<Runnable> events) {
         if (events.size() > 0) {
-            List<Runnable> es = events.getBuffer();
-            for (Runnable event : es) {
+            for (;;) {
+                Runnable event = events.poll();
+                if (event == null) {
+                    break;
+                }
                 try {
                     event.run();
                 } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
                 }
             }
-            es.clear();
         }
     }
 
@@ -381,7 +384,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         final Selector selector = this.selector;
         final AtomicInteger selecting = this.selecting;
         final SelectionKeySet keySet = this.selectionKeySet;
-        final BufferedArrayList<Runnable> events = this.events;
+        final Queue<Runnable> events = this.events;
         long nextIdle = 0;
         long selectTime = idle;
         for (;;) {

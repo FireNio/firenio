@@ -27,6 +27,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -362,7 +363,7 @@ public final class NioSocketChannel extends AttributesImpl
                 }
                 final int bufsSize = bufs.size();
                 final Queue<ByteBuf> writeBufs = this.writeBufs;
-                if (writeBufs.size() == 0) {
+                if (writeBufs.isEmpty()) {
                     final ByteBuf[] currentWriteBufs = this.currentWriteBufs;
                     final int maxLen = currentWriteBufs.length;
                     int currentWriteBufsLen = this.currentWriteBufsLen;
@@ -998,16 +999,8 @@ public final class NioSocketChannel extends AttributesImpl
                     ByteBuf buf = currentWriteBufs[i];
                     if (writeBuffers[i].hasRemaining()) {
                         int remain = currentWriteBufsLen - i;
-                        if (remain > 16) {
-                            System.arraycopy(currentWriteBufs, i, currentWriteBufs, 0, remain);
-                        } else {
-                            for (int j = 0; j < remain; j++) {
-                                currentWriteBufs[j] = currentWriteBufs[i + j];
-                            }
-                        }
-                        for (int j = currentWriteBufsLen - i; j < maxLen; j++) {
-                            currentWriteBufs[j] = null;
-                        }
+                        System.arraycopy(currentWriteBufs, i, currentWriteBufs, 0, remain);
+                        Arrays.fill(currentWriteBufs, currentWriteBufsLen - i, maxLen, null);
                         buf.reverse();
                         this.currentWriteBufsLen = remain;
                         interestWrite(selectionKey, interestOps);
