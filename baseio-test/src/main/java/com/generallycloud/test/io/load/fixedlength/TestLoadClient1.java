@@ -38,7 +38,7 @@ public class TestLoadClient1 extends ITestThread {
 
     static {
         int len = 1;
-        String s = "hello server!";
+        String s = "hello server!!!";
         for (int i = 0; i < len; i++) {
             s += "hello server!";
         }
@@ -72,6 +72,7 @@ public class TestLoadClient1 extends ITestThread {
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setMemoryPoolCapacity(5120000 / core_size);
         group.setMemoryPoolUnit(256);
+        group.setWriteBuffers(16);
         group.setBufRecycleSize(1024 * 8);
         //        group.setEnableMemoryPool(false);
         //        group.setEnableMemoryPoolDirect(false);

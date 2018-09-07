@@ -13,49 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.http2.frame;
-
-import java.io.IOException;
+package com.generallycloud.baseio.codec.http2;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http2.Http2Session;
-import com.generallycloud.baseio.component.NioSocketChannel;
 
-public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2SettingsFrame {
+public class Http2SettingsFrame extends Http2FrameHeader {
+    
+    public static final int SETTINGS_HEADER_TABLE_SIZE      = 0x1;
+    public static final int SETTINGS_ENABLE_PUSH            = 0x2;
+    public static final int SETTINGS_MAX_CONCURRENT_STREAMS = 0x3;
+    public static final int SETTINGS_INITIAL_WINDOW_SIZE    = 0x4;
+    public static final int SETTINGS_MAX_FRAME_SIZE         = 0x5;
+    public static final int SETTINGS_MAX_HEADER_LIST_SIZE   = 0x6;
 
     private long[] settings; //FIXME delete
 
-    public Http2SettingsFrameImpl(ByteBuf buf, Http2FrameHeader header) {
-        super(header);
-        this.setByteBuf(buf);
-    }
 
-    private void doComplete(NioSocketChannel ch, ByteBuf buf) throws IOException {
-        Http2Session session = Http2Session.getHttp2Session(ch);
-        int settings = buf.limit() / 6;
+    @Override
+    Http2SettingsFrame decode(Http2Session session, ByteBuf src, int length) {
+        int settings = length / 6;
         for (int i = 0; i < settings; i++) {
-            int key = buf.getShort();
-            int value = buf.getInt();
+            int key = src.getShort();
+            int value = src.getInt();
             session.setSettings(key, value);
         }
         this.settings = session.getSettings();
-        ch.flush(this);
-    }
-
-    @Override
-    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
-        ByteBuf buf = getByteBuf();
-        buf.read(buffer);
-        if (buf.hasRemaining()) {
-            return false;
-        }
-        doComplete(ch, buf.flip());
-        return true;
+        return this;
     }
 
     @Override
     public boolean isSilent() {
         return true;
+    }
+    
+    public void setSettings(long[] settings) {
+        this.settings = settings;
     }
 
     @Override
@@ -63,7 +55,6 @@ public class Http2SettingsFrameImpl extends AbstractHttp2Frame implements Http2S
         return Http2FrameType.FRAME_TYPE_SETTINGS;
     }
 
-    @Override
     public long[] getSettings() {
         return settings;
     }

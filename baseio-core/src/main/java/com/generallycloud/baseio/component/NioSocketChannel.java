@@ -322,14 +322,8 @@ public final class NioSocketChannel extends AttributesImpl
                     return;
                 }
                 writeBufs.offer(buf);
-                int wbsSize = writeBufs.size();
-
-                if (maxWriteBacklog != Integer.MAX_VALUE && writeBufs.size() > maxWriteBacklog) {
-                    close();
-                    return;
-                }
                 //FIXME 确认这里这么判断是否有问题
-                if (wbsSize != 1) {
+                if (writeBufs.size() != 1) {
                     return;
                 }
             } finally {
@@ -405,12 +399,6 @@ public final class NioSocketChannel extends AttributesImpl
                         }
                     }
                 } else {
-                    if (maxWriteBacklog != Integer.MAX_VALUE
-                            && bufsSize + bufs.size() > maxWriteBacklog) {
-                        ReleaseUtil.release(bufs);
-                        close();
-                        return;
-                    }
                     for (ByteBuf buf : bufs) {
                         writeBufs.offer(buf);
                     }
@@ -426,12 +414,6 @@ public final class NioSocketChannel extends AttributesImpl
                 try {
                     if (isClosed()) {
                         ReleaseUtil.release(bufs);
-                        return;
-                    }
-                    if (maxWriteBacklog != Integer.MAX_VALUE
-                            && writeBufs.size() + bufs.size() > maxWriteBacklog) {
-                        ReleaseUtil.release(bufs);
-                        close();
                         return;
                     }
                     for (ByteBuf buf : bufs) {
@@ -1029,6 +1011,10 @@ public final class NioSocketChannel extends AttributesImpl
                         buf.reverse();
                         this.currentWriteBufsLen = remain;
                         interestWrite(selectionKey, interestOps);
+                        if (maxWriteBacklog != Integer.MAX_VALUE
+                                && writeBufs.size() > maxWriteBacklog) {
+                            close();
+                        }
                         return false;
                     } else {
                         buf.release();

@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.http2.frame;
+package com.generallycloud.baseio.codec.http2;
 
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http2.Http2Session;
 import com.generallycloud.baseio.codec.http2.hpack.Decoder;
-import com.generallycloud.baseio.component.NioSocketChannel;
 
-public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2HeadersFrame {
+public class Http2HeadersFrame extends Http2FrameHeader {
 
     private byte           padLength;
     private boolean        e;
@@ -31,38 +29,22 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
     private boolean        endStream;
     private static Decoder decoder = new Decoder();
 
-    public Http2HeadersFrameImpl(ByteBuf buf, Http2FrameHeader header) {
-        super(header);
-        this.setByteBuf(buf);
-    }
-
-    private void doComplete(NioSocketChannel ch, ByteBuf buf) throws IOException {
-        Http2Session session = Http2Session.getHttp2Session(ch);
-        byte flags = getHeader().getFlags();
+    Http2HeadersFrame decode(Http2Session session, ByteBuf src, int length) throws IOException {
+        byte flags = getFlags();
         this.endStream = (flags & FLAG_END_STREAM) > 0;
         if ((flags & FLAG_PADDED) > 0) {
-            padLength = buf.getByte();
+            padLength = src.getByte();
         }
         if ((flags & FLAG_PRIORITY) > 0) {
-            streamDependency = buf.getInt();
+            streamDependency = src.getInt();
             e = streamDependency < 0;
             if (e) {
                 streamDependency = streamDependency & 0x7FFFFFFF;
             }
-            weight = buf.getUnsignedByte();
+            weight = src.getUnsignedByte();
         }
-        decoder.decode(streamDependency, buf, session.getHttp2Headers());
-    }
-
-    @Override
-    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
-        ByteBuf buf = getByteBuf();
-        buf.read(buffer);
-        if (buf.hasRemaining()) {
-            return false;
-        }
-        doComplete(ch, buf.flip());
-        return true;
+        decoder.decode(streamDependency, src, session.getHttp2Headers());
+        return this;
     }
 
     @Override
@@ -75,22 +57,18 @@ public class Http2HeadersFrameImpl extends AbstractHttp2Frame implements Http2He
         return Http2FrameType.FRAME_TYPE_HEADERS;
     }
 
-    @Override
     public boolean isE() {
         return e;
     }
 
-    @Override
     public int getStreamDependency() {
         return streamDependency;
     }
 
-    @Override
     public short getWeight() {
         return weight;
     }
 
-    @Override
     public byte getPadLength() {
         return padLength;
     }

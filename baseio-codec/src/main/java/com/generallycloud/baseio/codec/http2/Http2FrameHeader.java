@@ -13,49 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.http2.frame;
+package com.generallycloud.baseio.codec.http2;
 
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.protocol.AbstractFrame;
 
-public class Http2WindowUpdateFrameImpl extends AbstractHttp2Frame
-        implements Http2WindowUpdateFrame {
+public abstract class Http2FrameHeader extends AbstractFrame implements Http2Frame {
 
-    private int updateValue;
-    
-    public Http2WindowUpdateFrameImpl(ByteBuf buf, Http2FrameHeader header) {
-        super(header);
-        this.setByteBuf(buf);
-    }
+    public static final int FLAG_END_STREAM  = 0x1;
+    public static final int FLAG_END_HEADERS = 0x4;
+    public static final int FLAG_PADDED      = 0x8;
+    public static final int FLAG_PRIORITY    = 0x20;
+
+    private byte            flags;
+    private int             streamIdentifier;
 
     @Override
     public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
-        ByteBuf buf = getByteBuf();
-        buf.read(buffer);
-        if (buf.hasRemaining()) {
-            return false;
-        }
-        buf.flip();
-        this.updateValue = MathUtil.int2int31(buf.getInt());
         return true;
     }
 
     @Override
-    public boolean isSilent() {
-        return true;
+    public byte getFlags() {
+        return flags;
     }
 
     @Override
-    public Http2FrameType getHttp2FrameType() {
-        return Http2FrameType.FRAME_TYPE_SETTINGS;
+    public int getStreamIdentifier() {
+        return streamIdentifier;
     }
 
     @Override
-    public int getUpdateValue() {
-        return updateValue;
+    public void setFlags(byte flags) {
+        this.flags = flags;
     }
+
+    @Override
+    public void setStreamIdentifier(int streamIdentifier) {
+        this.streamIdentifier = streamIdentifier;
+    }
+
+    abstract Http2Frame decode(Http2Session session, ByteBuf src, int length) throws IOException;
 
 }

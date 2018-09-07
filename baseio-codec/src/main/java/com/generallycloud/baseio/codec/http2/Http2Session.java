@@ -22,12 +22,15 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 public class Http2Session {
 
     private static final String http2SessionChannelKey = "Http2SessionChannelKey";
-    
-    private boolean      prefaceRead  = true;
 
-    private long[]       settings     = new long[] { 0, 4096, 1, 128, 65535, 16384, 0 };
+    private boolean             prefaceRead            = true;
 
-    private Http2Headers http2Headers = new Http2HeadersImpl();
+    private long[]              settings               = new long[] { 0, 4096, 1, 128, 65535, 16384,
+            0 };
+
+    private Http2Headers        http2Headers           = new Http2HeadersImpl();
+
+    private NioSocketChannel    channel;
 
     public long getSettings(int i) {
         return settings[i];
@@ -52,8 +55,16 @@ public class Http2Session {
     public void setPrefaceRead(boolean prefaceRead) {
         this.prefaceRead = prefaceRead;
     }
-    
-    public static Http2Session getHttp2Session(NioSocketChannel ch){
+
+    public NioSocketChannel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(NioSocketChannel channel) {
+        this.channel = channel;
+    }
+
+    public static Http2Session getHttp2Session(NioSocketChannel ch) {
         Http2Session session = (Http2Session) ch.getAttribute(http2SessionChannelKey);
         if (session == null) {
             synchronized (ch.attributes()) {

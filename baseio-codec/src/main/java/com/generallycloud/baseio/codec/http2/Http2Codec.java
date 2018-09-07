@@ -18,16 +18,10 @@ package com.generallycloud.baseio.codec.http2;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.codec.http2.frame.Http2Frame;
-import com.generallycloud.baseio.codec.http2.frame.Http2FrameHeaderImpl;
-import com.generallycloud.baseio.codec.http2.frame.Http2FrameType;
-import com.generallycloud.baseio.codec.http2.frame.Http2HeadersFrame;
-import com.generallycloud.baseio.codec.http2.frame.Http2PrefaceFrame;
-import com.generallycloud.baseio.codec.http2.frame.Http2SettingsFrame;
 import com.generallycloud.baseio.codec.http2.hpack.DefaultHttp2HeadersEncoder;
 import com.generallycloud.baseio.codec.http2.hpack.Http2HeadersEncoder;
 import com.generallycloud.baseio.common.MathUtil;
+import com.generallycloud.baseio.common.ThrowableUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -96,25 +90,88 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  * 
  */
 //http://httpwg.org/specs/rfc7540.html
+//https://blog.csdn.net/u010129119/article/details/79361949
 public class Http2Codec extends ProtocolCodec {
 
-    public static final int     PROTOCOL_HEADER         = 9;
-    public static final int     PROTOCOL_PING           = -1;
-    public static final int     PROTOCOL_PONG           = -2;
-    public static final int     PROTOCOL_PREFACE_HEADER = 24;
-    private Http2HeadersEncoder http2HeadersEncoder     = new DefaultHttp2HeadersEncoder();
+    private static final IOException NOT_HTTP2_PROTOCL       = ThrowableUtil
+            .unknownStackTrace(new IOException("preface not matched"), Http2Codec.class, "codec");
 
-    private ByteBuf allocate(NioSocketChannel ch, int capacity) {
-        return ch.alloc().allocate(capacity);
+    public static final int          PROTOCOL_HEADER         = 9;
+    public static final int          PROTOCOL_PING           = -1;
+    public static final int          PROTOCOL_PONG           = -2;
+    public static final int          PROTOCOL_PREFACE_HEADER = 24;
+    private Http2HeadersEncoder      http2HeadersEncoder     = new DefaultHttp2HeadersEncoder();
+
+    private static byte[]            PREFACE_BINARY          = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"
+            .getBytes();
+
+    private Http2FrameHeader genFrame(Http2FrameType type, int length, int streamIdentifier,
+            byte flags) {
+        switch (type) {
+            case FRAME_TYPE_CONTINUATION:
+                break;
+            case FRAME_TYPE_DATA:
+                break;
+            case FRAME_TYPE_GOAWAY:
+                break;
+            case FRAME_TYPE_HEADERS:
+                return new Http2HeadersFrame();
+            case FRAME_TYPE_PING:
+                break;
+            case FRAME_TYPE_PRIORITY:
+                break;
+            case FRAME_TYPE_PUSH_PROMISE:
+                break;
+            case FRAME_TYPE_RST_STREAM:
+                break;
+            case FRAME_TYPE_SETTINGS:
+                return new Http2SettingsFrame();
+            case FRAME_TYPE_WINDOW_UPDATE:
+                return new Http2WindowUpdateFrame();
+            default:
+                break;
+        }
+        throw new IllegalArgumentException(type.toString());
     }
 
     @Override
-    public Frame decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
+    public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
         Http2Session session = Http2Session.getHttp2Session(ch);
         if (session.isPrefaceRead()) {
-            return new Http2PrefaceFrame(allocate(ch, PROTOCOL_PREFACE_HEADER));
+            if (src.remaining() < PREFACE_BINARY.length) {
+                return null;
+            }
+            for (int i = 0; i < PREFACE_BINARY.length; i++) {
+                if (src.getByte() != PREFACE_BINARY[i]) {
+                    throw NOT_HTTP2_PROTOCL;
+                }
+            }
+            session.setPrefaceRead(false);
+            //这里应该向客户端返回settings帧，先不返回了，等解析完客户端发来的
+            //settings帧再给客户端返回
+            Http2SettingsFrame f = new Http2SettingsFrame();
+            f.setSettings(session.getSettings());
+            ch.flush(f);
+            return decode(ch, src);
         }
-        return new Http2FrameHeaderImpl(allocate(ch, PROTOCOL_HEADER));
+        if (src.remaining() < PROTOCOL_HEADER) {
+            return null;
+        }
+        byte b0 = src.getByte();
+        byte b1 = src.getByte();
+        byte b2 = src.getByte();
+        byte type = src.getByte();
+        byte flags = src.getByte();
+        int v = src.getInt();
+        int length = ((b0 & 0xff) << 8 * 2) | ((b1 & 0xff) << 8 * 1) | ((b2 & 0xff) << 8 * 0);
+        int streamIdentifier = v & 0xFFFFFFFF;
+        if (src.remaining() < length) {
+            src.skip(-PROTOCOL_HEADER);
+            return null;
+        }
+        Http2FrameType hType = Http2FrameType.getValue(type & 0xff);
+        Http2FrameHeader frame = genFrame(hType, length, streamIdentifier, flags);
+        return frame.decode(session, src, length);
     }
 
     @Override
@@ -127,17 +184,12 @@ public class Http2Codec extends ProtocolCodec {
                 break;
             case FRAME_TYPE_DATA:
                 break;
-            case FRAME_TYPE_FRAME_HEADER:
-                break;
             case FRAME_TYPE_GOAWAY:
                 break;
             case FRAME_TYPE_HEADERS:
                 Http2HeadersFrame hf = (Http2HeadersFrame) f;
-                //          http2HeadersEncoder.encodeHeaders(headers, buffer);
                 break;
             case FRAME_TYPE_PING:
-                break;
-            case FRAME_TYPE_PREFACE:
                 break;
             case FRAME_TYPE_PRIORITY:
                 break;
@@ -172,7 +224,7 @@ public class Http2Codec extends ProtocolCodec {
         buf.putByte(b2);
         buf.putByte(b3);
         buf.putByte((byte) 0);
-        buf.putInt(f.getHeader().getStreamIdentifier());
+        buf.putInt(f.getStreamIdentifier());
         buf.put(payload);
         return buf.flip();
     }

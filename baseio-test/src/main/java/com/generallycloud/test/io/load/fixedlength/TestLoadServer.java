@@ -46,6 +46,7 @@ public class TestLoadServer {
         NioEventLoopGroup group = new NioEventLoopGroup(8);
         group.setMemoryPoolCapacity(1024 * 512);
         group.setBufRecycleSize(1024 * 64);
+        group.setWriteBuffers(16);
         group.setMemoryPoolUnit(256);
 //        group.setEnableMemoryPool(false);
 //        group.setEnableMemoryPoolDirect(false);

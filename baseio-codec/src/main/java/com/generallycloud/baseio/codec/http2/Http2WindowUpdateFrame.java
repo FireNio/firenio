@@ -13,31 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.http2.frame;
+package com.generallycloud.baseio.codec.http2;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.protocol.AbstractFrame;
+import com.generallycloud.baseio.common.MathUtil;
 
-public abstract class AbstractHttp2Frame extends AbstractFrame implements SocketHttp2Frame {
+public class Http2WindowUpdateFrame extends Http2FrameHeader {
 
-    private Http2FrameHeader header;
-    private ByteBuf buf;
+    private int updateValue;
 
-    protected AbstractHttp2Frame(Http2FrameHeader header) {
-        this.header = header;
+    @Override
+    Http2WindowUpdateFrame decode(Http2Session session, ByteBuf src, int length) {
+        this.updateValue = MathUtil.int2int31(src.getInt());
+        return this;
     }
 
     @Override
-    public Http2FrameHeader getHeader() {
-        return header;
+    public boolean isSilent() {
+        return true;
     }
 
-    public ByteBuf getByteBuf() {
-        return buf;
+    @Override
+    public Http2FrameType getHttp2FrameType() {
+        return Http2FrameType.FRAME_TYPE_SETTINGS;
     }
 
-    public void setByteBuf(ByteBuf buf) {
-        this.buf = buf;
+    public int getUpdateValue() {
+        return updateValue;
     }
 
 }

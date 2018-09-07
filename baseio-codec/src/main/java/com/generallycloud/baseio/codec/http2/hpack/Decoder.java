@@ -28,7 +28,7 @@ import static com.generallycloud.baseio.codec.http2.hpack.Http2Exception.connect
 import static com.generallycloud.baseio.common.ThrowableUtil.unknownStackTrace;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http2.frame.Http2Header;
+import com.generallycloud.baseio.codec.http2.Http2Header;
 import com.generallycloud.baseio.codec.http2.hpack.HpackUtil.IndexType;
 
 public final class Decoder {

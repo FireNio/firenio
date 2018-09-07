@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.http2.frame;
+package com.generallycloud.baseio.codec.http2;
 
 import com.generallycloud.baseio.protocol.Frame;
 
 public interface Http2Frame extends Frame {
 
-    public abstract Http2FrameHeader getHeader();
+    byte getFlags();
 
-    public abstract Http2FrameType getHttp2FrameType();
+    Http2FrameType getHttp2FrameType();
 
+    int getStreamIdentifier();
+
+    void setFlags(byte flags);
+
+    void setStreamIdentifier(int streamIdentifier);
+    
 }
 // ERROR CODE
 //
