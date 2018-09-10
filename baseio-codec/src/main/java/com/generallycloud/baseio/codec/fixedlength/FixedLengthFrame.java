@@ -49,12 +49,12 @@ public class FixedLengthFrame extends AbstractFrame implements TextFrame {
             setHeartbeat(len);
             return true;
         }
+        if (len > limit) {
+            throw new IOException("over limit:" + len);
+        }
         if (len > src.remaining()) {
             src.skip(-4);
             return false;
-        }
-        if (len > limit) {
-            throw new IOException("over limit:" + len);
         }
         src.markL();
         src.limit(src.position() + len);
