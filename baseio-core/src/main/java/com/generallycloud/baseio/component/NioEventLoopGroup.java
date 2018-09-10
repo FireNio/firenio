@@ -33,7 +33,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     private boolean               acceptor;
     private ByteBufAllocatorGroup allocatorGroup;
-    private int                   bufRecycleSize         = 1024 * 4;
     private FixedAtomicInteger    channelIds;
     private int                   channelReadBuffer      = 1024 * 512;
     private boolean               enableMemoryPool       = true;
@@ -87,10 +86,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     public ByteBufAllocatorGroup getAllocatorGroup() {
         return allocatorGroup;
-    }
-
-    public int getBufRecycleSize() {
-        return bufRecycleSize;
     }
 
     public FixedAtomicInteger getChannelIds() {
@@ -190,11 +185,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         if (!this.acceptor) {
             setEventLoopSize(1);
         }
-    }
-
-    public void setBufRecycleSize(int bufRecycleSize) {
-        checkNotRunning();
-        this.bufRecycleSize = bufRecycleSize;
     }
 
     public void setChannelReadBuffer(int channelReadBuffer) {

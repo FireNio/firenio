@@ -30,7 +30,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
@@ -114,7 +114,7 @@ public final class NioSocketChannel extends AttributesImpl
         this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
         this.channel = (SocketChannel) selectionKey.channel();
         this.lastAccess = creationTime + group.getIdleTime();
-        this.writeBufs = new ConcurrentLinkedQueue<>();
+        this.writeBufs = new LinkedBlockingQueue<>();
         //请勿使用remote.getRemoteHost(),可能出现阻塞
         InetSocketAddress remote = getRemoteSocketAddress0();
         InetSocketAddress local = getLocalSocketAddress0();
@@ -660,6 +660,14 @@ public final class NioSocketChannel extends AttributesImpl
         if (length < 1) {
             if (length == -1) {
                 CloseUtil.close(this);
+            }
+            if (src.position() > 0) {
+                src.flip();
+                if (enableSsl) {
+                    sslRemainBuf = sliceRemain(src);
+                } else {
+                    plainRemainBuf = sliceRemain(src);
+                }
             }
             return;
         }

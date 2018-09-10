@@ -15,10 +15,7 @@
  */
 package com.generallycloud.test.io.load.fixedlength;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
-import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
@@ -30,10 +27,6 @@ import com.generallycloud.baseio.protocol.TextFrame;
 
 public class TestLoadServer {
 
-    public static final AtomicInteger recv  = new AtomicInteger();
-
-    public static final boolean       debug = true;
-
     public static void main(String[] args) throws Exception {
 
         IoEventHandle eventHandle = new IoEventHandle() {
@@ -42,15 +35,11 @@ public class TestLoadServer {
                 TextFrame f = (TextFrame) frame;
                 f.write(f.getReadText(), channel);
                 channel.flush(frame);
-                if (debug) {
-                    recv.getAndIncrement();
-                }
             }
         };
 
         NioEventLoopGroup group = new NioEventLoopGroup(8);
         group.setMemoryPoolCapacity(1024 * 512);
-        group.setBufRecycleSize(1024 * 64);
         group.setWriteBuffers(16);
         group.setMemoryPoolUnit(256);
         //        group.setEnableMemoryPool(false);
@@ -63,14 +52,6 @@ public class TestLoadServer {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         acceptor.bind();
 
-        if (debug) {
-            ThreadUtil.exec(() -> {
-                for(;;){
-                    ThreadUtil.sleep(3000);
-                    System.out.println("recv:"+recv.get());
-                }
-            });
-        }
     }
 
 }

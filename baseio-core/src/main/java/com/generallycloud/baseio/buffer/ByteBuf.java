@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.baseio.Releasable;
 
-public interface ByteBuf extends ByteBufNew, Releasable {
+public interface ByteBuf extends ByteBufBuilder, Releasable {
 
     int absLimit();
 
