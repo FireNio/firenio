@@ -187,5 +187,14 @@ public class ChannelConnector implements ChannelService, Closeable {
         this.waiter = null;
         LoggerUtil.prettyLog(logger, "connected to server @{}", getServerAddress());
     }
+    
+    @Override
+    public String toString() {
+        NioSocketChannel ch = this.ch;
+        if (ch == null) {
+            return "not connected";
+        }
+        return ch.toString();
+    }
 
 }

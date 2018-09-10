@@ -114,5 +114,10 @@ public class ReConnector implements Closeable {
     public ChannelConnector getRealConnector() {
         return connector;
     }
+    
+    @Override
+    public String toString() {
+        return connector.toString();
+    }
 
 }
