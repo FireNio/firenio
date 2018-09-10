@@ -653,27 +653,20 @@ public final class NioSocketChannel extends AttributesImpl
         src.clear();
         if (enableSsl) {
             readSslRemainingBuf(src);
-        } else {
-            readPlainRemainingBuf(src);
-        }
-        int length = channel.read(src.nioBuffer());
-        if (length < 1) {
-            if (length == -1) {
-                CloseUtil.close(this);
-            }
-            if (src.position() > 0) {
-                src.flip();
-                if (enableSsl) {
-                    sslRemainBuf = sliceRemain(src);
-                } else {
-                    plainRemainBuf = sliceRemain(src);
+            int length = channel.read(src.nioBuffer());
+            if (length < 1) {
+                if (length == -1) {
+                    CloseUtil.close(this);
+                    return;
                 }
+                if (src.position() > 0) {
+                    src.flip();
+                    sslRemainBuf = sliceRemain(src);
+                }
+                return;
             }
-            return;
-        }
-        src.reverse();
-        src.flip();
-        if (enableSsl) {
+            src.reverse();
+            src.flip();
             for (;;) {
                 if (isEnoughSslUnwrap(src)) {
                     ByteBuf res = unwrap(src);
@@ -692,6 +685,21 @@ public final class NioSocketChannel extends AttributesImpl
                 }
             }
         } else {
+            readPlainRemainingBuf(src);
+            int length = channel.read(src.nioBuffer());
+            if (length < 1) {
+                if (length == -1) {
+                    CloseUtil.close(this);
+                    return;
+                }
+                if (src.position() > 0) {
+                    src.flip();
+                    plainRemainBuf = sliceRemain(src);
+                }
+                return;
+            }
+            src.reverse();
+            src.flip();
             accept(src);
         }
     }
