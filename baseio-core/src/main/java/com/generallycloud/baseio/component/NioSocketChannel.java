@@ -815,7 +815,7 @@ public final class NioSocketChannel extends AttributesImpl
         return remaining.flip();
     }
 
-    //FIXME 部分buf不需要gc
+    //FIXME 部分buf不需要swap
     private ByteBuf swap(ByteBufAllocator allocator, ByteBuf buf) throws IOException {
         ByteBuf out = allocator.allocate(buf.limit());
         try {
