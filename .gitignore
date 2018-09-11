@@ -1,5 +1,7 @@
 /baseio/baseio-all-*.jar
-/baseio-release/http-container/lib/baseio-all-3.1.8-SNAPSHOT.jar
-/baseio-release/http-container/app
-/baseio-release/http-container/lib/baseio-all*.jar
-/baseio-release/http-container/logs
+/baseio-homepage/lib/baseio-all-3.1.8-SNAPSHOT.jar
+/baseio-homepage/app
+/baseio-homepage/lib/baseio-all*.jar
+/baseio-homepage/logs
+gc.log
+*/gc.log
