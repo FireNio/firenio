@@ -17,13 +17,9 @@ import io.netty.util.CharsetUtil;
 
 public class MyNettyServer {
     private static final String         IP            = "127.0.0.1";
-    private static final int            PORT          = 5656;
-    private static final int            BIZGROUPSIZE  = Runtime.getRuntime().availableProcessors()
-            * 2;
-
-    private static final int            BIZTHREADSIZE = 100;
-    private static final EventLoopGroup bossGroup     = new NioEventLoopGroup(BIZGROUPSIZE);
-    private static final EventLoopGroup workerGroup   = new NioEventLoopGroup(BIZTHREADSIZE);
+    private static final int            PORT          = 8300;
+    private static final EventLoopGroup bossGroup     = new NioEventLoopGroup(1);
+    private static final EventLoopGroup workerGroup   = new NioEventLoopGroup(8);
 
     public static void service() throws Exception {
         ServerBootstrap bootstrap = new ServerBootstrap();

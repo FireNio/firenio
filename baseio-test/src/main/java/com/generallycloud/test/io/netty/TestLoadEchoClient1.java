@@ -64,7 +64,7 @@ public class TestLoadEchoClient1 extends ITestThread {
 
         Bootstrap b = new Bootstrap();
         b.group(group);
-        b.channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, false);
+        b.channel(NioSocketChannel.class);
         b.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
@@ -79,7 +79,7 @@ public class TestLoadEchoClient1 extends ITestThread {
             }
         });
 
-        f = b.connect("localhost", 5656).sync();
+        f = b.connect("localhost", 8300).sync();
     }
 
     @Override
@@ -89,7 +89,7 @@ public class TestLoadEchoClient1 extends ITestThread {
 
     public static void main(String[] args) throws IOException {
 
-        int time = 1024 * 512;
+        int time = 1024 * 256;
 
         int core_size = 16;
 

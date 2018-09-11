@@ -24,8 +24,8 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.ChannelEventListenerAdapter;
 import com.generallycloud.baseio.component.IoEventHandle;
+import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
@@ -43,7 +43,7 @@ public class TestLoadClient1 extends ITestThread {
     private static final byte[] req;
 
     static {
-        int len = debug ? 8 : 2;
+        int len = debug ? 8 : 1;
         String s = "";
         for (int i = 0; i < len; i++) {
             s += "hello server!";
@@ -88,19 +88,13 @@ public class TestLoadClient1 extends ITestThread {
         group.setMemoryPoolCapacity(5120000 / core_size);
         group.setMemoryPoolUnit(256);
         group.setWriteBuffers(16);
-        //        group.setEnableMemoryPool(false);
-        //        group.setEnableMemoryPoolDirect(false);
+        group.setEnableMemoryPool(TestLoadServer.ENABLE_POOL);
+        group.setEnableMemoryPoolDirect(TestLoadServer.ENABLE_POOL_DIRECT);
         ChannelContext context = new ChannelContext(8300);
         connector = new ChannelConnector(context, group);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setIoEventHandle(eventHandleAdaptor);
-        //        context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addChannelEventListener(new ChannelEventListenerAdapter() {
-            @Override
-            public void channelOpened(NioSocketChannel channel) throws Exception {
-                //                channel.setOption(StandardSocketOptions.TCP_NODELAY, true);
-            }
-        });
+        context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
         connector.connect();
     }

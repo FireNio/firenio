@@ -22,15 +22,12 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Frame;
 
 public class TestHttpLoadServer {
     
 
     public static void main(String[] args) throws Exception {
-        
-//        LoggerFactory.setEnableSLF4JLogger(false);
         
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 

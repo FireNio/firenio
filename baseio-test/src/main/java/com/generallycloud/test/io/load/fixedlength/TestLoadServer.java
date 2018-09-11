@@ -26,6 +26,9 @@ import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.TextFrame;
 
 public class TestLoadServer {
+    
+    public static final boolean ENABLE_POOL = true;
+    public static final boolean ENABLE_POOL_DIRECT = true;
 
     public static void main(String[] args) throws Exception {
 
@@ -42,8 +45,8 @@ public class TestLoadServer {
         group.setMemoryPoolCapacity(1024 * 512);
         group.setWriteBuffers(16);
         group.setMemoryPoolUnit(256);
-        //        group.setEnableMemoryPool(false);
-        //        group.setEnableMemoryPoolDirect(false);
+        group.setEnableMemoryPool(ENABLE_POOL);
+        group.setEnableMemoryPoolDirect(ENABLE_POOL_DIRECT);
         ChannelContext context = new ChannelContext(8300);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
