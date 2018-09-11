@@ -66,7 +66,7 @@
 
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-sample-protobase</artifactId>
+			<artifactId>baseio-sample-http</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 

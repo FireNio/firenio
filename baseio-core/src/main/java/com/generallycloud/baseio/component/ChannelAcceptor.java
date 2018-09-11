@@ -59,7 +59,11 @@ public class ChannelAcceptor implements ChannelService {
         this.context.setNioEventLoopGroup(group);
     }
 
-    public synchronized void bind() throws IOException {
+    public void bind() throws IOException {
+        bind(50);
+    }
+
+    public synchronized void bind(int backlog) throws IOException {
         if (active) {
             return;
         }

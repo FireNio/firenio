@@ -15,7 +15,12 @@
  */
 package com.generallycloud.sample.baseio.http11.startup;
 
-import com.generallycloud.baseio.container.http11.HttpStartup;
+import java.io.IOException;
+
+import com.generallycloud.baseio.Constants;
+import com.generallycloud.baseio.container.ApplicationBootstrap;
+import com.generallycloud.baseio.container.ApplicationBootstrap.ClassPathScaner;
+import com.generallycloud.baseio.container.URLDynamicClassLoader;
 
 /**
  * @author wangkai
@@ -24,8 +29,21 @@ import com.generallycloud.baseio.container.http11.HttpStartup;
 public class TestHttpStartup {
 
     public static void main(String[] args) throws Exception {
-        
-        HttpStartup.main(args);
+
+        System.setProperty(Constants.DEVELOP_DEBUG_KEY, "true");
+        ApplicationBootstrap.startup(
+                "com.generallycloud.sample.baseio.http11.startup.TestHttpBootstrapEngine",
+                ApplicationBootstrap.withDefault(new ClassPathScaner() {
+
+                    @Override
+                    public void scanClassPaths(URLDynamicClassLoader classLoader, String mode,
+                            String rootLocalAddress) throws IOException {
+                        if (!ApplicationBootstrap.isRuntimeDevMode(mode)) {
+                            classLoader.scan(rootLocalAddress + "/app");
+                        }
+                    }
+                }));
+
     }
 
 }

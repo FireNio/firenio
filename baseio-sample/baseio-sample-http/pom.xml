@@ -91,7 +91,7 @@
 
 		<dependency>
 			<groupId>com.generallycloud</groupId>
-			<artifactId>baseio-http</artifactId>
+			<artifactId>baseio-codec</artifactId>
 			<version>3.2.7-SNAPSHOT</version>
 		</dependency>
 

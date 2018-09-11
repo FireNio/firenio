@@ -15,8 +15,8 @@
  */
 package com.generallycloud.test.others;
 
-import com.generallycloud.baseio.container.bootstrap.ApplicationBootstrap;
-import com.generallycloud.baseio.container.bootstrap.BootstrapEngine;
+import com.generallycloud.baseio.container.ApplicationBootstrap;
+import com.generallycloud.baseio.container.BootstrapEngine;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 

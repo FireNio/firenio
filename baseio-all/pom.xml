@@ -31,10 +31,7 @@
 							<configuration>
 								<sources>
 									<source>../baseio-codec/src/main/java</source>
-									<source>../baseio-container/src/main/java</source>
 									<source>../baseio-core/src/main/java</source>
-									<source>../baseio-http/src/main/java</source>
-									<source>../baseio-protobase/src/main/java</source>
 								</sources>
 							</configuration>
 						</execution>
@@ -56,7 +53,7 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 			<version>1.2.7</version>
-			<scope>provided</scope>
+			<scope>compile</scope>
 		</dependency>
 		
 		<dependency>
@@ -90,31 +87,7 @@
 
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>baseio-container</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-core</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>baseio-http</artifactId>
-			<version>${project.version}</version>
-			<scope>compile</scope>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>baseio-protobase</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 			<optional>true</optional>
