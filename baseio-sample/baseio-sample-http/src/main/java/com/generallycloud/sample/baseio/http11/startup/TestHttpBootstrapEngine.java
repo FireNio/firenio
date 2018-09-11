@@ -18,6 +18,7 @@ package com.generallycloud.sample.baseio.http11.startup;
 import com.generallycloud.baseio.AbstractLifeCycleListener;
 import com.generallycloud.baseio.LifeCycle;
 import com.generallycloud.baseio.codec.http11.ServerHttpCodec;
+import com.generallycloud.baseio.codec.http2.Http2Codec;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.component.ChannelAcceptor;
@@ -65,6 +66,12 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
                 }
             }
         });
+        if (properties.getBooleanProperty("app.enableHttp2")) {
+            context.setProtocolCodec(new Http2Codec());
+            context.setApplicationProtocols(new String[] { "h2", "http/1.1" });
+        } else {
+            context.setProtocolCodec(new ServerHttpCodec());
+        }
         if (context.getPort() == 0) {
             context.setPort(context.isEnableSsl() ? 443 : 80);
         }
