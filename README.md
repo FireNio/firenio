@@ -19,7 +19,7 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
  * 轻松实现断线重连(轻松实现心跳机制)
  * 支持SSL(jdkssl,openssl)
  * 压力测试
-   * 超过200W QPS的处理速度(Http1.1,I7-4790,16.04.1-Ubuntu)  [wrk压测](/baseio-documents/load-test/load-test-http.txt)
+   * 超过200W QPS的处理速度(Http1.1,I7-4790,16.04.1-Ubuntu)  [wrk压测](/baseio-doc/load-test/load-test-http.txt)
  
 ## 快速入门
 
@@ -103,4 +103,4 @@ BaseIO is released under the [Apache License 2.0](http://www.apache.org/licenses
 ## 了解更多，加入该项目QQ群，更多java相关技术均可在此讨论
  * QQ群号码：540637859
  * 点击链接加入：[![img](http://pub.idqqimg.com/wpa/images/group.png)](http://shang.qq.com/wpa/qunwpa?idkey=2bd71e10d876bb6035fa0ddc6720b5748fc8985cb666e17157d17bcfbd2bdaef)
- * 扫码加入：<br />  ![image](/baseio-documents/popularize/java-io-group-code-small.png)
+ * 扫码加入：<br />  ![image](/baseio-doc/popularize/java-io-group-code-small.png)
