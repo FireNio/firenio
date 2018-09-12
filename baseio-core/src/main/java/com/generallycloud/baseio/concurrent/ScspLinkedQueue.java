@@ -24,13 +24,13 @@ public class ScspLinkedQueue<V> {
     private Node<V>       tail = null;               // volatile ?
 
     public ScspLinkedQueue() {
-        this.head = new Node<>(null);
+        this.head = new Node<>();
         this.tail = head;
-        this.tail.validate = false;
     }
 
     public void offer(V v) {
-        Node<V> node = new Node<>(v);
+        Node<V> node = new Node<>();
+        tail.v = v;
         tail.next = node;
         tail = node;
         size.incrementAndGet();
@@ -40,24 +40,12 @@ public class ScspLinkedQueue<V> {
         if (size.get() == 0) {
             return null;
         }
-        return get(head);
+        size.decrementAndGet();
+        Node<V> h = head;
+        head = h.next;
+        return h.v;
     }
 
-    private V get(Node<V> h) {
-        if (h.validate) {
-            Node<V> next = h.next;
-            if (next == null) {
-                h.validate = false;
-                head = h;
-            } else {
-                head = next;
-            }
-            this.size.decrementAndGet();
-            return h.v;
-        } else {
-            return get(h.next);
-        }
-    }
     
     public Node<V> getHead() {
         return head;
@@ -84,13 +72,8 @@ public class ScspLinkedQueue<V> {
     }
 
     static class Node<V> {
-        public Node(V v) {
-            this.v = v;
-        }
-
-        final V v;
+        V v;
         Node<V> next;
-        boolean validate = true;
     }
 
     //     not sure if this useful

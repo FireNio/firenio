@@ -36,8 +36,8 @@ public class TestScsp {
             });
         }
         
-        ThreadUtil.sleep(100);
-        System.out.println(queue.size());
+//        ThreadUtil.sleep(100);
+        System.out.println("size:"+queue.size());
         for(;queue.size() > 0;){
             System.out.println(queue.poll());
         }

@@ -16,10 +16,18 @@ public class ScmpLinkedQueue<V> extends ScspLinkedQueue<V> {
     }
 
     public void offer(V v) {
-        Node<V> n = new Node<V>(v);
+        Node<V> n = new Node<V>();
+        Node<V> tail = getTail();
+        if (UnsafeUtil.compareAndSwapObject(this, tailOffset, tail, n)) {
+            tail.v = v;
+            tail.next = n;
+            incrementAndGet();
+            return;
+        }
         for (;;) {
-            Node<V> tail = this.getTail();
+            tail = getTail();
             if (UnsafeUtil.compareAndSwapObject(this, tailOffset, tail, n)) {
+                tail.v = v;
                 tail.next = n;
                 incrementAndGet();
                 return;
