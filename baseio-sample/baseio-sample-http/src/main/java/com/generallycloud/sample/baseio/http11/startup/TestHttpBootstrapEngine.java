@@ -22,6 +22,7 @@ import com.generallycloud.baseio.codec.http2.Http2Codec;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelAliveIdleEventListener;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.ConfigurationParser;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -50,6 +51,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setProtocolCodec(new ServerHttpCodec(4));
         context.setIoEventHandle(handle);
+        context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addLifeCycleListener(new AbstractLifeCycleListener() {
             @Override

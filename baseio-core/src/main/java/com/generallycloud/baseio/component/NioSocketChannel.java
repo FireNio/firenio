@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
@@ -206,12 +207,12 @@ public final class NioSocketChannel extends AttributesImpl
 
     @Override
     public void close() {
-        if (isClosed()) {
-            return;
-        }
         if (inEventLoop()) {
             safeClose();
         } else {
+            if (isClosed()) {
+                return;
+            }
             execute(new CloseEvent(this));
         }
     }
@@ -315,7 +316,7 @@ public final class NioSocketChannel extends AttributesImpl
             }
         } else {
             Queue<ByteBuf> writeBufs = this.writeBufs;
-            ReentrantLock lock = getCloseLock();
+            ReentrantLock lock = closeLock;
             lock.lock();
             try {
                 if (isClosed()) {
@@ -410,7 +411,7 @@ public final class NioSocketChannel extends AttributesImpl
                 }
             } else {
                 Queue<ByteBuf> writeBufs = this.writeBufs;
-                ReentrantLock lock = getCloseLock();
+                ReentrantLock lock = closeLock;
                 lock.lock();
                 try {
                     if (isClosed()) {
@@ -443,10 +444,6 @@ public final class NioSocketChannel extends AttributesImpl
 
     public Charset getCharset() {
         return context.getCharset();
-    }
-
-    private ReentrantLock getCloseLock() {
-        return closeLock;
     }
 
     public ProtocolCodec getCodec() {
@@ -779,21 +776,16 @@ public final class NioSocketChannel extends AttributesImpl
         if (isClosed()) {
             return;
         }
-        ReentrantLock lock = getCloseLock();
+        Lock lock = closeLock;
         lock.lock();
-        try {
-            if (isOpened()) {
-                opened = false;
-                closeSsl();
-                releaseBufs();
-                CloseUtil.close(channel);
-                selKey.attach(null);
-                selKey.cancel();
-                fireClosed();
-            }
-        } finally {
-            lock.unlock();
-        }
+        opened = false;
+        lock.unlock();
+        closeSsl();
+        releaseBufs();
+        CloseUtil.close(channel);
+        selKey.attach(null);
+        selKey.cancel();
+        fireClosed();
     }
 
     public void setCodec(ProtocolCodec codec) {

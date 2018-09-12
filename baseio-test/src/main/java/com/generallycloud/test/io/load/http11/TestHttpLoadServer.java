@@ -25,15 +25,14 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 
 public class TestHttpLoadServer {
-    
 
     public static void main(String[] args) throws Exception {
-        
-        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
+
+        IoEventHandle eventHandle = new IoEventHandle() {
 
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-                frame.write("Hello World",channel);
+                frame.write("Hello World", channel);
                 channel.flush(frame);
             }
 
@@ -42,12 +41,10 @@ public class TestHttpLoadServer {
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setMemoryPoolCapacity(1024 * 64);
         group.setMemoryPoolUnit(512);
-        group.setEnableMemoryPoolDirect(true);
-        group.setEnableMemoryPool(true);
         ChannelContext context = new ChannelContext(8087);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setProtocolCodec(new ServerHttpCodec(4));
-        context.setIoEventHandle(eventHandleAdaptor);
+        context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
 
         acceptor.bind();
