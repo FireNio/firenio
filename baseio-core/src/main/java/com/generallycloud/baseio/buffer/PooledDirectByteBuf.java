@@ -23,11 +23,11 @@ final class PooledDirectByteBuf extends AbstractDirectByteBuf implements PooledB
         super(allocator, memory);
     }
 
-    private int beginUnit;
+    private int unitOffset;
 
     @Override
-    public int getBeginUnit() {
-        return beginUnit;
+    public int getUnitOffset() {
+        return unitOffset;
     }
 
     @Override
@@ -45,12 +45,12 @@ final class PooledDirectByteBuf extends AbstractDirectByteBuf implements PooledB
     }
 
     @Override
-    public PooledByteBuf produce(int begin, int end, int newLimit) {
-        this.offset = begin * allocator.getUnitMemorySize();
-        this.capacity = (end - begin) * allocator.getUnitMemorySize();
+    public PooledByteBuf produce(int unitOffset, int unitEnd, int newLimit) {
+        this.offset = unitOffset * allocator.getUnitMemorySize();
+        this.capacity = (unitEnd - unitOffset) * allocator.getUnitMemorySize();
         this.limit(newLimit);
         this.position(0);
-        this.beginUnit = begin;
+        this.unitOffset = unitOffset;
         this.referenceCount = 1;
         return this;
     }
@@ -61,7 +61,7 @@ final class PooledDirectByteBuf extends AbstractDirectByteBuf implements PooledB
         this.capacity = buf.capacity();
         this.limit(buf.limit());
         this.position(buf.position());
-        this.beginUnit = buf.getBeginUnit();
+        this.unitOffset = buf.getUnitOffset();
         this.referenceCount = 1;
         return this;
     }

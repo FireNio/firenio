@@ -76,7 +76,7 @@ public final class SslContext {
             supportedProtocolsSet.add(supportedProtocols[i]);
         }
         List<String> protocols = new ArrayList<>();
-        addIfSupported(supportedProtocolsSet, protocols, "TLSv1.2", "TLSv1.1", "TLSv1");
+        addIfSupported(supportedProtocolsSet, protocols, "TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1");
         if (!protocols.isEmpty()) {
             ENABLED_PROTOCOLS = protocols.toArray(new String[protocols.size()]);
         } else {

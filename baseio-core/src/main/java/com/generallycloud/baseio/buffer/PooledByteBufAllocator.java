@@ -181,7 +181,7 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            frees.set(((PooledByteBuf) buf).getBeginUnit());
+            frees.set(((PooledByteBuf) buf).getUnitOffset());
         } finally {
             lock.unlock();
         }

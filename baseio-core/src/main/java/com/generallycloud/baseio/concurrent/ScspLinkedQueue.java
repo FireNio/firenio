@@ -19,9 +19,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ScspLinkedQueue<V> {
 
-    private AtomicInteger size = new AtomicInteger();
-    private Node<V>       head = null;               // volatile ?
-    private Node<V>       tail = null;               // volatile ?
+    private AtomicInteger    size = new AtomicInteger();
+    private volatile Node<V> head = null;               // volatile ?
+    private volatile Node<V> tail = null;
 
     public ScspLinkedQueue() {
         this.head = new Node<>();
@@ -46,33 +46,20 @@ public class ScspLinkedQueue<V> {
         return h.v;
     }
 
-    
-    public Node<V> getHead() {
-        return head;
-    }
-
-    public void setHead(Node<V> head) {
-        this.head = head;
-    }
-
-    public Node<V> getTail() {
+    Node<V> getTail() {
         return tail;
-    }
-
-    public void setTail(Node<V> tail) {
-        this.tail = tail;
     }
 
     public int size() {
         return size.get();
     }
-    
-    protected int incrementAndGet(){
+
+    protected int incrementAndGet() {
         return size.incrementAndGet();
     }
 
     static class Node<V> {
-        V v;
+        V       v;
         Node<V> next;
     }
 

@@ -59,21 +59,14 @@ public class ProtobaseCodec extends ProtocolCodec {
         PONG.flip();
     }
 
-    private final int textLenLimit;
-
-    private final int binaryLenLimit;
+    private final int limit;
 
     public ProtobaseCodec() {
-        this(1024 * 64, 1024 * 64);
+        this(1024 * 64);
     }
 
-    public ProtobaseCodec(int textLenLimit) {
-        this(textLenLimit, 1024 * 64);
-    }
-
-    public ProtobaseCodec(int textLenLimit, int binaryLenLimit) {
-        this.textLenLimit = textLenLimit;
-        this.binaryLenLimit = binaryLenLimit;
+    public ProtobaseCodec(int limit) {
+        this.limit = limit;
     }
 
     @Override
@@ -83,15 +76,11 @@ public class ProtobaseCodec extends ProtocolCodec {
 
     @Override
     public Frame decode(NioSocketChannel ch, ByteBuf buffer) {
-        return new ProtobaseFrame(textLenLimit, binaryLenLimit);
+        return new ProtobaseFrame().setLimit(limit);
     }
 
-    public int getTextLenLimit() {
-        return textLenLimit;
-    }
-
-    public int getBinaryLenLimit() {
-        return binaryLenLimit;
+    public int getLimit() {
+        return limit;
     }
 
     @Override
@@ -137,14 +126,10 @@ public class ProtobaseCodec extends ProtocolCodec {
         }
         if (textWriteSize > 0) {
             buf.putInt(textWriteSize);
-        }
-        if (binaryWriteSize > 0) {
-            buf.putInt(binaryWriteSize);
-        }
-        if (textWriteSize > 0) {
             buf.put(f.getWriteBuffer(), 0, textWriteSize);
         }
         if (binaryWriteSize > 0) {
+            buf.putInt(binaryWriteSize);
             buf.put(f.getWriteBinary(), 0, binaryWriteSize);
         }
         return buf.flip();

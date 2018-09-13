@@ -34,10 +34,6 @@ public class ParamedProtobaseFrame extends ProtobaseFrame
         this.parameters = new JsonParameters();
     }
 
-    ParamedProtobaseFrame(int textLengthLimit, int binaryLengthLimit) {
-        super(textLengthLimit, binaryLengthLimit);
-    }
-
     public ParamedProtobaseFrame(String frameName) {
         this.parameters = new JsonParameters();
         this.setFrameName(frameName);

@@ -27,8 +27,8 @@ import com.generallycloud.baseio.protocol.TextFrame;
 
 public class TestLoadServer {
     
-    public static final boolean ENABLE_POOL = true;
-    public static final boolean ENABLE_POOL_DIRECT = true;
+    public static final boolean ENABLE_POOL = false;
+    public static final boolean ENABLE_POOL_DIRECT = false;
 
     public static void main(String[] args) throws Exception {
 

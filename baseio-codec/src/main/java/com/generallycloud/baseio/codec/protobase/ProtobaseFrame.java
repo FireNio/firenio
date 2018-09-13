@@ -25,21 +25,15 @@ import com.generallycloud.baseio.protocol.TextFrame;
 
 public class ProtobaseFrame extends BinaryFrame implements TextFrame {
 
-    private int     binaryLenLimit;
+    private int     limit;
     private byte[]  binaryReadBuffer;
     private int     frameId;
     private byte    frameType;
     private boolean isBroadcast;
     private String  readText;
     private int     channelId;
-    private int     textLenLimit;
 
     public ProtobaseFrame() {}
-
-    ProtobaseFrame(int textLengthLimit, int binaryLengthLimit) {
-        this.textLenLimit = textLengthLimit;
-        this.binaryLenLimit = binaryLengthLimit;
-    }
 
     public ProtobaseFrame(int frameId) {
         this.frameId = frameId;
@@ -62,6 +56,11 @@ public class ProtobaseFrame extends BinaryFrame implements TextFrame {
             return binaryReadBuffer.length;
         }
         return 0;
+    }
+    
+    ProtobaseFrame setLimit(int limit) {
+        this.limit = limit;
+        return this;
     }
 
     @Override
@@ -105,6 +104,9 @@ public class ProtobaseFrame extends BinaryFrame implements TextFrame {
             setHeartbeat(len);
             return true;
         }
+        if (len > limit) {
+            throw new IOException("over text limit" + len);
+        }
         if (len > src.remaining()) {
             src.skip(-4);
             return false;
@@ -124,17 +126,6 @@ public class ProtobaseFrame extends BinaryFrame implements TextFrame {
         int binaryLen = 0;
         if (hasText) {
             textLen = src.getInt();
-            if (textLen > textLenLimit) {
-                throw new IOException("over text limit" + textLen);
-            }
-        }
-        if (hasBinary) {
-            binaryLen = src.getInt();
-            if (binaryLen > binaryLenLimit) {
-                throw new IOException("over binary limit" + textLen);
-            }
-        }
-        if (hasText) {
             src.markL();
             src.limit(src.position() + textLen);
             readText = StringUtil.decode(ch.getCharset(), src.nioBuffer());
@@ -142,6 +133,7 @@ public class ProtobaseFrame extends BinaryFrame implements TextFrame {
             src.resetL();
         }
         if (hasBinary) {
+            binaryLen = src.getInt();
             src.markL();
             src.limit(src.position() + binaryLen);
             this.binaryReadBuffer = src.getBytes();

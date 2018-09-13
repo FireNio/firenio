@@ -17,9 +17,9 @@ package com.generallycloud.baseio.buffer;
 
 public interface PooledByteBuf extends ByteBuf {
 
-    int getBeginUnit();
+    int getUnitOffset();
 
-    PooledByteBuf produce(int begin, int end, int newLimit);
+    PooledByteBuf produce(int unitOffset, int unitEnd, int newLimit);
 
     PooledByteBuf produce(PooledByteBuf buf);
 

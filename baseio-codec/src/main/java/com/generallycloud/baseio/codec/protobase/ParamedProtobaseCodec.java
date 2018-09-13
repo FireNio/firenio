@@ -29,20 +29,16 @@ import com.generallycloud.baseio.protocol.Frame;
 public class ParamedProtobaseCodec extends ProtobaseCodec {
 
     public ParamedProtobaseCodec() {
-        this(1024 * 64, 1024 * 64);
+        this(1024 * 64);
     }
 
-    public ParamedProtobaseCodec(int textLenLimit) {
-        this(textLenLimit, 1024 * 64);
-    }
-
-    public ParamedProtobaseCodec(int textLenLimit, int binaryLenLimit) {
-        super(textLenLimit, binaryLenLimit);
+    public ParamedProtobaseCodec(int limit) {
+        super(limit);
     }
 
     @Override
     public Frame decode(NioSocketChannel ch, ByteBuf buffer) {
-        return new ParamedProtobaseFrame(getTextLenLimit(),getBinaryLenLimit());
+        return new ParamedProtobaseFrame().setLimit(getLimit());
     }
     
     @Override

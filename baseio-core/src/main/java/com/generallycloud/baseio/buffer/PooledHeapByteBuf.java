@@ -21,11 +21,11 @@ final class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteB
         super(allocator, memory);
     }
 
-    private int beginUnit;
+    private int unitOffset;
 
     @Override
-    public int getBeginUnit() {
-        return beginUnit;
+    public int getUnitOffset() {
+        return unitOffset;
     }
 
     @Override
@@ -43,12 +43,12 @@ final class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteB
     }
 
     @Override
-    public PooledHeapByteBuf produce(int begin, int end, int newLimit) {
-        this.offset = begin * allocator.getUnitMemorySize();
-        this.capacity = (end - begin) * allocator.getUnitMemorySize();
+    public PooledHeapByteBuf produce(int unitOffset, int unitEnd, int newLimit) {
+        this.offset = unitOffset * allocator.getUnitMemorySize();
+        this.capacity = (unitEnd - unitOffset) * allocator.getUnitMemorySize();
         this.position = offset;
         this.limit = offset + newLimit;
-        this.beginUnit = begin;
+        this.unitOffset = unitOffset;
         this.referenceCount = 1;
         return this;
     }
@@ -59,7 +59,7 @@ final class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteB
         this.capacity = buf.capacity();
         this.position = offset + buf.position();
         this.limit = offset + buf.limit();
-        this.beginUnit = buf.getBeginUnit();
+        this.unitOffset = buf.getUnitOffset();
         this.referenceCount = 1;
         return this;
     }
