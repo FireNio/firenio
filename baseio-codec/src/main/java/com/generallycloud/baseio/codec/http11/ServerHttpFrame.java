@@ -118,22 +118,23 @@ public class ServerHttpFrame extends AbstractHttpFrame {
                 && line.charAt(2) == 'T'
                 && line.charAt(3) == ' ') {
             setMethod(HttpMethod.GET);
+            parseRequestURL(4, line);
         } else {
             setMethod(HttpMethod.POST);
+            parseRequestURL(5, line);
         }
-        parseRequestURL(line);
         setVersion(HttpVersion.HTTP1_1);
     }
 
-    protected void parseRequestURL(StringBuilder line) {
+    protected void parseRequestURL(int skip, StringBuilder line) {
         int index = line.indexOf("?");
         int lastSpace = StringUtil.lastIndexOf(line, ' ');
         if (index > -1) {
             String paramString = line.substring(index + 1, lastSpace);
             parseParamString(paramString);
-            setRequestURI(line.substring(4, index));
+            setRequestURI(line.substring(skip, index));
         } else {
-             setRequestURI(line.substring(4, lastSpace));
+            setRequestURI(line.substring(skip, lastSpace));
         }
     }
 
