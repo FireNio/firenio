@@ -26,6 +26,7 @@ public class WebSocketChannelListener extends ChannelEventListenerAdapter {
 
     @Override
     public void channelClosed(NioSocketChannel ch) {
+        super.channelClosed(ch);
         if (!ch.isCodec(WebSocketCodec.PROTOCOL_ID)) {
             return;
         }
@@ -37,7 +38,6 @@ public class WebSocketChannelListener extends ChannelEventListenerAdapter {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        super.channelClosed(ch);
     }
 
 }
