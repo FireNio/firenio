@@ -94,6 +94,7 @@ public class TestLoadClient1 extends ITestThread {
         connector = new ChannelConnector(context, group);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setIoEventHandle(eventHandleAdaptor);
+        context.setEnableWorkEventLoop(TestLoadServer.ENABLE_WORK_EVENT_LOOP);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
         connector.connect();

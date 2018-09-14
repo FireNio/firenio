@@ -87,7 +87,7 @@ public final class NioSocketChannel extends AttributesImpl
     private final String                        localAddr;
     private final int                           localPort;
     private final int                           maxWriteBacklog;
-    private boolean                             opened               = true;
+    private volatile boolean                    opened               = true;
     private ByteBuf                             plainRemainBuf;
     private Frame                               readFrame;
     private final String                        remoteAddr;
