@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>baseio</artifactId>
-		<version>3.2.7.RELEASE</version>
+		<version>3.2.8-SNAPSHOT</version>
 		<relativePath>../baseio/pom.xml</relativePath>
 	</parent>
 
