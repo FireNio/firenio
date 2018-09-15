@@ -59,14 +59,6 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         }
     }
 
-    public ByteBuffer getDirectMemory() {
-        return directMemory;
-    }
-
-    public byte[] getHeapMemory() {
-        return heapMemory;
-    }
-
     //FIXME 判断余下的是否足够，否则退出循环
     private PooledByteBuf allocate(ByteBufBuilder bufBuilder, int limit, int start, int end,
             int size) {
@@ -98,6 +90,14 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
             return next.allocate(limit, this, bufFactory);
         }
         return buf;
+    }
+    
+    protected ByteBuffer getDirectMemory() {
+        return directMemory;
+    }
+    
+    protected byte[] getHeapMemory() {
+        return heapMemory;
     }
 
     private ByteBuf allocate(int limit, PooledByteBufAllocator allocator, ByteBufFactory factory) {
@@ -266,7 +266,7 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
 
         @Override
         public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
-            return new PooledDirectByteBuf(allocator, allocator.getDirectMemory().duplicate());
+            return new PooledDirectByteBuf(allocator, allocator.directMemory.duplicate());
         }
 
         @Override
@@ -299,7 +299,7 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
 
         @Override
         public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
-            return new PooledHeapByteBuf(allocator, allocator.getHeapMemory());
+            return new PooledHeapByteBuf(allocator, allocator.heapMemory);
         }
 
     }
