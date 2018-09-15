@@ -25,13 +25,21 @@ import com.generallycloud.baseio.buffer.PooledByteBufAllocator;
 public class TestAlloc {
 
     public static ByteBufAllocator direct() throws Exception {
-        ByteBufAllocator a = new PooledByteBufAllocator(1024, 4, true);
+        return direct(1024);
+    }
+
+    public static ByteBufAllocator direct(int cap) throws Exception {
+        ByteBufAllocator a = new PooledByteBufAllocator(1024, 1, true);
         a.start();
         return a;
     }
 
     public static ByteBufAllocator heap() throws Exception {
-        ByteBufAllocator a = new PooledByteBufAllocator(1024, 4, false);
+        return heap(1024);
+    }
+
+    public static ByteBufAllocator heap(int cap) throws Exception {
+        ByteBufAllocator a = new PooledByteBufAllocator(64, 1, false);
         a.start();
         return a;
     }

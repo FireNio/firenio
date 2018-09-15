@@ -19,12 +19,18 @@ import com.generallycloud.baseio.LifeCycle;
 
 //FIXME 考虑加入free链表
 public interface ByteBufAllocator extends LifeCycle {
-
-    void release(ByteBuf buf);
-
+    
     ByteBuf allocate(int limit);
-
+    
     ByteBuf allocate(int limit, int maxLimit);
+
+    void freeMemory();
+
+    int getCapacity();
+
+    int getUnitMemorySize();
+
+    boolean isDirect();
 
     ByteBuf reallocate(ByteBuf buf, int limit);
 
@@ -34,12 +40,6 @@ public interface ByteBufAllocator extends LifeCycle {
 
     ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld);
 
-    int getUnitMemorySize();
-
-    void freeMemory();
-
-    int getCapacity();
-
-    boolean isDirect();
+    void release(ByteBuf buf);
 
 }

@@ -77,7 +77,7 @@ class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
     public void release() {}
 
     @Override
-    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+    public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
         throw new UnsupportedOperationException();
     }
 

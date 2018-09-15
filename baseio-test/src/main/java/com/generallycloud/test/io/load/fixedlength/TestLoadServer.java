@@ -26,10 +26,14 @@ import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.TextFrame;
 
 public class TestLoadServer {
-    
-    public static final boolean ENABLE_POOL = true;
+
+    public static final int     SERVER_CORE_SIZE       = 8;
+    public static final int     CLIENT_CORE_SIZE       = SERVER_CORE_SIZE * 2;
+    public static final int     WRITE_BUFFERS          = 16;
+    public static final int     MEM_UNIT               = 256;
+    public static final boolean ENABLE_POOL            = true;
     public static final boolean ENABLE_WORK_EVENT_LOOP = false;
-    public static final boolean ENABLE_POOL_DIRECT = true;
+    public static final boolean ENABLE_POOL_DIRECT     = true;
 
     public static void main(String[] args) throws Exception {
 
@@ -42,10 +46,10 @@ public class TestLoadServer {
             }
         };
 
-        NioEventLoopGroup group = new NioEventLoopGroup(8);
+        NioEventLoopGroup group = new NioEventLoopGroup(SERVER_CORE_SIZE);
         group.setMemoryPoolCapacity(1024 * 512);
-        group.setWriteBuffers(16);
-        group.setMemoryPoolUnit(256);
+        group.setWriteBuffers(WRITE_BUFFERS);
+        group.setMemoryPoolUnit(MEM_UNIT);
         group.setEnableMemoryPool(ENABLE_POOL);
         group.setEnableMemoryPoolDirect(ENABLE_POOL_DIRECT);
         ChannelContext context = new ChannelContext(8300);

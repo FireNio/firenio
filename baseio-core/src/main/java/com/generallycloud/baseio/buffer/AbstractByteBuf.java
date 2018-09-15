@@ -219,7 +219,7 @@ public abstract class AbstractByteBuf implements ByteBuf {
     @Override
     public String toString() {
         StringBuilder b = new StringBuilder();
-        b.append(this.getClass().getName());
+        b.append(getClass().getSimpleName());
         b.append("[pos=");
         b.append(position());
         b.append(",lim=");

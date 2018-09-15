@@ -106,7 +106,7 @@ final class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
     }
 
     @Override
-    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+    public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
         throw new UnsupportedOperationException();
     }
 

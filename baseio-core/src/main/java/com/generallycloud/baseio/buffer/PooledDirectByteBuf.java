@@ -31,7 +31,7 @@ final class PooledDirectByteBuf extends AbstractDirectByteBuf implements PooledB
     }
 
     @Override
-    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+    public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
         return this;
     }
 

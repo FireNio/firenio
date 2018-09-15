@@ -41,7 +41,7 @@ final class DuplicatedHeapByteBuf extends AbstractHeapByteBuf {
     }
 
     @Override
-    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+    public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
         throw new UnsupportedOperationException();
     }
 

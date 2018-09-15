@@ -43,7 +43,7 @@ final class DuplicatedDirectByteBuf extends AbstractDirectByteBuf {
     }
 
     @Override
-    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+    public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
         throw new UnsupportedOperationException();
     }
 

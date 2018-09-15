@@ -17,5 +17,5 @@ package com.generallycloud.baseio.buffer;
 
 public interface ByteBufBuilder {
 
-    PooledByteBuf newByteBuf(ByteBufAllocator allocator);
+    PooledByteBuf newByteBuf(PooledByteBufAllocator allocator);
 }

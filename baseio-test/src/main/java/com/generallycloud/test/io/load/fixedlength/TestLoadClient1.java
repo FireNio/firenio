@@ -15,12 +15,15 @@
  */
 package com.generallycloud.test.io.load.fixedlength;
 
+import static com.generallycloud.test.io.load.fixedlength.TestLoadServer.CLIENT_CORE_SIZE;
+
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -37,16 +40,15 @@ public class TestLoadClient1 extends ITestThread {
     public static final boolean debug     = false;
     static final Object         lock      = new Object();
     static boolean              running   = true;
-    static final int            core_size = 16;
     final AtomicInteger         count     = new AtomicInteger();
 
     private static final byte[] req;
 
     static {
-        int len = debug ? 8 : 1;
+        int len = debug ? 10 : 1;
         String s = "";
         for (int i = 0; i < len; i++) {
-            s += "hello server!";
+            s += "abcdefghij";
         }
         req = s.getBytes();
     }
@@ -59,6 +61,11 @@ public class TestLoadClient1 extends ITestThread {
         NioSocketChannel channel = connector.getChannel();
         for (int i = 0; i < time1; i++) {
             Frame frame = new FixedLengthFrame();
+            if (debug) {
+                byte [] bb = new byte[4];
+                MathUtil.int2Byte(bb, i, 0);
+                frame.write(bb);
+            }
             frame.write(req);
             if (debug) {
                 frame.write(String.valueOf(i).getBytes());
@@ -85,9 +92,9 @@ public class TestLoadClient1 extends ITestThread {
         };
 
         NioEventLoopGroup group = new NioEventLoopGroup();
-        group.setMemoryPoolCapacity(5120000 / core_size);
-        group.setMemoryPoolUnit(256);
-        group.setWriteBuffers(16);
+        group.setMemoryPoolCapacity(5120000 / CLIENT_CORE_SIZE);
+        group.setMemoryPoolUnit(TestLoadServer.MEM_UNIT);
+        group.setWriteBuffers(TestLoadServer.WRITE_BUFFERS);
         group.setEnableMemoryPool(TestLoadServer.ENABLE_POOL);
         group.setEnableMemoryPoolDirect(TestLoadServer.ENABLE_POOL_DIRECT);
         ChannelContext context = new ChannelContext(8300);
@@ -112,7 +119,7 @@ public class TestLoadClient1 extends ITestThread {
     public static void main(String[] args) throws IOException {
 
         for (;;) {
-            if (debug) {
+            if (!debug && args != null && args.length == 999) {
                 running = true;
                 ThreadUtil.exec(() -> {
                     ThreadUtil.sleep(7000);
@@ -131,7 +138,7 @@ public class TestLoadClient1 extends ITestThread {
 
             int time = 1024 * 1024 * 4;
 
-            ITestThreadHandle.doTest(TestLoadClient1.class, core_size, time / core_size);
+            ITestThreadHandle.doTest(TestLoadClient1.class, CLIENT_CORE_SIZE, time / CLIENT_CORE_SIZE);
             ThreadUtil.sleep(2000);
         }
     }

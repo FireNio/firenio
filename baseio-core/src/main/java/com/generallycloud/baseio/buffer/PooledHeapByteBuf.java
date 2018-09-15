@@ -29,7 +29,7 @@ final class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteB
     }
 
     @Override
-    public PooledByteBuf newByteBuf(ByteBufAllocator allocator) {
+    public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
         return this;
     }
 
