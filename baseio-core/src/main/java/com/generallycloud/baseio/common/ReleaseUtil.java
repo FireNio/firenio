@@ -48,15 +48,4 @@ public class ReleaseUtil {
         }
     }
 
-    public static void release(Frame frame, NioEventLoop eventLoop) {
-        if (frame == null) {
-            return;
-        }
-        try {
-            frame.release(eventLoop);
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
-
 }

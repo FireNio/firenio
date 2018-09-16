@@ -28,23 +28,10 @@ public abstract class AbstractFrame implements Frame {
     private static final byte TYPE_PONG   = 2;
     private static final byte TYPE_SILENT = 0;
 
-    //FIXME isX 使用 byte & x ?
-    private boolean flushed;
     private boolean isSilent;
     private byte    frameType;
     private byte[]  writeBuffer;
     private int     writeSize;
-
-    @Override
-    public final Frame flush() {
-        flushed = true;
-        return this;
-    }
-
-    @Override
-    public boolean flushed() {
-        return flushed;
-    }
 
     @Override
     public byte[] getWriteBuffer() {
@@ -71,11 +58,7 @@ public abstract class AbstractFrame implements Frame {
         return isSilent;
     }
 
-    @Override
-    public void release(NioEventLoop eventLoop) {}
-
     protected Frame reset() {
-        this.flushed = false;
         this.frameType = 0;
         this.isSilent = false;
         this.writeSize = 0;

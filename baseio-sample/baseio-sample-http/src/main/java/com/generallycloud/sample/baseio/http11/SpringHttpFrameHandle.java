@@ -27,20 +27,17 @@ public class SpringHttpFrameHandle extends HttpFrameHandle {
 
     private ClassPathXmlApplicationContext applicationContext;
     private boolean                        checkFilter = true;
-    private HttpFrameAcceptor              filter;
+    private HttpFrameFilter                filter;
 
     @Override
     public void accept(NioSocketChannel ch, Frame frame) throws Exception {
         NamedFrame f = (NamedFrame) frame;
         if (checkFilter) {
             checkFilter = false;
-            filter = getFrameAcceptor("http-filter");
+            filter = (HttpFrameFilter) ContextUtil.getBean("http-filter");
         }
-        if (filter != null) {
-            filter.accept(ch, f);
-            if (frame.flushed()) {
-                return;
-            }
+        if (filter != null && filter.accept(ch, f)) {
+            return;
         }
         HttpFrameAcceptor acceptor = getFrameAcceptor(f.getFrameName());
         if (acceptor == null) {

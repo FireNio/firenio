@@ -20,6 +20,9 @@ package com.generallycloud.baseio.codec.http11;
  *
  */
 public final class HttpStatic {
+    
+    public static final String plain           = "text/plain";
+    public static final byte[] plain_bytes     = "text/plain".getBytes();
 
     public static final String plain_gbk           = "text/plain;charset=gbk";
     public static final byte[] plain_gbk_bytes     = "text/plain;charset=gbk".getBytes();

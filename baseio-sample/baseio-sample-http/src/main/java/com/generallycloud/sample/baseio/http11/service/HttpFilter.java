@@ -29,23 +29,24 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Frame;
+import com.generallycloud.baseio.protocol.NamedFrame;
 import com.generallycloud.baseio.protocol.ParametersFrame;
-import com.generallycloud.sample.baseio.http11.HttpFrameAcceptor;
+import com.generallycloud.sample.baseio.http11.HttpFrameFilter;
 
 /**
  * @author wangkai
  *
  */
 @Service("http-filter")
-public class HttpFilter extends HttpFrameAcceptor {
+public class HttpFilter implements HttpFrameFilter {
 
     private Logger      logger              = LoggerFactory.getLogger(getClass());
     private Set<String> noneLoggerSuffixSet = new HashSet<>();
     private Set<String> noneLoggerUrlSet    = new HashSet<>();
 
     @Override
-    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
-        log(ch, frame);
+    public boolean accept(NioSocketChannel ch, NamedFrame frame) throws Exception {
+        return log(ch, frame);
     }
 
     private boolean endContains(String frameName) {
@@ -70,28 +71,29 @@ public class HttpFilter extends HttpFrameAcceptor {
         noneLoggerSuffixSet.add(".scss");
     }
 
-    private void log(NioSocketChannel ch, Frame frame) throws Exception {
+    private boolean log(NioSocketChannel ch, Frame frame) throws Exception {
         HttpMessage m = (HttpMessage) frame;
         String frameName = m.getFrameName();
         if (noneLoggerUrlSet.contains(frameName) || endContains(frameName)) {
-            return;
+            return false;
         }
         String remoteAddr = ch.getRemoteAddr();
         String readText = m.getReadText();
         if (!StringUtil.isNullOrBlank(readText)) {
             logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, frameName,
                     readText);
-            return;
+            return false;
         }
         if (frame instanceof ParametersFrame) {
             Parameters parameters = ((ParametersFrame) frame).getParameters();
             if (parameters.size() > 0) {
                 logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, frameName,
                         parameters.toString());
-                return;
+                return false;
             }
         }
         logger.info("request ip:{}, service name:{}", remoteAddr, frameName);
+        return false;
     }
 
 }

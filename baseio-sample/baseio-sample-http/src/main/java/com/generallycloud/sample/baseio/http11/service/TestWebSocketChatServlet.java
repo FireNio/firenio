@@ -27,7 +27,7 @@ import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.WebSocketFrame;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.Frame;
+import com.generallycloud.baseio.protocol.NamedFrame;
 import com.generallycloud.sample.baseio.http11.HttpFrameAcceptor;
 
 //FIXME ________根据当前是否正在redeploy来保存和恢复client
@@ -37,7 +37,7 @@ public class TestWebSocketChatServlet extends HttpFrameAcceptor {
     private WebSocketMsgAdapter msgAdapter = new WebSocketMsgAdapter();
 
     @Override
-    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
+    public void accept(NioSocketChannel ch, NamedFrame frame) throws Exception {
         if (frame instanceof HttpFrame) {
             ((HttpFrame) frame).updateWebSocketProtocol(ch);
             ch.flush(frame);

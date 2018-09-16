@@ -29,7 +29,7 @@ import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Frame;
+import com.generallycloud.baseio.protocol.NamedFrame;
 import com.generallycloud.sample.baseio.http11.HttpFrameAcceptor;
 
 // FIXME ________根据当前是否正在redeploy来保存和恢复client
@@ -40,7 +40,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptor {
     private WebSocketMsgAdapter msgAdapter = new WebSocketMsgAdapter();
 
     @Override
-    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
+    public void accept(NioSocketChannel ch, NamedFrame frame) throws Exception {
         if (frame instanceof HttpFrame) {
             HttpFrame f = (HttpFrame) frame;
             f.updateWebSocketProtocol(ch);

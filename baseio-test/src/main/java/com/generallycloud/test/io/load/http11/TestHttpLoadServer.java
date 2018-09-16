@@ -15,7 +15,11 @@
  */
 package com.generallycloud.test.io.load.http11;
 
+import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.codec.http11.HttpHeader;
+import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.codec.http11.ServerHttpCodec;
+import com.generallycloud.baseio.codec.http11.ServerHttpFrame;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
@@ -25,15 +29,20 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 
 public class TestHttpLoadServer {
-
+    
     public static void main(String[] args) throws Exception {
-
+        
         IoEventHandle eventHandle = new IoEventHandle() {
 
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
+                ServerHttpFrame f = (ServerHttpFrame) frame;
+                f.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.plain_bytes);
+                f.setResponseHeader(HttpHeader.Server_Bytes, null);
                 frame.write("Hello World", channel);
-                channel.flush(frame);
+                ByteBuf buf = channel.encode(frame);
+                channel.flush(buf);
+                f.release(channel.getEventLoop());
             }
 
         };

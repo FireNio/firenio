@@ -218,11 +218,7 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            int unitOffset = ((PooledByteBuf) buf).getUnitOffset();
-            if (frees.get(unitOffset)) {
-                System.err.println("err release");
-            }
-            frees.set(unitOffset);
+            frees.set(((PooledByteBuf) buf).getUnitOffset());
         } finally {
             lock.unlock();
         }

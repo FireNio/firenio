@@ -122,12 +122,12 @@ public class HttpFrameHandle extends IoEventHandle {
     private String getContentType(String fileName, Map<String, String> mapping) {
         int index = fileName.lastIndexOf(".");
         if (index == -1) {
-            return HttpFrame.CONTENT_TYPE_TEXT_PLAIN;
+            return HttpFrame.CONTENT_TYPE_TEXT_PLAINUTF8;
         }
         String subfix = fileName.substring(index + 1);
         String contentType = mapping.get(subfix);
         if (contentType == null) {
-            contentType = HttpFrame.CONTENT_TYPE_TEXT_PLAIN;
+            contentType = HttpFrame.CONTENT_TYPE_TEXT_PLAINUTF8;
         }
         return contentType;
     }
@@ -140,15 +140,15 @@ public class HttpFrameHandle extends IoEventHandle {
         File rootFile = new File(rootPath + "/app");
         Map<String, String> mapping = new HashMap<>();
 
-        mapping.put("htm", HttpFrame.CONTENT_TYPE_TEXT_HTML);
-        mapping.put("html", HttpFrame.CONTENT_TYPE_TEXT_HTML);
-        mapping.put("js", HttpFrame.CONTENT_APPLICATION_JAVASCRIPT);
-        mapping.put("css", HttpFrame.CONTENT_TYPE_TEXT_CSS);
+        mapping.put("htm", HttpFrame.CONTENT_TYPE_TEXT_HTMLUTF8);
+        mapping.put("html", HttpFrame.CONTENT_TYPE_TEXT_HTMLUTF8);
+        mapping.put("js", HttpFrame.CONTENT_APPLICATION_JAVASCRIPTUTF8);
+        mapping.put("css", HttpFrame.CONTENT_TYPE_TEXT_CSSUTF8);
         mapping.put("png", HttpFrame.CONTENT_TYPE_IMAGE_PNG);
         mapping.put("jpg", HttpFrame.CONTENT_TYPE_IMAGE_JPEG);
         mapping.put("jpeg", HttpFrame.CONTENT_TYPE_IMAGE_JPEG);
         mapping.put("gif", HttpFrame.CONTENT_TYPE_IMAGE_GIF);
-        mapping.put("txt", HttpFrame.CONTENT_TYPE_TEXT_PLAIN);
+        mapping.put("txt", HttpFrame.CONTENT_TYPE_TEXT_PLAINUTF8);
         mapping.put("ico", HttpFrame.CONTENT_TYPE_IMAGE_PNG);
 
         if (rootFile.exists()) {
@@ -248,7 +248,7 @@ public class HttpFrameHandle extends IoEventHandle {
             b.append("      <hr>\n");
             b.append(HtmlUtil.HTML_BOTTOM);
             HttpEntity entity = new HttpEntity();
-            entity.setContentType(HttpFrame.CONTENT_TYPE_TEXT_HTML);
+            entity.setContentType(HttpFrame.CONTENT_TYPE_TEXT_HTMLUTF8);
             entity.setFile(file);
             entity.setLastModify(System.currentTimeMillis());
             entity.setBinary(b.toString().getBytes(charset));

@@ -22,17 +22,18 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 
 public interface HttpFrame extends HttpMessage {
 
-    String CONTENT_TYPE_MULTIPART           = "multipart/form-data";
-    String CONTENT_TYPE_TEXT_PLAIN          = "text/plain;charset=utf-8";
-    String CONTENT_TYPE_TEXT_CSS            = "text/css;charset=utf-8";
-    String CONTENT_TYPE_TEXT_HTML           = "text/html;charset=utf-8";
-    String CONTENT_TYPE_IMAGE_PNG           = "image/png";
-    String CONTENT_TYPE_IMAGE_GIF           = "image/gif";
-    String CONTENT_TYPE_IMAGE_JPEG          = "image/jpeg";
-    String CONTENT_TYPE_IMAGE_ICON          = "image/x-icon";
-    String CONTENT_APPLICATION_URLENCODED   = "application/x-www-form-urlencoded";
-    String CONTENT_APPLICATION_OCTET_STREAM = "application/octet-stream";
-    String CONTENT_APPLICATION_JAVASCRIPT   = "application/x-javascript;charset=utf-8";
+    String CONTENT_TYPE_MULTIPART             = "multipart/form-data";
+    String CONTENT_TYPE_TEXT_PLAINUTF8        = "text/plain;charset=utf-8";
+    String CONTENT_TYPE_TEXT_PLAIN            = "text/plain";
+    String CONTENT_TYPE_TEXT_CSSUTF8          = "text/css;charset=utf-8";
+    String CONTENT_TYPE_TEXT_HTMLUTF8         = "text/html;charset=utf-8";
+    String CONTENT_TYPE_IMAGE_PNG             = "image/png";
+    String CONTENT_TYPE_IMAGE_GIF             = "image/gif";
+    String CONTENT_TYPE_IMAGE_JPEG            = "image/jpeg";
+    String CONTENT_TYPE_IMAGE_ICON            = "image/x-icon";
+    String CONTENT_APPLICATION_URLENCODED     = "application/x-www-form-urlencoded";
+    String CONTENT_APPLICATION_OCTET_STREAM   = "application/octet-stream";
+    String CONTENT_APPLICATION_JAVASCRIPTUTF8 = "application/x-javascript;charset=utf-8";
 
     String getRequestHeader(String name);
 

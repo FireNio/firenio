@@ -15,7 +15,6 @@
  */
 package com.generallycloud.sample.baseio.http11;
 
-import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.NamedFrame;
 
@@ -23,14 +22,15 @@ import com.generallycloud.baseio.protocol.NamedFrame;
  * @author wangkai
  *
  */
-public abstract class HttpFrameAcceptor{
+public interface HttpFrameFilter {
+    
+    /**
+     * return true if handled
+     * @param ch
+     * @param frame
+     * @return
+     * @throws Exception
+     */
+    boolean accept(NioSocketChannel ch, NamedFrame frame) throws Exception ;
 
-    public void accept(NioSocketChannel ch, NamedFrame frame) throws Exception {
-        doAccept(ch, (HttpFrame) frame);
-    }
-    
-    protected void doAccept(NioSocketChannel ch, HttpFrame frame) throws Exception {
-        
-    }
-    
 }

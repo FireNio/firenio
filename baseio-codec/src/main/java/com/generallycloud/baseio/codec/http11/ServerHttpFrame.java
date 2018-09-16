@@ -64,8 +64,8 @@ public class ServerHttpFrame extends AbstractHttpFrame {
         }
         if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
             setContentType(CONTENT_APPLICATION_URLENCODED);
-        } else if (CONTENT_TYPE_TEXT_PLAIN.equals(contentType)) {
-            setContentType(CONTENT_TYPE_TEXT_PLAIN);
+        } else if (CONTENT_TYPE_TEXT_PLAINUTF8.equals(contentType)) {
+            setContentType(CONTENT_TYPE_TEXT_PLAINUTF8);
         } else if (contentType.startsWith("multipart/form-data;")) {
             int index = KMP_BOUNDARY.match(contentType);
             if (index != -1) {
@@ -139,9 +139,7 @@ public class ServerHttpFrame extends AbstractHttpFrame {
     }
 
     @SuppressWarnings("unchecked")
-    @Override
     public void release(NioEventLoop eventLoop) {
-        super.release(eventLoop);
         //FIXME ..final statck is null or not null
         List<ServerHttpFrame> stack = (List<ServerHttpFrame>) eventLoop
                 .getAttribute(ServerHttpCodec.FRAME_STACK_KEY);

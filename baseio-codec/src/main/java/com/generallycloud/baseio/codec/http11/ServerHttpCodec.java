@@ -124,10 +124,15 @@ public class ServerHttpCodec extends AbstractHttpCodec {
             return;
         }
         for (Entry<byte[], byte[]> header : headers.entrySet()) {
-            writeBuf(buf, header.getKey());
+            byte [] k = header.getKey();
+            byte [] v = header.getValue();
+            if (v == null) {
+                continue;
+            }
+            writeBuf(buf, k);
             writeBuf(buf, COLON);
             writeBuf(buf, SPACE);
-            writeBuf(buf, header.getValue());
+            writeBuf(buf, v);
             writeBuf(buf, R);
             writeBuf(buf, N);
         }

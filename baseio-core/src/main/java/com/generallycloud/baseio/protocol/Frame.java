@@ -20,14 +20,9 @@ import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public interface Frame {
-
-    Frame flush();
-
-    boolean flushed();
 
     byte[] getWriteBuffer();
 
@@ -47,8 +42,6 @@ public interface Frame {
      * @throws IOException
      */
     boolean read(NioSocketChannel ch, ByteBuf src) throws IOException;
-
-    void release(NioEventLoop loop);
 
     Frame setPing();
 
