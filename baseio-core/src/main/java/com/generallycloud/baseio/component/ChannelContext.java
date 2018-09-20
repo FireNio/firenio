@@ -63,7 +63,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     private boolean                        initialized;
     private IoEventHandle                  ioEventHandle      = DefaultIoEventHandle.get();
     private Logger                         logger             = LoggerFactory.getLogger(getClass());
-    private int                            maxWriteBacklog    = 256;
+    private int                            maxWriteBacklog    = Integer.MAX_VALUE;
     private NioEventLoopGroup              nioEventLoopGroup;
     private String                         openSslPath;
     private int                            port;

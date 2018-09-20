@@ -138,10 +138,16 @@ public class FileUtil {
 
     public static String getCurrentPath(ClassLoader classLoader) {
         URL url = classLoader.getResource(".");
+        String path;
         if (url == null) {
-            return new File(".").getAbsoluteFile().getParent();
+            path = new File(".").getAbsoluteFile().getParent();
         }
-        return new File(url.getFile()).getAbsoluteFile().getPath();
+        path = new File(url.getFile()).getAbsoluteFile().getPath();
+        try {
+            return URLDecoder.decode(path, ENCODING.name());
+        } catch (UnsupportedEncodingException e) {
+            return path;
+        }
     }
 
     public static File getJarParentDirectory(File file) throws IOException {
@@ -291,7 +297,7 @@ public class FileUtil {
     public static File readFileByCls(String file, ClassLoader classLoader) throws IOException {
         URL url = classLoader.getResource(file);
         if (url == null) {
-            File root = new File(classLoader.getResource(".").getFile());
+            File root = new File(getCurrentPath(classLoader));
             return new File(root.getAbsolutePath() + "/" + file);
         }
         String path = url.getFile();
@@ -506,7 +512,7 @@ public class FileUtil {
 
     public static void writeByCls(String file, String content, Charset encoding, boolean append)
             throws IOException {
-        writeByCls(file, content, encoding, append);
+        writeByCls(file, content.getBytes(encoding), append);
     }
 
     public static void writeByCls(String file, String content, Charset encoding, boolean append,
