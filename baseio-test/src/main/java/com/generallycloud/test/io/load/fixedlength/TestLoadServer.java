@@ -31,6 +31,7 @@ public class TestLoadServer {
     public static final int     CLIENT_CORE_SIZE       = SERVER_CORE_SIZE * 2;
     public static final int     WRITE_BUFFERS          = 16;
     public static final int     MEM_UNIT               = 256;
+    public static final boolean ENABLE_SSL             = false;
     public static final boolean ENABLE_POOL            = true;
     public static final boolean ENABLE_WORK_EVENT_LOOP = false;
     public static final boolean ENABLE_POOL_DIRECT     = true;
@@ -57,6 +58,11 @@ public class TestLoadServer {
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setProtocolCodec(new FixedLengthCodec());
         context.setIoEventHandle(eventHandle);
+        if (ENABLE_SSL) {
+            context.setEnableSsl(true);
+            context.setCertCrt("localhost.crt");
+            context.setCertKey("localhost.key");
+        }
         context.setEnableWorkEventLoop(ENABLE_WORK_EVENT_LOOP);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         acceptor.bind();

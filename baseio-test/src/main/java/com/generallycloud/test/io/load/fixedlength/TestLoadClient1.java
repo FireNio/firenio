@@ -31,16 +31,17 @@ import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.component.SslContextBuilder;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.test.test.ITestThread;
 import com.generallycloud.test.test.ITestThreadHandle;
 
 public class TestLoadClient1 extends ITestThread {
 
-    public static final boolean debug     = false;
-    static final Object         lock      = new Object();
-    static boolean              running   = true;
-    final AtomicInteger         count     = new AtomicInteger();
+    public static final boolean debug   = false;
+    static final Object         lock    = new Object();
+    static boolean              running = true;
+    final AtomicInteger         count   = new AtomicInteger();
 
     private static final byte[] req;
 
@@ -62,7 +63,7 @@ public class TestLoadClient1 extends ITestThread {
         for (int i = 0; i < time1; i++) {
             Frame frame = new FixedLengthFrame();
             if (debug) {
-                byte [] bb = new byte[4];
+                byte[] bb = new byte[4];
                 MathUtil.int2Byte(bb, i, 0);
                 frame.write(bb);
             }
@@ -101,6 +102,9 @@ public class TestLoadClient1 extends ITestThread {
         connector = new ChannelConnector(context, group);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setIoEventHandle(eventHandleAdaptor);
+        if (TestLoadServer.ENABLE_SSL) {
+            context.setSslContext(SslContextBuilder.forClient(true).build());
+        }
         context.setEnableWorkEventLoop(TestLoadServer.ENABLE_WORK_EVENT_LOOP);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
@@ -118,28 +122,26 @@ public class TestLoadClient1 extends ITestThread {
 
     public static void main(String[] args) throws IOException {
 
-        for (;;) {
-            if (!debug && args != null && args.length == 999) {
-                running = true;
-                ThreadUtil.exec(() -> {
-                    ThreadUtil.sleep(7000);
-                    for (; running;) {
-                        ThreadUtil.wait(lock, 3000);
-                        for (ITestThread tt : ITestThreadHandle.ts) {
-                            TestLoadClient1 t = (TestLoadClient1) tt;
-                            if (t.count.get() > 0) {
-                                System.out.println("count:" + t.count.get() + "ch:"
-                                        + t.connector.getChannel());
-                            }
+        if (args != null && args.length == 999) {
+            running = true;
+            ThreadUtil.exec(() -> {
+                ThreadUtil.sleep(7000);
+                for (; running;) {
+                    ThreadUtil.wait(lock, 3000);
+                    for (ITestThread tt : ITestThreadHandle.ts) {
+                        TestLoadClient1 t = (TestLoadClient1) tt;
+                        if (t.count.get() > 0) {
+                            System.out.println(
+                                    "count:" + t.count.get() + "ch:" + t.connector.getChannel());
                         }
                     }
-                });
-            }
-
-            int time = 1024 * 1024 * 4;
-
-            ITestThreadHandle.doTest(TestLoadClient1.class, CLIENT_CORE_SIZE, time / CLIENT_CORE_SIZE);
-            ThreadUtil.sleep(2000);
+                }
+            });
         }
+
+        int time = 1024 * 1024 * 4;
+        int threads = CLIENT_CORE_SIZE;
+        int execTime = 19;
+        ITestThreadHandle.doTest(TestLoadClient1.class, threads, time, execTime);
     }
 }

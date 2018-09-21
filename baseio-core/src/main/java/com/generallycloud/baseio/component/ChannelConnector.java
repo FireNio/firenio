@@ -40,7 +40,7 @@ public class ChannelConnector implements ChannelService, Closeable {
     private NioEventLoop      eventLoop;
     private NioEventLoopGroup group;
     private Logger            logger  = LoggerFactory.getLogger(getClass());
-    private SocketChannel     socketChannel;
+    private SocketChannel     javaChannel;
     private InetSocketAddress serverAddress;
     private NioSocketChannel  ch;
     private long              timeout = 3000;
@@ -75,7 +75,7 @@ public class ChannelConnector implements ChannelService, Closeable {
         if (getChannel() != null) {
             CloseUtil.close(getChannel());
         }
-        CloseUtil.close(socketChannel);
+        CloseUtil.close(javaChannel);
         LifeCycleUtil.stop(getContext());
         if (!group.isSharable()) {
             LifeCycleUtil.stop(group);
@@ -95,12 +95,11 @@ public class ChannelConnector implements ChannelService, Closeable {
         LifeCycleUtil.start(getContext());
         this.waiter = new Waiter();
         this.serverAddress = new InetSocketAddress(host, port);
-        this.socketChannel = SocketChannel.open();
-        this.socketChannel.configureBlocking(false);
+        this.javaChannel = SocketChannel.open();
+        this.javaChannel.configureBlocking(false);
         this.group.registSelector(context);
-        SocketChannel ch = (SocketChannel) socketChannel;
-        ch.connect(serverAddress);
-        wait4connect(timeout);
+        this.javaChannel.connect(serverAddress);
+        this.wait4connect(timeout);
         return getChannel();
 
     }
@@ -133,7 +132,7 @@ public class ChannelConnector implements ChannelService, Closeable {
 
     @Override
     public SocketChannel getSelectableChannel() {
-        return socketChannel;
+        return javaChannel;
     }
 
     @Override
@@ -155,7 +154,7 @@ public class ChannelConnector implements ChannelService, Closeable {
     }
 
     public boolean isConnected() {
-        return getChannel() != null && getChannel().isOpened();
+        return ch != null && ch.isOpened();
     }
 
     public void setEventLoop(NioEventLoop eventLoop) {
@@ -187,7 +186,7 @@ public class ChannelConnector implements ChannelService, Closeable {
         this.waiter = null;
         LoggerUtil.prettyLog(logger, "connected to server @{}", getServerAddress());
     }
-    
+
     @Override
     public String toString() {
         NioSocketChannel ch = this.ch;

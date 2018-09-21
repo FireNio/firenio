@@ -258,9 +258,10 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     }
 
     private void initHeartBeatLogger() {
-        final Logger logger = LoggerFactory.getLogger("hb");
         if (isEnableHeartbeatLog()) {
             heartBeatLogger = new HeartBeatLogger() {
+                final Logger logger = LoggerFactory.getLogger("hb");
+
                 @Override
                 public void logPing(NioSocketChannel ch) {
                     logger.info("heart beat req from: {}", ch);
@@ -273,6 +274,8 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
             };
         } else {
             heartBeatLogger = new HeartBeatLogger() {
+                final Logger logger = LoggerFactory.getLogger("hb");
+
                 @Override
                 public void logPing(NioSocketChannel ch) {
                     logger.debug("hb req from: {}", ch);

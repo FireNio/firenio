@@ -17,16 +17,34 @@ package com.generallycloud.test.test;
 
 import java.math.BigDecimal;
 
+import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
 public class ITestThreadHandle {
 
-    private static Logger logger = LoggerFactory.getLogger(ITestThreadHandle.class);
-    
+    private static Logger       logger = LoggerFactory.getLogger(ITestThreadHandle.class);
+
+    private static long         sum;
+
+    private static long         numOftime;
+
     public static ITestThread[] ts;
 
     public static void doTest(Class<? extends ITestThread> clazz, int threads, int time) {
+        doTest(clazz, threads, time, 1);
+    }
+
+    public static void doTest(Class<? extends ITestThread> clazz, int threads, int time,
+            int execTime) {
+        for (int i = 0; i < execTime; i++) {
+            doTest0(clazz, threads, time / threads);
+            ThreadUtil.sleep(2000);
+        }
+    }
+
+    private static void doTest0(Class<? extends ITestThread> clazz, int threads, int time) {
+        numOftime++;
         logger.info("################## Test start ####################");
         int allTime = time * threads;
         ts = new ITestThread[threads];
@@ -56,13 +74,19 @@ public class ITestThreadHandle {
         for (int i = 0; i < ts.length; i++) {
             ts[i].stop();
         }
-        double ops = new BigDecimal(allTime * 1000L).divide(new BigDecimal(spend), 2,
-                BigDecimal.ROUND_HALF_UP).doubleValue();
-//        System.err.println("## Execute Time:" + allTime);
-//        System.err.println("## OP/S:" + ops);
-//        System.err.println("## Expend Time:" + spend);
-        logger.info("## Execute Time:" + allTime);
+        double ops = new BigDecimal(allTime * 1000L)
+                .divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        double avg;
+        if (numOftime > 4) {
+            sum += ops;
+            avg = sum / (numOftime - 4);
+        } else {
+            avg = ops;
+        }
+        logger.info("## Execute Time(all):" + allTime);
+        logger.info("## Execute Time:" + numOftime);
         logger.info("## OP/S:" + ops);
+        logger.info("## OP/S(avg):" + avg);
         logger.info("## Expend Time:" + spend);
     }
 }

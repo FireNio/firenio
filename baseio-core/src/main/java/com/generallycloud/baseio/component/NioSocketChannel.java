@@ -27,7 +27,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -82,6 +81,7 @@ public final class NioSocketChannel extends AttributesImpl
     private final boolean                       enableSsl;
     private final NioEventLoop                  eventLoop;
     private final ExecutorEventLoop             executorEventLoop;
+    private boolean                             inEventBuffer;
     private IoEventHandle                       ioEventHandle;
     private long                                lastAccess;
     private final String                        localAddr;
@@ -99,7 +99,6 @@ public final class NioSocketChannel extends AttributesImpl
     private ByteBuf                             sslRemainBuf;
     private byte                                sslWrapExt;
     private final Queue<ByteBuf>                writeBufs;
-    private boolean                             inEventBuffer;
 
     NioSocketChannel(NioEventLoop eventLoop, SelectionKey selectionKey, ChannelContext context,
             int channelId) {
@@ -240,7 +239,6 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private void exceptionCaught(Frame frame, Exception ex) {
-//        frame.release(eventLoop);
         try {
             getIoEventHandle().exceptionCaught(this, frame, ex);
         } catch (Throwable e) {
@@ -344,7 +342,6 @@ public final class NioSocketChannel extends AttributesImpl
         ByteBuf buf = null;
         try {
             buf = codec.encode(this, frame);
-//            frame.release(eventLoop);
         } catch (Exception e) {
             ReleaseUtil.release(buf);
             exceptionCaught(frame, e);
@@ -1000,10 +997,11 @@ public final class NioSocketChannel extends AttributesImpl
                 for (int i = 0; i < cwLen; i++) {
                     ByteBuf buf = cwBufs[i];
                     if (writeBuffers[i].hasRemaining()) {
+                        buf.reverse();
                         int remain = cwLen - i;
                         System.arraycopy(cwBufs, i, cwBufs, 0, remain);
-                        Arrays.fill(cwBufs, cwLen - i, maxLen, null);
-                        buf.reverse();
+                        fillNull(cwBufs, remain, cwLen);
+                        fillNull(writeBuffers, i, cwLen);
                         this.currentWriteBufsLen = remain;
                         interestWrite(selectionKey, interestOps);
                         if (writeBufs.size() > maxWriteBacklog) {
@@ -1011,18 +1009,12 @@ public final class NioSocketChannel extends AttributesImpl
                         }
                         return false;
                     } else {
+                        writeBuffers[i] = null;
                         buf.release();
                     }
                 }
-                for (int j = 0; j < cwLen; j++) {
-                    cwBufs[j] = null;
-                }
+                fillNull(cwBufs, 0, cwLen);
                 this.currentWriteBufsLen = 0;
-                // use this is better ?
-                //                if (currentWriteBufsLen != maxLen) {
-                //                    interestRead(selectionKey, interestOps);
-                //                    return true;
-                //                }
                 if (writeBufs.isEmpty()) {
                     interestRead(selectionKey, interestOps);
                     return true;
@@ -1050,6 +1042,11 @@ public final class NioSocketChannel extends AttributesImpl
             ch.safeClose();
         }
 
+    }
+
+    private static void fillNull(Object[] a, int fromIndex, int toIndex) {
+        for (int i = fromIndex; i < toIndex; i++)
+            a[i] = null;
     }
 
 }
