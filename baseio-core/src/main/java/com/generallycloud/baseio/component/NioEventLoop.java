@@ -81,8 +81,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private ByteBuf                                  buf;
     private final boolean                            ignoreIdle;
     private final IntObjectHashMap<NioSocketChannel> channels;
-    private final int                                channelSizeLimit        = 1024 * 64;
-    private ChannelContext                           context;                                               // use when not sharable 
+    private final int                                channelSizeLimit;
+    // use when not sharable 
+    private ChannelContext                           context;
     private String                                   desc;
     private final Queue<Runnable>                    events;
     private final NioEventLoopGroup                  group;
@@ -93,15 +94,17 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private final SelectionKeySet                    selectionKeySet;
     private Selector                                 selector;
     private final boolean                            sharable;
-    private final AtomicInteger                      wakener                 = new AtomicInteger();         // true eventLooper, false offerer
+    // true eventLooper, false offerer
+    private final AtomicInteger                      wakener                 = new AtomicInteger();
     private ByteBuffer[]                             writeBuffers;
 
     NioEventLoop(NioEventLoopGroup group, int index, boolean ignoreIdle) {
         this.index = index;
         this.group = group;
-        this.sharable = group.isSharable();
         this.ignoreIdle = ignoreIdle;
+        this.sharable = group.isSharable();
         this.alloc = group.getAllocatorGroup().getNext();
+        this.channelSizeLimit = group.getChannelSizeLimit();
         if (enableSelectionKeySet) {
             this.selectionKeySet = new SelectionKeySet(1024);
         } else {

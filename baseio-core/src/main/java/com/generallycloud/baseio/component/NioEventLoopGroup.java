@@ -35,13 +35,15 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private ByteBufAllocatorGroup allocatorGroup;
     private FixedAtomicInteger    channelIds;
     private int                   channelReadBuffer      = 1024 * 512;
+    //允许的最大连接数(单核)
+    private int                   channelSizeLimit       = 1024 * 64;
     private boolean               enableMemoryPool       = true;
     //内存池是否使用启用堆外内存
     private boolean               enableMemoryPoolDirect = true;
     private NioEventLoop[]        eventLoops;
     private NioEventLoop          headEventLoop;
     private long                  idleTime               = 30 * 1000;
-    //内存池内存单元数量（单核）
+    //内存池内存单元数量(单核)
     private int                   memoryPoolCapacity;
     private int                   memoryPoolRate         = 32;
     //内存池单元大小
@@ -65,7 +67,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     @Override
     protected void doStart() throws Exception {
-        this.channelIds = new FixedAtomicInteger(0x1000, Integer.MAX_VALUE); 
+        this.channelIds = new FixedAtomicInteger(0x1000, Integer.MAX_VALUE);
         if (memoryPoolCapacity == 0) {
             long total = Runtime.getRuntime().maxMemory();
             memoryPoolCapacity = (int) (total
@@ -77,7 +79,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         this.headEventLoop.startup(name);
         super.doStart();
     }
-    
+
     @Override
     protected void doStop() throws Exception {
         LifeCycleUtil.stop(headEventLoop);
@@ -94,6 +96,10 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     public int getChannelReadBuffer() {
         return channelReadBuffer;
+    }
+
+    public int getChannelSizeLimit() {
+        return channelSizeLimit;
     }
 
     @Override
@@ -190,6 +196,11 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     public void setChannelReadBuffer(int channelReadBuffer) {
         checkNotRunning();
         this.channelReadBuffer = channelReadBuffer;
+    }
+
+    public void setChannelSizeLimit(int channelSizeLimit) {
+        checkNotRunning();
+        this.channelSizeLimit = channelSizeLimit;
     }
 
     public void setEnableMemoryPool(boolean enableMemoryPool) {
