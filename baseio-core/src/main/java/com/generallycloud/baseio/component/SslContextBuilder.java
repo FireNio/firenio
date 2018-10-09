@@ -167,14 +167,13 @@ public final class SslContextBuilder {
         if (password == null) {
             return new PKCS8EncodedKeySpec(key);
         }
-        EncryptedPrivateKeyInfo encryptedPrivateKeyInfo = new EncryptedPrivateKeyInfo(key);
-        SecretKeyFactory keyFactory = SecretKeyFactory
-                .getInstance(encryptedPrivateKeyInfo.getAlgName());
+        EncryptedPrivateKeyInfo epki = new EncryptedPrivateKeyInfo(key);
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(epki.getAlgName());
         PBEKeySpec pbeKeySpec = new PBEKeySpec(StringUtil.stringToCharArray(password));
         SecretKey pbeKey = keyFactory.generateSecret(pbeKeySpec);
-        Cipher cipher = Cipher.getInstance(encryptedPrivateKeyInfo.getAlgName());
-        cipher.init(Cipher.DECRYPT_MODE, pbeKey, encryptedPrivateKeyInfo.getAlgParameters());
-        return encryptedPrivateKeyInfo.getKeySpec(cipher);
+        Cipher cipher = Cipher.getInstance(epki.getAlgName());
+        cipher.init(Cipher.DECRYPT_MODE, pbeKey, epki.getAlgParameters());
+        return epki.getKeySpec(cipher);
     }
 
     public String[] getApplicationProtocols() {
@@ -347,24 +346,7 @@ public final class SslContextBuilder {
                         tms = new X509TrustManager[] { x509TrustManager };
                     } else {
                         if (trustAll) {
-                            X509TrustManager x509m = new X509TrustManager() {
-
-                                @Override
-                                public void checkClientTrusted(
-                                        java.security.cert.X509Certificate[] arg0, String arg1)
-                                        throws java.security.cert.CertificateException {}
-
-                                @Override
-                                public void checkServerTrusted(
-                                        java.security.cert.X509Certificate[] arg0, String arg1)
-                                        throws java.security.cert.CertificateException {}
-
-                                @Override
-                                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                                    return null;
-                                }
-                            };
-                            tms = new X509TrustManager[] { x509m };
+                            tms = new X509TrustManager[] { new TrustAllX509TrustManager() };
                         }
                     }
                 } else {
@@ -477,15 +459,14 @@ public final class SslContextBuilder {
     }
 
     static List<byte[]> readCertificates(File file) throws CertificateException {
+        InputStream in = null;
         try {
-            InputStream in = new FileInputStream(file);
-            try {
-                return readCertificates(in);
-            } finally {
-                CloseUtil.close(in);
-            }
+            in = new FileInputStream(file);
+            return readCertificates(in);
         } catch (FileNotFoundException e) {
             throw new CertificateException("could not find certificate file: " + file);
+        }finally {
+            CloseUtil.close(in);
         }
     }
 
@@ -517,6 +498,23 @@ public final class SslContextBuilder {
             throw new CertificateException("found no certificates in input stream");
         }
         return certs;
+    }
+
+    class TrustAllX509TrustManager implements X509TrustManager {
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] arg0, String arg1)
+                throws CertificateException {}
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] arg0, String arg1)
+                throws CertificateException {}
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
+
     }
 
 }

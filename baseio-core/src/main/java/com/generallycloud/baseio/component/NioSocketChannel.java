@@ -968,7 +968,6 @@ public final class NioSocketChannel extends AttributesImpl
                 interestRead(selectionKey, interestOps);
                 return true;
             }
-            //FIXME ...是否要清空buffers
             for (int i = 0; i < cwLen; i++) {
                 ByteBuf buf = cwBufs[i];
                 writeBuffers[i] = buf.nioBuffer();
@@ -1019,7 +1018,6 @@ public final class NioSocketChannel extends AttributesImpl
                     interestRead(selectionKey, interestOps);
                     return true;
                 }
-                continue;
             }
         }
     }

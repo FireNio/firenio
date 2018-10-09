@@ -58,7 +58,7 @@ public final class SslContext {
                 org.wildfly.openssl.OpenSSLProvider.register();
                 testOpenSsl = true;
             }
-        } catch (Exception e) {}
+        } catch (Exception | Error e) {}
         OPENSSL_AVAILABLE = testOpenSsl;
         SSLContext context;
         try {

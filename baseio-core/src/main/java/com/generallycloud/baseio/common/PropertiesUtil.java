@@ -22,8 +22,7 @@ package com.generallycloud.baseio.common;
 public class PropertiesUtil {
     
     public static void setSystemPropertiesIfNull(String key, String value) {
-        String pro = System.getProperty(key);
-        if (StringUtil.isNullOrBlank(pro)) {
+        if (System.getProperty(key) == null) {
             System.setProperty(key, value);
         }
     }

@@ -63,7 +63,6 @@ import com.generallycloud.baseio.log.LoggerFactory;
  * @author wangkai
  *
  */
-//FIXME 使用ThreadLocal
 public final class NioEventLoop extends AbstractEventLoop implements Attributes {
 
     private static final boolean                     enableSelectionKeySet   = checkEnableSelectionKeySet();
@@ -129,6 +128,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     writeComplete = ch.write(key.interestOps());
                 } catch (Throwable e) {
+                    ch.close();
                     if (DEBUG) {
                         logger.error(e.getMessage() + ch, e);
                     } else {
@@ -136,7 +136,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                             logger.debug(e.getMessage() + ch, e);
                         }
                     }
-                    ch.close();
                 }
             }
             //FIXME 观察这里不写完不让读的模式是否可行
@@ -144,6 +143,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 try {
                     ch.read(buf);
                 } catch (Throwable e) {
+                    ch.close();
                     if (DEBUG) {
                         logger.error(e.getMessage() + ch, e);
                     } else {
@@ -151,7 +151,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                             logger.debug(e.getMessage() + ch, e);
                         }
                     }
-                    ch.close();
                     if (e instanceof SSLHandshakeException) {
                         finishConnect(ch, ch.getContext(), e);
                     }
