@@ -56,8 +56,8 @@ public class SpringHttpFrameHandle extends HttpFrameHandle {
     }
 
     @Override
-    public void initialize(String rootPath, String mode) throws Exception {
-        super.initialize(rootPath, mode);
+    public void initialize(ChannelContext context, String rootPath, String mode) throws Exception {
+        super.initialize(context, rootPath, mode);
         System.setProperty("org.apache.commons.logging.log", Sl4jLogger.class.getName());
         Thread.currentThread().setContextClassLoader(null); //for spring
         applicationContext = new ClassPathXmlApplicationContext("classpath:spring-core.xml");

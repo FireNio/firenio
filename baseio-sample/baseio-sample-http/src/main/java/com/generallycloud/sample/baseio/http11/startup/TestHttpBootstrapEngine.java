@@ -64,7 +64,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
             @Override
             public void lifeCycleStarted(LifeCycle lifeCycle) {
                 try {
-                    handle.initialize(rootPath, mode);
+                    handle.initialize(context, rootPath, mode);
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }

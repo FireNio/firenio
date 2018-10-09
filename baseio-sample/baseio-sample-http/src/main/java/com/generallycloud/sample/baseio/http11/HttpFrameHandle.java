@@ -31,6 +31,7 @@ import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
+import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
@@ -43,9 +44,10 @@ import com.generallycloud.baseio.protocol.NamedFrame;
 //FIXME limit too large file
 public class HttpFrameHandle extends IoEventHandle {
 
-    private Charset                 charset   = Encoding.UTF8;
-    private Map<String, HttpEntity> htmlCache = new HashMap<>();
-    private Logger                  logger    = LoggerFactory.getLogger(getClass());
+    private Charset                 charset        = Encoding.UTF8;
+    private Map<String, HttpEntity> htmlCache      = new HashMap<>();
+    private ScanFileFilter          scanFileFilter = new IgnoreDotStartFile();
+    private Logger                  logger         = LoggerFactory.getLogger(getClass());
 
     @Override
     public void accept(NioSocketChannel ch, Frame frame) throws Exception {
@@ -57,10 +59,9 @@ public class HttpFrameHandle extends IoEventHandle {
         HttpStatus status = HttpStatus.C200;
         ServerHttpFrame f = (ServerHttpFrame) frame;
         if (entity == null) {
-            f.setStatus(HttpStatus.C404);
             entity = htmlCache.get("/404.html");
             if (entity == null) {
-                printHtml(ch, frame, "404 page not found");
+                printHtml(ch, frame, HttpStatus.C404, "404 page not found");
                 return;
             }
         }
@@ -105,7 +106,7 @@ public class HttpFrameHandle extends IoEventHandle {
             builder.append(e.toString());
             builder.append("</BR>\n");
         }
-        printHtml(ch, frame, builder.toString());
+        printHtml(ch, frame, HttpStatus.C500, builder.toString());
     }
 
     private void flush(NioSocketChannel ch, ServerHttpFrame frame, HttpEntity entity) {
@@ -136,10 +137,14 @@ public class HttpFrameHandle extends IoEventHandle {
         return htmlCache;
     }
 
-    public void initialize(String rootPath, String mode) throws Exception {
-        File rootFile = new File(rootPath + "/app");
+    public void initialize(ChannelContext context, String rootPath, String mode) throws Exception {
+        Properties p = context.getProperties();
+        String webRoot = p.getProperty("app.webRoot");
+        if (StringUtil.isNullOrBlank(webRoot)) {
+            webRoot = rootPath + "/app";
+        }
+        File rootFile = new File(webRoot);
         Map<String, String> mapping = new HashMap<>();
-
         mapping.put("htm", HttpFrame.CONTENT_TYPE_TEXT_HTMLUTF8);
         mapping.put("html", HttpFrame.CONTENT_TYPE_TEXT_HTMLUTF8);
         mapping.put("js", HttpFrame.CONTENT_APPLICATION_JAVASCRIPTUTF8);
@@ -150,13 +155,12 @@ public class HttpFrameHandle extends IoEventHandle {
         mapping.put("gif", HttpFrame.CONTENT_TYPE_IMAGE_GIF);
         mapping.put("txt", HttpFrame.CONTENT_TYPE_TEXT_PLAINUTF8);
         mapping.put("ico", HttpFrame.CONTENT_TYPE_IMAGE_PNG);
-
         if (rootFile.exists()) {
-            scanFolder(htmlCache, rootFile, rootPath, mapping, "");
+            scanFolder(scanFileFilter, rootFile, mapping, "");
         }
     }
 
-    protected void printHtml(NioSocketChannel ch, Frame frame, String content) {
+    protected void printHtml(NioSocketChannel ch, Frame frame, HttpStatus status, String content) {
         if (ch.isClosed()) {
             return;
         }
@@ -174,8 +178,8 @@ public class HttpFrameHandle extends IoEventHandle {
         builder.append("        </div>\n");
         builder.append(HtmlUtil.HTML_POWER_BY);
         builder.append(HtmlUtil.HTML_BOTTOM);
+        f.setStatus(status);
         f.write(builder.toString(), ch.getCharset());
-        f.setStatus(HttpStatus.C500);
         f.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
         ch.flush(f);
     }
@@ -187,8 +191,11 @@ public class HttpFrameHandle extends IoEventHandle {
         entity.setLastModify(file.lastModified());
     }
 
-    private void scanFolder(Map<String, HttpEntity> htmlCache, File file, String root,
-            Map<String, String> mapping, String path) throws IOException {
+    private void scanFolder(ScanFileFilter filter, File file, Map<String, String> mapping,
+            String path) throws IOException {
+        if (filter == null || !filter.filter(file)) {
+            return;
+        }
         if (file.isFile()) {
             String contentType = getContentType(file.getName(), mapping);
             HttpEntity entity = new HttpEntity();
@@ -225,8 +232,11 @@ public class HttpFrameHandle extends IoEventHandle {
             StringBuilder db = new StringBuilder();
             StringBuilder fb = new StringBuilder();
             for (File f : fs) {
+                if (filter == null || !filter.filter(f)) {
+                    continue;
+                }
                 String staticName1 = path + "/" + f.getName();
-                scanFolder(htmlCache, f, root, mapping, staticName1);
+                scanFolder(filter, f, mapping, staticName1);
                 if (f.isDirectory()) {
                     if ("/lib".equals(staticName1)) {
                         continue;
@@ -259,7 +269,7 @@ public class HttpFrameHandle extends IoEventHandle {
     public void setCharset(Charset charset) {
         this.charset = charset;
     }
-    
+
     class HttpEntity {
 
         private String contentType;
@@ -315,15 +325,36 @@ public class HttpFrameHandle extends IoEventHandle {
         public long getLastModifyGTMTime() {
             return lastModifyGTMTime;
         }
-        
+
         public byte[] getLastModifyGTMBytes() {
             return lastModifyGTMBytes;
         }
-        
+
         public byte[] getContentTypeBytes() {
             return contentTypeBytes;
         }
-        
+
+    }
+
+    public ScanFileFilter getScanFileFilter() {
+        return scanFileFilter;
+    }
+
+    public void setScanFileFilter(ScanFileFilter scanFileFilter) {
+        this.scanFileFilter = scanFileFilter;
+    }
+
+    public interface ScanFileFilter {
+        boolean filter(File file);
+    }
+
+    class IgnoreDotStartFile implements ScanFileFilter {
+
+        @Override
+        public boolean filter(File file) {
+            return !file.getName().startsWith(".");
+        }
+
     }
 
 }

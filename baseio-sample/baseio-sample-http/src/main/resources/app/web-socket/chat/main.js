@@ -48,7 +48,7 @@ $(function() {
 			} else if ("login" == action) {
 				connected = true;
 				// Display the welcome message
-				var message = "Welcome to Socket.IO Chat – ";
+				var message = "Welcome to baseio Chat – ";
 				log(message, {
 					prepend: true
 				});
