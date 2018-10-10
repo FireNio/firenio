@@ -19,7 +19,6 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public abstract class AbstractFrame implements Frame {

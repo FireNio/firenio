@@ -45,17 +45,16 @@ import com.generallycloud.baseio.common.StringUtil;
 
 public class URLDynamicClassLoader extends URLClassLoader implements DynamicClassLoader {
 
-    private static final ClassLoader PARENT_CLASSLOADER = URLDynamicClassLoader.class
-            .getClassLoader();
+    static final ClassLoader        PARENT_CL      = URLDynamicClassLoader.class.getClassLoader();
 
-    private Map<String, ClassEntry>  clazzEntries       = new HashMap<>();
-    private Map<String, URL>         resourceMap        = new HashMap<>();
-    private Map<String, List<URL>>   resourcesMap       = new HashMap<>();
-    private Set<String>              excludePaths       = new HashSet<>();
-    private Set<String>              matchExtend        = new HashSet<>();
-    private List<String>             matchStartWith     = new ArrayList<>();
-    private Set<String>              systemMatch        = new HashSet<>();
-    private boolean                  entrustFirst       = true;
+    private Map<String, ClassEntry> clazzEntries   = new HashMap<>();
+    private Map<String, URL>        resourceMap    = new HashMap<>();
+    private Map<String, List<URL>>  resourcesMap   = new HashMap<>();
+    private Set<String>             excludePaths   = new HashSet<>();
+    private Set<String>             matchExtend    = new HashSet<>();
+    private List<String>            matchStartWith = new ArrayList<>();
+    private Set<String>             systemMatch    = new HashSet<>();
+    private boolean                entrustFirst   = true;
 
     // entrustFirst 是否优先委托父类加载class
     // 最外层classloader（PCL）一般设置优先委托自己加载class，因为到后面对象需要用PCL去加载resources
@@ -68,7 +67,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     }
 
     public URLDynamicClassLoader(ClassLoader parent, boolean entrustFirst) {
-        super(new URL[] {}, parent == null ? PARENT_CLASSLOADER : parent);
+        super(new URL[] {}, parent == null ? PARENT_CL : parent);
         this.entrustFirst = entrustFirst;
         this.initialize();
     }

@@ -118,7 +118,7 @@ public final class NioSocketChannel extends AttributesImpl
         //请勿使用remote.getRemoteHost(),可能出现阻塞
         InetSocketAddress remote = getRemoteSocketAddress0();
         InetSocketAddress local = getLocalSocketAddress0();
-        String idhex = Long.toHexString(channelId);
+        String idhex = Integer.toHexString(channelId);
         this.remoteAddr = remote.getAddress().getHostAddress();
         this.remotePort = remote.getPort();
         this.remoteAddrPort = remoteAddr + ":" + remotePort;

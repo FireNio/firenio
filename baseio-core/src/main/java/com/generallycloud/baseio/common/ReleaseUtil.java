@@ -19,10 +19,8 @@ import java.util.List;
 
 import com.generallycloud.baseio.Releasable;
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
-import com.generallycloud.baseio.protocol.Frame;
 
 public class ReleaseUtil {
 

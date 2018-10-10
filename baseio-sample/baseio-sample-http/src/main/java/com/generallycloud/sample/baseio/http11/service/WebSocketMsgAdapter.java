@@ -15,12 +15,10 @@
  */
 package com.generallycloud.sample.baseio.http11.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.generallycloud.baseio.codec.http11.WebSocketFrame;
@@ -35,23 +33,19 @@ import com.generallycloud.baseio.log.LoggerFactory;
 public class WebSocketMsgAdapter extends AbstractEventLoop {
 
     private Logger                        logger     = LoggerFactory.getLogger(getClass());
-    private List<NioSocketChannel>        clients    = new ArrayList<>();
-    private Map<String, NioSocketChannel> clientsMap = new HashMap<>();
+    private Map<String, NioSocketChannel> clientsMap = new ConcurrentHashMap<>();
     private BlockingQueue<Msg>            msgs       = new ArrayBlockingQueue<>(1024 * 4);
 
     public synchronized void addClient(String username, NioSocketChannel ch) {
-        clients.add(ch);
+        ch.setAttribute("username", username);
         clientsMap.put(username, ch);
-        logger.info("client joined {} ,clients size: {}", ch, clients.size());
+        logger.info("client joined {} ,clients size: {}", ch, clientsMap.size());
     }
 
     public synchronized boolean removeClient(NioSocketChannel ch) {
-        if (clients.remove(ch)) {
-            String username = (String) ch.getAttribute("username");
-            if (!StringUtil.isNullOrBlank(username)) {
-                clientsMap.remove(username);
-            }
-            logger.info("client left {} ,clients size: {}", ch, clients.size());
+        String username = (String) ch.getAttribute("username");
+        if ((!StringUtil.isNullOrBlank(username)) && clientsMap.remove(username) != null) {
+            logger.info("client left {} ,clients size: {}", ch, clientsMap.size());
             return true;
         }
         return false;
@@ -70,7 +64,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
     }
 
     public int getClientSize() {
-        return clients.size();
+        return clientsMap.size();
     }
 
     @Override
@@ -89,7 +83,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
                 WebSocketFrame f = new WebSocketFrame();
                 f.write(msg.msg, Encoding.UTF8);
                 try {
-                    ChannelManager.broadcast(f, clients);
+                    ChannelManager.broadcast(f, clientsMap.values());
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }

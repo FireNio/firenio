@@ -25,7 +25,6 @@ import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.common.MessageFormatter;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -177,14 +176,13 @@ public class ChannelConnector implements ChannelService, Closeable {
         if (waiter.isFailed()) {
             CloseUtil.close(this);
             Throwable ex = (Throwable) waiter.getResponse();
-            String errorMsg = MessageFormatter.format(
-                    "connect to [{}] failed,nested exception is {}", getServerAddress(),
-                    ex.getMessage());
+            String errorMsg = "connect to" + getServerAddress() + "failed,nested exception is"
+                    + ex.getMessage();
             throw new IOException(errorMsg, ex);
         }
         this.ch = (NioSocketChannel) waiter.getResponse();
         this.waiter = null;
-        LoggerUtil.prettyLog(logger, "connected to server @{}", getServerAddress());
+        LoggerUtil.prettyLog(logger, "connected to server @" + getServerAddress());
     }
 
     @Override

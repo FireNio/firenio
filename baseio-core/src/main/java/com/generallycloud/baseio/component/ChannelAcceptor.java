@@ -88,7 +88,7 @@ public class ChannelAcceptor implements ChannelService {
             throw e;
         }
         this.active = true;
-        LoggerUtil.prettyLog(logger, "server listening @{}", getServerAddress());
+        LoggerUtil.prettyLog(logger, "server listening @" + getServerAddress());
     }
 
     public void broadcast(Frame frame) throws IOException {

@@ -17,7 +17,6 @@ package com.generallycloud.baseio.common;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -26,19 +25,10 @@ import java.util.List;
 
 public class StringUtil {
 
-    private static String[] ZEROS;
-
-    private static Field    stringValueField;
-
-    private static boolean  enableGetStringValueField;
+    private static final Field   stringValueField;
+    private static final boolean enableGetStringValueField;
 
     static {
-        int max = 15;
-        ZEROS = new String[max + 1];
-        ZEROS[0] = "";
-        for (int i = 0; i++ < max;) {
-            ZEROS[i] = ZEROS[i - 1] + "0";
-        }
         Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
             public Object run() {
@@ -49,7 +39,7 @@ public class StringUtil {
                         return cause;
                     }
                     return value;
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     return e;
                 }
             }
@@ -57,6 +47,8 @@ public class StringUtil {
         enableGetStringValueField = !(res instanceof Throwable);
         if (enableGetStringValueField) {
             stringValueField = (Field) res;
+        } else {
+            stringValueField = null;
         }
     }
 
@@ -72,19 +64,10 @@ public class StringUtil {
         return text != null && text.trim().length() > 0;
     }
 
-    public static String getZeroString(int length) {
-        return ZEROS[length];
-    }
-
-    public static String padZero(String str, int len) {
-        return ZEROS[len - str.length()] + str;
-    }
-
     //FIXME 尽量使用decode取代new String()
     //see  java.lang.StringCoding.decode(Charset cs, byte[] ba, int off, int len)
     public static String decode(Charset charset, ByteBuffer buffer) {
-        CharBuffer cb = charset.decode(buffer);
-        return cb.toString();
+        return charset.decode(buffer).toString();
     }
 
     public static String getValueFromArray(String[] args, int index) {
@@ -149,8 +132,8 @@ public class StringUtil {
     public static boolean isTrueValue(String value) {
         return "true".equals(value) || "1".equals(value);
     }
-    
-    public static int indexOf(StringBuilder sb,char ch){
+
+    public static int indexOf(StringBuilder sb, char ch) {
         int count = sb.length();
         for (int i = 0; i < count; i++) {
             if (ch == sb.charAt(i)) {
@@ -159,10 +142,10 @@ public class StringUtil {
         }
         return -1;
     }
-    
-    public static int lastIndexOf(StringBuilder sb,char ch){
+
+    public static int lastIndexOf(StringBuilder sb, char ch) {
         int count = sb.length();
-        for (int i = count -1; i > -1; i--) {
+        for (int i = count - 1; i > -1; i--) {
             if (ch == sb.charAt(i)) {
                 return i;
             }

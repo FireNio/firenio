@@ -29,7 +29,7 @@ public class ApplicationBootstrap {
 
     public static final String RUNTIME_DEV  = "dev";
     public static final String RUNTIME_PROD = "prod";
-    
+
     public static void startup() throws Exception {
         startup(System.getProperty("container.class"));
     }
@@ -60,21 +60,21 @@ public class ApplicationBootstrap {
     }
 
     public static void startup(String className, String mode, String rootPath,
-            List<ClassPathScaner> classPathScaners) throws Exception {
+            List<ClassPathScaner> cpScaners) throws Exception {
         Assert.notNull(className, "className");
         Assert.notNull(rootPath, "rootPath");
-        Assert.notNull(classPathScaners, "classPathScaners");
+        Assert.notNull(cpScaners, "cpScaners");
         LoggerUtil.prettyLog(DebugUtil.getLogger(), "RUNTIME_MODE: {}", mode);
         LoggerUtil.prettyLog(DebugUtil.getLogger(), "ROOT_PATH: {}", rootPath);
+        boolean isDevMode = isRuntimeDevMode(mode);
         ClassLoader parent = ApplicationBootstrap.class.getClassLoader();
-        URLDynamicClassLoader classLoader = newClassLoader(parent, mode, isRuntimeDevMode(mode),
-                rootPath, classPathScaners);
+        ClassLoader classLoader = newClassLoader(parent, mode, isDevMode, rootPath, cpScaners);
         Class<?> bootClass = classLoader.loadClass(className);
         Thread.currentThread().setContextClassLoader(classLoader);
         BootstrapEngine engine = (BootstrapEngine) bootClass.newInstance();
         engine.bootstrap(rootPath, mode);
     }
-    
+
     public static boolean isRuntimeProdMode(String mode) {
         return RUNTIME_PROD.equalsIgnoreCase(mode);
     }
@@ -120,20 +120,20 @@ public class ApplicationBootstrap {
     }
 
     public interface ClassPathScaner {
-        void scanClassPaths(URLDynamicClassLoader classLoader, String mode, String rootLocalAddress)
+        void scanClassPaths(URLDynamicClassLoader classLoader, String mode, String rootPath)
                 throws IOException;
     }
 
     static class DefaultClassPathScaner implements ClassPathScaner {
 
         @Override
-        public void scanClassPaths(URLDynamicClassLoader classLoader, String mode,
-                String rootLocalAddress) throws IOException {
+        public void scanClassPaths(URLDynamicClassLoader classLoader, String mode, String rootPath)
+                throws IOException {
             if (isRuntimeDevMode(mode)) {
                 classLoader.addExcludePath("/app");
-                classLoader.scan(rootLocalAddress);
+                classLoader.scan(rootPath);
             } else {
-                classLoader.scan(rootLocalAddress + "/conf");
+                classLoader.scan(rootPath + "/conf");
             }
         }
     }
