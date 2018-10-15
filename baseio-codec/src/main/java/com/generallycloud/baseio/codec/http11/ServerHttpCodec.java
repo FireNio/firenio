@@ -36,15 +36,15 @@ import com.generallycloud.baseio.protocol.Frame;
 public class ServerHttpCodec extends AbstractHttpCodec {
 
     public static final String  FRAME_STACK_KEY         = "FixedThreadStack_ServerHttpFrame";
-    private static final byte[] PROTOCOL                 = "HTTP/1.1 ".getBytes();
-    private static final byte[] CONTENT_LENGTH           = "\r\nContent-Length: ".getBytes();
-    private static final byte[] SET_COOKIE               = "Set-Cookie:".getBytes();
-    private int                 bodyLimit                = 1024 * 512;
-    private int                 headerLimit              = 1024 * 8;
-    private int                 websocketLimit           = 1024 * 128;
+    private static final byte[] PROTOCOL                = "HTTP/1.1 ".getBytes();
+    private static final byte[] CONTENT_LENGTH          = "\r\nContent-Length: ".getBytes();
+    private static final byte[] SET_COOKIE              = "Set-Cookie:".getBytes();
+    private int                 bodyLimit               = 1024 * 512;
+    private int                 headerLimit             = 1024 * 8;
+    private int                 websocketLimit          = 1024 * 128;
     private final int           httpFrameStackSize;
     private int                 websocketFrameStackSize = 0;
-//    private static final ThreadLocal<HttpDateBytesHolder> dateBytes = new ThreadLocal<>();
+    //    private static final ThreadLocal<HttpDateBytesHolder> dateBytes = new ThreadLocal<>();
 
     public ServerHttpCodec() {
         this.httpFrameStackSize = 0;
@@ -86,10 +86,10 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         }
         return new ServerHttpFrame(ch.getContext(), headerLimit, bodyLimit);
     }
-    
+
     private ByteBuf encode(ByteBufAllocator allocator, ServerHttpFrame f, int length, byte[] array)
             throws IOException {
-        ByteBuf buf = allocator.allocate(256);
+        ByteBuf buf = allocator.allocate(512);
         try {
             buf.put(PROTOCOL);
             buf.put(f.getStatus().getBinary());
@@ -107,10 +107,14 @@ public class ServerHttpCodec extends AbstractHttpCodec {
                     writeBuf(buf, N);
                 }
             }
-            writeBuf(buf, R);
-            writeBuf(buf, N);
+            int len = 2 + length;
+            if (buf.remaining() < len) {
+                buf.reallocate(buf.position() + len, true);
+            }
+            buf.putByte(R);
+            buf.putByte(N);
             if (length != 0) {
-                writeBuf(buf, array, 0, length);
+                buf.put(array, 0, length);
             }
         } catch (Exception e) {
             buf.release();
@@ -118,27 +122,41 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         }
         return buf.flip();
     }
-    
+
     private void writeHeaders(Map<byte[], byte[]> headers, ByteBuf buf) {
         if (headers == null) {
             return;
         }
+        int len = 0;
         for (Entry<byte[], byte[]> header : headers.entrySet()) {
-            byte [] k = header.getKey();
-            byte [] v = header.getValue();
+            byte[] k = header.getKey();
+            byte[] v = header.getValue();
             if (v == null) {
                 continue;
             }
-            writeBuf(buf, k);
-            writeBuf(buf, COLON);
-            writeBuf(buf, SPACE);
-            writeBuf(buf, v);
-            writeBuf(buf, R);
-            writeBuf(buf, N);
+            len += 4;
+            len += k.length;
+            len += v.length;
+        }
+        if (buf.remaining() < len) {
+            buf.reallocate(buf.position() + len, true);
+        }
+        for (Entry<byte[], byte[]> header : headers.entrySet()) {
+            byte[] k = header.getKey();
+            byte[] v = header.getValue();
+            if (v == null) {
+                continue;
+            }
+            buf.put(k);
+            buf.putByte(COLON);
+            buf.putByte(SPACE);
+            buf.put(v);
+            buf.putByte(R);
+            buf.putByte(N);
         }
     }
-    
-    private byte[] getHttpDateBytes(){
+
+    private byte[] getHttpDateBytes() {
         return DateUtil.get().formatHttpBytes();
         //        HttpDateBytesHolder h = dateBytes.get();
         //        if (h == null) {
@@ -152,7 +170,7 @@ public class ServerHttpCodec extends AbstractHttpCodec {
         //        }
         //        return h.value;
     }
-    
+
     @Override
     public ByteBuf encode(NioSocketChannel ch, Frame readFrame) throws IOException {
         ByteBufAllocator allocator = ch.alloc();
@@ -210,10 +228,10 @@ public class ServerHttpCodec extends AbstractHttpCodec {
     public void setWebsocketFrameStackSize(int websocketFrameStackSize) {
         this.websocketFrameStackSize = websocketFrameStackSize;
     }
-    
+
     class HttpDateBytesHolder {
-        long time;
-        byte [] value;
+        long   time;
+        byte[] value;
     }
 
 }

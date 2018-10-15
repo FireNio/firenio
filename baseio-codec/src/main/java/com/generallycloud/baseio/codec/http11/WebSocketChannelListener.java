@@ -31,7 +31,7 @@ public class WebSocketChannelListener extends ChannelEventListenerAdapter {
             return;
         }
         WebSocketFrame frame = new WebSocketFrame();
-        frame.setType(WebSocketCodec.TYPE_CLOSE);
+        frame.setWsType(WebSocketCodec.TYPE_CLOSE);
         frame.setServiceName(ch);
         try {
             ch.getIoEventHandle().accept(ch, frame);

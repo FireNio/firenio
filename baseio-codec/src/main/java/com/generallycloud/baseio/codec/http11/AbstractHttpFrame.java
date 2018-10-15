@@ -480,7 +480,7 @@ public abstract class AbstractHttpFrame extends BinaryFrame implements HttpFrame
     private static StringBuilder getCacheStringBuilder() {
         StringBuilder cache = stringBuilder.get();
         if (cache == null) {
-            cache = new StringBuilder(32);
+            cache = new StringBuilder(256);
             stringBuilder.set(cache);
         }
         return cache;

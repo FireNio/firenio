@@ -153,7 +153,7 @@ public final class NioSocketChannel extends AttributesImpl
                 }
                 break;
             }
-            if (frame.isSilent()) {
+            if (frame.isTyped()) {
                 if (frame.isPing()) {
                     heartBeatLogger.logPing(this);
                     Frame f = codec.pong(this, frame);

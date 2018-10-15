@@ -34,12 +34,12 @@ public interface Frame {
 
     boolean isSilent();
 
+    boolean isType(byte type);
+
+    boolean isTyped();
+
     /**
      * return true if the frame read complete
-     * @param ch
-     * @param src
-     * @return
-     * @throws IOException
      */
     boolean read(NioSocketChannel ch, ByteBuf src) throws IOException;
 
@@ -48,6 +48,8 @@ public interface Frame {
     Frame setPong();
 
     void setSilent();
+
+    void setType(byte type);
 
     void write(byte b);
 

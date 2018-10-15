@@ -82,7 +82,7 @@ public class FixedLengthCodec extends ProtocolCodec {
 
     @Override
     public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
-        if (frame.isSilent()) {
+        if (frame.isTyped()) {
             return frame.isPing() ? PING.duplicate() : PONG.duplicate();
         }
         FixedLengthFrame f = (FixedLengthFrame) frame;

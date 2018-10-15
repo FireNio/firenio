@@ -36,13 +36,13 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
     private Map<String, NioSocketChannel> clientsMap = new ConcurrentHashMap<>();
     private BlockingQueue<Msg>            msgs       = new ArrayBlockingQueue<>(1024 * 4);
 
-    public synchronized void addClient(String username, NioSocketChannel ch) {
+    public void addClient(String username, NioSocketChannel ch) {
         ch.setAttribute("username", username);
         clientsMap.put(username, ch);
         logger.info("client joined {} ,clients size: {}", ch, clientsMap.size());
     }
 
-    public synchronized boolean removeClient(NioSocketChannel ch) {
+    public boolean removeClient(NioSocketChannel ch) {
         String username = (String) ch.getAttribute("username");
         if ((!StringUtil.isNullOrBlank(username)) && clientsMap.remove(username) != null) {
             logger.info("client left {} ,clients size: {}", ch, clientsMap.size());
@@ -73,20 +73,18 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
         if (msg == null) {
             return;
         }
-        synchronized (this) {
-            NioSocketChannel ch = msg.ch;
-            if (ch != null) {
-                WebSocketFrame f = new WebSocketFrame();
-                f.write(msg.msg, ch);
-                ch.flush(f);
-            } else {
-                WebSocketFrame f = new WebSocketFrame();
-                f.write(msg.msg, Encoding.UTF8);
-                try {
-                    ChannelManager.broadcast(f, clientsMap.values());
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                }
+        NioSocketChannel ch = msg.ch;
+        if (ch != null) {
+            WebSocketFrame f = new WebSocketFrame();
+            f.write(msg.msg, ch);
+            ch.flush(f);
+        } else {
+            WebSocketFrame f = new WebSocketFrame();
+            f.write(msg.msg, Encoding.UTF8);
+            try {
+                ChannelManager.broadcast(f, clientsMap.values());
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
             }
         }
     }

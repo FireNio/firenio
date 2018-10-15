@@ -85,7 +85,7 @@ public class ProtobaseCodec extends ProtocolCodec {
 
     @Override
     public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
-        if (frame.isSilent()) {
+        if (frame.isTyped()) {
             return frame.isPing() ? PING.duplicate() : PONG.duplicate();
         }
         ProtobaseFrame f = (ProtobaseFrame) frame;

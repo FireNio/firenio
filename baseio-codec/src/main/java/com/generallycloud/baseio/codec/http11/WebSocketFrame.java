@@ -195,7 +195,7 @@ public class WebSocketFrame extends AbstractFrame implements HttpMessage {
         this.serviceName = (String) ch.getAttribute(CHANNEL_KEY_SERVICE_NAME);
     }
 
-    protected void setType(byte type) {
+    protected void setWsType(byte type) {
         this.type = type;
     }
 
