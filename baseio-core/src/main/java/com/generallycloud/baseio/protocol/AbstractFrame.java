@@ -27,8 +27,8 @@ public abstract class AbstractFrame implements Frame {
     private static final byte TYPE_PONG   = 2;
     private static final byte TYPE_SILENT = 0;
 
-    private boolean isTyped;
     private byte    frameType;
+    private boolean isTyped;
     private byte[]  writeBuffer;
     private int     writeSize;
 
@@ -67,12 +67,6 @@ public abstract class AbstractFrame implements Frame {
         return isTyped;
     }
 
-    @Override
-    public void setType(byte type) {
-        this.frameType = type;
-        this.isTyped = true;
-    }
-
     protected Frame reset() {
         this.frameType = 0;
         this.isTyped = false;
@@ -98,6 +92,12 @@ public abstract class AbstractFrame implements Frame {
     @Override
     public void setSilent() {
         this.frameType = TYPE_SILENT;
+        this.isTyped = true;
+    }
+
+    @Override
+    public void setType(byte type) {
+        this.frameType = type;
         this.isTyped = true;
     }
 
