@@ -153,20 +153,16 @@ public class WebSocketFrame extends AbstractFrame implements HttpMessage {
             }
             if (len < length) {
                 int i = len;
-                for (;;) {
+                int remain = length - len;
+                if (remain == 1) {
                     array[i++] ^= m0;
-                    if (i == length) {
-                        break;
-                    }
+                }else if(remain == 2) {
+                    array[i++] ^= m0;
                     array[i++] ^= m1;
-                    if (i == length) {
-                        break;
-                    }
+                }else {
+                    array[i++] ^= m0;
+                    array[i++] ^= m1;
                     array[i++] ^= m2;
-                    if (i == length) {
-                        break;
-                    }
-                    array[i++] ^= m3;
                 }
             }
         } else {
