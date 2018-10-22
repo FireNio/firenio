@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
@@ -48,13 +47,13 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 *      |                     Payload Data continued ...                |
 *      +---------------------------------------------------------------+
 * 
-* 
+*   ref: https://tools.ietf.org/html/rfc6455
 * </pre>
 *
 */
 public class WebSocketCodec extends ProtocolCodec {
 
-    public static final String   FRAME_STACK_KEY   = "FixedThreadStack_WebSocketFrame";
+    public static final String   FRAME_STACK_KEY    = "FixedThreadStack_WebSocketFrame";
     public static final int      PROTOCOL_HEADER    = 2;
     public static final String   PROTOCOL_ID        = "WebSocket";
     public static final byte     TYPE_BINARY        = 2;
@@ -80,35 +79,29 @@ public class WebSocketCodec extends ProtocolCodec {
 
     @Override
     public Frame ping(NioSocketChannel ch) {
-        if (WebSocketCodec.PROTOCOL_ID.equals(ch.getCodecId())) {
-            return new WebSocketFrame().setPing();
-        }
-        return null;
+        return new WebSocketFrame().setPing();
     }
 
     @Override
     public Frame pong(NioSocketChannel ch, Frame ping) {
-        if (WebSocketCodec.PROTOCOL_ID.equals(ch.getCodecId())) {
-            return ping.setPong();
-        }
-        return null;
+        return ping.setPong();
     }
 
     @Override
     public Frame decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
         if (frameStackSize > 0) {
-//            NioEventLoop eventLoop = ch.getEventLoop();
-//            FixedThreadStack<WebSocketFrame> stack = (FixedThreadStack<WebSocketFrame>) eventLoop
-//                    .getAttribute(FRAME_STACK_KEY);
-//            if (stack == null) {
-//                stack = new FixedThreadStack<>(frameStackSize);
-//                eventLoop.setAttribute(FRAME_STACK_KEY, stack);
-//            }
-//            WebSocketFrame frame = stack.pop();
-//            if (frame == null) {
-//                return new WebSocketFrame(ch, limit);
-//            }
-//            return frame.reset(ch, limit);
+            //            NioEventLoop eventLoop = ch.getEventLoop();
+            //            FixedThreadStack<WebSocketFrame> stack = (FixedThreadStack<WebSocketFrame>) eventLoop
+            //                    .getAttribute(FRAME_STACK_KEY);
+            //            if (stack == null) {
+            //                stack = new FixedThreadStack<>(frameStackSize);
+            //                eventLoop.setAttribute(FRAME_STACK_KEY, stack);
+            //            }
+            //            WebSocketFrame frame = stack.pop();
+            //            if (frame == null) {
+            //                return new WebSocketFrame(ch, limit);
+            //            }
+            //            return frame.reset(ch, limit);
         }
         return new WebSocketFrame(ch, limit);
     }
@@ -117,27 +110,25 @@ public class WebSocketCodec extends ProtocolCodec {
     public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
         ByteBufAllocator allocator = ch.alloc();
         WebSocketFrame f = (WebSocketFrame) frame;
-        byte[] header;
         byte[] data = f.getWriteBuffer();
         int size = f.getWriteSize();
         byte header0 = (byte) (0x8f & (f.getType() | 0xf0));
+        ByteBuf buf;
         if (size < 126) {
-            header = new byte[2];
-            header[0] = header0;
-            header[1] = (byte) size;
+            buf = allocator.allocate(2 + size);
+            buf.putByte(header0);
+            buf.putByte((byte) size);
         } else if (size <= MAX_UNSIGNED_SHORT) {
-            header = new byte[4];
-            header[0] = header0;
-            header[1] = 126;
-            MathUtil.unsignedShort2Byte(header, size, 2);
+            buf = allocator.allocate(4 + size);
+            buf.putByte(header0);
+            buf.putByte((byte) 126);
+            buf.putUnsignedShort(size);
         } else {
-            header = new byte[10];
-            header[0] = header0;
-            header[1] = 127;
-            MathUtil.long2Byte(header, size, 2);
+            buf = allocator.allocate(10 + size);
+            buf.putByte(header0);
+            buf.putByte((byte) 127);
+            buf.putLong(size);
         }
-        ByteBuf buf = allocator.allocate(header.length + size);
-        buf.put(header);
         if (size > 0) {
             buf.put(data, 0, size);
         }
@@ -152,56 +143,5 @@ public class WebSocketCodec extends ProtocolCodec {
     public String getProtocolId() {
         return PROTOCOL_ID;
     }
-
-    //  public IOWriteFrame encodeWithMask(BaseContext context, IOReadFrame readFrame) throws IOException {
-    //      
-    //      WebSocketReadFrame frame = (WebSocketReadFrame) readFrame;
-    //
-    //      BufferedOutputStream o = frame.getWriteBuffer();
-    //
-    //      byte [] header;
-    //      
-    //      int size = o.size();
-    //      
-    //      byte header0 = (byte) (0x8f & (frame.getType() | 0xf0));
-    //      
-    //      if (size < 126) {
-    //          header = new byte[2];
-    //          header[0] = header0;
-    //          header[1] = (byte)(size | 0x80);
-    //      }else if(size < ((1 << 16) -1)){
-    //          header = new byte[4];
-    //          header[0] = header0;
-    //          header[1] = (byte) (126 | 0xff);
-    //          header[3] = (byte)(size & 0xff);
-    //          header[2] = (byte)((size >> 8) & 0x80);
-    //      }else{
-    //          header = new byte[6];
-    //          header[0] = header0;
-    //          header[1] = (byte) (127 | 0x80);
-    //          MathUtil.int2Byte(header, size, 2);
-    //      }
-    //      
-    //      ByteBuf buffer = context.getHeapByteBufferPool().allocate(header.length + size + 4);
-    //      
-    //      buffer.put(header);
-    //      
-    //      byte [] array = o.array();
-    //      
-    //      byte [] mask = MathUtil.int2Byte(size);
-    //      
-    //      for (int i = 0; i < size; i++) {
-    //          
-    //          array[i] = (byte)(array[i] ^ mask[i % 4]);
-    //      }
-    //      
-    //      buffer.put(mask);
-    //      
-    //      buffer.put(array,0,size);
-    //      
-    //      buffer.flip();
-    //
-    //      return new IOWriteFrameImpl(readFrame, buffer);
-    //  }
 
 }

@@ -20,20 +20,34 @@ package com.generallycloud.baseio.common;
  *
  */
 public class PropertiesUtil {
-    
+
     public static void setSystemPropertiesIfNull(String key, String value) {
         if (System.getProperty(key) == null) {
             System.setProperty(key, value);
         }
     }
-    
-    public static boolean isSystemTrue(String key){
+
+    public static boolean isSystemTrue(String key) {
         String v = System.getProperty(key);
         if (v == null) {
             return false;
         }
         v = v.toLowerCase();
         return "true".equals(v) || "1".equals(v);
+    }
+
+    public static int getProperty(String key) {
+        return getProperty(key, 0);
+    }
+
+    public static int getProperty(String key, int defaultValue) {
+        String v = System.getProperty(key);
+        if (!StringUtil.isNullOrBlank(v)) {
+            try {
+                return Integer.parseInt(v);
+            } catch (Exception e) {}
+        }
+        return defaultValue;
     }
 
 }

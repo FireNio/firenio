@@ -68,6 +68,9 @@ public final class NioSocketChannel extends AttributesImpl
     private static final SSLException           SSL_OVER_LIMIT       = unknownStackTrace(
             new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"), NioSocketChannel.class,
             "isEnoughSslUnwrap()");
+    private static final SSLException           SSL_UNWRAP_OVER_LIMIT       = unknownStackTrace(
+            new SSLException("over limit (" + SslContext.SSL_UNWRAP_BUFFER_SIZE + ")"), NioSocketChannel.class,
+            "unwrap()");
 
     private final SocketChannel                 channel;
     private final Integer                       channelId;
@@ -517,10 +520,6 @@ public final class NioSocketChannel extends AttributesImpl
         return sslEngine;
     }
 
-    private ByteBuf getSslTempBuf() {
-        return FastThreadLocal.get().getSslTempBuf();
-    }
-
     public int getWriteBacklog() {
         //忽略current write[]
         return writeBufs.size();
@@ -833,11 +832,23 @@ public final class NioSocketChannel extends AttributesImpl
 
     private ByteBuf unwrap(ByteBuf src) throws IOException {
         SSLEngine sslEngine = getSSLEngine();
-        ByteBuf dst = getSslTempBuf();
+        ByteBuf dst = FastThreadLocal.get().getSslUnwrapBuf();
         if (sslHandshakeFinished) {
             dst.clear();
             readPlainRemainingBuf(dst);
             SSLEngineResult result = sslEngine.unwrap(src.nioBuffer(), dst.nioBuffer());
+            if (result.getStatus() == Status.BUFFER_OVERFLOW) {
+                //why throw an exception here instead of handle it?
+                //the getSslUnwrapBuf will return an thread local buffer for unwrap,
+                //the buffer's size defined by Constants.SSL_UNWRAP_BUFFER_SIZE_KEY in System property
+                //or default value 1M(1024*1024), although the buffer will not occupy so much memory because
+                //one EventLoop only have one buffer,but before do unwrap, every channel maybe cached a large
+                //buffer under SSL_UNWRAP_BUFFER_SIZE,I do not think it is a good way to cached much memory in
+                //channel, it is not friendly for load much channels in one system, if you get exception here,
+                //you may need find a way to limit you frame size,or cache your incomplete frame's data to
+                //file system or others way.
+                throw SSL_UNWRAP_OVER_LIMIT;
+            }
             synchByteBuf(result, src, dst);
             return dst.flip();
         } else {
@@ -904,7 +915,7 @@ public final class NioSocketChannel extends AttributesImpl
                     }
                 }
             } else {
-                ByteBuf dst = getSslTempBuf();
+                ByteBuf dst = FastThreadLocal.get().getSslWrapBuf();
                 for (;;) {
                     dst.clear();
                     SSLEngineResult result = engine.wrap(src.nioBuffer(), dst.nioBuffer());

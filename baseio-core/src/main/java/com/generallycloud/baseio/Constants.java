@@ -21,9 +21,10 @@ package com.generallycloud.baseio;
  */
 public class Constants {
 
-    public static final String DEVELOP_DEBUG_KEY      = "com.generallycloud.baseio.develop.debug";
-    public static final String WILDFLY_OPENSSL_PATH   = "org.wildfly.openssl.path";
-    public static final String DISABLE_OPENSSL_SYS_KEY = "com.generallycloud.baseio.ssl.disableOpenSsl";
-    public static final String ENABLE_SSL_SYS_KEY     = "com.generallycloud.baseio.ssl.enableSsl";
+    public static final String DEVELOP_DEBUG_KEY          = "com.generallycloud.baseio.develop.debug";
+    public static final String WILDFLY_OPENSSL_PATH       = "org.wildfly.openssl.path";
+    public static final String DISABLE_OPENSSL_SYS_KEY    = "com.generallycloud.baseio.ssl.disableOpenSsl";
+    public static final String ENABLE_SSL_SYS_KEY         = "com.generallycloud.baseio.ssl.enableSsl";
+    public static final String SSL_UNWRAP_BUFFER_SIZE_KEY = "com.generallycloud.baseio.ssl.unwrapBufferSize";
 
 }

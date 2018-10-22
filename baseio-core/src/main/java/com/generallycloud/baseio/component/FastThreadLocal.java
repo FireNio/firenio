@@ -27,6 +27,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.AttributesImpl;
+import com.generallycloud.baseio.common.ReleaseUtil;
 
 /**
  * @author wangkai
@@ -41,12 +42,14 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
     private Map<Charset, CharsetDecoder>              charsetDecoders    = new IdentityHashMap<>();
     private Map<Charset, CharsetEncoder>              charsetEncoders    = new IdentityHashMap<>();
     private Object[]                                  indexedVariables   = new Object[maxIndexedVarsSize];
-    private ByteBuf                                   sslTempBuf;
+    private ByteBuf                                   sslWrapBuf;
+    private ByteBuf                                   sslUnwrapBuf;
 
-    public FastThreadLocal() {}
+    FastThreadLocal() {}
 
     private void destroy0() {
-        //FIXME ..destroy0
+        ReleaseUtil.release(sslWrapBuf);
+        ReleaseUtil.release(sslUnwrapBuf);
     }
 
     public CharsetDecoder getCharsetDecoder(Charset charset) {
@@ -71,12 +74,20 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
         return indexedVariables[index];
     }
 
-    public ByteBuf getSslTempBuf() {
-        if (sslTempBuf == null) {
+    public ByteBuf getSslWrapBuf() {
+        if (sslWrapBuf == null) {
             ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
-            sslTempBuf = allocator.allocate(SslContext.SSL_PACKET_BUFFER_SIZE);
+            sslWrapBuf = allocator.allocate(SslContext.SSL_PACKET_BUFFER_SIZE);
         }
-        return sslTempBuf;
+        return sslWrapBuf;
+    }
+    
+    public ByteBuf getSslUnwrapBuf() {
+        if (sslUnwrapBuf == null) {
+            ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
+            sslUnwrapBuf = allocator.allocate(SslContext.SSL_UNWRAP_BUFFER_SIZE);
+        }
+        return sslUnwrapBuf;
     }
 
     public void setIndexedVariable(int index, Object value) {
@@ -119,19 +130,6 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
             return -1;
         }
         return index;
-    }
-
-    public static FastThreadLocal remove() {
-        Thread thread = Thread.currentThread();
-        if (thread instanceof FastThreadLocalThread) {
-            return ((FastThreadLocalThread) thread).getThreadLocal();
-        } else {
-            FastThreadLocal l = slowThreadLocal.get();
-            if (l != null) {
-                slowThreadLocal.set(null);
-            }
-            return l;
-        }
     }
 
 }
