@@ -69,7 +69,7 @@ public final class SslContext {
             throw new Error("failed to initialize the default SSL context", e);
         }
         String SSL_UBSK = Constants.SSL_UNWRAP_BUFFER_SIZE_KEY;
-        SSL_UNWRAP_BUFFER_SIZE = PropertiesUtil.getProperty(SSL_UBSK, 1024 * 1024);
+        SSL_UNWRAP_BUFFER_SIZE = PropertiesUtil.getProperty(SSL_UBSK, 1024 * 256);
         SSLEngine engine = context.createSSLEngine();
         SSL_PACKET_BUFFER_SIZE = engine.getSession().getPacketBufferSize();
         // Choose the sensible default list of protocols.

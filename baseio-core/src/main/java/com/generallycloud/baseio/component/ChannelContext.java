@@ -72,7 +72,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     private SslContext                     sslContext;
     private String                         sslKeystore;
     private long                           startupTime        = System.currentTimeMillis();
-    private int                            workEventQueueSize = 1024 * 256;
+    private int                            workEventQueueSize = 1024 * 8;
 
     public ChannelContext() {
         this(0);

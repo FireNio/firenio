@@ -841,7 +841,7 @@ public final class NioSocketChannel extends AttributesImpl
                 //why throw an exception here instead of handle it?
                 //the getSslUnwrapBuf will return an thread local buffer for unwrap,
                 //the buffer's size defined by Constants.SSL_UNWRAP_BUFFER_SIZE_KEY in System property
-                //or default value 1M(1024*1024), although the buffer will not occupy so much memory because
+                //or default value 256KB(1024 * 256), although the buffer will not occupy so much memory because
                 //one EventLoop only have one buffer,but before do unwrap, every channel maybe cached a large
                 //buffer under SSL_UNWRAP_BUFFER_SIZE,I do not think it is a good way to cached much memory in
                 //channel, it is not friendly for load much channels in one system, if you get exception here,
