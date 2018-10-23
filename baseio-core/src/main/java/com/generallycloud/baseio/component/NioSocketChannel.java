@@ -30,8 +30,6 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
@@ -57,27 +55,26 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public final class NioSocketChannel extends AttributesImpl
         implements Runnable, Attributes, Closeable {
 
-    private static final int                    SSL_PACKET_LIMIT     = 1024 * 64;
-    private static final ClosedChannelException CLOSED_WHEN_FLUSH    = unknownStackTrace(
+    private static final int                    SSL_PACKET_LIMIT      = 1024 * 64;
+    private static final ClosedChannelException CLOSED_WHEN_FLUSH     = unknownStackTrace(
             new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
-    private static final InetSocketAddress      ERROR_SOCKET_ADDRESS = new InetSocketAddress(0);
-    private static final Logger                 logger               = LoggerFactory
+    private static final InetSocketAddress      ERROR_SOCKET_ADDRESS  = new InetSocketAddress(0);
+    private static final Logger                 logger                = LoggerFactory
             .getLogger(NioSocketChannel.class);
-    private static final SSLException           NOT_TLS              = unknownStackTrace(
+    private static final SSLException           NOT_TLS               = unknownStackTrace(
             new SSLException("NOT TLS"), NioSocketChannel.class, "isEnoughSslUnwrap()");
-    private static final SSLException           SSL_OVER_LIMIT       = unknownStackTrace(
+    private static final SSLException           SSL_OVER_LIMIT        = unknownStackTrace(
             new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"), NioSocketChannel.class,
             "isEnoughSslUnwrap()");
-    private static final SSLException           SSL_UNWRAP_OVER_LIMIT       = unknownStackTrace(
-            new SSLException("over limit (" + SslContext.SSL_UNWRAP_BUFFER_SIZE + ")"), NioSocketChannel.class,
+    private static final SSLException           SSL_UNWRAP_OVER_LIMIT = unknownStackTrace(
+            new SSLException("over limit (SSL_UNWRAP_BUFFER_SIZE)"), NioSocketChannel.class,
             "unwrap()");
 
     private final SocketChannel                 channel;
     private final Integer                       channelId;
-    private final ReentrantLock                 closeLock            = new ReentrantLock();
     private ProtocolCodec                       codec;
     private final ChannelContext                context;
-    private final long                          creationTime         = System.currentTimeMillis();
+    private final long                          creationTime          = System.currentTimeMillis();
     private final ByteBuf[]                     currentWriteBufs;
     private int                                 currentWriteBufsLen;
     private final String                        desc;
@@ -90,7 +87,7 @@ public final class NioSocketChannel extends AttributesImpl
     private final String                        localAddr;
     private final int                           localPort;
     private final int                           maxWriteBacklog;
-    private volatile boolean                    opened               = true;
+    private volatile boolean                    opened                = true;
     private ByteBuf                             plainRemainBuf;
     private Frame                               readFrame;
     private final String                        remoteAddr;
@@ -317,20 +314,18 @@ public final class NioSocketChannel extends AttributesImpl
             }
         } else {
             Queue<ByteBuf> writeBufs = this.writeBufs;
-            ReentrantLock lock = closeLock;
-            lock.lock();
-            try {
-                if (isClosed()) {
-                    buf.release();
-                    return;
-                }
-                writeBufs.offer(buf);
-                //FIXME 确认这里这么判断是否有问题
-                if (writeBufs.size() != 1) {
-                    return;
-                }
-            } finally {
-                lock.unlock();
+            if (isClosed()) {
+                buf.release();
+                return;
+            }
+            writeBufs.offer(buf);
+            if (isClosed()) {
+                ReleaseUtil.release(writeBufs.poll());
+                return;
+            }
+            //FIXME 确认这里这么判断是否有问题
+            if (writeBufs.size() != 1) {
+                return;
             }
             eventLoop.flushAndWakeup(this);
         }
@@ -410,27 +405,20 @@ public final class NioSocketChannel extends AttributesImpl
                 }
             } else {
                 Queue<ByteBuf> writeBufs = this.writeBufs;
-                ReentrantLock lock = closeLock;
-                lock.lock();
-                try {
-                    if (isClosed()) {
-                        ReleaseUtil.release(bufs);
-                        return;
-                    }
-                    for (ByteBuf buf : bufs) {
-                        writeBufs.offer(buf);
-                    }
-                    //FIXME 确认这里这么判断是否有问题
-                    if (writeBufs.size() != bufs.size()) {
-                        return;
-                    }
-                } catch (Exception e) {
-                    //will happen ?
+                if (isClosed()) {
                     ReleaseUtil.release(bufs);
-                    CloseUtil.close(this);
                     return;
-                } finally {
-                    lock.unlock();
+                }
+                for (ByteBuf buf : bufs) {
+                    writeBufs.offer(buf);
+                }
+                if (isClosed()) {
+                    releaseWriteBufs();
+                    return;
+                }
+                //FIXME 确认这里这么判断是否有问题
+                if (writeBufs.size() != bufs.size()) {
+                    return;
                 }
                 eventLoop.flushAndWakeup(this);
             }
@@ -716,7 +704,7 @@ public final class NioSocketChannel extends AttributesImpl
         this.sslRemainBuf = null;
     }
 
-    private void releaseBufs() {
+    private void releaseWriteBufArray() {
         final ByteBuf[] cwbs = this.currentWriteBufs;
         final int maxLen = cwbs.length;
         // 这里有可能是因为异常关闭，currentWriteFrameLen不准确
@@ -729,8 +717,9 @@ public final class NioSocketChannel extends AttributesImpl
             buf.release();
             cwbs[i] = null;
         }
-        ReleaseUtil.release(sslRemainBuf);
-        ReleaseUtil.release(plainRemainBuf);
+    }
+    
+    private void releaseWriteBufs() {
         Queue<ByteBuf> wfs = this.writeBufs;
         if (!wfs.isEmpty()) {
             ByteBuf buf = wfs.poll();
@@ -765,12 +754,12 @@ public final class NioSocketChannel extends AttributesImpl
 
     private void safeClose() {
         if (isOpened()) {
-            Lock lock = closeLock;
-            lock.lock();
             opened = false;
-            lock.unlock();
             closeSsl();
-            releaseBufs();
+            releaseWriteBufs();
+            releaseWriteBufArray();
+            ReleaseUtil.release(sslRemainBuf);
+            ReleaseUtil.release(plainRemainBuf);
             CloseUtil.close(channel);
             selKey.attach(null);
             selKey.cancel();

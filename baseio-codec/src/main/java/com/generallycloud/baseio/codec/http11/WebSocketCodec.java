@@ -118,18 +118,20 @@ public class WebSocketCodec extends ProtocolCodec {
             buf = allocator.allocate(2 + size);
             buf.putByte(header0);
             buf.putByte((byte) size);
+            if (size > 0) {
+                buf.put(data, 0, size);
+            }
         } else if (size <= MAX_UNSIGNED_SHORT) {
             buf = allocator.allocate(4 + size);
             buf.putByte(header0);
             buf.putByte((byte) 126);
             buf.putUnsignedShort(size);
+            buf.put(data, 0, size);
         } else {
             buf = allocator.allocate(10 + size);
             buf.putByte(header0);
             buf.putByte((byte) 127);
             buf.putLong(size);
-        }
-        if (size > 0) {
             buf.put(data, 0, size);
         }
         return buf.flip();
