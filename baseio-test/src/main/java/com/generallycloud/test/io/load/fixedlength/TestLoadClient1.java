@@ -105,6 +105,7 @@ public class TestLoadClient1 extends ITestThread {
         if (TestLoadServer.ENABLE_SSL) {
             context.setSslContext(SslContextBuilder.forClient(true).build());
         }
+        context.setWorkEventQueueSize(1024 * 256);
         context.setEnableWorkEventLoop(TestLoadServer.ENABLE_WORK_EVENT_LOOP);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
@@ -141,7 +142,7 @@ public class TestLoadClient1 extends ITestThread {
 
         int time = 1024 * 1024 * 4;
         int threads = CLIENT_CORE_SIZE;
-        int execTime = 19;
+        int execTime = 15;
         ITestThreadHandle.doTest(TestLoadClient1.class, threads, time, execTime);
     }
 }

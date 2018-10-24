@@ -413,7 +413,7 @@ public final class NioSocketChannel extends AttributesImpl
                     writeBufs.offer(buf);
                 }
                 if (isClosed()) {
-                    releaseWriteBufs();
+                    releaseWriteBufQueue();
                     return;
                 }
                 //FIXME 确认这里这么判断是否有问题
@@ -719,7 +719,7 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
     
-    private void releaseWriteBufs() {
+    private void releaseWriteBufQueue() {
         Queue<ByteBuf> wfs = this.writeBufs;
         if (!wfs.isEmpty()) {
             ByteBuf buf = wfs.poll();
@@ -756,7 +756,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (isOpened()) {
             opened = false;
             closeSsl();
-            releaseWriteBufs();
+            releaseWriteBufQueue();
             releaseWriteBufArray();
             ReleaseUtil.release(sslRemainBuf);
             ReleaseUtil.release(plainRemainBuf);

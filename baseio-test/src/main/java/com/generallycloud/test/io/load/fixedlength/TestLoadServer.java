@@ -63,6 +63,7 @@ public class TestLoadServer {
             context.setCertCrt("localhost.crt");
             context.setCertKey("localhost.key");
         }
+        context.setWorkEventQueueSize(1024 * 1024);
         context.setEnableWorkEventLoop(ENABLE_WORK_EVENT_LOOP);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         acceptor.bind();

@@ -61,7 +61,7 @@ public class WebSocketCodec extends ProtocolCodec {
     public static final byte     TYPE_PING          = 9;
     public static final byte     TYPE_PONG          = 10;
     public static final byte     TYPE_TEXT          = 1;
-    public static final int      MAX_UNSIGNED_SHORT = (1 << 16) - 1;
+    public static final int      MAX_UNSIGNED_SHORT = 0xffff;
     public static WebSocketCodec WS_PROTOCOL_CODEC;
 
     static void init(ChannelContext context, int limit, int frameStackSize) {
