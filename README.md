@@ -2,7 +2,7 @@
 # BaseIO Project
 
 [![Website](https://img.shields.io/badge/website-generallycloud-green.svg)](https://www.generallycloud.com)
-[![Maven central](https://img.shields.io/badge/maven%20central-3.2.7.Release-green.svg)](http://mvnrepository.com/artifact/com.generallycloud/baseio-all)
+[![Maven central](https://img.shields.io/badge/maven%20central-3.2.8.Release-green.svg)](http://mvnrepository.com/artifact/com.generallycloud/baseio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/generallycloud/baseio/blob/master/LICENSE.txt)
 
 BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步IO框架，其以简单易用的API和优良的性能深受开发者喜爱。
@@ -29,7 +29,7 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
 	<dependency>
 		<groupId>com.generallycloud</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.2.7.RELEASE</version>
+		<version>3.2.8.RELEASE</version>
 	</dependency>  
   ```
   
