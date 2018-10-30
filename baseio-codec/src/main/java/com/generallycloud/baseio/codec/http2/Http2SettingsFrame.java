@@ -15,10 +15,9 @@
  */
 package com.generallycloud.baseio.codec.http2;
 
-import com.generallycloud.baseio.buffer.ByteBuf;
-
+//FIXME delete
 public class Http2SettingsFrame extends Http2FrameHeader {
-    
+
     public static final int SETTINGS_HEADER_TABLE_SIZE      = 0x1;
     public static final int SETTINGS_ENABLE_PUSH            = 0x2;
     public static final int SETTINGS_MAX_CONCURRENT_STREAMS = 0x3;
@@ -26,26 +25,13 @@ public class Http2SettingsFrame extends Http2FrameHeader {
     public static final int SETTINGS_MAX_FRAME_SIZE         = 0x5;
     public static final int SETTINGS_MAX_HEADER_LIST_SIZE   = 0x6;
 
-    private long[] settings; //FIXME delete
-
-
-    @Override
-    Http2SettingsFrame decode(Http2Session session, ByteBuf src, int length) {
-        int settings = length / 6;
-        for (int i = 0; i < settings; i++) {
-            int key = src.getShort();
-            int value = src.getInt();
-            session.setSettings(key, value);
-        }
-        this.settings = session.getSettings();
-        return this;
-    }
+    private long[]          settings;
 
     @Override
     public boolean isSilent() {
         return true;
     }
-    
+
     public void setSettings(long[] settings) {
         this.settings = settings;
     }

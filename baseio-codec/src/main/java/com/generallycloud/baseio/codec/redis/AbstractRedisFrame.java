@@ -22,21 +22,21 @@ public abstract class AbstractRedisFrame extends AbstractFrame implements RedisF
     @Override
     public void writeCommand(byte[] command, byte[]... args) {
 
-        this.write(RedisFrame.BYTE_ARRAYS);
+        this.write(RedisCodec.BYTE_ARRAYS);
         this.write(String.valueOf(args.length + 1).getBytes());
-        this.write(RedisFrame.CRLF_BYTES);
-        this.write(RedisFrame.BYTE_BULK_STRINGS);
+        this.write(RedisCodec.CRLF_BYTES);
+        this.write(RedisCodec.BYTE_BULK_STRINGS);
         this.write(String.valueOf(command.length).getBytes());
-        this.write(RedisFrame.CRLF_BYTES);
+        this.write(RedisCodec.CRLF_BYTES);
         this.write(command);
-        this.write(RedisFrame.CRLF_BYTES);
+        this.write(RedisCodec.CRLF_BYTES);
 
         for (byte[] arg : args) {
-            this.write(RedisFrame.BYTE_BULK_STRINGS);
+            this.write(RedisCodec.BYTE_BULK_STRINGS);
             this.write(String.valueOf(arg.length).getBytes());
-            this.write(RedisFrame.CRLF_BYTES);
+            this.write(RedisCodec.CRLF_BYTES);
             this.write(arg);
-            this.write(RedisFrame.CRLF_BYTES);
+            this.write(RedisCodec.CRLF_BYTES);
         }
     }
 

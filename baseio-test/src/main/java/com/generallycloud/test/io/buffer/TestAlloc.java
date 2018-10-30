@@ -29,7 +29,7 @@ public class TestAlloc {
     }
 
     public static ByteBufAllocator direct(int cap) throws Exception {
-        ByteBufAllocator a = new PooledByteBufAllocator(1024, 1, true);
+        ByteBufAllocator a = new PooledByteBufAllocator(1024, 1, true, 1);
         a.start();
         return a;
     }
@@ -39,7 +39,7 @@ public class TestAlloc {
     }
 
     public static ByteBufAllocator heap(int cap) throws Exception {
-        ByteBufAllocator a = new PooledByteBufAllocator(64, 1, false);
+        ByteBufAllocator a = new PooledByteBufAllocator(64, 1, false, 1);
         a.start();
         return a;
     }

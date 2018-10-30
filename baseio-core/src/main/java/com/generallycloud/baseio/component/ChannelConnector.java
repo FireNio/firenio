@@ -176,7 +176,7 @@ public class ChannelConnector implements ChannelService, Closeable {
         if (waiter.isFailed()) {
             CloseUtil.close(this);
             Throwable ex = (Throwable) waiter.getResponse();
-            String errorMsg = "connect to" + getServerAddress() + "failed,nested exception is"
+            String errorMsg = "connect to " + getServerAddress() + " failed, nested exception is "
                     + ex.getMessage();
             throw new IOException(errorMsg, ex);
         }

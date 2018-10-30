@@ -18,7 +18,7 @@ package com.generallycloud.baseio.codec.redis;
 import java.io.IOException;
 
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.codec.redis.RedisFrame.RedisCommand;
+import com.generallycloud.baseio.codec.redis.RedisCodec.RedisCommand;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.Waiter;

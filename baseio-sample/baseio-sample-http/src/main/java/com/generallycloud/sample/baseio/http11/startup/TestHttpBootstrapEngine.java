@@ -17,7 +17,7 @@ package com.generallycloud.sample.baseio.http11.startup;
 
 import com.generallycloud.baseio.AbstractLifeCycleListener;
 import com.generallycloud.baseio.LifeCycle;
-import com.generallycloud.baseio.codec.http11.ServerHttpCodec;
+import com.generallycloud.baseio.codec.http11.HttpCodec;
 import com.generallycloud.baseio.codec.http11.WebSocketChannelListener;
 import com.generallycloud.baseio.codec.http2.Http2Codec;
 import com.generallycloud.baseio.common.FileUtil;
@@ -50,7 +50,6 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         ConfigurationParser.parseConfiguration("server.", context, properties);
         ConfigurationParser.parseConfiguration("server.", group, properties);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
-        context.setProtocolCodec(new ServerHttpCodec(4));
         context.setIoEventHandle(handle);
         context.addChannelEventListener(new WebSocketChannelListener());
         context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
@@ -74,7 +73,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
             context.setProtocolCodec(new Http2Codec());
             context.setApplicationProtocols(new String[] { "h2", "http/1.1" });
         } else {
-            context.setProtocolCodec(new ServerHttpCodec());
+            context.setProtocolCodec(new HttpCodec(4));
         }
         if (context.getPort() == 0) {
             context.setPort(context.isEnableSsl() ? 443 : 80);

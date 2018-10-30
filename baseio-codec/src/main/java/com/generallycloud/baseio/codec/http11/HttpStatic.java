@@ -21,29 +21,32 @@ package com.generallycloud.baseio.codec.http11;
  */
 public final class HttpStatic {
 
-    public static final String plain               = "text/plain";
-    public static final byte[] plain_bytes         = plain.getBytes();
+    public static final String plain                  = "text/plain";
+    public static final byte[] plain_bytes            = plain.getBytes();
 
-    public static final String plain_gbk           = "text/plain;charset=gbk";
-    public static final byte[] plain_gbk_bytes     = plain_gbk.getBytes();
+    public static final String plain_gbk              = "text/plain;charset=gbk";
+    public static final byte[] plain_gbk_bytes        = plain_gbk.getBytes();
 
-    public static final String plain_utf8          = "text/plain;charset=utf-8";
-    public static final byte[] plain_utf8_bytes    = plain_utf8.getBytes();
+    public static final String plain_utf8             = "text/plain;charset=utf-8";
+    public static final byte[] plain_utf8_bytes       = plain_utf8.getBytes();
 
-    public static final String server_baseio       = "baseio/0.0.1";
-    public static final byte[] server_baseio_bytes = server_baseio.getBytes();
+    public static final String server_baseio          = "baseio/0.0.1";
+    public static final byte[] server_baseio_bytes    = server_baseio.getBytes();
 
-    public static final String html_utf8           = "text/html;charset=utf-8";
-    public static final byte[] html_utf8_bytes     = html_utf8.getBytes();
+    public static final String html_utf8              = "text/html;charset=utf-8";
+    public static final byte[] html_utf8_bytes        = html_utf8.getBytes();
 
-    public static final String keep_alive          = "keep-alive";
-    public static final byte[] keep_alive_bytes    = keep_alive.getBytes();
+    public static final String keep_alive             = "keep-alive";
+    public static final byte[] keep_alive_bytes       = keep_alive.getBytes();
 
-    public static final String upgrade             = "Upgrade";
-    public static final byte[] upgrade_bytes       = upgrade.getBytes();
+    public static final String upgrade                = "Upgrade";
+    public static final byte[] upgrade_bytes          = upgrade.getBytes();
 
-    public static final String websocket           = "WebSocket";
-    public static final byte[] websocket_bytes     = websocket.getBytes();
+    public static final String websocket              = "WebSocket";
+    public static final byte[] websocket_bytes        = websocket.getBytes();
+
+    public static final String application_json       = "application/json";
+    public static final byte[] application_json_bytes = application_json.getBytes();
 
     //    public static final String = "";
     //    public static final byte[]  _bytes = "".getBytes();

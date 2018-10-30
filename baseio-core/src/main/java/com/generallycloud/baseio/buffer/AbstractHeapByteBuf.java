@@ -256,6 +256,18 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     }
 
     @Override
+    public int indexOf(byte b) {
+        int p = position;
+        int l = limit;
+        for (; p < l; p++) {
+            if (memory[p] == b) {
+                return p - offset;
+            }
+        }
+        return -1;
+    }
+
+    @Override
     public int limit() {
         return limit - offset;
     }
@@ -384,7 +396,7 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     public int remaining() {
         return limit - position;
     }
-    
+
     @Override
     public ByteBuf resetL() {
         limit = markLimit;

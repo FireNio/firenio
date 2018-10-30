@@ -49,7 +49,7 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
         memory.position(offset).limit(ix(capacity));
         return this;
     }
-
+    
     @Override
     public ByteBuf flip() {
         memory.limit(memory.position());
@@ -254,6 +254,18 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     @Override
     public boolean hasRemaining() {
         return memory.hasRemaining();
+    }
+
+    @Override
+    public int indexOf(byte b) {
+        int p = memory.position();
+        int l = memory.limit();
+        for (; p < l; p++) {
+            if (memory.get(p) == b) {
+                return p - offset;
+            }
+        }
+        return -1;
     }
 
     @Override

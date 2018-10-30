@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
@@ -30,28 +31,17 @@ import com.generallycloud.baseio.protocol.Frame;
  * @author wangkai
  *
  */
-public class ClientHttpCodec extends AbstractHttpCodec {
+public class ClientHttpCodec extends HttpCodec {
 
     private static final byte[] COOKIE                   = "Cookie:".getBytes();
     private static final byte[] PROTOCOL                 = " HTTP/1.1\r\n".getBytes();
     private static final byte   SEMICOLON                = ';';
-    private int                 bodyLimit;
-    private int                 headerLimit;
     private int                 websocketLimit           = 1024 * 128;
     private int                 websocketFrameStackSize = 0;
 
-    public ClientHttpCodec() {
-        this(1024 * 8, 1024 * 512);
-    }
-
-    public ClientHttpCodec(int headerLimit, int bodyLimit) {
-        this.headerLimit = headerLimit;
-        this.bodyLimit = bodyLimit;
-    }
-
     @Override
-    public Frame decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
-        return new ClientHttpFrame(headerLimit, bodyLimit);
+    HttpFrame newHttpFrame(NioSocketChannel ch) {
+        return new ClientHttpFrame();
     }
 
     @Override
@@ -91,6 +81,13 @@ public class ClientHttpCodec extends AbstractHttpCodec {
             writeBuf(buf, R);
             writeBuf(buf, N);
         }
+    }
+    
+    void parseFirstLine(HttpFrame f,StringBuilder line) {
+        int index = StringUtil.indexOf(line, ' ');
+        int status = Integer.parseInt(line.substring(index + 1, index + 4));
+        f.setVersion(HttpVersion.HTTP1_1);
+        f.setStatus(HttpStatus.getStatus(status));
     }
 
     @Override

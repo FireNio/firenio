@@ -21,11 +21,11 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.generallycloud.baseio.codec.http11.HttpCodec;
 import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.codec.http11.HttpStatus;
-import com.generallycloud.baseio.codec.http11.ServerHttpFrame;
 import com.generallycloud.baseio.codec.http11.WebSocketFrame;
 import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.Encoding;
@@ -57,7 +57,7 @@ public class HttpFrameHandle extends IoEventHandle {
     protected void acceptHtml(NioSocketChannel ch, NamedFrame frame) throws IOException {
         HttpEntity entity = htmlCache.get(frame.getFrameName());
         HttpStatus status = HttpStatus.C200;
-        ServerHttpFrame f = (ServerHttpFrame) frame;
+        HttpFrame f = (HttpFrame) frame;
         if (entity == null) {
             entity = htmlCache.get("/404.html");
             if (entity == null) {
@@ -109,7 +109,7 @@ public class HttpFrameHandle extends IoEventHandle {
         printHtml(ch, frame, HttpStatus.C500, builder.toString());
     }
 
-    private void flush(NioSocketChannel ch, ServerHttpFrame frame, HttpEntity entity) {
+    private void flush(NioSocketChannel ch, HttpFrame frame, HttpEntity entity) {
         frame.setResponseHeader(HttpHeader.Content_Type_Bytes, entity.getContentTypeBytes());
         frame.setResponseHeader(HttpHeader.Last_Modified_Bytes, entity.getLastModifyGTMBytes());
         frame.write(entity.getBinary());
@@ -123,12 +123,12 @@ public class HttpFrameHandle extends IoEventHandle {
     private String getContentType(String fileName, Map<String, String> mapping) {
         int index = fileName.lastIndexOf(".");
         if (index == -1) {
-            return HttpFrame.CONTENT_TYPE_TEXT_PLAINUTF8;
+            return HttpCodec.CONTENT_TYPE_TEXT_PLAINUTF8;
         }
         String subfix = fileName.substring(index + 1);
         String contentType = mapping.get(subfix);
         if (contentType == null) {
-            contentType = HttpFrame.CONTENT_TYPE_TEXT_PLAINUTF8;
+            contentType = HttpCodec.CONTENT_TYPE_TEXT_PLAINUTF8;
         }
         return contentType;
     }
@@ -145,16 +145,16 @@ public class HttpFrameHandle extends IoEventHandle {
         }
         File rootFile = new File(webRoot);
         Map<String, String> mapping = new HashMap<>();
-        mapping.put("htm", HttpFrame.CONTENT_TYPE_TEXT_HTMLUTF8);
-        mapping.put("html", HttpFrame.CONTENT_TYPE_TEXT_HTMLUTF8);
-        mapping.put("js", HttpFrame.CONTENT_APPLICATION_JAVASCRIPTUTF8);
-        mapping.put("css", HttpFrame.CONTENT_TYPE_TEXT_CSSUTF8);
-        mapping.put("png", HttpFrame.CONTENT_TYPE_IMAGE_PNG);
-        mapping.put("jpg", HttpFrame.CONTENT_TYPE_IMAGE_JPEG);
-        mapping.put("jpeg", HttpFrame.CONTENT_TYPE_IMAGE_JPEG);
-        mapping.put("gif", HttpFrame.CONTENT_TYPE_IMAGE_GIF);
-        mapping.put("txt", HttpFrame.CONTENT_TYPE_TEXT_PLAINUTF8);
-        mapping.put("ico", HttpFrame.CONTENT_TYPE_IMAGE_PNG);
+        mapping.put("htm", HttpCodec.CONTENT_TYPE_TEXT_HTMLUTF8);
+        mapping.put("html", HttpCodec.CONTENT_TYPE_TEXT_HTMLUTF8);
+        mapping.put("js", HttpCodec.CONTENT_APPLICATION_JAVASCRIPTUTF8);
+        mapping.put("css", HttpCodec.CONTENT_TYPE_TEXT_CSSUTF8);
+        mapping.put("png", HttpCodec.CONTENT_TYPE_IMAGE_PNG);
+        mapping.put("jpg", HttpCodec.CONTENT_TYPE_IMAGE_JPEG);
+        mapping.put("jpeg", HttpCodec.CONTENT_TYPE_IMAGE_JPEG);
+        mapping.put("gif", HttpCodec.CONTENT_TYPE_IMAGE_GIF);
+        mapping.put("txt", HttpCodec.CONTENT_TYPE_TEXT_PLAINUTF8);
+        mapping.put("ico", HttpCodec.CONTENT_TYPE_IMAGE_PNG);
         if (rootFile.exists()) {
             scanFolder(scanFileFilter, rootFile, mapping, "");
         }
@@ -169,7 +169,7 @@ public class HttpFrameHandle extends IoEventHandle {
             ch.flush(frame);
             return;
         }
-        ServerHttpFrame f = new ServerHttpFrame(ch.getContext());
+        HttpFrame f = new HttpFrame(ch.getContext());
         StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
         builder.append("        <div style=\"margin-left:20px;\">\n");
         builder.append("            ");
@@ -258,7 +258,7 @@ public class HttpFrameHandle extends IoEventHandle {
             b.append("      <hr>\n");
             b.append(HtmlUtil.HTML_BOTTOM);
             HttpEntity entity = new HttpEntity();
-            entity.setContentType(HttpFrame.CONTENT_TYPE_TEXT_HTMLUTF8);
+            entity.setContentType(HttpCodec.CONTENT_TYPE_TEXT_HTMLUTF8);
             entity.setFile(file);
             entity.setLastModify(System.currentTimeMillis());
             entity.setBinary(b.toString().getBytes(charset));

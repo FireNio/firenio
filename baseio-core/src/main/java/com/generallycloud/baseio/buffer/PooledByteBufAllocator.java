@@ -35,11 +35,13 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
     private final int              unitMemorySize;
     private byte[]                 heapMemory;
     private ByteBuffer             directMemory;
+    private final int              allocatorGroupSize;
 
-    public PooledByteBufAllocator(int capacity, int unitMemorySize, boolean isDirect) {
+    public PooledByteBufAllocator(int capacity, int unit, boolean isDirect, int allocatorGroupSize) {
         super(isDirect);
         this.capacity = capacity;
-        this.unitMemorySize = unitMemorySize;
+        this.unitMemorySize = unit;
+        this.allocatorGroupSize = allocatorGroupSize;
         this.bufFactory = isDirect ? new DirectByteBufFactory() : new HeapByteBufFactory();
     }
 
@@ -87,27 +89,27 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
     public ByteBuf allocate(int limit) {
         ByteBuf buf = allocate(bufFactory, limit);
         if (buf == null) {
-            return next.allocate(limit, this, bufFactory);
+            return next.allocate(limit, 1, bufFactory);
         }
         return buf;
     }
-    
+
     protected ByteBuffer getDirectMemory() {
         return directMemory;
     }
-    
+
     protected byte[] getHeapMemory() {
         return heapMemory;
     }
 
-    private ByteBuf allocate(int limit, PooledByteBufAllocator allocator, ByteBufFactory factory) {
-        if (allocator == this) {
+    private ByteBuf allocate(int limit, int current, ByteBufFactory factory) {
+        if (current == allocatorGroupSize) {
             //FIXME 是否申请java内存
             return UnpooledByteBufAllocator.getHeap().allocate(limit);
         }
         ByteBuf buf = allocate(factory, limit);
         if (buf == null) {
-            return next.allocate(limit, allocator, factory);
+            return next.allocate(limit, current + 1, factory);
         }
         return buf;
     }
