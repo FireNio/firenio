@@ -746,6 +746,7 @@ public final class NioSocketChannel extends AttributesImpl
             selKey.attach(null);
             selKey.cancel();
             fireClosed();
+            clearAttributes();
         }
     }
 

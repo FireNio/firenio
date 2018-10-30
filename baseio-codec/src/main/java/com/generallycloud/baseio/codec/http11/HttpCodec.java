@@ -33,6 +33,7 @@ import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.*;
 
 /**
  * @author wangkai
@@ -44,8 +45,7 @@ public class HttpCodec extends ProtocolCodec {
     public static final String                      CONTENT_APPLICATION_JAVASCRIPTUTF8 = "application/x-javascript;charset=utf-8";
     public static final String                      CONTENT_APPLICATION_OCTET_STREAM   = "application/octet-stream";
     public static final String                      CONTENT_APPLICATION_URLENCODED     = "application/x-www-form-urlencoded";
-    public static final byte[]                      CONTENT_LENGTH                     = "\r\nContent-Length: "
-            .getBytes();
+    public static final byte[]                      CONTENT_LENGTH                     = "\r\nContent-Length: ".getBytes();
     public static final String                      CONTENT_TYPE_IMAGE_GIF             = "image/gif";
     public static final String                      CONTENT_TYPE_IMAGE_ICON            = "image/x-icon";
     public static final String                      CONTENT_TYPE_IMAGE_JPEG            = "image/jpeg";
@@ -58,14 +58,11 @@ public class HttpCodec extends ProtocolCodec {
     private static final ThreadLocal<HDBsHolder>    dateBytes                          = new ThreadLocal<>();
     public static final String                      FRAME_STACK_KEY                    = "FixedThreadStack_HttpFrame";
     private static final String                     HTTP_DECODE_FRAME_KEY              = "_HTTP_DECODE_FRAME_KEY";
-    private static final KMPUtil                    KMP_BOUNDARY                       = new KMPUtil(
-            "boundary=");
+    private static final KMPUtil                    KMP_BOUNDARY                       = new KMPUtil("boundary=");
     public static final byte                        N                                  = '\n';
-    public static final byte[]                      PROTOCOL                           = "HTTP/1.1 "
-            .getBytes();
+    public static final byte[]                      PROTOCOL                           = "HTTP/1.1 ".getBytes();
     public static final byte                        R                                  = '\r';
-    public static final byte[]                      SET_COOKIE                         = "Set-Cookie:"
-            .getBytes();
+    public static final byte[]                      SET_COOKIE                         = "Set-Cookie:".getBytes();
     public static final byte                        SPACE                              = ' ';
     private static final ThreadLocal<StringBuilder> stringBuilder                      = new ThreadLocal<>();
 
@@ -99,19 +96,19 @@ public class HttpCodec extends ProtocolCodec {
             f = newHttpFrame(ch);
         }
         if (!f.header_complete) {
-            readHeader(f, src);
+            decodeHeader(f, src);
             if (!f.header_complete) {
                 setHttpFrame(ch, f);
                 return null;
             }
             int contentLength = 0;
-            String contentLengthStr = f.getReadHeader(HttpHeader.Low_Content_Length);
-            if (!StringUtil.isNullOrBlank(contentLengthStr)) {
-                f.contentLength = contentLength = Integer.parseInt(contentLengthStr);
+            String clStr = f.getReadHeader(Low_Content_Length);
+            if (!StringUtil.isNullOrBlank(clStr)) {
+                f.contentLength = contentLength = Integer.parseInt(clStr);
             }
-            String contentType = f.getReadHeader(HttpHeader.Low_Content_Type);
+            String contentType = f.getReadHeader(Low_Content_Type);
             parseContentType(f, contentType);
-            String cookie = f.getReadHeader(HttpHeader.Low_Cookie);
+            String cookie = f.getReadHeader(Low_Cookie);
             if (!StringUtil.isNullOrBlank(cookie)) {
                 parse_cookies(f, cookie);
             }
@@ -120,9 +117,9 @@ public class HttpCodec extends ProtocolCodec {
                 return f;
             } else {
                 if (contentLength > bodyLimit) {
-                    throw new IOException("over limit:" + contentLengthStr);
+                    // FIXME 写入临时文件
+                    throw new IOException("over limit:" + clStr);
                 }
-                // FIXME 写入临时文件
             }
         }
         int contentLength = f.contentLength;
@@ -199,7 +196,7 @@ public class HttpCodec extends ProtocolCodec {
             ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
             ch.setAttribute(WebSocketCodec.CHANNEL_KEY_SERVICE_NAME, f.getFrameName());
         }
-        f.setResponseHeader(HttpHeader.Date_Bytes, getHttpDateBytes());
+        f.setResponseHeader(Date_Bytes, getHttpDateBytes());
         byte[] writeBinary = f.getWriteBinary();
         if (writeBinary != null) {
             return encode(ch.alloc(), f, f.getWriteBinarySize(), writeBinary);
@@ -220,15 +217,15 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     private byte[] getHttpDateBytes() {
-        //          return DateUtil.get().formatHttpBytes();
         HDBsHolder h = dateBytes.get();
         if (h == null) {
             h = new HDBsHolder();
             dateBytes.set(h);
         }
         long now = System.currentTimeMillis();
-        if ((now % 1000) != h.time) {
-            h.time = now >> 10;
+        long time = now % 1000;
+        if (time != h.time) {
+            h.time = time;
             h.value = DateUtil.get().formatHttpBytes(now);
         }
         return h.value;
@@ -390,7 +387,7 @@ public class HttpCodec extends ProtocolCodec {
         f.setVersion(HttpVersion.HTTP1_1);
     }
 
-    private void readHeader(HttpFrame f, ByteBuf buffer) throws IOException {
+    private void decodeHeader(HttpFrame f, ByteBuf buffer) throws IOException {
         StringBuilder currentHeaderLine = f.currentHeaderLine;
         if (currentHeaderLine == null) {
             currentHeaderLine = getCacheStringBuilder();
