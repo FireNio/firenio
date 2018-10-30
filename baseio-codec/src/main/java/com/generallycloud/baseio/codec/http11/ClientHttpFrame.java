@@ -28,8 +28,6 @@ public class ClientHttpFrame extends HttpFrame {
     public ClientHttpFrame(String url, HttpMethod method) {
         this.setMethod(method);
         this.setRequestURI(url);
-        setRequestHeaders(new HashMap<String, String>());
-        setRequestParams(new HashMap<String, String>());
     }
 
     public ClientHttpFrame(String url) {
@@ -42,7 +40,7 @@ public class ClientHttpFrame extends HttpFrame {
 
     @Override
     public boolean updateWebSocketProtocol(NioSocketChannel ch) {
-        String key = getRequestHeader(HttpHeader.Sec_WebSocket_Accept);
+        String key = getReadHeader(HttpHeader.Sec_WebSocket_Accept);
         if (StringUtil.isNullOrBlank(key)) {
             return false;
         }
@@ -52,12 +50,26 @@ public class ClientHttpFrame extends HttpFrame {
 
     @Override
     void setReadHeader(String name, String value) {
-        response_headers.put(name, value);
+        if (StringUtil.isNullOrBlank(name)) {
+            return;
+        }
+        String _name = HttpHeader.LOW_MAPPING.get(name);
+        if (_name == null) {
+            _name = name.toLowerCase();
+        }
+        response_headers.put(_name, value);
     }
 
     @Override
     String getReadHeader(String name) {
-        return response_headers.get(name);
+        if (StringUtil.isNullOrBlank(name)) {
+            return null;
+        }
+        String _name = HttpHeader.LOW_MAPPING.get(name);
+        if (_name == null) {
+            _name = name.toLowerCase();
+        }
+        return response_headers.get(_name);
     }
 
 }

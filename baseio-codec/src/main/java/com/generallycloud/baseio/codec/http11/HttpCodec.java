@@ -58,7 +58,8 @@ public class HttpCodec extends ProtocolCodec {
     private static final ThreadLocal<HDBsHolder>    dateBytes                          = new ThreadLocal<>();
     public static final String                      FRAME_STACK_KEY                    = "FixedThreadStack_HttpFrame";
     private static final String                     HTTP_DECODE_FRAME_KEY              = "_HTTP_DECODE_FRAME_KEY";
-    private static final KMPUtil                    KMP_BOUNDARY                       = new KMPUtil("boundary=");
+    private static final KMPUtil                    KMP_BOUNDARY                       = new KMPUtil(
+            "boundary=");
     public static final byte                        N                                  = '\n';
     public static final byte[]                      PROTOCOL                           = "HTTP/1.1 "
             .getBytes();
@@ -121,7 +122,6 @@ public class HttpCodec extends ProtocolCodec {
                 if (contentLength > bodyLimit) {
                     throw new IOException("over limit:" + contentLengthStr);
                 }
-                f.hasBodyContent = true;
                 // FIXME 写入临时文件
             }
         }
@@ -220,7 +220,7 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     private byte[] getHttpDateBytes() {
-        //        return DateUtil.get().formatHttpBytes();
+        //          return DateUtil.get().formatHttpBytes();
         HDBsHolder h = dateBytes.get();
         if (h == null) {
             h = new HDBsHolder();
@@ -268,8 +268,7 @@ public class HttpCodec extends ProtocolCodec {
             if (stack.isEmpty()) {
                 return new HttpFrame(ch.getContext());
             } else {
-                HttpFrame frame = stack.remove(stack.size() - 1);
-                return frame.reset(ch);
+                return stack.remove(stack.size() - 1).reset(ch);
             }
         }
         return new HttpFrame(ch.getContext());
@@ -402,7 +401,7 @@ public class HttpCodec extends ProtocolCodec {
                 throw new IOException("max http header length " + headerLimit);
             }
             byte b = buffer.getByte();
-            if (b == '\n') {
+            if (b == N) {
                 if (currentHeaderLine.length() == 0) {
                     f.header_complete = true;
                     break;
@@ -422,7 +421,7 @@ public class HttpCodec extends ProtocolCodec {
                     currentHeaderLine.setLength(0);
                 }
                 continue;
-            } else if (b == '\r') {
+            } else if (b == R) {
                 continue;
             } else {
                 currentHeaderLine.append((char) b);

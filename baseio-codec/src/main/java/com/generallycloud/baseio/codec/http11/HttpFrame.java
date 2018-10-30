@@ -42,8 +42,6 @@ import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.BinaryFrame;
-import com.generallycloud.baseio.protocol.NamedFrame;
-import com.generallycloud.baseio.protocol.TextFrame;
 
 //FIXME 改进header parser
 /**
@@ -52,7 +50,7 @@ import com.generallycloud.baseio.protocol.TextFrame;
  * multipart/form-data; boundary=----WebKitFormBoundaryKA6dsRskWA4CdJek
  *
  */
-public class HttpFrame extends BinaryFrame implements NamedFrame, TextFrame {
+public class HttpFrame extends BinaryFrame implements HttpMessage {
 
     byte[]              bodyArray;
     String              boundary;
@@ -60,7 +58,6 @@ public class HttpFrame extends BinaryFrame implements NamedFrame, TextFrame {
     String              contentType;
     List<Cookie>        cookieList;
     StringBuilder       currentHeaderLine = new StringBuilder();
-    boolean             hasBodyContent;
     boolean             header_complete;
     int                 headerLength;
     HttpMethod          method;
@@ -210,7 +207,7 @@ public class HttpFrame extends BinaryFrame implements NamedFrame, TextFrame {
     }
 
     public boolean hasBodyContent() {
-        return hasBodyContent;
+        return bodyArray != null;
     }
 
     public boolean isUpdateWebSocketProtocol() {
@@ -232,7 +229,6 @@ public class HttpFrame extends BinaryFrame implements NamedFrame, TextFrame {
         this.contentLength = 0;
         this.contentType = null;
         this.clear(cookieList);
-        this.hasBodyContent = false;
         this.header_complete = false;
         this.headerLength = 0;
         this.method = null;
@@ -243,6 +239,7 @@ public class HttpFrame extends BinaryFrame implements NamedFrame, TextFrame {
         this.version = null;
         this.currentHeaderLine.setLength(0);
         this.request_headers.clear();
+        this.response_headers.clear();
         this.params.clear();
         this.updateWebSocketProtocol = false;
         this.setDefaultResponseHeaders(ch.getContext());

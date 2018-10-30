@@ -45,11 +45,6 @@ public class ClientHttpCodec extends HttpCodec {
     }
 
     @Override
-    public Frame decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
-        return new ClientHttpFrame();
-    }
-
-    @Override
     public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
         ClientHttpFrame f = (ClientHttpFrame) frame;
         ByteBuf buf = ch.alloc().allocate(256);

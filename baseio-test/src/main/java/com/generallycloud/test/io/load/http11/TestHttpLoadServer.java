@@ -50,10 +50,10 @@ public class TestHttpLoadServer {
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setMemoryPoolCapacity(1024 * 64);
         group.setMemoryPoolUnit(512);
-        group.setEventLoopSize(4);
+        group.setEventLoopSize(2);
         ChannelContext context = new ChannelContext(8087);
         ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
-        context.setProtocolCodec(new HttpCodec(1));
+        context.setProtocolCodec(new HttpCodec(8));
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
 
