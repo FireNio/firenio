@@ -20,6 +20,7 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -76,8 +77,33 @@ public class FixedLengthCodec extends ProtocolCodec {
     }
 
     @Override
-    public Frame decode(NioSocketChannel ch, ByteBuf buffer) {
-        return new FixedLengthFrame(limit);
+    public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
+        if (src.remaining() < 4) {
+            return null;
+        }
+        int len = src.getInt();
+        if (len < 0) {
+            if (len == FixedLengthCodec.PROTOCOL_PING) {
+                return new FixedLengthFrame().setPing();
+            } else if (len == FixedLengthCodec.PROTOCOL_PONG) {
+                return new FixedLengthFrame().setPong();
+            } else {
+                throw new IOException("illegal length:" + len);
+            }
+        }
+        if (len > limit) {
+            throw new IOException("over limit:" + len);
+        }
+        if (len > src.remaining()) {
+            src.skip(-4);
+            return null;
+        }
+        src.markL();
+        src.limit(src.position() + len);
+        String readText = StringUtil.decode(ch.getCharset(), src.nioBuffer());
+        src.reverse();
+        src.resetL();
+        return new FixedLengthFrame(readText);
     }
 
     @Override

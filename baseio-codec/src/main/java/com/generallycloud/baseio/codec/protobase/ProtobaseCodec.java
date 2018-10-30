@@ -20,6 +20,7 @@ import java.io.IOException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -73,10 +74,70 @@ public class ProtobaseCodec extends ProtocolCodec {
     public Frame ping(NioSocketChannel ch) {
         return new ProtobaseFrame().setPing();
     }
+    
+    ProtobaseFrame newProtobaseFrame() {
+        return new ProtobaseFrame();
+    }
 
     @Override
-    public Frame decode(NioSocketChannel ch, ByteBuf buffer) {
-        return new ProtobaseFrame().setLimit(limit);
+    public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
+        if (src.remaining() < 4) {
+            return null;
+        }
+        int len = src.getInt();
+        if (len < 0) {
+            if (len == ProtobaseCodec.PROTOCOL_PING) {
+                return newProtobaseFrame().setPing();
+            } else if (len == ProtobaseCodec.PROTOCOL_PONG) {
+                return newProtobaseFrame().setPong();
+            } else {
+                throw new IOException("illegal length:" + len);
+            }
+        }
+        if (len > limit) {
+            throw new IOException("over limit" + len);
+        }
+        if (len > src.remaining()) {
+            src.skip(-4);
+            return null;
+        }
+        ProtobaseFrame f = newProtobaseFrame();
+        byte h1 = src.getByte();
+        byte frameType = src.getByte();
+        boolean isBroadcast = ((h1 & 0b10000000) != 0);
+        boolean hasText = ((h1 & 0b00010000) != 0);
+        boolean hasBinary = ((h1 & 0b00001000) != 0);
+        int frameId = 0;
+        int channelId = 0;
+        if (((h1 & 0b01000000) != 0)) {
+            frameId = src.getInt();
+        }
+        if (((h1 & 0b00100000) != 0)) {
+            channelId = src.getInt();
+        }
+        int textLen = 0;
+        int binaryLen = 0;
+        f.setBroadcast(isBroadcast);
+        f.setChannelId(channelId);
+        f.setFrameId(frameId);
+        f.setFrameType(frameType);
+        if (hasText) {
+            textLen = src.getInt();
+            src.markL();
+            src.limit(src.position() + textLen);
+            f.setReadText(StringUtil.decode(ch.getCharset(), src.nioBuffer()));
+            src.reverse();
+            src.resetL();
+        }
+        if (hasBinary) {
+            binaryLen = src.getInt();
+            src.markL();
+            src.limit(src.position() + binaryLen);
+            f.setBinaryReadBuffer(src.getBytes());
+            src.reverse();
+            src.resetL();
+        }
+        return f;
     }
 
     public int getLimit() {

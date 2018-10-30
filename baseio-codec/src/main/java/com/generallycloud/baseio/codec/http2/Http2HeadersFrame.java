@@ -15,62 +15,58 @@
  */
 package com.generallycloud.baseio.codec.http2;
 
-import java.io.IOException;
-
-import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.codec.http2.hpack.Decoder;
-
 public class Http2HeadersFrame extends Http2FrameHeader {
 
-    private byte           padLength;
     private boolean        e;
+    private boolean        endStream;
+    private byte           padLength;
     private int            streamDependency;
     private short          weight;
-    private boolean        endStream;
-    private static Decoder decoder = new Decoder();
-
-    Http2HeadersFrame decode(Http2Session session, ByteBuf src, int length) throws IOException {
-        byte flags = getFlags();
-        this.endStream = (flags & FLAG_END_STREAM) > 0;
-        if ((flags & FLAG_PADDED) > 0) {
-            padLength = src.getByte();
-        }
-        if ((flags & FLAG_PRIORITY) > 0) {
-            streamDependency = src.getInt();
-            e = streamDependency < 0;
-            if (e) {
-                streamDependency = streamDependency & 0x7FFFFFFF;
-            }
-            weight = src.getUnsignedByte();
-        }
-        decoder.decode(streamDependency, src, session.getHttp2Headers());
-        return this;
-    }
-
-    @Override
-    public boolean isSilent() {
-        return !endStream;
-    }
 
     @Override
     public Http2FrameType getHttp2FrameType() {
         return Http2FrameType.FRAME_TYPE_HEADERS;
     }
 
-    public boolean isE() {
-        return e;
+    public byte getPadLength() {
+        return padLength;
     }
 
     public int getStreamDependency() {
         return streamDependency;
     }
-
+    
     public short getWeight() {
         return weight;
     }
+    
+    public boolean isE() {
+        return e;
+    }
+    
+    @Override
+    public boolean isSilent() {
+        return !endStream;
+    }
 
-    public byte getPadLength() {
-        return padLength;
+    public void setE(boolean e) {
+        this.e = e;
+    }
+
+    public void setEndStream(boolean endStream) {
+        this.endStream = endStream;
+    }
+
+    public void setPadLength(byte padLength) {
+        this.padLength = padLength;
+    }
+
+    public void setStreamDependency(int streamDependency) {
+        this.streamDependency = streamDependency;
+    }
+
+    public void setWeight(short weight) {
+        this.weight = weight;
     }
 
 }

@@ -15,10 +15,8 @@
  */
 package com.generallycloud.baseio.protocol;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 
-import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
@@ -37,11 +35,6 @@ public interface Frame {
     boolean isType(byte type);
 
     boolean isTyped();
-
-    /**
-     * return true if the frame read complete
-     */
-    boolean read(NioSocketChannel ch, ByteBuf src) throws IOException;
 
     Frame setPing();
 

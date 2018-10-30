@@ -15,17 +15,7 @@
  */
 package com.generallycloud.baseio.codec.redis;
 
-import java.io.IOException;
-
-import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.NioSocketChannel;
-
 public class RedisCmdFrame extends AbstractRedisFrame {
-
-    @Override
-    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
-        return true;
-    }
 
     @Override
     public RedisNode getRedisNode() {

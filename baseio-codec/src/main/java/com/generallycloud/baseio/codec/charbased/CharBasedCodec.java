@@ -18,6 +18,7 @@ package com.generallycloud.baseio.codec.charbased;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -46,8 +47,21 @@ public class CharBasedCodec extends ProtocolCodec {
     }
 
     @Override
-    public Frame decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
-        return new CharBasedFrame(limit, splitor);
+    public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
+        int p = src.indexOf(splitor);
+        if (p == -1) {
+            if (src.remaining() > limit) {
+                throw new IOException("max length " + limit);
+            }
+            return null;
+        }
+        src.markL();
+        src.limit(p);
+        String readText = StringUtil.decode(ch.getCharset(), src.nioBuffer());
+        src.reverse();
+        src.resetL();
+        src.skip(1);
+        return new CharBasedFrame(readText);
     }
 
     @Override

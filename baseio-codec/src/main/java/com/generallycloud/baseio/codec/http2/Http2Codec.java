@@ -18,7 +18,9 @@ package com.generallycloud.baseio.codec.http2;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.codec.http2.hpack.Decoder;
 import com.generallycloud.baseio.codec.http2.hpack.DefaultHttp2HeadersEncoder;
+import com.generallycloud.baseio.codec.http2.hpack.Http2Exception;
 import com.generallycloud.baseio.codec.http2.hpack.Http2HeadersEncoder;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.common.ThrowableUtil;
@@ -96,17 +98,22 @@ public class Http2Codec extends ProtocolCodec {
     private static final IOException NOT_HTTP2_PROTOCL       = ThrowableUtil
             .unknownStackTrace(new IOException("preface not matched"), Http2Codec.class, "codec");
 
+    public static final int          FLAG_END_STREAM         = 0x1;
+    public static final int          FLAG_END_HEADERS        = 0x4;
+    public static final int          FLAG_PADDED             = 0x8;
+    public static final int          FLAG_PRIORITY           = 0x20;
     public static final int          PROTOCOL_HEADER         = 9;
     public static final int          PROTOCOL_PING           = -1;
     public static final int          PROTOCOL_PONG           = -2;
     public static final int          PROTOCOL_PREFACE_HEADER = 24;
     private Http2HeadersEncoder      http2HeadersEncoder     = new DefaultHttp2HeadersEncoder();
-
     private static byte[]            PREFACE_BINARY          = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"
             .getBytes();
 
-    private Http2FrameHeader genFrame(Http2FrameType type, int length, int streamIdentifier,
-            byte flags) {
+    private static final Decoder     decoder                 = new Decoder();
+
+    private Http2FrameHeader genFrame(Http2Session session, ByteBuf src, Http2FrameType type,
+            int length, int streamIdentifier, byte flags) throws Http2Exception {
         switch (type) {
             case FRAME_TYPE_CONTINUATION:
                 break;
@@ -115,7 +122,27 @@ public class Http2Codec extends ProtocolCodec {
             case FRAME_TYPE_GOAWAY:
                 break;
             case FRAME_TYPE_HEADERS:
-                return new Http2HeadersFrame();
+                Http2HeadersFrame fh = new Http2HeadersFrame();
+                fh.setFlags(flags);
+                fh.setStreamIdentifier(streamIdentifier);
+                fh.setEndStream((flags & FLAG_END_STREAM) > 0);
+                if ((flags & FLAG_PADDED) > 0) {
+                    fh.setPadLength(src.getByte());
+                }
+                int streamDependency = 0;
+                if ((flags & FLAG_PRIORITY) > 0) {
+                    streamDependency = src.getInt();
+                    boolean e = streamDependency < 0;
+                    if (e) {
+                        streamDependency = streamDependency & 0x7FFFFFFF;
+                    }
+                    short weight = src.getUnsignedByte();
+                    fh.setE(e);
+                    fh.setStreamDependency(streamDependency);
+                    fh.setWeight(weight);
+                }
+                decoder.decode(streamDependency, src, session.getHttp2Headers());
+                return fh;
             case FRAME_TYPE_PING:
                 break;
             case FRAME_TYPE_PRIORITY:
@@ -125,9 +152,23 @@ public class Http2Codec extends ProtocolCodec {
             case FRAME_TYPE_RST_STREAM:
                 break;
             case FRAME_TYPE_SETTINGS:
-                return new Http2SettingsFrame();
+                Http2SettingsFrame fs = new Http2SettingsFrame();
+                fs.setFlags(flags);
+                fs.setStreamIdentifier(streamIdentifier);
+                int settings = length / 6;
+                for (int i = 0; i < settings; i++) {
+                    int key = src.getShort();
+                    int value = src.getInt();
+                    session.setSettings(key, value);
+                }
+                fs.setSettings(session.getSettings());
+                return fs;
             case FRAME_TYPE_WINDOW_UPDATE:
-                return new Http2WindowUpdateFrame();
+                Http2WindowUpdateFrame fw = new Http2WindowUpdateFrame();
+                fw.setFlags(flags);
+                fw.setStreamIdentifier(streamIdentifier);
+                fw.setUpdateValue(MathUtil.int2int31(src.getInt()));
+                return fw;
             default:
                 break;
         }
@@ -170,8 +211,7 @@ public class Http2Codec extends ProtocolCodec {
             return null;
         }
         Http2FrameType hType = Http2FrameType.getValue(type & 0xff);
-        Http2FrameHeader frame = genFrame(hType, length, streamIdentifier, flags);
-        return frame.decode(session, src, length);
+        return genFrame(session, src, hType, length, streamIdentifier, flags);
     }
 
     @Override

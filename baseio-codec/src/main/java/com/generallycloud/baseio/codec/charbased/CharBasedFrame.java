@@ -15,54 +15,22 @@
  */
 package com.generallycloud.baseio.codec.charbased;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-
-import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.ByteArrayOutputStream;
-import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractFrame;
 import com.generallycloud.baseio.protocol.TextFrame;
 
 public class CharBasedFrame extends AbstractFrame implements TextFrame {
 
-    private ByteArrayOutputStream cache = new ByteArrayOutputStream();
-    private int                   limit;
-    private String                readText;
-    private byte                  splitor;
+    private String readText;
 
     public CharBasedFrame() {}
 
-    CharBasedFrame(int limit, byte splitor) {
-        this.limit = limit;
-        this.splitor = splitor;
-    }
-
-    public ByteArrayOutputStream getLineOutputStream() {
-        return cache;
+    public CharBasedFrame(String readText) {
+        this.readText = readText;
     }
 
     @Override
     public String getReadText() {
         return readText;
-    }
-
-    @Override
-    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
-        ByteArrayOutputStream cache = this.cache;
-        Charset charset = ch.getCharset();
-        for (; buffer.hasRemaining();) {
-            byte b = buffer.getByte();
-            if (b == splitor) {
-                this.readText = cache.toString(charset);
-                return true;
-            }
-            cache.write(b);
-            if (cache.size() > limit) {
-                throw new IOException("max length " + limit);
-            }
-        }
-        return false;
     }
 
     @Override

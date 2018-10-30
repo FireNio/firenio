@@ -89,7 +89,6 @@ public final class NioSocketChannel extends AttributesImpl
     private final int                           maxWriteBacklog;
     private volatile boolean                    opened                = true;
     private ByteBuf                             plainRemainBuf;
-    private Frame                               readFrame;
     private final String                        remoteAddr;
     private final String                        remoteAddrPort;
     private final int                           remotePort;
@@ -137,20 +136,10 @@ public final class NioSocketChannel extends AttributesImpl
         final IoEventHandle eventHandle = this.ioEventHandle;
         final HeartBeatLogger heartBeatLogger = context.getHeartBeatLogger();
         final boolean enableWorkEventLoop = context.isEnableWorkEventLoop();
-        Frame frame = readFrame;
-        if (frame == null) {
-            frame = codec.decode(this, src);
+        for (;;) {
+            Frame frame = codec.decode(this, src);
             if (frame == null) {
                 plainRemainBuf = sliceRemain(src);
-                return;
-            }
-        }
-        for (;;) {
-            if (!frame.read(this, src)) {
-                readFrame = frame;
-                if (src.hasRemaining()) {
-                    plainRemainBuf = sliceRemain(src);
-                }
                 break;
             }
             if (frame.isTyped()) {
@@ -175,13 +164,6 @@ public final class NioSocketChannel extends AttributesImpl
                 }
             }
             if (!src.hasRemaining()) {
-                readFrame = null;
-                break;
-            }
-            frame = codec.decode(this, src);
-            if (frame == null) {
-                plainRemainBuf = sliceRemain(src);
-                readFrame = null;
                 break;
             }
         }

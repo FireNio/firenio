@@ -37,16 +37,22 @@ public class ParamedProtobaseCodec extends ProtobaseCodec {
     }
 
     @Override
-    public Frame decode(NioSocketChannel ch, ByteBuf buffer) {
-        return new ParamedProtobaseFrame().setLimit(getLimit());
+    ProtobaseFrame newProtobaseFrame() {
+        return new ParamedProtobaseFrame();
     }
-    
+
+    @Override
+    public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
+        ParamedProtobaseFrame f = (ParamedProtobaseFrame) super.decode(ch, src);
+        return f.complete();
+    }
+
     @Override
     public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
         ParamedProtobaseFrame f = (ParamedProtobaseFrame) frame;
         Parameters p = f.getParameters();
         if (p != null) {
-            f.write(p.toString(),ch);
+            f.write(p.toString(), ch);
         }
         return super.encode(ch, frame);
     }

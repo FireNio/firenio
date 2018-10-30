@@ -15,22 +15,18 @@
  */
 package com.generallycloud.baseio.codec.http2;
 
-import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.MathUtil;
-
+//FIXME delete
 public class Http2WindowUpdateFrame extends Http2FrameHeader {
 
     private int updateValue;
 
     @Override
-    Http2WindowUpdateFrame decode(Http2Session session, ByteBuf src, int length) {
-        this.updateValue = MathUtil.int2int31(src.getInt());
-        return this;
-    }
-
-    @Override
     public boolean isSilent() {
         return true;
+    }
+    
+    public void setUpdateValue(int updateValue) {
+        this.updateValue = updateValue;
     }
 
     @Override

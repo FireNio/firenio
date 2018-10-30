@@ -103,6 +103,8 @@ public interface ByteBuf extends ByteBufBuilder, Releasable {
 
     boolean hasRemaining();
 
+    int indexOf(byte b);
+
     int limit();
 
     ByteBuf limit(int limit);
@@ -112,7 +114,7 @@ public interface ByteBuf extends ByteBufBuilder, Releasable {
     ByteBuf markP();
 
     ByteBuffer nioBuffer();
-
+    
     int offset();
 
     int position();

@@ -15,26 +15,12 @@
  */
 package com.generallycloud.baseio.codec.http2;
 
-import java.io.IOException;
-
-import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractFrame;
 
 public abstract class Http2FrameHeader extends AbstractFrame implements Http2Frame {
 
-    public static final int FLAG_END_STREAM  = 0x1;
-    public static final int FLAG_END_HEADERS = 0x4;
-    public static final int FLAG_PADDED      = 0x8;
-    public static final int FLAG_PRIORITY    = 0x20;
-
     private byte            flags;
     private int             streamIdentifier;
-
-    @Override
-    public boolean read(NioSocketChannel ch, ByteBuf buffer) throws IOException {
-        return true;
-    }
 
     @Override
     public byte getFlags() {
@@ -55,7 +41,5 @@ public abstract class Http2FrameHeader extends AbstractFrame implements Http2Fra
     public void setStreamIdentifier(int streamIdentifier) {
         this.streamIdentifier = streamIdentifier;
     }
-
-    abstract Http2Frame decode(Http2Session session, ByteBuf src, int length) throws IOException;
 
 }

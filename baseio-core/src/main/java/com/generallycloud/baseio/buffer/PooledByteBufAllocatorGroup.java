@@ -38,8 +38,9 @@ public class PooledByteBufAllocatorGroup extends AbstractLifeCycle
             int unit = group.getMemoryPoolUnit();
             boolean direct = group.isEnableMemoryPoolDirect();
             this.allocators = new PooledByteBufAllocator[core];
-            for (int i = 0; i < allocators.length; i++) {
-                allocators[i] = new PooledByteBufAllocator(cap, unit, direct);
+            int allocatorsLength = allocators.length;
+            for (int i = 0; i < allocatorsLength; i++) {
+                allocators[i] = new PooledByteBufAllocator(cap, unit, direct, allocatorsLength);
             }
         }
         PooledByteBufAllocator first = allocators[0];

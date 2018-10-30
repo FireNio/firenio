@@ -161,6 +161,15 @@
 			<version>6.4.2</version>
 		</dependency>
 
+<dependency>
+    <groupId>org.rapidoid</groupId>
+    <artifactId>rapidoid-http-server</artifactId>
+    <version>5.5.5</version>
+</dependency>
+
+
+
+
 	</dependencies>
 
 </project>

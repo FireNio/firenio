@@ -25,24 +25,26 @@ import com.generallycloud.baseio.protocol.ParametersFrame;
  * @author wangkai
  *
  */
-public class ParamedProtobaseFrame extends ProtobaseFrame
-        implements NamedFrame, ParametersFrame {
+public class ParamedProtobaseFrame extends ProtobaseFrame implements NamedFrame, ParametersFrame {
 
     private static final String FRAME_NAME_KEY = "FRAME_NAME_KEY";
 
-    public ParamedProtobaseFrame() {
-        this.parameters = new JsonParameters();
-    }
+    private Parameters          parameters;
 
-    public ParamedProtobaseFrame(String frameName) {
-        this.parameters = new JsonParameters();
-        this.setFrameName(frameName);
-    }
+    public ParamedProtobaseFrame() {}
 
     public ParamedProtobaseFrame(int frameId, String frameName) {
         super(frameId);
-        this.parameters = new JsonParameters();
         this.setFrameName(frameName);
+    }
+
+    public ParamedProtobaseFrame(String frameName) {
+        this.setFrameName(frameName);
+    }
+
+    ParamedProtobaseFrame complete() {
+        parameters = new JsonParameters(getReadText());
+        return this;
     }
 
     @Override
@@ -50,26 +52,30 @@ public class ParamedProtobaseFrame extends ProtobaseFrame
         return getParameters().getParameter(FRAME_NAME_KEY);
     }
 
-    public void setFrameName(String frameName) {
-        this.parameters.put(FRAME_NAME_KEY, frameName);
+    @Override
+    public Parameters getParameters() {
+        return parameters;
     }
 
     public void put(String key, Object value) {
-        this.parameters.put(key, value);
+        if (parameters == null) {
+            parameters = new JsonParameters();
+        }
+        parameters.put(key, value);
     }
 
     public void putAll(Map<String, Object> params) {
-        this.parameters.putAll(params);
-    }
-
-    private Parameters parameters;
-
-    @Override
-    public Parameters getParameters() {
         if (parameters == null) {
-            parameters = new JsonParameters(getReadText());
+            parameters = new JsonParameters();
         }
-        return parameters;
+        parameters.putAll(params);
+    }
+    
+    public void setFrameName(String frameName) {
+        if (parameters == null) {
+            parameters = new JsonParameters();
+        }
+        parameters.put(FRAME_NAME_KEY, frameName);
     }
 
 }

@@ -16,12 +16,15 @@
 package com.generallycloud.baseio.codec.http11;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
-public class ClientHttpFrame extends AbstractHttpFrame {
+public class ClientHttpFrame extends HttpFrame {
 
+    private Map<String, String> response_headers = new HashMap<>();
+    
     public ClientHttpFrame(String url, HttpMethod method) {
         this.setMethod(method);
         this.setRequestURI(url);
@@ -33,8 +36,7 @@ public class ClientHttpFrame extends AbstractHttpFrame {
         this(url, HttpMethod.GET);
     }
 
-    public ClientHttpFrame(int headerLimit, int bodyLimit) {
-        super(headerLimit, bodyLimit);
+    public ClientHttpFrame() {
         setRequestHeaders(new HashMap<String, String>());
     }
 
@@ -50,39 +52,12 @@ public class ClientHttpFrame extends AbstractHttpFrame {
 
     @Override
     void setReadHeader(String name, String value) {
-        setRequestHeader(name, value);
+        response_headers.put(name, value);
     }
 
     @Override
     String getReadHeader(String name) {
-        return getRequestHeader(name);
-    }
-
-    @Override
-    protected void parseContentType(String contentType) {
-        if (StringUtil.isNullOrBlank(contentType)) {
-            setContentType(CONTENT_APPLICATION_URLENCODED);
-            return;
-        }
-        if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-            setContentType(CONTENT_APPLICATION_URLENCODED);
-        } else if (contentType.startsWith("multipart/form-data;")) {
-            int index = KMP_BOUNDARY.match(contentType);
-            if (index != -1) {
-                setBoundary(contentType.substring(index + 9));
-            }
-            setContentType(CONTENT_TYPE_MULTIPART);
-        } else {
-            // FIXME other content-type
-        }
-    }
-
-    @Override
-    protected void parseFirstLine(StringBuilder line) {
-        int index = StringUtil.indexOf(line, ' ');
-        int status = Integer.parseInt(line.substring(index + 1, index + 4));
-        setVersion(HttpVersion.HTTP1_1);
-        setStatus(HttpStatus.getStatus(status));
+        return response_headers.get(name);
     }
 
 }

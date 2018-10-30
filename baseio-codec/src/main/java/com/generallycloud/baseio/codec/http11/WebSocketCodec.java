@@ -53,24 +53,27 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 */
 public class WebSocketCodec extends ProtocolCodec {
 
-    public static final String   FRAME_STACK_KEY    = "FixedThreadStack_WebSocketFrame";
-    public static final int      PROTOCOL_HEADER    = 2;
-    public static final String   PROTOCOL_ID        = "WebSocket";
-    public static final byte     TYPE_BINARY        = 2;
-    public static final byte     TYPE_CLOSE         = 8;
-    public static final byte     TYPE_PING          = 9;
-    public static final byte     TYPE_PONG          = 10;
-    public static final byte     TYPE_TEXT          = 1;
-    public static final int      MAX_UNSIGNED_SHORT = 0xffff;
+    public static final String   CHANNEL_KEY_SERVICE_NAME  = "CHANNEL_KEY_SERVICE_NAME";
+    public static final String   FRAME_STACK_KEY           = "FixedThreadStack_WebSocketFrame";
+    public static final int      HEADER_LENGTH             = 2;
+    public static final int      MAX_UNSIGNED_SHORT        = 0xffff;
+    public static final int      OP_BINARY_FRAME           = 2;
+    public static final int      OP_CONNECTION_CLOSE_FRAME = 8;
+    public static final int      OP_CONTINUATION_FRAME     = 0;
+    public static final int      OP_PING_FRAME             = 9;
+    public static final int      OP_PONG_FRAME             = 10;
+    public static final int      OP_TEXT_FRAME             = 1;
+    public static final int      PROTOCOL_HEADER           = 2;
+    public static final String   PROTOCOL_ID               = "WebSocket";
+    public static final byte     TYPE_BINARY               = 2;
+    public static final byte     TYPE_CLOSE                = 8;
+    public static final byte     TYPE_PING                 = 9;
+    public static final byte     TYPE_PONG                 = 10;
+    public static final byte     TYPE_TEXT                 = 1;
     public static WebSocketCodec WS_PROTOCOL_CODEC;
 
-    static void init(ChannelContext context, int limit, int frameStackSize) {
-        WS_PROTOCOL_CODEC = new WebSocketCodec(limit, frameStackSize);
-        WS_PROTOCOL_CODEC.initialize(context);
-    }
-
-    private final int limit;
-    private final int frameStackSize;
+    private final int            frameStackSize;
+    private final int            limit;
 
     public WebSocketCodec(int limit, int frameStackSize) {
         this.limit = limit;
@@ -78,32 +81,94 @@ public class WebSocketCodec extends ProtocolCodec {
     }
 
     @Override
-    public Frame ping(NioSocketChannel ch) {
-        return new WebSocketFrame().setPing();
-    }
-
-    @Override
-    public Frame pong(NioSocketChannel ch, Frame ping) {
-        return ping.setPong();
-    }
-
-    @Override
-    public Frame decode(NioSocketChannel ch, ByteBuf buffer) throws IOException {
-        if (frameStackSize > 0) {
-            //            NioEventLoop eventLoop = ch.getEventLoop();
-            //            FixedThreadStack<WebSocketFrame> stack = (FixedThreadStack<WebSocketFrame>) eventLoop
-            //                    .getAttribute(FRAME_STACK_KEY);
-            //            if (stack == null) {
-            //                stack = new FixedThreadStack<>(frameStackSize);
-            //                eventLoop.setAttribute(FRAME_STACK_KEY, stack);
-            //            }
-            //            WebSocketFrame frame = stack.pop();
-            //            if (frame == null) {
-            //                return new WebSocketFrame(ch, limit);
-            //            }
-            //            return frame.reset(ch, limit);
+    public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
+        if (src.remaining() < 2) {
+            return null;
         }
-        return new WebSocketFrame(ch, limit);
+        src.markP();
+        byte b0 = src.getByte();
+        byte b1 = src.getByte();
+        int dataLen = 0;
+        boolean hasMask = (b1 & 0b10000000) > 0;
+        if (hasMask) {
+            dataLen += 4;
+        }
+        int payloadLen = (b1 & 0x7f);
+        if (payloadLen < 126) {
+
+        } else if (payloadLen == 126) {
+            dataLen += 2;
+            if (src.remaining() < dataLen) {
+                src.resetP();
+                return null;
+            }
+            payloadLen = src.getUnsignedShort();
+        } else {
+            dataLen += 8;
+            if (src.remaining() < dataLen) {
+                src.resetP();
+                return null;
+            }
+            payloadLen = (int) src.getLong();
+            if (payloadLen < 0) {
+                throw new IOException("over limit:" + payloadLen);
+            }
+        }
+        if (payloadLen > limit) {
+            throw new IOException("over limit:" + payloadLen);
+        }
+        if (src.remaining() < payloadLen) {
+            src.resetP();
+            return null;
+        }
+        boolean eof = (b0 & 0b10000000) > 0;
+        byte type = (byte) (b0 & 0xF);
+        if (type == WebSocketCodec.TYPE_PING) {
+            return newWebSocketFrame(ch).setPing();
+        } else if (type == WebSocketCodec.TYPE_PONG) {
+            return newWebSocketFrame(ch).setPong();
+        }
+        byte[] array = new byte[payloadLen];
+        if (hasMask) {
+            byte m0 = src.getByte();
+            byte m1 = src.getByte();
+            byte m2 = src.getByte();
+            byte m3 = src.getByte();
+            src.get(array);
+            int length = array.length;
+            int len = (length / 4) * 4;
+            for (int i = 0; i < len;) {
+                array[i++] ^= m0;
+                array[i++] ^= m1;
+                array[i++] ^= m2;
+                array[i++] ^= m3;
+            }
+            if (len < length) {
+                int i = len;
+                int remain = length - len;
+                if (remain == 1) {
+                    array[i++] ^= m0;
+                } else if (remain == 2) {
+                    array[i++] ^= m0;
+                    array[i++] ^= m1;
+                } else {
+                    array[i++] ^= m0;
+                    array[i++] ^= m1;
+                    array[i++] ^= m2;
+                }
+            }
+        } else {
+            src.get(array);
+        }
+        WebSocketFrame f = newWebSocketFrame(ch);
+        f.setByteArray(array);
+        f.setEof(eof);
+        f.setWsType(type);
+        f.setServiceName(ch);
+        if (type == WebSocketCodec.TYPE_BINARY) {
+            // FIXME 处理binary
+        }
+        return f;
     }
 
     @Override
@@ -144,6 +209,39 @@ public class WebSocketCodec extends ProtocolCodec {
     @Override
     public String getProtocolId() {
         return PROTOCOL_ID;
+    }
+
+    private WebSocketFrame newWebSocketFrame(NioSocketChannel ch) {
+        if (frameStackSize > 0) {
+            //            NioEventLoop eventLoop = ch.getEventLoop();
+            //            FixedThreadStack<WebSocketFrame> stack = (FixedThreadStack<WebSocketFrame>) eventLoop
+            //                    .getAttribute(FRAME_STACK_KEY);
+            //            if (stack == null) {
+            //                stack = new FixedThreadStack<>(frameStackSize);
+            //                eventLoop.setAttribute(FRAME_STACK_KEY, stack);
+            //            }
+            //            WebSocketFrame frame = stack.pop();
+            //            if (frame == null) {
+            //                return new WebSocketFrame(ch, limit);
+            //            }
+            //            return frame.reset(ch, limit);
+        }
+        return new WebSocketFrame();
+    }
+
+    @Override
+    public Frame ping(NioSocketChannel ch) {
+        return new WebSocketFrame().setPing();
+    }
+
+    @Override
+    public Frame pong(NioSocketChannel ch, Frame ping) {
+        return ping.setPong();
+    }
+
+    static void init(ChannelContext context, int limit, int frameStackSize) {
+        WS_PROTOCOL_CODEC = new WebSocketCodec(limit, frameStackSize);
+        WS_PROTOCOL_CODEC.initialize(context);
     }
 
 }
