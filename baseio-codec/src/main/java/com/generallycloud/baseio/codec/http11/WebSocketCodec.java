@@ -123,9 +123,9 @@ public class WebSocketCodec extends ProtocolCodec {
         }
         boolean eof = (b0 & 0b10000000) > 0;
         byte type = (byte) (b0 & 0xF);
-        if (type == WebSocketCodec.TYPE_PING) {
+        if (type == TYPE_PING) {
             return newWebSocketFrame(ch).setPing();
-        } else if (type == WebSocketCodec.TYPE_PONG) {
+        } else if (type == TYPE_PONG) {
             return newWebSocketFrame(ch).setPong();
         }
         byte[] array = new byte[payloadLen];
@@ -161,12 +161,13 @@ public class WebSocketCodec extends ProtocolCodec {
             src.get(array);
         }
         WebSocketFrame f = newWebSocketFrame(ch);
-        f.setByteArray(array);
         f.setEof(eof);
         f.setWsType(type);
         f.setServiceName(ch);
-        if (type == WebSocketCodec.TYPE_BINARY) {
-            // FIXME 处理binary
+        if (type == TYPE_TEXT) {
+           f.setReadText(new String(array,ch.getCharset()));
+        }else if(type == TYPE_BINARY) {
+            f.setByteArray(array);
         }
         return f;
     }

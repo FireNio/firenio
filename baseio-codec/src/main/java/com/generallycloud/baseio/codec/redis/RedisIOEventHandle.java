@@ -26,7 +26,7 @@ public class RedisIOEventHandle extends IoEventHandle {
 
     @Override
     public void accept(NioSocketChannel ch, Frame frame) throws Exception {
-        RedisFrame f = (RedisFrame) frame;
+        AbstractRedisFrame f = (AbstractRedisFrame) frame;
         Waiter waiter = this.waiter;
         if (waiter != null) {
             this.waiter = null;

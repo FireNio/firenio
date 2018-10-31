@@ -61,9 +61,9 @@ public class RedisCodec extends ProtocolCodec {
 
     @Override
     public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
-        RedisFrameImpl f = (RedisFrameImpl) ch.getAttribute(REDIS_DECODE_FRAME_KEY);
+        RedisFrame f = (RedisFrame) ch.getAttribute(REDIS_DECODE_FRAME_KEY);
         if (f == null) {
-            f = new RedisFrameImpl();
+            f = new RedisFrame();
         }
         StringBuilder currentLine = f.currentLine;
         RedisNode     currentNode = f.currentNode;
@@ -138,7 +138,7 @@ public class RedisCodec extends ProtocolCodec {
         return null;
     }
     
-    private void doComplete(NioSocketChannel ch,RedisFrameImpl f) {
+    private void doComplete(NioSocketChannel ch,RedisFrame f) {
         ch.removeAttribute(REDIS_DECODE_FRAME_KEY);
         //FIXME redis的心跳有些特殊
         //      if (rootNode.getType() == TYPE_SIMPLE_STRINGS) {
@@ -155,7 +155,7 @@ public class RedisCodec extends ProtocolCodec {
 
     @Override
     public Frame ping(NioSocketChannel ch) {
-        RedisCmdFrame f = new RedisCmdFrame();
+        AbstractRedisFrame f = new RedisCmdFrame();
         f.setPing();
         f.writeCommand(RedisCommand.PING.raw);
         return f;
@@ -163,7 +163,7 @@ public class RedisCodec extends ProtocolCodec {
 
     @Override
     public Frame pong(NioSocketChannel ch, Frame ping) {
-        RedisCmdFrame f = (RedisCmdFrame) ping;
+        AbstractRedisFrame f = (AbstractRedisFrame) ping;
         f.setPong();
         f.writeCommand(RedisCommand.PONG.raw);
         return f;
@@ -171,7 +171,7 @@ public class RedisCodec extends ProtocolCodec {
 
     @Override
     public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
-        RedisFrame f = (RedisFrame) frame;
+        AbstractRedisFrame f = (AbstractRedisFrame) frame;
         int writeSize = f.getWriteSize();
         if (writeSize == 0) {
             throw new IOException("null write buffer");

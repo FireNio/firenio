@@ -133,7 +133,7 @@ public class ProtobaseCodec extends ProtocolCodec {
             binaryLen = src.getInt();
             src.markL();
             src.limit(src.position() + binaryLen);
-            f.setBinaryReadBuffer(src.getBytes());
+            f.setReadBinary(src.getBytes());
             src.reverse();
             src.resetL();
         }
