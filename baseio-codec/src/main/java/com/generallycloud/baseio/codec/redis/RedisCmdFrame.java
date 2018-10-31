@@ -17,7 +17,6 @@ package com.generallycloud.baseio.codec.redis;
 
 public class RedisCmdFrame extends AbstractRedisFrame {
 
-    @Override
     public RedisNode getRedisNode() {
         return null;
     }

@@ -43,7 +43,7 @@ public class RedisClient {
     }
 
     private synchronized RedisNode sendCommand(byte[] command, byte[]... args) throws IOException {
-        RedisFrame frame = new RedisCmdFrame();
+        AbstractRedisFrame frame = new RedisCmdFrame();
         frame.writeCommand(command, args);
         Waiter waiter = ioEventHandle.newWaiter();
         ch.flush(frame);

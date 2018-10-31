@@ -20,11 +20,11 @@ import com.generallycloud.baseio.protocol.TextFrame;
 
 public class ProtobaseFrame extends BinaryFrame implements TextFrame {
 
-    private byte[]  binaryReadBuffer;
     private int     channelId;
     private int     frameId;
     private byte    frameType;
     private boolean isBroadcast;
+    private byte[]  readBinary;
     private String  readText;
 
     public ProtobaseFrame() {}
@@ -50,12 +50,12 @@ public class ProtobaseFrame extends BinaryFrame implements TextFrame {
     }
 
     public byte[] getReadBinary() {
-        return binaryReadBuffer;
+        return readBinary;
     }
 
     public int getReadBinarySize() {
         if (hasReadBinary()) {
-            return binaryReadBuffer.length;
+            return readBinary.length;
         }
         return 0;
     }
@@ -66,15 +66,11 @@ public class ProtobaseFrame extends BinaryFrame implements TextFrame {
     }
 
     public boolean hasReadBinary() {
-        return binaryReadBuffer != null;
+        return readBinary != null;
     }
 
     public boolean isBroadcast() {
         return isBroadcast;
-    }
-
-    public void setBinaryReadBuffer(byte[] binaryReadBuffer) {
-        this.binaryReadBuffer = binaryReadBuffer;
     }
 
     public void setBroadcast(boolean broadcast) {
@@ -91,6 +87,10 @@ public class ProtobaseFrame extends BinaryFrame implements TextFrame {
 
     public void setFrameType(byte frameType) {
         this.frameType = frameType;
+    }
+
+    public void setReadBinary(byte[] readBinary) {
+        this.readBinary = readBinary;
     }
 
     public void setReadText(String readText) {

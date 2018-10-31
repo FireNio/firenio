@@ -17,9 +17,8 @@ package com.generallycloud.baseio.codec.redis;
 
 import com.generallycloud.baseio.protocol.AbstractFrame;
 
-public abstract class AbstractRedisFrame extends AbstractFrame implements RedisFrame {
+public abstract class AbstractRedisFrame extends AbstractFrame {
 
-    @Override
     public void writeCommand(byte[] command, byte[]... args) {
 
         this.write(RedisCodec.BYTE_ARRAYS);

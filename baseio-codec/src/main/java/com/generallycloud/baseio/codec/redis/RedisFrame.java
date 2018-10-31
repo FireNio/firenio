@@ -15,12 +15,14 @@
  */
 package com.generallycloud.baseio.codec.redis;
 
-import com.generallycloud.baseio.protocol.Frame;
+public class RedisFrame extends AbstractRedisFrame {
 
-public interface RedisFrame extends Frame {
+    StringBuilder currentLine = new StringBuilder();
+    RedisNode     rootNode    = new RedisNode();
+    RedisNode     currentNode = rootNode;
 
-    RedisNode getRedisNode();
-
-    void writeCommand(byte[] command, byte[]... args);
+    public RedisNode getRedisNode() {
+        return rootNode;
+    }
 
 }

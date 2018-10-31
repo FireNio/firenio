@@ -49,7 +49,7 @@ public class ParamedProtobaseFrame extends ProtobaseFrame implements NamedFrame,
 
     @Override
     public String getFrameName() {
-        return getParameters().getParameter(FRAME_NAME_KEY);
+        return parameters.getParameter(FRAME_NAME_KEY);
     }
 
     @Override
@@ -72,10 +72,7 @@ public class ParamedProtobaseFrame extends ProtobaseFrame implements NamedFrame,
     }
     
     public void setFrameName(String frameName) {
-        if (parameters == null) {
-            parameters = new JsonParameters();
-        }
-        parameters.put(FRAME_NAME_KEY, frameName);
+        put(FRAME_NAME_KEY, frameName);
     }
 
 }

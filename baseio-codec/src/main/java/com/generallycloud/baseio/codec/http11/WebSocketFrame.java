@@ -16,24 +16,24 @@
 package com.generallycloud.baseio.codec.http11;
 
 import com.generallycloud.baseio.collection.FixedThreadStack;
-import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractFrame;
 import com.generallycloud.baseio.protocol.Frame;
+import static com.generallycloud.baseio.codec.http11.WebSocketCodec.*;
 
 public class WebSocketFrame extends AbstractFrame implements HttpMessage {
 
-    private byte[]             byteArray;
-    private boolean            eof;
-    private String             readText;
-    private String             serviceName;
-    private byte               type;
+    private byte[]  byteArray;
+    private boolean eof;
+    private String  readText;
+    private String  serviceName;
+    private byte    type;
 
     public WebSocketFrame() {
-        this.type = WebSocketCodec.TYPE_TEXT;
+        this.type = TYPE_TEXT;
     }
-    
+
     public byte[] getByteArray() {
         return byteArray;
     }
@@ -45,12 +45,6 @@ public class WebSocketFrame extends AbstractFrame implements HttpMessage {
 
     @Override
     public String getReadText() {
-        if (readText == null) {
-            if (byteArray == null) {
-                return null;
-            }
-            readText = new String(byteArray, Encoding.UTF8);
-        }
         return readText;
     }
 
@@ -59,11 +53,11 @@ public class WebSocketFrame extends AbstractFrame implements HttpMessage {
     }
 
     public boolean isCloseFrame() {
-        return type == WebSocketCodec.OP_CONNECTION_CLOSE_FRAME;
+        return type == OP_CONNECTION_CLOSE_FRAME;
     }
-    
-    public boolean isContinuationFrame(){
-        return type == WebSocketCodec.OP_CONTINUATION_FRAME;
+
+    public boolean isContinuationFrame() {
+        return type == OP_CONTINUATION_FRAME;
     }
 
     public boolean isEof() {
@@ -73,11 +67,11 @@ public class WebSocketFrame extends AbstractFrame implements HttpMessage {
     @SuppressWarnings("unchecked")
     public void release(NioEventLoop eventLoop) {
         //FIXME ..final statck is null or not null
-        if (WebSocketCodec.WS_PROTOCOL_CODEC.getFrameStackSize() == 0) {
+        if (WS_PROTOCOL_CODEC.getFrameStackSize() == 0) {
             return;
         }
         FixedThreadStack<WebSocketFrame> stack = (FixedThreadStack<WebSocketFrame>) eventLoop
-                .getAttribute(WebSocketCodec.FRAME_STACK_KEY);
+                .getAttribute(FRAME_STACK_KEY);
         if (stack != null) {
             stack.push(this);
         }
@@ -103,22 +97,22 @@ public class WebSocketFrame extends AbstractFrame implements HttpMessage {
 
     @Override
     public Frame setPing() {
-        this.type = WebSocketCodec.TYPE_PING;
+        this.type = TYPE_PING;
         return super.setPing();
     }
 
     @Override
     public Frame setPong() {
-        this.type = WebSocketCodec.TYPE_PONG;
+        this.type = TYPE_PONG;
         return super.setPong();
     }
 
     public void setReadText(String readText) {
         this.readText = readText;
     }
-    
+
     protected void setServiceName(NioSocketChannel ch) {
-        this.serviceName = (String) ch.getAttribute(WebSocketCodec.CHANNEL_KEY_SERVICE_NAME);
+        this.serviceName = (String) ch.getAttribute(CHANNEL_KEY_SERVICE_NAME);
     }
 
     protected void setServiceName(String serviceName) {
