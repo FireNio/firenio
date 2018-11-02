@@ -18,6 +18,8 @@ package com.generallycloud.test.others.ssl;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -32,28 +34,35 @@ public class SSLSocketClient {
 
     public static void main(String[] args) throws Exception {
 
+        SSLContext context = SSLContext.getInstance("TLS");
         X509TrustManager x509m = new X509TrustManager() {
 
             @Override
-            public void checkClientTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
-                    throws java.security.cert.CertificateException {
-
-            }
-
-            @Override
-            public void checkServerTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
-                    throws java.security.cert.CertificateException {
-
-            }
-
-            @Override
-            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+            public X509Certificate[] getAcceptedIssuers() {
+                System.out.println("getAcceptedIssuers......");
                 return null;
             }
+            
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType)
+                    throws CertificateException {
+                System.out.println("checkServerTrusted......");
+                //When I use jdkssl the chain'value is all of my server configured.
+                //But when openssl the chain'value only one
+                //Why this happened? is my server configuration incorrect or this is openssl's feature?
+            }
+            
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType)
+                    throws CertificateException {
+                System.out.println("checkClientTrusted......");
+                
+            }
         };
-        SSLContext context = SSLContext.getInstance("SSL");
-        // 初始化
         context.init(null, new TrustManager[] { x509m }, new SecureRandom());
+        
+
+        
         SSLSocketFactory factory = context.getSocketFactory();
         SSLSocket s = (SSLSocket) factory.createSocket("localhost", 443);
         System.out.println("ok");
@@ -61,7 +70,7 @@ public class SSLSocketClient {
         OutputStream output = s.getOutputStream();
         InputStream input = s.getInputStream();
 
-        int length = 50000;
+        int length = 1;
         StringBuilder b = new StringBuilder(length + 1);
         for (int i = 0; i < length; i++) {
             b.append('a');

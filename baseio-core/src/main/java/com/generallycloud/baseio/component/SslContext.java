@@ -141,19 +141,19 @@ public final class SslContext {
 
     private final String[]     cipherSuites;
     private final ClientAuth   clientAuth;
-    private final boolean      isClient;
+    private final boolean      isServer;
     private final SSLContext   sslContext;
     private final List<String> unmodifiableCipherSuites;
     private final String[]     applicationProtocols;
 
-    SslContext(SSLContext sslContext, boolean isClient, List<String> ciphers, ClientAuth clientAuth,
+    SslContext(SSLContext sslContext, boolean isServer, List<String> ciphers, ClientAuth clientAuth,
             String[] applicationProtocols) throws SSLException {
         this.applicationProtocols = applicationProtocols;
         this.clientAuth = clientAuth;
         this.cipherSuites = filterCipherSuites(ciphers, ENABLED_CIPHERS, SUPPORTED_CIPHERS);
         this.unmodifiableCipherSuites = Collections.unmodifiableList(Arrays.asList(cipherSuites));
         this.sslContext = sslContext;
-        this.isClient = isClient;
+        this.isServer = isServer;
         if (applicationProtocols != null && !OPENSSL_AVAILABLE) {
             throw new SSLException("applicationProtocols enabled but openssl not available");
         }
@@ -198,13 +198,17 @@ public final class SslContext {
             return newCiphers.toArray(new String[newCiphers.size()]);
         }
     }
+    
+    public SSLContext getSslContext() {
+        return sslContext;
+    }
 
     public final boolean isClient() {
-        return isClient;
+        return !isServer();
     }
 
     public final boolean isServer() {
-        return !isClient();
+        return isServer;
     }
 
     public final SSLEngine newEngine(String peerHost, int peerPort) {

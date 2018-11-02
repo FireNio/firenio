@@ -700,7 +700,7 @@ public final class NioSocketChannel extends AttributesImpl
             cwbs[i] = null;
         }
     }
-    
+
     private void releaseWriteBufQueue() {
         Queue<ByteBuf> wfs = this.writeBufs;
         if (!wfs.isEmpty()) {
@@ -864,15 +864,13 @@ public final class NioSocketChannel extends AttributesImpl
                 for (;;) {
                     SSLEngineResult result = engine.wrap(src.nioBuffer(), out.nioBuffer());
                     Status status = result.getStatus();
-                    HandshakeStatus handshakeStatus = result.getHandshakeStatus();
                     synchByteBuf(result, src, out);
                     if (status == Status.CLOSED) {
                         return out.flip();
                     } else if (status == Status.BUFFER_OVERFLOW) {
                         out.reallocate(out.capacity() + SSL_PACKET_BUFFER_SIZE, true);
                         continue;
-                    }
-                    if (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING) {
+                    } else {
                         if (src.hasRemaining()) {
                             continue;
                         }
