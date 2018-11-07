@@ -344,7 +344,7 @@ public final class SslContextBuilder {
         return this;
     }
 
-    public SslContextBuilder setApplicationProtocols(String[] applicationProtocols) {
+    public SslContextBuilder applicationProtocols(String[] applicationProtocols) {
         this.applicationProtocols = applicationProtocols;
         return this;
     }

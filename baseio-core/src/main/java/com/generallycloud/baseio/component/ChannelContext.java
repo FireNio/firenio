@@ -296,7 +296,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
                 File certificate = FileUtil.readFileByCls(getCertCrt(), classLoader);
                 File privateKey = FileUtil.readFileByCls(getCertKey(), classLoader);
                 builder.keyManager(privateKey, certificate);
-                builder.setApplicationProtocols(applicationProtocols);
+                builder.applicationProtocols(applicationProtocols);
                 SslContext sslContext = builder.build();
                 setSslContext(sslContext);
                 return;
@@ -310,7 +310,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
                 File storeFile = FileUtil.readFileByCls(params[0], classLoader);
                 FileInputStream is = new FileInputStream(storeFile);
                 builder.keyManager(is, params[1], params[2], params[3]);
-                builder.setApplicationProtocols(applicationProtocols);
+                builder.applicationProtocols(applicationProtocols);
                 SslContext sslContext = builder.build();
                 setSslContext(sslContext);
                 return;

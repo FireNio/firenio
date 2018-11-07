@@ -83,7 +83,7 @@ public class ClientHttpCodec extends HttpCodec {
         }
     }
     
-    void parseFirstLine(HttpFrame f,StringBuilder line) {
+    protected void parseFirstLine(HttpFrame f,StringBuilder line) {
         int index = StringUtil.indexOf(line, ' ');
         int status = Integer.parseInt(line.substring(index + 1, index + 4));
         f.setVersion(HttpVersion.HTTP1_1);

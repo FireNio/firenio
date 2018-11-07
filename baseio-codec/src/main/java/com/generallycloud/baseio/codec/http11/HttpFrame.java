@@ -266,7 +266,7 @@ public class HttpFrame extends BinaryFrame implements HttpMessage {
         headers.put(Connection_Bytes, keep_alive_bytes); // or close
     }
 
-    void setMethod(HttpMethod method) {
+    public void setMethod(HttpMethod method) {
         this.method = method;
     }
 
@@ -316,7 +316,7 @@ public class HttpFrame extends BinaryFrame implements HttpMessage {
         this.status = status;
     }
 
-    void setVersion(HttpVersion version) {
+    public void setVersion(HttpVersion version) {
         this.version = version;
     }
 
