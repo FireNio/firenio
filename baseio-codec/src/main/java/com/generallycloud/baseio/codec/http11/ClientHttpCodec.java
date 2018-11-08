@@ -47,10 +47,11 @@ public class ClientHttpCodec extends HttpCodec {
     @Override
     public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
         ClientHttpFrame f = (ClientHttpFrame) frame;
-        ByteBuf buf = ch.alloc().allocate(256);
+        byte [] urlBytes = getRequestURI(f).getBytes();
+        ByteBuf buf = ch.alloc().allocate(256 + urlBytes.length);
         buf.put(f.getMethod().getBytes());
         buf.putByte(SPACE);
-        buf.put(getRequestURI(f).getBytes());
+        buf.put(urlBytes);
         buf.put(PROTOCOL);
         writeHeaders(f.getRequestHeaders(), buf);
         List<Cookie> cookieList = f.getCookieList();
@@ -83,7 +84,7 @@ public class ClientHttpCodec extends HttpCodec {
         }
     }
     
-    void parseFirstLine(HttpFrame f,StringBuilder line) {
+    protected void parseFirstLine(HttpFrame f,StringBuilder line) {
         int index = StringUtil.indexOf(line, ' ');
         int status = Integer.parseInt(line.substring(index + 1, index + 4));
         f.setVersion(HttpVersion.HTTP1_1);

@@ -21,7 +21,6 @@ import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.component.ChannelAcceptor;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
@@ -29,9 +28,9 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 
 public class TestHttpLoadServer {
-    
+
     public static void main(String[] args) throws Exception {
-        
+
         IoEventHandle eventHandle = new IoEventHandle() {
 
             @Override
@@ -51,12 +50,11 @@ public class TestHttpLoadServer {
         group.setMemoryPoolCapacity(1024 * 64);
         group.setMemoryPoolUnit(512);
         group.setEventLoopSize(2);
-        ChannelContext context = new ChannelContext(8087);
-        ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
+        ChannelAcceptor context = new ChannelAcceptor(group, 8087);
         context.setProtocolCodec(new HttpCodec(8));
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
 
-        acceptor.bind();
+        context.bind();
     }
 }

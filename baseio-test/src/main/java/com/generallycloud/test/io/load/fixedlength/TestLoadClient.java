@@ -21,10 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
-import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -39,9 +37,7 @@ public class TestLoadClient {
     public static void main(String[] args) throws Exception {
 
         final Logger logger = LoggerFactory.getLogger(TestLoadClient.class);
-
         final CountDownLatch latch = new CountDownLatch(time);
-
         final AtomicInteger res = new AtomicInteger();
         final AtomicInteger req = new AtomicInteger();
 
@@ -60,13 +56,11 @@ public class TestLoadClient {
             }
 
         };
-        ChannelContext context = new ChannelContext(8300);
-        ChannelConnector connector = new ChannelConnector(context);
+        ChannelConnector context = new ChannelConnector(8300);
         context.setIoEventHandle(eventHandleAdaptor);
-        context.setProtocolCodec(new ProtobaseCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        connector.getContext().setProtocolCodec(new FixedLengthCodec());
-        NioSocketChannel channel = connector.connect();
+        context.setProtocolCodec(new FixedLengthCodec());
+        NioSocketChannel channel = context.connect();
         System.out.println("################## Test start ####################");
         long old = System.currentTimeMillis();
 
@@ -84,7 +78,7 @@ public class TestLoadClient {
                 BigDecimal.ROUND_HALF_UP));
         System.out.println("## Expend Time:" + spend);
 
-        CloseUtil.close(connector);
+        CloseUtil.close(context);
 
     }
 }

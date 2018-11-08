@@ -17,7 +17,6 @@ package com.generallycloud.test.io.http2;
 
 import com.generallycloud.baseio.codec.http2.Http2Codec;
 import com.generallycloud.baseio.component.ChannelAcceptor;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
@@ -37,13 +36,13 @@ public class TestHttp2Server {
             }
 
         };
-        
+
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setMemoryPoolCapacity(1024 * 64);
         group.setMemoryPoolUnit(512);
         group.setEnableMemoryPoolDirect(true);
         group.setEnableMemoryPool(true);
-        ChannelContext context = new ChannelContext(443);
+        ChannelAcceptor context = new ChannelAcceptor(group, 443);
         context.setCertCrt("localhost.crt");
         context.setCertKey("localhost.key");
         context.setEnableSsl(true);
@@ -51,8 +50,6 @@ public class TestHttp2Server {
         context.setIoEventHandle(eventHandleAdaptor);
         context.setApplicationProtocols(new String[] { "h2", "http/1.1" });
         context.addChannelEventListener(new LoggerChannelOpenListener());
-
-        ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
-        acceptor.bind();
+        context.bind();
     }
 }

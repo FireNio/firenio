@@ -23,7 +23,6 @@ import com.generallycloud.baseio.codec.http11.WsUpgradeRequestFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -53,13 +52,12 @@ public class TestSimpleWebSocketClient {
             }
         };
 
-        ChannelContext context = new ChannelContext(443);
-        ChannelConnector connector = new ChannelConnector(context);
+        ChannelConnector context = new ChannelConnector(443);
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ClientHttpCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setSslContext(SslContextBuilder.forClient(true).build());
-        NioSocketChannel channel = connector.connect();
+        NioSocketChannel channel = context.connect();
         String url = "/web-socket-chat";
         //        url = "/c1020";
         HttpFrame frame = new WsUpgradeRequestFrame(url);
@@ -74,7 +72,7 @@ public class TestSimpleWebSocketClient {
         // frame.setRequestHeader("", "");
         channel.flush(frame);
         ThreadUtil.sleep(999999999);
-        CloseUtil.close(connector);
+        CloseUtil.close(context);
 
     }
 }

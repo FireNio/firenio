@@ -17,11 +17,9 @@ package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -41,18 +39,17 @@ public class TestClient {
             }
         };
 
-        ChannelContext context = new ChannelContext(8300);
-        ChannelConnector connector = new ChannelConnector(context);
-        connector.setTimeout(99999999);
+        ChannelConnector context = new ChannelConnector(8300);
+        context.setTimeout(99999999);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new ProtobaseCodec());
-        NioSocketChannel channel = connector.connect();
+        NioSocketChannel channel = context.connect();
         ParamedProtobaseFrame frame = new ParamedProtobaseFrame("test222");
         frame.write("hello server!", channel);
         channel.flush(frame);
         ThreadUtil.sleep(100);
-        CloseUtil.close(connector);
+        CloseUtil.close(context);
 
     }
 }

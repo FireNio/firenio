@@ -39,17 +39,16 @@ public class TestSimple {
                 System.out.println("________________________" + frame);
             }
         };
-        ChannelContext context = new ChannelContext(8300);
-        ChannelConnector connector = new ChannelConnector(context);
+        ChannelConnector context = new ChannelConnector(8300);
         context.setProtocolCodec(new ProtobaseCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandle);
-        NioSocketChannel channel = connector.connect();
+        NioSocketChannel channel = context.connect();
         ParamedProtobaseFrame f = new ParamedProtobaseFrame(serviceKey);
         f.write(param, channel);
         channel.flush(f);
         ThreadUtil.sleep(500);
-        CloseUtil.close(connector);
+        CloseUtil.close(context);
     }
 
 }

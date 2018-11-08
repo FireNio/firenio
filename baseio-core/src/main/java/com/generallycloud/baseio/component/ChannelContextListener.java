@@ -55,11 +55,10 @@ public class ChannelContextListener extends AbstractLifeCycleListener implements
             LoggerUtil.prettyLog(logger, "service start failed, prepare to stop ...");
             return;
         }
-        ChannelService service = context.getChannelService();
         BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
         BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
         BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
-        LoggerUtil.prettyLog(logger, "service running {} for {} hours", service.getServerAddress(),hour);
+        LoggerUtil.prettyLog(logger, "service running {} for {} hours", context.getServerAddress(),hour);
         LoggerUtil.prettyLog(logger, "begin to stop service, please wait ...");
     }
 

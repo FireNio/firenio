@@ -22,7 +22,6 @@ import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -38,12 +37,11 @@ public class SimpleTestFIxedLengthClientPush {
                 System.out.println(">msg from server: " + frame);
             }
         };
-        ChannelContext context = new ChannelContext(8300);
-        ChannelConnector connector = new ChannelConnector(context);
+        ChannelConnector context = new ChannelConnector(8300);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
-        NioSocketChannel channel = connector.connect();
+        NioSocketChannel channel = context.connect();
         ThreadUtil.exec(new Runnable() {
 
             @Override

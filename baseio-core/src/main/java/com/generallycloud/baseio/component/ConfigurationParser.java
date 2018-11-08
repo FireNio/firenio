@@ -72,7 +72,10 @@ public class ConfigurationParser {
                 f.set(cfg, v);
             } else if (type == boolean.class) {
                 ClassUtil.trySetAccessible(f);
-                f.set(cfg, properties.getBooleanProperty(prefix + name));
+                String v = (String) properties.get(prefix + name);
+                if (!StringUtil.isNullOrBlank(v)) {
+                    f.set(cfg, StringUtil.isTrueValue(v));
+                }
             } else if (type == long.class) {
                 long v = properties.getLongProperty(prefix + name);
                 if (v == 0) {

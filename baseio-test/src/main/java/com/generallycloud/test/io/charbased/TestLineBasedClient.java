@@ -20,7 +20,6 @@ import com.generallycloud.baseio.codec.charbased.CharBasedFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -40,17 +39,16 @@ public class TestLineBasedClient {
             }
         };
 
-        ChannelContext context = new ChannelContext(8300);
-        ChannelConnector connector = new ChannelConnector(context);
+        ChannelConnector context = new ChannelConnector(8300);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new CharBasedCodec());
-        NioSocketChannel channel = connector.connect();
+        NioSocketChannel channel = context.connect();
         CharBasedFrame frame = new CharBasedFrame();
         frame.write("hello server!", channel);
         channel.flush(frame);
         ThreadUtil.sleep(100);
-        CloseUtil.close(connector);
+        CloseUtil.close(context);
 
     }
 }

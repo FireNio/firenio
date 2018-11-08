@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.InetSocketAddress;
+import java.nio.channels.SelectableChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +32,7 @@ import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.Constants;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.Assert;
+import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
@@ -42,7 +45,7 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
-public final class ChannelContext extends AbstractLifeCycle implements Configuration {
+public abstract class ChannelContext extends AbstractLifeCycle implements Configuration {
 
     private String[]                       applicationProtocols;
     private Map<Object, Object>            attributes         = new HashMap<>();
@@ -50,7 +53,6 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     private String                         certCrt;
     private String                         certKey;
     private ChannelManager                 channelManager     = new ChannelManager();
-    private ChannelService                 channelService;
     private Charset                        charset            = Encoding.UTF8;
     private List<ChannelIdleEventListener> ciels              = new ArrayList<>();
     private boolean                        enableHeartbeatLog = true;
@@ -73,18 +75,14 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     private String                         sslKeystore;
     private long                           startupTime        = System.currentTimeMillis();
     private int                            workEventQueueSize = 1024 * 8;
+    private InetSocketAddress              serverAddress;
 
-    public ChannelContext() {
-        this(0);
-    }
-
-    public ChannelContext(int port) {
-        this("127.0.0.1", port);
-    }
-
-    public ChannelContext(String host, int port) {
+    ChannelContext(NioEventLoopGroup group, String host, int port) {
+        Assert.notNull(host, "null host");
+        Assert.notNull(group, "null group");
         this.port = port;
         this.host = host;
+        this.nioEventLoopGroup = group;
         this.addLifeCycleListener(new ChannelContextListener());
     }
 
@@ -141,7 +139,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
                 sb.append(' ');
             }
             sb.setLength(sb.length() - 2);
-            LoggerUtil.prettyLog(logger, "default protocols     :[ {} ] ", sb.toString());
+            LoggerUtil.prettyLog(logger, "SSL default protocols :[ {} ] ", sb.toString());
         }
         protocolCodec.initialize(this);
         if (executorEventLoopGroup == null) {
@@ -152,11 +150,18 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
                 executorEventLoopGroup = new LineEventLoopGroup("event-process", eventLoopSize);
             }
         }
+        serverAddress = new InetSocketAddress(host, port);
         LifeCycleUtil.start(executorEventLoopGroup);
     }
 
     @Override
     protected void doStop() throws Exception {
+        for(NioSocketChannel ch : channelManager.getManagedChannels().values()){
+            CloseUtil.close(ch);
+        }
+        if (!getNioEventLoopGroup().isSharable()) {
+            LifeCycleUtil.stop(getNioEventLoopGroup());
+        }
         LifeCycleUtil.stop(executorEventLoopGroup);
         this.attributes.clear();
     }
@@ -191,10 +196,6 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
 
     public ChannelManager getChannelManager() {
         return channelManager;
-    }
-
-    public ChannelService getChannelService() {
-        return channelService;
     }
 
     public Charset getCharset() {
@@ -239,6 +240,12 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
 
     public ProtocolCodec getProtocolCodec() {
         return protocolCodec;
+    }
+
+    abstract SelectableChannel getSelectableChannel();
+
+    InetSocketAddress getServerAddress() {
+        return serverAddress;
     }
 
     public SslContext getSslContext() {
@@ -296,7 +303,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
                 File certificate = FileUtil.readFileByCls(getCertCrt(), classLoader);
                 File privateKey = FileUtil.readFileByCls(getCertKey(), classLoader);
                 builder.keyManager(privateKey, certificate);
-                builder.setApplicationProtocols(applicationProtocols);
+                builder.applicationProtocols(applicationProtocols);
                 SslContext sslContext = builder.build();
                 setSslContext(sslContext);
                 return;
@@ -310,7 +317,7 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
                 File storeFile = FileUtil.readFileByCls(params[0], classLoader);
                 FileInputStream is = new FileInputStream(storeFile);
                 builder.keyManager(is, params[1], params[2], params[3]);
-                builder.setApplicationProtocols(applicationProtocols);
+                builder.applicationProtocols(applicationProtocols);
                 SslContext sslContext = builder.build();
                 setSslContext(sslContext);
                 return;
@@ -318,6 +325,8 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
             throw new IllegalArgumentException("ssl enabled,but there is no config for");
         }
     }
+
+    abstract boolean isActive();
 
     public boolean isEnableHeartbeatLog() {
         return enableHeartbeatLog;
@@ -352,11 +361,6 @@ public final class ChannelContext extends AbstractLifeCycle implements Configura
     public void setCertKey(String certKey) {
         checkNotRunning();
         this.certKey = certKey;
-    }
-
-    public void setChannelService(ChannelService service) {
-        checkNotRunning();
-        this.channelService = service;
     }
 
     public void setCharset(Charset charset) {

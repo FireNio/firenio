@@ -26,7 +26,6 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.MathUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
@@ -54,12 +53,12 @@ public class TestLoadClient1 extends ITestThread {
         req = s.getBytes();
     }
 
-    private ChannelConnector connector = null;
+    private ChannelConnector context = null;
 
     @Override
     public void run() {
         int time1 = getTime();
-        NioSocketChannel channel = connector.getChannel();
+        NioSocketChannel channel = context.getChannel();
         for (int i = 0; i < time1; i++) {
             Frame frame = new FixedLengthFrame();
             if (debug) {
@@ -98,8 +97,7 @@ public class TestLoadClient1 extends ITestThread {
         group.setWriteBuffers(TestLoadServer.WRITE_BUFFERS);
         group.setEnableMemoryPool(TestLoadServer.ENABLE_POOL);
         group.setEnableMemoryPoolDirect(TestLoadServer.ENABLE_POOL_DIRECT);
-        ChannelContext context = new ChannelContext(8300);
-        connector = new ChannelConnector(context, group);
+        context = new ChannelConnector(group, "127.0.0.1", 8300);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setIoEventHandle(eventHandleAdaptor);
         if (TestLoadServer.ENABLE_SSL) {
@@ -109,12 +107,12 @@ public class TestLoadClient1 extends ITestThread {
         context.setEnableWorkEventLoop(TestLoadServer.ENABLE_WORK_EVENT_LOOP);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
-        connector.connect();
+        context.connect();
     }
 
     @Override
     public void stop() {
-        CloseUtil.close(connector);
+        CloseUtil.close(context);
         running = false;
         synchronized (lock) {
             lock.notify();
@@ -133,7 +131,7 @@ public class TestLoadClient1 extends ITestThread {
                         TestLoadClient1 t = (TestLoadClient1) tt;
                         if (t.count.get() > 0) {
                             System.out.println(
-                                    "count:" + t.count.get() + "ch:" + t.connector.getChannel());
+                                    "count:" + t.count.get() + "ch:" + t.context.getChannel());
                         }
                     }
                 }

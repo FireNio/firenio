@@ -363,7 +363,7 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    private void parseRequestURL(HttpFrame f, int skip, StringBuilder line) {
+    protected void parseRequestURL(HttpFrame f, int skip, StringBuilder line) {
         int index = line.indexOf("?");
         int lastSpace = StringUtil.lastIndexOf(line, ' ');
         if (index > -1) {
@@ -375,8 +375,10 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    void parseFirstLine(HttpFrame f, StringBuilder line) {
-        if (line.charAt(0) == 'G' && line.charAt(1) == 'E' && line.charAt(2) == 'T'
+    protected void parseFirstLine(HttpFrame f, StringBuilder line) {
+        if (line.charAt(0) == 'G' 
+                && line.charAt(1) == 'E' 
+                && line.charAt(2) == 'T'
                 && line.charAt(3) == ' ') {
             f.setMethod(HttpMethod.GET);
             parseRequestURL(f, 4, line);

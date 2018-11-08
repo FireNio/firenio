@@ -17,7 +17,6 @@ package com.generallycloud.test.io.load.fixedlength;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.component.ChannelAcceptor;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
@@ -53,8 +52,7 @@ public class TestLoadServer {
         group.setMemoryPoolUnit(MEM_UNIT);
         group.setEnableMemoryPool(ENABLE_POOL);
         group.setEnableMemoryPoolDirect(ENABLE_POOL_DIRECT);
-        ChannelContext context = new ChannelContext(8300);
-        ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
+        ChannelAcceptor context = new ChannelAcceptor(group,8300);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setProtocolCodec(new FixedLengthCodec());
         context.setIoEventHandle(eventHandle);
@@ -66,7 +64,7 @@ public class TestLoadServer {
         context.setWorkEventQueueSize(1024 * 1024);
         context.setEnableWorkEventLoop(ENABLE_WORK_EVENT_LOOP);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        acceptor.bind();
+        context.bind();
 
     }
 

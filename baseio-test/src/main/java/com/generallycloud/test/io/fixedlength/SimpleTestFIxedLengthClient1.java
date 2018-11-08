@@ -40,14 +40,12 @@ public class SimpleTestFIxedLengthClient1 {
             }
 
         };
-        NioEventLoopGroup group = new NioEventLoopGroup(1);
-        ChannelContext context = new ChannelContext(8300);
-        ChannelConnector connector = new ChannelConnector(context, group);
+        ChannelConnector context = new ChannelConnector(8300);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
 
-        NioSocketChannel channel = connector.connect();
+        NioSocketChannel channel = context.connect();
         StringBuilder sb = new StringBuilder(1024 * 6);
         for (int i = 0; i < 1; i++) {
             sb.append("hello!");
@@ -59,7 +57,7 @@ public class SimpleTestFIxedLengthClient1 {
             channel.flush(frame);
         }
         ThreadUtil.sleep(100);
-        CloseUtil.close(connector);
+        CloseUtil.close(context);
     }
 
 }
