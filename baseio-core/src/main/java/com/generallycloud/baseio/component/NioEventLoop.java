@@ -78,11 +78,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private final ByteBufAllocator                   alloc;
     private final Map<Object, Object>                attributes;
     private ByteBuf                                  buf;
-    private final boolean                            ignoreIdle;
     private final IntObjectHashMap<NioSocketChannel> channels;
     private final int                                channelSizeLimit;
-    // use when not sharable 
-    private ChannelContext                           context;
     private String                                   desc;
     private final Queue<Runnable>                    events;
     private final NioEventLoopGroup                  group;
@@ -97,10 +94,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private final AtomicInteger                      wakener                 = new AtomicInteger();
     private ByteBuffer[]                             writeBuffers;
 
-    NioEventLoop(NioEventLoopGroup group, int index, boolean ignoreIdle) {
+    NioEventLoop(NioEventLoopGroup group, int index) {
         this.index = index;
         this.group = group;
-        this.ignoreIdle = ignoreIdle;
         this.sharable = group.isSharable();
         this.alloc = group.getAllocatorGroup().getNext();
         this.channelSizeLimit = group.getChannelSizeLimit();
@@ -158,9 +154,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             }
         } else {
             final ChannelContext context = (ChannelContext) attach;
-            final ChannelService channelService = context.getChannelService();
-            if (channelService instanceof ChannelAcceptor) {
-                ChannelAcceptor acceptor = (ChannelAcceptor) channelService;
+            if (context instanceof ChannelAcceptor) {
+                ChannelAcceptor acceptor = (ChannelAcceptor) context;
                 ServerSocketChannel serverChannel = acceptor.getSelectableChannel();
                 try {
                     //有时候还未regist selector，但是却能selector到sk
@@ -188,7 +183,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 }
             } else {
                 @SuppressWarnings("resource")
-                final ChannelConnector connector = (ChannelConnector) channelService;
+                final ChannelConnector connector = (ChannelConnector) context;
                 final SocketChannel javaChannel = connector.getSelectableChannel();
                 try {
                     if (!javaChannel.isConnectionPending()) {
@@ -245,6 +240,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         if (channels.size() == 0) {
             return;
         }
+        //FIXME ..optimize sharable group
         if (sharable) {
             for (NioSocketChannel ch : channels.values()) {
                 ChannelContext context = ch.getContext();
@@ -259,6 +255,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             }
         } else {
             if (channels.size() > 0) {
+                ChannelContext context = group.getContext();
                 List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
                 for (ChannelIdleEventListener l : ls) {
                     for (NioSocketChannel ch : channels.values()) {
@@ -336,14 +333,13 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         this.writeBuffers = new ByteBuffer[group.getWriteBuffers()];
         this.buf = UnpooledByteBufAllocator.getDirect().allocate(group.getChannelReadBuffer());
         this.selector = openSelector(selectionKeySet);
-        this.desc = MessageFormatter.arrayFormat("NioEventLoop[idx:{},sharable:{},ignoreIdle:{}]",
-                new Object[] { index, sharable, ignoreIdle });
+        this.desc = MessageFormatter.arrayFormat("NioEventLoop[idx:{},sharable:{}]",
+                new Object[] { index, sharable });
     }
 
     private final void finishConnect(NioSocketChannel ch, ChannelContext context, Throwable e) {
-        ChannelService service = context.getChannelService();
-        if (service instanceof ChannelConnector) {
-            ((ChannelConnector) service).finishConnect(ch, e);
+        if (context instanceof ChannelConnector) {
+            ((ChannelConnector) context).finishConnect(ch, e);
         }
     }
 
@@ -382,7 +378,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     public void run() {
         // does it useful to set variables locally ?
         final long idle = group.getIdleTime();
-        final boolean ignoreIdle = this.ignoreIdle;
         final Selector selector = this.selector;
         final AtomicInteger selecting = this.selecting;
         final SelectionKeySet keySet = this.selectionKeySet;
@@ -443,16 +438,12 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     }
                 }
                 long now = System.currentTimeMillis();
-                if (ignoreIdle) {
+                if (now >= nextIdle) {
+                    channelIdle(now);
+                    nextIdle = now + idle;
                     selectTime = idle;
                 } else {
-                    if (now >= nextIdle) {
-                        channelIdle(now);
-                        nextIdle = now + idle;
-                        selectTime = idle;
-                    } else {
-                        selectTime = nextIdle - now;
-                    }
+                    selectTime = nextIdle - now;
                 }
                 handleEvents(events);
             } catch (Throwable e) {
@@ -502,9 +493,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             @Override
             public void run() {
                 try {
-                    ChannelService channelService = context.getChannelService();
-                    SelectableChannel ch = channelService.getSelectableChannel();
-                    if (channelService instanceof ChannelAcceptor) {
+                    SelectableChannel ch = context.getSelectableChannel();
+                    if (context instanceof ChannelAcceptor) {
                         //FIXME 使用多eventLoop accept是否导致卡顿 是否要区分accept和read
                         ch.register(selector, SelectionKey.OP_ACCEPT, context);
                     } else {
@@ -557,10 +547,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     @Override
     public void setAttribute(Object key, Object value) {
         this.attributes.put(key, value);
-    }
-
-    protected void setContext(ChannelContext context) {
-        this.context = context;
     }
 
     @Override

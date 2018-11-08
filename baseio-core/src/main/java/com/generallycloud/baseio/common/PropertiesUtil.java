@@ -26,6 +26,8 @@ public class PropertiesUtil {
             System.setProperty(key, value);
         }
     }
+    
+    
 
     public static boolean isSystemTrue(String key) {
         String v = System.getProperty(key);
@@ -33,7 +35,7 @@ public class PropertiesUtil {
             return false;
         }
         v = v.toLowerCase();
-        return "true".equals(v) || "1".equals(v);
+        return StringUtil.isTrueValue(v);
     }
 
     public static int getProperty(String key) {

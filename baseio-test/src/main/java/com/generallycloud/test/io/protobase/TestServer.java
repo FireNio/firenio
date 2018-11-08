@@ -19,7 +19,6 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFrame;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelAliveIdleEventListener;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -47,13 +46,12 @@ public class TestServer {
             }
         };
 
-        ChannelContext context = new ChannelContext(8300);
-        ChannelAcceptor acceptor = new ChannelAcceptor(context);
+        ChannelAcceptor context = new ChannelAcceptor(8300);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ProtobaseCodec());
-        acceptor.bind();
+        context.bind();
     }
 
 }

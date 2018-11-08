@@ -19,7 +19,6 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFrame;
 import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -31,45 +30,27 @@ public class TestProtobufServer {
     public static void main(String[] args) throws Exception {
 
         ProtobufUtil protobufUtil = new ProtobufUtil();
-
         protobufUtil.regist(SearchRequest.getDefaultInstance());
-
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-
                 ProtobaseFrame f = (ProtobaseFrame) frame;
-
                 SearchRequest req = (SearchRequest) protobufUtil.getMessage(f);
-
                 String message = "yes server already accept your message:\n" + req;
-
                 System.out.println(message);
-
                 SearchRequest res = SearchRequest.newBuilder().mergeFrom(req)
                         .setQuery("query_______").build();
-
                 protobufUtil.writeProtobuf(res.getClass().getName(), res, f);
-
                 channel.flush(frame);
             }
         };
 
-        ChannelContext context = new ChannelContext(8300);
-
-        ChannelAcceptor acceptor = new ChannelAcceptor(context);
-
+        ChannelAcceptor context = new ChannelAcceptor(8300);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-
-        //		context.addChannelEventListener(new ChannelAliveSEListener());
-
         context.setIoEventHandle(eventHandleAdaptor);
-
-        //		context.setBeatFrameFactory(new NIOBeatFrameFactory());
-
         context.setProtocolCodec(new ProtobaseCodec());
-
-        acceptor.bind();
+        context.bind();
     }
+    
 }

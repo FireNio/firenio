@@ -21,7 +21,6 @@ import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -42,13 +41,12 @@ public class SimpleTestFIxedLengthBroadcastServer {
             }
         };
 
-        ChannelContext context = new ChannelContext(8300);
-        ChannelAcceptor acceptor = new ChannelAcceptor(context);
+        ChannelAcceptor context = new ChannelAcceptor(8300);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new SetOptionListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new FixedLengthCodec());
-        acceptor.bind();
+        context.bind();
 
         ThreadUtil.exec(new Runnable() {
 
@@ -59,7 +57,7 @@ public class SimpleTestFIxedLengthBroadcastServer {
                     FixedLengthFrame frame = new FixedLengthFrame();
                     frame.write("broadcast msg .........................", context);
                     try {
-                        acceptor.broadcast(frame);
+                        context.broadcast(frame);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

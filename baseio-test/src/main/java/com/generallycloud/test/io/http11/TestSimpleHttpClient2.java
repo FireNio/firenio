@@ -24,7 +24,6 @@ import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SslContextBuilder;
@@ -44,15 +43,14 @@ public class TestSimpleHttpClient2 {
 //        port = 8087;
 
         HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
-        ChannelContext context = new ChannelContext(host, port);
-        ChannelConnector connector = new ChannelConnector(context);
+        ChannelConnector context = new ChannelConnector(host, port);
         context.setProtocolCodec(new ClientHttpCodec());
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         if (port == 443) {
             context.setSslContext(SslContextBuilder.forClient(true).build());
         }
-        NioSocketChannel channel = connector.connect();
+        NioSocketChannel channel = context.connect();
         HttpClient client = new HttpClient(channel);
         HttpFrame frame = new ClientHttpFrame("/upload");
         frame.setReuestParam("abc", "123");
@@ -61,7 +59,7 @@ public class TestSimpleHttpClient2 {
         System.out.println(new String(res.getBodyContent()));
         System.out.println();
 
-        CloseUtil.close(connector);
+        CloseUtil.close(context);
 
     }
 }

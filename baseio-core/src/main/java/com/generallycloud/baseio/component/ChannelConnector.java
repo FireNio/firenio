@@ -22,7 +22,6 @@ import java.nio.channels.SocketChannel;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.concurrent.Waiter;
@@ -33,11 +32,9 @@ import com.generallycloud.baseio.log.LoggerFactory;
  * @author wangkai
  *
  */
-public class ChannelConnector implements ChannelService, Closeable {
+public class ChannelConnector extends ChannelContext implements Closeable {
 
-    private ChannelContext    context;
     private NioEventLoop      eventLoop;
-    private NioEventLoopGroup group;
     private Logger            logger  = LoggerFactory.getLogger(getClass());
     private SocketChannel     javaChannel;
     private InetSocketAddress serverAddress;
@@ -45,28 +42,22 @@ public class ChannelConnector implements ChannelService, Closeable {
     private long              timeout = 3000;
     private Waiter            waiter;
 
-    public ChannelConnector(ChannelContext context, NioEventLoop eventLoop) {
-        Assert.notNull(context, "null context");
-        Assert.notNull(eventLoop, "null eventLoop");
-        this.context = context;
+    public ChannelConnector(NioEventLoopGroup group, String host, int port) {
+        super(group, host, port);
+        group.setAcceptor(false);
+    }
+
+    public ChannelConnector(NioEventLoop eventLoop, String host, int port) {
+        this(eventLoop.getGroup(), host, port);
         this.eventLoop = eventLoop;
-        this.group = eventLoop.getGroup();
-        this.context.setNioEventLoopGroup(group);
     }
 
-    public ChannelConnector(ChannelContext context) {
-        this(context, new NioEventLoopGroup());
+    public ChannelConnector(String host, int port) {
+        this(new NioEventLoopGroup(), host, port);
     }
 
-    //该构造方法仅用于非sharable group
-    //sharable group请勿使用该构造方法
-    public ChannelConnector(ChannelContext context, NioEventLoopGroup group) {
-        Assert.notNull(context, "null context");
-        Assert.notNull(group, "null group");
-        this.context = context;
-        this.group = group;
-        this.group.setAcceptor(false);
-        this.context.setNioEventLoopGroup(group);
+    public ChannelConnector(int port) {
+        this("127.0.0.1", port);
     }
 
     @Override
@@ -75,28 +66,20 @@ public class ChannelConnector implements ChannelService, Closeable {
             CloseUtil.close(getChannel());
         }
         CloseUtil.close(javaChannel);
-        LifeCycleUtil.stop(getContext());
-        if (!group.isSharable()) {
-            LifeCycleUtil.stop(group);
-        }
+        LifeCycleUtil.stop(this);
     }
 
     public synchronized NioSocketChannel connect() throws IOException {
-        if (isActive()) {
+        if (isConnected()) {
             return ch;
         }
-        LifeCycleUtil.stop(getContext());
-        LifeCycleUtil.start(group);
-        String host = context.getHost();
-        int port = context.getPort();
-        this.ch = null;
-        this.context.setChannelService(this);
-        LifeCycleUtil.start(getContext());
+        LifeCycleUtil.start(getNioEventLoopGroup());
+        LifeCycleUtil.start(this);
         this.waiter = new Waiter();
-        this.serverAddress = new InetSocketAddress(host, port);
+        this.serverAddress = new InetSocketAddress(getHost(), getPort());
         this.javaChannel = SocketChannel.open();
         this.javaChannel.configureBlocking(false);
-        this.group.registSelector(context);
+        this.getNioEventLoopGroup().registSelector(this);
         this.javaChannel.connect(serverAddress);
         this.wait4connect(timeout);
         return getChannel();
@@ -118,11 +101,6 @@ public class ChannelConnector implements ChannelService, Closeable {
         if (waiter.isTimeouted()) {
             CloseUtil.close(ch);
         }
-    }
-
-    @Override
-    public ChannelContext getContext() {
-        return context;
     }
 
     public NioEventLoop getEventLoop() {
@@ -156,11 +134,6 @@ public class ChannelConnector implements ChannelService, Closeable {
         return ch != null && ch.isOpened();
     }
 
-    public void setEventLoop(NioEventLoop eventLoop) {
-        this.eventLoop = eventLoop;
-        this.group = eventLoop.getGroup();
-    }
-
     public void setTimeout(long timeout) {
         this.timeout = timeout;
     }
@@ -189,7 +162,7 @@ public class ChannelConnector implements ChannelService, Closeable {
     public String toString() {
         NioSocketChannel ch = this.ch;
         if (ch == null) {
-            return "not connected";
+            return super.toString();
         }
         return ch.toString();
     }

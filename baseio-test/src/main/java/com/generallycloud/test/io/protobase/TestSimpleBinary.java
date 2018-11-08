@@ -20,7 +20,6 @@ import com.generallycloud.baseio.codec.protobase.ProtobaseFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -40,18 +39,17 @@ public class TestSimpleBinary {
                 }
             }
         };
-        ChannelContext context = new ChannelContext(8300);
-        ChannelConnector connector = new ChannelConnector(context);
+        ChannelConnector context = new ChannelConnector(8300);
         context.setProtocolCodec(new ProtobaseCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandle);
-        NioSocketChannel channel = connector.connect();
+        NioSocketChannel channel = context.connect();
         ProtobaseFrame f = new ProtobaseFrame();
         f.write("text22222".getBytes());
         f.writeBinary("binary22222".getBytes());
         channel.flush(f);
         ThreadUtil.sleep(500);
-        CloseUtil.close(connector);
+        CloseUtil.close(context);
     }
 
 }

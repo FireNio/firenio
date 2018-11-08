@@ -51,6 +51,8 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private boolean               sharable;
     //单条连接write(srcs)的数量
     private int                   writeBuffers           = 16;
+    
+    private ChannelContext         context;
 
     public NioEventLoopGroup() {
         this(Runtime.getRuntime().availableProcessors() / 2);
@@ -75,7 +77,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         }
         String name = isAcceptor() ? "nio-acceptor" : "nio-processor";
         this.initializeByteBufAllocator();
-        this.headEventLoop = new NioEventLoop(this, 0, isAcceptor());
+        this.headEventLoop = new NioEventLoop(this, 0);
         this.headEventLoop.startup(name);
         super.doStart();
     }
@@ -168,19 +170,16 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     @Override
     protected NioEventLoop newEventLoop(int index) {
         if (acceptor) {
-            return new NioEventLoop(this, index, false);
+            return new NioEventLoop(this, index);
+        }else{
+            this.eventLoops[0] = headEventLoop;
+            return headEventLoop;
         }
-        eventLoops[0] = headEventLoop;
-        return headEventLoop;
     }
 
     public void registSelector(ChannelContext context) throws IOException {
-        if (!sharable) {
-            for (int i = 0; i < eventLoops.length; i++) {
-                eventLoops[i].setContext(context);
-            }
-        }
-        headEventLoop.registerSelector(context);
+        this.context = context;
+        this.headEventLoop.registerSelector(context);
     }
 
     public void setAcceptor(boolean acceptor) {
@@ -231,6 +230,10 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     public void setMemoryPoolUnit(int memoryPoolUnit) {
         checkNotRunning();
         this.memoryPoolUnit = memoryPoolUnit;
+    }
+    
+    public ChannelContext getContext() {
+        return context;
     }
 
     public void setSharable(boolean sharable) {

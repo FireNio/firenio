@@ -21,7 +21,6 @@ import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -35,55 +34,33 @@ public class TestProtobufClient {
     public static void main(String[] args) throws Exception {
 
         ProtobufUtil protobufUtil = new ProtobufUtil();
-
         protobufUtil.regist(SearchRequest.getDefaultInstance());
-
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-
                 ProtobaseFrame f = (ProtobaseFrame) frame;
-
                 SearchRequest res = (SearchRequest) protobufUtil.getMessage(f);
-
                 System.out.println();
                 System.out.println("________" + res);
                 System.out.println();
             }
         };
 
-        ChannelContext context = new ChannelContext(8300);
-
-        ChannelConnector connector = new ChannelConnector(context);
-
+        ChannelConnector context = new ChannelConnector(8300);
         context.setIoEventHandle(eventHandleAdaptor);
-
         context.addChannelEventListener(new LoggerChannelOpenListener());
-
-        //		context.addChannelEventListener(new ChannelActiveSEListener());
-
-        //		context.setBeatFrameFactory(new FLBeatFrameFactory());
-
         context.setProtocolCodec(new ProtobaseCodec());
-
-        NioSocketChannel channel = connector.connect();
-
+        NioSocketChannel channel = context.connect();
         ProtobaseFrame f = new ProtobaseFrame();
-
         ByteString byteString = ByteString.copyFrom("222".getBytes());
-
         SearchRequest request = SearchRequest.newBuilder().setCorpus(Corpus.IMAGES)
                 .setPageNumber(100).setQuery("test").setQueryBytes(byteString).setResultPerPage(-1)
                 .build();
-
         protobufUtil.writeProtobuf(request, f);
-
         channel.flush(f);
-
         ThreadUtil.sleep(100);
-
-        CloseUtil.close(connector);
-
+        CloseUtil.close(context);
     }
+    
 }

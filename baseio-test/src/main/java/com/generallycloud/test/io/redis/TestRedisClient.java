@@ -21,7 +21,6 @@ import com.generallycloud.baseio.codec.redis.RedisIOEventHandle;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
@@ -29,43 +28,24 @@ public class TestRedisClient {
 
     public static void main(String[] args) throws Exception {
 
-        ChannelContext context = new ChannelContext(6379);
-
-        ChannelConnector connector = new ChannelConnector(context);
-
+        ChannelConnector context = new ChannelConnector(6379);
         context.setIoEventHandle(new RedisIOEventHandle());
-
         context.addChannelEventListener(new LoggerChannelOpenListener());
-
         context.setProtocolCodec(new RedisCodec());
-
-        NioSocketChannel channel = connector.connect();
-
+        NioSocketChannel channel = context.connect();
         RedisClient client = new RedisClient(channel);
-
         String value = client.set("name222", "hello redis!");
-
         System.out.println("__________________res______" + value);
-
         value = client.get("name222");
-
         System.out.println("__________________res______" + value);
-
         value = client.set("debug", "PONG");
-
         System.out.println("__________________res______" + value);
-
         value = client.get("debug");
-
         System.out.println("__________________res______" + value);
-
         value = client.ping();
-
         System.out.println("__________________res______" + value);
-
         ThreadUtil.sleep(100);
-
-        CloseUtil.close(connector);
+        CloseUtil.close(context);
 
     }
 }

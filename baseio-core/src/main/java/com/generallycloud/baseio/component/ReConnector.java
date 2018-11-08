@@ -30,21 +30,9 @@ public class ReConnector implements Closeable {
     private volatile boolean reconnect   = true;
     private ReConnector      reConnector = null;
 
-    public ReConnector(ChannelContext context) {
-        context.addChannelEventListener(newReconnectSEListener());
-        this.connector = new ChannelConnector(context);
-        this.reConnector = this;
-    }
-
-    public ReConnector(ChannelContext context, NioEventLoop eventLoop) {
-        context.addChannelEventListener(newReconnectSEListener());
-        this.connector = new ChannelConnector(context, eventLoop);
-        this.reConnector = this;
-    }
-
-    public ReConnector(ChannelContext context, NioEventLoopGroup group) {
-        context.addChannelEventListener(newReconnectSEListener());
-        this.connector = new ChannelConnector(context, group);
+    public ReConnector(ChannelConnector connector) {
+        connector.addChannelEventListener(newReconnectSEListener());
+        this.connector = connector;
         this.reConnector = this;
     }
 

@@ -233,12 +233,10 @@ public final class NioSocketChannel extends AttributesImpl
         eventLoop.execute(event);
     }
 
-    @SuppressWarnings("resource")
     private void finishHandshake() {
         sslHandshakeFinished = true;
         if (context.getSslContext().isClient()) {
-            ChannelService service = context.getChannelService();
-            ChannelConnector connector = (ChannelConnector) service;
+            ChannelConnector connector = (ChannelConnector) context;
             connector.finishConnect(this, null);
         }
         fireOpend();

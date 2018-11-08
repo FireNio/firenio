@@ -20,7 +20,6 @@ import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -44,19 +43,18 @@ public class TestFIxedLengthClient {
         };
 
         SslContext sslContext = SslContextBuilder.forClient(true).build();
-        ChannelContext context = new ChannelContext(8300);
-        ChannelConnector connector = new ChannelConnector(context);
+        ChannelConnector context = new ChannelConnector(8300);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         //		context.addChannelEventListener(new ChannelActiveSEListener());
         context.setProtocolCodec(new FixedLengthCodec());
         context.setSslContext(sslContext);
-        NioSocketChannel channel = connector.connect();
+        NioSocketChannel channel = context.connect();
         FixedLengthFrame frame = new FixedLengthFrame();
         frame.write("hello server!", channel);
         channel.flush(frame);
         ThreadUtil.sleep(100);
-        CloseUtil.close(connector);
+        CloseUtil.close(context);
         DebugUtil.debug("连接已关闭。。。");
     }
 

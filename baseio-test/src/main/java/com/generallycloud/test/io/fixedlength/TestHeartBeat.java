@@ -21,7 +21,6 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelActiveIdleEventListener;
 import com.generallycloud.baseio.component.ChannelConnector;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
@@ -43,13 +42,12 @@ public class TestHeartBeat {
 
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setIdleTime(20);
-        ChannelContext context = new ChannelContext(8300);
-        ChannelConnector connector = new ChannelConnector(context,group);
+        ChannelConnector context = new ChannelConnector(group, "127.0.0.1", 8300);
         context.addChannelIdleEventListener(new ChannelActiveIdleEventListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
         context.setIoEventHandle(eventHandleAdaptor);
-        NioSocketChannel channel = connector.connect();
+        NioSocketChannel channel = context.connect();
         String param = "tttt";
         long old = System.currentTimeMillis();
         for (int i = 0; i < 5; i++) {
@@ -60,7 +58,7 @@ public class TestHeartBeat {
         }
         System.out.println("Time:" + (System.currentTimeMillis() - old));
         Thread.sleep(2000);
-        CloseUtil.close(connector);
+        CloseUtil.close(context);
     }
 
 }

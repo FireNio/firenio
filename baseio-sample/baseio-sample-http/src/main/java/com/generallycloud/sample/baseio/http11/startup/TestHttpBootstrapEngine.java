@@ -24,7 +24,6 @@ import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelAliveIdleEventListener;
-import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.ConfigurationParser;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
@@ -43,13 +42,13 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
 
     @Override
     public void bootstrap(final String rootPath, final String mode) throws Exception {
-        final ChannelContext context = new ChannelContext();
         final SpringHttpFrameHandle handle = new SpringHttpFrameHandle();
         Properties properties = FileUtil.readPropertiesByCls("server.properties");
         NioEventLoopGroup group = new NioEventLoopGroup();
+        group.setSharable(true);
+        ChannelAcceptor context = new ChannelAcceptor(group);
         ConfigurationParser.parseConfiguration("server.", context, properties);
         ConfigurationParser.parseConfiguration("server.", group, properties);
-        ChannelAcceptor acceptor = new ChannelAcceptor(context, group);
         context.setIoEventHandle(handle);
         context.addChannelEventListener(new WebSocketChannelListener());
         context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
@@ -78,7 +77,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         if (context.getPort() == 0) {
             context.setPort(context.isEnableSsl() ? 443 : 80);
         }
-        acceptor.bind();
+        context.bind();
     }
 
 }
