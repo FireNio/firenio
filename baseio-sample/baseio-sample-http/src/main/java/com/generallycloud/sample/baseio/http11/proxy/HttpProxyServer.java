@@ -37,16 +37,10 @@ public class HttpProxyServer {
     static final byte[]                 CONNECT_RES     = "HTTP/1.1 200 Connection Established\r\n\r\n".getBytes();
     static final ByteBuf                CONNECT_RES_BUF = UnpooledByteBufAllocator.getHeap().wrap(CONNECT_RES);
     static final HttpProxyServer        server          = new HttpProxyServer();
-    final NioEventLoopGroup              clientG         = new NioEventLoopGroup(1);
     private ChannelAcceptor              context;
     
     private volatile boolean enable = true;
     
-    public HttpProxyServer() {
-        clientG.setSharable(true);
-        clientG.setEnableMemoryPool(false);
-    }
-
     public synchronized void stop() {
         CloseUtil.unbind(context);
     }
@@ -89,7 +83,7 @@ public class HttpProxyServer {
                     if (arr.length == 2) {
                         port = Integer.parseInt(arr[1]);
                     }
-                    ChannelConnector context = new ChannelConnector(arr[0], port);
+                    ChannelConnector context = new ChannelConnector(channel.getEventLoop(),arr[0], port);
                     context.setProtocolCodec(new ClientHttpCodec());
                     context.setIoEventHandle(new IoEventHandle() {
 
@@ -111,7 +105,6 @@ public class HttpProxyServer {
                     } else {
                         url = "/";
                     }
-                    context.setNioEventLoopGroup(clientG);
                     context.addChannelEventListener(new LoggerChannelOpenListener());
                     context.connect((ch, ex) -> {
                         if (ex == null) {
@@ -122,11 +115,10 @@ public class HttpProxyServer {
                     });
                 }
             }
-
         };
 
         context = new ChannelAcceptor(serverG, 8088);
-        context.setProtocolCodec(new HttpProxyCodec(clientG));
+        context.setProtocolCodec(new HttpProxyCodec());
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.bind();
@@ -135,5 +127,10 @@ public class HttpProxyServer {
     public static HttpProxyServer get() {
         return server;
     }
+    
+    public static void main(String[] args) throws Exception {
+        get().strtup(new NioEventLoopGroup(true), 8088);
+    }
+    
 
 }

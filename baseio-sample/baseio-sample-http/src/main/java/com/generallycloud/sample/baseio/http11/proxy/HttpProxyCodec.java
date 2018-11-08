@@ -24,7 +24,6 @@ import com.generallycloud.baseio.codec.http11.HttpMethod;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
-import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -35,18 +34,12 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  */
 public class HttpProxyCodec extends HttpCodec {
 
-    NioEventLoopGroup g;
-
-    public HttpProxyCodec(NioEventLoopGroup g) {
-        this.g = g;
-    }
-
     @Override
-    public Frame decode(final NioSocketChannel ch_p, ByteBuf src) throws IOException {
-        ProxySession s = ProxySession.get(ch_p);
+    public Frame decode(final NioSocketChannel ch_src, ByteBuf src) throws IOException {
+        ProxySession s = ProxySession.get(ch_src);
         if (s.handshakeFinished) {
             if (s.connector == null || !s.connector.isConnected()) {
-                ChannelConnector context = new ChannelConnector(s.host, s.port);
+                ChannelConnector context = new ChannelConnector(ch_src.getEventLoop(),s.host, s.port);
                 context.setProtocolCodec(new ProtocolCodec() {
 
                     @Override
@@ -61,34 +54,33 @@ public class HttpProxyCodec extends HttpCodec {
 
                     @Override
                     public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
-                        ByteBuf buf = ch_p.alloc().allocate(src.remaining());
+                        ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                         buf.read(src);
-                        ch_p.flush(buf.flip());
+                        ch_src.flush(buf.flip());
                         return null;
                     }
                 });
-                context.setNioEventLoopGroup(g);
                 context.addChannelEventListener(new LoggerChannelOpenListener());
-                ByteBuf buf = ch_p.alloc().allocate(src.remaining());
+                ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                 buf.read(src);
                 s.connector = context;
-                    s.connector.connect((ch, ex) -> {
-                        if (ex == null) {
-                            s.connector.getChannel().flush(buf.flip());
-                        }else{
-                            buf.release();
-                            ProxySession.remove(ch_p);
-                            CloseUtil.close(ch_p);
-                        }
-                    });
-            }else{
-                ByteBuf buf = ch_p.alloc().allocate(src.remaining());
+                s.connector.connect((ch_target, ex) -> {
+                    if (ex == null) {
+                        ch_target.flush(buf.flip());
+                    } else {
+                        buf.release();
+                        ProxySession.remove(ch_src);
+                        CloseUtil.close(ch_src);
+                    }
+                });
+            } else {
+                ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                 buf.read(src);
                 s.connector.getChannel().flush(buf.flip());
             }
             return null;
         }
-        return super.decode(ch_p, src);
+        return super.decode(ch_src, src);
     }
 
     @Override
@@ -107,6 +99,7 @@ public class HttpProxyCodec extends HttpCodec {
             super.parseFirstLine(f, line);
         }
     }
+    
     
     public static class ProxySession {
 
