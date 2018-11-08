@@ -17,7 +17,6 @@ package com.generallycloud.baseio.component;
 
 import java.io.IOException;
 import java.net.BindException;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.channels.ServerSocketChannel;
 
@@ -39,7 +38,6 @@ public class ChannelAcceptor extends ChannelContext {
     private boolean             active = false;
     private Logger              logger = LoggerFactory.getLogger(getClass());
     private ServerSocketChannel selectableChannel;
-    private InetSocketAddress   serverAddress;
     private ServerSocket        serverSocket;
 
     public ChannelAcceptor(NioEventLoopGroup group) {
@@ -73,13 +71,12 @@ public class ChannelAcceptor extends ChannelContext {
         }
         LifeCycleUtil.start(getNioEventLoopGroup());
         LifeCycleUtil.start(this);
-        this.serverAddress = new InetSocketAddress(getHost(), getPort());
         this.selectableChannel = ServerSocketChannel.open();
         this.selectableChannel.configureBlocking(false);
         this.serverSocket = ((ServerSocketChannel) selectableChannel).socket();
         this.getNioEventLoopGroup().registSelector(this);
         try {
-            this.serverSocket.bind(serverAddress, 50);
+            this.serverSocket.bind(getServerAddress(), 50);
         } catch (IOException e) {
             if ("Already bound".equalsIgnoreCase(e.getMessage()) || e instanceof BindException) {
                 throw new BindException("Already bound at " + getPort());
@@ -101,11 +98,6 @@ public class ChannelAcceptor extends ChannelContext {
     @Override
     public ServerSocketChannel getSelectableChannel() {
         return selectableChannel;
-    }
-
-    @Override
-    public InetSocketAddress getServerAddress() {
-        return serverAddress;
     }
 
     @Override

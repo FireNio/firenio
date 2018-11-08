@@ -31,6 +31,7 @@ import com.generallycloud.baseio.container.BootstrapEngine;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.sample.baseio.http11.SpringHttpFrameHandle;
+import com.generallycloud.sample.baseio.http11.proxy.HttpProxyServer;
 
 /**
  * @author wangkai
@@ -78,6 +79,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
             context.setPort(context.isEnableSsl() ? 443 : 80);
         }
         context.bind();
+        HttpProxyServer.get().strtup(group, 8088);
     }
 
 }

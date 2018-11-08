@@ -32,6 +32,7 @@ import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.Constants;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.Assert;
+import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
@@ -74,10 +75,11 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     private String                         sslKeystore;
     private long                           startupTime        = System.currentTimeMillis();
     private int                            workEventQueueSize = 1024 * 8;
+    private InetSocketAddress              serverAddress;
 
-    ChannelContext(NioEventLoopGroup group,String host, int port) {
-        Assert.notNull(host,"null host");
-        Assert.notNull(group,"null group");
+    ChannelContext(NioEventLoopGroup group, String host, int port) {
+        Assert.notNull(host, "null host");
+        Assert.notNull(group, "null group");
         this.port = port;
         this.host = host;
         this.nioEventLoopGroup = group;
@@ -148,11 +150,15 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
                 executorEventLoopGroup = new LineEventLoopGroup("event-process", eventLoopSize);
             }
         }
+        serverAddress = new InetSocketAddress(host, port);
         LifeCycleUtil.start(executorEventLoopGroup);
     }
 
     @Override
     protected void doStop() throws Exception {
+        for(NioSocketChannel ch : channelManager.getManagedChannels().values()){
+            CloseUtil.close(ch);
+        }
         if (!getNioEventLoopGroup().isSharable()) {
             LifeCycleUtil.stop(getNioEventLoopGroup());
         }
@@ -238,7 +244,9 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
 
     abstract SelectableChannel getSelectableChannel();
 
-    abstract InetSocketAddress getServerAddress();
+    InetSocketAddress getServerAddress() {
+        return serverAddress;
+    }
 
     public SslContext getSslContext() {
         return sslContext;
@@ -433,7 +441,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         checkNotRunning();
         this.sslKeystore = sslKeystore;
     }
-    
+
     public void setWorkEventQueueSize(int workEventQueueSize) {
         checkNotRunning();
         this.workEventQueueSize = workEventQueueSize;

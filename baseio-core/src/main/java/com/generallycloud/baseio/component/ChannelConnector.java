@@ -17,11 +17,11 @@ package com.generallycloud.baseio.component;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
+import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.concurrent.Waiter;
@@ -34,13 +34,13 @@ import com.generallycloud.baseio.log.LoggerFactory;
  */
 public class ChannelConnector extends ChannelContext implements Closeable {
 
-    private NioEventLoop      eventLoop;
-    private Logger            logger  = LoggerFactory.getLogger(getClass());
-    private SocketChannel     javaChannel;
-    private InetSocketAddress serverAddress;
-    private NioSocketChannel  ch;
-    private long              timeout = 3000;
-    private Waiter            waiter;
+    private NioEventLoop     eventLoop;
+    private Logger           logger  = LoggerFactory.getLogger(getClass());
+    private SocketChannel    javaChannel;
+    private NioSocketChannel ch;
+    private long             timeout = 3000;
+    private Waiter           waiter;
+    private Callback         callback;
 
     public ChannelConnector(NioEventLoopGroup group, String host, int port) {
         super(group, host, port);
@@ -62,9 +62,6 @@ public class ChannelConnector extends ChannelContext implements Closeable {
 
     @Override
     public synchronized void close() throws IOException {
-        if (getChannel() != null) {
-            CloseUtil.close(getChannel());
-        }
         CloseUtil.close(javaChannel);
         LifeCycleUtil.stop(this);
     }
@@ -76,23 +73,30 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         LifeCycleUtil.start(getNioEventLoopGroup());
         LifeCycleUtil.start(this);
         this.waiter = new Waiter();
-        this.serverAddress = new InetSocketAddress(getHost(), getPort());
         this.javaChannel = SocketChannel.open();
         this.javaChannel.configureBlocking(false);
         this.getNioEventLoopGroup().registSelector(this);
-        this.javaChannel.connect(serverAddress);
+        this.javaChannel.connect(getServerAddress());
         this.wait4connect(timeout);
         return getChannel();
+    }
 
+    public synchronized void connect(Callback callback) throws IOException {
+        Assert.notNull(callback, "null callback");
+        this.callback = callback;
+        if (isConnected()) {
+            callback.call(ch, null);
+        } else {
+            connect();
+        }
     }
 
     protected void finishConnect(NioSocketChannel ch, Throwable exception) {
-        Waiter waiter = this.waiter;
-        if (waiter == null) {
-            CloseUtil.close(ch);
+        this.ch = ch;
+        if (callback != null) {
+            callback.call(ch, exception);
             return;
         }
-        this.ch = ch;
         if (exception != null) {
             waiter.response(exception);
         } else {
@@ -110,11 +114,6 @@ public class ChannelConnector extends ChannelContext implements Closeable {
     @Override
     public SocketChannel getSelectableChannel() {
         return javaChannel;
-    }
-
-    @Override
-    public InetSocketAddress getServerAddress() {
-        return serverAddress;
     }
 
     public NioSocketChannel getChannel() {
@@ -139,7 +138,10 @@ public class ChannelConnector extends ChannelContext implements Closeable {
     }
 
     private void wait4connect(long timeout) throws IOException {
-        if (eventLoop != null && eventLoop.inEventLoop()) {
+        if (callback != null) {
+            return;
+        }
+        if (eventLoop.inEventLoop()) {
             throw new IOException("can not wait for connect in its event loop");
         }
         if (waiter.await(timeout)) {
@@ -165,6 +167,12 @@ public class ChannelConnector extends ChannelContext implements Closeable {
             return super.toString();
         }
         return ch.toString();
+    }
+
+    public interface Callback {
+
+        void call(NioSocketChannel ch, Throwable ex);
+
     }
 
 }
