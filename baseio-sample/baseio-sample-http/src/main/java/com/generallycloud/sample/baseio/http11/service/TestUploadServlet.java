@@ -36,7 +36,7 @@ public class TestUploadServlet extends HttpFrameAcceptor {
         } else {
             res = "yes server already accept your message :) " + frame.getRequestParams();
         }
-        frame.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
+        frame.setResponseHeader(HttpHeader.Content_Type, HttpStatic.html_utf8_bytes);
         frame.write(res, ch.getCharset());
         ch.flush(frame);
     }

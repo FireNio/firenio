@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.sample.baseio.http11.proxy;
+package com.generallycloud.sample.baseio.http11.proxy4cloud;
 
 import java.io.IOException;
 import java.util.Map.Entry;
@@ -28,23 +28,23 @@ import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpMethod;
 import com.generallycloud.baseio.codec.http11.HttpStatus;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
-import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
-public class HttpProxyServer {
+public class HttpProxy4CloudServer {
 
-    static final String          CONNECT_RES     = "HTTP/1.1 200 Connection Established\r\n\r\n";
-    static final ByteBuf         CONNECT_RES_BUF = ByteBufUtil.wrap(CONNECT_RES.getBytes());
-    static final HttpProxyServer server          = new HttpProxyServer();
-    private ChannelAcceptor      context;
-    private volatile boolean     enable          = true;
+    static final String                CONNECT_RES     = "HTTP/1.1 200 Connection Established\r\n\r\n";
+    static final ByteBuf               CONNECT_RES_BUF = ByteBufUtil.wrap(CONNECT_RES.getBytes());
+    static final HttpProxy4CloudServer server          = new HttpProxy4CloudServer();
+    private ChannelAcceptor            context;
+    private volatile boolean           enable          = true;
 
     public synchronized void stop() {
         CloseUtil.unbind(context);
@@ -58,7 +58,7 @@ public class HttpProxyServer {
         enable = false;
     }
 
-    public synchronized void strtup(NioEventLoopGroup group, int port) throws Exception {
+    public synchronized void strtup(NioEventLoopGroup serverG, int port) throws Exception {
         if (context != null && context.isActive()) {
             return;
         }
@@ -76,24 +76,36 @@ public class HttpProxyServer {
                 }
                 if (f.getMethod() == HttpMethod.CONNECT) {
                     ch_src.flush(CONNECT_RES_BUF.duplicate());
-                    ProxySession s = ProxySession.get(ch_src);
+                    ProxySession4Cloud s = ProxySession4Cloud.get(ch_src);
                     String[] arr = f.getHost().split(":");
+                    s.mask = (byte) arr[0].getBytes().length;
                     s.host = arr[0];
                     s.port = Integer.parseInt(arr[1]);
                     s.handshakeFinished = true;
                 } else {
                     String host = f.getHost();
                     String[] arr = host.split(":");
-                    int port = 80;
+                    final int port;
                     if (arr.length == 2) {
                         port = Integer.parseInt(arr[1]);
+                    } else {
+                        port = 80;
                     }
                     if (f.getRequestHeaders().remove(HttpHeader.Proxy_Connection) == null) {
                         return;
                     }
-                    NioEventLoop el = ch_src.getEventLoop();
-                    ChannelConnector context = new ChannelConnector(el, arr[0], port);
-                    context.setProtocolCodec(new ClientHttpCodec());
+                    ChannelConnector context = new ChannelConnector(ch_src.getEventLoop(),
+                            NetDataTransferServer.host, NetDataTransferServer.port);
+                    context.setProtocolCodec(new ClientHttpCodec(){
+                        
+                        public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
+                            ProxySession4Cloud s = ProxySession4Cloud.get(ch);
+                            NetDataTransferServer.mask(src, s.mask);
+                            return super.decode(ch, src);
+                        };
+                        
+                    });
+                    
                     context.setIoEventHandle(new IoEventHandle() {
 
                         @Override
@@ -120,35 +132,56 @@ public class HttpProxyServer {
                     context.addChannelEventListener(new LoggerChannelOpenListener());
                     context.connect((ch, ex) -> {
                         if (ex == null) {
-                            ClientHttpFrame req = new ClientHttpFrame(f.getRequestURI(), f.getMethod());
+                            ProxySession4Cloud s = ProxySession4Cloud.get(ch);
+                            HttpFrame req = new ClientHttpFrame(f.getRequestURI(), f.getMethod());
+                            req.setRequestParams(f.getRequestParams());
                             req.setRequestHeaders(f.getRequestHeaders());
-                            req.getRequestHeaders().remove(HttpHeader.Proxy_Connection);
-                            if (f.getMethod() == HttpMethod.POST) {
-                                req.setRequestBody(f.getBodyContent());
+                            ByteBuf body = null;
+                            ByteBuf head = null;
+                            try {
+                                byte[] realHost = arr[0].getBytes();
+                                body = ch.encode(req);
+                                int len = 5 + realHost.length;
+                                s.mask = (byte) realHost.length;
+                                head = ch.alloc().allocate(len);
+                                head.putByte((byte) realHost.length);
+                                head.putByte((byte) 83);
+                                head.putByte((byte) 38);
+                                head.putUnsignedShort(port);
+                                head.put(realHost);
+                                NetDataTransferServer.mask(body, s.mask);
+                                ch.flush(head.flip());
+                                ch.flush(body);
+                            } catch (Exception e) {
+                                ReleaseUtil.release(head);
+                                ReleaseUtil.release(body);
                             }
-                            ch.flush(req);
                         }
                     });
                 }
             }
         };
 
-        context = new ChannelAcceptor(group, 8088);
-        context.setProtocolCodec(new HttpProxyCodec());
+        context = new ChannelAcceptor(serverG, 8088);
+        context.setProtocolCodec(new HttpProxy4CloudCodec());
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.bind();
     }
 
-    class HttpProxyCodec extends HttpCodec {
+    public static HttpProxy4CloudServer get() {
+        return server;
+    }
+
+    class HttpProxy4CloudCodec extends HttpCodec {
 
         @Override
         public Frame decode(final NioSocketChannel ch_src, ByteBuf src) throws IOException {
-            ProxySession s = ProxySession.get(ch_src);
+            ProxySession4Cloud s = ProxySession4Cloud.get(ch_src);
             if (s.handshakeFinished) {
                 if (s.connector == null || !s.connector.isConnected()) {
-                    NioEventLoop el = ch_src.getEventLoop();
-                    ChannelConnector context = new ChannelConnector(el, s.host, s.port);
+                    ChannelConnector context = new ChannelConnector(ch_src.getEventLoop(),
+                            NetDataTransferServer.host, NetDataTransferServer.port);
                     context.setProtocolCodec(new ProtocolCodec() {
 
                         @Override
@@ -165,7 +198,9 @@ public class HttpProxyServer {
                         public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
                             ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                             buf.read(src);
-                            ch_src.flush(buf.flip());
+                            buf.flip();
+                            NetDataTransferServer.mask(buf, s.mask);
+                            ch_src.flush(buf);
                             return null;
                         }
                     });
@@ -175,17 +210,30 @@ public class HttpProxyServer {
                     s.connector = context;
                     s.connector.connect((ch_target, ex) -> {
                         if (ex == null) {
-                            ch_target.flush(buf.flip());
+                            byte[] realHost = s.host.getBytes();
+                            int len = 5 + realHost.length;
+                            ByteBuf head = ch_target.alloc().allocate(len);
+                            head.putByte((byte) realHost.length);
+                            head.putByte((byte) 83);
+                            head.putByte((byte) 38);
+                            head.putUnsignedShort(s.port);
+                            head.put(realHost);
+                            ch_target.flush(head.flip());
+                            buf.flip();
+                            NetDataTransferServer.mask(buf, (byte) realHost.length);
+                            ch_target.flush(buf);
                         } else {
                             buf.release();
-                            ProxySession.remove(ch_src);
+                            ProxySession4Cloud.remove(ch_src);
                             CloseUtil.close(ch_src);
                         }
                     });
                 } else {
                     ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                     buf.read(src);
-                    s.connector.getChannel().flush(buf.flip());
+                    buf.flip();
+                    NetDataTransferServer.mask(buf, s.mask);
+                    s.connector.getChannel().flush(buf);
                 }
                 return null;
             }
@@ -206,12 +254,13 @@ public class HttpProxyServer {
 
     }
 
-    static class ProxySession {
+    public static class ProxySession4Cloud {
 
         static final String     ProxySessionChAttr = "_ProxySessionChAttr";
         public boolean          handshakeFinished;
         public String           host;
         public int              port;
+        public byte             mask;
         public ChannelConnector connector;
 
         @Override
@@ -220,28 +269,26 @@ public class HttpProxyServer {
         }
 
         public static void remove(NioSocketChannel ch) {
-            ProxySession s = (ProxySession) ch.removeAttribute(ProxySessionChAttr);
+            ProxySession4Cloud s = (ProxySession4Cloud) ch.removeAttribute(ProxySessionChAttr);
             if (s != null) {
                 s.connector = null;
             }
         }
 
-        public static ProxySession get(NioSocketChannel ch) {
-            ProxySession s = (ProxySession) ch.getAttribute(ProxySessionChAttr);
+        public static ProxySession4Cloud get(NioSocketChannel ch) {
+            ProxySession4Cloud s = (ProxySession4Cloud) ch.getAttribute(ProxySessionChAttr);
             if (s == null) {
-                s = new ProxySession();
+                s = new ProxySession4Cloud();
                 ch.setAttribute(ProxySessionChAttr, s);
             }
             return s;
         }
     }
 
-    public static HttpProxyServer get() {
-        return server;
-    }
-
     public static void main(String[] args) throws Exception {
-        get().strtup(new NioEventLoopGroup(true), 8088);
+
+        get().strtup(new NioEventLoopGroup(), 8088);
+
     }
 
 }

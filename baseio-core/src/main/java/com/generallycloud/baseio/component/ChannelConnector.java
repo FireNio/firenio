@@ -34,17 +34,16 @@ import com.generallycloud.baseio.log.LoggerFactory;
  */
 public class ChannelConnector extends ChannelContext implements Closeable {
 
-    private NioEventLoop     eventLoop;
-    private Logger           logger  = LoggerFactory.getLogger(getClass());
-    private SocketChannel    javaChannel;
+    private Callback         callback;
     private NioSocketChannel ch;
+    private NioEventLoop     eventLoop;
+    private SocketChannel    javaChannel;
+    private Logger           logger  = LoggerFactory.getLogger(getClass());
     private long             timeout = 3000;
     private Waiter           waiter;
-    private Callback         callback;
 
-    public ChannelConnector(NioEventLoopGroup group, String host, int port) {
-        super(group, host, port);
-        group.setAcceptor(false);
+    public ChannelConnector(int port) {
+        this("127.0.0.1", port);
     }
 
     public ChannelConnector(NioEventLoop eventLoop, String host, int port) {
@@ -52,12 +51,13 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         this.eventLoop = eventLoop;
     }
 
-    public ChannelConnector(String host, int port) {
-        this(new NioEventLoopGroup(), host, port);
+    public ChannelConnector(NioEventLoopGroup group, String host, int port) {
+        super(group, host, port);
+        group.setAcceptor(false);
     }
 
-    public ChannelConnector(int port) {
-        this("127.0.0.1", port);
+    public ChannelConnector(String host, int port) {
+        this(new NioEventLoopGroup(), host, port);
     }
 
     @Override
@@ -72,6 +72,9 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         }
         LifeCycleUtil.start(getNioEventLoopGroup());
         LifeCycleUtil.start(this);
+        if (eventLoop == null) {
+            eventLoop = getNioEventLoopGroup().getNext();
+        }
         this.waiter = new Waiter();
         this.javaChannel = SocketChannel.open();
         this.javaChannel.configureBlocking(false);
@@ -106,6 +109,10 @@ public class ChannelConnector extends ChannelContext implements Closeable {
             CloseUtil.close(ch);
         }
     }
+    
+    public NioSocketChannel getChannel() {
+        return ch;
+    }
 
     public NioEventLoop getEventLoop() {
         return eventLoop;
@@ -114,10 +121,6 @@ public class ChannelConnector extends ChannelContext implements Closeable {
     @Override
     public SocketChannel getSelectableChannel() {
         return javaChannel;
-    }
-
-    public NioSocketChannel getChannel() {
-        return ch;
     }
 
     public long getTimeout() {
@@ -135,6 +138,15 @@ public class ChannelConnector extends ChannelContext implements Closeable {
 
     public void setTimeout(long timeout) {
         this.timeout = timeout;
+    }
+
+    @Override
+    public String toString() {
+        NioSocketChannel ch = this.ch;
+        if (ch == null) {
+            return super.toString();
+        }
+        return ch.toString();
     }
 
     private void wait4connect(long timeout) throws IOException {
@@ -158,15 +170,6 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         this.ch = (NioSocketChannel) waiter.getResponse();
         this.waiter = null;
         LoggerUtil.prettyLog(logger, "connected to server @" + getServerAddress());
-    }
-
-    @Override
-    public String toString() {
-        NioSocketChannel ch = this.ch;
-        if (ch == null) {
-            return super.toString();
-        }
-        return ch.toString();
     }
 
     public interface Callback {

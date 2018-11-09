@@ -37,6 +37,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private int                   channelReadBuffer      = 1024 * 512;
     //允许的最大连接数(单核)
     private int                   channelSizeLimit       = 1024 * 64;
+    private ChannelContext        context;
     private boolean               enableMemoryPool       = true;
     //内存池是否使用启用堆外内存
     private boolean               enableMemoryPoolDirect = true;
@@ -51,20 +52,32 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private boolean               sharable;
     //单条连接write(srcs)的数量
     private int                   writeBuffers           = 16;
-    
-    private ChannelContext         context;
 
     public NioEventLoopGroup() {
         this(Runtime.getRuntime().availableProcessors() / 2);
     }
 
-    public NioEventLoopGroup(int eventLoopSize) {
+    public NioEventLoopGroup(boolean sharable) {
+        this(sharable, Runtime.getRuntime().availableProcessors() / 2);
+    }
+
+    public NioEventLoopGroup(boolean sharable, int eventLoopSize) {
         super("nio-processor", eventLoopSize);
+        this.sharable = sharable;
+    }
+
+    public NioEventLoopGroup(boolean sharable, int eventLoopSize, int idleTime) {
+        super("nio-processor", eventLoopSize);
+        this.idleTime = idleTime;
+        this.sharable = sharable;
+    }
+
+    public NioEventLoopGroup(int eventLoopSize) {
+        this(false, eventLoopSize);
     }
 
     public NioEventLoopGroup(int eventLoopSize, int idleTime) {
-        super("nio-processor", eventLoopSize);
-        this.idleTime = idleTime;
+        this(false, eventLoopSize, idleTime);
     }
 
     @Override
@@ -104,9 +117,17 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         return channelSizeLimit;
     }
 
+    public ChannelContext getContext() {
+        return context;
+    }
+
     @Override
     public NioEventLoop getEventLoop(int index) {
         return eventLoops[index];
+    }
+
+    protected NioEventLoop getHeadEventLoop() {
+        return headEventLoop;
     }
 
     public long getIdleTime() {
@@ -171,17 +192,15 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     protected NioEventLoop newEventLoop(int index) {
         if (acceptor) {
             return new NioEventLoop(this, index);
-        }else{
-            this.eventLoops[0] = headEventLoop;
-            return headEventLoop;
         }
+        return headEventLoop;
     }
 
-    public void registSelector(ChannelContext context) throws IOException {
+    protected void registSelector(ChannelContext context) throws IOException {
         this.context = context;
         this.headEventLoop.registerSelector(context);
     }
-
+    
     public void setAcceptor(boolean acceptor) {
         if (isRunning()) {
             return;
@@ -230,10 +249,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     public void setMemoryPoolUnit(int memoryPoolUnit) {
         checkNotRunning();
         this.memoryPoolUnit = memoryPoolUnit;
-    }
-    
-    public ChannelContext getContext() {
-        return context;
     }
 
     public void setSharable(boolean sharable) {

@@ -42,7 +42,6 @@ public class TestCookieHeaderServlet extends HttpFrameAcceptor {
         c.setComment("comment");
         c.setMaxAge(999999);
         frame.addCookie(c);
-        frame.setResponseHeader(name.getBytes(), value.getBytes());
         frame.write(res, ch);
         ch.flush(frame);
     }

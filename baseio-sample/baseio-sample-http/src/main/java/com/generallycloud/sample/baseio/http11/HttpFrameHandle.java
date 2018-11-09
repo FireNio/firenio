@@ -73,7 +73,7 @@ public class HttpFrameHandle extends IoEventHandle {
             flush(ch, f, entity);
             return;
         }
-        String ims = f.getRequestHeader(HttpHeader.Low_If_Modified_Since);
+        String ims = f.getRequestHeader(HttpHeader.If_Modified_Since);
         long imsTime = -1;
         if (!StringUtil.isNullOrBlank(ims)) {
             imsTime = DateUtil.get().parseHttp(ims).getTime();
@@ -110,8 +110,8 @@ public class HttpFrameHandle extends IoEventHandle {
     }
 
     private void flush(NioSocketChannel ch, HttpFrame frame, HttpEntity entity) {
-        frame.setResponseHeader(HttpHeader.Content_Type_Bytes, entity.getContentTypeBytes());
-        frame.setResponseHeader(HttpHeader.Last_Modified_Bytes, entity.getLastModifyGTMBytes());
+        frame.setResponseHeader(HttpHeader.Content_Type, entity.getContentTypeBytes());
+        frame.setResponseHeader(HttpHeader.Last_Modified, entity.getLastModifyGTMBytes());
         frame.write(entity.getBinary());
         ch.flush(frame);
     }
@@ -180,7 +180,7 @@ public class HttpFrameHandle extends IoEventHandle {
         builder.append(HtmlUtil.HTML_BOTTOM);
         f.setStatus(status);
         f.write(builder.toString(), ch.getCharset());
-        f.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
+        f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.html_utf8_bytes);
         ch.flush(f);
     }
 

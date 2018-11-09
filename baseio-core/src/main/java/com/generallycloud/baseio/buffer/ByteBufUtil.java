@@ -26,4 +26,16 @@ public class ByteBufUtil {
         }
     }
 
+    public static ByteBuf wrap(byte[] data) {
+        return UnpooledByteBufAllocator.getHeap().wrap(data);
+    }
+
+    public static ByteBuf wrap(byte[] data, int offset, int length) {
+        return UnpooledByteBufAllocator.getHeap().wrap(data, offset, length);
+    }
+
+    public static ByteBuf wrap(ByteBuffer buffer) {
+        return UnpooledByteBufAllocator.getHeap().wrap(buffer);
+    }
+
 }
