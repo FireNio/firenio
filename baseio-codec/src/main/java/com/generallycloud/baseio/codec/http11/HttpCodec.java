@@ -15,6 +15,11 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Content_Length;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Content_Type;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Cookie;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Date;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,14 +31,12 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.KMPUtil;
-import com.generallycloud.baseio.common.StringLexer;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
-import static com.generallycloud.baseio.codec.http11.HttpHeader.*;
 
 /**
  * @author wangkai
@@ -45,7 +48,8 @@ public class HttpCodec extends ProtocolCodec {
     public static final String                      CONTENT_APPLICATION_JAVASCRIPTUTF8 = "application/x-javascript;charset=utf-8";
     public static final String                      CONTENT_APPLICATION_OCTET_STREAM   = "application/octet-stream";
     public static final String                      CONTENT_APPLICATION_URLENCODED     = "application/x-www-form-urlencoded";
-    public static final byte[]                      CONTENT_LENGTH                     = "\r\nContent-Length: ".getBytes();
+    public static final byte[]                      CONTENT_LENGTH                     = "\r\nContent-Length: "
+            .getBytes();
     public static final String                      CONTENT_TYPE_IMAGE_GIF             = "image/gif";
     public static final String                      CONTENT_TYPE_IMAGE_ICON            = "image/x-icon";
     public static final String                      CONTENT_TYPE_IMAGE_JPEG            = "image/jpeg";
@@ -58,11 +62,14 @@ public class HttpCodec extends ProtocolCodec {
     private static final ThreadLocal<HDBsHolder>    dateBytes                          = new ThreadLocal<>();
     public static final String                      FRAME_STACK_KEY                    = "FixedThreadStack_HttpFrame";
     private static final String                     HTTP_DECODE_FRAME_KEY              = "_HTTP_DECODE_FRAME_KEY";
-    private static final KMPUtil                    KMP_BOUNDARY                       = new KMPUtil("boundary=");
+    private static final KMPUtil                    KMP_BOUNDARY                       = new KMPUtil(
+            "boundary=");
     public static final byte                        N                                  = '\n';
-    public static final byte[]                      PROTOCOL                           = "HTTP/1.1 ".getBytes();
+    public static final byte[]                      PROTOCOL                           = "HTTP/1.1 "
+            .getBytes();
     public static final byte                        R                                  = '\r';
-    public static final byte[]                      SET_COOKIE                         = "Set-Cookie:".getBytes();
+    public static final byte[]                      SET_COOKIE                         = "Set-Cookie:"
+            .getBytes();
     public static final byte                        SPACE                              = ' ';
     private static final ThreadLocal<StringBuilder> stringBuilder                      = new ThreadLocal<>();
 
@@ -277,42 +284,43 @@ public class HttpCodec extends ProtocolCodec {
             cookies = new HashMap<>();
             f.cookies = cookies;
         }
-        StringLexer l = new StringLexer(0, StringUtil.stringToCharArray(line));
-        StringBuilder value = new StringBuilder();
-        String k = null;
-        String v = null;
-        boolean findKey = true;
+        StringBuilder sb = getCacheStringBuilder();
+        int state_findKey = 0;
+        int state_findValue = 1;
+        int state = state_findKey;
+        int count = line.length();
+        int i = 0;
+        String key = null;
+        String value = null;
         for (;;) {
-            char c = l.current();
-            switch (c) {
-                case ' ':
-                    break;
-                case '=':
-                    if (!findKey) {
-                        throw new IllegalArgumentException();
-                    }
-                    k = value.toString();
-                    value = new StringBuilder();
-                    findKey = false;
-                    break;
-                case ';':
-                    if (findKey) {
-                        throw new IllegalArgumentException();
-                    }
-                    findKey = true;
-                    v = value.toString();
-                    value = new StringBuilder();
-                    cookies.put(k, v);
-                    break;
-                default:
-                    value.append(c);
-                    break;
-            }
-            if (!l.next()) {
+            if (i == count) {
                 break;
             }
+            char c = line.charAt(i++);
+            if (state == state_findKey) {
+                if (c == '=') {
+                    key = sb.toString();
+                    state = state_findValue;
+                    sb.setLength(0);
+                    continue;
+                } else if (c == ' ') {
+                    continue;
+                }
+                sb.append(c);
+            } else if (state == state_findValue) {
+                if (c == ';') {
+                    value = sb.toString();
+                    state = state_findKey;
+                    cookies.put(key, value);
+                    sb.setLength(0);
+                    continue;
+                }
+                sb.append(c);
+            }
         }
-        cookies.put(k, value.toString());
+        if (state == state_findValue) {
+            cookies.put(key, value);
+        }
     }
 
     private void parseContentType(HttpFrame f, String contentType) {
@@ -376,9 +384,7 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     protected void parseFirstLine(HttpFrame f, StringBuilder line) {
-        if (line.charAt(0) == 'G' 
-                && line.charAt(1) == 'E' 
-                && line.charAt(2) == 'T'
+        if (line.charAt(0) == 'G' && line.charAt(1) == 'E' && line.charAt(2) == 'T'
                 && line.charAt(3) == ' ') {
             f.setMethod(HttpMethod.GET);
             parseRequestURL(f, 4, line);
@@ -511,6 +517,7 @@ public class HttpCodec extends ProtocolCodec {
             cache = new StringBuilder(256);
             stringBuilder.set(cache);
         }
+        cache.setLength(0);
         return cache;
     }
 

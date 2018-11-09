@@ -40,9 +40,6 @@ public class NetDataTransferServer {
     public static final int    port = 6666;
     
     public static void mask(ByteBuf src,byte m){
-        if (m != 999) {
-            return;
-        }
         ByteBuffer buf = src.nioBuffer();
         int p = buf.position();
         int l = buf.limit();

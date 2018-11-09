@@ -88,6 +88,9 @@ public class HttpProxyServer {
                     if (arr.length == 2) {
                         port = Integer.parseInt(arr[1]);
                     }
+                    if (f.getRequestHeaders().remove(HttpHeader.Proxy_Connection) == null) {
+                        return;
+                    }
                     NioEventLoop el = ch_src.getEventLoop();
                     ChannelConnector context = new ChannelConnector(el, arr[0], port);
                     context.setProtocolCodec(new ClientHttpCodec());

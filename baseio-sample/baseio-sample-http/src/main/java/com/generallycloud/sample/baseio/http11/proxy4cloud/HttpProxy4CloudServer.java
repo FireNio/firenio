@@ -78,6 +78,7 @@ public class HttpProxy4CloudServer {
                     ch_src.flush(CONNECT_RES_BUF.duplicate());
                     ProxySession4Cloud s = ProxySession4Cloud.get(ch_src);
                     String[] arr = f.getHost().split(":");
+                    s.mask = (byte) arr[0].getBytes().length;
                     s.host = arr[0];
                     s.port = Integer.parseInt(arr[1]);
                     s.handshakeFinished = true;
@@ -90,7 +91,9 @@ public class HttpProxy4CloudServer {
                     } else {
                         port = 80;
                     }
-                    
+                    if (f.getRequestHeaders().remove(HttpHeader.Proxy_Connection) == null) {
+                        return;
+                    }
                     ChannelConnector context = new ChannelConnector(ch_src.getEventLoop(),
                             NetDataTransferServer.host, NetDataTransferServer.port);
                     context.setProtocolCodec(new ClientHttpCodec(){
@@ -139,7 +142,7 @@ public class HttpProxy4CloudServer {
                                 byte[] realHost = arr[0].getBytes();
                                 body = ch.encode(req);
                                 int len = 5 + realHost.length;
-                                s.mask = (byte) len;
+                                s.mask = (byte) realHost.length;
                                 head = ch.alloc().allocate(len);
                                 head.putByte((byte) realHost.length);
                                 head.putByte((byte) 83);
@@ -217,7 +220,7 @@ public class HttpProxy4CloudServer {
                             head.put(realHost);
                             ch_target.flush(head.flip());
                             buf.flip();
-                            NetDataTransferServer.mask(buf, (byte) len);
+                            NetDataTransferServer.mask(buf, (byte) realHost.length);
                             ch_target.flush(buf);
                         } else {
                             buf.release();
@@ -228,7 +231,9 @@ public class HttpProxy4CloudServer {
                 } else {
                     ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                     buf.read(src);
-                    s.connector.getChannel().flush(buf.flip());
+                    buf.flip();
+                    NetDataTransferServer.mask(buf, s.mask);
+                    s.connector.getChannel().flush(buf);
                 }
                 return null;
             }
