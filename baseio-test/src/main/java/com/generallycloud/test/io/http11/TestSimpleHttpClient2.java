@@ -39,8 +39,9 @@ public class TestSimpleHttpClient2 {
         String host = "www.baidu.com";
         host = "generallycloud.com";
         host = "127.0.0.1";
+        host = "www.baidu.com";
         int port = 443;
-//        port = 8087;
+//        port = 80;
 
         HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
         ChannelConnector context = new ChannelConnector(host, port);
@@ -52,8 +53,7 @@ public class TestSimpleHttpClient2 {
         }
         NioSocketChannel channel = context.connect();
         HttpClient client = new HttpClient(channel);
-        HttpFrame frame = new ClientHttpFrame("/upload");
-        frame.setReuestParam("abc", "123");
+        HttpFrame frame = new ClientHttpFrame("/");
         HttpFrame res = client.request(frame, 99990000);
         System.out.println();
         System.out.println(new String(res.getBodyContent()));

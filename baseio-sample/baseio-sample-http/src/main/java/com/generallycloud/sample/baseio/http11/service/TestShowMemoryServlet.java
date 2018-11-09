@@ -115,7 +115,7 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
 
         frame.write(builder.toString(), ch);
 
-        frame.setResponseHeader(HttpHeader.Content_Type_Bytes, HttpStatic.html_utf8_bytes);
+        frame.setResponseHeader(HttpHeader.Content_Type, HttpStatic.html_utf8_bytes);
 
         ch.flush(frame);
     }

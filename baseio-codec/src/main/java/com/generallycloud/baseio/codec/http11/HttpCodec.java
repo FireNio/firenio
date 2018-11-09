@@ -102,13 +102,13 @@ public class HttpCodec extends ProtocolCodec {
                 return null;
             }
             int contentLength = 0;
-            String clStr = f.getReadHeader(Low_Content_Length);
+            String clStr = f.getReadHeader(Content_Length);
             if (!StringUtil.isNullOrBlank(clStr)) {
                 f.contentLength = contentLength = Integer.parseInt(clStr);
             }
-            String contentType = f.getReadHeader(Low_Content_Type);
+            String contentType = f.getReadHeader(Content_Type);
             parseContentType(f, contentType);
-            String cookie = f.getReadHeader(Low_Cookie);
+            String cookie = f.getReadHeader(Cookie);
             if (!StringUtil.isNullOrBlank(cookie)) {
                 parse_cookies(f, cookie);
             }
@@ -196,7 +196,7 @@ public class HttpCodec extends ProtocolCodec {
             ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
             ch.setAttribute(WebSocketCodec.CHANNEL_KEY_SERVICE_NAME, f.getFrameName());
         }
-        f.setResponseHeader(Date_Bytes, getHttpDateBytes());
+        f.setResponseHeader(Date, getHttpDateBytes());
         byte[] writeBinary = f.getWriteBinary();
         if (writeBinary != null) {
             return encode(ch.alloc(), f, f.getWriteBinarySize(), writeBinary);
@@ -467,13 +467,13 @@ public class HttpCodec extends ProtocolCodec {
         buf.put(array, off, len);
     }
 
-    private void writeHeaders(Map<byte[], byte[]> headers, ByteBuf buf) {
+    private void writeHeaders(Map<HttpHeader, byte[]> headers, ByteBuf buf) {
         if (headers == null) {
             return;
         }
         int len = 0;
-        for (Entry<byte[], byte[]> header : headers.entrySet()) {
-            byte[] k = header.getKey();
+        for (Entry<HttpHeader, byte[]> header : headers.entrySet()) {
+            byte[] k = header.getKey().getBytes();
             byte[] v = header.getValue();
             if (v == null) {
                 continue;
@@ -485,8 +485,8 @@ public class HttpCodec extends ProtocolCodec {
         if (buf.remaining() < len) {
             buf.reallocate(buf.position() + len, true);
         }
-        for (Entry<byte[], byte[]> header : headers.entrySet()) {
-            byte[] k = header.getKey();
+        for (Entry<HttpHeader, byte[]> header : headers.entrySet()) {
+            byte[] k = header.getKey().getBytes();
             byte[] v = header.getValue();
             if (v == null) {
                 continue;

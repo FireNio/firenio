@@ -33,10 +33,10 @@ import com.generallycloud.baseio.protocol.Frame;
  */
 public class ClientHttpCodec extends HttpCodec {
 
-    private static final byte[] COOKIE                   = "Cookie:".getBytes();
-    private static final byte[] PROTOCOL                 = " HTTP/1.1\r\n".getBytes();
-    private static final byte   SEMICOLON                = ';';
-    private int                 websocketLimit           = 1024 * 128;
+    private static final byte[] COOKIE                  = "Cookie:".getBytes();
+    private static final byte[] PROTOCOL                = " HTTP/1.1\r\n".getBytes();
+    private static final byte   SEMICOLON               = ';';
+    private int                 websocketLimit          = 1024 * 128;
     private int                 websocketFrameStackSize = 0;
 
     @Override
@@ -47,8 +47,10 @@ public class ClientHttpCodec extends HttpCodec {
     @Override
     public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
         ClientHttpFrame f = (ClientHttpFrame) frame;
-        byte [] urlBytes = getRequestURI(f).getBytes();
-        ByteBuf buf = ch.alloc().allocate(256 + urlBytes.length);
+        byte[] body = f.getRequestBody();
+        byte[] urlBytes = getRequestURI(f).getBytes();
+        int bodyLen = body == null ? 0 : body.length;
+        ByteBuf buf = ch.alloc().allocate(256 + urlBytes.length + bodyLen);
         buf.put(f.getMethod().getBytes());
         buf.putByte(SPACE);
         buf.put(urlBytes);
@@ -67,14 +69,23 @@ public class ClientHttpCodec extends HttpCodec {
         }
         buf.putByte(R);
         buf.putByte(N);
+        if (body != null) {
+            if (buf.remaining() < bodyLen) {
+                buf.reallocate(buf.position() + bodyLen, true);
+            }
+            buf.put(body);
+        }
         return buf.flip();
     }
 
-    private void writeHeaders(Map<String, String> headers, ByteBuf buf) {
+    private void writeHeaders(Map<HttpHeader, String> headers, ByteBuf buf) {
         if (headers == null) {
             return;
         }
-        for (Entry<String, String> header : headers.entrySet()) {
+        for (Entry<HttpHeader, String> header : headers.entrySet()) {
+            if (header.getValue() == null) {
+                continue;
+            }
             writeBuf(buf, header.getKey().getBytes());
             writeBuf(buf, COLON);
             writeBuf(buf, SPACE);
@@ -83,8 +94,8 @@ public class ClientHttpCodec extends HttpCodec {
             writeBuf(buf, N);
         }
     }
-    
-    protected void parseFirstLine(HttpFrame f,StringBuilder line) {
+
+    protected void parseFirstLine(HttpFrame f, StringBuilder line) {
         int index = StringUtil.indexOf(line, ' ');
         int status = Integer.parseInt(line.substring(index + 1, index + 4));
         f.setVersion(HttpVersion.HTTP1_1);

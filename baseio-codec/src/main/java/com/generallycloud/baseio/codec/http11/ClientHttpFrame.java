@@ -23,8 +23,10 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class ClientHttpFrame extends HttpFrame {
 
-    private Map<String, String> response_headers = new HashMap<>();
-    
+    private Map<HttpHeader, String> response_headers = new HashMap<>();
+
+    private byte[]                  requestBody;
+
     public ClientHttpFrame(String url, HttpMethod method) {
         this.setMethod(method);
         this.setRequestURI(url);
@@ -35,7 +37,7 @@ public class ClientHttpFrame extends HttpFrame {
     }
 
     public ClientHttpFrame() {
-        setRequestHeaders(new HashMap<String, String>());
+        setRequestHeaders(new HashMap<HttpHeader, String>());
     }
 
     @Override
@@ -48,28 +50,26 @@ public class ClientHttpFrame extends HttpFrame {
         return true;
     }
 
-    @Override
-    void setReadHeader(String name, String value) {
-        if (StringUtil.isNullOrBlank(name)) {
-            return;
-        }
-        String _name = HttpHeader.LOW_MAPPING.get(name);
-        if (_name == null) {
-            _name = name.toLowerCase();
-        }
-        response_headers.put(_name, value);
+    public byte[] getRequestBody() {
+        return requestBody;
+    }
+
+    public void setRequestBody(byte[] requestBody) {
+        this.requestBody = requestBody;
     }
 
     @Override
-    String getReadHeader(String name) {
-        if (StringUtil.isNullOrBlank(name)) {
-            return null;
-        }
-        String _name = HttpHeader.LOW_MAPPING.get(name);
-        if (_name == null) {
-            _name = name.toLowerCase();
-        }
-        return response_headers.get(_name);
+    void setReadHeader(String name, String value) {
+        setRequestHeader0(name, value, response_headers);
+    }
+
+    @Override
+    String getReadHeader(HttpHeader name) {
+        return response_headers.get(name);
+    }
+
+    public Map<HttpHeader, String> getResponse_headers() {
+        return response_headers;
     }
 
 }

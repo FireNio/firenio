@@ -34,6 +34,7 @@ public class HttpClient {
     public synchronized HttpFrame request(HttpFrame frame, long timeout) throws IOException {
         Waiter waiter = ioEventHandle.newWaiter();
         ch.flush(frame);
+        // wake up me when ch closed
         if (waiter.await(timeout)) {
             throw new TimeoutException("timeout");
         }

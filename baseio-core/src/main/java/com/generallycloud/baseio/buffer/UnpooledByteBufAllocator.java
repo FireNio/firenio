@@ -19,20 +19,11 @@ import java.nio.ByteBuffer;
 
 public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 
-    private static UnpooledByteBufAllocator heap   = new UnpooledByteBufAllocator(false);
     private static UnpooledByteBufAllocator direct = new UnpooledByteBufAllocator(true);
+    private static UnpooledByteBufAllocator heap   = new UnpooledByteBufAllocator(false);
 
     private UnpooledByteBufAllocator(boolean isDirect) {
         super(isDirect);
-    }
-
-    public static UnpooledByteBufAllocator getHeap() {
-        return heap;
-    }
-
-    //FIXME 回收机制
-    public static UnpooledByteBufAllocator getDirect() {
-        return direct;
     }
 
     @Override
@@ -44,15 +35,34 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
         }
     }
 
-    public ByteBuf wrap(ByteBuffer buffer) {
-        if (buffer.isDirect()) {
-            return new UnpooledDirectByteBuf(this, buffer);
-        }
-        return wrap(buffer.array(), buffer.position(), buffer.remaining());
+    @Override
+    protected void doStart() throws Exception {}
+
+    @Override
+    protected void doStop() throws Exception {}
+
+    @Override
+    public void freeMemory() {}
+
+    @Override
+    public int getCapacity() {
+        return -1;
     }
 
     @Override
-    protected void doStart() throws Exception {}
+    public int getUnitMemorySize() {
+        return -1;
+    }
+
+    @Override
+    public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void release(ByteBuf buf) {
+        throw new UnsupportedOperationException();
+    }
 
     public ByteBuf wrap(byte[] data) {
         return wrap(data, 0, data.length);
@@ -66,30 +76,20 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
         return buf;
     }
 
-    @Override
-    public void release(ByteBuf buf) {
-        throw new UnsupportedOperationException();
+    public ByteBuf wrap(ByteBuffer buffer) {
+        if (buffer.isDirect()) {
+            return new UnpooledDirectByteBuf(this, buffer);
+        }
+        return wrap(buffer.array(), buffer.position(), buffer.remaining());
     }
 
-    @Override
-    public int getUnitMemorySize() {
-        return -1;
+    //FIXME 回收机制
+    public static UnpooledByteBufAllocator getDirect() {
+        return direct;
     }
 
-    @Override
-    public void freeMemory() {}
-
-    @Override
-    protected void doStop() throws Exception {}
-
-    @Override
-    public int getCapacity() {
-        return -1;
-    }
-
-    @Override
-    public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
-        throw new UnsupportedOperationException();
+    public static UnpooledByteBufAllocator getHeap() {
+        return heap;
     }
 
 }
