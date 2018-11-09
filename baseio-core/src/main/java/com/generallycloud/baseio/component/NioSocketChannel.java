@@ -197,6 +197,12 @@ public final class NioSocketChannel extends AttributesImpl
             execute(new CloseEvent(this));
         }
     }
+    
+    private void stopContext(){
+        if (context instanceof ChannelConnector) {
+            CloseUtil.close( ((ChannelConnector) context));
+        }
+    }
 
     private void closeSsl() {
         if (enableSsl) {
@@ -744,6 +750,7 @@ public final class NioSocketChannel extends AttributesImpl
             selKey.attach(null);
             selKey.cancel();
             fireClosed();
+            stopContext();
             clearAttributes();
         }
     }

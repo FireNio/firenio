@@ -201,7 +201,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     }
                     NioEventLoop tempEL = connector.getEventLoop();
                     if (tempEL == null) {
-                        tempEL = group.getEventLoop(0);
+                        tempEL = group.getNext();
                     }
                     final NioEventLoop targetEL = tempEL;
                     if (targetEL.inEventLoop()) {

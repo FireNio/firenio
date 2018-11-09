@@ -17,8 +17,6 @@ package com.generallycloud.test.io.fixedlength;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -28,6 +26,9 @@ import com.generallycloud.baseio.protocol.Frame;
 public class SimpleTestFIxedLengthClient {
 
     public static void main(String[] args) throws Exception {
+
+        ChannelConnector context = new ChannelConnector(8300);
+
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
@@ -35,10 +36,10 @@ public class SimpleTestFIxedLengthClient {
                 System.out.println();
                 System.out.println("____________________" + f.getReadText());
                 System.out.println();
+                context.close();
             }
-
         };
-        ChannelConnector context = new ChannelConnector(8300);
+
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
@@ -46,8 +47,8 @@ public class SimpleTestFIxedLengthClient {
         FixedLengthFrame frame = new FixedLengthFrame();
         frame.write("hello server!", channel);
         channel.flush(frame);
-        ThreadUtil.sleep(100);
-        CloseUtil.close(context);
+        
+        context.connect();
     }
 
 }

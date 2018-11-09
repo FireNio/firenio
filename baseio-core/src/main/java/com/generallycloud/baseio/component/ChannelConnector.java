@@ -62,10 +62,16 @@ public class ChannelConnector extends ChannelContext implements Closeable {
 
     @Override
     public synchronized void close() throws IOException {
+        NioSocketChannel ch = this.ch;
+        if (ch != null && ch.isOpened()) {
+            CloseUtil.close(ch);
+        }
         CloseUtil.close(javaChannel);
         LifeCycleUtil.stop(this);
+        this.ch = null;
+        this.eventLoop = null;
     }
-
+    
     public synchronized NioSocketChannel connect() throws IOException {
         if (isConnected()) {
             return ch;
@@ -133,6 +139,7 @@ public class ChannelConnector extends ChannelContext implements Closeable {
     }
 
     public boolean isConnected() {
+        NioSocketChannel ch = this.ch;
         return ch != null && ch.isOpened();
     }
 
