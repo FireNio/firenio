@@ -18,14 +18,14 @@ package com.generallycloud.baseio.codec.http11;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class ClientHttpFrame extends HttpFrame {
 
-    private Map<HttpHeader, String> response_headers = new HashMap<>();
-
-    private byte[]                  requestBody;
+    Map<HttpHeader, String> response_headers = new HashMap<>();
+    ByteBuf                 bodyBuf;
 
     public ClientHttpFrame(String url, HttpMethod method) {
         this.setMethod(method);
@@ -48,14 +48,6 @@ public class ClientHttpFrame extends HttpFrame {
         }
         ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
         return true;
-    }
-
-    public byte[] getRequestBody() {
-        return requestBody;
-    }
-
-    public void setRequestBody(byte[] requestBody) {
-        this.requestBody = requestBody;
     }
 
     @Override

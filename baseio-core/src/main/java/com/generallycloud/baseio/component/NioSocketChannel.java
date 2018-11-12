@@ -197,6 +197,12 @@ public final class NioSocketChannel extends AttributesImpl
             execute(new CloseEvent(this));
         }
     }
+    
+    private void stopContext(){
+        if (context instanceof ChannelConnector) {
+            CloseUtil.close( ((ChannelConnector) context));
+        }
+    }
 
     private void closeSsl() {
         if (enableSsl) {
@@ -744,6 +750,7 @@ public final class NioSocketChannel extends AttributesImpl
             selKey.attach(null);
             selKey.cancel();
             fireClosed();
+            stopContext();
             clearAttributes();
         }
     }
@@ -848,15 +855,15 @@ public final class NioSocketChannel extends AttributesImpl
 
     private ByteBuf wrap(ByteBuf src) throws IOException {
         SSLEngine engine = getSSLEngine();
-        ByteBufAllocator allocator = alloc();
+        ByteBufAllocator alloc = alloc();
         ByteBuf out = null;
         try {
             if (sslHandshakeFinished) {
                 byte sslWrapExt = this.sslWrapExt;
                 if (sslWrapExt == 0) {
-                    out = allocator.allocate(guessWrapOut(src.limit(), 0xff + 1));
+                    out = alloc.allocate(guessWrapOut(src.limit(), 0xff + 1));
                 } else {
-                    out = allocator.allocate(guessWrapOut(src.limit(), sslWrapExt & 0xff));
+                    out = alloc.allocate(guessWrapOut(src.limit(), sslWrapExt & 0xff));
                 }
                 final int SSL_PACKET_BUFFER_SIZE = SslContext.SSL_PACKET_BUFFER_SIZE;
                 for (;;) {
@@ -866,7 +873,14 @@ public final class NioSocketChannel extends AttributesImpl
                     if (status == Status.CLOSED) {
                         return out.flip();
                     } else if (status == Status.BUFFER_OVERFLOW) {
-                        out.reallocate(out.capacity() + SSL_PACKET_BUFFER_SIZE, true);
+                        ByteBuf old = out;
+                        try {
+                            int len = out.capacity() + SSL_PACKET_BUFFER_SIZE;
+                            out = alloc.allocate(len);
+                            out.read(old.flip());
+                        } finally {
+                            old.release();
+                        }
                         continue;
                     } else {
                         if (src.hasRemaining()) {
@@ -891,17 +905,17 @@ public final class NioSocketChannel extends AttributesImpl
                     HandshakeStatus handshakeStatus = result.getHandshakeStatus();
                     synchByteBuf(result, src, dst);
                     if (status == Status.CLOSED) {
-                        return swap(allocator, dst.flip());
+                        return swap(alloc, dst.flip());
                     }
                     if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
                         if (out != null) {
                             out.read(dst.flip());
                             return out.flip();
                         }
-                        return swap(allocator, dst.flip());
+                        return swap(alloc, dst.flip());
                     } else if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
                         if (out == null) {
-                            out = allocator.allocate(256);
+                            out = alloc.allocate(256);
                         }
                         out.read(dst.flip());
                         continue;
@@ -911,7 +925,7 @@ public final class NioSocketChannel extends AttributesImpl
                             out.read(dst.flip());
                             return out.flip();
                         }
-                        return swap(allocator, dst.flip());
+                        return swap(alloc, dst.flip());
                     } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
                         runDelegatedTasks(engine);
                         continue;

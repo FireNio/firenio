@@ -124,7 +124,7 @@ public class HttpProxyServer {
                             req.setRequestHeaders(f.getRequestHeaders());
                             req.getRequestHeaders().remove(HttpHeader.Proxy_Connection);
                             if (f.getMethod() == HttpMethod.POST) {
-                                req.setRequestBody(f.getBodyContent());
+                                req.write(f.getBodyContent());
                             }
                             ch.flush(req);
                         }

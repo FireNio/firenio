@@ -195,12 +195,12 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         }
         return headEventLoop;
     }
-
-    protected void registSelector(ChannelContext context) throws IOException {
-        this.context = context;
-        this.headEventLoop.registerSelector(context);
-    }
     
+    protected void registSelector(ChannelAcceptor context) throws IOException {
+        this.context = context;
+        this.headEventLoop.registSelector(context);
+    }
+
     public void setAcceptor(boolean acceptor) {
         if (isRunning()) {
             return;
@@ -219,6 +219,10 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     public void setChannelSizeLimit(int channelSizeLimit) {
         checkNotRunning();
         this.channelSizeLimit = channelSizeLimit;
+    }
+
+    protected void setContext(ChannelContext context) {
+        this.context = context;
     }
 
     public void setEnableMemoryPool(boolean enableMemoryPool) {

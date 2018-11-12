@@ -36,9 +36,6 @@ import com.generallycloud.sample.baseio.http11.proxy4cloud.HttpProxy4CloudServer
  */
 public class NetDataTransferServer {
 
-    public static final String host = "127.0.0.1";
-    public static final int    port = 6666;
-    
     public static void mask(ByteBuf src,byte m){
         ByteBuffer buf = src.nioBuffer();
         int p = buf.position();
@@ -48,10 +45,8 @@ public class NetDataTransferServer {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public synchronized static void startup(NioEventLoopGroup group, int port) throws IOException {
 
-        NioEventLoopGroup group = new NioEventLoopGroup();
-        group.setSharable(true);
         ChannelAcceptor context = new ChannelAcceptor(group, port);
         context.setProtocolCodec(new ProtocolCodec() {
 
@@ -145,6 +140,12 @@ public class NetDataTransferServer {
         });
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.bind();
+    }
+    
+    public static void main(String[] args) throws IOException {
+        
+        startup(new NioEventLoopGroup(true), 18088);
+        
     }
 
 }
