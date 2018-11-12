@@ -135,6 +135,7 @@ public class HttpProxy4CloudServer {
                                         .getBytes());
 
                             }
+                            f.setStatus(res.getStatus());
                             ch_src.flush(f);
                             ch.close();
                         }

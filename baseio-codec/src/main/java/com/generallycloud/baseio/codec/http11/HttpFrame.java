@@ -15,7 +15,12 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import static com.generallycloud.baseio.codec.http11.HttpHeader.*;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Connection;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Content_Type;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Sec_WebSocket_Accept;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Sec_WebSocket_Key;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Server;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Upgrade;
 import static com.generallycloud.baseio.codec.http11.HttpStatic.keep_alive_bytes;
 import static com.generallycloud.baseio.codec.http11.HttpStatic.plain_gbk_bytes;
 import static com.generallycloud.baseio.codec.http11.HttpStatic.plain_utf8_bytes;
@@ -37,7 +42,7 @@ import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.protocol.BinaryFrame;
+import com.generallycloud.baseio.protocol.AbstractFrame;
 
 //FIXME 改进header parser
 /**
@@ -46,7 +51,7 @@ import com.generallycloud.baseio.protocol.BinaryFrame;
  * multipart/form-data; boundary=----WebKitFormBoundaryKA6dsRskWA4CdJek
  *
  */
-public class HttpFrame extends BinaryFrame implements HttpMessage {
+public class HttpFrame extends AbstractFrame implements HttpMessage {
 
     byte[]                  bodyArray;
     String                  boundary;

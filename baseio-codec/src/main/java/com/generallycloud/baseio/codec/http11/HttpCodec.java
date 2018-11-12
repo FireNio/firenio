@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.KMPUtil;
 import com.generallycloud.baseio.common.StringUtil;
@@ -129,6 +128,10 @@ public class HttpCodec extends ProtocolCodec {
                 }
             }
         }
+        return decodeRemainBody(ch, src, f);
+    }
+
+    Frame decodeRemainBody(NioSocketChannel ch, ByteBuf src, HttpFrame f) {
         int contentLength = f.contentLength;
         int remain = src.remaining();
         if (remain == contentLength) {
@@ -145,74 +148,110 @@ public class HttpCodec extends ProtocolCodec {
         if (CONTENT_APPLICATION_URLENCODED.equals(f.contentType)) {
             // FIXME encoding
             String paramString = new String(f.bodyArray, ch.getCharset());
-            parseParamString(f, paramString);
+            parse_kv(f.params, paramString, '=', '&');
             f.readText = paramString;
         } else {
             // FIXME 解析BODY中的内容
         }
         doCompplete(ch, f);
         return f;
-
     }
 
-    private void doCompplete(NioSocketChannel ch, HttpFrame f) {
+    void doCompplete(NioSocketChannel ch, HttpFrame f) {
         ch.removeAttribute(HTTP_DECODE_FRAME_KEY);
     }
 
-    private ByteBuf encode(ByteBufAllocator allocator, HttpFrame f, int length, byte[] array)
-            throws IOException {
-        ByteBuf buf = allocator.allocate(512);
-        try {
-            buf.put(PROTOCOL);
-            buf.put(f.getStatus().getBinary());
-            buf.put(CONTENT_LENGTH);
-            buf.put(String.valueOf(length).getBytes());
-            buf.putByte(R);
-            buf.putByte(N);
-            writeHeaders(f.getResponseHeaders(), buf);
-            List<Cookie> cookieList = f.getCookieList();
-            if (cookieList != null) {
-                for (Cookie c : cookieList) {
-                    writeBuf(buf, SET_COOKIE);
-                    writeBuf(buf, c.toString().getBytes());
-                    writeBuf(buf, R);
-                    writeBuf(buf, N);
-                }
-            }
-            int len = 2 + length;
-            if (buf.remaining() < len) {
-                buf.reallocate(buf.position() + len, true);
-            }
-            buf.putByte(R);
-            buf.putByte(N);
-            if (length != 0) {
-                buf.put(array, 0, length);
-            }
-        } catch (Exception e) {
-            buf.release();
-            throw e;
+    static final ThreadLocal<List<byte[]>> encode_bytes_arrays = new ThreadLocal<>();
+
+    static List<byte[]> getEncodeBytesArray() {
+        List<byte[]> array = encode_bytes_arrays.get();
+        if (array == null) {
+            array = new ArrayList<>();
+            encode_bytes_arrays.set(array);
         }
-        return buf.flip();
+        array.clear();
+        return array;
     }
 
     @Override
     public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
-        ByteBufAllocator allocator = ch.alloc();
         HttpFrame f = (HttpFrame) frame;
         if (f.isUpdateWebSocketProtocol()) {
             ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
             ch.setAttribute(WebSocketCodec.CHANNEL_KEY_SERVICE_NAME, f.getFrameName());
         }
         f.setResponseHeader(Date, getHttpDateBytes());
-        byte[] writeBinary = f.getWriteBinary();
-        if (writeBinary != null) {
-            return encode(ch.alloc(), f, f.getWriteBinarySize(), writeBinary);
+        int write_size = f.getWriteSize();
+        ByteBuf buf = null;
+        try {
+            byte[] status_bytes = f.getStatus().getBinary();
+            byte[] length_bytes = String.valueOf(write_size).getBytes();
+            int len = PROTOCOL.length + status_bytes.length + CONTENT_LENGTH.length
+                    + length_bytes.length + 2;
+            List<byte[]> encode_bytes_array = getEncodeBytesArray();
+            int header_size = 0;
+            int cookie_size = 0;
+            Map<HttpHeader, byte[]> headers = f.getResponseHeaders();
+            if (headers != null) {
+                headers.remove(HttpHeader.Content_Length);
+                for (Entry<HttpHeader, byte[]> header : headers.entrySet()) {
+                    byte[] k = header.getKey().getBytes();
+                    byte[] v = header.getValue();
+                    if (v == null) {
+                        continue;
+                    }
+                    header_size++;
+                    encode_bytes_array.add(k);
+                    encode_bytes_array.add(v);
+                    len += 4;
+                    len += k.length;
+                    len += v.length;
+                }
+            }
+            List<Cookie> cookieList = f.getCookieList();
+            if (cookieList != null) {
+                for (Cookie c : cookieList) {
+                    byte[] bytes = c.toString().getBytes();
+                    cookie_size++;
+                    encode_bytes_array.add(bytes);
+                    len += SET_COOKIE.length + 2;
+                    len += bytes.length;
+                }
+            }
+            len += 2;
+            len += write_size;
+            buf = ch.alloc().allocate(len);
+            buf.put(PROTOCOL);
+            buf.put(status_bytes);
+            buf.put(CONTENT_LENGTH);
+            buf.put(length_bytes);
+            buf.putByte(R);
+            buf.putByte(N);
+            int j = 0;
+            for (int i = 0; i < header_size; i++) {
+                buf.put(encode_bytes_array.get(j++));
+                buf.putByte(COLON);
+                buf.putByte(SPACE);
+                buf.put(encode_bytes_array.get(j++));
+                buf.putByte(R);
+                buf.putByte(N);
+            }
+            for (int i = 0; i < cookie_size; i++) {
+                buf.put(SET_COOKIE);
+                buf.put(encode_bytes_array.get(j++));
+                buf.putByte(R);
+                buf.putByte(N);
+            }
+            buf.putByte(R);
+            buf.putByte(N);
+            if (write_size != 0) {
+                buf.put(f.getWriteBuffer(), 0, write_size);
+            }
+        } catch (Exception e) {
+            buf.release();
+            throw e;
         }
-        int writeSize = f.getWriteSize();
-        if (writeSize == 0) {
-            return encode(allocator, f, 0, null);
-        }
-        return encode(allocator, f, writeSize, f.getWriteBuffer());
+        return buf.flip();
     }
 
     public int getBodyLimit() {
@@ -284,6 +323,10 @@ public class HttpCodec extends ProtocolCodec {
             cookies = new HashMap<>();
             f.cookies = cookies;
         }
+        parse_kv(cookies, line, '=', ';');
+    }
+
+    void parse_kv(Map<String, String> map, String line, char kvSplitor, char eSplitor) {
         StringBuilder sb = getCacheStringBuilder();
         int state_findKey = 0;
         int state_findValue = 1;
@@ -292,13 +335,10 @@ public class HttpCodec extends ProtocolCodec {
         int i = 0;
         String key = null;
         String value = null;
-        for (;;) {
-            if (i == count) {
-                break;
-            }
+        for (; i != count;) {
             char c = line.charAt(i++);
             if (state == state_findKey) {
-                if (c == '=') {
+                if (c == kvSplitor) {
                     key = sb.toString();
                     state = state_findValue;
                     sb.setLength(0);
@@ -308,10 +348,10 @@ public class HttpCodec extends ProtocolCodec {
                 }
                 sb.append(c);
             } else if (state == state_findValue) {
-                if (c == ';') {
+                if (c == eSplitor) {
                     value = sb.toString();
                     state = state_findKey;
-                    cookies.put(key, value);
+                    map.put(key, value);
                     sb.setLength(0);
                     continue;
                 }
@@ -319,7 +359,7 @@ public class HttpCodec extends ProtocolCodec {
             }
         }
         if (state == state_findValue) {
-            cookies.put(key, value);
+            map.put(key, value);
         }
     }
 
@@ -344,39 +384,12 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    void parseParamString(HttpFrame f, String paramString) {
-        boolean findKey = true;
-        int lastIndex = 0;
-        String key = null;
-        String value = null;
-        for (int i = 0; i < paramString.length(); i++) {
-            if (findKey) {
-                if (paramString.charAt(i) == '=') {
-                    key = paramString.substring(lastIndex, i);
-                    findKey = false;
-                    lastIndex = i + 1;
-                }
-            } else {
-                if (paramString.charAt(i) == '&') {
-                    value = paramString.substring(lastIndex, i);
-                    findKey = true;
-                    lastIndex = i + 1;
-                    f.params.put(key, value);
-                }
-            }
-        }
-        if (lastIndex < paramString.length()) {
-            value = paramString.substring(lastIndex);
-            f.params.put(key, value);
-        }
-    }
-
     protected void parseRequestURL(HttpFrame f, int skip, StringBuilder line) {
         int index = line.indexOf("?");
         int lastSpace = StringUtil.lastIndexOf(line, ' ');
         if (index > -1) {
             String paramString = line.substring(index + 1, lastSpace);
-            parseParamString(f, paramString);
+            parse_kv(f.params, paramString, '=', '&');
             f.setRequestURI(line.substring(skip, index));
         } else {
             f.setRequestURI(line.substring(skip, lastSpace));
@@ -441,7 +454,7 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    private void setHttpFrame(NioSocketChannel ch, HttpFrame f) {
+    void setHttpFrame(NioSocketChannel ch, HttpFrame f) {
         ch.setAttribute(HTTP_DECODE_FRAME_KEY, f);
     }
 
@@ -451,60 +464,6 @@ public class HttpCodec extends ProtocolCodec {
 
     public void setWebsocketLimit(int websocketLimit) {
         this.websocketLimit = websocketLimit;
-    }
-
-    void writeBuf(ByteBuf buf, byte b) {
-        if (!buf.hasRemaining()) {
-            buf.reallocate(buf.capacity() + 1, true);
-            buf.limit(buf.capacity());
-        }
-        buf.putByte(b);
-    }
-
-    void writeBuf(ByteBuf buf, byte[] array) {
-        writeBuf(buf, array, 0, array.length);
-    }
-
-    void writeBuf(ByteBuf buf, byte[] array, int off, int len) {
-        if (buf.remaining() < len) {
-            buf.reallocate(buf.position() + len, true);
-            buf.limit(buf.capacity());
-        }
-        buf.put(array, off, len);
-    }
-
-    private void writeHeaders(Map<HttpHeader, byte[]> headers, ByteBuf buf) {
-        if (headers == null) {
-            return;
-        }
-        headers.remove(HttpHeader.Content_Length);
-        int len = 0;
-        for (Entry<HttpHeader, byte[]> header : headers.entrySet()) {
-            byte[] k = header.getKey().getBytes();
-            byte[] v = header.getValue();
-            if (v == null) {
-                continue;
-            }
-            len += 4;
-            len += k.length;
-            len += v.length;
-        }
-        if (buf.remaining() < len) {
-            buf.reallocate(buf.position() + len, true);
-        }
-        for (Entry<HttpHeader, byte[]> header : headers.entrySet()) {
-            byte[] k = header.getKey().getBytes();
-            byte[] v = header.getValue();
-            if (v == null) {
-                continue;
-            }
-            buf.put(k);
-            buf.putByte(COLON);
-            buf.putByte(SPACE);
-            buf.put(v);
-            buf.putByte(R);
-            buf.putByte(N);
-        }
     }
 
     class HDBsHolder {

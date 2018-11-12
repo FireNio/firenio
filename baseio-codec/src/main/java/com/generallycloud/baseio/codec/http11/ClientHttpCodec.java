@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.buffer.ByteBufUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -34,7 +35,7 @@ import com.generallycloud.baseio.protocol.Frame;
 public class ClientHttpCodec extends HttpCodec {
 
     private static final byte[] COOKIE                  = "Cookie:".getBytes();
-    private static final byte[] PROTOCOL                = " HTTP/1.1\r\n".getBytes();
+    private static final byte[] PROTOCOL                = " HTTP/1.1\r\nContent-Length: ".getBytes();
     private static final byte   SEMICOLON               = ';';
     private int                 websocketLimit          = 1024 * 128;
     private int                 websocketFrameStackSize = 0;
@@ -47,52 +48,106 @@ public class ClientHttpCodec extends HttpCodec {
     @Override
     public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
         ClientHttpFrame f = (ClientHttpFrame) frame;
-        byte[] body = f.getRequestBody();
-        byte[] urlBytes = getRequestURI(f).getBytes();
-        int bodyLen = body == null ? 0 : body.length;
-        ByteBuf buf = ch.alloc().allocate(256 + urlBytes.length + bodyLen);
-        buf.put(f.getMethod().getBytes());
-        buf.putByte(SPACE);
-        buf.put(urlBytes);
-        buf.put(PROTOCOL);
-        writeHeaders(f.getRequestHeaders(), buf);
-        List<Cookie> cookieList = f.getCookieList();
-        if (cookieList != null && cookieList.size() > 0) {
-            buf.put(COOKIE);
-            for (Cookie c : cookieList) {
-                writeBuf(buf, c.getName().getBytes());
-                writeBuf(buf, COLON);
-                writeBuf(buf, c.getValue().getBytes());
-                writeBuf(buf, SEMICOLON);
+        int write_size = f.getWriteSize();
+        ByteBuf buf = null;
+        try {
+            byte[] url_bytes = getRequestURI(f).getBytes();
+            byte[] method_bytes = f.getMethod().getBytes();
+            byte[] length_bytes = String.valueOf(write_size).getBytes();
+            int len = method_bytes.length + 1 + url_bytes.length + PROTOCOL.length + length_bytes.length + 2;
+            List<byte[]> encode_bytes_array = getEncodeBytesArray();
+            int header_size = 0;
+            int cookie_size = 0;
+            Map<HttpHeader, String> headers = f.getRequestHeaders();
+            if (headers != null) {
+                headers.remove(HttpHeader.Content_Length);
+                for (Entry<HttpHeader, String> header : headers.entrySet()) {
+                    byte[] k = header.getKey().getBytes();
+                    byte[] v = header.getValue().getBytes();
+                    if (v == null) {
+                        continue;
+                    }
+                    header_size++;
+                    encode_bytes_array.add(k);
+                    encode_bytes_array.add(v);
+                    len += 4;
+                    len += k.length;
+                    len += v.length;
+                }
             }
-            buf.skip(-1);
-        }
-        buf.putByte(R);
-        buf.putByte(N);
-        if (body != null) {
-            if (buf.remaining() < bodyLen) {
-                buf.reallocate(buf.position() + bodyLen, true);
+            List<Cookie> cookieList = f.getCookieList();
+            if (cookieList != null && !cookieList.isEmpty()) {
+                len += COOKIE.length;
+                for (Cookie c : cookieList) {
+                    byte[] k = c.getName().getBytes();
+                    byte[] v = c.getValue().getBytes();
+                    cookie_size++;
+                    encode_bytes_array.add(k);
+                    encode_bytes_array.add(v);
+                    len += 2;
+                    len += k.length;
+                    len += v.length;
+                }
             }
-            buf.put(body);
+            len += 2;
+            len += write_size;
+            buf = ch.alloc().allocate(len);
+            buf.put(method_bytes);
+            buf.putByte(SPACE);
+            buf.put(url_bytes);
+            buf.put(PROTOCOL);
+            buf.put(length_bytes);
+            buf.putByte(R);
+            buf.putByte(N);
+            int j = 0;
+            for (int i = 0; i < header_size; i++) {
+                buf.put(encode_bytes_array.get(j++));
+                buf.putByte(COLON);
+                buf.putByte(SPACE);
+                buf.put(encode_bytes_array.get(j++));
+                buf.putByte(R);
+                buf.putByte(N);
+            }
+            for (int i = 0; i < cookie_size; i++) {
+                buf.put(encode_bytes_array.get(j++));
+                buf.putByte(COLON);
+                buf.put(encode_bytes_array.get(j++));
+                buf.putByte(SEMICOLON);
+            }
+            buf.putByte(R);
+            buf.putByte(N);
+            if (write_size != 0) {
+                buf.put(f.getWriteBuffer(), 0, write_size);
+            }
+        } catch (Exception e) {
+            buf.release();
+            throw e;
         }
         return buf.flip();
     }
-
-    private void writeHeaders(Map<HttpHeader, String> headers, ByteBuf buf) {
-        if (headers == null) {
-            return;
+    
+    @Override
+    Frame decodeRemainBody(NioSocketChannel ch,ByteBuf src, HttpFrame frame) {
+        ClientHttpFrame f = (ClientHttpFrame) frame;
+        if (f.bodyArray == null) {
+            f.bodyArray = new byte[f.contentLength];
+            f.bodyBuf = ByteBufUtil.wrap(f.bodyArray);
         }
-        for (Entry<HttpHeader, String> header : headers.entrySet()) {
-            if (header.getValue() == null) {
-                continue;
-            }
-            writeBuf(buf, header.getKey().getBytes());
-            writeBuf(buf, COLON);
-            writeBuf(buf, SPACE);
-            writeBuf(buf, header.getValue().getBytes());
-            writeBuf(buf, R);
-            writeBuf(buf, N);
+        f.bodyBuf.read(src);
+        if (f.bodyBuf.hasRemaining()) {
+            setHttpFrame(ch, f);
+            return null;
         }
+        if (CONTENT_APPLICATION_URLENCODED.equals(f.contentType)) {
+            // FIXME encoding
+            String paramString = new String(f.bodyArray, ch.getCharset());
+            parse_kv(f.params, paramString, '=', '&');
+            f.readText = paramString;
+        } else {
+            // FIXME 解析BODY中的内容
+        }
+        doCompplete(ch, f);
+        return f;
     }
 
     protected void parseFirstLine(HttpFrame f, StringBuilder line) {
