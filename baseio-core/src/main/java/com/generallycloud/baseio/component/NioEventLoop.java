@@ -486,32 +486,44 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    protected void registerSelector(final ChannelContext context) throws IOException {
-        final Selector selector = this.selector;
-        final Waiter waiter = new Waiter();
-        execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    SelectableChannel ch = context.getSelectableChannel();
-                    if (context instanceof ChannelAcceptor) {
-                        //FIXME 使用多eventLoop accept是否导致卡顿 是否要区分accept和read
-                        ch.register(selector, SelectionKey.OP_ACCEPT, context);
-                    } else {
-                        ch.register(selector, SelectionKey.OP_CONNECT, context);
-                    }
-                    waiter.response(null);
-                } catch (Exception e) {
-                    waiter.response(e);
-                    printException(logger, e);
-                }
-            }
-        });
-        waiter.await();
-        Object res = waiter.getResponse();
-        if (res instanceof IOException) {
-            throw (IOException) res;
+    private void registSelector0(final ChannelContext context, Selector selector)
+            throws ClosedChannelException {
+        SelectableChannel ch = context.getSelectableChannel();
+        if (context instanceof ChannelAcceptor) {
+            //FIXME 使用多eventLoop accept是否导致卡顿
+            //FIXME OP_ACCEPT & OP_CONNECT 不能在注册在一个EL吗?
+            //目前注册在一起会出现select到key但是key为空?
+            ch.register(selector, SelectionKey.OP_ACCEPT, context);
+        } else {
+            ch.register(selector, SelectionKey.OP_CONNECT, context);
         }
+    }
+
+    protected void registSelector(final ChannelContext context) throws IOException {
+        final Selector selector = this.selector;
+        if (inEventLoop()) {
+            registSelector0(context, selector);
+        } else {
+            final Waiter waiter = new Waiter();
+            execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        registSelector0(context, selector);
+                        waiter.response(null);
+                    } catch (Exception e) {
+                        waiter.response(e);
+                        printException(logger, e);
+                    }
+                }
+            });
+            waiter.await();
+            Object res = waiter.getResponse();
+            if (res instanceof IOException) {
+                throw (IOException) res;
+            }
+        }
+
         //        if (oldSelector != null) {
         //            Selector oldSel = this.selector;
         //            Selector newSel = newSelector;

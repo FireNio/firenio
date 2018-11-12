@@ -127,11 +127,11 @@ public abstract class AbstractEventLoop implements EventLoop {
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
-            if (!inEventLoop()) {
-                for (; !isStopped();) {
-                    ThreadUtil.sleep(4);
-                }
-            }
+//            if (!inEventLoop()) {
+//                for (; !isStopped();) {
+//                    ThreadUtil.sleep(4);
+//                }
+//            }
             LoggerUtil.prettyLog(logger, "event looper {} stopped", this);
             try {
                 EventLoopListener listener = getGroup().getEventLoopListener();

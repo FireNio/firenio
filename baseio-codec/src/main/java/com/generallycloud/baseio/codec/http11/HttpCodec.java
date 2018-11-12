@@ -477,6 +477,7 @@ public class HttpCodec extends ProtocolCodec {
         if (headers == null) {
             return;
         }
+        headers.remove(HttpHeader.Content_Length);
         int len = 0;
         for (Entry<HttpHeader, byte[]> header : headers.entrySet()) {
             byte[] k = header.getKey().getBytes();

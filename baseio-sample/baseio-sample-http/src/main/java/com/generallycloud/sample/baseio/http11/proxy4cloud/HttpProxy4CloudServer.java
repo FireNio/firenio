@@ -41,8 +41,8 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class HttpProxy4CloudServer {
 
-//    static final String                netHost         = "47.52.62.51";
-//    static final int                   netPort         = 18088;
+    //    static final String                netHost         = "47.52.62.51";
+    //    static final int                   netPort         = 18088;
     static final String                netHost         = "127.0.0.1";
     static final int                   netPort         = 18088;
     static final String                CONNECT_RES     = "HTTP/1.1 200 Connection Established\r\n\r\n";
@@ -85,7 +85,9 @@ public class HttpProxy4CloudServer {
                     String[] arr = f.getHost().split(":");
                     s.mask = (byte) arr[0].getBytes().length;
                     s.host = arr[0];
-                    s.port = Integer.parseInt(arr[1]);
+                    if (arr.length == 2) {
+                        s.port = Integer.parseInt(arr[1]);
+                    }
                     s.handshakeFinished = true;
                 } else {
                     String host = f.getHost();
@@ -267,7 +269,7 @@ public class HttpProxy4CloudServer {
         static final String     ProxySessionChAttr = "_ProxySessionChAttr";
         public boolean          handshakeFinished;
         public String           host;
-        public int              port;
+        public int              port               = 80;
         public byte             mask;
         public ChannelConnector connector;
 
@@ -295,7 +297,7 @@ public class HttpProxy4CloudServer {
 
     public static void main(String[] args) throws Exception {
 
-        get().strtup(new NioEventLoopGroup(), 8088);
+        get().strtup(new NioEventLoopGroup(true), 8088);
 
     }
 

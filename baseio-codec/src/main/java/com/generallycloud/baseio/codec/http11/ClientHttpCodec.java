@@ -125,7 +125,7 @@ public class ClientHttpCodec extends HttpCodec {
 
     private String getRequestURI(HttpFrame frame) {
         Map<String, String> params = frame.getRequestParams();
-        if (params == null) {
+        if (params == null || params.isEmpty()) {
             return frame.getRequestURI();
         }
         String url = frame.getRequestURI();
