@@ -186,9 +186,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 final ChannelConnector connector = (ChannelConnector) context;
                 final SocketChannel javaChannel = connector.getSelectableChannel();
                 try {
-                    if (!javaChannel.isConnectionPending()) {
-                        return;
-                    }
                     if (!javaChannel.finishConnect()) {
                         key.cancel();
                         key.attach(null);
