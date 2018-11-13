@@ -27,33 +27,8 @@ public abstract class AbstractByteBufAllocator extends AbstractLifeCycle
     }
 
     @Override
-    public ByteBuf allocate(int limit, int maxLimit) {
-        if (limit > maxLimit) {
-            throw new BufferException("limit:" + limit + ",maxLimit:" + maxLimit);
-        }
-        return allocate(limit);
-    }
-
-    @Override
-    public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld) {
-        if (limit > maxLimit) {
-            throw new BufferException("limit:" + limit + ",maxLimit:" + maxLimit);
-        }
-        return reallocate(buf, limit, copyOld);
-    }
-
-    @Override
-    public ByteBuf reallocate(ByteBuf buf, int limit) {
-        return reallocate(buf, limit, false);
-    }
-
-    @Override
-    public ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit) {
-        return reallocate(buf, limit, maxLimit, false);
-    }
-
-    @Override
     public final boolean isDirect() {
         return isDirect;
     }
+    
 }

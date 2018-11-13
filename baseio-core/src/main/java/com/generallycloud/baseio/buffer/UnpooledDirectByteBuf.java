@@ -35,29 +35,6 @@ final class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
     }
 
     @Override
-    public ByteBuf reallocate(int limit, boolean copyOld) {
-        if (limit <= capacity) {
-            limit(limit);
-            if (!copyOld) {
-                position(0);
-            }
-            return this;
-        }
-        ByteBuffer newMemory = ByteBuffer.allocateDirect(limit);
-        if (copyOld) {
-            memory.flip();
-            newMemory.put(memory);
-            ByteBufUtil.release(memory);
-        } else {
-            this.position(0);
-        }
-        this.memory = newMemory;
-        this.capacity = limit;
-        this.limit(limit);
-        return this;
-    }
-
-    @Override
     public ByteBuf duplicate() {
         if (isReleased()) {
             throw new ReleasedException("released");
@@ -103,11 +80,6 @@ final class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
     public ByteBuf flip() {
         memory.flip();
         return this;
-    }
-
-    @Override
-    public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
-        throw new UnsupportedOperationException();
     }
 
 }

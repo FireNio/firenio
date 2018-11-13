@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
 
 import com.generallycloud.baseio.Releasable;
 
-public interface ByteBuf extends ByteBufBuilder, Releasable {
+public interface ByteBuf extends Releasable {
 
     int absLimit();
 
@@ -154,14 +154,6 @@ public interface ByteBuf extends ByteBufBuilder, Releasable {
     int read(ByteBuffer src);
 
     int read(ByteBuffer src, int length);
-
-    ByteBuf reallocate(int limit);
-
-    ByteBuf reallocate(int limit, boolean copyOld);
-
-    ByteBuf reallocate(int limit, int maxLimit);
-
-    ByteBuf reallocate(int limit, int maxLimit, boolean copyOld);
 
     int remaining();
 

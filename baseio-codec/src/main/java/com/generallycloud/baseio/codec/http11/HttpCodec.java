@@ -134,24 +134,25 @@ public class HttpCodec extends ProtocolCodec {
     Frame decodeRemainBody(NioSocketChannel ch, ByteBuf src, HttpFrame f) {
         int contentLength = f.contentLength;
         int remain = src.remaining();
+        byte [] bodyArray = null;
         if (remain == contentLength) {
-            f.bodyArray = src.getBytes();
+            bodyArray = src.getBytes();
         } else if (remain < contentLength) {
             setHttpFrame(ch, f);
             return null;
         } else {
             src.markL();
             src.limit(src.position() + contentLength);
-            f.bodyArray = src.getBytes();
+            bodyArray = src.getBytes();
             src.resetL();
         }
         if (CONTENT_APPLICATION_URLENCODED.equals(f.contentType)) {
             // FIXME encoding
-            String paramString = new String(f.bodyArray, ch.getCharset());
+            String paramString = new String(bodyArray, ch.getCharset());
             parse_kv(f.params, paramString, '=', '&');
-            f.readText = paramString;
         } else {
             // FIXME 解析BODY中的内容
+            f.bodyArray = bodyArray;
         }
         doCompplete(ch, f);
         return f;
@@ -359,7 +360,7 @@ public class HttpCodec extends ProtocolCodec {
             }
         }
         if (state == state_findValue) {
-            map.put(key, value);
+            map.put(key, sb.toString());
         }
     }
 

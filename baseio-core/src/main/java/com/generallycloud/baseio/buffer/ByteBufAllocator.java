@@ -22,8 +22,6 @@ public interface ByteBufAllocator extends LifeCycle {
     
     ByteBuf allocate(int limit);
     
-    ByteBuf allocate(int limit, int maxLimit);
-
     void freeMemory();
 
     int getCapacity();
@@ -31,14 +29,6 @@ public interface ByteBufAllocator extends LifeCycle {
     int getUnitMemorySize();
 
     boolean isDirect();
-
-    ByteBuf reallocate(ByteBuf buf, int limit);
-
-    ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld);
-
-    ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit);
-
-    ByteBuf reallocate(ByteBuf buf, int limit, int maxLimit, boolean copyOld);
 
     void release(ByteBuf buf);
 

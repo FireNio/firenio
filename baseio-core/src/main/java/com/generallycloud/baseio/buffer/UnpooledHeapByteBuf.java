@@ -41,27 +41,6 @@ class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
     }
 
     @Override
-    public ByteBuf reallocate(int limit, boolean copyOld) {
-        if (limit <= capacity) {
-            this.limit = limit;
-            if (!copyOld) {
-                position(0);
-            }
-            return this;
-        }
-        byte[] newMemory = new byte[limit];
-        if (copyOld) {
-            System.arraycopy(memory, 0, newMemory, 0, position());
-        } else {
-            position(0);
-        }
-        this.memory = newMemory;
-        this.capacity = limit;
-        this.limit = limit;
-        return this;
-    }
-    
-    @Override
     public ByteBuf clear() {
         this.position = 0;
         this.limit = capacity;
@@ -75,10 +54,5 @@ class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
 
     @Override
     public void release() {}
-
-    @Override
-    public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
-        throw new UnsupportedOperationException();
-    }
 
 }

@@ -147,32 +147,6 @@ public abstract class AbstractByteBuf implements ByteBuf {
     protected abstract int read0(ByteBuf src, int read);
 
     @Override
-    public ByteBuf reallocate(int limit) {
-        return reallocate(limit, false);
-    }
-
-    @Override
-    public ByteBuf reallocate(int limit, boolean copyOld) {
-        return allocator.reallocate(this, limit, copyOld);
-    }
-
-    @Override
-    public ByteBuf reallocate(int limit, int maxLimit, boolean copyOld) {
-        if (limit < 1) {
-            throw new BufferException("illegal limit:" + limit);
-        }
-        if (limit > maxLimit) {
-            throw new BufferException("limit:" + limit + ",maxLimit:" + maxLimit);
-        }
-        return reallocate(limit, copyOld);
-    }
-
-    @Override
-    public ByteBuf reallocate(int limit, int maxLimit) {
-        return reallocate(limit, maxLimit, false);
-    }
-
-    @Override
     public void release() {
         int referenceCount = this.referenceCount;
         if (referenceCount < 1) {
