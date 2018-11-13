@@ -26,7 +26,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class PooledByteBufAllocator extends AbstractByteBufAllocator {
 
     private int[]                  blockEnds;
-    private final ByteBufFactory   bufFactory;
     private final int              capacity;
     private BitSet                 frees;
     private final ReentrantLock    lock = new ReentrantLock();
@@ -37,34 +36,19 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
     private ByteBuffer             directMemory;
     private final int              allocatorGroupSize;
 
-    public PooledByteBufAllocator(int capacity, int unit, boolean isDirect, int allocatorGroupSize) {
+    public PooledByteBufAllocator(int capacity, int unit, boolean isDirect,
+            int allocatorGroupSize) {
         super(isDirect);
         this.capacity = capacity;
         this.unitMemorySize = unit;
         this.allocatorGroupSize = allocatorGroupSize;
-        this.bufFactory = isDirect ? new DirectByteBufFactory() : new HeapByteBufFactory();
-    }
-
-    private PooledByteBuf allocate(ByteBufBuilder bufBuilder, int limit) {
-        int size = (limit + unitMemorySize - 1) / unitMemorySize;
-        ReentrantLock lock = this.lock;
-        lock.lock();
-        try {
-            int mask = this.mask;
-            PooledByteBuf buf = allocate(bufBuilder, limit, mask, capacity, size);
-            if (buf == null) {
-                buf = allocate(bufBuilder, limit, 0, mask, size);
-            }
-            return buf;
-        } finally {
-            lock.unlock();
-        }
     }
 
     //FIXME 判断余下的是否足够，否则退出循环
-    private PooledByteBuf allocate(ByteBufBuilder bufBuilder, int limit, int start, int end,
-            int size) {
+    private PooledByteBuf allocate(int limit, int start, int end, int size) {
         int freeSize = 0;
+        int[] blockEnds = this.blockEnds;
+        BitSet frees = this.frees;
         for (; start < end;) {
             int pos = start;
             if (!frees.get(pos)) {
@@ -75,23 +59,24 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
             if (++freeSize == size) {
                 int blockEnd = pos + 1;
                 int blockStart = blockEnd - size;
-                this.frees.set(blockStart, false);
-                this.blockEnds[blockStart] = blockEnd;
+                frees.set(blockStart, false);
+                blockEnds[blockStart] = blockEnd;
                 this.mask = blockEnd;
-                return bufBuilder.newByteBuf(this).produce(blockStart, blockEnd, limit);
+                return newByteBuf().produce(blockStart, blockEnd, limit);
             }
             start++;
         }
         return null;
     }
 
+    PooledByteBuf newByteBuf() {
+        return isDirect() ? new PooledDirectByteBuf(this, directMemory.duplicate())
+                : new PooledHeapByteBuf(this, heapMemory);
+    }
+
     @Override
     public ByteBuf allocate(int limit) {
-        ByteBuf buf = allocate(bufFactory, limit);
-        if (buf == null) {
-            return next.allocate(limit, 1, bufFactory);
-        }
-        return buf;
+        return allocate(limit, 0);
     }
 
     protected ByteBuffer getDirectMemory() {
@@ -102,24 +87,47 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         return heapMemory;
     }
 
-    private ByteBuf allocate(int limit, int current, ByteBufFactory factory) {
+    private ByteBuf allocate(int limit, int current) {
         if (current == allocatorGroupSize) {
             //FIXME 是否申请java内存
             return UnpooledByteBufAllocator.getHeap().allocate(limit);
         }
-        ByteBuf buf = allocate(factory, limit);
+        int size = (limit + unitMemorySize - 1) / unitMemorySize;
+        ReentrantLock lock = this.lock;
+        lock.lock();
+        ByteBuf buf = null;
+        try {
+            int mask = this.mask;
+            buf = allocate(limit, mask, capacity, size);
+            if (buf != null) {
+                return buf;
+            } else {
+                buf = allocate(limit, 0, mask, size);
+            }
+        } finally {
+            lock.unlock();
+        }
         if (buf == null) {
-            return next.allocate(limit, current + 1, factory);
+            return next.allocate(limit, current + 1);
         }
         return buf;
     }
 
     @Override
     protected void doStart() throws Exception {
-        this.bufFactory.initializeMemory(capacity * unitMemorySize);
         this.blockEnds = new int[getCapacity()];
         this.frees = new BitSet(getCapacity());
         this.frees.set(0, getCapacity(), true);
+        int cap = capacity * unitMemorySize;
+        if (isDirect()) {
+            this.directMemory = ByteBuffer.allocateDirect(cap);
+        } else {
+            byte[] memory = this.heapMemory;
+            if (memory != null && memory.length == cap) {
+                return;
+            }
+            this.heapMemory = new byte[cap];
+        }
     }
 
     @Override
@@ -171,8 +179,17 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
     }
 
     @Override
+    @SuppressWarnings("restriction")
     public void freeMemory() {
-        bufFactory.freeMemory();
+        if (isDirect()) {
+            ByteBuffer memory = PooledByteBufAllocator.this.directMemory;
+            if (((sun.nio.ch.DirectBuffer) memory).cleaner() != null) {
+                ((sun.nio.ch.DirectBuffer) memory).cleaner().clean();
+            }
+        } else {
+            //FIXME 这里不free了，如果在次申请的时候大小和这次一致，则不在重新申请
+            // this.memory = null;
+        }
     }
 
     @Override
@@ -187,32 +204,6 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
     @Override
     public final int getUnitMemorySize() {
         return unitMemorySize;
-    }
-
-    @Override
-    public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
-        if (limit <= buf.capacity()) {
-            if (copyOld) {
-                return buf.limit(limit);
-            }
-            return buf.position(0).limit(limit);
-        }
-        if (copyOld) {
-            PooledByteBuf newBuf = allocate(bufFactory, limit);
-            if (newBuf == null) {
-                buf.release();
-                throw new BufferException("reallocate failed");
-            }
-            newBuf.read(buf.flip());
-            release(buf);
-            return buf.newByteBuf(this).produce(newBuf);
-        }
-        release(buf);
-        PooledByteBuf newBuf = allocate(buf, limit);
-        if (newBuf == null) {
-            throw new BufferException("reallocate failed");
-        }
-        return newBuf;
     }
 
     @Override
@@ -246,60 +237,6 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         b.append(isDirect());
         b.append("]");
         return b.toString();
-    }
-
-    interface ByteBufFactory extends ByteBufBuilder {
-
-        void freeMemory();
-
-        void initializeMemory(int capacity);
-    }
-
-    final class DirectByteBufFactory implements ByteBufFactory {
-
-        @Override
-        public void initializeMemory(int capacity) {
-            PooledByteBufAllocator.this.directMemory = ByteBuffer.allocateDirect(capacity);
-        }
-
-        @Override
-        public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
-            return new PooledDirectByteBuf(allocator, allocator.directMemory.duplicate());
-        }
-
-        @Override
-        @SuppressWarnings("restriction")
-        public void freeMemory() {
-            ByteBuffer memory = PooledByteBufAllocator.this.directMemory;
-            if (((sun.nio.ch.DirectBuffer) memory).cleaner() != null) {
-                ((sun.nio.ch.DirectBuffer) memory).cleaner().clean();
-            }
-        }
-
-    }
-
-    final class HeapByteBufFactory implements ByteBufFactory {
-
-        @Override
-        public void freeMemory() {
-            //FIXME 这里不free了，如果在次申请的时候大小和这次一致，则不在重新申请
-            // this.memory = null;
-        }
-
-        @Override
-        public void initializeMemory(int capacity) {
-            byte[] memory = PooledByteBufAllocator.this.heapMemory;
-            if (memory != null && memory.length == capacity) {
-                return;
-            }
-            PooledByteBufAllocator.this.heapMemory = new byte[capacity];
-        }
-
-        @Override
-        public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
-            return new PooledHeapByteBuf(allocator, allocator.heapMemory);
-        }
-
     }
 
 }

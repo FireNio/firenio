@@ -40,11 +40,6 @@ final class DuplicatedHeapByteBuf extends AbstractHeapByteBuf {
         proto.release();
     }
 
-    @Override
-    public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
-        throw new UnsupportedOperationException();
-    }
-
     private ByteBuf produce(ByteBuf buf) {
         this.offset = buf.offset();
         this.capacity = buf.capacity();

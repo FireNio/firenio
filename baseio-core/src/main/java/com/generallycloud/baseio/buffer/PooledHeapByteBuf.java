@@ -29,13 +29,6 @@ final class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteB
     }
 
     @Override
-    public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
-        this.allocator = allocator;
-        this.memory = allocator.getHeapMemory();
-        return this;
-    }
-
-    @Override
     public ByteBuf duplicate() {
         if (isReleased()) {
             throw new ReleasedException("released");

@@ -31,13 +31,6 @@ final class PooledDirectByteBuf extends AbstractDirectByteBuf implements PooledB
     }
 
     @Override
-    public PooledByteBuf newByteBuf(PooledByteBufAllocator allocator) {
-        this.allocator = allocator;
-        this.memory = allocator.getDirectMemory().duplicate();
-        return this;
-    }
-
-    @Override
     public ByteBuf duplicate() {
         if (isReleased()) {
             throw new ReleasedException("released");

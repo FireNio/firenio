@@ -55,11 +55,6 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
     }
 
     @Override
-    public ByteBuf reallocate(ByteBuf buf, int limit, boolean copyOld) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void release(ByteBuf buf) {
         throw new UnsupportedOperationException();
     }
