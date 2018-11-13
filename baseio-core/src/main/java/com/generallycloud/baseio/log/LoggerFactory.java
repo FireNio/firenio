@@ -92,7 +92,7 @@ public class LoggerFactory {
     }
 
     public static void setLogLevel(int logLevel) {
-        LoggerFactory.logLevel = logLevel - 1;
+        LoggerFactory.logLevel = logLevel + 1;
     }
 
 }
