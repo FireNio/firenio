@@ -318,7 +318,12 @@ public final class SslContextBuilder {
                     break;
             }
             ctx.init(kms, tms, new SecureRandom());
-            SSLSessionContext sessCtx = ctx.getClientSessionContext();
+            SSLSessionContext sessCtx;
+            if (isServer) {
+                sessCtx = ctx.getServerSessionContext();
+            } else {
+                sessCtx = ctx.getClientSessionContext();
+            }
             if (sessionCacheSize > 0) {
                 sessCtx.setSessionCacheSize((int) Math.min(sessionCacheSize, Integer.MAX_VALUE));
             }
