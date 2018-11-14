@@ -21,6 +21,8 @@ import java.nio.ByteBuffer;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelAcceptor;
+import com.generallycloud.baseio.component.ChannelActiveIdleEventListener;
+import com.generallycloud.baseio.component.ChannelAliveIdleEventListener;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoop;
@@ -93,6 +95,7 @@ public class NetDataTransferServer {
                             }
                         });
                         context.setPrintConfig(false);
+                        context.addChannelIdleEventListener(new ChannelActiveIdleEventListener());
                         context.addChannelEventListener(new LoggerChannelOpenListener());
                         context.addChannelEventListener(new CountChannelListener());
                         ByteBuf buf = ch_src.alloc().allocate(src.remaining());
@@ -141,6 +144,7 @@ public class NetDataTransferServer {
                 return null;
             }
         });
+        context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new CountChannelListener());
         context.bind();
