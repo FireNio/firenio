@@ -22,7 +22,6 @@ import java.util.List;
 
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.log.DebugUtil;
 
 public class ApplicationBootstrap {
@@ -64,8 +63,8 @@ public class ApplicationBootstrap {
         Assert.notNull(className, "className");
         Assert.notNull(rootPath, "rootPath");
         Assert.notNull(cpScaners, "cpScaners");
-        LoggerUtil.prettyLog(DebugUtil.getLogger(), "RUNTIME_MODE: {}", mode);
-        LoggerUtil.prettyLog(DebugUtil.getLogger(), "ROOT_PATH: {}", rootPath);
+        DebugUtil.getLogger().info("RUNTIME_MODE: {}", mode);
+        DebugUtil.getLogger().info("ROOT_PATH: {}", rootPath);
         boolean isDevMode = isRuntimeDevMode(mode);
         ClassLoader parent = ApplicationBootstrap.class.getClassLoader();
         ClassLoader classLoader = newClassLoader(parent, mode, isDevMode, rootPath, cpScaners);

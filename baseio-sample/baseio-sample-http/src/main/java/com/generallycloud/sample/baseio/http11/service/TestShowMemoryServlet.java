@@ -99,8 +99,8 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
         builder.append("\n</BR>小蝌蚪（WebSocket）客户端数量：");
         builder.append(rumpetrollMsgAdapter.getClientSize());
         builder.append("\n</BR>服务器当前连接数（io-session）：");
-        builder.append(context.getChannelManager().getManagedChannelSize());
-        for (NioSocketChannel s : context.getChannelManager().getManagedChannels().values()) {
+        builder.append(CountChannelListener.chs.size());
+        for (NioSocketChannel s : CountChannelListener.chs.values()) {
             builder.append("\n</BR>");
             builder.append(s);
             builder.append(",opened:");

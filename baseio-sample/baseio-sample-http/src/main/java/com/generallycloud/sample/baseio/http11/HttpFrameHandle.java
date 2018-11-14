@@ -30,7 +30,6 @@ import com.generallycloud.baseio.codec.http11.WebSocketFrame;
 import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
@@ -202,7 +201,7 @@ public class HttpFrameHandle extends IoEventHandle {
             entity.setContentType(contentType);
             entity.setFile(file);
             htmlCache.put(path, entity);
-            LoggerUtil.prettyLog(logger, "mapping static url:{}", path);
+            logger.info("mapping static url:{}", path);
         } else if (file.isDirectory()) {
             String staticName = path;
             if ("/lib".equals(staticName)) {

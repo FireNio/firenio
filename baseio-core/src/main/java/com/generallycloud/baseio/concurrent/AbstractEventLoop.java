@@ -18,8 +18,6 @@ package com.generallycloud.baseio.concurrent;
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.common.Assert;
-import com.generallycloud.baseio.common.LoggerUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
 import com.generallycloud.baseio.component.FastThreadLocalThread;
 import com.generallycloud.baseio.component.RejectedExecutionHandle;
 import com.generallycloud.baseio.component.RejectedExecutionHandle.DefaultRejectedExecutionHandle;
@@ -32,7 +30,6 @@ public abstract class AbstractEventLoop implements EventLoop {
     private EventLoopGroup        defaultGroup = new DefaultEventLoopGroup(this);
     private FastThreadLocalThread monitor      = null;
     private volatile boolean      running      = false;
-    private volatile boolean      stopped      = false;
 
     @Override
     public void execute(Runnable event) {}
@@ -68,10 +65,6 @@ public abstract class AbstractEventLoop implements EventLoop {
         return running;
     }
 
-    private boolean isStopped() {
-        return stopped;
-    }
-
     @Override
     public void run() {
         for (;;) {
@@ -81,7 +74,6 @@ public abstract class AbstractEventLoop implements EventLoop {
                 } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
                 }
-                stopped = true;
                 return;
             }
             try {
@@ -92,10 +84,6 @@ public abstract class AbstractEventLoop implements EventLoop {
         }
     }
 
-    protected void setStopped(boolean stopped) {
-        this.stopped = stopped;
-    }
-
     @Override
     public void startup(String threadName) throws Exception {
         synchronized (this) {
@@ -103,10 +91,8 @@ public abstract class AbstractEventLoop implements EventLoop {
                 return;
             }
             this.running = true;
-            this.stopped = false;
             this.monitor = new FastThreadLocalThread(this, threadName);
             this.doStartup();
-            LoggerUtil.prettyLog(logger, "loaded [ {} ]", this);
             EventLoopListener listener = getGroup().getEventLoopListener();
             if (listener != null) {
                 listener.onStartup(this);
@@ -127,12 +113,11 @@ public abstract class AbstractEventLoop implements EventLoop {
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
-//            if (!inEventLoop()) {
-//                for (; !isStopped();) {
-//                    ThreadUtil.sleep(4);
-//                }
-//            }
-            LoggerUtil.prettyLog(logger, "event looper {} stopped", this);
+            //            if (!inEventLoop()) {
+            //                for (; !isStopped();) {
+            //                    ThreadUtil.sleep(4);
+            //                }
+            //            }
             try {
                 EventLoopListener listener = getGroup().getEventLoopListener();
                 if (listener != null) {

@@ -32,6 +32,7 @@ import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.sample.baseio.http11.SpringHttpFrameHandle;
 import com.generallycloud.sample.baseio.http11.proxy4cloud.NetDataTransferServer;
+import com.generallycloud.sample.baseio.http11.service.CountChannelListener;
 
 /**
  * @author wangkai
@@ -54,6 +55,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         context.addChannelEventListener(new WebSocketChannelListener());
         context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
+        context.addChannelEventListener(new CountChannelListener());
         context.addLifeCycleListener(new AbstractLifeCycleListener() {
             @Override
             public void lifeCycleStopped(LifeCycle lifeCycle) {
@@ -79,7 +81,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
             context.setPort(context.isEnableSsl() ? 443 : 80);
         }
         context.bind();
-        NetDataTransferServer.startup(group, 8088);
+        NetDataTransferServer.startup(group, 18088);
     }
 
 }
