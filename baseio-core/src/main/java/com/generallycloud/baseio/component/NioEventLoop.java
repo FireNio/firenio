@@ -390,7 +390,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 closeChannels();
                 CloseUtil.close(selector);
                 ReleaseUtil.release(buf);
-                setStopped(true);
                 return;
             }
             try {

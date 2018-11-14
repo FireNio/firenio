@@ -29,6 +29,7 @@ import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 import com.generallycloud.sample.baseio.http11.proxy4cloud.HttpProxy4CloudServer.ProxySession4Cloud;
+import com.generallycloud.sample.baseio.http11.service.CountChannelListener;
 
 /**
  * @author wangkai
@@ -91,7 +92,9 @@ public class NetDataTransferServer {
                                 return null;
                             }
                         });
+                        context.setPrintConfig(false);
                         context.addChannelEventListener(new LoggerChannelOpenListener());
+                        context.addChannelEventListener(new CountChannelListener());
                         ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                         buf.read(src);
                         buf.flip();
@@ -139,6 +142,7 @@ public class NetDataTransferServer {
             }
         });
         context.addChannelEventListener(new LoggerChannelOpenListener());
+        context.addChannelEventListener(new CountChannelListener());
         context.bind();
     }
     

@@ -17,35 +17,37 @@ package com.generallycloud.test.io.http11;
 
 import com.generallycloud.baseio.codec.http11.ClientHttpCodec;
 import com.generallycloud.baseio.codec.http11.ClientHttpFrame;
-import com.generallycloud.baseio.codec.http11.HttpClient;
-import com.generallycloud.baseio.codec.http11.HttpFrame;
-import com.generallycloud.baseio.codec.http11.HttpIOEventHandle;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.component.ChannelConnector;
+import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.SslContext;
 import com.generallycloud.baseio.component.SslContextBuilder;
+import com.generallycloud.baseio.protocol.Frame;
 
 public class TestSimpleHttpClient {
 
     public static void main(String[] args) throws Exception {
 
-        HttpIOEventHandle eventHandleAdaptor = new HttpIOEventHandle();
         ChannelConnector context = new ChannelConnector("generallycloud.com", 443);
         SslContext sslContext = SslContextBuilder.forClient(true).build();
         context.setProtocolCodec(new ClientHttpCodec());
-        context.setIoEventHandle(eventHandleAdaptor);
+        context.setIoEventHandle(new IoEventHandle() {
+
+            @Override
+            public void accept(NioSocketChannel ch, Frame frame) throws Exception {
+                ClientHttpFrame res = (ClientHttpFrame) frame;
+                System.out.println();
+                System.out.println(new String(res.getBodyContent()));
+                System.out.println();
+                CloseUtil.close(context);
+            }
+        });
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setSslContext(sslContext);
         NioSocketChannel channel = context.connect();
-        HttpClient client = new HttpClient(channel);
-        HttpFrame frame = new ClientHttpFrame("/test-show-memory");
-        HttpFrame res = client.request(frame, 10000);
-        System.out.println();
-        System.out.println(new String(res.getBodyContent()));
-        System.out.println();
-        CloseUtil.close(context);
-
+        channel.flush(new ClientHttpFrame("/test-show-memory"));
     }
+    
 }

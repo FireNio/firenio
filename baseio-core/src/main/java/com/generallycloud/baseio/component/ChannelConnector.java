@@ -23,10 +23,7 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.concurrent.Waiter;
-import com.generallycloud.baseio.log.Logger;
-import com.generallycloud.baseio.log.LoggerFactory;
 
 /**
  * @author wangkai
@@ -38,7 +35,6 @@ public class ChannelConnector extends ChannelContext implements Closeable {
     private NioSocketChannel ch;
     private NioEventLoop     eventLoop;
     private SocketChannel    javaChannel;
-    private Logger           logger  = LoggerFactory.getLogger(getClass());
     private long             timeout = 3000;
     private Waiter           waiter;
 
@@ -183,7 +179,6 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         }
         this.ch = (NioSocketChannel) waiter.getResponse();
         this.waiter = null;
-        LoggerUtil.prettyLog(logger, "connected to server @" + getServerAddress());
     }
 
     public interface Callback {

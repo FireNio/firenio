@@ -24,7 +24,6 @@ import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Frame;
@@ -84,7 +83,7 @@ public class ChannelAcceptor extends ChannelContext {
             throw e;
         }
         this.active = true;
-        LoggerUtil.prettyLog(logger, "server listening @" + getServerAddress());
+        logger.info("server listening @" + getServerAddress());
     }
 
     public void broadcast(Frame frame) throws IOException {

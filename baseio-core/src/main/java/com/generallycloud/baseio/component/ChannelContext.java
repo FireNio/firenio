@@ -35,7 +35,6 @@ import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.common.Properties;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
@@ -76,6 +75,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     private long                           startupTime        = System.currentTimeMillis();
     private int                            workEventQueueSize = 1024 * 8;
     private InetSocketAddress              serverAddress;
+    private boolean                       printConfig = true;
 
     ChannelContext(NioEventLoopGroup group, String host, int port) {
         Assert.notNull(host, "null host");
@@ -83,7 +83,6 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         this.port = port;
         this.host = host;
         this.nioEventLoopGroup = group;
-        this.addLifeCycleListener(new ChannelContextListener());
     }
 
     public void addChannelEventListener(ChannelEventListener listener) {
@@ -115,31 +114,52 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         initHeartBeatLogger();
         initSslContext(getClass().getClassLoader());
         NioEventLoopGroup g = this.nioEventLoopGroup;
+        StringBuilder configStr = new StringBuilder();
         String protocolId = protocolCodec.getProtocolId();
         int eventLoopSize = g.getEventLoopSize();
-        LoggerUtil.prettyLog(logger, "charset               :[ {} ]", charset);
-        LoggerUtil.prettyLog(logger, "protocol              :[ {} ]", protocolId);
-        LoggerUtil.prettyLog(logger, "event loop size       :[ {} ]", eventLoopSize);
-        LoggerUtil.prettyLog(logger, "enable ssl            :[ {} ]", sslType());
-        LoggerUtil.prettyLog(logger, "channel idle          :[ {} ]", g.getIdleTime());
-        LoggerUtil.prettyLog(logger, "listen port(tcp)      :[ {} ]", port);
+        if (printConfig) {
+            configStr.append("\n    application configuration info");
+            configStr.append("\n    charset               : ");
+            configStr.append(charset);
+            configStr.append("\n    protocol              : ");
+            configStr.append(protocolId);
+            configStr.append("\n    event loop size       : ");
+            configStr.append(String.valueOf(eventLoopSize));
+            configStr.append("\n    enable ssl            : ");
+            configStr.append(sslType());
+            configStr.append("\n    channel idle          : ");
+            configStr.append(String.valueOf(g.getIdleTime()));
+            configStr.append("\n    listen port(tcp)      : ");
+            configStr.append(String.valueOf(port));
+        }
         if (g.isEnableMemoryPool()) {
             long memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();
             long memoryPoolByteSize = memoryPoolCapacity * g.getMemoryPoolUnit();
             double memoryPoolSize = memoryPoolByteSize / (1024 * 1024);
-            LoggerUtil.prettyLog(logger, "memory pool           :[ {} * {} ≈ {} M ]",
-                    new Object[] { g.getMemoryPoolUnit(), memoryPoolCapacity,
-                            new BigDecimal(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP) });
+            if (printConfig) {
+                configStr.append("\n    memory pool           : ");
+                configStr.append(String.valueOf(g.getMemoryPoolUnit()));
+                configStr.append(" * ");
+                configStr.append(String.valueOf(memoryPoolCapacity));
+                configStr.append(" ≈ ");
+                configStr.append(new BigDecimal(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP));
+                configStr.append(" M");
+                
+            }
         }
         if (isEnableSsl()) {
-            StringBuilder sb = new StringBuilder();
-            for (String p : SslContext.ENABLED_PROTOCOLS) {
-                sb.append(p);
-                sb.append(',');
-                sb.append(' ');
+            if (printConfig) {
+                configStr.append("\n    ssl default protocols : ");
+                for (String p : SslContext.ENABLED_PROTOCOLS) {
+                    configStr.append(p);
+                    configStr.append(',');
+                    configStr.append(' ');
+                }
+                configStr.setLength(configStr.length() - 2);
             }
-            sb.setLength(sb.length() - 2);
-            LoggerUtil.prettyLog(logger, "SSL default protocols :[ {} ] ", sb.toString());
+        }
+        if (printConfig) {
+            logger.info(configStr.toString());
         }
         protocolCodec.initialize(this);
         if (executorEventLoopGroup == null) {
@@ -152,6 +172,15 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         }
         serverAddress = new InetSocketAddress(host, port);
         LifeCycleUtil.start(executorEventLoopGroup);
+    }
+    
+    public boolean isPrintConfig() {
+        return printConfig;
+    }
+
+    public void setPrintConfig(boolean printConfig) {
+        checkNotRunning();
+        this.printConfig = printConfig;
     }
 
     @Override

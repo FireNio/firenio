@@ -13,29 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.baseio.codec.http11;
+package com.generallycloud.sample.baseio.http11.service;
 
-import com.generallycloud.baseio.component.IoEventHandle;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.generallycloud.baseio.component.ChannelEventListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
-import com.generallycloud.baseio.concurrent.Waiter;
-import com.generallycloud.baseio.protocol.Frame;
 
-public class HttpIOEventHandle extends IoEventHandle {
+/**
+ * @author wangkai
+ *
+ */
+public class CountChannelListener implements ChannelEventListener {
 
-    private Waiter waiter;
+    public static final Map<Integer, NioSocketChannel> chs = new ConcurrentHashMap<>();
 
     @Override
-    public void accept(NioSocketChannel ch, Frame frame) throws Exception {
-        HttpFrame f = (HttpFrame) frame;
-        Waiter waiter = this.waiter;
-        if (waiter != null) {
-            this.waiter = null;
-            waiter.response(f);
-        }
+    public void channelOpened(NioSocketChannel ch) throws Exception {
+        chs.put(ch.getChannelId(), ch);
     }
 
-    public Waiter newWaiter() {
-        this.waiter = new Waiter();
-        return this.waiter;
+    @Override
+    public void channelClosed(NioSocketChannel ch) {
+        chs.remove(ch.getChannelId());
     }
+
 }

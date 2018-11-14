@@ -5,7 +5,7 @@
 	<property name="LOG_HOME" value="logs"></property>
 	<property name="maxFileSize" value="50MB"></property>
 	<property name="charset" value="UTF-8"></property>
-	<property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%level] %logger{0} -%msg%n"></property>
+	<property name="pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%level] %logger{0} - %msg%n"></property>
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>

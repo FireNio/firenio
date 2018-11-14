@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.generallycloud.baseio.common.LoggerUtil;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -124,10 +123,6 @@ public abstract class AbstractLifeCycle implements LifeCycle {
         return state == STOPPING;
     }
 
-    protected boolean logger() {
-        return true;
-    }
-
     @Override
     public void removeLifeCycleListener(LifeCycleListener listener) {
         synchronized (lifeCycleListeners) {
@@ -145,9 +140,6 @@ public abstract class AbstractLifeCycle implements LifeCycle {
         this.fireEvent(state, null);
         try {
             this.doStart();
-            if (logger()) {
-                LoggerUtil.prettyLog(logger, "loaded [ {} ]", this.toString());
-            }
         } catch (Exception e) {
             this.state = FAILED;
             this.fireEvent(state, e);
@@ -166,9 +158,6 @@ public abstract class AbstractLifeCycle implements LifeCycle {
         this.fireEvent(state, null);
         try {
             this.doStop();
-            if (logger()) {
-                LoggerUtil.prettyLog(logger, "unloaded [ {} ]", this.toString());
-            }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
