@@ -47,6 +47,10 @@ public class IntArray {
         return size;
     }
 
+    public void clear() {
+        size = 0;
+    }
+
     public int capacity() {
         return array.length;
     }

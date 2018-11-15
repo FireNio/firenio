@@ -179,13 +179,9 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
     }
 
     @Override
-    @SuppressWarnings("restriction")
     public void freeMemory() {
         if (isDirect()) {
-            ByteBuffer memory = PooledByteBufAllocator.this.directMemory;
-            if (((sun.nio.ch.DirectBuffer) memory).cleaner() != null) {
-                ((sun.nio.ch.DirectBuffer) memory).cleaner().clean();
-            }
+            ByteBufUtil.release(directMemory);
         } else {
             //FIXME 这里不free了，如果在次申请的时候大小和这次一致，则不在重新申请
             // this.memory = null;
