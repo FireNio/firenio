@@ -17,6 +17,7 @@ package com.generallycloud.sample.baseio.http11.proxy4cloud;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
@@ -38,7 +39,15 @@ import com.generallycloud.sample.baseio.http11.service.CountChannelListener;
  *
  */
 public class NetDataTransferServer {
+    
+    private static final NetDataTransferServer instance = new NetDataTransferServer();
+    
+    private AtomicInteger connectorCallback = new AtomicInteger();
 
+    public static NetDataTransferServer get(){
+        return instance;
+    }
+    
     public static void mask(ByteBuf src,byte m){
         ByteBuffer buf = src.nioBuffer();
         int p = buf.position();
@@ -48,7 +57,7 @@ public class NetDataTransferServer {
         }
     }
 
-    public synchronized static void startup(NioEventLoopGroup group, int port) throws IOException {
+    public synchronized void startup(NioEventLoopGroup group, int port) throws IOException {
 
         ChannelAcceptor context = new ChannelAcceptor(group, port);
         context.setProtocolCodec(new ProtocolCodec() {
@@ -101,8 +110,10 @@ public class NetDataTransferServer {
                         ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                         buf.read(src);
                         buf.flip();
+                        connectorCallback.getAndIncrement();
                         s.connector = context;
                         s.connector.connect((ch, ex) -> {
+                            connectorCallback.getAndDecrement();
                             if (ex == null) {
                                 mask(buf, s.mask);
                                 ch.flush(buf);
@@ -152,7 +163,7 @@ public class NetDataTransferServer {
     
     public static void main(String[] args) throws IOException {
         
-        startup(new NioEventLoopGroup(true), 18088);
+        get().startup(new NioEventLoopGroup(true), 18088);
         
     }
 
