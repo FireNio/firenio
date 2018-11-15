@@ -134,7 +134,7 @@ public class HttpCodec extends ProtocolCodec {
     Frame decodeRemainBody(NioSocketChannel ch, ByteBuf src, HttpFrame f) {
         int contentLength = f.contentLength;
         int remain = src.remaining();
-        byte [] bodyArray = null;
+        byte[] bodyArray = null;
         if (remain == contentLength) {
             bodyArray = src.getBytes();
         } else if (remain < contentLength) {
@@ -183,74 +183,68 @@ public class HttpCodec extends ProtocolCodec {
         }
         f.setResponseHeader(Date, getHttpDateBytes());
         int write_size = f.getWriteSize();
-        ByteBuf buf = null;
-        try {
-            byte[] status_bytes = f.getStatus().getBinary();
-            byte[] length_bytes = String.valueOf(write_size).getBytes();
-            int len = PROTOCOL.length + status_bytes.length + CONTENT_LENGTH.length
-                    + length_bytes.length + 2;
-            List<byte[]> encode_bytes_array = getEncodeBytesArray();
-            int header_size = 0;
-            int cookie_size = 0;
-            Map<HttpHeader, byte[]> headers = f.getResponseHeaders();
-            if (headers != null) {
-                headers.remove(HttpHeader.Content_Length);
-                for (Entry<HttpHeader, byte[]> header : headers.entrySet()) {
-                    byte[] k = header.getKey().getBytes();
-                    byte[] v = header.getValue();
-                    if (v == null) {
-                        continue;
-                    }
-                    header_size++;
-                    encode_bytes_array.add(k);
-                    encode_bytes_array.add(v);
-                    len += 4;
-                    len += k.length;
-                    len += v.length;
+        byte[] status_bytes = f.getStatus().getBinary();
+        byte[] length_bytes = String.valueOf(write_size).getBytes();
+        int len = PROTOCOL.length + status_bytes.length + CONTENT_LENGTH.length
+                + length_bytes.length + 2;
+        List<byte[]> encode_bytes_array = getEncodeBytesArray();
+        int header_size = 0;
+        int cookie_size = 0;
+        Map<HttpHeader, byte[]> headers = f.getResponseHeaders();
+        if (headers != null) {
+            headers.remove(HttpHeader.Content_Length);
+            for (Entry<HttpHeader, byte[]> header : headers.entrySet()) {
+                byte[] k = header.getKey().getBytes();
+                byte[] v = header.getValue();
+                if (v == null) {
+                    continue;
                 }
+                header_size++;
+                encode_bytes_array.add(k);
+                encode_bytes_array.add(v);
+                len += 4;
+                len += k.length;
+                len += v.length;
             }
-            List<Cookie> cookieList = f.getCookieList();
-            if (cookieList != null) {
-                for (Cookie c : cookieList) {
-                    byte[] bytes = c.toString().getBytes();
-                    cookie_size++;
-                    encode_bytes_array.add(bytes);
-                    len += SET_COOKIE.length + 2;
-                    len += bytes.length;
-                }
+        }
+        List<Cookie> cookieList = f.getCookieList();
+        if (cookieList != null) {
+            for (Cookie c : cookieList) {
+                byte[] bytes = c.toString().getBytes();
+                cookie_size++;
+                encode_bytes_array.add(bytes);
+                len += SET_COOKIE.length + 2;
+                len += bytes.length;
             }
-            len += 2;
-            len += write_size;
-            buf = ch.alloc().allocate(len);
-            buf.put(PROTOCOL);
-            buf.put(status_bytes);
-            buf.put(CONTENT_LENGTH);
-            buf.put(length_bytes);
+        }
+        len += 2;
+        len += write_size;
+        ByteBuf buf = ch.alloc().allocate(len);
+        buf.put(PROTOCOL);
+        buf.put(status_bytes);
+        buf.put(CONTENT_LENGTH);
+        buf.put(length_bytes);
+        buf.putByte(R);
+        buf.putByte(N);
+        int j = 0;
+        for (int i = 0; i < header_size; i++) {
+            buf.put(encode_bytes_array.get(j++));
+            buf.putByte(COLON);
+            buf.putByte(SPACE);
+            buf.put(encode_bytes_array.get(j++));
             buf.putByte(R);
             buf.putByte(N);
-            int j = 0;
-            for (int i = 0; i < header_size; i++) {
-                buf.put(encode_bytes_array.get(j++));
-                buf.putByte(COLON);
-                buf.putByte(SPACE);
-                buf.put(encode_bytes_array.get(j++));
-                buf.putByte(R);
-                buf.putByte(N);
-            }
-            for (int i = 0; i < cookie_size; i++) {
-                buf.put(SET_COOKIE);
-                buf.put(encode_bytes_array.get(j++));
-                buf.putByte(R);
-                buf.putByte(N);
-            }
+        }
+        for (int i = 0; i < cookie_size; i++) {
+            buf.put(SET_COOKIE);
+            buf.put(encode_bytes_array.get(j++));
             buf.putByte(R);
             buf.putByte(N);
-            if (write_size != 0) {
-                buf.put(f.getWriteBuffer(), 0, write_size);
-            }
-        } catch (Exception e) {
-            buf.release();
-            throw e;
+        }
+        buf.putByte(R);
+        buf.putByte(N);
+        if (write_size != 0) {
+            buf.put(f.getWriteBuffer(), 0, write_size);
         }
         return buf.flip();
     }
