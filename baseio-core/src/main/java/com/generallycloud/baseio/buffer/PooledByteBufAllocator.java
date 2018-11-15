@@ -177,6 +177,20 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         }
         return used;
     }
+    
+    public ByteBuf getUsedBuf(int skip){
+        int skiped = 0;
+        for (int i = 0; i < getCapacity(); i++) {
+            if (!frees.get(i)) {
+                skiped++;
+                if (skiped > skip) {
+                    int limit = (blockEnds[i] - i) * getUnitMemorySize();
+                    return newByteBuf().produce(i, blockEnds[i], limit);
+                }
+            }
+        }
+        return null;
+    }
 
     @Override
     public void freeMemory() {
