@@ -97,8 +97,20 @@
 
 		<dependency>
 			<groupId>org.wildfly.openssl</groupId>
-			<artifactId>wildfly-openssl</artifactId>
-			<version>1.0.4.Final</version>
+			<artifactId>wildfly-openssl-windows-x86_64</artifactId>
+			<version>1.0.6.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.wildfly.openssl</groupId>
+			<artifactId>wildfly-openssl-linux-x86_64</artifactId>
+			<version>1.0.6.Final</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.wildfly.openssl</groupId>
+			<artifactId>wildfly-openssl-java</artifactId>
+			<version>1.0.6.Final</version>
 		</dependency>
 
 	</dependencies>
