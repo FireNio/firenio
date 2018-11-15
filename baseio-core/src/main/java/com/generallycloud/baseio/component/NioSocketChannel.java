@@ -250,7 +250,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     private void fireClosed() {
         final NioSocketChannel ch = this;
-        eventLoop.removeChannel(ch);
+        eventLoop.removeChannel(ch.channelId);
         for (ChannelEventListener l : context.getChannelEventListeners()) {
             try {
                 l.channelClosed(ch);
