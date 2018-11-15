@@ -48,6 +48,7 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.collection.Attributes;
+import com.generallycloud.baseio.collection.IntArray;
 import com.generallycloud.baseio.collection.IntObjectHashMap;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
@@ -76,12 +77,12 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     "registChannel(...)");
 
     private final ByteBufAllocator                   alloc;
-    private final Map<Object, Object>                attributes;
+    private final Map<Object, Object>                attributes              = new HashMap<>();
     private ByteBuf                                  buf;
-    private final IntObjectHashMap<NioSocketChannel> channels;
+    private final IntObjectHashMap<NioSocketChannel> channels                = new IntObjectHashMap<>();
     private final int                                channelSizeLimit;
     private String                                   desc;
-    private final Queue<Runnable>                    events;
+    private final Queue<Runnable>                    events                  = new LinkedBlockingQueue<>();
     private final NioEventLoopGroup                  group;
     private volatile boolean                         hasTask                 = false;
     private final int                                index;
@@ -93,6 +94,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     // true eventLooper, false offerer
     private final AtomicInteger                      wakener                 = new AtomicInteger();
     private ByteBuffer[]                             writeBuffers;
+    private final IntArray                           preCloseSessionIds      = new IntArray();
 
     NioEventLoop(NioEventLoopGroup group, int index) {
         this.index = index;
@@ -105,9 +107,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         } else {
             this.selectionKeySet = null;
         }
-        attributes = new HashMap<>();
-        events = new LinkedBlockingQueue<>();
-        channels = new IntObjectHashMap<>();
     }
 
     private void accept(final SelectionKey key) {
@@ -442,10 +441,23 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     selectTime = nextIdle - now;
                 }
                 handleEvents(events);
+                removeClosedChannels();
             } catch (Throwable e) {
                 printException(logger, e);
             }
         }
+    }
+    
+    private void removeClosedChannels(){
+        IntArray list = preCloseSessionIds;
+        if (list.size() == 0) {
+            return;
+        }
+        for(int i = 0,count = list.size(); i < count;i++){
+            NioSocketChannel ch = channels.remove(list.get(i));
+            ch.getContext().getChannelManager().removeChannel(ch);
+        }
+        list.clear();
     }
 
     private void registChannel(SocketChannel jch, NioEventLoop el, ChannelContext context) {
@@ -547,9 +559,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return this.attributes.remove(key);
     }
 
-    protected void removeChannel(NioSocketChannel ch) {
-        channels.remove(ch.getChannelId());
-        ch.getContext().getChannelManager().removeChannel(ch);
+    protected void removeChannel(int chId) {
+        preCloseSessionIds.add(chId);
     }
 
     @Override

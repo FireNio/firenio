@@ -75,7 +75,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     private long                           startupTime        = System.currentTimeMillis();
     private int                            workEventQueueSize = 1024 * 8;
     private InetSocketAddress              serverAddress;
-    private boolean                       printConfig = true;
+    private boolean                        printConfig        = true;
 
     ChannelContext(NioEventLoopGroup group, String host, int port) {
         Assert.notNull(host, "null host");
@@ -114,52 +114,33 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         initHeartBeatLogger();
         initSslContext(getClass().getClassLoader());
         NioEventLoopGroup g = this.nioEventLoopGroup;
-        StringBuilder configStr = new StringBuilder();
         String protocolId = protocolCodec.getProtocolId();
         int eventLoopSize = g.getEventLoopSize();
         if (printConfig) {
-            configStr.append("\n    application configuration info");
-            configStr.append("\n    charset               : ");
-            configStr.append(charset);
-            configStr.append("\n    protocol              : ");
-            configStr.append(protocolId);
-            configStr.append("\n    event loop size       : ");
-            configStr.append(String.valueOf(eventLoopSize));
-            configStr.append("\n    enable ssl            : ");
-            configStr.append(sslType());
-            configStr.append("\n    channel idle          : ");
-            configStr.append(String.valueOf(g.getIdleTime()));
-            configStr.append("\n    listen port(tcp)      : ");
-            configStr.append(String.valueOf(port));
-        }
-        if (g.isEnableMemoryPool()) {
-            long memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();
-            long memoryPoolByteSize = memoryPoolCapacity * g.getMemoryPoolUnit();
-            double memoryPoolSize = memoryPoolByteSize / (1024 * 1024);
-            if (printConfig) {
-                configStr.append("\n    memory pool           : ");
-                configStr.append(String.valueOf(g.getMemoryPoolUnit()));
-                configStr.append(" * ");
-                configStr.append(String.valueOf(memoryPoolCapacity));
-                configStr.append(" ≈ ");
-                configStr.append(new BigDecimal(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP));
-                configStr.append(" M");
-                
+            logger.info("charset               : [ {} ]", charset);
+            logger.info("protocol              : [ {} ]", protocolId);
+            logger.info("event loop size       : [ {} ]", eventLoopSize);
+            logger.info("enable ssl            : [ {} ]", sslType());
+            logger.info("channel idle          : [ {} ]", g.getIdleTime());
+            logger.info("listen port(tcp)      : [ {} ]", port);
+            if (g.isEnableMemoryPool()) {
+                long memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();
+                long memoryPoolByteSize = memoryPoolCapacity * g.getMemoryPoolUnit();
+                double memoryPoolSize = memoryPoolByteSize / (1024 * 1024);
+                logger.info("memory pool           : [ {} * {} ≈ {} M ]", g.getMemoryPoolUnit(),
+                        memoryPoolCapacity,
+                        new BigDecimal(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP));
             }
-        }
-        if (isEnableSsl()) {
-            if (printConfig) {
-                configStr.append("\n    ssl default protocols : ");
+            if (isEnableSsl()) {
+                StringBuilder sb = new StringBuilder();
                 for (String p : SslContext.ENABLED_PROTOCOLS) {
-                    configStr.append(p);
-                    configStr.append(',');
-                    configStr.append(' ');
+                    sb.append(p);
+                    sb.append(',');
+                    sb.append(' ');
                 }
-                configStr.setLength(configStr.length() - 2);
+                sb.setLength(sb.length() - 2);
+                logger.info("ssl default protocols : [ {} ]", sb.toString());
             }
-        }
-        if (printConfig) {
-            logger.info(configStr.toString());
         }
         protocolCodec.initialize(this);
         if (executorEventLoopGroup == null) {
@@ -173,7 +154,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         serverAddress = new InetSocketAddress(host, port);
         LifeCycleUtil.start(executorEventLoopGroup);
     }
-    
+
     public boolean isPrintConfig() {
         return printConfig;
     }
@@ -185,7 +166,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
 
     @Override
     protected void doStop() throws Exception {
-        for(NioSocketChannel ch : channelManager.getManagedChannels().values()){
+        for (NioSocketChannel ch : channelManager.getManagedChannels().values()) {
             CloseUtil.close(ch);
         }
         if (!getNioEventLoopGroup().isSharable()) {
