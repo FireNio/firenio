@@ -127,7 +127,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
                 long memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();
                 long memoryPoolByteSize = memoryPoolCapacity * g.getMemoryPoolUnit();
                 double memoryPoolSize = memoryPoolByteSize / (1024 * 1024);
-                logger.info("memory pool           : [ {} * {} ≈ {} M ]", g.getMemoryPoolUnit(),
+                logger.info("memory pool           : [ {}/{}/{}M ]", g.getMemoryPoolUnit(),
                         memoryPoolCapacity,
                         new BigDecimal(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP));
             }
