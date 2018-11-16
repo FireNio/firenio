@@ -138,7 +138,7 @@ public class ClientHttpCodec extends HttpCodec {
             setHttpFrame(ch, f);
             return null;
         }
-        if (CONTENT_APPLICATION_URLENCODED.equals(f.contentType)) {
+        if (HttpStatic.application_urlencoded.equals(f.contentType)) {
             // FIXME encoding
             String paramString = new String(f.bodyArray, ch.getCharset());
             parse_kv(f.params, paramString, '=', '&');

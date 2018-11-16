@@ -22,9 +22,9 @@ import static com.generallycloud.baseio.codec.http11.HttpHeader.Sec_WebSocket_Ke
 import static com.generallycloud.baseio.codec.http11.HttpHeader.Server;
 import static com.generallycloud.baseio.codec.http11.HttpHeader.Upgrade;
 import static com.generallycloud.baseio.codec.http11.HttpStatic.keep_alive_bytes;
-import static com.generallycloud.baseio.codec.http11.HttpStatic.plain_gbk_bytes;
-import static com.generallycloud.baseio.codec.http11.HttpStatic.plain_utf8_bytes;
 import static com.generallycloud.baseio.codec.http11.HttpStatic.server_baseio_bytes;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.text_plain_gbk_bytes;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.text_plain_utf8_bytes;
 import static com.generallycloud.baseio.codec.http11.HttpStatic.upgrade_bytes;
 import static com.generallycloud.baseio.codec.http11.HttpStatic.websocket_bytes;
 
@@ -255,9 +255,9 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
     private void setDefaultResponseHeaders(ChannelContext context) {
         Map<HttpHeader, byte[]> headers = getResponseHeaders();
         if (context.getCharset() == Encoding.GBK) {
-            headers.put(Content_Type, plain_gbk_bytes);
+            headers.put(Content_Type, text_plain_gbk_bytes);
         } else {
-            headers.put(Content_Type, plain_utf8_bytes);
+            headers.put(Content_Type, text_plain_utf8_bytes);
         }
         headers.put(Server, server_baseio_bytes);
         headers.put(Connection, keep_alive_bytes); // or close

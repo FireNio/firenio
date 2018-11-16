@@ -73,7 +73,7 @@ public class TestEmojiServlet extends HttpFrameAcceptor {
 
         frame.write(builder.toString(), ch);
 
-        frame.setResponseHeader(HttpHeader.Content_Type, HttpStatic.html_utf8_bytes);
+        frame.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_html_utf8_bytes);
 
         ch.flush(frame);
     }
