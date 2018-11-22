@@ -15,10 +15,8 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import static com.generallycloud.baseio.codec.http11.HttpHeader.Content_Length;
-import static com.generallycloud.baseio.codec.http11.HttpHeader.Content_Type;
-import static com.generallycloud.baseio.codec.http11.HttpHeader.Cookie;
-import static com.generallycloud.baseio.codec.http11.HttpHeader.Date;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.*;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +30,7 @@ import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.KMPUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.FastThreadLocal;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
@@ -43,40 +42,26 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  */
 public class HttpCodec extends ProtocolCodec {
 
-    public static final byte                        COLON                              = ':';
-    public static final String                      CONTENT_APPLICATION_JAVASCRIPTUTF8 = "application/x-javascript;charset=utf-8";
-    public static final String                      CONTENT_APPLICATION_OCTET_STREAM   = "application/octet-stream";
-    public static final String                      CONTENT_APPLICATION_URLENCODED     = "application/x-www-form-urlencoded";
-    public static final byte[]                      CONTENT_LENGTH                     = "\r\nContent-Length: "
-            .getBytes();
-    public static final String                      CONTENT_TYPE_IMAGE_GIF             = "image/gif";
-    public static final String                      CONTENT_TYPE_IMAGE_ICON            = "image/x-icon";
-    public static final String                      CONTENT_TYPE_IMAGE_JPEG            = "image/jpeg";
-    public static final String                      CONTENT_TYPE_IMAGE_PNG             = "image/png";
-    public static final String                      CONTENT_TYPE_MULTIPART             = "multipart/form-data";
-    public static final String                      CONTENT_TYPE_TEXT_CSSUTF8          = "text/css;charset=utf-8";
-    public static final String                      CONTENT_TYPE_TEXT_HTMLUTF8         = "text/html;charset=utf-8";
-    public static final String                      CONTENT_TYPE_TEXT_PLAIN            = "text/plain";
-    public static final String                      CONTENT_TYPE_TEXT_PLAINUTF8        = "text/plain;charset=utf-8";
-    private static final ThreadLocal<HDBsHolder>    dateBytes                          = new ThreadLocal<>();
-    public static final String                      FRAME_STACK_KEY                    = "FixedThreadStack_HttpFrame";
-    private static final String                     HTTP_DECODE_FRAME_KEY              = "_HTTP_DECODE_FRAME_KEY";
-    private static final KMPUtil                    KMP_BOUNDARY                       = new KMPUtil(
-            "boundary=");
-    public static final byte                        N                                  = '\n';
-    public static final byte[]                      PROTOCOL                           = "HTTP/1.1 "
-            .getBytes();
-    public static final byte                        R                                  = '\r';
-    public static final byte[]                      SET_COOKIE                         = "Set-Cookie:"
-            .getBytes();
-    public static final byte                        SPACE                              = ' ';
-    private static final ThreadLocal<StringBuilder> stringBuilder                      = new ThreadLocal<>();
+    private static final byte[]            CONTENT_LENGTH     = b("\r\nContent-Length: ");
+    private static final ThreadLocal<DBsH> dateBytes          = new ThreadLocal<>();
+    private static final String            FRAME_STACK_KEY    = "FRAME_HTTP_STACK_KEY";
+    private static final String            FRAME_DECODE_KEY   = "FRAME_HTTP_DECODE_KEY";
+    private static final KMPUtil           KMP_BOUNDARY       = new KMPUtil("boundary=");
+    public static final byte               N                  = '\n';
+    public static final byte[]             PROTOCOL           = b("HTTP/1.1 ");
+    public static final byte               R                  = '\r';
+    public static final byte[]             SET_COOKIE         = b("Set-Cookie:");
+    public static final byte               SPACE              = ' ';
 
-    private int                                     bodyLimit                          = 1024 * 512;
-    private int                                     headerLimit                        = 1024 * 8;
-    private int                                     httpFrameStackSize                 = 0;
-    private int                                     websocketFrameStackSize            = 0;
-    private int                                     websocketLimit                     = 1024 * 128;
+    private int                            bodyLimit          = 1024 * 512;
+    private int                            headerLimit        = 1024 * 8;
+    private int                            httpFrameStackSize = 0;
+    private int                            websocketStackSize = 0;
+    private int                            websocketLimit     = 1024 * 128;
+
+    private static byte[] b(String s) {
+        return s.getBytes();
+    }
 
     public HttpCodec() {}
 
@@ -97,7 +82,7 @@ public class HttpCodec extends ProtocolCodec {
 
     @Override
     public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
-        HttpFrame f = (HttpFrame) ch.getAttribute(HTTP_DECODE_FRAME_KEY);
+        HttpFrame f = (HttpFrame) ch.getAttribute(FRAME_DECODE_KEY);
         if (f == null) {
             f = newHttpFrame(ch);
         }
@@ -146,7 +131,7 @@ public class HttpCodec extends ProtocolCodec {
             bodyArray = src.getBytes();
             src.resetL();
         }
-        if (CONTENT_APPLICATION_URLENCODED.equals(f.contentType)) {
+        if (application_urlencoded.equals(f.contentType)) {
             // FIXME encoding
             String paramString = new String(bodyArray, ch.getCharset());
             parse_kv(f.params, paramString, '=', '&');
@@ -159,7 +144,7 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     void doCompplete(NioSocketChannel ch, HttpFrame f) {
-        ch.removeAttribute(HTTP_DECODE_FRAME_KEY);
+        ch.removeAttribute(FRAME_DECODE_KEY);
     }
 
     static final ThreadLocal<List<byte[]>> encode_bytes_arrays = new ThreadLocal<>();
@@ -185,27 +170,27 @@ public class HttpCodec extends ProtocolCodec {
         int write_size = f.getWriteSize();
         byte[] status_bytes = f.getStatus().getBinary();
         byte[] length_bytes = String.valueOf(write_size).getBytes();
-        int len = PROTOCOL.length + status_bytes.length + CONTENT_LENGTH.length
-                + length_bytes.length + 2;
+        int len = PROTOCOL.length 
+                + status_bytes.length 
+                + CONTENT_LENGTH.length
+                + length_bytes.length 
+                + 2;
         List<byte[]> encode_bytes_array = getEncodeBytesArray();
         int header_size = 0;
         int cookie_size = 0;
         Map<HttpHeader, byte[]> headers = f.getResponseHeaders();
-        if (headers != null) {
-            headers.remove(HttpHeader.Content_Length);
-            for (Entry<HttpHeader, byte[]> header : headers.entrySet()) {
-                byte[] k = header.getKey().getBytes();
-                byte[] v = header.getValue();
-                if (v == null) {
-                    continue;
-                }
-                header_size++;
-                encode_bytes_array.add(k);
-                encode_bytes_array.add(v);
-                len += 4;
-                len += k.length;
-                len += v.length;
+        for (Entry<HttpHeader, byte[]> header : headers.entrySet()) {
+            byte[] k = header.getKey().getBytes();
+            byte[] v = header.getValue();
+            if (v == null) {
+                continue;
             }
+            header_size++;
+            encode_bytes_array.add(k);
+            encode_bytes_array.add(v);
+            len += 4;
+            len += k.length;
+            len += v.length;
         }
         List<Cookie> cookieList = f.getCookieList();
         if (cookieList != null) {
@@ -229,7 +214,7 @@ public class HttpCodec extends ProtocolCodec {
         int j = 0;
         for (int i = 0; i < header_size; i++) {
             buf.put(encode_bytes_array.get(j++));
-            buf.putByte(COLON);
+            buf.putByte((byte) ':');
             buf.putByte(SPACE);
             buf.put(encode_bytes_array.get(j++));
             buf.putByte(R);
@@ -258,15 +243,14 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     private byte[] getHttpDateBytes() {
-        HDBsHolder h = dateBytes.get();
+        DBsH h = dateBytes.get();
         if (h == null) {
-            h = new HDBsHolder();
+            h = new DBsH();
             dateBytes.set(h);
         }
         long now = System.currentTimeMillis();
-        long time = now % 1000;
-        if (time != h.time) {
-            h.time = time;
+        if (now > h.time) {
+            h.time = now + 1000;
             h.value = DateUtil.get().formatHttpBytes(now);
         }
         return h.value;
@@ -282,7 +266,7 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     public int getWebsocketFrameStackSize() {
-        return websocketFrameStackSize;
+        return websocketStackSize;
     }
 
     public int getWebsocketLimit() {
@@ -291,7 +275,7 @@ public class HttpCodec extends ProtocolCodec {
 
     @Override
     public void initialize(ChannelContext context) {
-        WebSocketCodec.init(context, websocketLimit, websocketFrameStackSize);
+        WebSocketCodec.init(context, websocketLimit, websocketStackSize);
     }
 
     @SuppressWarnings("unchecked")
@@ -322,7 +306,7 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     void parse_kv(Map<String, String> map, String line, char kvSplitor, char eSplitor) {
-        StringBuilder sb = getCacheStringBuilder();
+        StringBuilder sb = FastThreadLocal.get().getStringBuilder();
         int state_findKey = 0;
         int state_findValue = 1;
         int state = state_findKey;
@@ -360,19 +344,15 @@ public class HttpCodec extends ProtocolCodec {
 
     private void parseContentType(HttpFrame f, String contentType) {
         if (StringUtil.isNullOrBlank(contentType)) {
-            f.contentType = CONTENT_APPLICATION_URLENCODED;
+            f.contentType = application_urlencoded;
             return;
         }
-        if (CONTENT_APPLICATION_URLENCODED.equals(contentType)) {
-            f.contentType = CONTENT_APPLICATION_URLENCODED;
-        } else if (CONTENT_TYPE_TEXT_PLAINUTF8.equals(contentType)) {
-            f.contentType = CONTENT_TYPE_TEXT_PLAINUTF8;
-        } else if (contentType.startsWith("multipart/form-data;")) {
+        if (contentType.startsWith("multipart/form-data;")) {
             int index = KMP_BOUNDARY.match(contentType);
             if (index != -1) {
                 f.setBoundary(contentType.substring(index + 9));
             }
-            f.contentType = CONTENT_TYPE_MULTIPART;
+            f.contentType = multipart;
         } else {
             // FIXME other content-type
             f.contentType = contentType;
@@ -406,7 +386,7 @@ public class HttpCodec extends ProtocolCodec {
     private void decodeHeader(HttpFrame f, ByteBuf buffer) throws IOException {
         StringBuilder currentHeaderLine = f.currentHeaderLine;
         if (currentHeaderLine == null) {
-            currentHeaderLine = getCacheStringBuilder();
+            currentHeaderLine = FastThreadLocal.get().getStringBuilder();
         }
         int headerLength = f.headerLength;
         for (; buffer.hasRemaining();) {
@@ -449,31 +429,30 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public void release(NioEventLoop eventLoop, Frame frame) {
+        //FIXME ..final statck is null or not null
+        List<HttpFrame> stack = (List<HttpFrame>) eventLoop.getAttribute(FRAME_STACK_KEY);
+        if (stack != null && stack.size() < httpFrameStackSize) {
+            stack.add((HttpFrame) frame);
+        }
+    }
+
     void setHttpFrame(NioSocketChannel ch, HttpFrame f) {
-        ch.setAttribute(HTTP_DECODE_FRAME_KEY, f);
+        ch.setAttribute(FRAME_DECODE_KEY, f);
     }
 
     public void setWebsocketFrameStackSize(int websocketFrameStackSize) {
-        this.websocketFrameStackSize = websocketFrameStackSize;
+        this.websocketStackSize = websocketFrameStackSize;
     }
 
     public void setWebsocketLimit(int websocketLimit) {
         this.websocketLimit = websocketLimit;
     }
 
-    class HDBsHolder {
+    class DBsH {
         long   time;
         byte[] value;
-    }
-
-    private static StringBuilder getCacheStringBuilder() {
-        StringBuilder cache = stringBuilder.get();
-        if (cache == null) {
-            cache = new StringBuilder(256);
-            stringBuilder.set(cache);
-        }
-        cache.setLength(0);
-        return cache;
     }
 
 }

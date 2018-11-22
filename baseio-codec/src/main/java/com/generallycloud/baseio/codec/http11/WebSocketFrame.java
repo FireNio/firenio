@@ -15,12 +15,16 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import com.generallycloud.baseio.collection.FixedThreadStack;
-import com.generallycloud.baseio.component.NioEventLoop;
+import static com.generallycloud.baseio.codec.http11.WebSocketCodec.CHANNEL_KEY_SERVICE_NAME;
+import static com.generallycloud.baseio.codec.http11.WebSocketCodec.OP_CONNECTION_CLOSE_FRAME;
+import static com.generallycloud.baseio.codec.http11.WebSocketCodec.OP_CONTINUATION_FRAME;
+import static com.generallycloud.baseio.codec.http11.WebSocketCodec.TYPE_PING;
+import static com.generallycloud.baseio.codec.http11.WebSocketCodec.TYPE_PONG;
+import static com.generallycloud.baseio.codec.http11.WebSocketCodec.TYPE_TEXT;
+
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractFrame;
 import com.generallycloud.baseio.protocol.Frame;
-import static com.generallycloud.baseio.codec.http11.WebSocketCodec.*;
 
 public class WebSocketFrame extends AbstractFrame implements HttpMessage {
 
@@ -62,19 +66,6 @@ public class WebSocketFrame extends AbstractFrame implements HttpMessage {
 
     public boolean isEof() {
         return eof;
-    }
-
-    @SuppressWarnings("unchecked")
-    public void release(NioEventLoop eventLoop) {
-        //FIXME ..final statck is null or not null
-        if (WS_PROTOCOL_CODEC.getFrameStackSize() == 0) {
-            return;
-        }
-        FixedThreadStack<WebSocketFrame> stack = (FixedThreadStack<WebSocketFrame>) eventLoop
-                .getAttribute(FRAME_STACK_KEY);
-        if (stack != null) {
-            stack.push(this);
-        }
     }
 
     protected WebSocketFrame reset(String serviceName, int limit) {

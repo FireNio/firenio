@@ -102,7 +102,7 @@ public class ClientHttpCodec extends HttpCodec {
             int j = 0;
             for (int i = 0; i < header_size; i++) {
                 buf.put(encode_bytes_array.get(j++));
-                buf.putByte(COLON);
+                buf.putByte((byte) ':');
                 buf.putByte(SPACE);
                 buf.put(encode_bytes_array.get(j++));
                 buf.putByte(R);
@@ -110,7 +110,7 @@ public class ClientHttpCodec extends HttpCodec {
             }
             for (int i = 0; i < cookie_size; i++) {
                 buf.put(encode_bytes_array.get(j++));
-                buf.putByte(COLON);
+                buf.putByte((byte) ':');
                 buf.put(encode_bytes_array.get(j++));
                 buf.putByte(SEMICOLON);
             }
@@ -138,7 +138,7 @@ public class ClientHttpCodec extends HttpCodec {
             setHttpFrame(ch, f);
             return null;
         }
-        if (CONTENT_APPLICATION_URLENCODED.equals(f.contentType)) {
+        if (HttpStatic.application_urlencoded.equals(f.contentType)) {
             // FIXME encoding
             String paramString = new String(f.bodyArray, ch.getCharset());
             parse_kv(f.params, paramString, '=', '&');
