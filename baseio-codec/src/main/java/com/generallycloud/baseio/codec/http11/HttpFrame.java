@@ -40,7 +40,6 @@ import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.SHAUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
-import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractFrame;
 
@@ -209,15 +208,6 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
 
     public boolean isUpdateWebSocketProtocol() {
         return updateWebSocketProtocol;
-    }
-
-    @SuppressWarnings("unchecked")
-    public void release(NioEventLoop eventLoop) {
-        //FIXME ..final statck is null or not null
-        List<HttpFrame> stack = (List<HttpFrame>) eventLoop.getAttribute(HttpCodec.FRAME_STACK_KEY);
-        if (stack != null) {
-            stack.add(this);
-        }
     }
 
     HttpFrame reset(NioSocketChannel ch) {

@@ -102,7 +102,7 @@ public class ClientHttpCodec extends HttpCodec {
             int j = 0;
             for (int i = 0; i < header_size; i++) {
                 buf.put(encode_bytes_array.get(j++));
-                buf.putByte(COLON);
+                buf.putByte((byte) ':');
                 buf.putByte(SPACE);
                 buf.put(encode_bytes_array.get(j++));
                 buf.putByte(R);
@@ -110,7 +110,7 @@ public class ClientHttpCodec extends HttpCodec {
             }
             for (int i = 0; i < cookie_size; i++) {
                 buf.put(encode_bytes_array.get(j++));
-                buf.putByte(COLON);
+                buf.putByte((byte) ':');
                 buf.put(encode_bytes_array.get(j++));
                 buf.putByte(SEMICOLON);
             }
