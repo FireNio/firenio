@@ -81,7 +81,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
             context.setPort(context.isEnableSsl() ? 443 : 80);
         }
         context.bind();
-        NetDataTransferServer.startup(group, 18088);
+        NetDataTransferServer.get().startup(group, 18088);
     }
 
 }

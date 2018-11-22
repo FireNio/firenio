@@ -105,6 +105,7 @@ public class HttpProxyServer {
                                 }
                                 f.setResponseHeader(header.getKey(), header.getValue().getBytes());
                             }
+                            f.getResponseHeaders().remove(HttpHeader.Content_Length);
                             if (res.getBodyContent() != null) {
                                 f.write(res.getBodyContent());
                             }else if("chunked".equalsIgnoreCase(res.getResponse_headers().get(HttpHeader.Transfer_Encoding))){

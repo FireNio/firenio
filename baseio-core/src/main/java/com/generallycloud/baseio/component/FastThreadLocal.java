@@ -42,8 +42,9 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
     private Map<Charset, CharsetDecoder>              charsetDecoders    = new IdentityHashMap<>();
     private Map<Charset, CharsetEncoder>              charsetEncoders    = new IdentityHashMap<>();
     private Object[]                                  indexedVariables   = new Object[maxIndexedVarsSize];
-    private ByteBuf                                   sslWrapBuf;
     private ByteBuf                                   sslUnwrapBuf;
+    private ByteBuf                                   sslWrapBuf;
+    private StringBuilder                             stringBuilder = new StringBuilder(512);
 
     FastThreadLocal() {}
 
@@ -74,6 +75,14 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
         return indexedVariables[index];
     }
 
+    public ByteBuf getSslUnwrapBuf() {
+        if (sslUnwrapBuf == null) {
+            ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
+            sslUnwrapBuf = allocator.allocate(SslContext.SSL_UNWRAP_BUFFER_SIZE);
+        }
+        return sslUnwrapBuf;
+    }
+    
     public ByteBuf getSslWrapBuf() {
         if (sslWrapBuf == null) {
             ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
@@ -81,13 +90,10 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
         }
         return sslWrapBuf;
     }
-    
-    public ByteBuf getSslUnwrapBuf() {
-        if (sslUnwrapBuf == null) {
-            ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
-            sslUnwrapBuf = allocator.allocate(SslContext.SSL_UNWRAP_BUFFER_SIZE);
-        }
-        return sslUnwrapBuf;
+
+    public StringBuilder getStringBuilder() {
+        stringBuilder.setLength(0);
+        return stringBuilder;
     }
 
     public void setIndexedVariable(int index, Object value) {
@@ -120,7 +126,7 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
             return l;
         }
     }
-
+    
     public static int nextIndexedVariablesIndex() {
         if (indexedVarsIndex.get() >= maxIndexedVarsSize) {
             return -1;

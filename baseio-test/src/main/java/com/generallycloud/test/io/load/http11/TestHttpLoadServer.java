@@ -36,12 +36,12 @@ public class TestHttpLoadServer {
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 HttpFrame f = (HttpFrame) frame;
-                f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.plain_bytes);
+                f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_plain_bytes);
                 f.getResponseHeaders().remove(HttpHeader.Server);
-                frame.write("Hello World", channel);
-                ByteBuf buf = channel.encode(frame);
+                f.write("Hello World", channel);
+                ByteBuf buf = channel.encode(f);
                 channel.flush(buf);
-                f.release(channel.getEventLoop());
+                channel.release(f);
             }
 
         };
@@ -50,7 +50,7 @@ public class TestHttpLoadServer {
         group.setMemoryPoolCapacity(1024 * 64);
         group.setMemoryPoolUnit(512);
         group.setEventLoopSize(2);
-        ChannelAcceptor context = new ChannelAcceptor(group, 8087);
+        ChannelAcceptor context = new ChannelAcceptor(group, 8080);
         context.setProtocolCodec(new HttpCodec(8));
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());

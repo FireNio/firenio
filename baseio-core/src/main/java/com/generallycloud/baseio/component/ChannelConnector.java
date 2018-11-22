@@ -31,12 +31,12 @@ import com.generallycloud.baseio.concurrent.Waiter;
  */
 public class ChannelConnector extends ChannelContext implements Closeable {
 
-    private Callback         callback;
-    private NioSocketChannel ch;
-    private NioEventLoop     eventLoop;
-    private SocketChannel    javaChannel;
-    private long             timeout = 3000;
-    private Waiter           waiter;
+    private volatile Callback callback;
+    private NioSocketChannel  ch;
+    private NioEventLoop      eventLoop;
+    private SocketChannel     javaChannel;
+    private long              timeout = 3000;
+    private Waiter            waiter;
 
     public ChannelConnector(int port) {
         this("127.0.0.1", port);
@@ -84,7 +84,9 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         if (eventLoop.inEventLoop() && callback == null) {
             throw new IOException("connect in event loop but no callback found!");
         }
-        this.waiter = new Waiter();
+        if (this.callback == null) {
+            this.waiter = new Waiter();
+        }
         this.javaChannel = SocketChannel.open();
         this.javaChannel.configureBlocking(false);
         this.eventLoop.registSelector(this);
@@ -118,7 +120,7 @@ public class ChannelConnector extends ChannelContext implements Closeable {
             CloseUtil.close(ch);
         }
     }
-    
+
     public NioSocketChannel getChannel() {
         return ch;
     }

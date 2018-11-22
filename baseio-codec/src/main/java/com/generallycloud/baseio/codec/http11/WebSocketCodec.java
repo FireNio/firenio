@@ -16,10 +16,12 @@
 package com.generallycloud.baseio.codec.http11;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -54,7 +56,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public class WebSocketCodec extends ProtocolCodec {
 
     public static final String   CHANNEL_KEY_SERVICE_NAME  = "CHANNEL_KEY_SERVICE_NAME";
-    public static final String   FRAME_STACK_KEY           = "FixedThreadStack_WebSocketFrame";
+    public static final String   FRAME_STACK_KEY           = "FRAME_WS_STACK_KEY";
     public static final int      HEADER_LENGTH             = 2;
     public static final int      MAX_UNSIGNED_SHORT        = 0xffff;
     public static final int      OP_BINARY_FRAME           = 2;
@@ -165,8 +167,8 @@ public class WebSocketCodec extends ProtocolCodec {
         f.setWsType(type);
         f.setServiceName(ch);
         if (type == TYPE_TEXT) {
-           f.setReadText(new String(array,ch.getCharset()));
-        }else if(type == TYPE_BINARY) {
+            f.setReadText(new String(array, ch.getCharset()));
+        } else if (type == TYPE_BINARY) {
             f.setByteArray(array);
         }
         return f;
@@ -238,6 +240,15 @@ public class WebSocketCodec extends ProtocolCodec {
     @Override
     public Frame pong(NioSocketChannel ch, Frame ping) {
         return ping.setPong();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void release(NioEventLoop eventLoop, Frame frame) {
+        //FIXME ..final statck is null or not null
+        List<WebSocketFrame> stack = (List<WebSocketFrame>) eventLoop.getAttribute(FRAME_STACK_KEY);
+        if (stack != null && stack.size() < frameStackSize) {
+            stack.add((WebSocketFrame) frame);
+        }
     }
 
     static void init(ChannelContext context, int limit, int frameStackSize) {

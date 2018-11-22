@@ -15,16 +15,23 @@
  */
 package com.generallycloud.sample.baseio.http11;
 
+import static com.generallycloud.baseio.codec.http11.HttpStatic.application_js_utf8;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.image_gif;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.image_jpeg;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.image_png;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.text_css_utf8;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.text_html_utf8;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.text_html_utf8_bytes;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.text_plain_utf8;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.baseio.codec.http11.HttpCodec;
 import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
-import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.codec.http11.HttpStatus;
 import com.generallycloud.baseio.codec.http11.WebSocketFrame;
 import com.generallycloud.baseio.common.DateUtil;
@@ -122,12 +129,12 @@ public class HttpFrameHandle extends IoEventHandle {
     private String getContentType(String fileName, Map<String, String> mapping) {
         int index = fileName.lastIndexOf(".");
         if (index == -1) {
-            return HttpCodec.CONTENT_TYPE_TEXT_PLAINUTF8;
+            return text_plain_utf8;
         }
         String subfix = fileName.substring(index + 1);
         String contentType = mapping.get(subfix);
         if (contentType == null) {
-            contentType = HttpCodec.CONTENT_TYPE_TEXT_PLAINUTF8;
+            contentType = text_plain_utf8;
         }
         return contentType;
     }
@@ -144,16 +151,16 @@ public class HttpFrameHandle extends IoEventHandle {
         }
         File rootFile = new File(webRoot);
         Map<String, String> mapping = new HashMap<>();
-        mapping.put("htm", HttpCodec.CONTENT_TYPE_TEXT_HTMLUTF8);
-        mapping.put("html", HttpCodec.CONTENT_TYPE_TEXT_HTMLUTF8);
-        mapping.put("js", HttpCodec.CONTENT_APPLICATION_JAVASCRIPTUTF8);
-        mapping.put("css", HttpCodec.CONTENT_TYPE_TEXT_CSSUTF8);
-        mapping.put("png", HttpCodec.CONTENT_TYPE_IMAGE_PNG);
-        mapping.put("jpg", HttpCodec.CONTENT_TYPE_IMAGE_JPEG);
-        mapping.put("jpeg", HttpCodec.CONTENT_TYPE_IMAGE_JPEG);
-        mapping.put("gif", HttpCodec.CONTENT_TYPE_IMAGE_GIF);
-        mapping.put("txt", HttpCodec.CONTENT_TYPE_TEXT_PLAINUTF8);
-        mapping.put("ico", HttpCodec.CONTENT_TYPE_IMAGE_PNG);
+        mapping.put("htm", text_html_utf8);
+        mapping.put("html", text_html_utf8);
+        mapping.put("js", application_js_utf8);
+        mapping.put("css", text_css_utf8);
+        mapping.put("png", image_png);
+        mapping.put("jpg", image_jpeg);
+        mapping.put("jpeg", image_jpeg);
+        mapping.put("gif", image_gif);
+        mapping.put("txt", text_plain_utf8);
+        mapping.put("ico", image_png);
         if (rootFile.exists()) {
             scanFolder(scanFileFilter, rootFile, mapping, "");
         }
@@ -179,7 +186,7 @@ public class HttpFrameHandle extends IoEventHandle {
         builder.append(HtmlUtil.HTML_BOTTOM);
         f.setStatus(status);
         f.write(builder.toString(), ch.getCharset());
-        f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.html_utf8_bytes);
+        f.setResponseHeader(HttpHeader.Content_Type, text_html_utf8_bytes);
         ch.flush(f);
     }
 
@@ -257,7 +264,7 @@ public class HttpFrameHandle extends IoEventHandle {
             b.append("      <hr>\n");
             b.append(HtmlUtil.HTML_BOTTOM);
             HttpEntity entity = new HttpEntity();
-            entity.setContentType(HttpCodec.CONTENT_TYPE_TEXT_HTMLUTF8);
+            entity.setContentType(text_html_utf8);
             entity.setFile(file);
             entity.setLastModify(System.currentTimeMillis());
             entity.setBinary(b.toString().getBytes(charset));

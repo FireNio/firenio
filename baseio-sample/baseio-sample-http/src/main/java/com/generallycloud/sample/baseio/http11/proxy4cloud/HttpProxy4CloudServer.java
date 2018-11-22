@@ -42,9 +42,8 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public class HttpProxy4CloudServer {
 
 //        static final String                netHost         = "47.52.62.51";
-//        static final int                   netPort         = 8088;
+        static final int                   netPort         = 18088;
     static final String                netHost         = "127.0.0.1";
-    static final int                   netPort         = 18088;
     static final String                CONNECT_RES     = "HTTP/1.1 200 Connection Established\r\n\r\n";
     static final ByteBuf               CONNECT_RES_BUF = ByteBufUtil.wrap(CONNECT_RES.getBytes());
     static final HttpProxy4CloudServer server          = new HttpProxy4CloudServer();
@@ -125,6 +124,7 @@ public class HttpProxy4CloudServer {
                                 }
                                 f.setResponseHeader(header.getKey(), header.getValue().getBytes());
                             }
+                            f.getResponseHeaders().remove(HttpHeader.Content_Length);
                             if (res.getBodyContent() != null) {
                                 f.write(res.getBodyContent());
                             } else if ("chunked".equalsIgnoreCase(

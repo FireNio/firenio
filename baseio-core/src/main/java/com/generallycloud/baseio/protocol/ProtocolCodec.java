@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 /**
@@ -45,5 +46,7 @@ public abstract class ProtocolCodec {
     public Frame pong(NioSocketChannel ch, Frame ping) {
         return ping.setPong();
     }
+
+    public void release(NioEventLoop eventLoop, Frame frame) {}
 
 }

@@ -55,7 +55,6 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public final class NioSocketChannel extends AttributesImpl
         implements Runnable, Attributes, Closeable {
 
-    private static final int                    SSL_PACKET_LIMIT      = 1024 * 64;
     private static final ClosedChannelException CLOSED_WHEN_FLUSH     = unknownStackTrace(
             new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
     private static final InetSocketAddress      ERROR_SOCKET_ADDRESS  = new InetSocketAddress(0);
@@ -63,7 +62,8 @@ public final class NioSocketChannel extends AttributesImpl
             .getLogger(NioSocketChannel.class);
     private static final SSLException           NOT_TLS               = unknownStackTrace(
             new SSLException("NOT TLS"), NioSocketChannel.class, "isEnoughSslUnwrap()");
-    private static final SSLException           SSL_OVER_LIMIT        = unknownStackTrace(
+    private static final int                    SSL_PACKET_LIMIT      = 1024 * 64;
+    private static final SSLException           SSL_PACKET_OVER_LIMIT = unknownStackTrace(
             new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"), NioSocketChannel.class,
             "isEnoughSslUnwrap()");
     private static final SSLException           SSL_UNWRAP_OVER_LIMIT = unknownStackTrace(
@@ -197,12 +197,6 @@ public final class NioSocketChannel extends AttributesImpl
             execute(new CloseEvent(this));
         }
     }
-    
-    private void stopContext(){
-        if (context instanceof ChannelConnector) {
-            CloseUtil.close( ((ChannelConnector) context));
-        }
-    }
 
     private void closeSsl() {
         if (enableSsl) {
@@ -250,7 +244,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     private void fireClosed() {
         final NioSocketChannel ch = this;
-        eventLoop.removeChannel(ch);
+        eventLoop.removeChannel(ch.channelId);
         for (ChannelEventListener l : context.getChannelEventListeners()) {
             try {
                 l.channelClosed(ch);
@@ -603,7 +597,7 @@ public final class NioSocketChannel extends AttributesImpl
             return false;
         }
         if (len > SSL_PACKET_LIMIT) {
-            throw SSL_OVER_LIMIT;
+            throw SSL_PACKET_OVER_LIMIT;
         }
         src.markL();
         src.limit(pos + len);
@@ -690,6 +684,10 @@ public final class NioSocketChannel extends AttributesImpl
         this.sslRemainBuf = null;
     }
 
+    public void release(Frame frame) {
+        codec.release(eventLoop, frame);
+    }
+
     private void releaseWriteBufArray() {
         final ByteBuf[] cwbs = this.currentWriteBufs;
         final int maxLen = cwbs.length;
@@ -774,15 +772,16 @@ public final class NioSocketChannel extends AttributesImpl
         return remaining.flip();
     }
 
-    //FIXME 部分buf不需要swap
-    private ByteBuf swap(ByteBufAllocator allocator, ByteBuf buf) throws IOException {
-        ByteBuf out = allocator.allocate(buf.limit());
-        try {
-            out.read(buf);
-        } catch (Exception e) {
-            out.release();
-            throw e;
+    private void stopContext() {
+        if (context instanceof ChannelConnector) {
+            CloseUtil.close(((ChannelConnector) context));
         }
+    }
+
+    //FIXME 部分buf不需要swap
+    private ByteBuf swap(ByteBufAllocator allocator, ByteBuf buf) {
+        ByteBuf out = allocator.allocate(buf.limit());
+        out.read(buf);
         return out.flip();
     }
 
