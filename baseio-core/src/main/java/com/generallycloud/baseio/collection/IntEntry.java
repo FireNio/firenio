@@ -19,7 +19,7 @@ package com.generallycloud.baseio.collection;
  * @author wangkai
  *
  */
-public interface IntObjectEntry<V> {
+public interface IntEntry<V> {
 
     /**
      * Gets the key for this entry.

@@ -30,8 +30,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSessionContext;
 
-import com.generallycloud.baseio.Constants;
-import com.generallycloud.baseio.common.PropertiesUtil;
+import com.generallycloud.baseio.Options;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -54,7 +53,7 @@ public final class SslContext {
         }
         boolean testOpenSsl = false;
         try {
-            if (!PropertiesUtil.isSystemTrue(Constants.DISABLE_OPENSSL_SYS_KEY)) {
+            if (!Options.isDisableOpenssl()) {
                 Class.forName("org.wildfly.openssl.OpenSSLProvider");
                 org.wildfly.openssl.OpenSSLProvider.register();
                 testOpenSsl = true;
@@ -68,8 +67,7 @@ public final class SslContext {
         } catch (Exception e) {
             throw new Error("failed to initialize the default SSL context", e);
         }
-        String SSL_UBSK = Constants.SSL_UNWRAP_BUFFER_SIZE_KEY;
-        SSL_UNWRAP_BUFFER_SIZE = PropertiesUtil.getProperty(SSL_UBSK, 1024 * 256);
+        SSL_UNWRAP_BUFFER_SIZE = Options.getSslUnwrapBufferSize(1024 * 256);
         SSLEngine engine = context.createSSLEngine();
         SSL_PACKET_BUFFER_SIZE = engine.getSession().getPacketBufferSize();
         // Choose the sensible default list of protocols.

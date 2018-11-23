@@ -45,6 +45,7 @@ import com.generallycloud.baseio.collection.AttributesImpl;
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.common.ThrowableUtil;
 import com.generallycloud.baseio.component.ChannelContext.HeartBeatLogger;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.log.Logger;
@@ -55,20 +56,13 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public final class NioSocketChannel extends AttributesImpl
         implements Runnable, Attributes, Closeable {
 
-    private static final ClosedChannelException CLOSED_WHEN_FLUSH     = unknownStackTrace(
-            new ClosedChannelException(), NioSocketChannel.class, "flush(...)");
+    private static final ClosedChannelException CLOSED_WHEN_FLUSH     = CLOSED_WHEN_FLUSH();
     private static final InetSocketAddress      ERROR_SOCKET_ADDRESS  = new InetSocketAddress(0);
-    private static final Logger                 logger                = LoggerFactory
-            .getLogger(NioSocketChannel.class);
-    private static final SSLException           NOT_TLS               = unknownStackTrace(
-            new SSLException("NOT TLS"), NioSocketChannel.class, "isEnoughSslUnwrap()");
+    private static final Logger                 logger                = newLogger();
+    private static final SSLException           NOT_TLS               = NOT_TLS();
     private static final int                    SSL_PACKET_LIMIT      = 1024 * 64;
-    private static final SSLException           SSL_PACKET_OVER_LIMIT = unknownStackTrace(
-            new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"), NioSocketChannel.class,
-            "isEnoughSslUnwrap()");
-    private static final SSLException           SSL_UNWRAP_OVER_LIMIT = unknownStackTrace(
-            new SSLException("over limit (SSL_UNWRAP_BUFFER_SIZE)"), NioSocketChannel.class,
-            "unwrap()");
+    private static final SSLException           SSL_PACKET_OVER_LIMIT = SSL_PACKET_OVER_LIMIT();
+    private static final SSLException           SSL_UNWRAP_OVER_LIMIT = SSL_UNWRAP_OVER_LIMIT();
 
     private final SocketChannel                 channel;
     private final Integer                       channelId;
@@ -99,33 +93,32 @@ public final class NioSocketChannel extends AttributesImpl
     private byte                                sslWrapExt;
     private final Queue<ByteBuf>                writeBufs;
 
-    NioSocketChannel(NioEventLoop eventLoop, SelectionKey selectionKey, ChannelContext context,
-            int channelId) {
-        NioEventLoopGroup group = eventLoop.getGroup();
-        this.context = context;
-        this.selKey = selectionKey;
-        this.eventLoop = eventLoop;
-        this.channelId = channelId;
-        this.enableSsl = context.isEnableSsl();
-        this.codec = context.getProtocolCodec();
-        this.maxWriteBacklog = context.getMaxWriteBacklog();
-        this.currentWriteBufs = new ByteBuf[group.getWriteBuffers()];
-        this.executorEventLoop = context.getExecutorEventLoopGroup().getNext();
-        this.channel = (SocketChannel) selectionKey.channel();
-        this.lastAccess = creationTime + group.getIdleTime();
+    NioSocketChannel(NioEventLoop el, SelectionKey sk, ChannelContext ctx, int chId) {
+        NioEventLoopGroup g = el.getGroup();
+        this.context = ctx;
+        this.selKey = sk;
+        this.eventLoop = el;
+        this.channelId = chId;
+        this.enableSsl = ctx.isEnableSsl();
+        this.codec = ctx.getProtocolCodec();
+        this.maxWriteBacklog = ctx.getMaxWriteBacklog();
+        this.currentWriteBufs = new ByteBuf[g.getWriteBuffers()];
+        this.executorEventLoop = ctx.getExecutorEventLoopGroup().getNext();
+        this.channel = (SocketChannel) sk.channel();
+        this.lastAccess = creationTime + g.getIdleTime();
         this.writeBufs = new LinkedBlockingQueue<>();
         //请勿使用remote.getRemoteHost(),可能出现阻塞
         InetSocketAddress remote = getRemoteSocketAddress0();
         InetSocketAddress local = getLocalSocketAddress0();
-        String idhex = Integer.toHexString(channelId);
+        String idhex = Integer.toHexString(chId);
         this.remoteAddr = remote.getAddress().getHostAddress();
         this.remotePort = remote.getPort();
         this.remoteAddrPort = remoteAddr + ":" + remotePort;
         this.localAddr = local.getAddress().getHostAddress();
         this.localPort = local.getPort();
         this.desc = "[id(0x" + idhex + ")R/" + remoteAddrPort + "; L:" + getLocalPort() + "]";
-        if (context.isEnableSsl()) {
-            this.sslEngine = context.getSslContext().newEngine(remoteAddr, remotePort);
+        if (ctx.isEnableSsl()) {
+            this.sslEngine = ctx.getSslContext().newEngine(remoteAddr, remotePort);
         } else {
             this.sslEngine = null;
         }
@@ -1034,9 +1027,34 @@ public final class NioSocketChannel extends AttributesImpl
 
     }
 
+    private static ClosedChannelException CLOSED_WHEN_FLUSH() {
+        return ThrowableUtil.unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class,
+                "flush(...)");
+    }
+
     private static void fillNull(Object[] a, int fromIndex, int toIndex) {
         for (int i = fromIndex; i < toIndex; i++)
             a[i] = null;
+    }
+
+    private static Logger newLogger() {
+        return LoggerFactory.getLogger(NioSocketChannel.class);
+    }
+
+    private static SSLException NOT_TLS() {
+        return ThrowableUtil.unknownStackTrace(new SSLException("NOT TLS"), NioSocketChannel.class,
+                "isEnoughSslUnwrap()");
+    }
+
+    private static SSLException SSL_PACKET_OVER_LIMIT() {
+        return ThrowableUtil.unknownStackTrace(
+                new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"), NioSocketChannel.class,
+                "isEnoughSslUnwrap()");
+    }
+
+    private static SSLException SSL_UNWRAP_OVER_LIMIT() {
+        return unknownStackTrace(new SSLException("over limit (SSL_UNWRAP_BUFFER_SIZE)"),
+                NioSocketChannel.class, "unwrap()");
     }
 
 }

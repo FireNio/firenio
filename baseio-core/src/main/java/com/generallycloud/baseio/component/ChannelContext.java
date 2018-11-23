@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
-import com.generallycloud.baseio.Constants;
 import com.generallycloud.baseio.LifeCycleUtil;
+import com.generallycloud.baseio.Options;
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Encoding;
@@ -98,7 +98,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     @Override
     public void configurationChanged(Properties properties) {
         if (!StringUtil.isNullOrBlank(openSslPath)) {
-            System.setProperty(Constants.WILDFLY_OPENSSL_PATH, openSslPath);
+            Options.setOpensslPath(openSslPath);
         }
         this.properties = properties;
     }

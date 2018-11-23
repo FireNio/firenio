@@ -52,13 +52,11 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-import com.generallycloud.baseio.Constants;
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.PropertiesUtil;
 import com.generallycloud.baseio.common.StringUtil;
 
 /**
@@ -429,10 +427,6 @@ public final class SslContextBuilder {
 
         ALL, NONE, TrustManagerFactory, X509TrustManager
 
-    }
-
-    public static boolean enableSsl() {
-        return PropertiesUtil.isSystemTrue(Constants.ENABLE_SSL_SYS_KEY);
     }
 
     public static SslContextBuilder forClient(boolean trustAll) {
