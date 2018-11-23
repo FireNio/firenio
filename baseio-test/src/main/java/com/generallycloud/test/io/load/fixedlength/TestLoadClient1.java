@@ -103,6 +103,7 @@ public class TestLoadClient1 extends ITestThread {
         if (TestLoadServer.ENABLE_SSL) {
             context.setSslContext(SslContextBuilder.forClient(true).build());
         }
+        context.setPrintConfig(false);
         context.setWorkEventQueueSize(1024 * 256);
         context.setEnableWorkEventLoop(TestLoadServer.ENABLE_WORK_EVENT_LOOP);
         context.addChannelEventListener(new LoggerChannelOpenListener());

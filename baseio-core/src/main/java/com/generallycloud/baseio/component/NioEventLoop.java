@@ -243,9 +243,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                             }
                         });
                     }
-                } catch (
-
-                Exception e) {
+                } catch (Exception e) {
                     key.cancel();
                     key.attach(null);
                     finishConnect(null, context, e);
