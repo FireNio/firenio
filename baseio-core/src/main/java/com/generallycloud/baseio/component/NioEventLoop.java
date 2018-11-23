@@ -325,6 +325,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     @Override
     public void execute(Runnable event) {
         events.offer(event);
+        if (inEventLoop()) {
+            return;
+        }
         if (!isRunning() && events.remove(event)) {
             group.getRejectedExecutionHandle().reject(this, event);
             return;
