@@ -84,6 +84,7 @@ public class ChannelConnector extends ChannelContext implements Closeable {
             }
             return;
         }
+        final ChannelConnector conn = this;
         LifeCycleUtil.start(getNioEventLoopGroup());
         LifeCycleUtil.start(this);
         getNioEventLoopGroup().setContext(this);
@@ -98,8 +99,19 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         }
         this.javaChannel = SocketChannel.open();
         this.javaChannel.configureBlocking(false);
-        this.eventLoop.registSelector(this);
-        this.javaChannel.connect(getServerAddress());
+        this.eventLoop.execute(new Runnable() {
+            
+            @Override
+            public void run() {
+                try {
+                    if(!conn.javaChannel.connect(getServerAddress())){
+                        conn.eventLoop.registSelector(conn);
+                    }
+                } catch (IOException e) {
+                    finishConnect(null, e);
+                }
+            }
+        });
         this.wait4connect(timeout);
     }
 

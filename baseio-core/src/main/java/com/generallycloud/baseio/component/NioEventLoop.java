@@ -222,10 +222,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         finishConnect(null, context, NOT_FINISH_CONNECT);
                         return;
                     }
-                    SelectionKey sk = javaChannel.keyFor(selector);
-                    if (sk != null) {
-                        sk.cancel();
-                    }
+                    int ops = key.interestOps();
+                    ops &= ~SelectionKey.OP_CONNECT;
+                    key.interestOps(ops);
                     NioEventLoop tempEL = connector.getEventLoop();
                     if (tempEL == null) {
                         tempEL = group.getNext();
