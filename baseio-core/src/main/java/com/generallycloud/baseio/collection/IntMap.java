@@ -25,7 +25,7 @@ import java.util.NoSuchElementException;
 /**
  * copy from netty
  */
-public class IntObjectHashMap<V> implements Iterable<IntObjectEntry<V>> {
+public class IntMap<V> implements Iterable<IntEntry<V>> {
 
     /** Default initial capacity. Used if not specified in the constructor */
     private static final int    DEFAULT_CAPACITY    = 11;
@@ -53,15 +53,15 @@ public class IntObjectHashMap<V> implements Iterable<IntObjectEntry<V>> {
     private Collection<V>       valueCollection;
     private int                 size;
 
-    public IntObjectHashMap() {
+    public IntMap() {
         this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
     }
 
-    public IntObjectHashMap(int initialCapacity) {
+    public IntMap(int initialCapacity) {
         this(initialCapacity, DEFAULT_LOAD_FACTOR);
     }
 
-    public IntObjectHashMap(int initialCapacity, float loadFactor) {
+    public IntMap(int initialCapacity, float loadFactor) {
         if (initialCapacity < 1) {
             throw new IllegalArgumentException("initialCapacity must be >= 1");
         }
@@ -131,10 +131,10 @@ public class IntObjectHashMap<V> implements Iterable<IntObjectEntry<V>> {
         return index == values.length - 1 ? 0 : index + 1;
     }
 
-    public void putAll(IntObjectHashMap<V> sourceMap) {
-        if (sourceMap instanceof IntObjectHashMap) {
+    public void putAll(IntMap<V> sourceMap) {
+        if (sourceMap instanceof IntMap) {
             // Optimization - iterate through the arrays.
-            IntObjectHashMap<V> source = (IntObjectHashMap<V>) sourceMap;
+            IntMap<V> source = (IntMap<V>) sourceMap;
             for (int i = 0; i < source.values.length; ++i) {
                 V sourceValue = source.values[i];
                 if (sourceValue != null) {
@@ -145,7 +145,7 @@ public class IntObjectHashMap<V> implements Iterable<IntObjectEntry<V>> {
         }
 
         // Otherwise, just add each entry.
-        for (IntObjectEntry<V> entry : sourceMap.entries()) {
+        for (IntEntry<V> entry : sourceMap.entries()) {
             put(entry.key(), entry.value());
         }
     }
@@ -190,11 +190,11 @@ public class IntObjectHashMap<V> implements Iterable<IntObjectEntry<V>> {
         return false;
     }
 
-    public Iterable<IntObjectEntry<V>> entries() {
+    public Iterable<IntEntry<V>> entries() {
         return this;
     }
 
-    public Iterator<IntObjectEntry<V>> iterator() {
+    public Iterator<IntEntry<V>> iterator() {
         return new IteratorImpl();
     }
 
@@ -228,7 +228,7 @@ public class IntObjectHashMap<V> implements Iterable<IntObjectEntry<V>> {
 
                 public Iterator<V> iterator() {
                     return new Iterator<V>() {
-                        final Iterator<IntObjectEntry<V>> iter = IntObjectHashMap.this.iterator();
+                        final Iterator<IntEntry<V>> iter = IntMap.this.iterator();
 
                         public boolean hasNext() {
                             return iter.hasNext();
@@ -275,11 +275,11 @@ public class IntObjectHashMap<V> implements Iterable<IntObjectEntry<V>> {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof IntObjectHashMap)) {
+        if (!(obj instanceof IntMap)) {
             return false;
         }
         @SuppressWarnings("rawtypes")
-        IntObjectHashMap other = (IntObjectHashMap) obj;
+        IntMap other = (IntMap) obj;
         if (size != other.size()) {
             return false;
         }
@@ -450,7 +450,7 @@ public class IntObjectHashMap<V> implements Iterable<IntObjectEntry<V>> {
     /**
      * Iterator for traversing the entries in this map.
      */
-    private final class IteratorImpl implements Iterator<IntObjectEntry<V>>, IntObjectEntry<V> {
+    private final class IteratorImpl implements Iterator<IntEntry<V>>, IntEntry<V> {
         private int prevIndex  = -1;
         private int nextIndex  = -1;
         private int entryIndex = -1;
@@ -470,7 +470,7 @@ public class IntObjectHashMap<V> implements Iterable<IntObjectEntry<V>> {
             return nextIndex < keys.length;
         }
 
-        public IntObjectEntry<V> next() {
+        public IntEntry<V> next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }

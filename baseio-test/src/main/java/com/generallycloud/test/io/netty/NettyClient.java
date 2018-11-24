@@ -47,7 +47,7 @@ public class NettyClient {
             System.out.println("################## Test start ####################");
             long old = System.currentTimeMillis();
 
-            ChannelFuture f = b.connect("127.0.0.1", 5656).sync();
+            ChannelFuture f = b.connect("127.0.0.1", 8300).sync();
 
             System.out.println(f.isSuccess());
 

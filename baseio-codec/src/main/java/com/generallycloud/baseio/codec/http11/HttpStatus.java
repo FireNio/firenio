@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import com.generallycloud.baseio.collection.IntObjectHashMap;
+import com.generallycloud.baseio.collection.IntMap;
 
 public enum HttpStatus {
 
@@ -199,7 +199,7 @@ public enum HttpStatus {
         return binary;
     }
     
-    private static final IntObjectHashMap<HttpStatus> STATUS = new IntObjectHashMap<>();
+    private static final IntMap<HttpStatus> STATUS = new IntMap<>();
     
     static{
         HttpStatus[] values = HttpStatus.values();

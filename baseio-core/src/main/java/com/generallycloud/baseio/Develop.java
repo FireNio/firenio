@@ -15,7 +15,6 @@
  */
 package com.generallycloud.baseio;
 
-import com.generallycloud.baseio.common.PropertiesUtil;
 import com.generallycloud.baseio.log.Logger;
 
 /**
@@ -24,7 +23,7 @@ import com.generallycloud.baseio.log.Logger;
  */
 public class Develop {
 
-    public static final boolean DEBUG = PropertiesUtil.isSystemTrue(Constants.DEVELOP_DEBUG_KEY);
+    public static final boolean DEBUG = Options.isDevelopDebug();
 
     public static final void printException(Logger logger, Throwable e) {
         if (DEBUG) {

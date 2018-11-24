@@ -43,13 +43,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.SSLHandshakeException;
 
+import com.generallycloud.baseio.Options;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.IntArray;
-import com.generallycloud.baseio.collection.IntObjectHashMap;
+import com.generallycloud.baseio.collection.IntMap;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.MessageFormatter;
@@ -66,43 +67,39 @@ import com.generallycloud.baseio.log.LoggerFactory;
  */
 public final class NioEventLoop extends AbstractEventLoop implements Attributes {
 
-    private static final boolean                     enableSelectionKeySet   = checkEnableSelectionKeySet();
-    private static final Logger                      logger                  = LoggerFactory
-            .getLogger(NioEventLoop.class);
-    private static final IOException                 NOT_FINISH_CONNECT      = ThrowableUtil
-            .unknownStackTrace(new IOException("not finish connect"), SocketChannel.class,
-                    "finishConnect(...)");
-    private static final IOException                 OVER_CHANNEL_SIZE_LIMIT = ThrowableUtil
-            .unknownStackTrace(new IOException("over channel size limit"), NioEventLoop.class,
-                    "registChannel(...)");
+    private static final boolean           CHANNEL_READ_FIRST = Options.isChannelReadFirst();
+    private static final boolean           ENABLE_SELKEY_SET  = checkEnableSelectionKeySet();
+    private static final Logger            logger             = newLogger();
+    private static final IOException       NOT_FINISH_CONNECT = NOT_FINISH_CONNECT();
+    private static final IOException       OVER_CH_SIZE_LIMIT = OVER_CH_SIZE_LIMIT();
 
-    private final ByteBufAllocator                   alloc;
-    private final Map<Object, Object>                attributes              = new HashMap<>();
-    private ByteBuf                                  buf;
-    private final IntObjectHashMap<NioSocketChannel> channels                = new IntObjectHashMap<>();
-    private final int                                channelSizeLimit;
-    private String                                   desc;
-    private final Queue<Runnable>                    events                  = new LinkedBlockingQueue<>();
-    private final NioEventLoopGroup                  group;
-    private volatile boolean                         hasTask                 = false;
-    private final int                                index;
-    private long                                     lastIdleTime            = 0;
-    private final AtomicInteger                      selecting               = new AtomicInteger();
-    private final SelectionKeySet                    selectionKeySet;
-    private Selector                                 selector;
-    private final boolean                            sharable;
+    private final ByteBufAllocator         alloc;
+    private final Map<Object, Object>      attributes         = new HashMap<>();
+    private ByteBuf                        buf;
+    private final IntMap<NioSocketChannel> channels           = new IntMap<>();
+    private final int                      chSizeLimit;
+    private String                         desc;
+    private final Queue<Runnable>          events             = new LinkedBlockingQueue<>();
+    private final NioEventLoopGroup        group;
+    private volatile boolean               hasTask            = false;
+    private final int                      index;
+    private long                           lastIdleTime       = 0;
+    private final IntArray                 preCloseChIds      = new IntArray();
+    private final AtomicInteger            selecting          = new AtomicInteger();
+    private final SelectionKeySet          selectionKeySet;
+    private Selector                       selector;
+    private final boolean                  sharable;
     // true eventLooper, false offerer
-    private final AtomicInteger                      wakener                 = new AtomicInteger();
-    private ByteBuffer[]                             writeBuffers;
-    private final IntArray                           preCloseSessionIds      = new IntArray();
+    private final AtomicInteger            wakener            = new AtomicInteger();
+    private ByteBuffer[]                   writeBuffers;
 
     NioEventLoop(NioEventLoopGroup group, int index) {
         this.index = index;
         this.group = group;
         this.sharable = group.isSharable();
         this.alloc = group.getAllocatorGroup().getNext();
-        this.channelSizeLimit = group.getChannelSizeLimit();
-        if (enableSelectionKeySet) {
+        this.chSizeLimit = group.getChannelSizeLimit();
+        if (ENABLE_SELKEY_SET) {
             this.selectionKeySet = new SelectionKeySet(1024);
         } else {
             this.selectionKeySet = null;
@@ -118,36 +115,70 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         if (attach instanceof NioSocketChannel) {
             final NioSocketChannel ch = (NioSocketChannel) attach;
             final int readyOps = key.readyOps();
-            boolean writeComplete = true;
-            if ((readyOps & SelectionKey.OP_WRITE) != 0) {
-                try {
-                    writeComplete = ch.write(key.interestOps());
-                } catch (Throwable e) {
-                    ch.close();
-                    if (DEBUG) {
-                        logger.error(e.getMessage() + ch, e);
-                    } else {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug(e.getMessage() + ch, e);
+
+            if (CHANNEL_READ_FIRST) {
+                if ((readyOps & SelectionKey.OP_READ) != 0) {
+                    try {
+                        ch.read(buf);
+                    } catch (Throwable e) {
+                        ch.close();
+                        if (DEBUG) {
+                            logger.error(e.getMessage() + ch, e);
+                        } else {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug(e.getMessage() + ch, e);
+                            }
+                        }
+                        if (e instanceof SSLHandshakeException) {
+                            finishConnect(ch, ch.getContext(), e);
+                        }
+                    }
+                } else if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+                    try {
+                        ch.write(key.interestOps());
+                    } catch (Throwable e) {
+                        ch.close();
+                        if (DEBUG) {
+                            logger.error(e.getMessage() + ch, e);
+                        } else {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug(e.getMessage() + ch, e);
+                            }
                         }
                     }
                 }
-            }
-            //FIXME 观察这里不写完不让读的模式是否可行
-            if (writeComplete && (readyOps & SelectionKey.OP_READ) != 0) {
-                try {
-                    ch.read(buf);
-                } catch (Throwable e) {
-                    ch.close();
-                    if (DEBUG) {
-                        logger.error(e.getMessage() + ch, e);
-                    } else {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug(e.getMessage() + ch, e);
+            } else {
+                boolean writeComplete = true;
+                if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+                    try {
+                        writeComplete = ch.write(key.interestOps());
+                    } catch (Throwable e) {
+                        ch.close();
+                        if (DEBUG) {
+                            logger.error(e.getMessage() + ch, e);
+                        } else {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug(e.getMessage() + ch, e);
+                            }
                         }
                     }
-                    if (e instanceof SSLHandshakeException) {
-                        finishConnect(ch, ch.getContext(), e);
+                }
+                //FIXME 观察这里不写完不让读的模式是否可行
+                if (writeComplete && (readyOps & SelectionKey.OP_READ) != 0) {
+                    try {
+                        ch.read(buf);
+                    } catch (Throwable e) {
+                        ch.close();
+                        if (DEBUG) {
+                            logger.error(e.getMessage() + ch, e);
+                        } else {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug(e.getMessage() + ch, e);
+                            }
+                        }
+                        if (e instanceof SSLHandshakeException) {
+                            finishConnect(ch, ch.getContext(), e);
+                        }
                     }
                 }
             }
@@ -191,10 +222,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         finishConnect(null, context, NOT_FINISH_CONNECT);
                         return;
                     }
-                    SelectionKey sk = javaChannel.keyFor(selector);
-                    if (sk != null) {
-                        sk.cancel();
-                    }
+                    int ops = key.interestOps();
+                    ops &= ~SelectionKey.OP_CONNECT;
+                    key.interestOps(ops);
                     NioEventLoop tempEL = connector.getEventLoop();
                     if (tempEL == null) {
                         tempEL = group.getNext();
@@ -205,6 +235,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         registChannel(javaChannel, targetEL, context);
                     } else {
                         targetEL.execute(new Runnable() {
+
                             @Override
                             public void run() {
                                 registChannel(javaChannel, targetEL, context);
@@ -229,10 +260,19 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return attributes;
     }
 
+    private void channelIdle(ChannelIdleEventListener l, NioSocketChannel ch, long lastIdleTime,
+            long currentTime) {
+        try {
+            l.channelIdled(ch, lastIdleTime, currentTime);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
     private void channelIdle(long currentTime) {
         long lastIdleTime = this.lastIdleTime;
         this.lastIdleTime = currentTime;
-        IntObjectHashMap<NioSocketChannel> channels = this.channels;
+        IntMap<NioSocketChannel> channels = this.channels;
         if (channels.size() == 0) {
             return;
         }
@@ -262,15 +302,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    private void channelIdle(ChannelIdleEventListener l, NioSocketChannel ch, long lastIdleTime,
-            long currentTime) {
-        try {
-            l.channelIdled(ch, lastIdleTime, currentTime);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
-
     @Override
     public void clearAttributes() {
         this.attributes.clear();
@@ -282,25 +313,21 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    private void handleEvents(Queue<Runnable> events) {
-        if (events.size() > 0) {
-            for (;;) {
-                Runnable event = events.poll();
-                if (event == null) {
-                    break;
-                }
-                try {
-                    event.run();
-                } catch (Throwable e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        }
+    @Override
+    protected void doStartup() throws IOException {
+        this.writeBuffers = new ByteBuffer[group.getWriteBuffers()];
+        this.buf = UnpooledByteBufAllocator.getDirect().allocate(group.getChannelReadBuffer());
+        this.selector = openSelector(selectionKeySet);
+        this.desc = MessageFormatter.arrayFormat("NioEventLoop[idx:{},sharable:{}]",
+                new Object[] { index, sharable });
     }
 
     @Override
     public void execute(Runnable event) {
         events.offer(event);
+        if (inEventLoop()) {
+            return;
+        }
         if (!isRunning() && events.remove(event)) {
             group.getRejectedExecutionHandle().reject(this, event);
             return;
@@ -315,6 +342,12 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
+    private final void finishConnect(NioSocketChannel ch, ChannelContext context, Throwable e) {
+        if (context instanceof ChannelConnector) {
+            ((ChannelConnector) context).finishConnect(ch, e);
+        }
+    }
+
     protected void flush(NioSocketChannel ch) {
         events.offer(ch);
     }
@@ -322,21 +355,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     protected void flushAndWakeup(NioSocketChannel ch) {
         events.offer(ch);
         wakeup();
-    }
-
-    @Override
-    protected void doStartup() throws IOException {
-        this.writeBuffers = new ByteBuffer[group.getWriteBuffers()];
-        this.buf = UnpooledByteBufAllocator.getDirect().allocate(group.getChannelReadBuffer());
-        this.selector = openSelector(selectionKeySet);
-        this.desc = MessageFormatter.arrayFormat("NioEventLoop[idx:{},sharable:{}]",
-                new Object[] { index, sharable });
-    }
-
-    private final void finishConnect(NioSocketChannel ch, ChannelContext context, Throwable e) {
-        if (context instanceof ChannelConnector) {
-            ((ChannelConnector) context).finishConnect(ch, e);
-        }
     }
 
     @Override
@@ -370,94 +388,20 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return writeBuffers;
     }
 
-    @Override
-    public void run() {
-        // does it useful to set variables locally ?
-        final long idle = group.getIdleTime();
-        final Selector selector = this.selector;
-        final AtomicInteger selecting = this.selecting;
-        final SelectionKeySet keySet = this.selectionKeySet;
-        final Queue<Runnable> events = this.events;
-        long nextIdle = 0;
-        long selectTime = idle;
-        for (;;) {
-            // when this event loop is going to shutdown,we handle the last events 
-            // and set stopped to true, to tell the waiter "I was stopped!"
-            // now you can shutdown it safely
-            if (!isRunning()) {
-                handleEvents(events);
-                closeChannels();
-                CloseUtil.close(selector);
-                ReleaseUtil.release(buf);
-                return;
-            }
-            try {
-                // the method selector.wakeup is a weight operator, so we use flag "hasTask"
-                // and race flag "selecting" to reduce execution times of wake up
-                // I am not sure events.size if visible immediately by other thread ?
-                // can we use events.getBufferSize() > 0 instead of hasTask ?
-                // example method selector.select(...) may throw an io exception 
-                // and if we need to try with the method who may will throw an io exception ?
-                int selected;
-                if (hasTask) {
-                    selected = selector.selectNow();
-                    hasTask = false;
-                } else {
-                    if (selecting.compareAndSet(0, 1)) {
-                        if (hasTask) {
-                            selected = selector.selectNow();
-                        } else {
-                            selected = selector.select(selectTime);
-                        }
-                        hasTask = false;
-                        selecting.set(0);
-                    } else {
-                        selected = selector.selectNow();
-                        hasTask = false;
-                    }
+    private void handleEvents(Queue<Runnable> events) {
+        if (events.size() > 0) {
+            for (;;) {
+                Runnable event = events.poll();
+                if (event == null) {
+                    break;
                 }
-                if (selected > 0) {
-                    if (enableSelectionKeySet) {
-                        for (int i = 0; i < keySet.size; i++) {
-                            SelectionKey k = keySet.keys[i];
-                            keySet.keys[i] = null;
-                            accept(k);
-                        }
-                        keySet.reset();
-                    } else {
-                        Set<SelectionKey> sks = selector.selectedKeys();
-                        for (SelectionKey k : sks) {
-                            accept(k);
-                        }
-                        sks.clear();
-                    }
+                try {
+                    event.run();
+                } catch (Throwable e) {
+                    logger.error(e.getMessage(), e);
                 }
-                long now = System.currentTimeMillis();
-                if (now >= nextIdle) {
-                    channelIdle(now);
-                    nextIdle = now + idle;
-                    selectTime = idle;
-                } else {
-                    selectTime = nextIdle - now;
-                }
-                handleEvents(events);
-                removeClosedChannels();
-            } catch (Throwable e) {
-                printException(logger, e);
             }
         }
-    }
-    
-    private void removeClosedChannels(){
-        IntArray list = preCloseSessionIds;
-        if (list.size() == 0) {
-            return;
-        }
-        for(int i = 0,count = list.size(); i < count;i++){
-            NioSocketChannel ch = channels.remove(list.get(i));
-            ch.getContext().getChannelManager().removeChannel(ch);
-        }
-        list.clear();
     }
 
     private void registChannel(SocketChannel jch, NioEventLoop el, ChannelContext context) {
@@ -467,12 +411,12 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             CloseUtil.close((NioSocketChannel) sk.attachment());
             NioSocketChannel ch = new NioSocketChannel(el, sk, context, channelId);
             sk.attach(ch);
-            IntObjectHashMap<NioSocketChannel> channels = el.channels;
+            IntMap<NioSocketChannel> channels = el.channels;
             CloseUtil.close(channels.get(ch.getChannelId()));
-            if (channels.size() >= channelSizeLimit) {
-                printException(logger, OVER_CHANNEL_SIZE_LIMIT);
+            if (channels.size() >= chSizeLimit) {
+                printException(logger, OVER_CH_SIZE_LIMIT);
                 if (!ch.isEnableSsl()) {
-                    finishConnect(ch, context, OVER_CHANNEL_SIZE_LIMIT);
+                    finishConnect(ch, context, OVER_CH_SIZE_LIMIT);
                 }
                 CloseUtil.close(ch);
                 return;
@@ -491,19 +435,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             }
         } catch (ClosedChannelException e) {
             printException(logger, e);
-        }
-    }
-
-    private void registSelector0(final ChannelContext context, Selector selector)
-            throws ClosedChannelException {
-        SelectableChannel ch = context.getSelectableChannel();
-        if (context instanceof ChannelAcceptor) {
-            //FIXME 使用多eventLoop accept是否导致卡顿
-            //FIXME OP_ACCEPT & OP_CONNECT 不能在注册在一个EL吗?
-            //目前注册在一起会出现select到key但是key为空?
-            ch.register(selector, SelectionKey.OP_ACCEPT, context);
-        } else {
-            ch.register(selector, SelectionKey.OP_CONNECT, context);
         }
     }
 
@@ -554,13 +485,116 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         //        this.selector = newSelector;
     }
 
+    private void registSelector0(final ChannelContext context, Selector selector)
+            throws ClosedChannelException {
+        SelectableChannel ch = context.getSelectableChannel();
+        if (context instanceof ChannelAcceptor) {
+            //FIXME 使用多eventLoop accept是否导致卡顿
+            //FIXME OP_ACCEPT & OP_CONNECT 不能在注册在一个EL吗?
+            //目前注册在一起会出现select到key但是key为空?
+            ch.register(selector, SelectionKey.OP_ACCEPT, context);
+        } else {
+            ch.register(selector, SelectionKey.OP_CONNECT, context);
+        }
+    }
+
     @Override
     public Object removeAttribute(Object key) {
         return this.attributes.remove(key);
     }
 
     protected void removeChannel(int chId) {
-        preCloseSessionIds.add(chId);
+        preCloseChIds.add(chId);
+    }
+
+    private void removeClosedChannels() {
+        IntArray list = preCloseChIds;
+        if (list.size() == 0) {
+            return;
+        }
+        for (int i = 0, count = list.size(); i < count; i++) {
+            NioSocketChannel ch = channels.remove(list.get(i));
+            ch.getContext().getChannelManager().removeChannel(ch);
+        }
+        list.clear();
+    }
+
+    @Override
+    public void run() {
+        // does it useful to set variables locally ?
+        final long idle = group.getIdleTime();
+        final Selector selector = this.selector;
+        final AtomicInteger selecting = this.selecting;
+        final SelectionKeySet keySet = this.selectionKeySet;
+        final Queue<Runnable> events = this.events;
+        long nextIdle = 0;
+        long selectTime = idle;
+        for (;;) {
+            // when this event loop is going to shutdown,we handle the last events 
+            // and set stopped to true, to tell the waiter "I was stopped!"
+            // now you can shutdown it safely
+            if (!isRunning()) {
+                handleEvents(events);
+                closeChannels();
+                CloseUtil.close(selector);
+                ReleaseUtil.release(buf);
+                return;
+            }
+            try {
+                // the method selector.wakeup is a weight operator, so we use flag "hasTask"
+                // and race flag "selecting" to reduce execution times of wake up
+                // I am not sure events.size if visible immediately by other thread ?
+                // can we use events.getBufferSize() > 0 instead of hasTask ?
+                // example method selector.select(...) may throw an io exception 
+                // and if we need to try with the method who may will throw an io exception ?
+                int selected;
+                if (hasTask) {
+                    selected = selector.selectNow();
+                    hasTask = false;
+                } else {
+                    if (selecting.compareAndSet(0, 1)) {
+                        if (hasTask) {
+                            selected = selector.selectNow();
+                        } else {
+                            selected = selector.select(selectTime);
+                        }
+                        hasTask = false;
+                        selecting.set(0);
+                    } else {
+                        selected = selector.selectNow();
+                        hasTask = false;
+                    }
+                }
+                if (selected > 0) {
+                    if (ENABLE_SELKEY_SET) {
+                        for (int i = 0; i < keySet.size; i++) {
+                            SelectionKey k = keySet.keys[i];
+                            keySet.keys[i] = null;
+                            accept(k);
+                        }
+                        keySet.reset();
+                    } else {
+                        Set<SelectionKey> sks = selector.selectedKeys();
+                        for (SelectionKey k : sks) {
+                            accept(k);
+                        }
+                        sks.clear();
+                    }
+                }
+                long now = System.currentTimeMillis();
+                if (now >= nextIdle) {
+                    channelIdle(now);
+                    nextIdle = now + idle;
+                    selectTime = idle;
+                } else {
+                    selectTime = nextIdle - now;
+                }
+                handleEvents(events);
+                removeClosedChannels();
+            } catch (Throwable e) {
+                printException(logger, e);
+            }
+        }
     }
 
     @Override
@@ -653,6 +687,15 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
+    private static Logger newLogger() {
+        return LoggerFactory.getLogger(NioEventLoop.class);
+    }
+
+    private static IOException NOT_FINISH_CONNECT() {
+        return ThrowableUtil.unknownStackTrace(new IOException("not finish connect"),
+                SocketChannel.class, "finishConnect(...)");
+    }
+
     @SuppressWarnings("rawtypes")
     private static Selector openSelector(final SelectionKeySet keySet) throws IOException {
         final SelectorProvider provider = SelectorProvider.provider();
@@ -698,6 +741,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             return selector;
         }
         return selector;
+    }
+
+    private static IOException OVER_CH_SIZE_LIMIT() {
+        return ThrowableUtil.unknownStackTrace(new IOException("over channel size limit"),
+                NioEventLoop.class, "registChannel(...)");
     }
 
 }

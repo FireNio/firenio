@@ -17,7 +17,7 @@ package com.generallycloud.sample.baseio.http11.startup;
 
 import java.io.IOException;
 
-import com.generallycloud.baseio.Constants;
+import com.generallycloud.baseio.Options;
 import com.generallycloud.baseio.container.ApplicationBootstrap;
 import com.generallycloud.baseio.container.ApplicationBootstrap.ClassPathScaner;
 import com.generallycloud.baseio.container.URLDynamicClassLoader;
@@ -30,7 +30,7 @@ public class TestHttpStartup {
 
     public static void main(String[] args) throws Exception {
 
-        System.setProperty(Constants.DEVELOP_DEBUG_KEY, "true");
+        Options.setDevelopDebug(true);
         ApplicationBootstrap.startup(
                 "com.generallycloud.sample.baseio.http11.startup.TestHttpBootstrapEngine",
                 ApplicationBootstrap.withDefault(new ClassPathScaner() {

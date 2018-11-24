@@ -21,7 +21,6 @@ import java.nio.channels.SocketChannel;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
-import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.concurrent.Waiter;
 
@@ -72,9 +71,20 @@ public class ChannelConnector extends ChannelContext implements Closeable {
     }
 
     public synchronized NioSocketChannel connect() throws IOException {
+        this.connect(null);
+        return getChannel();
+    }
+
+    public synchronized void connect(Callback callback) throws IOException {
+        this.waiter = null;
+        this.callback = callback;
         if (isConnected()) {
-            return ch;
+            if (callback != null) {
+                callback.call(ch, null);
+            }
+            return;
         }
+        final ChannelConnector conn = this;
         LifeCycleUtil.start(getNioEventLoopGroup());
         LifeCycleUtil.start(this);
         getNioEventLoopGroup().setContext(this);
@@ -89,20 +99,20 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         }
         this.javaChannel = SocketChannel.open();
         this.javaChannel.configureBlocking(false);
-        this.eventLoop.registSelector(this);
-        this.javaChannel.connect(getServerAddress());
+        this.eventLoop.execute(new Runnable() {
+            
+            @Override
+            public void run() {
+                try {
+                    if(!conn.javaChannel.connect(getServerAddress())){
+                        conn.eventLoop.registSelector(conn);
+                    }
+                } catch (IOException e) {
+                    finishConnect(null, e);
+                }
+            }
+        });
         this.wait4connect(timeout);
-        return getChannel();
-    }
-
-    public synchronized void connect(Callback callback) throws IOException {
-        Assert.notNull(callback, "null callback");
-        this.callback = callback;
-        if (isConnected()) {
-            callback.call(ch, null);
-        } else {
-            connect();
-        }
     }
 
     protected void finishConnect(NioSocketChannel ch, Throwable exception) {
@@ -180,7 +190,6 @@ public class ChannelConnector extends ChannelContext implements Closeable {
             throw new IOException(errorMsg, ex);
         }
         this.ch = (NioSocketChannel) waiter.getResponse();
-        this.waiter = null;
     }
 
     public interface Callback {

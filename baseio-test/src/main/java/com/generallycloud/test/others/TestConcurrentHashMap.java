@@ -19,7 +19,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.generallycloud.baseio.collection.IntObjectHashMap;
+import com.generallycloud.baseio.collection.IntMap;
 
 /**
  * @author wangkai
@@ -64,7 +64,7 @@ public class TestConcurrentHashMap {
     }
 
     static void testIntObjectHashMap(int count) {
-        IntObjectHashMap<String> map = new IntObjectHashMap<>();
+        IntMap<String> map = new IntMap<>();
         //      map = new HashMap<>();
         for (int i = 0; i < count; i++) {
             map.put(i, String.valueOf(i));
