@@ -43,14 +43,14 @@ public class RedisClient {
     }
 
     private synchronized RedisNode sendCommand(byte[] command, byte[]... args) throws IOException {
-        AbstractRedisFrame frame = new RedisCmdFrame();
+        RedisCmdFrame frame = new RedisCmdFrame();
         frame.writeCommand(command, args);
-        Waiter waiter = ioEventHandle.newWaiter();
+        Waiter<RedisCmdFrame> waiter = ioEventHandle.newWaiter();
         ch.flush(frame);
         if (waiter.await(timeout)) {
             throw new TimeoutException("timeout");
         }
-        return (RedisNode) waiter.getResponse();
+        return waiter.getResponse().getRedisNode();
     }
 
     private RedisNode sendCommand(RedisCommand command, byte[]... args) throws IOException {

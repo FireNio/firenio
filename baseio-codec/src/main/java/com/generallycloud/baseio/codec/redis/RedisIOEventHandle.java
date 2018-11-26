@@ -22,20 +22,20 @@ import com.generallycloud.baseio.protocol.Frame;
 
 public class RedisIOEventHandle extends IoEventHandle {
 
-    private Waiter waiter;
+    private Waiter<RedisCmdFrame> waiter;
 
     @Override
     public void accept(NioSocketChannel ch, Frame frame) throws Exception {
-        AbstractRedisFrame f = (AbstractRedisFrame) frame;
-        Waiter waiter = this.waiter;
+        RedisCmdFrame f = (RedisCmdFrame) frame;
+        Waiter<RedisCmdFrame> waiter = this.waiter;
         if (waiter != null) {
             this.waiter = null;
-            waiter.response(f);
+            waiter.call(f, null);
         }
     }
 
-    public Waiter newWaiter() {
-        this.waiter = new Waiter();
+    public Waiter<RedisCmdFrame> newWaiter() {
+        this.waiter = new Waiter<RedisCmdFrame>();
         return this.waiter;
     }
 

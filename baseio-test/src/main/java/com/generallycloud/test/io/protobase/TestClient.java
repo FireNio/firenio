@@ -40,7 +40,6 @@ public class TestClient {
         };
 
         ChannelConnector context = new ChannelConnector(8300);
-        context.setTimeout(99999999);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new ProtobaseCodec());

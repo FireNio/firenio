@@ -57,7 +57,6 @@ import com.generallycloud.baseio.common.MessageFormatter;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.ThrowableUtil;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
-import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -197,6 +196,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     if (ch == null) {
                         return;
                     }
+                    final NioEventLoopGroup group = context.getProcessorGroup();
                     final NioEventLoop targetEL = group.getNext();
                     // 配置为非阻塞
                     ch.configureBlocking(false);
@@ -225,23 +225,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     int ops = key.interestOps();
                     ops &= ~SelectionKey.OP_CONNECT;
                     key.interestOps(ops);
-                    NioEventLoop tempEL = connector.getEventLoop();
-                    if (tempEL == null) {
-                        tempEL = group.getNext();
-                    }
-                    final NioEventLoop targetEL = tempEL;
-                    if (targetEL.inEventLoop()) {
-                        selector.selectNow();
-                        registChannel(javaChannel, targetEL, context);
-                    } else {
-                        targetEL.execute(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                registChannel(javaChannel, targetEL, context);
-                            }
-                        });
-                    }
+                    //FIXME need this code ?
+                    selector.selectNow();
+                    registChannel(javaChannel, connector.getEventLoop(), context);
                 } catch (Exception e) {
                     key.cancel();
                     key.attach(null);
@@ -438,31 +424,21 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    protected void registSelector(final ChannelContext context) throws IOException {
+    protected void registSelector(ChannelContext context, int op) throws IOException {
         final Selector selector = this.selector;
         if (inEventLoop()) {
-            registSelector0(context, selector);
-        } else {
-            final Waiter waiter = new Waiter();
-            execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        registSelector0(context, selector);
-                        waiter.response(null);
-                    } catch (Exception e) {
-                        waiter.response(e);
-                        printException(logger, e);
-                    }
-                }
-            });
-            waiter.await();
-            Object res = waiter.getResponse();
-            if (res instanceof IOException) {
-                throw (IOException) res;
+            SelectableChannel ch = context.getSelectableChannel();
+            if (context instanceof ChannelAcceptor) {
+                //FIXME 使用多eventLoop accept是否导致卡顿
+                //FIXME OP_ACCEPT & OP_CONNECT 不能在注册在一个EL吗?
+                //目前注册在一起会出现select到key但是key为空?
+                ch.register(selector, SelectionKey.OP_ACCEPT, context);
+            } else {
+                ch.register(selector, SelectionKey.OP_CONNECT, context);
             }
+            return;
         }
-
+        throw new IOException("not in event loop");
         //        if (oldSelector != null) {
         //            Selector oldSel = this.selector;
         //            Selector newSel = newSelector;
@@ -483,19 +459,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         //            CloseUtil.close(oldSelector);
         //        }
         //        this.selector = newSelector;
-    }
-
-    private void registSelector0(final ChannelContext context, Selector selector)
-            throws ClosedChannelException {
-        SelectableChannel ch = context.getSelectableChannel();
-        if (context instanceof ChannelAcceptor) {
-            //FIXME 使用多eventLoop accept是否导致卡顿
-            //FIXME OP_ACCEPT & OP_CONNECT 不能在注册在一个EL吗?
-            //目前注册在一起会出现select到key但是key为空?
-            ch.register(selector, SelectionKey.OP_ACCEPT, context);
-        } else {
-            ch.register(selector, SelectionKey.OP_CONNECT, context);
-        }
     }
 
     @Override

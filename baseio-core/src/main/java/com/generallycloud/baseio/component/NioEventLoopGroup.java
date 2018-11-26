@@ -31,7 +31,6 @@ import com.generallycloud.baseio.concurrent.FixedAtomicInteger;
  */
 public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
-    private boolean               acceptor;
     private ByteBufAllocatorGroup allocatorGroup;
     private FixedAtomicInteger    channelIds;
     private int                   channelReadBuffer      = 1024 * 512;
@@ -42,7 +41,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     //内存池是否使用启用堆外内存
     private boolean               enableMemoryPoolDirect = true;
     private NioEventLoop[]        eventLoops;
-    private NioEventLoop          headEventLoop;
     private long                  idleTime               = 30 * 1000;
     //内存池内存单元数量(单核)
     private int                   memoryPoolCapacity;
@@ -64,6 +62,10 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     public NioEventLoopGroup(boolean sharable, int eventLoopSize) {
         super("nio-processor", eventLoopSize);
         this.sharable = sharable;
+    }
+
+    public NioEventLoopGroup(String name) {
+        super(name, 1);
     }
 
     public NioEventLoopGroup(boolean sharable, int eventLoopSize, int idleTime) {
@@ -88,17 +90,8 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
             memoryPoolCapacity = (int) (total
                     / (memoryPoolUnit * getEventLoopSize() * memoryPoolRate));
         }
-        String name = isAcceptor() ? "nio-acceptor" : "nio-processor";
         this.initializeByteBufAllocator();
-        this.headEventLoop = new NioEventLoop(this, 0);
-        this.headEventLoop.startup(name);
         super.doStart();
-    }
-
-    @Override
-    protected void doStop() throws Exception {
-        LifeCycleUtil.stop(headEventLoop);
-        super.doStop();
     }
 
     public ByteBufAllocatorGroup getAllocatorGroup() {
@@ -124,10 +117,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     @Override
     public NioEventLoop getEventLoop(int index) {
         return eventLoops[index];
-    }
-
-    protected NioEventLoop getHeadEventLoop() {
-        return headEventLoop;
     }
 
     public long getIdleTime() {
@@ -172,10 +161,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         LifeCycleUtil.start(getAllocatorGroup());
     }
 
-    public boolean isAcceptor() {
-        return acceptor;
-    }
-
     public boolean isEnableMemoryPool() {
         return enableMemoryPool;
     }
@@ -190,25 +175,12 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     @Override
     protected NioEventLoop newEventLoop(int index) {
-        if (acceptor) {
-            return new NioEventLoop(this, index);
-        }
-        return headEventLoop;
-    }
-    
-    protected void registSelector(ChannelAcceptor context) throws IOException {
-        this.context = context;
-        this.headEventLoop.registSelector(context);
+        return new NioEventLoop(this, index);
     }
 
-    public void setAcceptor(boolean acceptor) {
-        if (isRunning()) {
-            return;
-        }
-        this.acceptor = this.acceptor || acceptor;
-        if (!this.acceptor) {
-            setEventLoopSize(1);
-        }
+    protected void registSelector(ChannelAcceptor context, int op) throws IOException {
+        this.context = context;
+        this.getNext().registSelector(context, op);
     }
 
     public void setChannelReadBuffer(int channelReadBuffer) {

@@ -17,11 +17,14 @@ package com.generallycloud.baseio.component;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
+import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.concurrent.Callback;
 import com.generallycloud.baseio.concurrent.Waiter;
 
 /**
@@ -30,12 +33,10 @@ import com.generallycloud.baseio.concurrent.Waiter;
  */
 public class ChannelConnector extends ChannelContext implements Closeable {
 
-    private volatile Callback callback;
-    private NioSocketChannel  ch;
-    private NioEventLoop      eventLoop;
-    private SocketChannel     javaChannel;
-    private long              timeout = 3000;
-    private Waiter            waiter;
+    private NioSocketChannel                    ch;
+    private NioEventLoop                        eventLoop;
+    private SocketChannel                       javaChannel;
+    private volatile Callback<NioSocketChannel> callback;
 
     public ChannelConnector(int port) {
         this("127.0.0.1", port);
@@ -52,7 +53,7 @@ public class ChannelConnector extends ChannelContext implements Closeable {
 
     public ChannelConnector(NioEventLoopGroup group, String host, int port) {
         super(group, host, port);
-        group.setAcceptor(false);
+        group.setEventLoopSize(1);
     }
 
     public ChannelConnector(String host, int port) {
@@ -64,71 +65,72 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         CloseUtil.close(ch);
         CloseUtil.close(javaChannel);
         LifeCycleUtil.stop(this);
-        if (!getNioEventLoopGroup().isSharable()) {
+        if (!getProcessorGroup().isSharable()) {
             this.eventLoop = null;
         }
         this.ch = null;
     }
 
     public synchronized NioSocketChannel connect() throws IOException {
-        this.connect(null);
+        return connect(3000);
+    }
+
+    public synchronized NioSocketChannel connect(long timeout) throws IOException {
+        if (eventLoop.inEventLoop()) {
+            throw new IOException("can not blocking connect in its event loop");
+        }
+        ConnectCallback<NioSocketChannel> callback = new ConnectCallback<>();
+        this.connect(callback);
+        if (callback.await(timeout)) {
+            CloseUtil.close(this);
+            throw new TimeoutException("connect to " + getServerAddress() + " time out");
+        }
+        if (callback.isFailed()) {
+            CloseUtil.close(this);
+            Throwable ex = callback.getThrowable();
+            String errorMsg = "connect to " + getServerAddress() + " failed, nested exception is "
+                    + ex.getMessage();
+            throw new IOException(errorMsg, ex);
+        }
+        this.ch = (NioSocketChannel) callback.getResponse();
         return getChannel();
     }
 
-    public synchronized void connect(Callback callback) throws IOException {
-        this.waiter = null;
-        this.callback = callback;
+    public synchronized void connect(Callback<NioSocketChannel> callback) throws IOException {
+        Assert.notNull(callback, "null callback");
         if (isConnected()) {
-            if (callback != null) {
-                callback.call(ch, null);
-            }
+            callback.call(ch, null);
             return;
         }
         final ChannelConnector conn = this;
-        LifeCycleUtil.start(getNioEventLoopGroup());
+        LifeCycleUtil.start(getProcessorGroup());
         LifeCycleUtil.start(this);
-        getNioEventLoopGroup().setContext(this);
+        getProcessorGroup().setContext(this);
         if (eventLoop == null) {
-            eventLoop = getNioEventLoopGroup().getNext();
+            eventLoop = getProcessorGroup().getNext();
         }
         if (eventLoop.inEventLoop() && callback == null) {
             throw new IOException("connect in event loop but no callback found!");
         }
-        if (this.callback == null) {
-            this.waiter = new Waiter();
-        }
         this.javaChannel = SocketChannel.open();
         this.javaChannel.configureBlocking(false);
         this.eventLoop.execute(new Runnable() {
-            
+
             @Override
             public void run() {
                 try {
-                    if(!conn.javaChannel.connect(getServerAddress())){
-                        conn.eventLoop.registSelector(conn);
+                    if (!conn.javaChannel.connect(getServerAddress())) {
+                        conn.eventLoop.registSelector(conn, SelectionKey.OP_CONNECT);
                     }
                 } catch (IOException e) {
                     finishConnect(null, e);
                 }
             }
         });
-        this.wait4connect(timeout);
     }
 
     protected void finishConnect(NioSocketChannel ch, Throwable exception) {
-        this.ch = ch;
-        if (callback != null) {
-            callback.call(ch, exception);
-            return;
-        }
-        if (exception != null) {
-            waiter.response(exception);
-        } else {
-            waiter.response(ch);
-        }
-        if (waiter.isTimeouted()) {
-            CloseUtil.close(ch);
-        }
+        callback.call(ch, exception);
     }
 
     public NioSocketChannel getChannel() {
@@ -144,10 +146,6 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         return javaChannel;
     }
 
-    public long getTimeout() {
-        return timeout;
-    }
-
     @Override
     public boolean isActive() {
         return isConnected();
@@ -156,10 +154,6 @@ public class ChannelConnector extends ChannelContext implements Closeable {
     public boolean isConnected() {
         NioSocketChannel ch = this.ch;
         return ch != null && ch.isOpened();
-    }
-
-    public void setTimeout(long timeout) {
-        this.timeout = timeout;
     }
 
     @Override
@@ -171,31 +165,20 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         return ch.toString();
     }
 
-    private void wait4connect(long timeout) throws IOException {
-        if (callback != null) {
-            return;
+    class ConnectCallback<T> extends Waiter<T> {
+        
+        @Override
+        public void call(T res, Throwable ex) {
+            synchronized (this) {
+                this.isDnoe = true;
+                this.response = res;
+                this.throwable = ex;
+                this.notify();
+                if (isTimeouted()) {
+                    CloseUtil.close((Closeable) res);
+                }
+            }
         }
-        if (eventLoop.inEventLoop()) {
-            throw new IOException("can not wait for connect in its event loop");
-        }
-        if (waiter.await(timeout)) {
-            CloseUtil.close(this);
-            throw new TimeoutException("connect to " + getServerAddress() + " time out");
-        }
-        if (waiter.isFailed()) {
-            CloseUtil.close(this);
-            Throwable ex = (Throwable) waiter.getResponse();
-            String errorMsg = "connect to " + getServerAddress() + " failed, nested exception is "
-                    + ex.getMessage();
-            throw new IOException(errorMsg, ex);
-        }
-        this.ch = (NioSocketChannel) waiter.getResponse();
-    }
-
-    public interface Callback {
-
-        void call(NioSocketChannel ch, Throwable ex);
-
     }
 
 }
