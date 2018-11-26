@@ -223,7 +223,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     ops &= ~SelectionKey.OP_CONNECT;
                     key.interestOps(ops);
                     //FIXME need this code ?
-                    selector.selectNow();
+//                    selector.selectNow();
                     registChannel(javaChannel, this, connector);
                 } catch (Exception e) {
                     key.cancel();

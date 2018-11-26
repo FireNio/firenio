@@ -92,7 +92,6 @@ public class ChannelConnector extends ChannelContext implements Closeable {
                     + ex.getMessage();
             throw new IOException(errorMsg, ex);
         }
-        this.ch = (NioSocketChannel) callback.getResponse();
         return getChannel();
     }
 
@@ -127,7 +126,8 @@ public class ChannelConnector extends ChannelContext implements Closeable {
     }
 
     protected void finishConnect(NioSocketChannel ch, Throwable exception) {
-        callback.call(ch, exception);
+        this.ch = ch;
+        this.callback.call(ch, exception);
     }
 
     public NioSocketChannel getChannel() {
