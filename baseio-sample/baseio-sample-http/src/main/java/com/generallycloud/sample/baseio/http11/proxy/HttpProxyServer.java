@@ -118,6 +118,7 @@ public class HttpProxyServer {
                             ch.close();
                         }
                     });
+                    context.setPrintConfig(false);
                     context.addChannelEventListener(new LoggerChannelOpenListener());
                     context.connect((ch, ex) -> {
                         if (ex == null) {
@@ -170,6 +171,7 @@ public class HttpProxyServer {
                             return null;
                         }
                     });
+                    context.setPrintConfig(false);
                     context.addChannelEventListener(new LoggerChannelOpenListener());
                     ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                     buf.read(src);

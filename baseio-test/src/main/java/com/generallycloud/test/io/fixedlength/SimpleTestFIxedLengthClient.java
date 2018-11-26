@@ -43,12 +43,12 @@ public class SimpleTestFIxedLengthClient {
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
-        NioSocketChannel channel = context.connect();
-        FixedLengthFrame frame = new FixedLengthFrame();
-        frame.write("hello server!", channel);
-        channel.flush(frame);
-        
-        context.connect();
+        context.connect((ch, ex) -> {
+            FixedLengthFrame frame = new FixedLengthFrame();
+            frame.write("hello server!", ch);
+            ch.flush(frame);
+
+        });
     }
 
 }

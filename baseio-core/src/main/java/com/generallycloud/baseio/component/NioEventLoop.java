@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -182,9 +181,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 }
             }
         } else {
-            final ChannelContext context = (ChannelContext) attach;
-            if (context instanceof ChannelAcceptor) {
-                ChannelAcceptor acceptor = (ChannelAcceptor) context;
+            if (attach instanceof ChannelAcceptor) {
+                final ChannelAcceptor acceptor = (ChannelAcceptor) attach;
                 ServerSocketChannel serverChannel = acceptor.getSelectableChannel();
                 try {
                     //有时候还未regist selector，但是却能selector到sk
@@ -196,7 +194,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     if (ch == null) {
                         return;
                     }
-                    final NioEventLoopGroup group = context.getProcessorGroup();
+                    final NioEventLoopGroup group = acceptor.getProcessorGroup();
                     final NioEventLoop targetEL = group.getNext();
                     // 配置为非阻塞
                     ch.configureBlocking(false);
@@ -205,21 +203,20 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
 
                         @Override
                         public void run() {
-                            registChannel(ch, targetEL, context);
+                            registChannel(ch, targetEL, acceptor);
                         }
                     });
                 } catch (Exception e) {
                     printException(logger, e);
                 }
             } else {
-                @SuppressWarnings("resource")
-                final ChannelConnector connector = (ChannelConnector) context;
+                final ChannelConnector connector = (ChannelConnector) attach;
                 final SocketChannel javaChannel = connector.getSelectableChannel();
                 try {
                     if (!javaChannel.finishConnect()) {
                         key.cancel();
                         key.attach(null);
-                        finishConnect(null, context, NOT_FINISH_CONNECT);
+                        finishConnect(null, connector, NOT_FINISH_CONNECT);
                         return;
                     }
                     int ops = key.interestOps();
@@ -227,11 +224,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     key.interestOps(ops);
                     //FIXME need this code ?
                     selector.selectNow();
-                    registChannel(javaChannel, connector.getEventLoop(), context);
+                    registChannel(javaChannel, this, connector);
                 } catch (Exception e) {
                     key.cancel();
                     key.attach(null);
-                    finishConnect(null, context, e);
+                    finishConnect(null, connector, e);
                 }
             }
         }
@@ -392,14 +389,14 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
 
     private void registChannel(SocketChannel jch, NioEventLoop el, ChannelContext context) {
         try {
-            int channelId = group.getChannelIds().getAndIncrement();
-            SelectionKey sk = jch.register(el.selector, SelectionKey.OP_READ);
+            int channelId = el.getGroup().getChannelIds().getAndIncrement();
+            SelectionKey sk = jch.register(el.getSelector(), SelectionKey.OP_READ);
             CloseUtil.close((NioSocketChannel) sk.attachment());
             NioSocketChannel ch = new NioSocketChannel(el, sk, context, channelId);
             sk.attach(ch);
             IntMap<NioSocketChannel> channels = el.channels;
             CloseUtil.close(channels.get(ch.getChannelId()));
-            if (channels.size() >= chSizeLimit) {
+            if (channels.size() >= el.chSizeLimit) {
                 printException(logger, OVER_CH_SIZE_LIMIT);
                 if (!ch.isEnableSsl()) {
                     finishConnect(ch, context, OVER_CH_SIZE_LIMIT);
@@ -425,17 +422,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     protected void registSelector(ChannelContext context, int op) throws IOException {
-        final Selector selector = this.selector;
         if (inEventLoop()) {
-            SelectableChannel ch = context.getSelectableChannel();
-            if (context instanceof ChannelAcceptor) {
-                //FIXME 使用多eventLoop accept是否导致卡顿
-                //FIXME OP_ACCEPT & OP_CONNECT 不能在注册在一个EL吗?
-                //目前注册在一起会出现select到key但是key为空?
-                ch.register(selector, SelectionKey.OP_ACCEPT, context);
-            } else {
-                ch.register(selector, SelectionKey.OP_CONNECT, context);
-            }
+            //FIXME 使用多eventLoop accept是否导致卡顿
+            //FIXME OP_ACCEPT & OP_CONNECT 不能在注册在一个EL吗?
+            //目前注册在一起会出现select到key但是key为空?
+            context.getSelectableChannel().register(selector, op, context);
             return;
         }
         throw new IOException("not in event loop");

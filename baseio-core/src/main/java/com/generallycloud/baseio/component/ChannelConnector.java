@@ -76,11 +76,11 @@ public class ChannelConnector extends ChannelContext implements Closeable {
     }
 
     public synchronized NioSocketChannel connect(long timeout) throws IOException {
+        ConnectCallback<NioSocketChannel> callback = new ConnectCallback<>();
+        this.connect(callback);
         if (eventLoop.inEventLoop()) {
             throw new IOException("can not blocking connect in its event loop");
         }
-        ConnectCallback<NioSocketChannel> callback = new ConnectCallback<>();
-        this.connect(callback);
         if (callback.await(timeout)) {
             CloseUtil.close(this);
             throw new TimeoutException("connect to " + getServerAddress() + " time out");
@@ -103,15 +103,11 @@ public class ChannelConnector extends ChannelContext implements Closeable {
             return;
         }
         this.callback = callback;
-        final ChannelConnector conn = this;
+        this.getProcessorGroup().setContext(this);
         LifeCycleUtil.start(getProcessorGroup());
         LifeCycleUtil.start(this);
-        getProcessorGroup().setContext(this);
         if (eventLoop == null) {
             eventLoop = getProcessorGroup().getNext();
-        }
-        if (eventLoop.inEventLoop() && callback == null) {
-            throw new IOException("connect in event loop but no callback found!");
         }
         this.javaChannel = SocketChannel.open();
         this.javaChannel.configureBlocking(false);
@@ -120,8 +116,8 @@ public class ChannelConnector extends ChannelContext implements Closeable {
             @Override
             public void run() {
                 try {
-                    if (!conn.javaChannel.connect(getServerAddress())) {
-                        conn.eventLoop.registSelector(conn, SelectionKey.OP_CONNECT);
+                    if (!javaChannel.connect(getServerAddress())) {
+                        eventLoop.registSelector(ChannelConnector.this, SelectionKey.OP_CONNECT);
                     }
                 } catch (IOException e) {
                     finishConnect(null, e);

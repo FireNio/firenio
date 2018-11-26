@@ -68,7 +68,13 @@ public class ChannelAcceptor extends ChannelContext {
         if (isActive()) {
             return;
         }
-        this.bindGroup = new NioEventLoopGroup("bind-" + getHost() + ":" + getPort());
+        String name = "bind-" + getHost() + ":" + getPort();
+        this.bindGroup = new NioEventLoopGroup(name);
+        this.bindGroup.setEnableMemoryPool(false);
+        this.bindGroup.setEnableMemoryPoolDirect(false);
+        this.bindGroup.setChannelReadBuffer(0);
+        this.bindGroup.setWriteBuffers(0);
+        this.getProcessorGroup().setContext(this);
         LifeCycleUtil.start(this);
         LifeCycleUtil.start(bindGroup);
         final NioEventLoopGroup bindGroup = this.bindGroup;
