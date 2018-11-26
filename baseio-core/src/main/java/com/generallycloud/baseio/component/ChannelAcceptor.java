@@ -18,12 +18,14 @@ package com.generallycloud.baseio.component;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Frame;
@@ -34,10 +36,9 @@ import com.generallycloud.baseio.protocol.Frame;
  */
 public class ChannelAcceptor extends ChannelContext {
 
-    private boolean             active = false;
     private Logger              logger = LoggerFactory.getLogger(getClass());
     private ServerSocketChannel selectableChannel;
-    private ServerSocket        serverSocket;
+    private NioEventLoopGroup   bindGroup;
 
     public ChannelAcceptor(NioEventLoopGroup group) {
         this(group, "0.0.0.0", 0);
@@ -49,7 +50,6 @@ public class ChannelAcceptor extends ChannelContext {
 
     public ChannelAcceptor(NioEventLoopGroup group, String host, int port) {
         super(group, host, port);
-        group.setAcceptor(true);
     }
 
     public ChannelAcceptor(String host, int port) {
@@ -65,24 +65,53 @@ public class ChannelAcceptor extends ChannelContext {
     }
 
     public synchronized void bind(int backlog) throws IOException {
-        if (active) {
+        if (isActive()) {
             return;
         }
-        LifeCycleUtil.start(getNioEventLoopGroup());
+        String name = "bind-" + getHost() + ":" + getPort();
+        this.bindGroup = new NioEventLoopGroup(name);
+        this.bindGroup.setEnableMemoryPool(false);
+        this.bindGroup.setEnableMemoryPoolDirect(false);
+        this.bindGroup.setChannelReadBuffer(0);
+        this.bindGroup.setWriteBuffers(0);
+        this.getProcessorGroup().setContext(this);
         LifeCycleUtil.start(this);
+        LifeCycleUtil.start(bindGroup);
+        final NioEventLoopGroup bindGroup = this.bindGroup;
+        final Waiter<Object> bindWaiter = new Waiter<>();
+        final ChannelAcceptor acceptor = this;
         this.selectableChannel = ServerSocketChannel.open();
         this.selectableChannel.configureBlocking(false);
-        this.serverSocket = ((ServerSocketChannel) selectableChannel).socket();
-        this.getNioEventLoopGroup().registSelector(this);
-        try {
-            this.serverSocket.bind(getServerAddress(), 50);
-        } catch (IOException e) {
-            if ("Already bound".equalsIgnoreCase(e.getMessage()) || e instanceof BindException) {
-                throw new BindException("Already bound at " + getPort());
+        this.bindGroup.getNext().execute(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    ServerSocket serverSocket = selectableChannel.socket();
+                    bindGroup.registSelector(acceptor, SelectionKey.OP_ACCEPT);
+                    serverSocket.bind(getServerAddress(), 50);
+                    bindWaiter.call(null, null);
+                } catch (Throwable e) {
+                    Throwable ex = e;
+                    if ("Already bound".equalsIgnoreCase(e.getMessage())
+                            || e instanceof BindException) {
+                        ex = new BindException("Already bound at " + getPort());
+                    }
+                    bindWaiter.call(null, ex);
+                    if (bindWaiter.isTimeouted()) {
+                        CloseUtil.unbind(acceptor);
+                    }
+                }
             }
-            throw e;
+        });
+        if (bindWaiter.await(6000)) {
+            CloseUtil.unbind(this);
+            throw new IOException("time out to bind @ " + getPort());
         }
-        this.active = true;
+        if (bindWaiter.isFailed()) {
+            CloseUtil.unbind(this);
+            throw (IOException) bindWaiter.getThrowable();
+        }
         logger.info("server listening @" + getServerAddress());
     }
 
@@ -101,13 +130,14 @@ public class ChannelAcceptor extends ChannelContext {
 
     @Override
     public boolean isActive() {
-        return active;
+        ServerSocketChannel channel = this.selectableChannel;
+        return channel != null && channel.isOpen();
     }
 
     public synchronized void unbind() throws TimeoutException {
-        active = false;
-        CloseUtil.close(serverSocket);
+        CloseUtil.close(selectableChannel.socket());
         CloseUtil.close(selectableChannel);
+        LifeCycleUtil.stop(bindGroup);
         LifeCycleUtil.stop(this);
     }
 

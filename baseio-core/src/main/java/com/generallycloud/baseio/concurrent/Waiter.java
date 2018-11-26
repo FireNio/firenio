@@ -15,11 +15,12 @@
  */
 package com.generallycloud.baseio.concurrent;
 
-public class Waiter {
+public class Waiter<T> implements Callback<T> {
 
-    private boolean isDnoe;
-    private boolean timeouted;
-    private Object  response;
+    protected boolean   isDnoe;
+    protected T         response;
+    protected Throwable throwable;
+    protected boolean   timeouted;
 
     public boolean await() {
         return await(0);
@@ -44,32 +45,35 @@ public class Waiter {
         return timeouted;
     }
 
-    public void response(Object res) {
+    @Override
+    public void call(T res, Throwable ex) {
         synchronized (this) {
-            if (isDnoe) {
-                return;
-            }
             this.isDnoe = true;
             this.response = res;
+            this.throwable = ex;
             this.notify();
         }
+    }
+
+    public Throwable getThrowable() {
+        return throwable;
+    }
+
+    public T getResponse() {
+        return response;
     }
 
     public boolean isDnoe() {
         return isDnoe;
     }
 
-    public Object getResponse() {
-        return response;
+    //not include timeout
+    public boolean isFailed() {
+        return throwable != null;
     }
 
     public boolean isTimeouted() {
         return timeouted;
-    }
-
-    //not include timeout
-    public boolean isFailed() {
-        return (response instanceof Throwable);
     }
 
 }

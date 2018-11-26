@@ -47,11 +47,16 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
     protected void doStart() throws Exception {
         this.eventLoopIndex = new FixedAtomicInteger(0, eventLoopSize - 1);
         EventLoop[] eventLoopArray = initEventLoops();
-        for (int i = 0; i < eventLoopArray.length; i++) {
-            eventLoopArray[i] = newEventLoop(i);
-        }
-        for (int i = 0; i < eventLoopArray.length; i++) {
-            eventLoopArray[i].startup(eventLoopName + "-" + i);
+        if (eventLoopArray.length == 1) {
+            eventLoopArray[0] = newEventLoop(0);
+            eventLoopArray[0].startup(eventLoopName);
+        } else {
+            for (int i = 0; i < eventLoopArray.length; i++) {
+                eventLoopArray[i] = newEventLoop(i);
+            }
+            for (int i = 0; i < eventLoopArray.length; i++) {
+                eventLoopArray[i].startup(eventLoopName + "-" + i);
+            }
         }
     }
 

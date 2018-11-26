@@ -65,7 +65,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     private IoEventHandle                  ioEventHandle      = DefaultIoEventHandle.get();
     private Logger                         logger             = LoggerFactory.getLogger(getClass());
     private int                            maxWriteBacklog    = Integer.MAX_VALUE;
-    private NioEventLoopGroup              nioEventLoopGroup;
+    private NioEventLoopGroup              processorGroup;
     private String                         openSslPath;
     private int                            port;
     private Properties                     properties;
@@ -82,7 +82,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         Assert.notNull(group, "null group");
         this.port = port;
         this.host = host;
-        this.nioEventLoopGroup = group;
+        this.processorGroup = group;
     }
 
     public void addChannelEventListener(ChannelEventListener listener) {
@@ -113,7 +113,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         }
         initHeartBeatLogger();
         initSslContext(getClass().getClassLoader());
-        NioEventLoopGroup g = this.nioEventLoopGroup;
+        NioEventLoopGroup g = this.processorGroup;
         String protocolId = protocolCodec.getProtocolId();
         int eventLoopSize = g.getEventLoopSize();
         if (printConfig) {
@@ -153,6 +153,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         }
         serverAddress = new InetSocketAddress(host, port);
         LifeCycleUtil.start(executorEventLoopGroup);
+        LifeCycleUtil.start(processorGroup);
     }
 
     public boolean isPrintConfig() {
@@ -169,8 +170,8 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         for (NioSocketChannel ch : channelManager.getManagedChannels().values()) {
             CloseUtil.close(ch);
         }
-        if (!getNioEventLoopGroup().isSharable()) {
-            LifeCycleUtil.stop(getNioEventLoopGroup());
+        if (!getProcessorGroup().isSharable()) {
+            LifeCycleUtil.stop(getProcessorGroup());
         }
         LifeCycleUtil.stop(executorEventLoopGroup);
         this.attributes.clear();
@@ -232,8 +233,8 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         return maxWriteBacklog;
     }
 
-    public NioEventLoopGroup getNioEventLoopGroup() {
-        return nioEventLoopGroup;
+    public NioEventLoopGroup getProcessorGroup() {
+        return processorGroup;
     }
 
     public String getOpenSslPath() {
@@ -415,7 +416,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
 
     public void setNioEventLoopGroup(NioEventLoopGroup nioEventLoopGroup) {
         checkNotRunning();
-        this.nioEventLoopGroup = nioEventLoopGroup;
+        this.processorGroup = nioEventLoopGroup;
     }
 
     public void setOpenSslPath(String openSslPath) {
