@@ -102,6 +102,7 @@ public class ChannelConnector extends ChannelContext implements Closeable {
             callback.call(ch, null);
             return;
         }
+        this.callback = callback;
         final ChannelConnector conn = this;
         LifeCycleUtil.start(getProcessorGroup());
         LifeCycleUtil.start(this);
