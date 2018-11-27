@@ -199,12 +199,12 @@ public enum HttpStatus {
         return binary;
     }
     
-    private static final IntMap<HttpStatus> STATUS = new IntMap<>();
+    private static final IntMap<HttpStatus> STATUSES = new IntMap<>();
     
     static{
         HttpStatus[] values = HttpStatus.values();
         for (HttpStatus v : values) {
-            STATUS.put(v.status, v);
+            STATUSES.put(v.status, v);
         }
     }
     
@@ -212,7 +212,7 @@ public enum HttpStatus {
         if (status == 200) {
             return C200;
         }
-        HttpStatus s = STATUS.get(status);
+        HttpStatus s = STATUSES.get(status);
         if (s == null) {
             return C505;
         }

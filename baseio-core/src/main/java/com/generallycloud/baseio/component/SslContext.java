@@ -62,7 +62,7 @@ public final class SslContext {
         OPENSSL_AVAILABLE = testOpenSsl;
         SSLContext context;
         try {
-            context = getSSLContext();
+            context = newSSLContext();
             context.init(null, null, null);
         } catch (Exception e) {
             throw new Error("failed to initialize the default SSL context", e);
@@ -127,7 +127,7 @@ public final class SslContext {
         }
     }
 
-    static SSLContext getSSLContext() throws NoSuchAlgorithmException {
+    static SSLContext newSSLContext() throws NoSuchAlgorithmException {
         if (OPENSSL_AVAILABLE) {
             return SSLContext.getInstance("openssl.TLS");
         } else {
@@ -199,7 +199,7 @@ public final class SslContext {
         }
     }
     
-    public SSLContext getSslContext() {
+    public SSLContext getSSLContext() {
         return sslContext;
     }
 

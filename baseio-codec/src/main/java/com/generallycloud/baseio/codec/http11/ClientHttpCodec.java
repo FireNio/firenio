@@ -23,6 +23,7 @@ import java.util.Set;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
+import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -120,7 +121,7 @@ public class ClientHttpCodec extends HttpCodec {
                 buf.put(f.getWriteBuffer(), 0, write_size);
             }
         } catch (Exception e) {
-            buf.release();
+            ReleaseUtil.release(buf);
             throw e;
         }
         return buf.flip();

@@ -125,7 +125,7 @@ public class Http2Server {
     private static SSLContext createSSLContext() throws Exception {
         File key = FileUtil.readFileByCls("l.key");
         File cert = FileUtil.readFileByCls("l.crt");
-        return SslContextBuilder.forServer().keyManager(key, cert).build().getSslContext();
+        return SslContextBuilder.forServer().keyManager(key, cert).build().getSSLContext();
     }
 
     
