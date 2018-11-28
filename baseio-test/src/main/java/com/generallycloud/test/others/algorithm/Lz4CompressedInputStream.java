@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.buffer.ByteBufUtil;
 import com.generallycloud.baseio.common.MathUtil;
 
 /**
@@ -21,7 +21,7 @@ public class Lz4CompressedInputStream extends InputStream {
 
     public Lz4CompressedInputStream(InputStream inputStream, int bufSize) {
         this.inputStream = inputStream;
-        this.buf = UnpooledByteBufAllocator.getHeap().allocate(bufSize);
+        this.buf = ByteBufUtil.heap(bufSize);
         this.buf.limit(0);
     }
 

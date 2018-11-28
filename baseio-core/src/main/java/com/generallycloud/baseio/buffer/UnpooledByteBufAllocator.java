@@ -19,8 +19,8 @@ import java.nio.ByteBuffer;
 
 public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
 
-    private static UnpooledByteBufAllocator direct = new UnpooledByteBufAllocator(true);
-    private static UnpooledByteBufAllocator heap   = new UnpooledByteBufAllocator(false);
+    private static final UnpooledByteBufAllocator direct = new UnpooledByteBufAllocator(true);
+    private static final UnpooledByteBufAllocator heap   = new UnpooledByteBufAllocator(false);
 
     private UnpooledByteBufAllocator(boolean isDirect) {
         super(isDirect);

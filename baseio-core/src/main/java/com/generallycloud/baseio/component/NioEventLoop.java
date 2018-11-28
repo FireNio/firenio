@@ -45,14 +45,13 @@ import javax.net.ssl.SSLHandshakeException;
 import com.generallycloud.baseio.Options;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.buffer.ByteBufUtil;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.IntArray;
 import com.generallycloud.baseio.collection.IntMap;
 import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.MessageFormatter;
 import com.generallycloud.baseio.common.ReleaseUtil;
 import com.generallycloud.baseio.common.ThrowableUtil;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
@@ -76,7 +75,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private ByteBuf                        buf;
     private final IntMap<NioSocketChannel> channels           = new IntMap<>();
     private final int                      chSizeLimit;
-    private String                         desc;
     private final Queue<Runnable>          events             = new LinkedBlockingQueue<>();
     private final NioEventLoopGroup        group;
     private volatile boolean               hasTask            = false;
@@ -196,14 +194,16 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     }
                     final NioEventLoopGroup group = acceptor.getProcessorGroup();
                     final NioEventLoop targetEL = group.getNext();
-                    // 配置为非阻塞
                     ch.configureBlocking(false);
-                    // 注册到selector，等待连接
                     targetEL.execute(new Runnable() {
 
                         @Override
                         public void run() {
-                            registChannel(ch, targetEL, acceptor);
+                            try {
+                                registChannel(ch, targetEL, acceptor);
+                            } catch (ClosedChannelException e) {
+                                printException(logger, e);
+                            }
                         }
                     });
                 } catch (Exception e) {
@@ -223,7 +223,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     ops &= ~SelectionKey.OP_CONNECT;
                     key.interestOps(ops);
                     //FIXME need this code ?
-//                    selector.selectNow();
+                    // selector.selectNow();
                     registChannel(javaChannel, this, connector);
                 } catch (Exception e) {
                     key.cancel();
@@ -299,10 +299,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     @Override
     protected void doStartup() throws IOException {
         this.writeBuffers = new ByteBuffer[group.getWriteBuffers()];
-        this.buf = UnpooledByteBufAllocator.getDirect().allocate(group.getChannelReadBuffer());
+        this.buf = ByteBufUtil.direct(group.getChannelReadBuffer());
         this.selector = openSelector(selectionKeySet);
-        this.desc = MessageFormatter.arrayFormat("NioEventLoop[idx:{},sharable:{}]",
-                new Object[] { index, sharable });
     }
 
     @Override
@@ -387,37 +385,34 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    private void registChannel(SocketChannel jch, NioEventLoop el, ChannelContext context) {
-        try {
-            int channelId = el.getGroup().getChannelIds().getAndIncrement();
-            SelectionKey sk = jch.register(el.getSelector(), SelectionKey.OP_READ);
-            CloseUtil.close((NioSocketChannel) sk.attachment());
-            NioSocketChannel ch = new NioSocketChannel(el, sk, context, channelId);
-            sk.attach(ch);
-            IntMap<NioSocketChannel> channels = el.channels;
-            CloseUtil.close(channels.get(ch.getChannelId()));
-            if (channels.size() >= el.chSizeLimit) {
-                printException(logger, OVER_CH_SIZE_LIMIT);
-                if (!ch.isEnableSsl()) {
-                    finishConnect(ch, context, OVER_CH_SIZE_LIMIT);
-                }
-                CloseUtil.close(ch);
-                return;
+    private void registChannel(SocketChannel jch, NioEventLoop el, ChannelContext context)
+            throws ClosedChannelException {
+        int channelId = el.getGroup().getChannelIds().getAndIncrement();
+        SelectionKey sk = jch.register(el.getSelector(), SelectionKey.OP_READ);
+        CloseUtil.close((NioSocketChannel) sk.attachment());
+        NioSocketChannel ch = new NioSocketChannel(el, sk, context, channelId);
+        sk.attach(ch);
+        IntMap<NioSocketChannel> channels = el.channels;
+        CloseUtil.close(channels.get(ch.getChannelId()));
+        if (channels.size() >= el.chSizeLimit) {
+            printException(logger, OVER_CH_SIZE_LIMIT);
+            if (!ch.isEnableSsl()) {
+                finishConnect(ch, context, OVER_CH_SIZE_LIMIT);
             }
-            channels.put(channelId, ch);
-            context.getChannelManager().putChannel(ch);
-            if (ch.isEnableSsl()) {
-                // fire open event later
-                if (context.getSslContext().isClient()) {
-                    ch.flush(EmptyByteBuf.get());
-                }
-            } else {
-                // fire open event immediately when plain ch
-                ch.fireOpend();
-                finishConnect(ch, context, null);
+            CloseUtil.close(ch);
+            return;
+        }
+        channels.put(channelId, ch);
+        context.getChannelManager().putChannel(ch);
+        if (ch.isEnableSsl()) {
+            // fire open event later
+            if (context.getSslContext().isClient()) {
+                ch.flush(EmptyByteBuf.get());
             }
-        } catch (ClosedChannelException e) {
-            printException(logger, e);
+        } else {
+            // fire open event immediately when plain ch
+            ch.fireOpend();
+            finishConnect(ch, context, null);
         }
     }
 
@@ -554,11 +549,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     @Override
     public void setAttribute(Object key, Object value) {
         this.attributes.put(key, value);
-    }
-
-    @Override
-    public String toString() {
-        return desc;
     }
 
     // FIXME 会不会出现这种情况，数据已经接收到本地，但是还没有被EventLoop处理完

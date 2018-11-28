@@ -41,9 +41,9 @@ public class UnpooledByteBufAllocatorGroup extends AbstractLifeCycle
     @Override
     protected void doStart() throws Exception {
         if (group.isEnableMemoryPoolDirect()) {
-            allocator = UnpooledByteBufAllocator.getDirect();
+            allocator = ByteBufUtil.direct();
         } else {
-            allocator = UnpooledByteBufAllocator.getHeap();
+            allocator = ByteBufUtil.heap();
         }
     }
 

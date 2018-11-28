@@ -18,8 +18,7 @@ package com.generallycloud.baseio.codec.fixedlength;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.buffer.ByteBufUtil;
 import com.generallycloud.baseio.common.StringUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
@@ -53,9 +52,8 @@ public class FixedLengthCodec extends ProtocolCodec {
     public static final int      PROTOCOL_PONG   = -2;
 
     static {
-        ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeap();
-        PING = allocator.allocate(4);
-        PONG = allocator.allocate(4);
+        PING = ByteBufUtil.heap(4);
+        PONG = ByteBufUtil.heap(4);
         PING.putInt(PROTOCOL_PING);
         PONG.putInt(PROTOCOL_PONG);
         PING.flip();

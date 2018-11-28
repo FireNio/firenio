@@ -90,7 +90,7 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
     private ByteBuf allocate(int limit, int current) {
         if (current == allocatorGroupSize) {
             //FIXME 是否申请java内存
-            return UnpooledByteBufAllocator.getHeap().allocate(limit);
+            return ByteBufUtil.heap(limit);
         }
         int size = (limit + unitMemorySize - 1) / unitMemorySize;
         ReentrantLock lock = this.lock;

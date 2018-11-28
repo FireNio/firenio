@@ -23,8 +23,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.buffer.ByteBufUtil;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.AttributesImpl;
 import com.generallycloud.baseio.common.ReleaseUtil;
@@ -77,16 +76,14 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
 
     public ByteBuf getSslUnwrapBuf() {
         if (sslUnwrapBuf == null) {
-            ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
-            sslUnwrapBuf = allocator.allocate(SslContext.SSL_UNWRAP_BUFFER_SIZE);
+            sslUnwrapBuf = ByteBufUtil.direct(SslContext.SSL_UNWRAP_BUFFER_SIZE);
         }
         return sslUnwrapBuf;
     }
     
     public ByteBuf getSslWrapBuf() {
         if (sslWrapBuf == null) {
-            ByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
-            sslWrapBuf = allocator.allocate(SslContext.SSL_PACKET_BUFFER_SIZE);
+            sslWrapBuf = ByteBufUtil.direct(SslContext.SSL_PACKET_BUFFER_SIZE);
         }
         return sslWrapBuf;
     }

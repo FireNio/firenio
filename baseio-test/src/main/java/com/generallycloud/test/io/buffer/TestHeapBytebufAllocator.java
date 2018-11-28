@@ -17,8 +17,8 @@ package com.generallycloud.test.io.buffer;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
+import com.generallycloud.baseio.buffer.ByteBufUtil;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 
 public class TestHeapBytebufAllocator {
@@ -54,11 +54,11 @@ public class TestHeapBytebufAllocator {
 
     static void testRead4(){
         
-        ByteBuf src = UnpooledByteBufAllocator.getHeap().allocate(1024);
+        ByteBuf src = ByteBufUtil.heap(1024);
         src.put("hello;hello;".getBytes());
         src.flip();
         
-        ByteBuf dst = UnpooledByteBufAllocator.getHeap().allocate(1024);
+        ByteBuf dst = ByteBufUtil.heap(1024);
         dst.read(src);
         dst.flip();
         
@@ -70,11 +70,11 @@ public class TestHeapBytebufAllocator {
     
     static void testRead5(){
         
-        ByteBuf src = UnpooledByteBufAllocator.getHeap().allocate(1024);
+        ByteBuf src = ByteBufUtil.heap(1024);
         src.put("hello;hello;".getBytes());
         src.flip();
         
-        ByteBuf dst = UnpooledByteBufAllocator.getHeap().allocate("hello;".length());
+        ByteBuf dst = ByteBufUtil.heap("hello;".length());
         dst.read(src);
         dst.flip();
         
@@ -86,11 +86,11 @@ public class TestHeapBytebufAllocator {
     
     static void testRead6(){
         
-        ByteBuf src = UnpooledByteBufAllocator.getDirect().allocate(1024);
+        ByteBuf src = ByteBufUtil.direct(1024);
         src.put("hello;hello;".getBytes());
         src.flip();
         
-        ByteBuf dst = UnpooledByteBufAllocator.getHeap().allocate(1024);
+        ByteBuf dst = ByteBufUtil.heap(1024);
         dst.read(src);
         dst.flip();
         
@@ -102,11 +102,11 @@ public class TestHeapBytebufAllocator {
     
     static void testRead7(){
         
-        ByteBuf src = UnpooledByteBufAllocator.getDirect().allocate(1024);
+        ByteBuf src = ByteBufUtil.direct(1024);
         src.put("hello;hello;".getBytes());
         src.flip();
         
-        ByteBuf dst = UnpooledByteBufAllocator.getHeap().allocate("hello;".length());
+        ByteBuf dst = ByteBufUtil.heap("hello;".length());
         dst.read(src);
         dst.flip();
         
