@@ -63,6 +63,7 @@ public final class NioSocketChannel extends AttributesImpl
     private static final int                    SSL_PACKET_LIMIT      = 1024 * 64;
     private static final SSLException           SSL_PACKET_OVER_LIMIT = SSL_PACKET_OVER_LIMIT();
     private static final SSLException           SSL_UNWRAP_OVER_LIMIT = SSL_UNWRAP_OVER_LIMIT();
+    
     private final SocketChannel                 channel;
     private final Integer                       channelId;
     private ProtocolCodec                       codec;

@@ -27,7 +27,7 @@ public class UnpooledByteBufAllocatorGroup extends AbstractLifeCycle
         implements ByteBufAllocatorGroup {
 
     private NioEventLoopGroup group;
-    private ByteBufAllocator       allocator;
+    private ByteBufAllocator  allocator;
 
     public UnpooledByteBufAllocatorGroup(NioEventLoopGroup group) {
         this.group = group;

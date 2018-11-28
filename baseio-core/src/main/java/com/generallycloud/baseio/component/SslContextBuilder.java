@@ -295,7 +295,7 @@ public final class SslContextBuilder {
             throw new SSLException("null keyManagerFactory");
         }
         try {
-            SSLContext ctx = SslContext.getSSLContext();
+            SSLContext ctx = SslContext.newSSLContext();
             TrustManager[] tms = null;
             KeyManager[] kms = null;
             if (isServer) {

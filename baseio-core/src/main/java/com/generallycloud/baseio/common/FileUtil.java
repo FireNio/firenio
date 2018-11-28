@@ -141,8 +141,9 @@ public class FileUtil {
         String path;
         if (url == null) {
             path = new File(".").getAbsoluteFile().getParent();
+        } else {
+            path = new File(url.getFile()).getAbsoluteFile().getPath();
         }
-        path = new File(url.getFile()).getAbsoluteFile().getPath();
         try {
             return URLDecoder.decode(path, ENCODING.name());
         } catch (UnsupportedEncodingException e) {

@@ -36,9 +36,11 @@ public class ThreadUtil {
     }
 
     public static void wait(Object o) {
-        try {
-            o.wait();
-        } catch (InterruptedException e) {}
+        synchronized (o) {
+            try {
+                o.wait();
+            } catch (InterruptedException e) {}
+        }
     }
 
     public static void wait(Object o, long timeout) {
