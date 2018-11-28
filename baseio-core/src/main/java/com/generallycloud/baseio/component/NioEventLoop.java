@@ -117,30 +117,13 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     try {
                         ch.read(buf);
                     } catch (Throwable e) {
-                        ch.close();
-                        if (DEBUG) {
-                            logger.error(e.getMessage() + ch, e);
-                        } else {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug(e.getMessage() + ch, e);
-                            }
-                        }
-                        if (e instanceof SSLHandshakeException) {
-                            finishConnect(ch, ch.getContext(), e);
-                        }
+                        readExceptionCaught(ch, e);
                     }
                 } else if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                     try {
                         ch.write(key.interestOps());
                     } catch (Throwable e) {
-                        ch.close();
-                        if (DEBUG) {
-                            logger.error(e.getMessage() + ch, e);
-                        } else {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug(e.getMessage() + ch, e);
-                            }
-                        }
+                        writeExceptionCaught(ch, e);
                     }
                 }
             } else {
@@ -149,14 +132,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     try {
                         writeComplete = ch.write(key.interestOps());
                     } catch (Throwable e) {
-                        ch.close();
-                        if (DEBUG) {
-                            logger.error(e.getMessage() + ch, e);
-                        } else {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug(e.getMessage() + ch, e);
-                            }
-                        }
+                        writeExceptionCaught(ch, e);
                     }
                 }
                 //FIXME 观察这里不写完不让读的模式是否可行
@@ -164,17 +140,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     try {
                         ch.read(buf);
                     } catch (Throwable e) {
-                        ch.close();
-                        if (DEBUG) {
-                            logger.error(e.getMessage() + ch, e);
-                        } else {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug(e.getMessage() + ch, e);
-                            }
-                        }
-                        if (e instanceof SSLHandshakeException) {
-                            finishConnect(ch, ch.getContext(), e);
-                        }
+                        readExceptionCaught(ch, e);
                     }
                 }
             }
@@ -225,11 +191,36 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     //FIXME need this code ?
                     // selector.selectNow();
                     registChannel(javaChannel, this, connector);
-                } catch (Exception e) {
+                } catch (IOException e) {
                     key.cancel();
                     key.attach(null);
                     finishConnect(null, connector, e);
                 }
+            }
+        }
+    }
+
+    private void readExceptionCaught(NioSocketChannel ch, Throwable ex) {
+        ch.close();
+        if (DEBUG) {
+            logger.error(ex.getMessage() + ch, ex);
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug(ex.getMessage() + ch, ex);
+            }
+        }
+        if (ex instanceof SSLHandshakeException) {
+            finishConnect(ch, ch.getContext(), (SSLHandshakeException) ex);
+        }
+    }
+
+    private void writeExceptionCaught(NioSocketChannel ch, Throwable ex) {
+        ch.close();
+        if (DEBUG) {
+            logger.error(ex.getMessage() + ch, ex);
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug(ex.getMessage() + ch, ex);
             }
         }
     }
@@ -323,7 +314,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    private final void finishConnect(NioSocketChannel ch, ChannelContext context, Throwable e) {
+    private final void finishConnect(NioSocketChannel ch, ChannelContext context, IOException e) {
         if (context instanceof ChannelConnector) {
             ((ChannelConnector) context).finishConnect(ch, e);
         }
