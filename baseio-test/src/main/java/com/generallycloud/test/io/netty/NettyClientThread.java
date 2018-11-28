@@ -1,6 +1,6 @@
 package com.generallycloud.test.io.netty;
 
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -56,7 +56,7 @@ public class NettyClientThread {
                 s.append(len % 10);
             }
             final String msg = s.toString();
-            ThreadUtil.exec(new Runnable() {
+            Util.exec(new Runnable() {
 
                 @Override
                 public void run() {
@@ -64,14 +64,14 @@ public class NettyClientThread {
                     for (;;) {
                         //						String s = "hello Service! ---> :" + i;
                         ChannelFuture f = channel.writeAndFlush(msg);
-                        ThreadUtil.sleep(1);
+                        Util.sleep(1);
                         System.out.println(f.isDone() + "--------" + i);
                         i++;
                     }
                 }
             });
 
-            ThreadUtil.sleep(Integer.MAX_VALUE);
+            Util.sleep(Integer.MAX_VALUE);
             f.channel().closeFuture().sync();
         } catch (Exception e) {
             e.printStackTrace();

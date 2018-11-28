@@ -18,7 +18,7 @@ package com.generallycloud.test.others;
 import java.io.IOException;
 import java.util.HashSet;
 
-import com.generallycloud.baseio.common.MathUtil;
+import com.generallycloud.baseio.common.ByteUtil;
 
 public class Test {
 
@@ -30,15 +30,15 @@ public class Test {
 
         byte b = 127;
 
-        System.out.println(MathUtil.byte2BinaryString(b));
-        System.out.println(MathUtil.byte2BinaryString((byte) (b & 0x3f)));
+        System.out.println(ByteUtil.byte2BinaryString(b));
+        System.out.println(ByteUtil.byte2BinaryString((byte) (b & 0x3f)));
 
-        System.out.println(MathUtil.byte2BinaryString((byte) -1));
-        System.out.println(MathUtil.byte2BinaryString((byte) -2));
+        System.out.println(ByteUtil.byte2BinaryString((byte) -1));
+        System.out.println(ByteUtil.byte2BinaryString((byte) -2));
 
         System.out.println(Integer.MAX_VALUE >> 3);
 
-        System.out.println(MathUtil.binaryString2HexString("00100000"));
+        System.out.println(ByteUtil.binaryString2HexString("00100000"));
 
         //test branch   tes22222
 

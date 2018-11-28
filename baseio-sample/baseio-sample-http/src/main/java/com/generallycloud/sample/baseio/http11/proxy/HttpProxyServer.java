@@ -16,7 +16,6 @@
 package com.generallycloud.sample.baseio.http11.proxy;
 
 import java.io.IOException;
-import java.util.Map.Entry;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
@@ -26,8 +25,8 @@ import com.generallycloud.baseio.codec.http11.HttpCodec;
 import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpMethod;
-import com.generallycloud.baseio.codec.http11.HttpStatus;
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.collection.IntEntry;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
@@ -44,18 +43,9 @@ public class HttpProxyServer {
     static final ByteBuf         CONNECT_RES_BUF = ByteBufUtil.wrap(CONNECT_RES.getBytes());
     static final HttpProxyServer server          = new HttpProxyServer();
     private ChannelAcceptor      context;
-    private volatile boolean     enable          = true;
 
     public synchronized void stop() {
-        CloseUtil.unbind(context);
-    }
-
-    public void enable() {
-        enable = true;
-    }
-
-    public void disable() {
-        enable = false;
+        Util.unbind(context);
     }
 
     public synchronized void strtup(NioEventLoopGroup group, int port) throws Exception {
@@ -68,12 +58,6 @@ public class HttpProxyServer {
             @Override
             public void accept(NioSocketChannel ch_src, Frame frame) throws Exception {
                 final HttpFrame f = (HttpFrame) frame;
-                if (!enable) {
-                    f.setStatus(HttpStatus.C503);
-                    f.write("503 service unavailable".getBytes());
-                    ch_src.flush(f);
-                    return;
-                }
                 if (f.getMethod() == HttpMethod.CONNECT) {
                     ch_src.flush(CONNECT_RES_BUF.duplicate());
                     ProxySession s = ProxySession.get(ch_src);
@@ -88,7 +72,7 @@ public class HttpProxyServer {
                     if (arr.length == 2) {
                         port = Integer.parseInt(arr[1]);
                     }
-                    if (f.getRequestHeaders().remove(HttpHeader.Proxy_Connection) == null) {
+                    if (f.getRequestHeaders().remove(HttpHeader.Proxy_Connection.getId()) == null) {
                         return;
                     }
                     NioEventLoop el = ch_src.getEventLoop();
@@ -99,18 +83,18 @@ public class HttpProxyServer {
                         @Override
                         public void accept(NioSocketChannel ch, Frame frame) throws Exception {
                             ClientHttpFrame res = (ClientHttpFrame) frame;
-                            for(Entry<HttpHeader, String> header : res.getResponse_headers().entrySet()){
-                                if (header.getValue() == null) {
+                            for(IntEntry<String> header : res.getResponse_headers().entries()){
+                                if (header.value() == null) {
                                     continue;
                                 }
-                                f.setResponseHeader(header.getKey(), header.getValue().getBytes());
+                                f.setResponseHeader(header.key(), header.value().getBytes());
                             }
-                            f.getResponseHeaders().remove(HttpHeader.Content_Length);
+                            f.getResponseHeaders().remove(HttpHeader.Content_Length.getId());
                             if (res.getBodyContent() != null) {
                                 f.write(res.getBodyContent());
-                            }else if("chunked".equalsIgnoreCase(res.getResponse_headers().get(HttpHeader.Transfer_Encoding))){
-                                f.getResponseHeaders().remove(HttpHeader.Transfer_Encoding); 
-                                f.getResponseHeaders().remove(HttpHeader.Content_Encoding); 
+                            }else if("chunked".equalsIgnoreCase(res.getResponse_headers().get(HttpHeader.Transfer_Encoding.getId()))){
+                                f.getResponseHeaders().remove(HttpHeader.Transfer_Encoding.getId()); 
+                                f.getResponseHeaders().remove(HttpHeader.Content_Encoding.getId()); 
                                 f.write("server response is chunked, not supported now.".getBytes());
                                  
                             }
@@ -122,9 +106,9 @@ public class HttpProxyServer {
                     context.addChannelEventListener(new LoggerChannelOpenListener());
                     context.connect((ch, ex) -> {
                         if (ex == null) {
-                            ClientHttpFrame req = new ClientHttpFrame(f.getRequestURI(), f.getMethod());
+                            ClientHttpFrame req = new ClientHttpFrame(f.getRequestURL(), f.getMethod());
                             req.setRequestHeaders(f.getRequestHeaders());
-                            req.getRequestHeaders().remove(HttpHeader.Proxy_Connection);
+                            req.getRequestHeaders().remove(HttpHeader.Proxy_Connection.getId());
                             if (f.getMethod() == HttpMethod.POST) {
                                 req.write(f.getBodyContent());
                             }
@@ -182,7 +166,7 @@ public class HttpProxyServer {
                         } else {
                             buf.release();
                             ProxySession.remove(ch_src);
-                            CloseUtil.close(ch_src);
+                            Util.close(ch_src);
                         }
                     });
                 } else {
@@ -196,14 +180,14 @@ public class HttpProxyServer {
         }
 
         @Override
-        protected void parseFirstLine(HttpFrame f, StringBuilder line) {
+        protected void parse_line_one(HttpFrame f, StringBuilder line) {
             if (line.charAt(0) == 'C' && line.charAt(1) == 'O' && line.charAt(2) == 'N'
                     && line.charAt(3) == 'N' && line.charAt(4) == 'E' && line.charAt(5) == 'C'
                     && line.charAt(6) == 'T' && line.charAt(7) == ' ') {
                 f.setMethod(HttpMethod.CONNECT);
                 parseRequestURL(f, 8, line);
             } else {
-                super.parseFirstLine(f, line);
+                super.parse_line_one(f, line);
             }
         }
 

@@ -17,8 +17,8 @@ package com.generallycloud.baseio.component;
 
 import java.io.Closeable;
 
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.LifeCycleUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -28,12 +28,26 @@ public class ReConnector implements Closeable {
     private ChannelConnector connector   = null;
     private long             retryTime   = 15000;
     private volatile boolean reconnect   = true;
-    private ReConnector      reConnector = null;
 
     public ReConnector(ChannelConnector connector) {
-        connector.addChannelEventListener(newReconnectSEListener());
         this.connector = connector;
-        this.reConnector = this;
+        this.init();
+    }
+    
+    @SuppressWarnings("resource")
+    private void init(){
+        final ReConnector reConnector = this;
+        this.connector.addChannelEventListener(new ChannelEventListenerAdapter() {
+            @Override
+            public void channelClosed(NioSocketChannel ch) {
+                Util.exec(new Runnable() {
+                    @Override
+                    public void run() {
+                        reConnector.connect();
+                    }
+                });
+            }
+        });
     }
 
     public boolean isConnected() {
@@ -45,14 +59,14 @@ public class ReConnector implements Closeable {
     }
 
     public synchronized void connect() {
-        if (!reconnect) {
-            logger.info("connection is closed, stop to reconnect");
-            return;
-        }
         NioSocketChannel ch = connector.getChannel();
         for (;;) {
             if (ch != null && ch.isOpened()) {
                 break;
+            }
+            if (!reconnect) {
+                logger.info("connection is closed, stop to reconnect");
+                return;
             }
             logger.info("begin try to connect");
             try {
@@ -62,33 +76,15 @@ public class ReConnector implements Closeable {
                 logger.error(e.getMessage(), e);
             }
             logger.error("reconnect failed,try reconnect later on {} milliseconds", retryTime);
-            ThreadUtil.sleep(retryTime);
+            Util.sleep(retryTime);
         }
-    }
-
-    private ChannelEventListenerAdapter newReconnectSEListener() {
-        return new ChannelEventListenerAdapter() {
-            @Override
-            public void channelClosed(NioSocketChannel ch) {
-                reconnect(reConnector);
-            }
-        };
-    }
-
-    private void reconnect(final ReConnector reconnectableConnector) {
-        ThreadUtil.exec(new Runnable() {
-            @Override
-            public void run() {
-                logger.info("begin try to reconnect");
-                reconnectableConnector.connect();
-            }
-        });
     }
 
     @Override
     public synchronized void close() {
-        reconnect = false;
-        CloseUtil.close(connector);
+        this.reconnect = false;
+        Util.close(connector);
+        LifeCycleUtil.stop(connector.getProcessorGroup());
     }
 
     public long getRetryTime() {

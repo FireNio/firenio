@@ -15,28 +15,35 @@
  */
 package com.generallycloud.sample.baseio.http11.service;
 
+import java.util.Iterator;
+
 import org.springframework.stereotype.Service;
 
+import com.generallycloud.baseio.buffer.PooledByteBufAllocator;
+import com.generallycloud.baseio.buffer.PooledByteBufAllocator.BufDebug;
 import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.sample.baseio.http11.HttpFrameAcceptor;
-import com.generallycloud.sample.baseio.http11.proxy.HttpProxyServer;
 
-@Service("/run_proxy")
+@Service("/bufDebug")
 public class TestProxyServlet extends HttpFrameAcceptor {
 
     @Override
     protected void doAccept(NioSocketChannel ch, HttpFrame frame) throws Exception {
-        String action = frame.getRequestParam("action");
-        if ("run".equals(action)) {
-            HttpProxyServer.get().enable();
-            frame.write("running", ch);
-        } else if ("stop".equals(action)) {
-            HttpProxyServer.get().disable();
-            frame.write("stopping", ch);
-        } else {
-            frame.write("action not found", ch);
+        synchronized (PooledByteBufAllocator.BUF_DEBUGS) {
+            Iterator<BufDebug> it = PooledByteBufAllocator.BUF_DEBUGS.values().iterator();
+            if (it.hasNext()) {
+                BufDebug d = it.next();
+                if (d != null) {
+                    Exception e = d.e;
+                    if (e != null) {
+                        throw e;
+                    }
+                }
+            }
         }
+        frame.write("not found".getBytes());
         ch.flush(frame);
     }
+
 }

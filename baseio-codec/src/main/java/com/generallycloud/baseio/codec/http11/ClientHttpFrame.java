@@ -15,17 +15,15 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.collection.IntMap;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class ClientHttpFrame extends HttpFrame {
 
-    Map<HttpHeader, String> response_headers = new HashMap<>();
-    ByteBuf                 bodyBuf;
+    IntMap<String> client_response_headers = new IntMap<>();
+    ByteBuf        bodyBuf;
 
     public ClientHttpFrame(String url, HttpMethod method) {
         this.setMethod(method);
@@ -37,31 +35,44 @@ public class ClientHttpFrame extends HttpFrame {
     }
 
     public ClientHttpFrame() {
-        setRequestHeaders(new HashMap<HttpHeader, String>());
+        this.setMethod(HttpMethod.GET);
     }
 
     @Override
-    public boolean updateWebSocketProtocol(NioSocketChannel ch) {
+    public boolean updateWebSocketProtocol(final NioSocketChannel ch) {
         String key = getReadHeader(HttpHeader.Sec_WebSocket_Accept);
-        if (StringUtil.isNullOrBlank(key)) {
+        if (Util.isNullOrBlank(key)) {
             return false;
         }
-        ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+        if (ch.inEventLoop()) {
+            ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+        } else {
+            ch.getEventLoop().execute(new Runnable() {
+
+                @Override
+                public void run() {
+                    ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+                }
+            });
+        }
         return true;
     }
 
     @Override
     void setReadHeader(String name, String value) {
-        setRequestHeader0(name, value, response_headers);
+        HttpHeader header = getHeader(name);
+        if (header != null) {
+            client_response_headers.put(header.getId(), value);
+        }
     }
 
     @Override
     String getReadHeader(HttpHeader name) {
-        return response_headers.get(name);
+        return client_response_headers.get(name.getId());
     }
 
-    public Map<HttpHeader, String> getResponse_headers() {
-        return response_headers;
+    public IntMap<String> getResponse_headers() {
+        return client_response_headers;
     }
 
 }

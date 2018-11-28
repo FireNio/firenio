@@ -277,7 +277,7 @@ public class FileUtil {
         try {
             return inputStream2ByteArray(inputStream);
         } finally {
-            CloseUtil.close(inputStream);
+            Util.close(inputStream);
         }
     }
 
@@ -287,7 +287,7 @@ public class FileUtil {
             in = openInputStream(file);
             return inputStream2ByteArray0(in, (int) file.length());
         } finally {
-            CloseUtil.close(in);
+            Util.close(in);
         }
     }
 
@@ -336,7 +336,7 @@ public class FileUtil {
             in = openInputStream(file);
             return readLines(in, encoding);
         } finally {
-            CloseUtil.close(in);
+            Util.close(in);
         }
     }
 
@@ -369,7 +369,7 @@ public class FileUtil {
         try {
             properties.load(new InputStreamReader(inputStream, charset));
         } finally {
-            CloseUtil.close(inputStream);
+            Util.close(inputStream);
         }
         return properties;
     }
@@ -423,7 +423,7 @@ public class FileUtil {
             in = openInputStream(file);
             return input2String(in, encoding);
         } finally {
-            CloseUtil.close(in);
+            Util.close(in);
         }
     }
 
@@ -537,7 +537,7 @@ public class FileUtil {
             out = openOutputStream(file, append);
             out.write(bytes);
         } finally {
-            CloseUtil.close(out);
+            Util.close(out);
         }
     }
 
@@ -569,7 +569,7 @@ public class FileUtil {
         File realFile = readFileByCls(file, classLoader);
         FileOutputStream fos = new FileOutputStream(realFile);
         properties.store(fos, "");
-        CloseUtil.close(fos);
+        Util.close(fos);
     }
 
     public static interface OnDirectoryScan {

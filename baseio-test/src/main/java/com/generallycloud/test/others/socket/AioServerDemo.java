@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 
 /**
  * @author wangkai
@@ -76,7 +76,7 @@ public class AioServerDemo {
             }
         });
 
-        ThreadUtil.sleep(9999999);
+        Util.sleep(9999999);
 
         group.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
     }

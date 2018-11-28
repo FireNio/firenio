@@ -17,8 +17,7 @@ package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ParamedProtobaseFrame;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelActiveIdleEventListener;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
@@ -55,11 +54,11 @@ public class TestBeat {
             Frame frame = new ParamedProtobaseFrame(serviceKey);
             frame.write(param, context);
             channel.flush(frame);
-            ThreadUtil.sleep(300);
+            Util.sleep(300);
         }
         System.out.println("Time:" + (System.currentTimeMillis() - old));
         Thread.sleep(2000);
-        CloseUtil.close(context);
+        Util.close(context);
     }
 
 }

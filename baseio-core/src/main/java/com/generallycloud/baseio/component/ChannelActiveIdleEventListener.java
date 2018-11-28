@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 import com.generallycloud.baseio.protocol.Frame;
@@ -30,7 +30,7 @@ public class ChannelActiveIdleEventListener implements ChannelIdleEventListener 
         if (ch.isOpened()) {
             if (ch.getLastAccessTime() < lastIdleTime) {
                 logger.info("Did not detect hb in hb cycle, prepare to disconnect {}", ch);
-                CloseUtil.close(ch);
+                Util.close(ch);
             } else {
                 ProtocolCodec codec = ch.getCodec();
                 Frame frame = codec.ping(ch);

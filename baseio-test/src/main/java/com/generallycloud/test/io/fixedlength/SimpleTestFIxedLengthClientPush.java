@@ -19,8 +19,7 @@ import java.util.Scanner;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -42,7 +41,7 @@ public class SimpleTestFIxedLengthClientPush {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setProtocolCodec(new FixedLengthCodec());
         NioSocketChannel channel = context.connect();
-        ThreadUtil.exec(new Runnable() {
+        Util.exec(new Runnable() {
 
             @Override
             public void run() {
@@ -60,7 +59,7 @@ public class SimpleTestFIxedLengthClientPush {
                     System.out.println(">");
                     String line = scanner.nextLine();
                     if ("exit".equals(line)) {
-                        CloseUtil.close(channel);
+                        Util.close(channel);
                         break;
                     }
                     FixedLengthFrame frame = new FixedLengthFrame();

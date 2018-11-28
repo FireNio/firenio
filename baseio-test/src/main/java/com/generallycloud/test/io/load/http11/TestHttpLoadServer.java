@@ -36,8 +36,8 @@ public class TestHttpLoadServer {
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 HttpFrame f = (HttpFrame) frame;
+                f.setResponseHeader(HttpHeader.Connection, HttpStatic.keep_alive_bytes);
                 f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_plain_bytes);
-                f.getResponseHeaders().remove(HttpHeader.Server);
                 f.write("Hello World", channel);
                 ByteBuf buf = channel.encode(f);
                 channel.flush(buf);

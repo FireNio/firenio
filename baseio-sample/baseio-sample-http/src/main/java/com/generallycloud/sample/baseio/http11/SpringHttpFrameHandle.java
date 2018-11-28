@@ -17,6 +17,7 @@ package com.generallycloud.sample.baseio.http11;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
@@ -40,6 +41,9 @@ public class SpringHttpFrameHandle extends HttpFrameHandle {
             return;
         }
         HttpFrameAcceptor acceptor = getFrameAcceptor(f.getFrameName());
+        if (f instanceof HttpFrame) {
+            setDefaultResponseHeaders((HttpFrame) f);
+        }
         if (acceptor == null) {
             acceptHtml(ch, f);
             return;

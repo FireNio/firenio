@@ -18,7 +18,7 @@ package com.generallycloud.baseio.collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 
 public class MapParameters implements Parameters {
 
@@ -93,7 +93,7 @@ public class MapParameters implements Parameters {
             return defaultValue;
         }
         String value = (String) map.get(key);
-        if (StringUtil.isNullOrBlank(value)) {
+        if (Util.isNullOrBlank(value)) {
             return defaultValue;
         }
         return value;

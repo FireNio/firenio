@@ -18,7 +18,7 @@ package com.generallycloud.baseio.component;
 import java.io.Closeable;
 import java.util.concurrent.RejectedExecutionException;
 
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.concurrent.EventLoop;
 
 /**
@@ -34,7 +34,7 @@ public interface RejectedExecutionHandle {
         @Override
         public void reject(EventLoop eventLoop, Runnable runnable) {
             if (runnable instanceof Closeable) {
-                CloseUtil.close((Closeable) runnable);
+                Util.close((Closeable) runnable);
             } else {
                 throw new RejectedExecutionException();
             }

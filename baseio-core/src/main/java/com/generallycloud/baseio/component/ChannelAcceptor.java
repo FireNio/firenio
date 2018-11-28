@@ -24,7 +24,7 @@ import java.nio.channels.ServerSocketChannel;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -34,11 +34,12 @@ import com.generallycloud.baseio.protocol.Frame;
  * @author wangkai
  *
  */
-public class ChannelAcceptor extends ChannelContext {
+public final class ChannelAcceptor extends ChannelContext {
 
     private Logger              logger = LoggerFactory.getLogger(getClass());
     private ServerSocketChannel selectableChannel;
     private NioEventLoopGroup   bindGroup;
+    private ServerSocket        serverSocket;
 
     public ChannelAcceptor(NioEventLoopGroup group) {
         this(group, "0.0.0.0", 0);
@@ -77,18 +78,18 @@ public class ChannelAcceptor extends ChannelContext {
         this.getProcessorGroup().setContext(this);
         LifeCycleUtil.start(this);
         LifeCycleUtil.start(bindGroup);
-        final NioEventLoopGroup bindGroup = this.bindGroup;
+        final NioEventLoop bindEventLoop = bindGroup.getNext();
         final Waiter<Object> bindWaiter = new Waiter<>();
         final ChannelAcceptor acceptor = this;
         this.selectableChannel = ServerSocketChannel.open();
         this.selectableChannel.configureBlocking(false);
-        this.bindGroup.getNext().execute(new Runnable() {
+        this.serverSocket = selectableChannel.socket();
+        bindEventLoop.execute(new Runnable() {
 
             @Override
             public void run() {
                 try {
-                    ServerSocket serverSocket = selectableChannel.socket();
-                    bindGroup.registSelector(acceptor, SelectionKey.OP_ACCEPT);
+                    bindEventLoop.registSelector(acceptor, SelectionKey.OP_ACCEPT);
                     serverSocket.bind(getServerAddress(), 50);
                     bindWaiter.call(null, null);
                 } catch (Throwable e) {
@@ -99,18 +100,22 @@ public class ChannelAcceptor extends ChannelContext {
                     }
                     bindWaiter.call(null, ex);
                     if (bindWaiter.isTimeouted()) {
-                        CloseUtil.unbind(acceptor);
+                        Util.unbind(acceptor);
                     }
                 }
             }
         });
         if (bindWaiter.await(6000)) {
-            CloseUtil.unbind(this);
+            Util.unbind(this);
             throw new IOException("time out to bind @ " + getPort());
         }
         if (bindWaiter.isFailed()) {
-            CloseUtil.unbind(this);
-            throw (IOException) bindWaiter.getThrowable();
+            Util.unbind(this);
+            Throwable ex = bindWaiter.getThrowable();
+            if (ex instanceof IOException) {
+                throw (IOException) bindWaiter.getThrowable();
+            }
+            throw new IOException("bind failed", ex);
         }
         logger.info("server listening @" + getServerAddress());
     }
@@ -135,8 +140,8 @@ public class ChannelAcceptor extends ChannelContext {
     }
 
     public synchronized void unbind() throws TimeoutException {
-        CloseUtil.close(selectableChannel.socket());
-        CloseUtil.close(selectableChannel);
+        Util.close(serverSocket);
+        Util.close(selectableChannel);
         LifeCycleUtil.stop(bindGroup);
         LifeCycleUtil.stop(this);
     }

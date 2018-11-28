@@ -15,8 +15,8 @@
  */
 package com.generallycloud.test.others;
 
-import static com.generallycloud.baseio.common.MathUtil.binaryString2HexString;
-import static com.generallycloud.baseio.common.MathUtil.byte2BinaryString;
+import static com.generallycloud.baseio.common.ByteUtil.binaryString2HexString;
+import static com.generallycloud.baseio.common.ByteUtil.byte2BinaryString;
 
 public class TestMathUtil {
 

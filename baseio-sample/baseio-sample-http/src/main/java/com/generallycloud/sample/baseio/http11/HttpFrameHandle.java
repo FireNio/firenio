@@ -32,13 +32,14 @@ import java.util.Map;
 
 import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
+import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.codec.http11.HttpStatus;
 import com.generallycloud.baseio.codec.http11.WebSocketFrame;
 import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Properties;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -81,7 +82,7 @@ public class HttpFrameHandle extends IoEventHandle {
         }
         String ims = f.getRequestHeader(HttpHeader.If_Modified_Since);
         long imsTime = -1;
-        if (!StringUtil.isNullOrBlank(ims)) {
+        if (!Util.isNullOrBlank(ims)) {
             imsTime = DateUtil.get().parseHttp(ims).getTime();
         }
         if (imsTime < entity.getLastModifyGTMTime()) {
@@ -146,7 +147,7 @@ public class HttpFrameHandle extends IoEventHandle {
     public void initialize(ChannelContext context, String rootPath, String mode) throws Exception {
         Properties p = context.getProperties();
         String webRoot = p.getProperty("app.webRoot");
-        if (StringUtil.isNullOrBlank(webRoot)) {
+        if (Util.isNullOrBlank(webRoot)) {
             webRoot = rootPath + "/app";
         }
         File rootFile = new File(webRoot);
@@ -175,7 +176,7 @@ public class HttpFrameHandle extends IoEventHandle {
             ch.flush(frame);
             return;
         }
-        HttpFrame f = new HttpFrame(ch.getContext());
+        HttpFrame f = (HttpFrame) frame;
         StringBuilder builder = new StringBuilder(HtmlUtil.HTML_HEADER);
         builder.append("        <div style=\"margin-left:20px;\">\n");
         builder.append("            ");
@@ -270,6 +271,17 @@ public class HttpFrameHandle extends IoEventHandle {
             entity.setBinary(b.toString().getBytes(charset));
             htmlCache.put(staticName, entity);
         }
+    }
+
+    protected void setDefaultResponseHeaders(HttpFrame f) {
+        if (getCharset() == Encoding.GBK) {
+            f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_plain_gbk_bytes);
+        } else {
+            f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_plain_utf8_bytes);
+        }
+        f.setResponseHeader(HttpHeader.Server, HttpStatic.server_baseio_bytes);
+        f.setResponseHeader(HttpHeader.Connection, HttpStatic.keep_alive_bytes); // or close
+
     }
 
     public void setCharset(Charset charset) {

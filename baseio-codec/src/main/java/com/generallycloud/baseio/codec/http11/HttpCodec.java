@@ -15,20 +15,22 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import static com.generallycloud.baseio.codec.http11.HttpHeader.*;
-import static com.generallycloud.baseio.codec.http11.HttpStatic.*;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Content_Length;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Content_Type;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Cookie;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.collection.IntEntry;
+import com.generallycloud.baseio.collection.IntMap;
 import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.KMPUtil;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.FastThreadLocal;
 import com.generallycloud.baseio.component.NioEventLoop;
@@ -42,28 +44,35 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  */
 public class HttpCodec extends ProtocolCodec {
 
-    private static final byte[]            CONTENT_LENGTH     = b("\r\nContent-Length: ");
-    private static final ThreadLocal<DBsH> dateBytes          = new ThreadLocal<>();
-    private static final String            FRAME_STACK_KEY    = "FRAME_HTTP_STACK_KEY";
-    private static final String            FRAME_DECODE_KEY   = "FRAME_HTTP_DECODE_KEY";
-    private static final KMPUtil           KMP_BOUNDARY       = new KMPUtil("boundary=");
-    public static final byte               N                  = '\n';
-    public static final byte[]             PROTOCOL           = b("HTTP/1.1 ");
-    public static final byte               R                  = '\r';
-    public static final byte[]             SET_COOKIE         = b("Set-Cookie:");
-    public static final byte               SPACE              = ' ';
+    static final byte[]            CONTENT_LENGTH            = b("\r\nContent-Length: ");
+    static final byte[]            DATE                      = b("\r\nDate: ");
+    static final HttpDateTimeClock httpDateTimeClock         = new HttpDateTimeClock();
+    static final int               dbshIndex                 = nextIndexedVariablesIndex();
+    static final int               decode_state_body         = 2;
+    static final int               decode_state_complate     = 3;
+    static final int               decode_state_header       = 1;
+    static final int               decode_state_line_one     = 0;
+    static final int               encode_bytes_arrays_index = nextIndexedVariablesIndex();
+    static final String            FRAME_DECODE_KEY          = "FRAME_HTTP_DECODE_KEY";
+    static final String            FRAME_STACK_KEY           = "FRAME_HTTP_STACK_KEY";
+    static final KMPUtil           KMP_BOUNDARY              = new KMPUtil("boundary=");
+    static final byte              N                         = '\n';
+    static final byte[]            PROTOCOL                  = b("HTTP/1.1 ");
+    static final byte              R                         = '\r';
+    static final byte[]            SET_COOKIE                = b("Set-Cookie:");
+    static final byte              SPACE                     = ' ';
 
-    private int                            bodyLimit          = 1024 * 512;
-    private int                            headerLimit        = 1024 * 8;
-    private int                            httpFrameStackSize = 0;
-    private int                            websocketStackSize = 0;
-    private int                            websocketLimit     = 1024 * 128;
-
-    private static byte[] b(String s) {
-        return s.getBytes();
-    }
+    private int                    bodyLimit                 = 1024 * 512;
+    private int                    headerLimit               = 1024 * 8;
+    private int                    httpFrameStackSize        = 0;
+    private int                    websocketLimit            = 1024 * 128;
+    private int                    websocketStackSize        = 0;
 
     public HttpCodec() {}
+
+    static int nextIndexedVariablesIndex() {
+        return FastThreadLocal.nextIndexedVariablesIndex();
+    }
 
     public HttpCodec(int httpFrameStackSize) {
         this.httpFrameStackSize = httpFrameStackSize;
@@ -80,108 +89,139 @@ public class HttpCodec extends ProtocolCodec {
         this.httpFrameStackSize = httpFrameStackSize;
     }
 
-    @Override
-    public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
+    @SuppressWarnings("unchecked")
+    HttpFrame allocHttpFrame(NioSocketChannel ch) {
         HttpFrame f = (HttpFrame) ch.getAttribute(FRAME_DECODE_KEY);
         if (f == null) {
-            f = newHttpFrame(ch);
+            if (httpFrameStackSize > 0) {
+                NioEventLoop eventLoop = ch.getEventLoop();
+                List<HttpFrame> stack = (List<HttpFrame>) eventLoop.getAttribute(FRAME_STACK_KEY);
+                if (stack == null) {
+                    stack = new ArrayList<>(httpFrameStackSize);
+                    eventLoop.setAttribute(FRAME_STACK_KEY, stack);
+                }
+                if (stack.isEmpty()) {
+                    return new HttpFrame();
+                } else {
+                    return stack.remove(stack.size() - 1).reset(ch);
+                }
+            }
+            return new HttpFrame();
         }
-        if (!f.header_complete) {
-            decodeHeader(f, src);
-            if (!f.header_complete) {
-                setHttpFrame(ch, f);
-                return null;
+        return f;
+    }
+
+    @Override
+    public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
+        HttpFrame f = allocHttpFrame(ch);
+        StringBuilder line = FastThreadLocal.get().getStringBuilder();
+        int decode_state = f.decode_state;
+        if (decode_state == decode_state_line_one) {
+            if (read_line(line, src, 0, headerLimit)) {
+                f.headerLength += line.length();
+                decode_state = decode_state_header;
+                parse_line_one(f, line);
             }
-            int contentLength = 0;
-            String clStr = f.getReadHeader(Content_Length);
-            if (!StringUtil.isNullOrBlank(clStr)) {
-                f.contentLength = contentLength = Integer.parseInt(clStr);
-            }
-            String contentType = f.getReadHeader(Content_Type);
-            parseContentType(f, contentType);
-            String cookie = f.getReadHeader(Cookie);
-            if (!StringUtil.isNullOrBlank(cookie)) {
-                parse_cookies(f, cookie);
-            }
-            if (contentLength < 1) {
-                doCompplete(ch, f);
-                return f;
-            } else {
-                if (contentLength > bodyLimit) {
-                    // FIXME 写入临时文件
-                    throw new IOException("over limit:" + clStr);
+        }
+        if (decode_state == decode_state_header) {
+            for (;;) {
+                line.setLength(0);
+                if (!read_line(line, src, f.headerLength, headerLimit)) {
+                    break;
+                }
+                f.headerLength += line.length();
+                if (line.length() == 0) {
+                    int contentLength = 0;
+                    String clength = f.getReadHeader(Content_Length);
+                    String ctype = f.getReadHeader(Content_Type);
+                    String cookie = f.getReadHeader(Cookie);
+                    parseContentType(f, ctype);
+                    if (!Util.isNullOrBlank(clength)) {
+                        contentLength = Integer.parseInt(clength);
+                        f.contentLength = contentLength;
+                    }
+                    if (!Util.isNullOrBlank(cookie)) {
+                        parse_cookies(f, cookie);
+                    }
+                    if (contentLength < 1) {
+                        decode_state = decode_state_complate;
+                    } else {
+                        if (contentLength > bodyLimit) {
+                            // maybe can write to a temp file
+                            throw new IOException("over limit:" + clength);
+                        }
+                        decode_state = decode_state_body;
+                    }
+                    break;
+                } else {
+                    int p = Util.indexOf(line, ':');
+                    if (p == -1) {
+                        continue;
+                    }
+                    int rp = Util.skip(line, ' ', p + 1);
+                    String name = line.substring(0, p);
+                    String value = line.substring(rp);
+                    f.setReadHeader(name, value);
                 }
             }
         }
-        return decodeRemainBody(ch, src, f);
+        if (decode_state == decode_state_body) {
+            decode_state = decodeRemainBody(ch, src, f);
+        }
+        if (decode_state == decode_state_complate) {
+            ch.removeAttribute(FRAME_DECODE_KEY);
+            return f;
+        } else {
+            f.decode_state = decode_state;
+            ch.setAttribute(FRAME_DECODE_KEY, f);
+            return null;
+        }
     }
 
-    Frame decodeRemainBody(NioSocketChannel ch, ByteBuf src, HttpFrame f) {
+    int decodeRemainBody(NioSocketChannel ch, ByteBuf src, HttpFrame f) {
         int contentLength = f.contentLength;
         int remain = src.remaining();
         byte[] bodyArray = null;
-        if (remain == contentLength) {
+        if (remain < contentLength) {
+            return decode_state_body;
+        } else if (remain == contentLength) {
             bodyArray = src.getBytes();
-        } else if (remain < contentLength) {
-            setHttpFrame(ch, f);
-            return null;
         } else {
             src.markL();
             src.limit(src.position() + contentLength);
             bodyArray = src.getBytes();
             src.resetL();
         }
-        if (application_urlencoded.equals(f.contentType)) {
-            // FIXME encoding
+        if (f.contentType == HttpContentType.URLENCODED.getId()) {
             String paramString = new String(bodyArray, ch.getCharset());
             parse_kv(f.params, paramString, '=', '&');
         } else {
-            // FIXME 解析BODY中的内容
             f.bodyArray = bodyArray;
         }
-        doCompplete(ch, f);
-        return f;
-    }
-
-    void doCompplete(NioSocketChannel ch, HttpFrame f) {
-        ch.removeAttribute(FRAME_DECODE_KEY);
-    }
-
-    static final ThreadLocal<List<byte[]>> encode_bytes_arrays = new ThreadLocal<>();
-
-    static List<byte[]> getEncodeBytesArray() {
-        List<byte[]> array = encode_bytes_arrays.get();
-        if (array == null) {
-            array = new ArrayList<>();
-            encode_bytes_arrays.set(array);
-        }
-        array.clear();
-        return array;
+        return decode_state_complate;
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
+    public ByteBuf encode(final NioSocketChannel ch, Frame frame) throws IOException {
         HttpFrame f = (HttpFrame) frame;
-        if (f.isUpdateWebSocketProtocol()) {
-            ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
-            ch.setAttribute(WebSocketCodec.CHANNEL_KEY_SERVICE_NAME, f.getFrameName());
-        }
-        f.setResponseHeader(Date, getHttpDateBytes());
-        int write_size = f.getWriteSize();
+        byte[] byte32 = FastThreadLocal.get().getBytes32();
         byte[] status_bytes = f.getStatus().getBinary();
-        byte[] length_bytes = String.valueOf(write_size).getBytes();
-        int len = PROTOCOL.length 
-                + status_bytes.length 
-                + CONTENT_LENGTH.length
-                + length_bytes.length 
-                + 2;
+        byte[] date_bytes = getHttpDateBytes();
+        int write_size = f.getWriteSize();
+        int len_idx = Util.valueOf(write_size, byte32);
+        int len_len = 32 - len_idx;
+        int plen = PROTOCOL.length;
+        int clen = CONTENT_LENGTH.length;
+        int dlen = DATE.length;
+        int status_len = status_bytes.length;
+        int len = plen + status_len + clen + len_len + dlen + date_bytes.length + 2;
         List<byte[]> encode_bytes_array = getEncodeBytesArray();
         int header_size = 0;
         int cookie_size = 0;
-        Map<HttpHeader, byte[]> headers = f.getResponseHeaders();
-        for (Entry<HttpHeader, byte[]> header : headers.entrySet()) {
-            byte[] k = header.getKey().getBytes();
-            byte[] v = header.getValue();
+        IntMap<byte[]> headers = f.getResponseHeaders();
+        for (IntEntry<byte[]> header : headers.entries()) {
+            byte[] k = HttpHeader.get(header.key()).getBytes();
+            byte[] v = header.value();
             if (v == null) {
                 continue;
             }
@@ -208,7 +248,9 @@ public class HttpCodec extends ProtocolCodec {
         buf.put(PROTOCOL);
         buf.put(status_bytes);
         buf.put(CONTENT_LENGTH);
-        buf.put(length_bytes);
+        buf.put(byte32, len_idx, len_len);
+        buf.put(DATE);
+        buf.put(date_bytes);
         buf.putByte(R);
         buf.putByte(N);
         int j = 0;
@@ -243,12 +285,12 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     private byte[] getHttpDateBytes() {
-        DBsH h = dateBytes.get();
+        DBsH h = (DBsH) FastThreadLocal.get().getIndexedVariable(dbshIndex);
         if (h == null) {
             h = new DBsH();
-            dateBytes.set(h);
+            FastThreadLocal.get().setIndexedVariable(dbshIndex, h);
         }
-        long now = System.currentTimeMillis();
+        long now = httpDateTimeClock.time;
         if (now > h.time) {
             h.time = now + 1000;
             h.value = DateUtil.get().formatHttpBytes(now);
@@ -274,26 +316,9 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     @Override
-    public void initialize(ChannelContext context) {
+    public void initialize(ChannelContext context) throws Exception {
         WebSocketCodec.init(context, websocketLimit, websocketStackSize);
-    }
-
-    @SuppressWarnings("unchecked")
-    HttpFrame newHttpFrame(NioSocketChannel ch) {
-        if (httpFrameStackSize > 0) {
-            NioEventLoop eventLoop = ch.getEventLoop();
-            List<HttpFrame> stack = (List<HttpFrame>) eventLoop.getAttribute(FRAME_STACK_KEY);
-            if (stack == null) {
-                stack = new ArrayList<>(httpFrameStackSize);
-                eventLoop.setAttribute(FRAME_STACK_KEY, stack);
-            }
-            if (stack.isEmpty()) {
-                return new HttpFrame(ch.getContext());
-            } else {
-                return stack.remove(stack.size() - 1).reset(ch);
-            }
-        }
-        return new HttpFrame(ch.getContext());
+        Util.exec(httpDateTimeClock, "HttpDateTimeClock");
     }
 
     private void parse_cookies(HttpFrame f, String line) {
@@ -343,25 +368,29 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     private void parseContentType(HttpFrame f, String contentType) {
-        if (StringUtil.isNullOrBlank(contentType)) {
-            f.contentType = application_urlencoded;
-            return;
-        }
-        if (contentType.startsWith("multipart/form-data;")) {
-            int index = KMP_BOUNDARY.match(contentType);
-            if (index != -1) {
-                f.setBoundary(contentType.substring(index + 9));
-            }
-            f.contentType = multipart;
-        } else {
-            // FIXME other content-type
-            f.contentType = contentType;
+        if (Util.isNullOrBlank(contentType)) {
+            f.contentType = HttpContentType.URLENCODED.getId();
+        } else if (HttpStatic.application_urlencoded.equals(f.contentType)) {
+            f.contentType = HttpContentType.URLENCODED.getId();
+        } else if (contentType.startsWith("multipart/form-data;")) {
+            f.contentType = HttpContentType.MULTIPART.getId();
         }
     }
 
+    protected void parse_line_one(HttpFrame f, StringBuilder line) {
+        if (line.charAt(0) == 'G' && line.charAt(1) == 'E' && line.charAt(2) == 'T') {
+            f.setMethod(HttpMethod.GET);
+            parseRequestURL(f, 4, line);
+        } else {
+            f.setMethod(HttpMethod.POST);
+            parseRequestURL(f, 5, line);
+        }
+        f.setVersion(HttpVersion.HTTP1_1.getId());
+    }
+
     protected void parseRequestURL(HttpFrame f, int skip, StringBuilder line) {
-        int index = line.indexOf("?");
-        int lastSpace = StringUtil.lastIndexOf(line, ' ');
+        int index = Util.indexOf(line, '?');
+        int lastSpace = Util.lastIndexOf(line, ' ');
         if (index > -1) {
             String paramString = line.substring(index + 1, lastSpace);
             parse_kv(f.params, paramString, '=', '&');
@@ -371,62 +400,46 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    protected void parseFirstLine(HttpFrame f, StringBuilder line) {
-        if (line.charAt(0) == 'G' && line.charAt(1) == 'E' && line.charAt(2) == 'T'
-                && line.charAt(3) == ' ') {
-            f.setMethod(HttpMethod.GET);
-            parseRequestURL(f, 4, line);
-        } else {
-            f.setMethod(HttpMethod.POST);
-            parseRequestURL(f, 5, line);
-        }
-        f.setVersion(HttpVersion.HTTP1_1);
-    }
-
-    private void decodeHeader(HttpFrame f, ByteBuf buffer) throws IOException {
-        StringBuilder currentHeaderLine = f.currentHeaderLine;
-        if (currentHeaderLine == null) {
-            currentHeaderLine = FastThreadLocal.get().getStringBuilder();
-        }
-        int headerLength = f.headerLength;
-        for (; buffer.hasRemaining();) {
-            if (++headerLength > headerLimit) {
-                throw new IOException("max http header length " + headerLimit);
-            }
-            byte b = buffer.getByte();
-            if (b == N) {
-                if (currentHeaderLine.length() == 0) {
-                    f.header_complete = true;
-                    break;
-                } else {
-                    if (f.parseFirstLine) {
-                        f.parseFirstLine = false;
-                        parseFirstLine(f, currentHeaderLine);
-                    } else {
-                        int p = StringUtil.indexOf(currentHeaderLine, ':');
-                        if (p == -1) {
-                            continue;
-                        }
-                        String name = currentHeaderLine.substring(0, p).trim();
-                        String value = currentHeaderLine.substring(p + 1).trim();
-                        f.setReadHeader(name, value);
+    private static boolean read_line(StringBuilder line, ByteBuf src, int length, int limit)
+            throws IOException {
+        src.markP();
+        int maybeRead = limit - length;
+        if (src.remaining() > maybeRead) {
+            src.markL();
+            src.limit(maybeRead);
+            for (; src.hasRemaining();) {
+                byte b = src.getByte();
+                if (b == N) {
+                    int p = line.length() - 1;
+                    if (line.charAt(p) == R) {
+                        line.setLength(p);
                     }
-                    currentHeaderLine.setLength(0);
+                    src.resetL();
+                    return true;
+                } else {
+                    line.append((char) (b & 0xff));
                 }
-                continue;
-            } else if (b == R) {
-                continue;
-            } else {
-                currentHeaderLine.append((char) b);
+            }
+            src.resetL();
+            if (src.hasRemaining()) {
+                throw new IOException("max http header length " + limit);
+            }
+        } else {
+            for (; src.hasRemaining();) {
+                byte b = src.getByte();
+                if (b == N) {
+                    int p = line.length() - 1;
+                    if (line.charAt(p) == R) {
+                        line.setLength(p);
+                    }
+                    return true;
+                } else {
+                    line.append((char) (b & 0xff));
+                }
             }
         }
-        if (!f.header_complete) {
-            f.headerLength = headerLength;
-            if (f.currentHeaderLine == null) {
-                f.currentHeaderLine = new StringBuilder(currentHeaderLine.length() + 32);
-                f.currentHeaderLine.append(currentHeaderLine);
-            }
-        }
+        src.resetP();
+        return false;
     }
 
     @SuppressWarnings("unchecked")
@@ -436,10 +449,6 @@ public class HttpCodec extends ProtocolCodec {
         if (stack != null && stack.size() < httpFrameStackSize) {
             stack.add((HttpFrame) frame);
         }
-    }
-
-    void setHttpFrame(NioSocketChannel ch, HttpFrame f) {
-        ch.setAttribute(FRAME_DECODE_KEY, f);
     }
 
     public void setWebsocketFrameStackSize(int websocketFrameStackSize) {
@@ -453,6 +462,57 @@ public class HttpCodec extends ProtocolCodec {
     class DBsH {
         long   time;
         byte[] value;
+    }
+
+    static byte[] b(String s) {
+        return s.getBytes();
+    }
+
+    @SuppressWarnings("unchecked")
+    static List<byte[]> getEncodeBytesArray() {
+        List<byte[]> array = (List<byte[]>) FastThreadLocal.get()
+                .getIndexedVariable(encode_bytes_arrays_index);
+        if (array == null) {
+            array = new ArrayList<>();
+            FastThreadLocal.get().setIndexedVariable(encode_bytes_arrays_index, array);
+        }
+        array.clear();
+        return array;
+    }
+
+    @Override
+    public void destory(ChannelContext context) {
+        httpDateTimeClock.stop();
+    }
+
+    protected static String parseBoundary(String contentType) {
+        int index = KMP_BOUNDARY.match(contentType);
+        if (index != -1) {
+            return contentType.substring(index + 9);
+        }
+        return null;
+    }
+
+    static class HttpDateTimeClock implements Runnable {
+
+        volatile boolean running;
+
+        volatile long    time;
+
+        @Override
+        public void run() {
+            running = true;
+            for (; running;) {
+                time = System.currentTimeMillis();
+                Util.sleep(1000);
+            }
+        }
+
+        void stop() {
+            running = false;
+            Thread.currentThread().interrupt();
+        }
+
     }
 
 }

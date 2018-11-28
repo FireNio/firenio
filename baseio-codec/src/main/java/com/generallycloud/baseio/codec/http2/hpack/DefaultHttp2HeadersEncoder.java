@@ -19,15 +19,14 @@ import static com.generallycloud.baseio.codec.http2.hpack.Http2Error.COMPRESSION
 import static com.generallycloud.baseio.codec.http2.hpack.Http2Exception.connectionError;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.buffer.ByteBufUtil;
 
 public class DefaultHttp2HeadersEncoder
         implements Http2HeadersEncoder, Http2HeadersEncoder.Configuration {
     private final Encoder             encoder;
     private final SensitivityDetector sensitivityDetector;
     private final Http2HeaderTable    headerTable;
-    private final ByteBuf             tableSizeChangeOutput = UnpooledByteBufAllocator.getHeap()
-            .allocate(1024 * 8);
+    private final ByteBuf             tableSizeChangeOutput = ByteBufUtil.heap(1024 * 8);
 
     public DefaultHttp2HeadersEncoder() {
         this(NEVER_SENSITIVE);

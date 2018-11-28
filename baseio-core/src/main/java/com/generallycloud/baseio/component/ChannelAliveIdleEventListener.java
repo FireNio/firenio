@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio.component;
 
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -27,7 +27,7 @@ public class ChannelAliveIdleEventListener implements ChannelIdleEventListener {
     public void channelIdled(NioSocketChannel ch, long lastIdleTime, long currentTime) {
         if (matched(ch) && ch.getLastAccessTime() < lastIdleTime) {
             logger.info("Did not detect hb in hb cycle, prepare to disconnect {}", ch);
-            CloseUtil.close(ch);
+            Util.close(ch);
         }
     }
 

@@ -37,15 +37,15 @@ public class AddCommont {
 
     static void replaceCommont() throws Exception {
 
-        String commont = " * Copyright 2015-2017 GenerallyCloud.com";
+        String commont = " * Copyright 2015 The Baseio Project";
 
-        replaceCommont0(new File("D:/GIT/baseio-master/baseio"), commont);
+        replaceCommont0(new File("D:/GIT/baseio/baseio"), commont);
 
     }
 
     static void addCommontAll() throws Exception {
 
-        String commont = "/*\n * Copyright 2015 GenerallyCloud.com" + "\n *  "
+        String commont = "/*\n * Copyright 2015 The Baseio Project" + "\n *  "
                 + "\n * Licensed under the Apache License, Version 2.0 (the \"License\");"
                 + "\n * you may not use this file except in compliance with the License."
                 + "\n * You may obtain a copy of the License at" + "\n *  "
@@ -58,7 +58,7 @@ public class AddCommont {
 
         System.out.println(commont);
 
-        addCommontAll0(new File("D:/GIT/baseio-master/baseio"), commont);
+        addCommontAll0(new File("D:/GIT/baseio/baseio"), commont);
     }
 
     static void addCommontAll0(File file, String commont) throws Exception {

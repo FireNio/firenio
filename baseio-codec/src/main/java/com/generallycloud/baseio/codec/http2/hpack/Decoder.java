@@ -25,7 +25,7 @@ import static com.generallycloud.baseio.codec.http2.hpack.Http2CodecUtil.headerL
 import static com.generallycloud.baseio.codec.http2.hpack.Http2Error.COMPRESSION_ERROR;
 import static com.generallycloud.baseio.codec.http2.hpack.Http2Error.PROTOCOL_ERROR;
 import static com.generallycloud.baseio.codec.http2.hpack.Http2Exception.connectionError;
-import static com.generallycloud.baseio.common.ThrowableUtil.unknownStackTrace;
+import static com.generallycloud.baseio.common.Util.unknownStackTrace;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.codec.http2.Http2Header;

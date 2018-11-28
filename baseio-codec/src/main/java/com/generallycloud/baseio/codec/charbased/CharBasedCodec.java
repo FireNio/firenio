@@ -18,7 +18,7 @@ package com.generallycloud.baseio.codec.charbased;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -57,7 +57,7 @@ public class CharBasedCodec extends ProtocolCodec {
         }
         src.markL();
         src.limit(p);
-        String readText = StringUtil.decode(ch.getCharset(), src.nioBuffer());
+        String readText = Util.decode(ch.getCharset(), src.nioBuffer());
         src.reverse();
         src.resetL();
         src.skip(1);

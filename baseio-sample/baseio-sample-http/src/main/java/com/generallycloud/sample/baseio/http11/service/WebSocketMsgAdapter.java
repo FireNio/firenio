@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.generallycloud.baseio.codec.http11.WebSocketFrame;
 import com.generallycloud.baseio.common.Encoding;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelManager;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
@@ -44,7 +44,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
     public boolean removeClient(NioSocketChannel ch) {
         String username = (String) ch.getAttribute("username");
-        if ((!StringUtil.isNullOrBlank(username)) && clientsMap.remove(username) != null) {
+        if ((!Util.isNullOrBlank(username)) && clientsMap.remove(username) != null) {
             logger.info("client left {} ,clients size: {}", ch, clientsMap.size());
             return true;
         }

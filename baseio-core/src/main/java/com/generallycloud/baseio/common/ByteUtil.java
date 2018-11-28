@@ -17,7 +17,7 @@ package com.generallycloud.baseio.common;
 
 import java.util.Random;
 
-public class MathUtil {
+public class ByteUtil {
 
     public static byte binaryString2byte(String string) {
         Assert.notNull(string, "null binary string");
@@ -26,10 +26,9 @@ public class MathUtil {
         if (string.length() != 8) {
             throw new IllegalArgumentException("except length 8");
         }
-        char[] cs = StringUtil.stringToCharArray(string);
         byte result = 0;
         for (int i = 0; i < 8; i++) {
-            char c = cs[i];
+            char c = string.charAt(i);
             int x = 0;
             if (c0 == c) {} else if (c1 == c) {
                 x = 1;
@@ -189,8 +188,8 @@ public class MathUtil {
         return builder.toString();
     }
 
-    public static byte[] hexString2bytes(char[] data) {
-        int len = data.length;
+    public static byte[] hexString2bytes(String data) {
+        int len = data.length();
         if ((len & 0x01) != 0) {
             throw new RuntimeException("Odd number of characters.");
         }
@@ -200,10 +199,10 @@ public class MathUtil {
         //58
         //98
         //103
-        for (int i = 0; i < data.length;) {
+        for (int i = 0; i < data.length();) {
             int t = i >> 1;
-            int ch0 = hex2Digit(data[i], i++);
-            int ch1 = hex2Digit(data[i], i++);
+            int ch0 = hex2Digit(data.charAt(i), i++);
+            int ch1 = hex2Digit(data.charAt(i), i++);
             out[t] = (byte) (ch0 << 4 | ch1);
         }
         return out;
@@ -394,7 +393,7 @@ public class MathUtil {
         int2Byte(bytes, v, 0);
 
         String hex = bytes2HexString(bytes);
-        bytes = hexString2bytes(StringUtil.stringToCharArray(hex));
+        bytes = hexString2bytes(hex);
         System.out.println(v);
         System.out.println(hex);
         int v1 = byte2Int(bytes, 0);

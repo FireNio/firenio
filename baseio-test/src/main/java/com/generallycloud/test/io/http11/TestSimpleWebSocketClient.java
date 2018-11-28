@@ -20,8 +20,7 @@ import com.generallycloud.baseio.codec.http11.ClientHttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.WebSocketFrame;
 import com.generallycloud.baseio.codec.http11.WsUpgradeRequestFrame;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -71,8 +70,8 @@ public class TestSimpleWebSocketClient {
         //		frame.setResponseHeader("Accept-Language", "zh-CN,zh;q=0.8");
         // frame.setRequestHeader("", "");
         channel.flush(frame);
-        ThreadUtil.sleep(999999999);
-        CloseUtil.close(context);
+        Util.sleep(999999999);
+        Util.close(context);
 
     }
 }

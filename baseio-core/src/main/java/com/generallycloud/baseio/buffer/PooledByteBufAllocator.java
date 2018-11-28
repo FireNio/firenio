@@ -17,7 +17,12 @@ package com.generallycloud.baseio.buffer;
 
 import java.nio.ByteBuffer;
 import java.util.BitSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+
+import com.generallycloud.baseio.Options;
+import com.generallycloud.baseio.common.DateUtil;
 
 /**
  * @author wangkai
@@ -25,16 +30,19 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class PooledByteBufAllocator extends AbstractByteBufAllocator {
 
-    private int[]                  blockEnds;
-    private final int              capacity;
-    private BitSet                 frees;
-    private final ReentrantLock    lock = new ReentrantLock();
-    private int                    mask;
-    private PooledByteBufAllocator next;
-    private final int              unitMemorySize;
-    private byte[]                 heapMemory;
-    private ByteBuffer             directMemory;
-    private final int              allocatorGroupSize;
+    static final boolean                       BYTEBUF_DEBUG = Options.isByteBufDebug();
+    public static final Map<ByteBuf, BufDebug> BUF_DEBUGS    = new LinkedHashMap<>();
+
+    private int[]                              blockEnds;
+    private final int                          capacity;
+    private BitSet                             frees;
+    private final ReentrantLock                lock          = new ReentrantLock();
+    private int                                mask;
+    private PooledByteBufAllocator             next;
+    private final int                          unitMemorySize;
+    private byte[]                             heapMemory;
+    private ByteBuffer                         directMemory;
+    private final int                          allocatorGroupSize;
 
     public PooledByteBufAllocator(int capacity, int unit, boolean isDirect,
             int allocatorGroupSize) {
@@ -76,7 +84,20 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
 
     @Override
     public ByteBuf allocate(int limit) {
-        return allocate(limit, 0);
+        if (BYTEBUF_DEBUG) {
+            ByteBuf buf = allocate(limit, 0);
+            if (buf instanceof PooledByteBuf) {
+                BufDebug d = new BufDebug();
+                d.buf = buf;
+                d.e = new Exception(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss_SSS());
+                synchronized (BUF_DEBUGS) {
+                    BUF_DEBUGS.put(buf, d);
+                }
+            }
+            return buf;
+        } else {
+            return allocate(limit, 0);
+        }
     }
 
     protected ByteBuffer getDirectMemory() {
@@ -90,7 +111,7 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
     private ByteBuf allocate(int limit, int current) {
         if (current == allocatorGroupSize) {
             //FIXME 是否申请java内存
-            return UnpooledByteBufAllocator.getHeap().allocate(limit);
+            return ByteBufUtil.heap(limit);
         }
         int size = (limit + unitMemorySize - 1) / unitMemorySize;
         ReentrantLock lock = this.lock;
@@ -177,8 +198,8 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         }
         return used;
     }
-    
-    public ByteBuf getUsedBuf(int skip){
+
+    public ByteBuf getUsedBuf(int skip) {
         int skiped = 0;
         for (int i = 0; i < getCapacity(); i++) {
             if (!frees.get(i)) {
@@ -221,6 +242,16 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
+            if (BYTEBUF_DEBUG) {
+                synchronized (BUF_DEBUGS) {
+                    BufDebug d = BUF_DEBUGS.remove(buf);
+                    if (d == null) {
+                        throw new RuntimeException("null bufDebug");
+                    }
+                    d.buf = null;
+                    d.e = null;
+                }
+            }
             frees.set(((PooledByteBuf) buf).getUnitOffset());
         } finally {
             lock.unlock();
@@ -247,6 +278,13 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         b.append(isDirect());
         b.append("]");
         return b.toString();
+    }
+
+    public class BufDebug {
+
+        public volatile Exception  e;
+        public volatile ByteBuf    buf;
+
     }
 
 }

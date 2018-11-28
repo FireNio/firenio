@@ -30,9 +30,9 @@ public interface ByteBuf extends Releasable {
     int capacity();
 
     ByteBuf clear();
-    
+
     ByteBuf duplicate();
-    
+
     ByteBuf flip();
 
     int forEachByte(ByteProcessor processor);
@@ -105,6 +105,10 @@ public interface ByteBuf extends Releasable {
 
     int indexOf(byte b);
 
+    int indexOf(int pos, byte b);
+
+    int lastIndexOf(byte b);
+
     int limit();
 
     ByteBuf limit(int limit);
@@ -114,7 +118,7 @@ public interface ByteBuf extends Releasable {
     ByteBuf markP();
 
     ByteBuffer nioBuffer();
-    
+
     int offset();
 
     int position();
@@ -158,7 +162,7 @@ public interface ByteBuf extends Releasable {
     int remaining();
 
     ByteBuf resetL();
-    
+
     ByteBuf resetP();
 
     ByteBuf reverse();

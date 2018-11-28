@@ -16,7 +16,6 @@
 package com.generallycloud.test.others;
 
 import java.awt.BasicStroke;
-import java.awt.Button;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -31,7 +30,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-import com.generallycloud.baseio.common.MathUtil;
+import com.generallycloud.baseio.common.ByteUtil;
 
 /**
  * @author wangkai
@@ -279,14 +278,14 @@ public class GraphicsTest {
                 boolean []tar = bits[i];
                 for (int j = 0; j < width; j++) {
                     byte b = array[bIndex++];
-                    tar[j * cheng + 0] = MathUtil.getBoolean(b, 0);
-                    tar[j * cheng + 1] = MathUtil.getBoolean(b, 1);
-                    tar[j * cheng + 2] = MathUtil.getBoolean(b, 2);
-                    tar[j * cheng + 3] = MathUtil.getBoolean(b, 3);
-                    tar[j * cheng + 4] = MathUtil.getBoolean(b, 4);
-                    tar[j * cheng + 5] = MathUtil.getBoolean(b, 5);
-                    tar[j * cheng + 6] = MathUtil.getBoolean(b, 6);
-                    tar[j * cheng + 7] = MathUtil.getBoolean(b, 7);
+                    tar[j * cheng + 0] = ByteUtil.getBoolean(b, 0);
+                    tar[j * cheng + 1] = ByteUtil.getBoolean(b, 1);
+                    tar[j * cheng + 2] = ByteUtil.getBoolean(b, 2);
+                    tar[j * cheng + 3] = ByteUtil.getBoolean(b, 3);
+                    tar[j * cheng + 4] = ByteUtil.getBoolean(b, 4);
+                    tar[j * cheng + 5] = ByteUtil.getBoolean(b, 5);
+                    tar[j * cheng + 6] = ByteUtil.getBoolean(b, 6);
+                    tar[j * cheng + 7] = ByteUtil.getBoolean(b, 7);
                     
                     tar[j * cheng + 0] = r.nextBoolean();
                     tar[j * cheng + 1] = r.nextBoolean();

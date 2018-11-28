@@ -18,9 +18,8 @@ package com.generallycloud.baseio.codec.protobase;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.buffer.ByteBufUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -29,7 +28,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  * <pre>
  *  B0 -B3  : 报文总长度        大于0:普通消息 -1:心跳PING -2:心跳PONG
  *  B4 :0   : 广播类型          0:P2P           1:BRODCAST
- *  B4 :1   : 是否包含FrameId  4 byte   
+ *  B4 :1   : 是否包含FrameId   4 byte   
  *  B4 :2   : 是否包含ChannelId 4 byte
  *  B4 :3   : 是否包含Text      4 byte
  *  B4 :4   : 是否包含Binary    4 byte
@@ -47,13 +46,11 @@ public class ProtobaseCodec extends ProtocolCodec {
     public static final int      PROTOCOL_PONG = -2;
 
     private static final ByteBuf PING;
-
     private static final ByteBuf PONG;
 
     static {
-        ByteBufAllocator allocator = UnpooledByteBufAllocator.getHeap();
-        PING = allocator.allocate(4);
-        PONG = allocator.allocate(4);
+        PING = ByteBufUtil.heap(4);
+        PONG = ByteBufUtil.heap(4);
         PING.putInt(PROTOCOL_PING);
         PONG.putInt(PROTOCOL_PONG);
         PING.flip();
@@ -125,7 +122,7 @@ public class ProtobaseCodec extends ProtocolCodec {
             textLen = src.getInt();
             src.markL();
             src.limit(src.position() + textLen);
-            f.setReadText(StringUtil.decode(ch.getCharset(), src.nioBuffer()));
+            f.setReadText(Util.decode(ch.getCharset(), src.nioBuffer()));
             src.reverse();
             src.resetL();
         }

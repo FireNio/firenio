@@ -46,8 +46,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
     public void bootstrap(final String rootPath, final String mode) throws Exception {
         final SpringHttpFrameHandle handle = new SpringHttpFrameHandle();
         Properties properties = FileUtil.readPropertiesByCls("server.properties");
-        NioEventLoopGroup group = new NioEventLoopGroup();
-        group.setSharable(true);
+        NioEventLoopGroup group = new NioEventLoopGroup(true);
         ChannelAcceptor context = new ChannelAcceptor(group);
         ConfigurationParser.parseConfiguration("server.", context, properties);
         ConfigurationParser.parseConfiguration("server.", group, properties);

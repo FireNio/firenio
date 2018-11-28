@@ -15,7 +15,7 @@
  */
 package com.generallycloud.test.others;
 
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.concurrent.ScmpLinkedQueue;
 
 /**
@@ -29,14 +29,14 @@ public class TestScsp {
         ScmpLinkedQueue<String> queue = new ScmpLinkedQueue<>();
 
         for (int i = 0; i < 4; i++) {
-            ThreadUtil.exec(() -> {
+            Util.exec(() -> {
                 for (int j = 0; j < 32; j++) {
                     queue.offer(String.valueOf(j));
                 }
             });
         }
         
-//        ThreadUtil.sleep(100);
+//        Util.sleep(100);
         System.out.println("size:"+queue.size());
         for(;queue.size() > 0;){
             System.out.println(queue.poll());

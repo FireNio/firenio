@@ -17,7 +17,7 @@ package com.generallycloud.test.test;
 
 import java.math.BigDecimal;
 
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class ITestThreadHandle {
             int execTime) {
         for (int i = 0; i < execTime; i++) {
             doTest0(clazz, threads, time / threads);
-            ThreadUtil.sleep(2000);
+            Util.sleep(2000);
         }
     }
 

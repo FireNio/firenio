@@ -26,7 +26,7 @@ import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpStatic;
 import com.generallycloud.baseio.common.EmojiUtil;
 import com.generallycloud.baseio.common.Encoding;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.sample.baseio.http11.HtmlUtil;
 import com.generallycloud.sample.baseio.http11.HttpFrameAcceptor;
@@ -48,7 +48,7 @@ public class TestEmojiServlet extends HttpFrameAcceptor {
 
         String limitStr = frame.getRequestParam("limit");
         int limit;
-        if (StringUtil.isNullOrBlank(limitStr)) {
+        if (Util.isNullOrBlank(limitStr)) {
             limit = emojiList.size();
         } else {
             limit = Integer.parseInt(limitStr);

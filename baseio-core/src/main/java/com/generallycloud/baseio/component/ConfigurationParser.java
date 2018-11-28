@@ -18,9 +18,8 @@ package com.generallycloud.baseio.component;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 
-import com.generallycloud.baseio.common.ClassUtil;
 import com.generallycloud.baseio.common.Properties;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 
 /**
  * @author wangkai
@@ -51,40 +50,40 @@ public class ConfigurationParser {
             String name = f.getName();
             if (type == String.class) {
                 String v = properties.getProperty(prefix + name);
-                if (StringUtil.isNullOrBlank(v)) {
+                if (Util.isNullOrBlank(v)) {
                     continue;
                 }
-                ClassUtil.trySetAccessible(f);
+                Util.trySetAccessible(f);
                 f.set(cfg, v);
             } else if (type == int.class) {
                 int v = properties.getIntegerProperty(prefix + name);
                 if (v == 0) {
                     continue;
                 }
-                ClassUtil.trySetAccessible(f);
+                Util.trySetAccessible(f);
                 f.set(cfg, v);
             } else if (type == double.class) {
                 double v = properties.getDoubleProperty(prefix + name);
                 if (v == 0) {
                     continue;
                 }
-                ClassUtil.trySetAccessible(f);
+                Util.trySetAccessible(f);
                 f.set(cfg, v);
             } else if (type == boolean.class) {
-                ClassUtil.trySetAccessible(f);
+                Util.trySetAccessible(f);
                 String v = (String) properties.get(prefix + name);
-                if (!StringUtil.isNullOrBlank(v)) {
-                    f.set(cfg, StringUtil.isTrueValue(v));
+                if (!Util.isNullOrBlank(v)) {
+                    f.set(cfg, Util.isTrueValue(v));
                 }
             } else if (type == long.class) {
                 long v = properties.getLongProperty(prefix + name);
                 if (v == 0) {
                     continue;
                 }
-                ClassUtil.trySetAccessible(f);
+                Util.trySetAccessible(f);
                 f.set(cfg, v);
             } else if (type == Charset.class) {
-                ClassUtil.trySetAccessible(f);
+                Util.trySetAccessible(f);
                 f.set(cfg, Charset.forName(properties.getProperty(prefix + name, "GBK")));
             }
         }

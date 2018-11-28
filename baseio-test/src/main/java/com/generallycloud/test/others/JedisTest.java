@@ -17,7 +17,7 @@ package com.generallycloud.test.others;
 
 import java.util.Set;
 
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 
 import redis.clients.jedis.Jedis;
 
@@ -42,7 +42,7 @@ public class JedisTest {
 
         System.out.println("Stored string in redis:: " + value);
 
-        CloseUtil.close(jedis);
+        Util.close(jedis);
 
     }
 }

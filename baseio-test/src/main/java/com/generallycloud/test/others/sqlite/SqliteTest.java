@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -77,7 +77,7 @@ public class SqliteTest {
             }
             
             {
-                ThreadUtil.exec(() ->{
+                Util.exec(() ->{
 
                     try {
                         String sql = "select * from student order by id desc limit 0,20 ";
@@ -93,7 +93,7 @@ public class SqliteTest {
                             }
                             rs.close();
                             logger.info("selected :"+sql);
-                            ThreadUtil.sleep(1000);
+                            Util.sleep(1000);
                         }
                     } catch (SQLException e) {
                         logger.error(e.getMessage(),e);
@@ -102,12 +102,12 @@ public class SqliteTest {
             }
             
             {
-                ThreadUtil.exec(() ->{
+                Util.exec(() ->{
                     for(;;){
                         try {
                             conn.commit();
                             logger.info("commited");
-                            ThreadUtil.sleep(1000);
+                            Util.sleep(1000);
                         } catch (SQLException e) {
                             logger.error(e.getMessage(),e);
                             break;

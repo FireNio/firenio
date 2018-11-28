@@ -17,7 +17,7 @@ package com.generallycloud.test.io.buffer;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.buffer.ByteBufUtil;
 
 /**
  * @author wangkai
@@ -37,8 +37,7 @@ public class TestDuplicatedByteBuf {
     }
     
     static void testDirect() throws Exception{
-        ByteBufAllocator a = UnpooledByteBufAllocator.getDirect();
-        ByteBuf buf = a.allocate(16);
+        ByteBuf buf = ByteBufUtil.direct(16);
         
         buf.put("abcdef".getBytes());
         ByteBuf buf2 = buf.duplicate();
@@ -47,8 +46,7 @@ public class TestDuplicatedByteBuf {
     }
     
     static void testHeap() throws Exception{
-        ByteBufAllocator a = UnpooledByteBufAllocator.getHeap();
-        ByteBuf buf = a.allocate(16);
+        ByteBuf buf = ByteBufUtil.direct(16);
         
         buf.put("abcdef".getBytes());
         ByteBuf buf2 = buf.duplicate();

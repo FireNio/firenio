@@ -17,7 +17,7 @@ package com.generallycloud.test.io.http11;
 
 import com.generallycloud.baseio.codec.http11.ClientHttpCodec;
 import com.generallycloud.baseio.codec.http11.ClientHttpFrame;
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -41,7 +41,7 @@ public class TestSimpleHttpClient {
                 System.out.println();
                 System.out.println(new String(res.getBodyContent()));
                 System.out.println();
-                CloseUtil.close(context);
+                Util.close(context);
             }
         });
         context.addChannelEventListener(new LoggerChannelOpenListener());

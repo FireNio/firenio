@@ -17,7 +17,7 @@ package com.generallycloud.test.others;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 
 /**
  * @author wangkai
@@ -29,7 +29,7 @@ public class TestReentrantLock {
 
         ReentrantLock lock = new ReentrantLock();
 
-        ThreadUtil.exec(() -> {
+        Util.exec(() -> {
 
             lock.lock();
 
@@ -37,7 +37,7 @@ public class TestReentrantLock {
 
         });
 
-        ThreadUtil.exec(() -> {
+        Util.exec(() -> {
 
             lock.lock();
 

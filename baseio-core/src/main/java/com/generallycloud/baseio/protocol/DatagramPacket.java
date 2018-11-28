@@ -18,8 +18,8 @@ package com.generallycloud.baseio.protocol;
 import java.nio.charset.Charset;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.common.ByteUtil;
 import com.generallycloud.baseio.common.Encoding;
-import com.generallycloud.baseio.common.MathUtil;
 
 /**
  * 
@@ -100,8 +100,8 @@ public class DatagramPacket {
             byte[] data) {
         byte[] newData = new byte[data.length + PACKET_HEADER];
         newData[0] = (byte) type;
-        MathUtil.long2Byte(newData, timestamp, 1);
-        MathUtil.int2Byte(newData, sequenceNo, 9);
+        ByteUtil.long2Byte(newData, timestamp, 1);
+        ByteUtil.int2Byte(newData, sequenceNo, 9);
         System.arraycopy(data, 0, newData, PACKET_HEADER, data.length);
         DatagramPacket p = new DatagramPacket();
         p.type = type;
@@ -125,8 +125,8 @@ public class DatagramPacket {
         byte[] data = buf.getBytes();
         DatagramPacket p = new DatagramPacket();
         p.type = data[0];
-        p.timestamp = MathUtil.byte2Long(data, 1);
-        p.sequenceNo = MathUtil.byte2Int(data, 9);
+        p.timestamp = ByteUtil.byte2Long(data, 1);
+        p.sequenceNo = ByteUtil.byte2Int(data, 9);
         p.data = data;
         return p;
     }

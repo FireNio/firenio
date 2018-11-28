@@ -25,7 +25,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.WebSocketFrame;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.NamedFrame;
 import com.generallycloud.sample.baseio.http11.HttpFrameAcceptor;
@@ -40,7 +40,6 @@ public class TestWebSocketChatServlet extends HttpFrameAcceptor {
     public void accept(NioSocketChannel ch, NamedFrame frame) throws Exception {
         if (frame instanceof HttpFrame) {
             ((HttpFrame) frame).updateWebSocketProtocol(ch);
-            ch.flush(frame);
             return;
         }
         WebSocketFrame f = (WebSocketFrame) frame;
@@ -92,7 +91,7 @@ public class TestWebSocketChatServlet extends HttpFrameAcceptor {
                     return;
                 }
                 username = obj.getString("username");
-                if (StringUtil.isNullOrBlank(username)) {
+                if (Util.isNullOrBlank(username)) {
                     return;
                 }
                 msgAdapter.addClient(username, ch);
@@ -137,7 +136,7 @@ public class TestWebSocketChatServlet extends HttpFrameAcceptor {
     @PreDestroy
     public void destroy() throws Exception {
         LifeCycleUtil.stop(msgAdapter);
-        //        ThreadUtil.sleep(2000);
+        //        Util.sleep(2000);
     }
 
     public WebSocketMsgAdapter getMsgAdapter() {

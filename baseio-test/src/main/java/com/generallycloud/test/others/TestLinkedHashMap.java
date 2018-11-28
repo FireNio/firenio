@@ -15,16 +15,30 @@
  */
 package com.generallycloud.test.others;
 
-import com.alibaba.fastjson.util.TypeUtils;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-public class Test2 {
-
-    public static void main(String[] args) throws Exception {
-        TypeUtils.compatibleWithJavaBean = true;
+/**
+ * @author wangkai
+ *
+ */
+public class TestLinkedHashMap {
+    
+    public static void main(String[] args) {
         
-//        String s = JSONObject.toJSONString(t);
-//        System.out.println(s);
-
+        Map<String, String> map = new LinkedHashMap<>();
+        
+        map.put("ddd", "ddd");
+        map.put("fff", "fff");
+        map.put("bbb", "bbb");
+        map.put("aaa", "aaa");
+        map.put("ggg", "ggg");
+        
+        System.out.println(map.entrySet().iterator().next().getKey());
+        System.out.println(map.keySet().iterator().next());
+        System.out.println(map.values().iterator().next());
+        
+        
     }
 
 }

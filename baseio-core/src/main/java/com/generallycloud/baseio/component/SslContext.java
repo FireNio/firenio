@@ -198,7 +198,7 @@ public final class SslContext {
             return newCiphers.toArray(new String[newCiphers.size()]);
         }
     }
-    
+
     public SSLContext getSSLContext() {
         return sslContext;
     }
@@ -229,6 +229,15 @@ public final class SslContext {
 
     public final long sessionTimeout() {
         return sessionContext().getSessionTimeout();
+    }
+
+    public enum ClientAuth {
+        
+        NONE,
+
+        OPTIONAL,
+
+        REQUIRE
     }
 
 }
