@@ -408,14 +408,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     protected void registSelector(ChannelContext context, int op) throws IOException {
-        if (inEventLoop()) {
-            //FIXME 使用多eventLoop accept是否导致卡顿
-            //FIXME OP_ACCEPT & OP_CONNECT 不能在注册在一个EL吗?
-            //目前注册在一起会出现select到key但是key为空?
-            context.getSelectableChannel().register(selector, op, context);
-            return;
-        }
-        throw new IOException("not in event loop");
+        assertInEventLoop("registSelector must in event loop");
+        //FIXME 使用多eventLoop accept是否导致卡顿
+        //FIXME OP_ACCEPT & OP_CONNECT 不能在注册在一个EL吗?
+        //目前注册在一起会出现select到key但是key为空?
+        context.getSelectableChannel().register(selector, op, context);
         //        if (oldSelector != null) {
         //            Selector oldSel = this.selector;
         //            Selector newSel = newSelector;

@@ -747,6 +747,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public void setCodec(ProtocolCodec codec) {
+        this.eventLoop.assertInEventLoop();
         this.codec = codec;
     }
 

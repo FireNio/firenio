@@ -31,7 +31,7 @@ import com.generallycloud.baseio.concurrent.Waiter;
  * @author wangkai
  *
  */
-public class ChannelConnector extends ChannelContext implements Closeable {
+public final class ChannelConnector extends ChannelContext implements Closeable {
 
     private NioSocketChannel                    ch;
     private NioEventLoop                        eventLoop;
@@ -78,9 +78,7 @@ public class ChannelConnector extends ChannelContext implements Closeable {
     public synchronized NioSocketChannel connect(long timeout) throws IOException {
         ConnectCallback<NioSocketChannel> callback = new ConnectCallback<>();
         this.connect(callback);
-        if (eventLoop.inEventLoop()) {
-            throw new IOException("can not blocking connect in its event loop");
-        }
+        this.eventLoop.assertInEventLoop("can not blocking connect in its event loop");
         if (callback.await(timeout)) {
             CloseUtil.close(this);
             throw new TimeoutException("connect to " + getServerAddress() + " time out");
