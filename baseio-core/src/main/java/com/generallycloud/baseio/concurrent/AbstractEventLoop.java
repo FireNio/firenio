@@ -32,7 +32,7 @@ public abstract class AbstractEventLoop implements EventLoop {
     private volatile boolean      running      = false;
 
     public final void assertInEventLoop() {
-        assertInEventLoop("this operation can not eval in event loop");
+        assertInEventLoop("this operation must eval in event loop");
     }
 
     public final void assertInEventLoop(String msg) {

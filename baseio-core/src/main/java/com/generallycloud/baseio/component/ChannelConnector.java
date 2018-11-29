@@ -78,7 +78,9 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     public synchronized NioSocketChannel connect(long timeout) throws IOException {
         ConnectCallback<NioSocketChannel> callback = new ConnectCallback<>();
         this.connect(callback);
-        this.eventLoop.assertInEventLoop("can not blocking connect in its event loop");
+        if (eventLoop.inEventLoop()) {
+            throw new IOException("can not blocking connect in its event loop");
+        }
         if (callback.await(timeout)) {
             CloseUtil.close(this);
             throw new TimeoutException("connect to " + getServerAddress() + " time out");
