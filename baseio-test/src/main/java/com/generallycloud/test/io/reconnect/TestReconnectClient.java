@@ -53,7 +53,13 @@ public class TestReconnectClient {
 
         connector.connect();
 
-        ThreadUtil.sleep(Long.MAX_VALUE);
+        int count = 99999;
+        for (int i = 0; ; i++) {
+            ThreadUtil.sleep(1000);
+            if (i > count) {
+                break;
+            }
+        }
 
         CloseUtil.close(connector);
     }
