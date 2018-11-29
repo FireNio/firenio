@@ -18,7 +18,7 @@ package com.generallycloud.baseio.buffer;
 public final class EmptyByteBuf extends UnpooledHeapByteBuf {
 
     private EmptyByteBuf() {
-        super(UnpooledByteBufAllocator.getHeap(), new byte[] {});
+        super(ByteBufUtil.heap(), new byte[] {});
     }
 
     private static final EmptyByteBuf INSTANCE = new EmptyByteBuf();

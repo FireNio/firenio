@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.buffer;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.buffer.ByteBufUtil;
 
 public class TestDirectBytebufAllocator {
 
@@ -35,11 +35,11 @@ public class TestDirectBytebufAllocator {
 
     static void testRead0(){
         
-        ByteBuf src = UnpooledByteBufAllocator.getDirect().allocate(1024);
+        ByteBuf src = ByteBufUtil.direct(1024);
         src.put("hello;hello;".getBytes());
         src.flip();
         
-        ByteBuf dst = UnpooledByteBufAllocator.getDirect().allocate(1024);
+        ByteBuf dst = ByteBufUtil.direct(1024);
         dst.read(src);
         dst.flip();
         
@@ -51,11 +51,11 @@ public class TestDirectBytebufAllocator {
     
     static void testRead1(){
         
-        ByteBuf src = UnpooledByteBufAllocator.getDirect().allocate(1024);
+        ByteBuf src = ByteBufUtil.direct(1024);
         src.put("hello;hello;".getBytes());
         src.flip();
         
-        ByteBuf dst = UnpooledByteBufAllocator.getDirect().allocate("hello;".length());
+        ByteBuf dst = ByteBufUtil.direct("hello;".length());
         dst.read(src);
         dst.flip();
         
@@ -67,11 +67,11 @@ public class TestDirectBytebufAllocator {
     
     static void testRead2(){
         
-        ByteBuf src = UnpooledByteBufAllocator.getHeap().allocate(1024);
+        ByteBuf src = ByteBufUtil.heap(1024);
         src.put("hello;hello;".getBytes());
         src.flip();
         
-        ByteBuf dst = UnpooledByteBufAllocator.getDirect().allocate(1024);
+        ByteBuf dst = ByteBufUtil.direct(1024);
         dst.read(src);
         dst.flip();
         
@@ -83,11 +83,11 @@ public class TestDirectBytebufAllocator {
     
     static void testRead3(){
         
-        ByteBuf src = UnpooledByteBufAllocator.getHeap().allocate(1024);
+        ByteBuf src = ByteBufUtil.heap(1024);
         src.put("hello;hello;".getBytes());
         src.flip();
         
-        ByteBuf dst = UnpooledByteBufAllocator.getDirect().allocate("hello;".length());
+        ByteBuf dst = ByteBufUtil.direct("hello;".length());
         dst.read(src);
         dst.flip();
         

@@ -16,7 +16,7 @@
 package com.generallycloud.test.io.buffer;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.buffer.ByteBufUtil;
 import com.generallycloud.baseio.common.ReleaseUtil;
 
 /**
@@ -30,27 +30,15 @@ public class TestUnpooledByteBufAllocator {
     }
 
     static void test() {
-
-        UnpooledByteBufAllocator allocator = UnpooledByteBufAllocator.getDirect();
-
         byte[] data = "你好啊，world".getBytes();
-
-        ByteBuf buf = allocator.allocate(data.length);
-
+        ByteBuf buf = ByteBufUtil.direct(data.length);
         buf.put(data);
-
         buf.flip();
-
         ReleaseUtil.release(buf);
-
         for (;;) {
-
             ByteBuf buf2 = buf.duplicate();
-
             byte[] bb = buf2.getBytes();
-
             String s = new String(bb);
-
             System.out.println(s);
         }
 

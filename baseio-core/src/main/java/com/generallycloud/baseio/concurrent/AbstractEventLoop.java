@@ -31,8 +31,15 @@ public abstract class AbstractEventLoop implements EventLoop {
     private FastThreadLocalThread monitor      = null;
     private volatile boolean      running      = false;
 
-    @Override
-    public void execute(Runnable event) {}
+    public final void assertInEventLoop() {
+        assertInEventLoop("this operation must eval in event loop");
+    }
+
+    public final void assertInEventLoop(String msg) {
+        if (!inEventLoop()) {
+            throw new RuntimeException(msg);
+        }
+    }
 
     protected void doLoop() throws Exception {}
 
@@ -41,27 +48,30 @@ public abstract class AbstractEventLoop implements EventLoop {
     protected void doStop() {}
 
     @Override
+    public void execute(Runnable event) {}
+
+    @Override
     public EventLoopGroup getGroup() {
         return defaultGroup;
     }
 
     @Override
-    public FastThreadLocalThread getMonitor() {
+    public final FastThreadLocalThread getMonitor() {
         return monitor;
     }
 
     @Override
-    public boolean inEventLoop() {
+    public final boolean inEventLoop() {
         return inEventLoop(Thread.currentThread());
     }
 
     @Override
-    public boolean inEventLoop(Thread thread) {
+    public final boolean inEventLoop(Thread thread) {
         return getMonitor() == thread;
     }
 
     @Override
-    public boolean isRunning() {
+    public final boolean isRunning() {
         return running;
     }
 

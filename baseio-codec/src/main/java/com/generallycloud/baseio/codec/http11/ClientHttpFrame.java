@@ -41,12 +41,22 @@ public class ClientHttpFrame extends HttpFrame {
     }
 
     @Override
-    public boolean updateWebSocketProtocol(NioSocketChannel ch) {
+    public boolean updateWebSocketProtocol(final NioSocketChannel ch) {
         String key = getReadHeader(HttpHeader.Sec_WebSocket_Accept);
         if (StringUtil.isNullOrBlank(key)) {
             return false;
         }
-        ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+        if (ch.inEventLoop()) {
+            ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+        } else {
+            ch.getEventLoop().executeAfterLoop(new Runnable() {
+
+                @Override
+                public void run() {
+                    ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+                }
+            });
+        }
         return true;
     }
 

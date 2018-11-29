@@ -34,7 +34,7 @@ import com.generallycloud.baseio.protocol.Frame;
  * @author wangkai
  *
  */
-public class ChannelAcceptor extends ChannelContext {
+public final class ChannelAcceptor extends ChannelContext {
 
     private Logger              logger = LoggerFactory.getLogger(getClass());
     private ServerSocketChannel selectableChannel;

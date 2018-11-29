@@ -15,6 +15,8 @@
  */
 package com.generallycloud.baseio.buffer;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 public class ByteBufUtil {
@@ -27,15 +29,58 @@ public class ByteBufUtil {
     }
 
     public static ByteBuf wrap(byte[] data) {
-        return UnpooledByteBufAllocator.getHeap().wrap(data);
+        return wrap(data, 0, data.length);
     }
 
     public static ByteBuf wrap(byte[] data, int offset, int length) {
-        return UnpooledByteBufAllocator.getHeap().wrap(data, offset, length);
+        return heap().wrap(data, offset, length);
     }
 
     public static ByteBuf wrap(ByteBuffer buffer) {
-        return UnpooledByteBufAllocator.getHeap().wrap(buffer);
+        return heap().wrap(buffer);
+    }
+
+    public static ByteBuf direct(int cap) {
+        return direct().allocate(cap);
+    }
+
+    public static ByteBuf heap(int cap) {
+        return direct().allocate(cap);
+    }
+
+    public static UnpooledByteBufAllocator heap() {
+        return UnpooledByteBufAllocator.getHeap();
+    }
+
+    public static UnpooledByteBufAllocator direct() {
+        return UnpooledByteBufAllocator.getDirect();
+    }
+
+    public static int read(ByteBuf buf, InputStream inputStream) throws IOException {
+        return read(buf, inputStream, buf.capacity());
+    }
+
+    public static int read(ByteBuf buf, InputStream inputStream, long limit) throws IOException {
+        byte[] array = buf.array();
+        if (!buf.hasRemaining()) {
+            int read = (int) Math.min(limit, buf.capacity());
+            int len = inputStream.read(array, 0, read);
+            if (len > 0) {
+                buf.position(0);
+                buf.limit(len);
+            }
+            return len;
+        }
+        int remaining = buf.remaining();
+        System.arraycopy(array, buf.position(), array, 0, remaining);
+        buf.position(0);
+        buf.limit(remaining);
+        int read = (int) Math.min(limit, buf.capacity() - remaining);
+        int len = inputStream.read(array, remaining, read);
+        if (len > 0) {
+            buf.limit(remaining + len);
+        }
+        return len;
     }
 
 }

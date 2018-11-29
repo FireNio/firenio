@@ -18,7 +18,7 @@ package com.generallycloud.baseio.codec.redis;
 import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
+import com.generallycloud.baseio.buffer.ByteBufUtil;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -176,7 +176,7 @@ public class RedisCodec extends ProtocolCodec {
         if (writeSize == 0) {
             throw new IOException("null write buffer");
         }
-        ByteBuf buf = UnpooledByteBufAllocator.getHeap().wrap(f.getWriteBuffer(), 0, writeSize);
+        ByteBuf buf = ByteBufUtil.wrap(f.getWriteBuffer(), 0, writeSize);
         return buf.flip();
     }
 

@@ -31,7 +31,7 @@ import com.generallycloud.baseio.concurrent.Waiter;
  * @author wangkai
  *
  */
-public class ChannelConnector extends ChannelContext implements Closeable {
+public final class ChannelConnector extends ChannelContext implements Closeable {
 
     private NioSocketChannel                    ch;
     private NioEventLoop                        eventLoop;
@@ -87,10 +87,7 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         }
         if (callback.isFailed()) {
             CloseUtil.close(this);
-            Throwable ex = callback.getThrowable();
-            String errorMsg = "connect to " + getServerAddress() + " failed, nested exception is "
-                    + ex.getMessage();
-            throw new IOException(errorMsg, ex);
+            throw (IOException) callback.getThrowable();
         }
         return getChannel();
     }
@@ -125,7 +122,7 @@ public class ChannelConnector extends ChannelContext implements Closeable {
         });
     }
 
-    protected void finishConnect(NioSocketChannel ch, Throwable exception) {
+    protected void finishConnect(NioSocketChannel ch, IOException exception) {
         this.ch = ch;
         this.callback.call(ch, exception);
     }
@@ -163,7 +160,7 @@ public class ChannelConnector extends ChannelContext implements Closeable {
     }
 
     class ConnectCallback<T> extends Waiter<T> {
-        
+
         @Override
         public void call(T res, Throwable ex) {
             synchronized (this) {
