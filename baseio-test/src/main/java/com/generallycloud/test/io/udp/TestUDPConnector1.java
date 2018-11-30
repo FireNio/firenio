@@ -43,8 +43,8 @@ public class TestUDPConnector1 {
         //
         //		client.createRoom(otherCustomerId);
         //
-        //		ThreadUtil.sleep(99999500);
-        //		CloseUtil.close(connector);
+        //		Util.sleep(99999500);
+        //		Util.close(connector);
 
     }
 

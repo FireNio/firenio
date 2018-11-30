@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -98,7 +98,7 @@ public class FixedLengthCodec extends ProtocolCodec {
         }
         src.markL();
         src.limit(src.position() + len);
-        String readText = StringUtil.decode(ch.getCharset(), src.nioBuffer());
+        String readText = Util.decode(ch.getCharset(), src.nioBuffer());
         src.reverse();
         src.resetL();
         return new FixedLengthFrame(readText);

@@ -17,8 +17,7 @@ package com.generallycloud.test.io.fixedlength;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelActiveIdleEventListener;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
@@ -54,11 +53,11 @@ public class TestHeartBeat {
             Frame frame = new FixedLengthFrame();
             frame.write(param, context);
             channel.flush(frame);
-            ThreadUtil.sleep(300);
+            Util.sleep(300);
         }
         System.out.println("Time:" + (System.currentTimeMillis() - old));
         Thread.sleep(2000);
-        CloseUtil.close(context);
+        Util.close(context);
     }
 
 }

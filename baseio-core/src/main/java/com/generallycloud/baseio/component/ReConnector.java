@@ -18,8 +18,7 @@ package com.generallycloud.baseio.component;
 import java.io.Closeable;
 
 import com.generallycloud.baseio.LifeCycleUtil;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -41,7 +40,7 @@ public class ReConnector implements Closeable {
         this.connector.addChannelEventListener(new ChannelEventListenerAdapter() {
             @Override
             public void channelClosed(NioSocketChannel ch) {
-                ThreadUtil.exec(new Runnable() {
+                Util.exec(new Runnable() {
                     @Override
                     public void run() {
                         reConnector.connect();
@@ -77,14 +76,14 @@ public class ReConnector implements Closeable {
                 logger.error(e.getMessage(), e);
             }
             logger.error("reconnect failed,try reconnect later on {} milliseconds", retryTime);
-            ThreadUtil.sleep(retryTime);
+            Util.sleep(retryTime);
         }
     }
 
     @Override
     public synchronized void close() {
         this.reconnect = false;
-        CloseUtil.close(connector);
+        Util.close(connector);
         LifeCycleUtil.stop(connector.getProcessorGroup());
     }
 

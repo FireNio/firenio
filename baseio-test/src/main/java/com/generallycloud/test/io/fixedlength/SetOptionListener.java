@@ -17,8 +17,8 @@ package com.generallycloud.test.io.fixedlength;
 
 import java.net.StandardSocketOptions;
 
-import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.component.ChannelEventListener;
+import com.generallycloud.baseio.component.NioSocketChannel;
 
 /**
  * @author wangkai

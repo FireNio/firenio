@@ -28,7 +28,7 @@ import static com.generallycloud.baseio.codec.http2.hpack.Http2CodecUtil.MIN_HEA
 import static com.generallycloud.baseio.codec.http2.hpack.Http2CodecUtil.headerListSizeExceeded;
 import static com.generallycloud.baseio.codec.http2.hpack.Http2Error.PROTOCOL_ERROR;
 import static com.generallycloud.baseio.codec.http2.hpack.Http2Exception.connectionError;
-import static com.generallycloud.baseio.common.MathUtil.findNextPositivePowerOfTwo;
+import static com.generallycloud.baseio.common.ByteUtil.findNextPositivePowerOfTwo;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 

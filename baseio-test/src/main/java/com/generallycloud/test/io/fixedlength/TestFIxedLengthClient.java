@@ -17,8 +17,7 @@ package com.generallycloud.test.io.fixedlength;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -53,8 +52,8 @@ public class TestFIxedLengthClient {
         FixedLengthFrame frame = new FixedLengthFrame();
         frame.write("hello server!", channel);
         channel.flush(frame);
-        ThreadUtil.sleep(100);
-        CloseUtil.close(context);
+        Util.sleep(100);
+        Util.close(context);
         DebugUtil.debug("连接已关闭。。。");
     }
 

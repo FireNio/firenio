@@ -17,8 +17,7 @@ package com.generallycloud.test.io.charbased;
 
 import com.generallycloud.baseio.codec.charbased.CharBasedCodec;
 import com.generallycloud.baseio.codec.charbased.CharBasedFrame;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -47,8 +46,8 @@ public class TestLineBasedClient {
         CharBasedFrame frame = new CharBasedFrame();
         frame.write("hello server!", channel);
         channel.flush(frame);
-        ThreadUtil.sleep(100);
-        CloseUtil.close(context);
+        Util.sleep(100);
+        Util.close(context);
 
     }
 }

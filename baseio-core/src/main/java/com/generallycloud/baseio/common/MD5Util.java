@@ -66,7 +66,7 @@ public class MD5Util {
         try {
             md5.reset();
             md5.update(array, off, len);
-            return MathUtil.bytes2HexString(md5.digest());
+            return ByteUtil.bytes2HexString(md5.digest());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

@@ -15,8 +15,12 @@
  */
 package com.generallycloud.baseio.codec.http11;
 
-import static com.generallycloud.baseio.codec.http11.HttpHeader.*;
-import static com.generallycloud.baseio.codec.http11.HttpStatic.*;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Content_Length;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Content_Type;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Cookie;
+import static com.generallycloud.baseio.codec.http11.HttpHeader.Date;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.application_urlencoded;
+import static com.generallycloud.baseio.codec.http11.HttpStatic.multipart;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +32,7 @@ import java.util.Map.Entry;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.KMPUtil;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.FastThreadLocal;
 import com.generallycloud.baseio.component.NioEventLoop;
@@ -94,13 +98,13 @@ public class HttpCodec extends ProtocolCodec {
             }
             int contentLength = 0;
             String clStr = f.getReadHeader(Content_Length);
-            if (!StringUtil.isNullOrBlank(clStr)) {
+            if (!Util.isNullOrBlank(clStr)) {
                 f.contentLength = contentLength = Integer.parseInt(clStr);
             }
             String contentType = f.getReadHeader(Content_Type);
             parseContentType(f, contentType);
             String cookie = f.getReadHeader(Cookie);
-            if (!StringUtil.isNullOrBlank(cookie)) {
+            if (!Util.isNullOrBlank(cookie)) {
                 parse_cookies(f, cookie);
             }
             if (contentLength < 1) {
@@ -343,7 +347,7 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     private void parseContentType(HttpFrame f, String contentType) {
-        if (StringUtil.isNullOrBlank(contentType)) {
+        if (Util.isNullOrBlank(contentType)) {
             f.contentType = application_urlencoded;
             return;
         }
@@ -361,7 +365,7 @@ public class HttpCodec extends ProtocolCodec {
 
     protected void parseRequestURL(HttpFrame f, int skip, StringBuilder line) {
         int index = line.indexOf("?");
-        int lastSpace = StringUtil.lastIndexOf(line, ' ');
+        int lastSpace = Util.lastIndexOf(line, ' ');
         if (index > -1) {
             String paramString = line.substring(index + 1, lastSpace);
             parse_kv(f.params, paramString, '=', '&');
@@ -403,7 +407,7 @@ public class HttpCodec extends ProtocolCodec {
                         f.parseFirstLine = false;
                         parseFirstLine(f, currentHeaderLine);
                     } else {
-                        int p = StringUtil.indexOf(currentHeaderLine, ':');
+                        int p = Util.indexOf(currentHeaderLine, ':');
                         if (p == -1) {
                             continue;
                         }

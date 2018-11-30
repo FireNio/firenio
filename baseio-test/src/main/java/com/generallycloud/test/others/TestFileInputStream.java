@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 
 public class TestFileInputStream {
 
@@ -31,7 +31,7 @@ public class TestFileInputStream {
 
         inputStream.skip(100);
 
-        CloseUtil.close(inputStream);
+        Util.close(inputStream);
 
     }
 }

@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.log.DebugUtil;
 
 public class TestWeather {
@@ -61,8 +61,8 @@ public class TestWeather {
                 sbf.append(strRead);
                 sbf.append("\r\n");
             }
-            CloseUtil.close(is);
-            CloseUtil.close(reader);
+            Util.close(is);
+            Util.close(reader);
             result = sbf.toString();
         } catch (Exception e) {
             DebugUtil.debug(e);

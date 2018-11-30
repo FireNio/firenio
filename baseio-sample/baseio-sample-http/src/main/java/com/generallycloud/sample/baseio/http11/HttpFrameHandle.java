@@ -38,7 +38,7 @@ import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Properties;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -81,7 +81,7 @@ public class HttpFrameHandle extends IoEventHandle {
         }
         String ims = f.getRequestHeader(HttpHeader.If_Modified_Since);
         long imsTime = -1;
-        if (!StringUtil.isNullOrBlank(ims)) {
+        if (!Util.isNullOrBlank(ims)) {
             imsTime = DateUtil.get().parseHttp(ims).getTime();
         }
         if (imsTime < entity.getLastModifyGTMTime()) {
@@ -146,7 +146,7 @@ public class HttpFrameHandle extends IoEventHandle {
     public void initialize(ChannelContext context, String rootPath, String mode) throws Exception {
         Properties p = context.getProperties();
         String webRoot = p.getProperty("app.webRoot");
-        if (StringUtil.isNullOrBlank(webRoot)) {
+        if (Util.isNullOrBlank(webRoot)) {
             webRoot = rootPath + "/app";
         }
         File rootFile = new File(webRoot);

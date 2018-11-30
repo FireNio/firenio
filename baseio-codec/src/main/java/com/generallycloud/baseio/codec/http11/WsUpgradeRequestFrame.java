@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.codec.http11;
 
 import com.generallycloud.baseio.common.BASE64Util;
-import com.generallycloud.baseio.common.UUIDGenerator;
+import com.generallycloud.baseio.common.Util;
 
 public class WsUpgradeRequestFrame extends ClientHttpFrame {
 
@@ -30,7 +30,7 @@ public class WsUpgradeRequestFrame extends ClientHttpFrame {
         setRequestHeader("Upgrade", "websocket");
         setRequestHeader("Sec-WebSocket-Version", "13");
         setRequestHeader("Sec-WebSocket-Key",
-                BASE64Util.byteArrayToBase64(UUIDGenerator.randomMostSignificantBits().getBytes()));
+                BASE64Util.byteArrayToBase64(Util.randomMostSignificantBits().getBytes()));
         setRequestHeader("Sec-WebSocket-Extensions", "permessage-deflate; client_max_window_bits");
     }
 }

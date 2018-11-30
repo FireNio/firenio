@@ -32,11 +32,10 @@ import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.Options;
 import com.generallycloud.baseio.common.Assert;
-import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.Properties;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoopGroup;
 import com.generallycloud.baseio.concurrent.LineEventLoopGroup;
 import com.generallycloud.baseio.concurrent.ThreadEventLoopGroup;
@@ -97,7 +96,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
 
     @Override
     public void configurationChanged(Properties properties) {
-        if (!StringUtil.isNullOrBlank(openSslPath)) {
+        if (!Util.isNullOrBlank(openSslPath)) {
             Options.setOpensslPath(openSslPath);
         }
         this.properties = properties;
@@ -168,7 +167,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     @Override
     protected void doStop() throws Exception {
         for (NioSocketChannel ch : channelManager.getManagedChannels().values()) {
-            CloseUtil.close(ch);
+            Util.close(ch);
         }
         if (!getProcessorGroup().isSharable()) {
             LifeCycleUtil.stop(getProcessorGroup());
@@ -310,7 +309,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     private void initSslContext(ClassLoader classLoader) throws IOException {
         if (isEnableSsl() && getSslContext() == null) {
             SslContextBuilder builder = new SslContextBuilder(true);
-            if (!StringUtil.isNullOrBlank(getCertCrt())) {
+            if (!Util.isNullOrBlank(getCertCrt())) {
                 File certificate = FileUtil.readFileByCls(getCertCrt(), classLoader);
                 File privateKey = FileUtil.readFileByCls(getCertKey(), classLoader);
                 builder.keyManager(privateKey, certificate);
@@ -319,7 +318,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
                 setSslContext(sslContext);
                 return;
             }
-            if (!StringUtil.isNullOrBlank(getSslKeystore())) {
+            if (!Util.isNullOrBlank(getSslKeystore())) {
                 String keystoreInfo = getSslKeystore();
                 String[] params = keystoreInfo.split(";");
                 if (params.length != 4) {

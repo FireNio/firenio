@@ -50,10 +50,7 @@ import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.IntArray;
 import com.generallycloud.baseio.collection.IntMap;
-import com.generallycloud.baseio.common.ClassUtil;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.common.ThrowableUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.concurrent.AbstractEventLoop;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -283,7 +280,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
 
     private void closeChannels() {
         for (NioSocketChannel ch : channels.values()) {
-            CloseUtil.close(ch);
+            Util.close(ch);
         }
     }
 
@@ -380,17 +377,17 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             throws ClosedChannelException {
         int channelId = el.getGroup().getChannelIds().getAndIncrement();
         SelectionKey sk = jch.register(el.getSelector(), SelectionKey.OP_READ);
-        CloseUtil.close((NioSocketChannel) sk.attachment());
+        Util.close((NioSocketChannel) sk.attachment());
         NioSocketChannel ch = new NioSocketChannel(el, sk, context, channelId);
         sk.attach(ch);
         IntMap<NioSocketChannel> channels = el.channels;
-        CloseUtil.close(channels.get(ch.getChannelId()));
+        Util.close(channels.get(ch.getChannelId()));
         if (channels.size() >= el.chSizeLimit) {
             printException(logger, OVER_CH_SIZE_LIMIT);
             if (!ch.isEnableSsl()) {
                 finishConnect(ch, context, OVER_CH_SIZE_LIMIT);
             }
-            CloseUtil.close(ch);
+            Util.close(ch);
             return;
         }
         channels.put(channelId, ch);
@@ -426,11 +423,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         //                } catch (ClosedChannelException e) {
         //                    Object atta = sk.attachment();
         //                    if (atta instanceof Closeable) {
-        //                        CloseUtil.close((Closeable) atta);
+        //                        Util.close((Closeable) atta);
         //                    }
         //                }
         //            }
-        //            CloseUtil.close(oldSelector);
+        //            Util.close(oldSelector);
         //        }
         //        this.selector = newSelector;
     }
@@ -473,8 +470,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
             if (!isRunning()) {
                 handleEvents(events);
                 closeChannels();
-                CloseUtil.close(selector);
-                ReleaseUtil.release(buf);
+                Util.close(selector);
+                Util.release(buf);
                 return;
             }
             try {
@@ -615,7 +612,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         } catch (Throwable e) {
             return false;
         } finally {
-            CloseUtil.close(selector);
+            Util.close(selector);
         }
     }
 
@@ -624,7 +621,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     private static IOException NOT_FINISH_CONNECT() {
-        return ThrowableUtil.unknownStackTrace(new IOException("not finish connect"),
+        return Util.unknownStackTrace(new IOException("not finish connect"),
                 SocketChannel.class, "finishConnect(...)");
     }
 
@@ -653,11 +650,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     Field selectedKeysField = selectorImplClass.getDeclaredField("selectedKeys");
                     Field publicSelectedKeysField = selectorImplClass
                             .getDeclaredField("publicSelectedKeys");
-                    Throwable cause = ClassUtil.trySetAccessible(selectedKeysField);
+                    Throwable cause = Util.trySetAccessible(selectedKeysField);
                     if (cause != null) {
                         return cause;
                     }
-                    cause = ClassUtil.trySetAccessible(publicSelectedKeysField);
+                    cause = Util.trySetAccessible(publicSelectedKeysField);
                     if (cause != null) {
                         return cause;
                     }
@@ -676,7 +673,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     private static IOException OVER_CH_SIZE_LIMIT() {
-        return ThrowableUtil.unknownStackTrace(new IOException("over channel size limit"),
+        return Util.unknownStackTrace(new IOException("over channel size limit"),
                 NioEventLoop.class, "registChannel(...)");
     }
 

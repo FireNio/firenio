@@ -27,8 +27,7 @@ import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpMethod;
 import com.generallycloud.baseio.codec.http11.HttpStatus;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
@@ -41,9 +40,9 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class HttpProxy4CloudServer {
 
-//        static final String                netHost         = "47.52.62.51";
+        static final String                netHost         = "47.52.62.51";
         static final int                   netPort         = 18088;
-    static final String                netHost         = "127.0.0.1";
+//    static final String                netHost         = "127.0.0.1";
     static final String                CONNECT_RES     = "HTTP/1.1 200 Connection Established\r\n\r\n";
     static final ByteBuf               CONNECT_RES_BUF = ByteBufUtil.wrap(CONNECT_RES.getBytes());
     static final HttpProxy4CloudServer server          = new HttpProxy4CloudServer();
@@ -51,7 +50,7 @@ public class HttpProxy4CloudServer {
     private volatile boolean           enable          = true;
 
     public synchronized void stop() {
-        CloseUtil.unbind(context);
+        Util.unbind(context);
     }
 
     public void enable() {
@@ -165,8 +164,8 @@ public class HttpProxy4CloudServer {
                                 ch.flush(head.flip());
                                 ch.flush(body);
                             } catch (Exception e) {
-                                ReleaseUtil.release(head);
-                                ReleaseUtil.release(body);
+                                Util.release(head);
+                                Util.release(body);
                             }
                         }
                     });
@@ -238,7 +237,7 @@ public class HttpProxy4CloudServer {
                         } else {
                             buf.release();
                             ProxySession4Cloud.remove(ch_src);
-                            CloseUtil.close(ch_src);
+                            Util.close(ch_src);
                         }
                     });
                 } else {

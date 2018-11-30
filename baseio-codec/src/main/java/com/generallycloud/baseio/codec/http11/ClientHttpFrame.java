@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 
 public class ClientHttpFrame extends HttpFrame {
@@ -43,7 +43,7 @@ public class ClientHttpFrame extends HttpFrame {
     @Override
     public boolean updateWebSocketProtocol(final NioSocketChannel ch) {
         String key = getReadHeader(HttpHeader.Sec_WebSocket_Accept);
-        if (StringUtil.isNullOrBlank(key)) {
+        if (Util.isNullOrBlank(key)) {
             return false;
         }
         if (ch.inEventLoop()) {

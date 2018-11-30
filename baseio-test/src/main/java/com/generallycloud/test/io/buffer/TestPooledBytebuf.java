@@ -21,7 +21,6 @@ import java.util.Random;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
-import com.generallycloud.test.others.TestLinkAndArrayList;
 
 /**
  * @author wangkai

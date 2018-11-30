@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -48,12 +48,12 @@ public class SimpleTestFIxedLengthBroadcastServer {
         context.setProtocolCodec(new FixedLengthCodec());
         context.bind();
 
-        ThreadUtil.exec(new Runnable() {
+        Util.exec(new Runnable() {
 
             @Override
             public void run() {
                 for (;;) {
-                    ThreadUtil.sleep(1000);
+                    Util.sleep(1000);
                     FixedLengthFrame frame = new FixedLengthFrame();
                     frame.write("broadcast msg .........................", context);
                     try {

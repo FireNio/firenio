@@ -27,7 +27,7 @@ import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpMethod;
 import com.generallycloud.baseio.codec.http11.HttpStatus;
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
@@ -47,7 +47,7 @@ public class HttpProxyServer {
     private volatile boolean     enable          = true;
 
     public synchronized void stop() {
-        CloseUtil.unbind(context);
+        Util.unbind(context);
     }
 
     public void enable() {
@@ -182,7 +182,7 @@ public class HttpProxyServer {
                         } else {
                             buf.release();
                             ProxySession.remove(ch_src);
-                            CloseUtil.close(ch_src);
+                            Util.close(ch_src);
                         }
                     });
                 } else {

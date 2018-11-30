@@ -15,9 +15,6 @@
  */
 package com.generallycloud.test.others;
 
-import java.math.BigDecimal;
-
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 
 public class Test2 {

@@ -16,7 +16,7 @@
 package com.generallycloud.test.others.algorithm;
 
 import com.generallycloud.baseio.collection.IntArray;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 
 //关键字：前缀，后缀，部分匹配表
 public class KMPUtil {
@@ -32,11 +32,11 @@ public class KMPUtil {
     }
 
     private void initialize(String value) {
-        if (StringUtil.isNullOrBlank(value)) {
+        if (Util.isNullOrBlank(value)) {
             throw new IllegalArgumentException("null value");
         }
         this.match_value = value;
-        this.match_array = StringUtil.stringToCharArray(match_value);
+        this.match_array = Util.stringToCharArray(match_value);
         this.match_table = new int[match_value.length()];
         this.initialize_part_match_table();
     }
@@ -79,7 +79,7 @@ public class KMPUtil {
 
     public int match(String value, int begin) {
 
-        if (StringUtil.isNullOrBlank(value) || begin < 0) {
+        if (Util.isNullOrBlank(value) || begin < 0) {
             return -1;
         }
 
@@ -87,7 +87,7 @@ public class KMPUtil {
             return -1;
         }
 
-        char[] source_array = StringUtil.stringToCharArray(value);
+        char[] source_array = Util.stringToCharArray(value);
 
         int source_length = value.length();
 
@@ -122,7 +122,7 @@ public class KMPUtil {
 
     public IntArray match_all(String value) {
 
-        if (StringUtil.isNullOrBlank(value)) {
+        if (Util.isNullOrBlank(value)) {
             return null;
         }
 
@@ -137,7 +137,7 @@ public class KMPUtil {
             return matchs;
         }
 
-        char[] source_array = StringUtil.stringToCharArray(value);
+        char[] source_array = Util.stringToCharArray(value);
 
         int source_length = value.length();
 

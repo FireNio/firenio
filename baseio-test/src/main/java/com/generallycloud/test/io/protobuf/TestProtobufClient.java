@@ -18,8 +18,7 @@ package com.generallycloud.test.io.protobuf;
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFrame;
 import com.generallycloud.baseio.codec.protobuf.ProtobufUtil;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -59,8 +58,8 @@ public class TestProtobufClient {
                 .build();
         protobufUtil.writeProtobuf(request, f);
         channel.flush(f);
-        ThreadUtil.sleep(100);
-        CloseUtil.close(context);
+        Util.sleep(100);
+        Util.close(context);
     }
     
 }

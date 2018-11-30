@@ -26,9 +26,8 @@ import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
 import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpStatic;
-import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.DateUtil;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -50,9 +49,9 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
         ChannelContext context = ch.getContext();
         
         String kill = frame.getRequestParam("kill");
-        if (!StringUtil.isNullOrBlank(kill)) {
+        if (!Util.isNullOrBlank(kill)) {
             Integer id = Integer.valueOf(kill,16);
-            CloseUtil.close(context.getChannelManager().getChannel(id));
+            Util.close(context.getChannelManager().getChannel(id));
         }
 
         BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());

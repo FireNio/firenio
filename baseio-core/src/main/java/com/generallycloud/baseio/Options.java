@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio;
 
-import com.generallycloud.baseio.common.PropertiesUtil;
+import com.generallycloud.baseio.common.Util;
 
 /**
  * @author wangkai
@@ -34,19 +34,19 @@ public class Options {
     }
 
     public static int getSslUnwrapBufferSize(int defaultValue) {
-        return PropertiesUtil.getProperty(SSL_UNWRAP_BUFFER_SIZE, defaultValue);
+        return Util.getProperty(SSL_UNWRAP_BUFFER_SIZE, defaultValue);
     }
 
     public static boolean isDevelopDebug() {
-        return PropertiesUtil.isSystemTrue(DEVELOP_DEBUG);
+        return Util.isSystemTrue(DEVELOP_DEBUG);
     }
 
     public static boolean isChannelReadFirst() {
-        return PropertiesUtil.isSystemTrue(CHANNEL_READ_FIRST);
+        return Util.isSystemTrue(CHANNEL_READ_FIRST);
     }
 
     public static boolean isDisableOpenssl() {
-        return PropertiesUtil.isSystemTrue(DISABLE_OPENSSL);
+        return Util.isSystemTrue(DISABLE_OPENSSL);
     }
 
     public static void setDevelopDebug(boolean debug) {

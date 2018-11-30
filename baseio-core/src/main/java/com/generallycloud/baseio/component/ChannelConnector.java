@@ -23,7 +23,7 @@ import java.nio.channels.SocketChannel;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.common.Assert;
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.concurrent.Callback;
 import com.generallycloud.baseio.concurrent.Waiter;
 
@@ -62,8 +62,8 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
     @Override
     public synchronized void close() throws IOException {
-        CloseUtil.close(ch);
-        CloseUtil.close(javaChannel);
+        Util.close(ch);
+        Util.close(javaChannel);
         LifeCycleUtil.stop(this);
         if (!getProcessorGroup().isSharable()) {
             this.eventLoop = null;
@@ -82,11 +82,11 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
             throw new IOException("can not blocking connect in its event loop");
         }
         if (callback.await(timeout)) {
-            CloseUtil.close(this);
+            Util.close(this);
             throw new TimeoutException("connect to " + getServerAddress() + " time out");
         }
         if (callback.isFailed()) {
-            CloseUtil.close(this);
+            Util.close(this);
             throw (IOException) callback.getThrowable();
         }
         return getChannel();
@@ -169,7 +169,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
                 this.throwable = ex;
                 this.notify();
                 if (isTimeouted()) {
-                    CloseUtil.close((Closeable) res);
+                    Util.close((Closeable) res);
                 }
             }
         }

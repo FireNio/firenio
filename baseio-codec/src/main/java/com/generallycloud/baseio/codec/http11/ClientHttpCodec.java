@@ -23,8 +23,7 @@ import java.util.Set;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
-import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
@@ -121,7 +120,7 @@ public class ClientHttpCodec extends HttpCodec {
                 buf.put(f.getWriteBuffer(), 0, write_size);
             }
         } catch (Exception e) {
-            ReleaseUtil.release(buf);
+            Util.release(buf);
             throw e;
         }
         return buf.flip();
@@ -152,7 +151,7 @@ public class ClientHttpCodec extends HttpCodec {
     }
 
     protected void parseFirstLine(HttpFrame f, StringBuilder line) {
-        int index = StringUtil.indexOf(line, ' ');
+        int index = Util.indexOf(line, ' ');
         int status = Integer.parseInt(line.substring(index + 1, index + 4));
         f.setVersion(HttpVersion.HTTP1_1);
         f.setStatus(HttpStatus.getStatus(status));

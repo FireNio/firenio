@@ -3,7 +3,7 @@ package com.generallycloud.test.others.algorithm;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.generallycloud.baseio.common.MathUtil;
+import com.generallycloud.baseio.common.ByteUtil;
 
 /**
  * @author wangkai
@@ -40,7 +40,7 @@ public class Lz4CompressedOutputStream extends OutputStream {
         byte[] outputBuffer = this.outputBuffer;
         int compressedDataLength = compressor.compress(b, off, len, outputBuffer, 4,
                 outputBufferLen);
-        MathUtil.int2Byte(outputBuffer, compressedDataLength, 0);
+        ByteUtil.int2Byte(outputBuffer, compressedDataLength, 0);
         target.write(outputBuffer, 0, compressedDataLength + 4);
     }
 

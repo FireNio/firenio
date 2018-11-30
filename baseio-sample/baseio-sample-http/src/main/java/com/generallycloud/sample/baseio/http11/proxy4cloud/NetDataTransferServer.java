@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelActiveIdleEventListener;
 import com.generallycloud.baseio.component.ChannelAliveIdleEventListener;
@@ -120,7 +120,7 @@ public class NetDataTransferServer {
                             } else {
                                 buf.release();
                                 ProxySession4Cloud.remove(ch_src);
-                                CloseUtil.close(ch_src);
+                                Util.close(ch_src);
                             }
                         });
                     } else {

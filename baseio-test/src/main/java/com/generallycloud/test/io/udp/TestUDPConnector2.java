@@ -39,8 +39,8 @@ public class TestUDPConnector2 {
         //		
         //		client.setRTPHandle(new TestUDPReceiveHandle());
         //
-        //		ThreadUtil.sleep(99999500);
-        //		CloseUtil.close(connector);
+        //		Util.sleep(99999500);
+        //		Util.close(connector);
 
     }
 }

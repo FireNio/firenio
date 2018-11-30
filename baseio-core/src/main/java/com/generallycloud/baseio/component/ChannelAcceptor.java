@@ -24,7 +24,7 @@ import java.nio.channels.ServerSocketChannel;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
 import com.generallycloud.baseio.buffer.ByteBuf;
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.concurrent.Waiter;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -100,17 +100,17 @@ public final class ChannelAcceptor extends ChannelContext {
                     }
                     bindWaiter.call(null, ex);
                     if (bindWaiter.isTimeouted()) {
-                        CloseUtil.unbind(acceptor);
+                        Util.unbind(acceptor);
                     }
                 }
             }
         });
         if (bindWaiter.await(6000)) {
-            CloseUtil.unbind(this);
+            Util.unbind(this);
             throw new IOException("time out to bind @ " + getPort());
         }
         if (bindWaiter.isFailed()) {
-            CloseUtil.unbind(this);
+            Util.unbind(this);
             throw (IOException) bindWaiter.getThrowable();
         }
         logger.info("server listening @" + getServerAddress());
@@ -136,8 +136,8 @@ public final class ChannelAcceptor extends ChannelContext {
     }
 
     public synchronized void unbind() throws TimeoutException {
-        CloseUtil.close(serverSocket);
-        CloseUtil.close(selectableChannel);
+        Util.close(serverSocket);
+        Util.close(selectableChannel);
         LifeCycleUtil.stop(bindGroup);
         LifeCycleUtil.stop(this);
     }

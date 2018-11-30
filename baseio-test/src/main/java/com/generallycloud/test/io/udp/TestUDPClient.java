@@ -41,9 +41,9 @@ public class TestUDPClient {
         //
         //        channel.sendPacket(packet);
         //
-        //        ThreadUtil.sleep(30);
+        //        Util.sleep(30);
         //
-        //        CloseUtil.close(connector);
+        //        Util.close(connector);
 
     }
 

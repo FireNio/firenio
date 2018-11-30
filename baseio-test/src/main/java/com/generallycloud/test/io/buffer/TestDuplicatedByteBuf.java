@@ -18,7 +18,6 @@ package com.generallycloud.test.io.buffer;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
-import com.generallycloud.baseio.buffer.UnpooledByteBufAllocator;
 
 /**
  * @author wangkai

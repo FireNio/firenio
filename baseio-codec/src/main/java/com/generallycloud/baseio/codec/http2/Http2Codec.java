@@ -22,8 +22,8 @@ import com.generallycloud.baseio.codec.http2.hpack.Decoder;
 import com.generallycloud.baseio.codec.http2.hpack.DefaultHttp2HeadersEncoder;
 import com.generallycloud.baseio.codec.http2.hpack.Http2Exception;
 import com.generallycloud.baseio.codec.http2.hpack.Http2HeadersEncoder;
-import com.generallycloud.baseio.common.MathUtil;
-import com.generallycloud.baseio.common.ThrowableUtil;
+import com.generallycloud.baseio.common.ByteUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -95,7 +95,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 //https://blog.csdn.net/u010129119/article/details/79361949
 public class Http2Codec extends ProtocolCodec {
 
-    private static final IOException NOT_HTTP2_PROTOCL       = ThrowableUtil
+    private static final IOException NOT_HTTP2_PROTOCL       = Util
             .unknownStackTrace(new IOException("preface not matched"), Http2Codec.class, "codec");
 
     public static final int          FLAG_END_STREAM         = 0x1;
@@ -167,7 +167,7 @@ public class Http2Codec extends ProtocolCodec {
                 Http2WindowUpdateFrame fw = new Http2WindowUpdateFrame();
                 fw.setFlags(flags);
                 fw.setStreamIdentifier(streamIdentifier);
-                fw.setUpdateValue(MathUtil.int2int31(src.getInt()));
+                fw.setUpdateValue(ByteUtil.int2int31(src.getInt()));
                 return fw;
             default:
                 break;
@@ -244,8 +244,8 @@ public class Http2Codec extends ProtocolCodec {
                 for (int i = 0; i < 6; i++) {
                     int realI = i + 1;
                     int offset = i * 6;
-                    MathUtil.unsignedShort2Byte(payload, realI, offset);
-                    MathUtil.unsignedInt2Byte(payload, settings[realI], offset + 2);
+                    ByteUtil.unsignedShort2Byte(payload, realI, offset);
+                    ByteUtil.unsignedInt2Byte(payload, settings[realI], offset + 2);
                 }
                 break;
             case FRAME_TYPE_WINDOW_UPDATE:

@@ -18,8 +18,7 @@ package com.generallycloud.test.io.redis;
 import com.generallycloud.baseio.codec.redis.RedisClient;
 import com.generallycloud.baseio.codec.redis.RedisCodec;
 import com.generallycloud.baseio.codec.redis.RedisIOEventHandle;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioSocketChannel;
@@ -44,8 +43,8 @@ public class TestRedisClient {
         System.out.println("__________________res______" + value);
         value = client.ping();
         System.out.println("__________________res______" + value);
-        ThreadUtil.sleep(100);
-        CloseUtil.close(context);
+        Util.sleep(100);
+        Util.close(context);
 
     }
 }

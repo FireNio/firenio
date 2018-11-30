@@ -24,14 +24,14 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteProcessor;
-import com.generallycloud.baseio.common.ThrowableUtil;
+import com.generallycloud.baseio.common.Util;
 
 final class HuffmanDecoder {
 
-    private static final Http2Exception EOS_DECODED     = ThrowableUtil.unknownStackTrace(
+    private static final Http2Exception EOS_DECODED     = Util.unknownStackTrace(
             connectionError(COMPRESSION_ERROR, "HPACK - EOS Decoded"), HuffmanDecoder.class,
             "decode(...)");
-    private static final Http2Exception INVALID_PADDING = ThrowableUtil.unknownStackTrace(
+    private static final Http2Exception INVALID_PADDING = Util.unknownStackTrace(
             connectionError(COMPRESSION_ERROR, "HPACK - Invalid Padding"), HuffmanDecoder.class,
             "decode(...)");
 

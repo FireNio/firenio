@@ -26,7 +26,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.AttributesImpl;
-import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.common.Util;
 
 /**
  * @author wangkai
@@ -48,8 +48,8 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
     FastThreadLocal() {}
 
     private void destroy0() {
-        ReleaseUtil.release(sslWrapBuf);
-        ReleaseUtil.release(sslUnwrapBuf);
+        Util.release(sslWrapBuf);
+        Util.release(sslUnwrapBuf);
     }
 
     public CharsetDecoder getCharsetDecoder(Charset charset) {

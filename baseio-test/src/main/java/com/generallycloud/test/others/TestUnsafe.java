@@ -18,7 +18,7 @@ package com.generallycloud.test.others;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import com.generallycloud.baseio.common.MathUtil;
+import com.generallycloud.baseio.common.ByteUtil;
 import com.generallycloud.baseio.common.UnsafeUtil;
 import com.generallycloud.baseio.log.DebugUtil;
 
@@ -167,7 +167,7 @@ public class TestUnsafe {
         for (int i = 0; i < time; i++) {
             for (int j = 0; j < len;) {
                 //				MathUtil.int2ByteLE(array, 999809234, j);
-                MathUtil.int2Byte(array, 999809234, j);
+                ByteUtil.int2Byte(array, 999809234, j);
                 j += 4;
             }
         }

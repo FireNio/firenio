@@ -22,9 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.MathUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.ByteUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -63,7 +62,7 @@ public class TestLoadClient1 extends ITestThread {
             Frame frame = new FixedLengthFrame();
             if (debug) {
                 byte[] bb = new byte[4];
-                MathUtil.int2Byte(bb, i, 0);
+                ByteUtil.int2Byte(bb, i, 0);
                 frame.write(bb);
             }
             frame.write(req);
@@ -113,7 +112,7 @@ public class TestLoadClient1 extends ITestThread {
 
     @Override
     public void stop() {
-        CloseUtil.close(context);
+        Util.close(context);
         running = false;
         synchronized (lock) {
             lock.notify();
@@ -124,10 +123,10 @@ public class TestLoadClient1 extends ITestThread {
 
         if (args != null && args.length == 999) {
             running = true;
-            ThreadUtil.exec(() -> {
-                ThreadUtil.sleep(7000);
+            Util.exec(() -> {
+                Util.sleep(7000);
                 for (; running;) {
-                    ThreadUtil.wait(lock, 3000);
+                    Util.wait(lock, 3000);
                     for (ITestThread tt : ITestThreadHandle.ts) {
                         TestLoadClient1 t = (TestLoadClient1) tt;
                         if (t.count.get() > 0) {

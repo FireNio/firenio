@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
@@ -122,7 +122,7 @@ public class ProtobaseCodec extends ProtocolCodec {
             textLen = src.getInt();
             src.markL();
             src.limit(src.position() + textLen);
-            f.setReadText(StringUtil.decode(ch.getCharset(), src.nioBuffer()));
+            f.setReadText(Util.decode(ch.getCharset(), src.nioBuffer()));
             src.reverse();
             src.resetL();
         }

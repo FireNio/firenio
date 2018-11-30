@@ -20,7 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 
 public class TestFileOutputStream {
 
@@ -32,9 +32,9 @@ public class TestFileOutputStream {
 
         FileChannel channel = outputStream.getChannel();
 
-        CloseUtil.close(channel);
+        Util.close(channel);
 
-        CloseUtil.close(outputStream);
+        Util.close(outputStream);
 
     }
 }

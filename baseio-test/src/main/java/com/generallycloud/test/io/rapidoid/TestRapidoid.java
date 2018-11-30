@@ -19,7 +19,6 @@ import org.rapidoid.setup.App;
 import org.rapidoid.setup.My;
 import org.rapidoid.setup.On;
 import org.rapidoid.u.U;
-import org.rapidoid.util.Tokens;
 
 /**
  * @author wangkai

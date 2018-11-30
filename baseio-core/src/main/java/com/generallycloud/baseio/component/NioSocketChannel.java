@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import static com.generallycloud.baseio.Develop.printException;
-import static com.generallycloud.baseio.common.ThrowableUtil.unknownStackTrace;
+import static com.generallycloud.baseio.common.Util.unknownStackTrace;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -43,9 +43,7 @@ import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.AttributesImpl;
 import com.generallycloud.baseio.common.Assert;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.common.ThrowableUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelContext.HeartBeatLogger;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.log.Logger;
@@ -254,7 +252,7 @@ public final class NioSocketChannel extends AttributesImpl
                 l.channelOpened(ch);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
-                CloseUtil.close(ch);
+                Util.close(ch);
                 return;
             }
         }
@@ -293,7 +291,7 @@ public final class NioSocketChannel extends AttributesImpl
             }
             writeBufs.offer(buf);
             if (isClosed()) {
-                ReleaseUtil.release(writeBufs.poll());
+                Util.release(writeBufs.poll());
                 return;
             }
             //FIXME 确认这里这么判断是否有问题
@@ -314,7 +312,7 @@ public final class NioSocketChannel extends AttributesImpl
         try {
             buf = codec.encode(this, frame);
         } catch (Exception e) {
-            ReleaseUtil.release(buf);
+            Util.release(buf);
             exceptionCaught(frame, e);
             return;
         }
@@ -326,7 +324,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (bufs != null && !bufs.isEmpty()) {
             if (inEventLoop()) {
                 if (isClosed()) {
-                    ReleaseUtil.release(bufs);
+                    Util.release(bufs);
                     return;
                 }
                 final int bufsSize = bufs.size();
@@ -379,7 +377,7 @@ public final class NioSocketChannel extends AttributesImpl
             } else {
                 Queue<ByteBuf> writeBufs = this.writeBufs;
                 if (isClosed()) {
-                    ReleaseUtil.release(bufs);
+                    Util.release(bufs);
                     return;
                 }
                 for (ByteBuf buf : bufs) {
@@ -609,7 +607,7 @@ public final class NioSocketChannel extends AttributesImpl
             int length = channel.read(src.nioBuffer());
             if (length < 1) {
                 if (length == -1) {
-                    CloseUtil.close(this);
+                    Util.close(this);
                     return;
                 }
                 if (src.position() > 0) {
@@ -642,7 +640,7 @@ public final class NioSocketChannel extends AttributesImpl
             int length = channel.read(src.nioBuffer());
             if (length < 1) {
                 if (length == -1) {
-                    CloseUtil.close(this);
+                    Util.close(this);
                     return;
                 }
                 if (src.position() > 0) {
@@ -701,7 +699,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (!wfs.isEmpty()) {
             ByteBuf buf = wfs.poll();
             for (; buf != null;) {
-                ReleaseUtil.release(buf);
+                Util.release(buf);
                 buf = wfs.poll();
             }
         }
@@ -735,9 +733,9 @@ public final class NioSocketChannel extends AttributesImpl
             closeSsl();
             releaseWriteBufQueue();
             releaseWriteBufArray();
-            ReleaseUtil.release(sslRemainBuf);
-            ReleaseUtil.release(plainRemainBuf);
-            CloseUtil.close(channel);
+            Util.release(sslRemainBuf);
+            Util.release(plainRemainBuf);
+            Util.close(channel);
             selKey.attach(null);
             selKey.cancel();
             fireClosed();
@@ -768,7 +766,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     private void stopContext() {
         if (context instanceof ChannelConnector) {
-            CloseUtil.close(((ChannelConnector) context));
+            Util.close(((ChannelConnector) context));
         }
     }
 
@@ -926,7 +924,7 @@ public final class NioSocketChannel extends AttributesImpl
                 }
             }
         } catch (Throwable e) {
-            ReleaseUtil.release(out);
+            Util.release(out);
             if (e instanceof IOException) {
                 throw (IOException) e;
             }
@@ -1029,7 +1027,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private static ClosedChannelException CLOSED_WHEN_FLUSH() {
-        return ThrowableUtil.unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class,
+        return Util.unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class,
                 "flush(...)");
     }
 
@@ -1043,12 +1041,12 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private static SSLException NOT_TLS() {
-        return ThrowableUtil.unknownStackTrace(new SSLException("NOT TLS"), NioSocketChannel.class,
+        return Util.unknownStackTrace(new SSLException("NOT TLS"), NioSocketChannel.class,
                 "isEnoughSslUnwrap()");
     }
 
     private static SSLException SSL_PACKET_OVER_LIMIT() {
-        return ThrowableUtil.unknownStackTrace(
+        return Util.unknownStackTrace(
                 new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"), NioSocketChannel.class,
                 "isEnoughSslUnwrap()");
     }

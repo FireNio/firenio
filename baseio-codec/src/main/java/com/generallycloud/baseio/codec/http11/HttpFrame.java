@@ -38,7 +38,7 @@ import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.SHAUtil;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractFrame;
@@ -262,7 +262,7 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
     }
     
     void setRequestHeader0(String name, String value,Map<HttpHeader, String> data) {
-        if (StringUtil.isNullOrBlank(name)) {
+        if (Util.isNullOrBlank(name)) {
             return;
         }
         HttpHeader header = HttpHeader.ALL.get(name);
@@ -323,7 +323,7 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
 
     public boolean updateWebSocketProtocol(NioSocketChannel ch) {
         String Sec_WebSocket_Key_Value = getRequestHeader(Sec_WebSocket_Key);
-        if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key_Value)) {
+        if (!Util.isNullOrBlank(Sec_WebSocket_Key_Value)) {
             //FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
             String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key_Value
                     + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";

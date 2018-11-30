@@ -17,7 +17,7 @@ package com.generallycloud.baseio.common;
 
 import java.util.Random;
 
-public class MathUtil {
+public class ByteUtil {
 
     public static byte binaryString2byte(String string) {
         Assert.notNull(string, "null binary string");
@@ -26,7 +26,7 @@ public class MathUtil {
         if (string.length() != 8) {
             throw new IllegalArgumentException("except length 8");
         }
-        char[] cs = StringUtil.stringToCharArray(string);
+        char[] cs = Util.stringToCharArray(string);
         byte result = 0;
         for (int i = 0; i < 8; i++) {
             char c = cs[i];
@@ -394,7 +394,7 @@ public class MathUtil {
         int2Byte(bytes, v, 0);
 
         String hex = bytes2HexString(bytes);
-        bytes = hexString2bytes(StringUtil.stringToCharArray(hex));
+        bytes = hexString2bytes(Util.stringToCharArray(hex));
         System.out.println(v);
         System.out.println(hex);
         int v1 = byte2Int(bytes, 0);

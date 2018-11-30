@@ -17,7 +17,7 @@ package com.generallycloud.test.others.algorithm;
 
 import java.util.Random;
 
-import com.generallycloud.baseio.common.CollectionUtil;
+import com.generallycloud.baseio.common.Util;
 
 /**
  * @author wangkai
@@ -75,9 +75,9 @@ public class QuickSort {
             array[i] = new Random().nextInt(30);
         }
 
-        CollectionUtil.printArray(array);
+        Util.printArray(array);
         sort(array, 0, 29);
-        CollectionUtil.printArray(array);
+        Util.printArray(array);
 
     }
 

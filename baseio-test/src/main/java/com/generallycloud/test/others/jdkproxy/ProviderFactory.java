@@ -17,13 +17,13 @@ package com.generallycloud.test.others.jdkproxy;
 
 import java.lang.reflect.Proxy;
 
-import com.generallycloud.baseio.common.ClassUtil;
+import com.generallycloud.baseio.common.Util;
 
 public class ProviderFactory {
 
     public static FontProvider getFontProvider() {
         return (FontProvider) Proxy.newProxyInstance(FontProvider.class.getClassLoader(),
-                ClassUtil.getInterfaces(FontProvider.class),
+                Util.getInterfaces(FontProvider.class),
                 new CachedProviderHandler(new FontProviderFromDisk()));
     }
 
