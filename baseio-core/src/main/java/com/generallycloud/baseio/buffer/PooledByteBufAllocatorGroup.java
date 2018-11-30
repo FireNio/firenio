@@ -17,26 +17,38 @@ package com.generallycloud.baseio.buffer;
 
 import com.generallycloud.baseio.AbstractLifeCycle;
 import com.generallycloud.baseio.LifeCycleUtil;
-import com.generallycloud.baseio.component.NioEventLoopGroup;
 
 public class PooledByteBufAllocatorGroup extends AbstractLifeCycle
         implements ByteBufAllocatorGroup {
 
     private PooledByteBufAllocator[] allocators;
     private PooledByteBufAllocator   allocator;
-    private NioEventLoopGroup        group;
+    private int                      core   = 1;
+    private int                      cap    = 1024 * 64;
+    private int                      unit   = 512;
+    private boolean                  direct = true;
 
-    public PooledByteBufAllocatorGroup(NioEventLoopGroup group) {
-        this.group = group;
+    public PooledByteBufAllocatorGroup() {}
+
+    public PooledByteBufAllocatorGroup(int cap) {
+        this.cap = cap;
+    }
+
+    public PooledByteBufAllocatorGroup(int core, int cap) {
+        this.core = core;
+        this.cap = cap;
+    }
+
+    public PooledByteBufAllocatorGroup(int core, int cap, int unit, boolean direct) {
+        this.core = core;
+        this.cap = cap;
+        this.unit = unit;
+        this.direct = direct;
     }
 
     @Override
     protected void doStart() throws Exception {
         if (allocators == null) {
-            int core = group.getEventLoopSize();
-            int cap = group.getMemoryPoolCapacity();
-            int unit = group.getMemoryPoolUnit();
-            boolean direct = group.isEnableMemoryPoolDirect();
             this.allocators = new PooledByteBufAllocator[core];
             int allocatorsLength = allocators.length;
             for (int i = 0; i < allocatorsLength; i++) {

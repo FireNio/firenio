@@ -111,7 +111,11 @@ public final class ChannelAcceptor extends ChannelContext {
         }
         if (bindWaiter.isFailed()) {
             Util.unbind(this);
-            throw (IOException) bindWaiter.getThrowable();
+            Throwable ex = bindWaiter.getThrowable();
+            if (ex instanceof IOException) {
+                throw (IOException) bindWaiter.getThrowable();
+            }
+            throw new IOException("bind failed", ex);
         }
         logger.info("server listening @" + getServerAddress());
     }

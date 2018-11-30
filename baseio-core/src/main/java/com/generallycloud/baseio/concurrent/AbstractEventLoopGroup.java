@@ -94,14 +94,17 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
 
     @Override
     public void setEventLoopListener(EventLoopListener listener) {
+        this.checkNotRunning();
         this.eventLoopListener = listener;
     }
 
     public void setEventLoopName(String eventLoopName) {
+        this.checkNotRunning();
         this.eventLoopName = eventLoopName;
     }
 
     public void setEventLoopSize(int eventLoopSize) {
+        this.checkNotRunning();
         this.eventLoopSize = eventLoopSize;
     }
 

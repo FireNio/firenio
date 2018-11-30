@@ -53,11 +53,10 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
     public ChannelConnector(NioEventLoopGroup group, String host, int port) {
         super(group, host, port);
-        group.setEventLoopSize(1);
     }
 
     public ChannelConnector(String host, int port) {
-        this(new NioEventLoopGroup(), host, port);
+        this(new NioEventLoopGroup(1), host, port);
     }
 
     @Override
@@ -87,7 +86,11 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         }
         if (callback.isFailed()) {
             Util.close(this);
-            throw (IOException) callback.getThrowable();
+            Throwable ex = callback.getThrowable();
+            if (ex instanceof IOException) {
+                throw (IOException) callback.getThrowable();
+            }
+            throw new IOException("connect failed", ex);
         }
         return getChannel();
     }
@@ -115,16 +118,17 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
                     if (!javaChannel.connect(getServerAddress())) {
                         eventLoop.registSelector(ChannelConnector.this, SelectionKey.OP_CONNECT);
                     }
-                } catch (IOException e) {
-                    finishConnect(null, e);
+                } catch (Throwable e) {
+                    channelEstablish(null, e);
                 }
             }
         });
     }
 
-    protected void finishConnect(NioSocketChannel ch, IOException exception) {
+    @Override
+    protected void channelEstablish(NioSocketChannel ch, Throwable ex) {
         this.ch = ch;
-        this.callback.call(ch, exception);
+        this.callback.call(ch, ex);
     }
 
     public NioSocketChannel getChannel() {
@@ -163,13 +167,17 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
         @Override
         public void call(T res, Throwable ex) {
-            synchronized (this) {
-                this.isDnoe = true;
-                this.response = res;
-                this.throwable = ex;
-                this.notify();
-                if (isTimeouted()) {
-                    Util.close((Closeable) res);
+            if (!isDnoe) {
+                synchronized (this) {
+                    if (!isDnoe) {
+                        this.isDnoe = true;
+                        this.response = res;
+                        this.throwable = ex;
+                        this.notify();
+                        if (isTimeouted()) {
+                            Util.close((Closeable) res);
+                        }
+                    }
                 }
             }
         }

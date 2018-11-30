@@ -164,6 +164,8 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         this.printConfig = printConfig;
     }
 
+    protected void channelEstablish(NioSocketChannel ch, Throwable ex) {}
+
     @Override
     protected void doStop() throws Exception {
         for (NioSocketChannel ch : channelManager.getManagedChannels().values()) {

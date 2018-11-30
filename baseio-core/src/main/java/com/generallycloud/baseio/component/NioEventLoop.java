@@ -40,8 +40,6 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.net.ssl.SSLHandshakeException;
-
 import com.generallycloud.baseio.Options;
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufAllocator;
@@ -176,22 +174,22 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 final ChannelConnector connector = (ChannelConnector) attach;
                 final SocketChannel javaChannel = connector.getSelectableChannel();
                 try {
-                    if (!javaChannel.finishConnect()) {
+                    if (javaChannel.finishConnect()) {
+                        int ops = key.interestOps();
+                        ops &= ~SelectionKey.OP_CONNECT;
+                        key.interestOps(ops);
+                        //FIXME need this code ?
+                        // selector.selectNow();
+                        registChannel(javaChannel, this, connector);
+                    } else {
                         key.cancel();
                         key.attach(null);
-                        finishConnect(null, connector, NOT_FINISH_CONNECT);
-                        return;
+                        connector.channelEstablish(null, NOT_FINISH_CONNECT);
                     }
-                    int ops = key.interestOps();
-                    ops &= ~SelectionKey.OP_CONNECT;
-                    key.interestOps(ops);
-                    //FIXME need this code ?
-                    // selector.selectNow();
-                    registChannel(javaChannel, this, connector);
-                } catch (IOException e) {
+                } catch (Throwable e) {
                     key.cancel();
                     key.attach(null);
-                    finishConnect(null, connector, e);
+                    connector.channelEstablish(null, e);
                 }
             }
         }
@@ -206,9 +204,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 logger.debug(ex.getMessage() + ch, ex);
             }
         }
-        if (ex instanceof SSLHandshakeException) {
-            finishConnect(ch, ch.getContext(), (SSLHandshakeException) ex);
-        }
+        ch.getContext().channelEstablish(ch, ex);
     }
 
     private void writeExceptionCaught(NioSocketChannel ch, Throwable ex) {
@@ -311,12 +307,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    private final void finishConnect(NioSocketChannel ch, ChannelContext context, IOException e) {
-        if (context instanceof ChannelConnector) {
-            ((ChannelConnector) context).finishConnect(ch, e);
-        }
-    }
-
     protected void flush(NioSocketChannel ch) {
         events.offer(ch);
     }
@@ -384,10 +374,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         Util.close(channels.get(ch.getChannelId()));
         if (channels.size() >= el.chSizeLimit) {
             printException(logger, OVER_CH_SIZE_LIMIT);
-            if (!ch.isEnableSsl()) {
-                finishConnect(ch, context, OVER_CH_SIZE_LIMIT);
-            }
             Util.close(ch);
+            if (!ch.isEnableSsl()) {
+                context.channelEstablish(ch, OVER_CH_SIZE_LIMIT);
+            }
             return;
         }
         channels.put(channelId, ch);
@@ -400,7 +390,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         } else {
             // fire open event immediately when plain ch
             ch.fireOpend();
-            finishConnect(ch, context, null);
+            context.channelEstablish(ch, null);
         }
     }
 
@@ -621,8 +611,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     private static IOException NOT_FINISH_CONNECT() {
-        return Util.unknownStackTrace(new IOException("not finish connect"),
-                SocketChannel.class, "finishConnect(...)");
+        return Util.unknownStackTrace(new IOException("not finish connect"), SocketChannel.class,
+                "finishConnect(...)");
     }
 
     @SuppressWarnings("rawtypes")
