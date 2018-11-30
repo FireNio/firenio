@@ -58,6 +58,7 @@ import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
 import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.component.SslContext.ClientAuth;
 
 /**
  * Builder for configuring a new SslContext for creation.

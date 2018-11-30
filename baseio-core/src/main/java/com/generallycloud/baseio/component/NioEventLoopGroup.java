@@ -15,8 +15,6 @@
  */
 package com.generallycloud.baseio.component;
 
-import java.io.IOException;
-
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.buffer.ByteBufAllocatorGroup;
 import com.generallycloud.baseio.buffer.PooledByteBufAllocatorGroup;
@@ -60,8 +58,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     }
 
     public NioEventLoopGroup(boolean sharable, int eventLoopSize) {
-        super("nio-processor", eventLoopSize);
-        this.sharable = sharable;
+        this(sharable, eventLoopSize, 30 * 1000);
     }
 
     public NioEventLoopGroup(String name) {
@@ -178,11 +175,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         return new NioEventLoop(this, index);
     }
 
-    protected void registSelector(ChannelAcceptor context, int op) throws IOException {
-        this.context = context;
-        this.getNext().registSelector(context, op);
-    }
-
     public void setChannelReadBuffer(int channelReadBuffer) {
         checkNotRunning();
         this.channelReadBuffer = channelReadBuffer;
@@ -225,11 +217,6 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     public void setMemoryPoolUnit(int memoryPoolUnit) {
         checkNotRunning();
         this.memoryPoolUnit = memoryPoolUnit;
-    }
-
-    public void setSharable(boolean sharable) {
-        checkNotRunning();
-        this.sharable = sharable;
     }
 
     public void setWriteBuffers(int writeBuffers) {
