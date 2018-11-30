@@ -39,6 +39,7 @@ public final class ChannelAcceptor extends ChannelContext {
     private Logger              logger = LoggerFactory.getLogger(getClass());
     private ServerSocketChannel selectableChannel;
     private NioEventLoopGroup   bindGroup;
+    private ServerSocket        serverSocket;
 
     public ChannelAcceptor(NioEventLoopGroup group) {
         this(group, "0.0.0.0", 0);
@@ -77,18 +78,18 @@ public final class ChannelAcceptor extends ChannelContext {
         this.getProcessorGroup().setContext(this);
         LifeCycleUtil.start(this);
         LifeCycleUtil.start(bindGroup);
-        final NioEventLoopGroup bindGroup = this.bindGroup;
+        final NioEventLoop bindEventLoop = bindGroup.getNext();
         final Waiter<Object> bindWaiter = new Waiter<>();
         final ChannelAcceptor acceptor = this;
         this.selectableChannel = ServerSocketChannel.open();
         this.selectableChannel.configureBlocking(false);
-        this.bindGroup.getNext().execute(new Runnable() {
+        this.serverSocket = selectableChannel.socket();
+        bindEventLoop.execute(new Runnable() {
 
             @Override
             public void run() {
                 try {
-                    ServerSocket serverSocket = selectableChannel.socket();
-                    bindGroup.registSelector(acceptor, SelectionKey.OP_ACCEPT);
+                    bindEventLoop.registSelector(acceptor, SelectionKey.OP_ACCEPT);
                     serverSocket.bind(getServerAddress(), 50);
                     bindWaiter.call(null, null);
                 } catch (Throwable e) {
@@ -135,7 +136,7 @@ public final class ChannelAcceptor extends ChannelContext {
     }
 
     public synchronized void unbind() throws TimeoutException {
-        CloseUtil.close(selectableChannel.socket());
+        CloseUtil.close(serverSocket);
         CloseUtil.close(selectableChannel);
         LifeCycleUtil.stop(bindGroup);
         LifeCycleUtil.stop(this);

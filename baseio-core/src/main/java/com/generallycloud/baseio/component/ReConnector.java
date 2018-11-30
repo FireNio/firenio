@@ -38,7 +38,6 @@ public class ReConnector implements Closeable {
     @SuppressWarnings("resource")
     private void init(){
         final ReConnector reConnector = this;
-        this.connector.getProcessorGroup().setSharable(true);
         this.connector.addChannelEventListener(new ChannelEventListenerAdapter() {
             @Override
             public void channelClosed(NioSocketChannel ch) {

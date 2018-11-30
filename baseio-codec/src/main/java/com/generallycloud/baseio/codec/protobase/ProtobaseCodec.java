@@ -28,7 +28,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  * <pre>
  *  B0 -B3  : 报文总长度        大于0:普通消息 -1:心跳PING -2:心跳PONG
  *  B4 :0   : 广播类型          0:P2P           1:BRODCAST
- *  B4 :1   : 是否包含FrameId  4 byte   
+ *  B4 :1   : 是否包含FrameId   4 byte   
  *  B4 :2   : 是否包含ChannelId 4 byte
  *  B4 :3   : 是否包含Text      4 byte
  *  B4 :4   : 是否包含Binary    4 byte
