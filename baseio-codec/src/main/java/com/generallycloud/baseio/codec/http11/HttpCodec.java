@@ -164,21 +164,24 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
+    public ByteBuf encode(final NioSocketChannel ch, Frame frame) throws IOException {
         HttpFrame f = (HttpFrame) frame;
         if (f.isUpdateWebSocketProtocol()) {
-            ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+            ch.getEventLoop().execute(new Runnable() {
+
+                @Override
+                public void run() {
+                    ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+                }
+            });
             ch.setAttribute(WebSocketCodec.CHANNEL_KEY_SERVICE_NAME, f.getFrameName());
         }
         f.setResponseHeader(Date, getHttpDateBytes());
         int write_size = f.getWriteSize();
         byte[] status_bytes = f.getStatus().getBinary();
         byte[] length_bytes = String.valueOf(write_size).getBytes();
-        int len = PROTOCOL.length 
-                + status_bytes.length 
-                + CONTENT_LENGTH.length
-                + length_bytes.length 
-                + 2;
+        int len = PROTOCOL.length + status_bytes.length + CONTENT_LENGTH.length
+                + length_bytes.length + 2;
         List<byte[]> encode_bytes_array = getEncodeBytesArray();
         int header_size = 0;
         int cookie_size = 0;
