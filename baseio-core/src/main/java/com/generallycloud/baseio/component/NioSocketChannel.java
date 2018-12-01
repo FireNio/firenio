@@ -117,6 +117,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (ctx.isEnableSsl()) {
             this.sslEngine = ctx.getSslContext().newEngine(remoteAddr, remotePort);
         } else {
+            this.sslHandshakeFinished = true;
             this.sslEngine = null;
         }
     }
@@ -222,11 +223,15 @@ public final class NioSocketChannel extends AttributesImpl
     private void execute(Runnable event) {
         eventLoop.execute(event);
     }
+    
+    protected boolean isSslHandshakeFinished() {
+        return sslHandshakeFinished;
+    }
 
     private void finishHandshake() {
         this.sslHandshakeFinished = true;
-        this.context.channelEstablish(this, null);
         this.fireOpend();
+        this.context.channelEstablish(this, null);
     }
 
     private void fireClosed() {

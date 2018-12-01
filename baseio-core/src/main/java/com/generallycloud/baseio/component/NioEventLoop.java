@@ -215,7 +215,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 logger.debug(ex.getMessage() + ch, ex);
             }
         }
-        ch.getContext().channelEstablish(ch, ex);
+        if (!ch.isSslHandshakeFinished()) {
+            ch.getContext().channelEstablish(ch, ex);
+        }
     }
 
     private void writeExceptionCaught(NioSocketChannel ch, Throwable ex) {
@@ -510,13 +512,25 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         for (int i = 0; i < keySet.size; i++) {
                             SelectionKey k = keySet.keys[i];
                             keySet.keys[i] = null;
-                            accept(k);
+                            try {
+                                accept(k);
+                            } catch (Throwable e) {
+                                if (e instanceof Error) {
+                                    e.printStackTrace(System.err);
+                                }
+                            }
                         }
                         keySet.reset();
                     } else {
                         Set<SelectionKey> sks = selector.selectedKeys();
                         for (SelectionKey k : sks) {
-                            accept(k);
+                            try {
+                                accept(k);
+                            } catch (Throwable e) {
+                                if (e instanceof Error) {
+                                    e.printStackTrace(System.err);
+                                }
+                            }
                         }
                         sks.clear();
                     }
