@@ -541,7 +541,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                             continue;
                         }
                         long delay = t.getDelay();
-                        if (delay >= now) {
+                        if (now >= delay) {
                             dq.poll();
                             try {
                                 t.run();

@@ -111,7 +111,7 @@ public class NetDataTransferServer {
                             ProxySession4Cloud.remove(ch_src);
                             Util.close(ch_src);
                         }
-                    });
+                    }, 10000);
                 } else {
                     ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                     buf.read(src);
