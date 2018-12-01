@@ -79,19 +79,11 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
     public synchronized NioSocketChannel connect(long timeout) throws IOException {
         ConnectCallback<NioSocketChannel> callback = new ConnectCallback<>();
-        this.timeoutTask = new TimeoutTask(this, timeout);
-        this.connect(callback);
+        this.connect(callback, timeout);
         if (eventLoop.inEventLoop()) {
             throw new IOException("can not blocking connect in its event loop");
         }
         if (callback.await(timeout)) {
-            eventLoop.executeAfterLoop(new Runnable() {
-
-                @Override
-                public void run() {
-                    timeoutTask.cancel();
-                }
-            });
             Util.close(this);
             throw new TimeoutException("connect to " + getServerAddress() + " time out");
         }
@@ -111,11 +103,17 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     }
 
     public synchronized void connect(Callback<NioSocketChannel> callback) throws IOException {
+        connect(callback, 3000);
+    }
+
+    public synchronized void connect(Callback<NioSocketChannel> callback, long timeout)
+            throws IOException {
         Assert.notNull(callback, "null callback");
         if (isConnected()) {
             callback.call(ch, null);
             return;
         }
+        this.timeoutTask = new TimeoutTask(this, timeout);
         this.callbacked = false;
         this.callback = callback;
         this.getProcessorGroup().setContext(this);
@@ -133,9 +131,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
                 try {
                     javaChannel.connect(getServerAddress());
                     eventLoop.registSelector(ChannelConnector.this, SelectionKey.OP_CONNECT);
-                    if (timeoutTask != null) {
-                        eventLoop.schedule(timeoutTask);
-                    }
+                    eventLoop.schedule(timeoutTask);
                 } catch (Throwable e) {
                     channelEstablish(null, e);
                 }
@@ -146,6 +142,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     @Override
     protected void channelEstablish(NioSocketChannel ch, Throwable ex) {
         if (!callbacked) {
+            this.timeoutTask.cancel();
             this.callbacked = true;
             this.ch = ch;
             this.callback.call(ch, ex);
