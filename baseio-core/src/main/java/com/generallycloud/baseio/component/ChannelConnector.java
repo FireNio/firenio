@@ -56,6 +56,9 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
     public ChannelConnector(NioEventLoopGroup group, String host, int port) {
         super(group, host, port);
+        if (!group.isSharable() && !group.isRunning()) {
+            group.setEventLoopSize(1);
+        }
     }
 
     public ChannelConnector(String host, int port) {

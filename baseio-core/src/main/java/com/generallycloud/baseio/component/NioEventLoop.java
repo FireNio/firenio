@@ -169,7 +169,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                             }
                         }
                     });
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     printException(logger, e);
                 }
             } else {
@@ -185,12 +185,10 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         registChannel(javaChannel, this, connector);
                     } else {
                         key.cancel();
-                        key.attach(null);
                         connector.channelEstablish(null, NOT_FINISH_CONNECT);
                     }
                 } catch (Throwable e) {
                     key.cancel();
-                    key.attach(null);
                     connector.channelEstablish(null, e);
                 }
             }
@@ -512,25 +510,13 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         for (int i = 0; i < keySet.size; i++) {
                             SelectionKey k = keySet.keys[i];
                             keySet.keys[i] = null;
-                            try {
-                                accept(k);
-                            } catch (Throwable e) {
-                                if (e instanceof Error) {
-                                    e.printStackTrace(System.err);
-                                }
-                            }
+                            accept(k);
                         }
                         keySet.reset();
                     } else {
                         Set<SelectionKey> sks = selector.selectedKeys();
                         for (SelectionKey k : sks) {
-                            try {
-                                accept(k);
-                            } catch (Throwable e) {
-                                if (e instanceof Error) {
-                                    e.printStackTrace(System.err);
-                                }
-                            }
+                            accept(k);
                         }
                         sks.clear();
                     }
