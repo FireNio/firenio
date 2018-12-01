@@ -27,7 +27,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -61,7 +60,7 @@ public final class NioSocketChannel extends AttributesImpl
     private static final int                    SSL_PACKET_LIMIT      = 1024 * 64;
     private static final SSLException           SSL_PACKET_OVER_LIMIT = SSL_PACKET_OVER_LIMIT();
     private static final SSLException           SSL_UNWRAP_OVER_LIMIT = SSL_UNWRAP_OVER_LIMIT();
-    
+
     private final SocketChannel                 channel;
     private final Integer                       channelId;
     private ProtocolCodec                       codec;
@@ -288,7 +287,7 @@ public final class NioSocketChannel extends AttributesImpl
             }
             writeBufs.offer(buf);
             if (isClosed()) {
-                Util.release(writeBufs.poll());
+                Util.release(buf);
                 return;
             }
             //FIXME 确认这里这么判断是否有问题
@@ -316,82 +315,81 @@ public final class NioSocketChannel extends AttributesImpl
         flush(buf);
     }
 
-    //FIXME ..使用该方法貌似会性能下降？查找原因
-    public void flush(List<ByteBuf> bufs) {
-        if (bufs != null && !bufs.isEmpty()) {
-            if (inEventLoop()) {
-                if (isClosed()) {
-                    Util.release(bufs);
-                    return;
-                }
-                final int bufsSize = bufs.size();
-                final Queue<ByteBuf> writeBufs = this.writeBufs;
-                if (writeBufs.isEmpty()) {
-                    final ByteBuf[] currentWriteBufs = this.currentWriteBufs;
-                    final int maxLen = currentWriteBufs.length;
-                    int currentWriteBufsLen = this.currentWriteBufsLen;
-                    if (currentWriteBufsLen == 0) {
-                        if (bufsSize > maxLen) {
-                            for (int i = 0; i < maxLen; i++) {
-                                currentWriteBufs[i] = bufs.get(i);
-                            }
-                            for (int i = maxLen; i < bufsSize; i++) {
-                                writeBufs.offer(bufs.get(i));
-                            }
-                            this.currentWriteBufsLen = maxLen;
-                        } else {
-                            for (int i = 0; i < bufsSize; i++) {
-                                currentWriteBufs[i] = bufs.get(i);
-                            }
-                            this.currentWriteBufsLen = bufsSize;
-                        }
-                    } else {
-                        final int currentRemain = maxLen - currentWriteBufsLen;
-                        if (bufsSize > currentRemain) {
-                            for (int i = 0; i < currentRemain; i++) {
-                                currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
-                            }
-                            for (int i = currentRemain; i < bufsSize; i++) {
-                                writeBufs.offer(bufs.get(i));
-                            }
-                            this.currentWriteBufsLen = maxLen;
-                        } else {
-                            for (int i = 0; i < bufsSize; i++) {
-                                currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
-                            }
-                            this.currentWriteBufsLen += bufsSize;
-                        }
-                    }
-                } else {
-                    for (ByteBuf buf : bufs) {
-                        writeBufs.offer(buf);
-                    }
-                }
-                if (!inEventBuffer) {
-                    inEventBuffer = true;
-                    eventLoop.flush(this);
-                }
-            } else {
-                Queue<ByteBuf> writeBufs = this.writeBufs;
-                if (isClosed()) {
-                    Util.release(bufs);
-                    return;
-                }
-                for (ByteBuf buf : bufs) {
-                    writeBufs.offer(buf);
-                }
-                if (isClosed()) {
-                    releaseWriteBufQueue();
-                    return;
-                }
-                //FIXME 确认这里这么判断是否有问题
-                if (writeBufs.size() != bufs.size()) {
-                    return;
-                }
-                eventLoop.flushAndWakeup(this);
-            }
-        }
-    }
+    //    public void flush(List<ByteBuf> bufs) {
+    //        if (bufs != null && !bufs.isEmpty()) {
+    //            if (inEventLoop()) {
+    //                if (isClosed()) {
+    //                    Util.release(bufs);
+    //                    return;
+    //                }
+    //                final int bufsSize = bufs.size();
+    //                final Queue<ByteBuf> writeBufs = this.writeBufs;
+    //                if (writeBufs.isEmpty()) {
+    //                    final ByteBuf[] currentWriteBufs = this.currentWriteBufs;
+    //                    final int maxLen = currentWriteBufs.length;
+    //                    int currentWriteBufsLen = this.currentWriteBufsLen;
+    //                    if (currentWriteBufsLen == 0) {
+    //                        if (bufsSize > maxLen) {
+    //                            for (int i = 0; i < maxLen; i++) {
+    //                                currentWriteBufs[i] = bufs.get(i);
+    //                            }
+    //                            for (int i = maxLen; i < bufsSize; i++) {
+    //                                writeBufs.offer(bufs.get(i));
+    //                            }
+    //                            this.currentWriteBufsLen = maxLen;
+    //                        } else {
+    //                            for (int i = 0; i < bufsSize; i++) {
+    //                                currentWriteBufs[i] = bufs.get(i);
+    //                            }
+    //                            this.currentWriteBufsLen = bufsSize;
+    //                        }
+    //                    } else {
+    //                        final int currentRemain = maxLen - currentWriteBufsLen;
+    //                        if (bufsSize > currentRemain) {
+    //                            for (int i = 0; i < currentRemain; i++) {
+    //                                currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
+    //                            }
+    //                            for (int i = currentRemain; i < bufsSize; i++) {
+    //                                writeBufs.offer(bufs.get(i));
+    //                            }
+    //                            this.currentWriteBufsLen = maxLen;
+    //                        } else {
+    //                            for (int i = 0; i < bufsSize; i++) {
+    //                                currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
+    //                            }
+    //                            this.currentWriteBufsLen += bufsSize;
+    //                        }
+    //                    }
+    //                } else {
+    //                    for (ByteBuf buf : bufs) {
+    //                        writeBufs.offer(buf);
+    //                    }
+    //                }
+    //                if (!inEventBuffer) {
+    //                    inEventBuffer = true;
+    //                    eventLoop.flush(this);
+    //                }
+    //            } else {
+    //                Queue<ByteBuf> writeBufs = this.writeBufs;
+    //                if (isClosed()) {
+    //                    Util.release(bufs);
+    //                    return;
+    //                }
+    //                for (ByteBuf buf : bufs) {
+    //                    writeBufs.offer(buf);
+    //                }
+    //                if (isClosed()) {
+    //                    releaseWriteBufQueue();
+    //                    return;
+    //                }
+    //                //FIXME 确认这里这么判断是否有问题
+    //                if (writeBufs.size() != bufs.size()) {
+    //                    return;
+    //                }
+    //                eventLoop.flushAndWakeup(this);
+    //            }
+    //        }
+    //    }
 
     public Integer getChannelId() {
         return channelId;
@@ -709,6 +707,7 @@ public final class NioSocketChannel extends AttributesImpl
             try {
                 write(selKey.interestOps());
             } catch (Exception e) {
+                printException(logger, e);
                 close();
             }
         }
@@ -1043,9 +1042,8 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private static SSLException SSL_PACKET_OVER_LIMIT() {
-        return Util.unknownStackTrace(
-                new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"), NioSocketChannel.class,
-                "isEnoughSslUnwrap()");
+        return Util.unknownStackTrace(new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"),
+                NioSocketChannel.class, "isEnoughSslUnwrap()");
     }
 
     private static SSLException SSL_UNWRAP_OVER_LIMIT() {

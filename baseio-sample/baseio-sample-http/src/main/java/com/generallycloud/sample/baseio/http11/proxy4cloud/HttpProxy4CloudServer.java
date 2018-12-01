@@ -40,9 +40,9 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class HttpProxy4CloudServer {
 
-        static final String                netHost         = "47.52.62.51";
+//        static final String                netHost         = "47.52.62.51";
         static final int                   netPort         = 18088;
-//    static final String                netHost         = "127.0.0.1";
+    static final String                netHost         = "127.0.0.1";
     static final String                CONNECT_RES     = "HTTP/1.1 200 Connection Established\r\n\r\n";
     static final ByteBuf               CONNECT_RES_BUF = ByteBufUtil.wrap(CONNECT_RES.getBytes());
     static final HttpProxy4CloudServer server          = new HttpProxy4CloudServer();

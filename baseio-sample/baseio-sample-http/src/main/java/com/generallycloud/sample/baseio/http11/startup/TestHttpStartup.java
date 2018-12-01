@@ -29,7 +29,8 @@ import com.generallycloud.baseio.container.URLDynamicClassLoader;
 public class TestHttpStartup {
 
     public static void main(String[] args) throws Exception {
-
+        
+        Options.setByteBufDebug(true);
         Options.setDevelopDebug(true);
         ApplicationBootstrap.startup(
                 "com.generallycloud.sample.baseio.http11.startup.TestHttpBootstrapEngine",

@@ -23,11 +23,12 @@ import com.generallycloud.baseio.common.Util;
  */
 public class Options {
 
-    static final String DEVELOP_DEBUG          = "com.generallycloud.baseio.develop.debug";
+    static final String DEVELOP_DEBUG          = "com.generallycloud.baseio.developDebug";
     static final String DISABLE_OPENSSL        = "com.generallycloud.baseio.ssl.disableOpenSsl";
     static final String OPENSSL_PATH           = "org.wildfly.openssl.path";
     static final String SSL_UNWRAP_BUFFER_SIZE = "com.generallycloud.baseio.ssl.unwrapBufferSize";
     static final String CHANNEL_READ_FIRST     = "com.generallycloud.baseio.channelReadFirst";
+    static final String BYTEBUF_DEBUG          = "com.generallycloud.baseio.bytebufDebug";
 
     public static String getOpensslPath() {
         return System.getProperty(OPENSSL_PATH);
@@ -41,6 +42,10 @@ public class Options {
         return Util.isSystemTrue(DEVELOP_DEBUG);
     }
 
+    public static boolean isByteBufDebug() {
+        return Util.isSystemTrue(BYTEBUF_DEBUG);
+    }
+
     public static boolean isChannelReadFirst() {
         return Util.isSystemTrue(CHANNEL_READ_FIRST);
     }
@@ -51,6 +56,10 @@ public class Options {
 
     public static void setDevelopDebug(boolean debug) {
         System.setProperty(DEVELOP_DEBUG, String.valueOf(debug));
+    }
+
+    public static void setByteBufDebug(boolean debug) {
+        System.setProperty(BYTEBUF_DEBUG, String.valueOf(debug));
     }
 
     public static void setChannelReadFirst(boolean channelReadFirst) {

@@ -46,6 +46,8 @@ import com.generallycloud.baseio.buffer.ByteBufAllocator;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
 import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.collection.Attributes;
+import com.generallycloud.baseio.collection.DelayedQueue;
+import com.generallycloud.baseio.collection.DelayedQueue.DelayTask;
 import com.generallycloud.baseio.collection.IntArray;
 import com.generallycloud.baseio.collection.IntMap;
 import com.generallycloud.baseio.common.Util;
@@ -80,9 +82,9 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private final SelectionKeySet          selectionKeySet;
     private Selector                       selector;
     private final boolean                  sharable;
-    // true eventLooper, false offerer
     private final AtomicInteger            wakener            = new AtomicInteger();
     private ByteBuffer[]                   writeBuffers;
+    private DelayedQueue                   delayedQueue       = new DelayedQueue();
 
     NioEventLoop(NioEventLoopGroup group, int index) {
         this.index = index;
@@ -195,6 +197,15 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
+    protected void cancelConnect(SocketChannel channel) {
+        SelectionKey key = channel.keyFor(selector);
+        if (key != null) {
+            int ops = key.interestOps();
+            ops &= ~SelectionKey.OP_CONNECT;
+            key.interestOps(ops);
+        }
+    }
+
     private void readExceptionCaught(NioSocketChannel ch, Throwable ex) {
         ch.close();
         if (DEBUG) {
@@ -240,7 +251,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         long lastIdleTime = this.lastIdleTime;
         this.lastIdleTime = currentTime;
         IntMap<NioSocketChannel> channels = this.channels;
-        if (channels.size() == 0) {
+        if (channels.isEmpty()) {
             return;
         }
         //FIXME ..optimize sharable group
@@ -257,13 +268,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 }
             }
         } else {
-            if (channels.size() > 0) {
-                ChannelContext context = group.getContext();
-                List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
-                for (ChannelIdleEventListener l : ls) {
-                    for (NioSocketChannel ch : channels.values()) {
-                        channelIdle(l, ch, lastIdleTime, currentTime);
-                    }
+            ChannelContext context = group.getContext();
+            List<ChannelIdleEventListener> ls = context.getChannelIdleEventListeners();
+            for (ChannelIdleEventListener l : ls) {
+                for (NioSocketChannel ch : channels.values()) {
+                    channelIdle(l, ch, lastIdleTime, currentTime);
                 }
             }
         }
@@ -348,7 +357,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     private void handleEvents(Queue<Runnable> events) {
-        if (events.size() > 0) {
+        if (!events.isEmpty()) {
             for (;;) {
                 Runnable event = events.poll();
                 if (event == null) {
@@ -360,6 +369,14 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     logger.error(e.getMessage(), e);
                 }
             }
+        }
+    }
+
+    protected void schedule(DelayTask task) {
+        if (inEventLoop()) {
+            delayedQueue.offer(task);
+        } else {
+            executeAfterLoop(task);
         }
     }
 
@@ -433,7 +450,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
 
     private void removeClosedChannels() {
         IntArray list = preCloseChIds;
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             return;
         }
         for (int i = 0, count = list.size(); i < count; i++) {
@@ -451,6 +468,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         final AtomicInteger selecting = this.selecting;
         final SelectionKeySet keySet = this.selectionKeySet;
         final Queue<Runnable> events = this.events;
+        final DelayedQueue dq = this.delayedQueue;
         long nextIdle = 0;
         long selectTime = idle;
         for (;;) {
@@ -474,21 +492,19 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 int selected;
                 if (hasTask) {
                     selected = selector.selectNow();
-                    hasTask = false;
                 } else {
                     if (selecting.compareAndSet(0, 1)) {
-                        if (hasTask) {
+                        if (!events.isEmpty()) {
                             selected = selector.selectNow();
                         } else {
                             selected = selector.select(selectTime);
                         }
-                        hasTask = false;
                         selecting.set(0);
                     } else {
                         selected = selector.selectNow();
-                        hasTask = false;
                     }
                 }
+                hasTask = false;
                 if (selected > 0) {
                     if (ENABLE_SELKEY_SET) {
                         for (int i = 0; i < keySet.size; i++) {
@@ -514,6 +530,32 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     selectTime = nextIdle - now;
                 }
                 handleEvents(events);
+                if (!dq.isEmpty()) {
+                    for (;;) {
+                        DelayTask t = dq.peek();
+                        if (t == null) {
+                            break;
+                        }
+                        if (t.isCanceled()) {
+                            dq.poll();
+                            continue;
+                        }
+                        long delay = t.getDelay();
+                        if (delay >= now) {
+                            dq.poll();
+                            try {
+                                t.run();
+                            } catch (Exception e) {
+                                printException(logger, e);
+                            }
+                            continue;
+                        }
+                        if (delay < nextIdle) {
+                            selectTime = delay - now;
+                        }
+                        break;
+                    }
+                }
                 removeClosedChannels();
             } catch (Throwable e) {
                 printException(logger, e);

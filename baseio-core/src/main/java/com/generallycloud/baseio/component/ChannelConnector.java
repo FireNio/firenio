@@ -22,6 +22,7 @@ import java.nio.channels.SocketChannel;
 
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.TimeoutException;
+import com.generallycloud.baseio.collection.DelayedQueue.DelayTask;
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.concurrent.Callback;
@@ -36,7 +37,9 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     private NioSocketChannel                    ch;
     private NioEventLoop                        eventLoop;
     private SocketChannel                       javaChannel;
+    private volatile boolean                    callbacked = true;
     private volatile Callback<NioSocketChannel> callback;
+    private volatile DelayTask                  timeoutTask;
 
     public ChannelConnector(int port) {
         this("127.0.0.1", port);
@@ -76,11 +79,19 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
     public synchronized NioSocketChannel connect(long timeout) throws IOException {
         ConnectCallback<NioSocketChannel> callback = new ConnectCallback<>();
+        this.timeoutTask = new TimeoutTask(this, timeout);
         this.connect(callback);
         if (eventLoop.inEventLoop()) {
             throw new IOException("can not blocking connect in its event loop");
         }
         if (callback.await(timeout)) {
+            eventLoop.executeAfterLoop(new Runnable() {
+
+                @Override
+                public void run() {
+                    timeoutTask.cancel();
+                }
+            });
             Util.close(this);
             throw new TimeoutException("connect to " + getServerAddress() + " time out");
         }
@@ -95,12 +106,17 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         return getChannel();
     }
 
+    protected void cancelConnect() {
+        eventLoop.cancelConnect(javaChannel);
+    }
+
     public synchronized void connect(Callback<NioSocketChannel> callback) throws IOException {
         Assert.notNull(callback, "null callback");
         if (isConnected()) {
             callback.call(ch, null);
             return;
         }
+        this.callbacked = false;
         this.callback = callback;
         this.getProcessorGroup().setContext(this);
         LifeCycleUtil.start(getProcessorGroup());
@@ -115,8 +131,10 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
             @Override
             public void run() {
                 try {
-                    if (!javaChannel.connect(getServerAddress())) {
-                        eventLoop.registSelector(ChannelConnector.this, SelectionKey.OP_CONNECT);
+                    javaChannel.connect(getServerAddress());
+                    eventLoop.registSelector(ChannelConnector.this, SelectionKey.OP_CONNECT);
+                    if (timeoutTask != null) {
+                        eventLoop.schedule(timeoutTask);
                     }
                 } catch (Throwable e) {
                     channelEstablish(null, e);
@@ -127,8 +145,11 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
     @Override
     protected void channelEstablish(NioSocketChannel ch, Throwable ex) {
-        this.ch = ch;
-        this.callback.call(ch, ex);
+        if (!callbacked) {
+            this.callbacked = true;
+            this.ch = ch;
+            this.callback.call(ch, ex);
+        }
     }
 
     public NioSocketChannel getChannel() {
@@ -167,20 +188,33 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
         @Override
         public void call(T res, Throwable ex) {
-            if (!isDnoe) {
-                synchronized (this) {
-                    if (!isDnoe) {
-                        this.isDnoe = true;
-                        this.response = res;
-                        this.throwable = ex;
-                        this.notify();
-                        if (isTimeouted()) {
-                            Util.close((Closeable) res);
-                        }
-                    }
+            synchronized (this) {
+                this.isDnoe = true;
+                this.response = res;
+                this.throwable = ex;
+                this.notify();
+                if (isTimeouted()) {
+                    Util.close((Closeable) res);
                 }
             }
         }
+    }
+
+    class TimeoutTask extends DelayTask {
+
+        final ChannelConnector connector;
+
+        public TimeoutTask(ChannelConnector connector, long delay) {
+            super(delay);
+            this.connector = connector;
+        }
+
+        @Override
+        public void run() {
+            connector.cancelConnect();
+            connector.channelEstablish(null, new TimeoutException("connect timeout"));
+        }
+
     }
 
 }

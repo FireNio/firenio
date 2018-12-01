@@ -26,7 +26,6 @@ import com.generallycloud.baseio.codec.http11.HttpCodec;
 import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpMethod;
-import com.generallycloud.baseio.codec.http11.HttpStatus;
 import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -44,18 +43,9 @@ public class HttpProxyServer {
     static final ByteBuf         CONNECT_RES_BUF = ByteBufUtil.wrap(CONNECT_RES.getBytes());
     static final HttpProxyServer server          = new HttpProxyServer();
     private ChannelAcceptor      context;
-    private volatile boolean     enable          = true;
 
     public synchronized void stop() {
         Util.unbind(context);
-    }
-
-    public void enable() {
-        enable = true;
-    }
-
-    public void disable() {
-        enable = false;
     }
 
     public synchronized void strtup(NioEventLoopGroup group, int port) throws Exception {
@@ -68,12 +58,6 @@ public class HttpProxyServer {
             @Override
             public void accept(NioSocketChannel ch_src, Frame frame) throws Exception {
                 final HttpFrame f = (HttpFrame) frame;
-                if (!enable) {
-                    f.setStatus(HttpStatus.C503);
-                    f.write("503 service unavailable".getBytes());
-                    ch_src.flush(f);
-                    return;
-                }
                 if (f.getMethod() == HttpMethod.CONNECT) {
                     ch_src.flush(CONNECT_RES_BUF.duplicate());
                     ProxySession s = ProxySession.get(ch_src);
