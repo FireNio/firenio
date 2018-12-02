@@ -45,7 +45,8 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public class HttpCodec extends ProtocolCodec {
 
     static final byte[]                    CONTENT_LENGTH        = b("\r\nContent-Length: ");
-    static final ThreadLocal<DBsH>         dateBytes             = new ThreadLocal<>();
+    static final HttpDateTimeClock         httpDateTimeClock     = new HttpDateTimeClock();
+    //    static final ThreadLocal<DBsH>         dateBytes             = new ThreadLocal<>();
     static final int                       decode_state_body     = 2;
     static final int                       decode_state_complate = 3;
     static final int                       decode_state_header   = 1;
@@ -105,21 +106,84 @@ public class HttpCodec extends ProtocolCodec {
         return f;
     }
 
+    static final boolean DECODE_WITH_SWITCH = true;
+
     @Override
     public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
         HttpFrame f = allocHttpFrame(ch);
         StringBuilder line = FastThreadLocal.get().getStringBuilder();
-        switch (f.decode_state) {
-            case decode_state_line_one:
-                if (readLine(line, src, f.headerLength)) {
+        if (DECODE_WITH_SWITCH) {
+            DECODE: switch (f.decode_state) {
+                case decode_state_line_one:
+                    if (readLine(line, src, f.headerLength, headerLimit)) {
+                        f.headerLength += line.length();
+                        f.decode_state = decode_state_header;
+                        parseFirstLine(f, line);
+                    }
+                case decode_state_header:
+                    for (;;) {
+                        line.setLength(0);
+                        if (readLine(line, src, f.headerLength, headerLimit)) {
+                            f.headerLength += line.length();
+                            if (line.length() == 0) {
+                                int contentLength = 0;
+                                String clength = f.getReadHeader(Content_Length);
+                                String ctype = f.getReadHeader(Content_Type);
+                                String cookie = f.getReadHeader(Cookie);
+                                parseContentType(f, ctype);
+                                if (!Util.isNullOrBlank(clength)) {
+                                    contentLength = Integer.parseInt(clength);
+                                    f.contentLength = contentLength;
+                                }
+                                if (!Util.isNullOrBlank(cookie)) {
+                                    parse_cookies(f, cookie);
+                                }
+                                if (contentLength < 1) {
+                                    f.decode_state = decode_state_complate;
+                                    break DECODE;
+                                } else {
+                                    if (contentLength > bodyLimit) {
+                                        // maybe can write to a temp file
+                                        throw new IOException("over limit:" + clength);
+                                    }
+                                    f.decode_state = decode_state_body;
+                                }
+                                break;
+                            } else {
+                                int p = Util.indexOf(line, ':');
+                                if (p == -1) {
+                                    continue;
+                                }
+                                int rp = Util.skip(line, ' ', p + 1);
+                                String name = line.substring(0, p);
+                                String value = line.substring(rp);
+                                f.setReadHeader(name, value);
+                            }
+                        }
+                    }
+                case decode_state_body:
+                    decodeRemainBody(ch, src, f);
+            }
+            if (f.decode_state == decode_state_complate) {
+                doCompplete(ch, f);
+                return f;
+            } else {
+                ch.setAttribute(FRAME_DECODE_KEY, f);
+                return null;
+            }
+        } else {
+            int decode_state = f.decode_state;
+            if (decode_state == decode_state_line_one) {
+                if (readLine(line, src, f.headerLength, headerLimit)) {
                     f.headerLength += line.length();
-                    f.decode_state = decode_state_header;
+                    decode_state = decode_state_header;
                     parseFirstLine(f, line);
                 }
-            case decode_state_header:
+            }
+            if (decode_state == decode_state_header) {
                 for (;;) {
                     line.setLength(0);
-                    if (readLine(line, src, f.headerLength)) {
+                    if (readLine(line, src, f.headerLength, headerLimit)) {
                         f.headerLength += line.length();
                         if (line.length() == 0) {
                             int contentLength = 0;
@@ -135,13 +199,13 @@ public class HttpCodec extends ProtocolCodec {
                                 parse_cookies(f, cookie);
                             }
                             if (contentLength < 1) {
-                                f.decode_state = decode_state_complate;
+                                decode_state = decode_state_complate;
                             } else {
                                 if (contentLength > bodyLimit) {
                                     // maybe can write to a temp file
                                     throw new IOException("over limit:" + clength);
                                 }
-                                f.decode_state = decode_state_body;
+                                decode_state = decode_state_body;
                             }
                             break;
                         } else {
@@ -149,21 +213,25 @@ public class HttpCodec extends ProtocolCodec {
                             if (p == -1) {
                                 continue;
                             }
-                            String name = line.substring(0, p).trim();
-                            String value = line.substring(p + 1).trim();
+                            int rp = Util.skip(line, ' ', p + 1);
+                            String name = line.substring(0, p);
+                            String value = line.substring(rp);
                             f.setReadHeader(name, value);
                         }
                     }
                 }
-            case decode_state_body:
+            }
+            if (decode_state == decode_state_body) {
                 decodeRemainBody(ch, src, f);
-        }
-        if (f.decode_state == decode_state_complate) {
-            doCompplete(ch, f);
-            return f;
-        } else {
-            ch.setAttribute(FRAME_DECODE_KEY, f);
-            return null;
+            }
+            if (f.decode_state == decode_state_complate) {
+                doCompplete(ch, f);
+                return f;
+            } else {
+                f.decode_state = decode_state;
+                ch.setAttribute(FRAME_DECODE_KEY, f);
+                return null;
+            }
         }
     }
 
@@ -198,11 +266,15 @@ public class HttpCodec extends ProtocolCodec {
     public ByteBuf encode(final NioSocketChannel ch, Frame frame) throws IOException {
         HttpFrame f = (HttpFrame) frame;
         f.setResponseHeader(Date, getHttpDateBytes());
-        int write_size = f.getWriteSize();
+        byte[] byte32 = FastThreadLocal.get().getBytes32();
         byte[] status_bytes = f.getStatus().getBinary();
-        byte[] length_bytes = String.valueOf(write_size).getBytes();
-        int len = PROTOCOL.length + status_bytes.length + CONTENT_LENGTH.length
-                + length_bytes.length + 2;
+        int write_size = f.getWriteSize();
+        int len_idx = Util.valueOf(write_size, byte32);
+        int len_len = 32 - len_idx;
+        int plen = PROTOCOL.length;
+        int clen = CONTENT_LENGTH.length;
+        int status_len = status_bytes.length;
+        int len = plen + status_len + clen + len_len + 2;
         List<byte[]> encode_bytes_array = getEncodeBytesArray();
         int header_size = 0;
         int cookie_size = 0;
@@ -236,7 +308,7 @@ public class HttpCodec extends ProtocolCodec {
         buf.put(PROTOCOL);
         buf.put(status_bytes);
         buf.put(CONTENT_LENGTH);
-        buf.put(length_bytes);
+        buf.put(byte32, len_idx, len_len);
         buf.putByte(R);
         buf.putByte(N);
         int j = 0;
@@ -271,17 +343,18 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     private byte[] getHttpDateBytes() {
-        DBsH h = dateBytes.get();
-        if (h == null) {
-            h = new DBsH();
-            dateBytes.set(h);
-        }
-        long now = System.currentTimeMillis();
-        if (now > h.time) {
-            h.time = now + 1000;
-            h.value = DateUtil.get().formatHttpBytes(now);
-        }
-        return h.value;
+        return DateUtil.get().formatHttpBytes(httpDateTimeClock.time);
+        //        DBsH h = dateBytes.get();
+        //        if (h == null) {
+        //            h = new DBsH();
+        //            dateBytes.set(h);
+        //        }
+        //        long now = System.currentTimeMillis();
+        //        if (now > h.time) {
+        //            h.time = now + 1000;
+        //            h.value = DateUtil.get().formatHttpBytes(now);
+        //        }
+        //        return h.value;
     }
 
     public int getHttpFrameStackSize() {
@@ -302,8 +375,9 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     @Override
-    public void initialize(ChannelContext context) {
+    public void initialize(ChannelContext context) throws Exception {
         WebSocketCodec.init(context, websocketLimit, websocketStackSize);
+        Util.exec(httpDateTimeClock, "HttpDateTimeClock");
     }
 
     private void parse_cookies(HttpFrame f, String line) {
@@ -375,7 +449,7 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     protected void parseRequestURL(HttpFrame f, int skip, StringBuilder line) {
-        int index = line.indexOf("?");
+        int index = Util.indexOf(line, '?');
         int lastSpace = Util.lastIndexOf(line, ' ');
         if (index > -1) {
             String paramString = line.substring(index + 1, lastSpace);
@@ -386,11 +460,13 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    private boolean readLine(StringBuilder line, ByteBuf src, int length) throws IOException {
+    private static boolean readLine(StringBuilder line, ByteBuf src, int length, int limit)
+            throws IOException {
         src.markP();
+        int len = length;
         for (; src.hasRemaining();) {
-            if (++length > headerLimit) {
-                throw new IOException("max http header length " + headerLimit);
+            if (++len > limit) {
+                throw new IOException("max http header length " + limit);
             }
             byte b = src.getByte();
             if (b == N) {
@@ -441,12 +517,39 @@ public class HttpCodec extends ProtocolCodec {
         return array;
     }
 
+    @Override
+    public void destory(ChannelContext context) {
+        httpDateTimeClock.stop();
+    }
+
     protected static String parseBoundary(String contentType) {
         int index = KMP_BOUNDARY.match(contentType);
         if (index != -1) {
             return contentType.substring(index + 9);
         }
         return null;
+    }
+
+    static class HttpDateTimeClock implements Runnable {
+
+        volatile boolean running;
+
+        volatile long    time;
+
+        @Override
+        public void run() {
+            running = true;
+            for (; running;) {
+                time = System.currentTimeMillis();
+                Util.sleep(1000);
+            }
+        }
+
+        void stop() {
+            running = false;
+            Thread.currentThread().interrupt();
+        }
+
     }
 
 }

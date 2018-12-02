@@ -38,18 +38,23 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
     private static final int                          maxIndexedVarsSize = 16;
     private static final ThreadLocal<FastThreadLocal> slowThreadLocal    = new ThreadLocal<>();
 
+    private byte[]                                    bytes32            = new byte[32];
     private Map<Charset, CharsetDecoder>              charsetDecoders    = new IdentityHashMap<>();
     private Map<Charset, CharsetEncoder>              charsetEncoders    = new IdentityHashMap<>();
     private Object[]                                  indexedVariables   = new Object[maxIndexedVarsSize];
     private ByteBuf                                   sslUnwrapBuf;
     private ByteBuf                                   sslWrapBuf;
-    private StringBuilder                             stringBuilder = new StringBuilder(512);
+    private StringBuilder                             stringBuilder      = new StringBuilder(512);
 
     FastThreadLocal() {}
 
     private void destroy0() {
         Util.release(sslWrapBuf);
         Util.release(sslUnwrapBuf);
+    }
+
+    public byte[] getBytes32() {
+        return bytes32;
     }
 
     public CharsetDecoder getCharsetDecoder(Charset charset) {
@@ -73,14 +78,14 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
     public Object getIndexedVariable(int index) {
         return indexedVariables[index];
     }
-
+    
     public ByteBuf getSslUnwrapBuf() {
         if (sslUnwrapBuf == null) {
             sslUnwrapBuf = ByteBufUtil.direct(SslContext.SSL_UNWRAP_BUFFER_SIZE);
         }
         return sslUnwrapBuf;
     }
-    
+
     public ByteBuf getSslWrapBuf() {
         if (sslWrapBuf == null) {
             sslWrapBuf = ByteBufUtil.direct(SslContext.SSL_PACKET_BUFFER_SIZE);
@@ -123,7 +128,7 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
             return l;
         }
     }
-    
+
     public static int nextIndexedVariablesIndex() {
         if (indexedVarsIndex.get() >= maxIndexedVarsSize) {
             return -1;

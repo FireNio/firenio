@@ -27,6 +27,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -113,13 +114,25 @@ public final class NioSocketChannel extends AttributesImpl
         this.remoteAddrPort = remoteAddr + ":" + remotePort;
         this.localAddr = local.getAddress().getHostAddress();
         this.localPort = local.getPort();
-        this.desc = "[id(0x" + idhex + ")R/" + remoteAddrPort + "; L:" + getLocalPort() + "]";
+        this.desc = newDesc(idhex, remoteAddrPort);
         if (ctx.isEnableSsl()) {
             this.sslEngine = ctx.getSslContext().newEngine(remoteAddr, remotePort);
         } else {
             this.sslHandshakeFinished = true;
             this.sslEngine = null;
         }
+    }
+
+    private String newDesc(String idhex, String remoteAddrPort) {
+        StringBuilder sb = FastThreadLocal.get().getStringBuilder();
+        sb.append("[id(0x");
+        sb.append(idhex);
+        sb.append(")R/");
+        sb.append(remoteAddrPort);
+        sb.append("; L:");
+        sb.append(getLocalPort());
+        sb.append("]");
+        return sb.toString();
     }
 
     private void accept(ByteBuf src) throws IOException {
@@ -223,7 +236,7 @@ public final class NioSocketChannel extends AttributesImpl
     private void execute(Runnable event) {
         eventLoop.execute(event);
     }
-    
+
     protected boolean isSslHandshakeFinished() {
         return sslHandshakeFinished;
     }
@@ -248,7 +261,9 @@ public final class NioSocketChannel extends AttributesImpl
 
     protected void fireOpend() {
         final NioSocketChannel ch = this;
-        for (ChannelEventListener l : context.getChannelEventListeners()) {
+        List<ChannelEventListener> ls = context.getChannelEventListeners();
+        for (int i = 0, count = ls.size(); i < count; i++) {
+            ChannelEventListener l = ls.get(i);
             try {
                 l.channelOpened(ch);
             } catch (Exception e) {

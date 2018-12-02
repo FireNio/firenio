@@ -45,7 +45,9 @@ public class Util {
 
     private static final boolean enableGetStringValueField;
 
-    private static final Logger logger = LoggerFactory.getLogger(Util.class);
+    private static final Logger  logger = LoggerFactory.getLogger(Util.class);
+
+    private static byte[] NUMS = new byte[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
     private static final Field   stringValueField;
 
@@ -70,6 +72,39 @@ public class Util {
             stringValueField = (Field) res;
         } else {
             stringValueField = null;
+        }
+    }
+
+    public static void close(AutoCloseable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+        }
+    }
+
+    public static void close(Closeable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+        }
+    }
+
+    public static void close(Selector selector) {
+        if (selector == null) {
+            return;
+        }
+        try {
+            selector.close();
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
         }
     }
 
@@ -153,6 +188,7 @@ public class Util {
         cs.add(clazz);
         return cs.toArray(new Class[cs.size()]);
     }
+
     public static int getProperty(String key) {
         return getProperty(key, 0);
     }
@@ -210,8 +246,12 @@ public class Util {
     }
 
     public static int indexOf(StringBuilder sb, char ch) {
+        return indexOf(sb, ch, 0);
+    }
+
+    public static int indexOf(StringBuilder sb, char ch, int index) {
         int count = sb.length();
-        for (int i = 0; i < count; i++) {
+        for (int i = index; i < count; i++) {
             if (ch == sb.charAt(i)) {
                 return i;
             }
@@ -298,14 +338,6 @@ public class Util {
         System.out.println();
     }
 
-    public static String randomUUID() {
-        UUID uuid = UUID.randomUUID();
-        byte[] array = new byte[16];
-        ByteUtil.long2Byte(array, uuid.getMostSignificantBits(), 0);
-        ByteUtil.long2Byte(array, uuid.getLeastSignificantBits(), 8);
-        return ByteUtil.bytes2HexString(array);
-    }
-
     public static String randomLeastSignificantBits() {
         UUID uuid = UUID.randomUUID();
         byte[] array = new byte[8];
@@ -317,6 +349,14 @@ public class Util {
         UUID uuid = UUID.randomUUID();
         byte[] array = new byte[8];
         ByteUtil.long2Byte(array, uuid.getMostSignificantBits(), 0);
+        return ByteUtil.bytes2HexString(array);
+    }
+
+    public static String randomUUID() {
+        UUID uuid = UUID.randomUUID();
+        byte[] array = new byte[16];
+        ByteUtil.long2Byte(array, uuid.getMostSignificantBits(), 0);
+        ByteUtil.long2Byte(array, uuid.getLeastSignificantBits(), 8);
         return ByteUtil.bytes2HexString(array);
     }
 
@@ -362,6 +402,20 @@ public class Util {
     public static void setValueOfLast(Object target, Object value, String fieldName) {
         Object last = getValueOfLast(target, fieldName);
         setObjectValue(last, value, fieldName);
+    }
+
+    public static int skip(StringBuilder sb, char ch) {
+        return skip(sb, ch, 0);
+    }
+
+    public static int skip(StringBuilder sb, char ch, int index) {
+        int count = sb.length();
+        for (int i = index; i < count; i++) {
+            if (ch != sb.charAt(i)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public static void sleep(long millis) {
@@ -437,11 +491,34 @@ public class Util {
         }
     }
 
+    public static void unbind(ChannelAcceptor unbindable) {
+        if (unbindable == null) {
+            return;
+        }
+        try {
+            unbindable.unbind();
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+        }
+    }
+
     public static <T extends Throwable> T unknownStackTrace(T cause, Class<?> clazz,
             String method) {
         cause.setStackTrace(new StackTraceElement[] {
                 new StackTraceElement(clazz.getName(), method, null, -1) });
         return cause;
+    }
+
+    public static int valueOf(int value, byte[] data) {
+        int v = value;
+        for (int i = data.length - 1; i > -1; i--) {
+            data[i] = NUMS[v % 10];
+            v = v / 10;
+            if (v == 0) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public static void wait(Object o) {
@@ -457,50 +534,6 @@ public class Util {
             try {
                 o.wait(timeout);
             } catch (InterruptedException e) {}
-        }
-    }
-    
-    public static void close(Closeable closeable) {
-        if (closeable == null) {
-            return;
-        }
-        try {
-            closeable.close();
-        } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-        }
-    }
-
-    public static void close(AutoCloseable closeable) {
-        if (closeable == null) {
-            return;
-        }
-        try {
-            closeable.close();
-        } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-        }
-    }
-
-    public static void close(Selector selector) {
-        if (selector == null) {
-            return;
-        }
-        try {
-            selector.close();
-        } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-        }
-    }
-
-    public static void unbind(ChannelAcceptor unbindable) {
-        if (unbindable == null) {
-            return;
-        }
-        try {
-            unbindable.unbind();
-        } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
         }
     }
 

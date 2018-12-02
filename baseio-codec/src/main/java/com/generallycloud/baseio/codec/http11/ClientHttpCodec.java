@@ -25,6 +25,7 @@ import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
 import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.component.FastThreadLocal;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.Frame;
 
@@ -54,80 +55,75 @@ public class ClientHttpCodec extends HttpCodec {
     public ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException {
         ClientHttpFrame f = (ClientHttpFrame) frame;
         int write_size = f.getWriteSize();
-        ByteBuf buf = null;
-        try {
-            byte[] url_bytes = getRequestURI(f).getBytes();
-            byte[] method_bytes = f.getMethod().getBytes();
-            byte[] length_bytes = String.valueOf(write_size).getBytes();
-            int len = method_bytes.length + 1 + url_bytes.length + PROTOCOL.length
-                    + length_bytes.length + 2;
-            List<byte[]> encode_bytes_array = getEncodeBytesArray();
-            int header_size = 0;
-            int cookie_size = 0;
-            Map<HttpHeader, String> headers = f.getRequestHeaders();
-            if (headers != null) {
-                headers.remove(HttpHeader.Content_Length);
-                for (Entry<HttpHeader, String> header : headers.entrySet()) {
-                    byte[] k = header.getKey().getBytes();
-                    byte[] v = header.getValue().getBytes();
-                    if (v == null) {
-                        continue;
-                    }
-                    header_size++;
-                    encode_bytes_array.add(k);
-                    encode_bytes_array.add(v);
-                    len += 4;
-                    len += k.length;
-                    len += v.length;
+        byte[] byte32 = FastThreadLocal.get().getBytes32();
+        byte[] url_bytes = getRequestURI(f).getBytes();
+        byte[] method_bytes = f.getMethod().getBytes();
+        int len_idx = Util.valueOf(write_size, byte32);
+        int len_len = 32 - len_idx;
+        int len = method_bytes.length + 1 + url_bytes.length + PROTOCOL.length + len_len + 2;
+        List<byte[]> encode_bytes_array = getEncodeBytesArray();
+        int header_size = 0;
+        int cookie_size = 0;
+        Map<HttpHeader, String> headers = f.getRequestHeaders();
+        if (headers != null) {
+            headers.remove(HttpHeader.Content_Length);
+            for (Entry<HttpHeader, String> header : headers.entrySet()) {
+                byte[] k = header.getKey().getBytes();
+                byte[] v = header.getValue().getBytes();
+                if (v == null) {
+                    continue;
                 }
+                header_size++;
+                encode_bytes_array.add(k);
+                encode_bytes_array.add(v);
+                len += 4;
+                len += k.length;
+                len += v.length;
             }
-            List<Cookie> cookieList = f.getCookieList();
-            if (cookieList != null && !cookieList.isEmpty()) {
-                len += COOKIE.length;
-                for (Cookie c : cookieList) {
-                    byte[] k = c.getName().getBytes();
-                    byte[] v = c.getValue().getBytes();
-                    cookie_size++;
-                    encode_bytes_array.add(k);
-                    encode_bytes_array.add(v);
-                    len += 2;
-                    len += k.length;
-                    len += v.length;
-                }
+        }
+        List<Cookie> cookieList = f.getCookieList();
+        if (cookieList != null && !cookieList.isEmpty()) {
+            len += COOKIE.length;
+            for (Cookie c : cookieList) {
+                byte[] k = c.getName().getBytes();
+                byte[] v = c.getValue().getBytes();
+                cookie_size++;
+                encode_bytes_array.add(k);
+                encode_bytes_array.add(v);
+                len += 2;
+                len += k.length;
+                len += v.length;
             }
-            len += 2;
-            len += write_size;
-            buf = ch.alloc().allocate(len);
-            buf.put(method_bytes);
+        }
+        len += 2;
+        len += write_size;
+        ByteBuf buf = ch.alloc().allocate(len);
+        buf.put(method_bytes);
+        buf.putByte(SPACE);
+        buf.put(url_bytes);
+        buf.put(PROTOCOL);
+        buf.put(byte32, len_idx, len_len);
+        buf.putByte(R);
+        buf.putByte(N);
+        int j = 0;
+        for (int i = 0; i < header_size; i++) {
+            buf.put(encode_bytes_array.get(j++));
+            buf.putByte((byte) ':');
             buf.putByte(SPACE);
-            buf.put(url_bytes);
-            buf.put(PROTOCOL);
-            buf.put(length_bytes);
+            buf.put(encode_bytes_array.get(j++));
             buf.putByte(R);
             buf.putByte(N);
-            int j = 0;
-            for (int i = 0; i < header_size; i++) {
-                buf.put(encode_bytes_array.get(j++));
-                buf.putByte((byte) ':');
-                buf.putByte(SPACE);
-                buf.put(encode_bytes_array.get(j++));
-                buf.putByte(R);
-                buf.putByte(N);
-            }
-            for (int i = 0; i < cookie_size; i++) {
-                buf.put(encode_bytes_array.get(j++));
-                buf.putByte((byte) ':');
-                buf.put(encode_bytes_array.get(j++));
-                buf.putByte(SEMICOLON);
-            }
-            buf.putByte(R);
-            buf.putByte(N);
-            if (write_size != 0) {
-                buf.put(f.getWriteBuffer(), 0, write_size);
-            }
-        } catch (Exception e) {
-            Util.release(buf);
-            throw e;
+        }
+        for (int i = 0; i < cookie_size; i++) {
+            buf.put(encode_bytes_array.get(j++));
+            buf.putByte((byte) ':');
+            buf.put(encode_bytes_array.get(j++));
+            buf.putByte(SEMICOLON);
+        }
+        buf.putByte(R);
+        buf.putByte(N);
+        if (write_size != 0) {
+            buf.put(f.getWriteBuffer(), 0, write_size);
         }
         return buf.flip();
     }
@@ -200,7 +196,7 @@ public class ClientHttpCodec extends HttpCodec {
     }
 
     @Override
-    public void initialize(ChannelContext context) {
+    public void initialize(ChannelContext context) throws Exception {
         WebSocketCodec.init(context, websocketLimit, websocketFrameStackSize);
     }
 

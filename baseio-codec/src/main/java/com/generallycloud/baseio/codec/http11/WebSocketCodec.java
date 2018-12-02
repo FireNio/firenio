@@ -251,7 +251,7 @@ public class WebSocketCodec extends ProtocolCodec {
         }
     }
 
-    static void init(ChannelContext context, int limit, int frameStackSize) {
+    static void init(ChannelContext context, int limit, int frameStackSize) throws Exception {
         WS_PROTOCOL_CODEC = new WebSocketCodec(limit, frameStackSize);
         WS_PROTOCOL_CODEC.initialize(context);
     }
