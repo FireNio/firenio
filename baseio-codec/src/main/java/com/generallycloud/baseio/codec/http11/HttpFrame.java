@@ -205,13 +205,14 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
         this.bodyArray = null;
         this.contentLength = 0;
         this.contentType = 0;
-        this.clear(cookieList);
-        this.clear(cookies);
         this.headerLength = 0;
         this.method = 0;
         this.requestURL = null;
         this.status = HttpStatus.C200;
         this.version = 0;
+        this.decode_state = HttpCodec.decode_state_line_one;
+        this.clear(cookieList);
+        this.clear(cookies);
         this.request_headers.clear();
         this.response_headers.clear();
         this.params.clear();
