@@ -46,7 +46,7 @@ public class HttpCodec extends ProtocolCodec {
 
     static final byte[]                    CONTENT_LENGTH        = b("\r\nContent-Length: ");
     static final HttpDateTimeClock         httpDateTimeClock     = new HttpDateTimeClock();
-    //    static final ThreadLocal<DBsH>         dateBytes             = new ThreadLocal<>();
+    static final ThreadLocal<DBsH>         dateBytes             = new ThreadLocal<>();
     static final int                       decode_state_body     = 2;
     static final int                       decode_state_complate = 3;
     static final int                       decode_state_header   = 1;
@@ -343,18 +343,17 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     private byte[] getHttpDateBytes() {
-        return DateUtil.get().formatHttpBytes(httpDateTimeClock.time);
-        //        DBsH h = dateBytes.get();
-        //        if (h == null) {
-        //            h = new DBsH();
-        //            dateBytes.set(h);
-        //        }
-        //        long now = System.currentTimeMillis();
-        //        if (now > h.time) {
-        //            h.time = now + 1000;
-        //            h.value = DateUtil.get().formatHttpBytes(now);
-        //        }
-        //        return h.value;
+        DBsH h = dateBytes.get();
+        if (h == null) {
+            h = new DBsH();
+            dateBytes.set(h);
+        }
+        long now = httpDateTimeClock.time;
+        if (now > h.time) {
+            h.time = now + 1000;
+            h.value = DateUtil.get().formatHttpBytes(now);
+        }
+        return h.value;
     }
 
     public int getHttpFrameStackSize() {
@@ -464,17 +463,30 @@ public class HttpCodec extends ProtocolCodec {
             throws IOException {
         src.markP();
         int len = length;
-        for (; src.hasRemaining();) {
-            if (++len > limit) {
-                throw new IOException("max http header length " + limit);
+        if (length + src.remaining() < limit) {
+            for (; src.hasRemaining();) {
+                byte b = src.getByte();
+                if (b == N) {
+                    return true;
+                } else if (b == R) {
+                    continue;
+                } else {
+                    line.append((char) b);
+                }
             }
-            byte b = src.getByte();
-            if (b == N) {
-                return true;
-            } else if (b == R) {
-                continue;
-            } else {
-                line.append((char) b);
+        }else{
+            for (; src.hasRemaining();) {
+                if (++len > limit) {
+                    throw new IOException("max http header length " + limit);
+                }
+                byte b = src.getByte();
+                if (b == N) {
+                    return true;
+                } else if (b == R) {
+                    continue;
+                } else {
+                    line.append((char) b);
+                }
             }
         }
         src.resetP();
