@@ -203,13 +203,13 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
 
     HttpFrame reset(NioSocketChannel ch) {
         this.bodyArray = null;
-        this.contentLength = 0;
-        this.contentType = 0;
-        this.headerLength = 0;
-        this.method = 0;
         this.requestURL = null;
+        this.contentLength = 0;
+        this.headerLength = 0;
         this.status = HttpStatus.C200;
-        this.version = 0;
+        this.method = HttpMethod.OTHER.getId();
+        this.version = HttpVersion.OTHER.getId();
+        this.contentType = HttpContentType.OTHER.getId();
         this.decode_state = HttpCodec.decode_state_line_one;
         this.clear(cookieList);
         this.clear(cookies);

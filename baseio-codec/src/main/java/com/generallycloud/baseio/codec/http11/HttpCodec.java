@@ -106,132 +106,69 @@ public class HttpCodec extends ProtocolCodec {
         return f;
     }
 
-    static final boolean DECODE_WITH_SWITCH = true;
-
     @Override
     public Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException {
         HttpFrame f = allocHttpFrame(ch);
         StringBuilder line = FastThreadLocal.get().getStringBuilder();
-        if (DECODE_WITH_SWITCH) {
-            DECODE: switch (f.decode_state) {
-                case decode_state_line_one:
-                    if (readLine(line, src, f.headerLength, headerLimit)) {
-                        f.headerLength += line.length();
-                        f.decode_state = decode_state_header;
-                        parseFirstLine(f, line);
-                    }
-                case decode_state_header:
-                    for (;;) {
-                        line.setLength(0);
-                        if (readLine(line, src, f.headerLength, headerLimit)) {
-                            f.headerLength += line.length();
-                            if (line.length() == 0) {
-                                int contentLength = 0;
-                                String clength = f.getReadHeader(Content_Length);
-                                String ctype = f.getReadHeader(Content_Type);
-                                String cookie = f.getReadHeader(Cookie);
-                                parseContentType(f, ctype);
-                                if (!Util.isNullOrBlank(clength)) {
-                                    contentLength = Integer.parseInt(clength);
-                                    f.contentLength = contentLength;
-                                }
-                                if (!Util.isNullOrBlank(cookie)) {
-                                    parse_cookies(f, cookie);
-                                }
-                                if (contentLength < 1) {
-                                    f.decode_state = decode_state_complate;
-                                    break DECODE;
-                                } else {
-                                    if (contentLength > bodyLimit) {
-                                        // maybe can write to a temp file
-                                        throw new IOException("over limit:" + clength);
-                                    }
-                                    f.decode_state = decode_state_body;
-                                }
-                                break;
-                            } else {
-                                int p = Util.indexOf(line, ':');
-                                if (p == -1) {
-                                    continue;
-                                }
-                                int rp = Util.skip(line, ' ', p + 1);
-                                String name = line.substring(0, p);
-                                String value = line.substring(rp);
-                                f.setReadHeader(name, value);
-                            }
-                        }
-                    }
-                case decode_state_body:
-                    decodeRemainBody(ch, src, f);
+        int decode_state = f.decode_state;
+        if (decode_state == decode_state_line_one) {
+            if (readLine(line, src, f.headerLength, headerLimit)) {
+                f.headerLength += line.length();
+                decode_state = decode_state_header;
+                parseFirstLine(f, line);
             }
-            if (f.decode_state == decode_state_complate) {
-                doCompplete(ch, f);
-                return f;
-            } else {
-                ch.setAttribute(FRAME_DECODE_KEY, f);
-                return null;
-            }
-        } else {
-            int decode_state = f.decode_state;
-            if (decode_state == decode_state_line_one) {
+        }
+        if (decode_state == decode_state_header) {
+            for (;;) {
+                line.setLength(0);
                 if (readLine(line, src, f.headerLength, headerLimit)) {
                     f.headerLength += line.length();
-                    decode_state = decode_state_header;
-                    parseFirstLine(f, line);
-                }
-            }
-            if (decode_state == decode_state_header) {
-                for (;;) {
-                    line.setLength(0);
-                    if (readLine(line, src, f.headerLength, headerLimit)) {
-                        f.headerLength += line.length();
-                        if (line.length() == 0) {
-                            int contentLength = 0;
-                            String clength = f.getReadHeader(Content_Length);
-                            String ctype = f.getReadHeader(Content_Type);
-                            String cookie = f.getReadHeader(Cookie);
-                            parseContentType(f, ctype);
-                            if (!Util.isNullOrBlank(clength)) {
-                                contentLength = Integer.parseInt(clength);
-                                f.contentLength = contentLength;
-                            }
-                            if (!Util.isNullOrBlank(cookie)) {
-                                parse_cookies(f, cookie);
-                            }
-                            if (contentLength < 1) {
-                                decode_state = decode_state_complate;
-                            } else {
-                                if (contentLength > bodyLimit) {
-                                    // maybe can write to a temp file
-                                    throw new IOException("over limit:" + clength);
-                                }
-                                decode_state = decode_state_body;
-                            }
-                            break;
-                        } else {
-                            int p = Util.indexOf(line, ':');
-                            if (p == -1) {
-                                continue;
-                            }
-                            int rp = Util.skip(line, ' ', p + 1);
-                            String name = line.substring(0, p);
-                            String value = line.substring(rp);
-                            f.setReadHeader(name, value);
+                    if (line.length() == 0) {
+                        int contentLength = 0;
+                        String clength = f.getReadHeader(Content_Length);
+                        String ctype = f.getReadHeader(Content_Type);
+                        String cookie = f.getReadHeader(Cookie);
+                        parseContentType(f, ctype);
+                        if (!Util.isNullOrBlank(clength)) {
+                            contentLength = Integer.parseInt(clength);
+                            f.contentLength = contentLength;
                         }
+                        if (!Util.isNullOrBlank(cookie)) {
+                            parse_cookies(f, cookie);
+                        }
+                        if (contentLength < 1) {
+                            decode_state = decode_state_complate;
+                        } else {
+                            if (contentLength > bodyLimit) {
+                                // maybe can write to a temp file
+                                throw new IOException("over limit:" + clength);
+                            }
+                            decode_state = decode_state_body;
+                        }
+                        break;
+                    } else {
+                        int p = Util.indexOf(line, ':');
+                        if (p == -1) {
+                            continue;
+                        }
+                        int rp = Util.skip(line, ' ', p + 1);
+                        String name = line.substring(0, p);
+                        String value = line.substring(rp);
+                        f.setReadHeader(name, value);
                     }
                 }
             }
-            if (decode_state == decode_state_body) {
-                decodeRemainBody(ch, src, f);
-            }
-            if (f.decode_state == decode_state_complate) {
-                doCompplete(ch, f);
-                return f;
-            } else {
-                f.decode_state = decode_state;
-                ch.setAttribute(FRAME_DECODE_KEY, f);
-                return null;
-            }
+        }
+        if (decode_state == decode_state_body) {
+            decodeRemainBody(ch, src, f);
+        }
+        if (decode_state == decode_state_complate) {
+            doCompplete(ch, f);
+            return f;
+        } else {
+            f.decode_state = decode_state;
+            ch.setAttribute(FRAME_DECODE_KEY, f);
+            return null;
         }
     }
 
@@ -474,7 +411,7 @@ public class HttpCodec extends ProtocolCodec {
                     line.append((char) b);
                 }
             }
-        }else{
+        } else {
             for (; src.hasRemaining();) {
                 if (++len > limit) {
                     throw new IOException("max http header length " + limit);
