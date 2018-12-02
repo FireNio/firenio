@@ -144,7 +144,7 @@ public class HttpProxy4CloudServer {
                     context.connect((ch, ex) -> {
                         if (ex == null) {
                             ProxySession4Cloud s = ProxySession4Cloud.get(ch);
-                            HttpFrame req = new ClientHttpFrame(f.getRequestURI(), f.getMethod());
+                            HttpFrame req = new ClientHttpFrame(f.getRequestURL(), f.getMethod());
                             req.setRequestParams(f.getRequestParams());
                             req.setRequestHeaders(f.getRequestHeaders());
                             ByteBuf body = null;

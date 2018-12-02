@@ -106,7 +106,7 @@ public class HttpProxyServer {
                     context.addChannelEventListener(new LoggerChannelOpenListener());
                     context.connect((ch, ex) -> {
                         if (ex == null) {
-                            ClientHttpFrame req = new ClientHttpFrame(f.getRequestURI(), f.getMethod());
+                            ClientHttpFrame req = new ClientHttpFrame(f.getRequestURL(), f.getMethod());
                             req.setRequestHeaders(f.getRequestHeaders());
                             req.getRequestHeaders().remove(HttpHeader.Proxy_Connection);
                             if (f.getMethod() == HttpMethod.POST) {

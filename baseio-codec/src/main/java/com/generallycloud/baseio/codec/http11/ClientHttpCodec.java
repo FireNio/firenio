@@ -35,14 +35,19 @@ import com.generallycloud.baseio.protocol.Frame;
 public class ClientHttpCodec extends HttpCodec {
 
     private static final byte[] COOKIE                  = "Cookie:".getBytes();
-    private static final byte[] PROTOCOL                = " HTTP/1.1\r\nContent-Length: ".getBytes();
+    private static final byte[] PROTOCOL                = " HTTP/1.1\r\nContent-Length: "
+            .getBytes();
     private static final byte   SEMICOLON               = ';';
     private int                 websocketLimit          = 1024 * 128;
     private int                 websocketFrameStackSize = 0;
 
     @Override
-    HttpFrame newHttpFrame(NioSocketChannel ch) {
-        return new ClientHttpFrame();
+    ClientHttpFrame allocHttpFrame(NioSocketChannel ch) {
+        ClientHttpFrame f = (ClientHttpFrame) ch.getAttribute(FRAME_DECODE_KEY);
+        if (f == null) {
+            return new ClientHttpFrame();
+        }
+        return f;
     }
 
     @Override
@@ -54,7 +59,8 @@ public class ClientHttpCodec extends HttpCodec {
             byte[] url_bytes = getRequestURI(f).getBytes();
             byte[] method_bytes = f.getMethod().getBytes();
             byte[] length_bytes = String.valueOf(write_size).getBytes();
-            int len = method_bytes.length + 1 + url_bytes.length + PROTOCOL.length + length_bytes.length + 2;
+            int len = method_bytes.length + 1 + url_bytes.length + PROTOCOL.length
+                    + length_bytes.length + 2;
             List<byte[]> encode_bytes_array = getEncodeBytesArray();
             int header_size = 0;
             int cookie_size = 0;
@@ -125,9 +131,9 @@ public class ClientHttpCodec extends HttpCodec {
         }
         return buf.flip();
     }
-    
+
     @Override
-    Frame decodeRemainBody(NioSocketChannel ch,ByteBuf src, HttpFrame frame) {
+    void decodeRemainBody(NioSocketChannel ch, ByteBuf src, HttpFrame frame) {
         ClientHttpFrame f = (ClientHttpFrame) frame;
         if (f.bodyArray == null) {
             f.bodyArray = new byte[f.contentLength];
@@ -135,25 +141,22 @@ public class ClientHttpCodec extends HttpCodec {
         }
         f.bodyBuf.read(src);
         if (f.bodyBuf.hasRemaining()) {
-            setHttpFrame(ch, f);
-            return null;
+            return;
         }
         if (HttpStatic.application_urlencoded.equals(f.contentType)) {
             // FIXME encoding
             String paramString = new String(f.bodyArray, ch.getCharset());
             parse_kv(f.params, paramString, '=', '&');
-            f.readText = paramString;
         } else {
             // FIXME 解析BODY中的内容
         }
-        doCompplete(ch, f);
-        return f;
+        f.decode_state = decode_state_complate;
     }
 
     protected void parseFirstLine(HttpFrame f, StringBuilder line) {
         int index = Util.indexOf(line, ' ');
         int status = Integer.parseInt(line.substring(index + 1, index + 4));
-        f.setVersion(HttpVersion.HTTP1_1);
+        f.setVersion(HttpVersion.HTTP1_1.getId());
         f.setStatus(HttpStatus.getStatus(status));
     }
 
@@ -181,9 +184,9 @@ public class ClientHttpCodec extends HttpCodec {
     private String getRequestURI(HttpFrame frame) {
         Map<String, String> params = frame.getRequestParams();
         if (params == null || params.isEmpty()) {
-            return frame.getRequestURI();
+            return frame.getRequestURL();
         }
-        String url = frame.getRequestURI();
+        String url = frame.getRequestURL();
         StringBuilder u = new StringBuilder(url);
         u.append("?");
         Set<Entry<String, String>> ps = params.entrySet();

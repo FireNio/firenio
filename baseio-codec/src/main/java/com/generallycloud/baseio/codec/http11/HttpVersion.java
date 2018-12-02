@@ -21,16 +21,43 @@ package com.generallycloud.baseio.codec.http11;
  */
 public enum HttpVersion {
 
-    HTTP1_0("HTTP/1.0"), HTTP1_1("HTTP/1.1"), HTTP_UNKNOW("HTTP/UNKNOW");
+    HTTP1_0(1, "HTTP/1.0"), HTTP1_1(2, "HTTP/1.1"), OTHER(0, "OTHER");
 
-    private String value;
+    private final String value;
 
-    private HttpVersion(String value) {
+    private final int    id;
+
+    private final byte[] bytes;
+
+    private HttpVersion(int id, String value) {
+        this.id = id;
         this.value = value;
+        this.bytes = value.getBytes();
     }
 
     public String getValue() {
         return value;
+    }
+
+    public byte[] getBytes() {
+        return bytes;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    private static final HttpVersion[] enums;
+
+    static {
+        enums = new HttpVersion[values().length];
+        for (HttpVersion m : values()) {
+            enums[m.id] = m;
+        }
+    }
+
+    public static HttpVersion getMethod(int id) {
+        return enums[id];
     }
 
     public static HttpVersion getVersion(String version) {
@@ -39,7 +66,7 @@ public enum HttpVersion {
         } else if (HTTP1_0.value.equals(version)) {
             return HTTP1_0;
         } else {
-            return HttpVersion.HTTP_UNKNOW;
+            return HttpVersion.OTHER;
         }
     }
 

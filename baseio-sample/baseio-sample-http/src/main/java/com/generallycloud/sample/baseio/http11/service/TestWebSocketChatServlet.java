@@ -40,7 +40,6 @@ public class TestWebSocketChatServlet extends HttpFrameAcceptor {
     public void accept(NioSocketChannel ch, NamedFrame frame) throws Exception {
         if (frame instanceof HttpFrame) {
             ((HttpFrame) frame).updateWebSocketProtocol(ch);
-            ch.flush(frame);
             return;
         }
         WebSocketFrame f = (WebSocketFrame) frame;

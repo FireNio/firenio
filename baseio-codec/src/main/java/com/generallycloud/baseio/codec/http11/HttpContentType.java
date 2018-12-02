@@ -19,9 +19,9 @@ package com.generallycloud.baseio.codec.http11;
  * @author wangkai
  *
  */
-public enum HttpMethod {
+public enum HttpContentType {
 
-    GET(1, "GET"), POST(2, "POST"), CONNECT(3, "CONNECT"), OTHER(3, "OTHER");
+    URLENCODED(1, "URLENCODED"), MULTIPART(2, "MULTIPART"), JSON(3, "JSON"), OTHER(0, "OTHER");
 
     private final String value;
 
@@ -29,7 +29,7 @@ public enum HttpMethod {
 
     private final byte[] bytes;
 
-    private HttpMethod(int id, String value) {
+    private HttpContentType(int id, String value) {
         this.id = id;
         this.value = value;
         this.bytes = value.getBytes();
@@ -39,37 +39,25 @@ public enum HttpMethod {
         return value;
     }
 
-    public static HttpMethod getMethod(String method) {
-        if (GET.value.equals(method)) {
-            return GET;
-        } else if (POST.value.equals(method)) {
-            return POST;
-        } else if (CONNECT.value.equals(method)) {
-            return CONNECT;
-        } else {
-            return HttpMethod.OTHER;
-        }
+    public byte[] getBytes() {
+        return bytes;
     }
 
     public int getId() {
         return id;
     }
 
-    public byte[] getBytes() {
-        return bytes;
-    }
-
-    private static final HttpMethod[] enums;
+    private static final HttpContentType[] enums;
 
     static {
-        enums = new HttpMethod[values().length];
-        for (HttpMethod m : values()) {
+        enums = new HttpContentType[values().length];
+        for (HttpContentType m : values()) {
             enums[m.id] = m;
         }
     }
 
-    public static HttpMethod getMethod(int index) {
-        return enums[index];
+    public static HttpContentType getMethod(int id) {
+        return enums[id];
     }
 
 }

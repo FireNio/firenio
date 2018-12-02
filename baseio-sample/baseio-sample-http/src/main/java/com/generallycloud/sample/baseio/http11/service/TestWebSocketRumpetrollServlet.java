@@ -44,7 +44,6 @@ public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptor {
         if (frame instanceof HttpFrame) {
             HttpFrame f = (HttpFrame) frame;
             f.updateWebSocketProtocol(ch);
-            ch.flush(frame);
             msgAdapter.addClient(ch.getRemoteAddrPort(), ch);
             JSONObject o = new JSONObject();
             o.put("type", "welcome");
