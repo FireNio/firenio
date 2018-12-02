@@ -86,7 +86,9 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         if (eventLoop.inEventLoop()) {
             throw new IOException("can not blocking connect in its event loop");
         }
-        if (callback.await(timeout)) {
+        // If your application blocking here, check if you are blocking the io thread.
+        // Notice that do not blocking io thread at any time.
+        if (callback.await()) {
             Util.close(this);
             throw new TimeoutException("connect to " + getServerAddress() + " time out");
         }
@@ -220,7 +222,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
         @Override
         public void run() {
-            this.eventLoop.cancelConnect(this.channel);
+            this.eventLoop.cancelSelectionKey(this.channel);
             this.connector.channelEstablish(null, new TimeoutException("connect timeout"));
         }
 
