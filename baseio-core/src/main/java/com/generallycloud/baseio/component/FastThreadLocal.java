@@ -35,7 +35,7 @@ import com.generallycloud.baseio.common.Util;
 public final class FastThreadLocal extends AttributesImpl implements Attributes {
 
     private static final AtomicInteger                indexedVarsIndex   = new AtomicInteger(0);
-    private static final int                          maxIndexedVarsSize = 16;
+    private static final int                          maxIndexedVarsSize = 32;
     private static final ThreadLocal<FastThreadLocal> slowThreadLocal    = new ThreadLocal<>();
 
     private byte[]                                    bytes32            = new byte[32];

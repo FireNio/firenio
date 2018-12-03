@@ -23,8 +23,6 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.channels.Selector;
 import java.nio.charset.Charset;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,37 +41,8 @@ import com.generallycloud.baseio.log.LoggerFactory;
  */
 public class Util {
 
-    private static final boolean enableGetStringValueField;
-
     private static final Logger  logger = LoggerFactory.getLogger(Util.class);
-
     private static byte[] NUMS = new byte[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-
-    private static final Field   stringValueField;
-
-    static {
-        Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            @Override
-            public Object run() {
-                try {
-                    Field value = String.class.getDeclaredField("value");
-                    Throwable cause = trySetAccessible(value);
-                    if (cause != null) {
-                        return cause;
-                    }
-                    return value;
-                } catch (Throwable e) {
-                    return e;
-                }
-            }
-        });
-        enableGetStringValueField = !(res instanceof Throwable);
-        if (enableGetStringValueField) {
-            stringValueField = (Field) res;
-        } else {
-            stringValueField = null;
-        }
-    }
 
     public static void close(AutoCloseable closeable) {
         if (closeable == null) {
@@ -433,17 +402,6 @@ public class Util {
             return new String(out.toByteArray());
         } finally {
             Util.close(out);
-        }
-    }
-
-    public static char[] stringToCharArray(String str) {
-        if (!enableGetStringValueField) {
-            return str.toCharArray();
-        }
-        try {
-            return (char[]) stringValueField.get(str);
-        } catch (Exception e) {
-            return str.toCharArray();
         }
     }
 

@@ -36,7 +36,9 @@ public class ClientHttpFrame extends HttpFrame {
         this(url, HttpMethod.GET);
     }
 
-    public ClientHttpFrame() {}
+    public ClientHttpFrame() {
+        this.setMethod(HttpMethod.GET);
+    }
 
     @Override
     public boolean updateWebSocketProtocol(final NioSocketChannel ch) {

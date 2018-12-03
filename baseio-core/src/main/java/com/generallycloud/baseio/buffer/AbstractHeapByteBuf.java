@@ -256,12 +256,26 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     }
 
     @Override
-    public int indexOf(byte b) {
-        int p = position;
+    public int indexOf(int pos, byte b) {
+        int p = ix(pos);
         int l = limit;
+        byte[] m = memory;
         for (; p < l; p++) {
-            if (memory[p] == b) {
-                return p - offset;
+            if (m[p] == b) {
+                return p;
+            }
+        }
+        return -1;
+    }
+    
+    @Override
+    public int lastIndexOf(byte b) {
+        int p = limit;
+        int l = position - 1;
+        byte[] m = memory;
+        for (; p > l; p--) {
+            if (m[p] == b) {
+                return p;
             }
         }
         return -1;

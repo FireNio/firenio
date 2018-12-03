@@ -28,13 +28,31 @@ public abstract class AbstractByteBuf implements ByteBuf {
     }
 
     protected ByteBufAllocator allocator;
-    protected int              offset;
     protected int              capacity;
     protected int              markLimit;
+    protected int              offset;
     protected volatile int     referenceCount = 0;
 
     protected AbstractByteBuf(ByteBufAllocator allocator) {
         this.allocator = allocator;
+    }
+
+    protected void addReferenceCount() {
+        int referenceCount = this.referenceCount;
+        if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
+            return;
+        }
+        for (;;) {
+            referenceCount = this.referenceCount;
+            if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
+                break;
+            }
+        }
+    }
+
+    @Override
+    public int capacity() {
+        return capacity;
     }
 
     @Override
@@ -59,13 +77,18 @@ public abstract class AbstractByteBuf implements ByteBuf {
         return bytes;
     }
 
-    protected int ix(int index) {
-        return offset + index;
+    @Override
+    public int indexOf(byte b) {
+        return indexOf(0, b);
     }
 
     @Override
-    public int capacity() {
-        return capacity;
+    public boolean isReleased() {
+        return referenceCount < 1;
+    }
+
+    protected int ix(int index) {
+        return offset + index;
     }
 
     @Override
@@ -80,6 +103,36 @@ public abstract class AbstractByteBuf implements ByteBuf {
     @Override
     public void put(byte[] src) {
         put(src, 0, src.length);
+    }
+
+    @Override
+    public int read(ByteBuf src) {
+        int srcRemaining = src.remaining();
+        int read = remaining();
+        if (read > srcRemaining) {
+            read = srcRemaining;
+        }
+        if (read == 0) {
+            return 0;
+        }
+        return read0(src, read);
+    }
+
+    @Override
+    public int read(ByteBuf src, int length) {
+        int srcRemaining = src.remaining();
+        int remaining = remaining();
+        int read = length;
+        if (read > srcRemaining) {
+            read = srcRemaining;
+        }
+        if (read > remaining) {
+            read = remaining;
+        }
+        if (read == 0) {
+            return 0;
+        }
+        return read0(src, read);
     }
 
     @Override
@@ -112,39 +165,9 @@ public abstract class AbstractByteBuf implements ByteBuf {
         return read0(src, read);
     }
 
-    protected abstract int read0(ByteBuffer src, int read);
-
-    @Override
-    public int read(ByteBuf src) {
-        int srcRemaining = src.remaining();
-        int read = remaining();
-        if (read > srcRemaining) {
-            read = srcRemaining;
-        }
-        if (read == 0) {
-            return 0;
-        }
-        return read0(src, read);
-    }
-
-    @Override
-    public int read(ByteBuf src, int length) {
-        int srcRemaining = src.remaining();
-        int remaining = remaining();
-        int read = length;
-        if (read > srcRemaining) {
-            read = srcRemaining;
-        }
-        if (read > remaining) {
-            read = remaining;
-        }
-        if (read == 0) {
-            return 0;
-        }
-        return read0(src, read);
-    }
-
     protected abstract int read0(ByteBuf src, int read);
+
+    protected abstract int read0(ByteBuffer src, int read);
 
     @Override
     public void release() {
@@ -170,24 +193,6 @@ public abstract class AbstractByteBuf implements ByteBuf {
                 return;
             }
         }
-    }
-
-    protected void addReferenceCount() {
-        int referenceCount = this.referenceCount;
-        if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
-            return;
-        }
-        for (;;) {
-            referenceCount = this.referenceCount;
-            if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
-                break;
-            }
-        }
-    }
-
-    @Override
-    public boolean isReleased() {
-        return referenceCount < 1;
     }
 
     @Override

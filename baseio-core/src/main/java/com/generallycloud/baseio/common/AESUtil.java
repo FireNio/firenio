@@ -86,7 +86,7 @@ public class AESUtil {
 
     public static String decrypt(String content, String password, Charset charset)
             throws Exception {
-        byte[] contentBytes = ByteUtil.hexString2bytes(Util.stringToCharArray(content));
+        byte[] contentBytes = ByteUtil.hexString2bytes(content);
         byte[] passowrdBytes = password.getBytes(charset);
         byte[] res = decrypt(contentBytes, passowrdBytes);
         return new String(res, charset);

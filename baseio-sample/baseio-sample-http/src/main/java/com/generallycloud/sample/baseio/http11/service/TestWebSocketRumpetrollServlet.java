@@ -44,7 +44,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptor {
         if (frame instanceof HttpFrame) {
             HttpFrame f = (HttpFrame) frame;
             f.updateWebSocketProtocol(ch);
-            msgAdapter.addClient(ch.getRemoteAddrPort(), ch);
+            msgAdapter.addClient(ch.getDesc(), ch);
             JSONObject o = new JSONObject();
             o.put("type", "welcome");
             o.put("id", ch.getChannelId());
@@ -71,7 +71,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptor {
             JSONObject o = JSON.parseObject(msg);
             String name = o.getString("name");
             if (Util.isNullOrBlank(name)) {
-                name = ch.getRemoteAddrPort();
+                name = Util.randomUUID();
             }
             o.put("name", name);
             o.put("id", ch.getChannelId());

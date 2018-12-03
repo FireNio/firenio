@@ -106,7 +106,7 @@ public final class SslContextBuilder {
         if (keyPassword == null) {
             keyPassword = "";
         }
-        char[] keyPasswordChars = Util.stringToCharArray(keyPassword);
+        char[] keyPasswordChars = keyPassword.toCharArray();
         KeyStore ks = buildKeyStore(certChain, key, keyPasswordChars);
         return buildKeyManagerFactory(ks, keyPasswordChars);
     }
@@ -164,7 +164,7 @@ public final class SslContextBuilder {
         }
         EncryptedPrivateKeyInfo epki = new EncryptedPrivateKeyInfo(key);
         SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(epki.getAlgName());
-        PBEKeySpec pbeKeySpec = new PBEKeySpec(Util.stringToCharArray(password));
+        PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray());
         SecretKey pbeKey = keyFactory.generateSecret(pbeKeySpec);
         Cipher cipher = Cipher.getInstance(epki.getAlgName());
         cipher.init(Cipher.DECRYPT_MODE, pbeKey, epki.getAlgParameters());
@@ -260,7 +260,7 @@ public final class SslContextBuilder {
             if (keyPassword == null) {
                 keyPassword = "";
             }
-            char[] keyPasswordChars = Util.stringToCharArray(keyPassword);
+            char[] keyPasswordChars = keyPassword.toCharArray();
             KeyStore keystore = KeyStore.getInstance("JKS");
             keystore.load(keystoreInput, keyPasswordChars);
             this.keyManagerFactory = buildKeyManagerFactory(keystore, keyPasswordChars);

@@ -36,32 +36,25 @@ public class KMPUtil {
             throw new IllegalArgumentException("null value");
         }
         this.match_value = value;
-        this.match_array = Util.stringToCharArray(match_value);
+        this.match_array = match_value.toCharArray();
         this.match_table = new int[match_value.length()];
         this.initialize_part_match_table();
     }
 
     private void initialize_part_match_table() {
-
         int length = this.match_value.length();
-
         // 直接从两位开始比较
         for (int i = 2; i < length; i++) {
-
             match_table[i] = initialize_part_match_table0(match_array, i);
         }
     }
 
     private int initialize_part_match_table0(char[] array, int length) {
-
         int e = 0;
-
         WORD: for (int i = 1; i < length; i++) {
-
             int t = 0;
             int p = 0;
             int s = length - i;
-
             for (int j = 0; j < i; j++) {
                 if (array[p++] != array[s++]) {
                     continue WORD;
@@ -78,33 +71,20 @@ public class KMPUtil {
     }
 
     public int match(String value, int begin) {
-
         if (Util.isNullOrBlank(value) || begin < 0) {
             return -1;
         }
-
         if (value.length() - begin < this.match_array.length) {
             return -1;
         }
-
-        char[] source_array = Util.stringToCharArray(value);
-
         int source_length = value.length();
-
         int index = begin;
-
         int match_length = this.match_array.length;
-
         char[] match_array = this.match_array;
-
         int[] match_table = this.match_table;
-
         LOOP: for (; index < source_length;) {
-
             for (int i = 0; i < match_length; i++) {
-
-                if (source_array[index + i] != match_array[i]) {
-
+                if (value.charAt(index + i) != match_array[i]) {
                     if (i == 0) {
                         index++;
                     } else {
@@ -113,53 +93,34 @@ public class KMPUtil {
                     continue LOOP;
                 }
             }
-
             return index;
         }
-
         return -1;
     }
 
     public IntArray match_all(String value) {
-
         if (Util.isNullOrBlank(value)) {
             return null;
         }
-
         if (value.length() < match_value.length()) {
             return null;
         }
-
         IntArray matchs = new IntArray();
-
         if (value.equals(match_value)) {
             matchs.add(0);
             return matchs;
         }
-
-        char[] source_array = Util.stringToCharArray(value);
-
         int source_length = value.length();
-
         int index = 0;
-
         int match_length = this.match_array.length;
-
         char[] match_array = this.match_array;
-
         int[] match_table = this.match_table;
-
         LOOP: for (; index < source_length;) {
-
             if (source_length - index < match_length) {
-
                 break;
             }
-
             for (int i = 0; i < match_length; i++) {
-
-                if (source_array[index + i] != match_array[i]) {
-
+                if (value.charAt(index + i) != match_array[i]) {
                     if (i == 0) {
                         index++;
                     } else {
@@ -168,7 +129,6 @@ public class KMPUtil {
                     continue LOOP;
                 }
             }
-
             matchs.add(index);
             index += match_length;
         }

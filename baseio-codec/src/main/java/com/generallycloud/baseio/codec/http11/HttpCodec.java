@@ -44,30 +44,34 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
  */
 public class HttpCodec extends ProtocolCodec {
 
-    static final byte[]                    CONTENT_LENGTH        = b("\r\nContent-Length: ");
-    static final HttpDateTimeClock         httpDateTimeClock     = new HttpDateTimeClock();
-    static final ThreadLocal<DBsH>         dateBytes             = new ThreadLocal<>();
-    static final int                       decode_state_body     = 2;
-    static final int                       decode_state_complate = 3;
-    static final int                       decode_state_header   = 1;
-    static final int                       decode_state_line_one = 0;
-    static final ThreadLocal<List<byte[]>> encode_bytes_arrays   = new ThreadLocal<>();
-    static final String                    FRAME_DECODE_KEY      = "FRAME_HTTP_DECODE_KEY";
-    static final String                    FRAME_STACK_KEY       = "FRAME_HTTP_STACK_KEY";
-    static final KMPUtil                   KMP_BOUNDARY          = new KMPUtil("boundary=");
-    static final byte                      N                     = '\n';
-    static final byte[]                    PROTOCOL              = b("HTTP/1.1 ");
-    static final byte                      R                     = '\r';
-    static final byte[]                    SET_COOKIE            = b("Set-Cookie:");
-    static final byte                      SPACE                 = ' ';
+    static final byte[]            CONTENT_LENGTH            = b("\r\nContent-Length: ");
+    static final HttpDateTimeClock httpDateTimeClock         = new HttpDateTimeClock();
+    static final int               dbshIndex                 = nextIndexedVariablesIndex();
+    static final int               decode_state_body         = 2;
+    static final int               decode_state_complate     = 3;
+    static final int               decode_state_header       = 1;
+    static final int               decode_state_line_one     = 0;
+    static final int               encode_bytes_arrays_index = nextIndexedVariablesIndex();
+    static final String            FRAME_DECODE_KEY          = "FRAME_HTTP_DECODE_KEY";
+    static final String            FRAME_STACK_KEY           = "FRAME_HTTP_STACK_KEY";
+    static final KMPUtil           KMP_BOUNDARY              = new KMPUtil("boundary=");
+    static final byte              N                         = '\n';
+    static final byte[]            PROTOCOL                  = b("HTTP/1.1 ");
+    static final byte              R                         = '\r';
+    static final byte[]            SET_COOKIE                = b("Set-Cookie:");
+    static final byte              SPACE                     = ' ';
 
-    private int                            bodyLimit             = 1024 * 512;
-    private int                            headerLimit           = 1024 * 8;
-    private int                            httpFrameStackSize    = 0;
-    private int                            websocketLimit        = 1024 * 128;
-    private int                            websocketStackSize    = 0;
+    private int                    bodyLimit                 = 1024 * 512;
+    private int                    headerLimit               = 1024 * 8;
+    private int                    httpFrameStackSize        = 0;
+    private int                    websocketLimit            = 1024 * 128;
+    private int                    websocketStackSize        = 0;
 
     public HttpCodec() {}
+
+    static int nextIndexedVariablesIndex() {
+        return FastThreadLocal.nextIndexedVariablesIndex();
+    }
 
     public HttpCodec(int httpFrameStackSize) {
         this.httpFrameStackSize = httpFrameStackSize;
@@ -112,7 +116,7 @@ public class HttpCodec extends ProtocolCodec {
         StringBuilder line = FastThreadLocal.get().getStringBuilder();
         int decode_state = f.decode_state;
         if (decode_state == decode_state_line_one) {
-            if (readLine(line, src, f.headerLength, headerLimit)) {
+            if (read_line(line, src, 0, headerLimit)) {
                 f.headerLength += line.length();
                 decode_state = decode_state_header;
                 parseFirstLine(f, line);
@@ -121,41 +125,42 @@ public class HttpCodec extends ProtocolCodec {
         if (decode_state == decode_state_header) {
             for (;;) {
                 line.setLength(0);
-                if (readLine(line, src, f.headerLength, headerLimit)) {
-                    f.headerLength += line.length();
-                    if (line.length() == 0) {
-                        int contentLength = 0;
-                        String clength = f.getReadHeader(Content_Length);
-                        String ctype = f.getReadHeader(Content_Type);
-                        String cookie = f.getReadHeader(Cookie);
-                        parseContentType(f, ctype);
-                        if (!Util.isNullOrBlank(clength)) {
-                            contentLength = Integer.parseInt(clength);
-                            f.contentLength = contentLength;
-                        }
-                        if (!Util.isNullOrBlank(cookie)) {
-                            parse_cookies(f, cookie);
-                        }
-                        if (contentLength < 1) {
-                            decode_state = decode_state_complate;
-                        } else {
-                            if (contentLength > bodyLimit) {
-                                // maybe can write to a temp file
-                                throw new IOException("over limit:" + clength);
-                            }
-                            decode_state = decode_state_body;
-                        }
-                        break;
-                    } else {
-                        int p = Util.indexOf(line, ':');
-                        if (p == -1) {
-                            continue;
-                        }
-                        int rp = Util.skip(line, ' ', p + 1);
-                        String name = line.substring(0, p);
-                        String value = line.substring(rp);
-                        f.setReadHeader(name, value);
+                if (!read_line(line, src, f.headerLength, headerLimit)) {
+                    break;
+                }
+                f.headerLength += line.length();
+                if (line.length() == 0) {
+                    int contentLength = 0;
+                    String clength = f.getReadHeader(Content_Length);
+                    String ctype = f.getReadHeader(Content_Type);
+                    String cookie = f.getReadHeader(Cookie);
+                    parseContentType(f, ctype);
+                    if (!Util.isNullOrBlank(clength)) {
+                        contentLength = Integer.parseInt(clength);
+                        f.contentLength = contentLength;
                     }
+                    if (!Util.isNullOrBlank(cookie)) {
+                        parse_cookies(f, cookie);
+                    }
+                    if (contentLength < 1) {
+                        decode_state = decode_state_complate;
+                    } else {
+                        if (contentLength > bodyLimit) {
+                            // maybe can write to a temp file
+                            throw new IOException("over limit:" + clength);
+                        }
+                        decode_state = decode_state_body;
+                    }
+                    break;
+                } else {
+                    int p = Util.indexOf(line, ':');
+                    if (p == -1) {
+                        continue;
+                    }
+                    int rp = Util.skip(line, ' ', p + 1);
+                    String name = line.substring(0, p);
+                    String value = line.substring(rp);
+                    f.setReadHeader(name, value);
                 }
             }
         }
@@ -280,10 +285,10 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     private byte[] getHttpDateBytes() {
-        DBsH h = dateBytes.get();
+        DBsH h = (DBsH) FastThreadLocal.get().getIndexedVariable(dbshIndex);
         if (h == null) {
             h = new DBsH();
-            dateBytes.set(h);
+            FastThreadLocal.get().setIndexedVariable(dbshIndex, h);
         }
         long now = httpDateTimeClock.time;
         if (now > h.time) {
@@ -373,8 +378,7 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     protected void parseFirstLine(HttpFrame f, StringBuilder line) {
-        if (line.charAt(0) == 'G' && line.charAt(1) == 'E' && line.charAt(2) == 'T'
-                && line.charAt(3) == ' ') {
+        if (line.charAt(0) == 'G' && line.charAt(1) == 'E' && line.charAt(2) == 'T') {
             f.setMethod(HttpMethod.GET);
             parseRequestURL(f, 4, line);
         } else {
@@ -396,7 +400,7 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    private static boolean readLine(StringBuilder line, ByteBuf src, int length, int limit)
+    private static boolean read_line(StringBuilder line, ByteBuf src, int length, int limit)
             throws IOException {
         src.markP();
         int len = length;
@@ -404,9 +408,11 @@ public class HttpCodec extends ProtocolCodec {
             for (; src.hasRemaining();) {
                 byte b = src.getByte();
                 if (b == N) {
+                    int p = line.length() - 1;
+                    if (line.charAt(p) == R) {
+                        line.setLength(p);
+                    }
                     return true;
-                } else if (b == R) {
-                    continue;
                 } else {
                     line.append((char) b);
                 }
@@ -418,9 +424,11 @@ public class HttpCodec extends ProtocolCodec {
                 }
                 byte b = src.getByte();
                 if (b == N) {
+                    int p = line.length() - 1;
+                    if (line.charAt(p) == R) {
+                        line.setLength(p);
+                    }
                     return true;
-                } else if (b == R) {
-                    continue;
                 } else {
                     line.append((char) b);
                 }
@@ -456,11 +464,13 @@ public class HttpCodec extends ProtocolCodec {
         return s.getBytes();
     }
 
+    @SuppressWarnings("unchecked")
     static List<byte[]> getEncodeBytesArray() {
-        List<byte[]> array = encode_bytes_arrays.get();
+        List<byte[]> array = (List<byte[]>) FastThreadLocal.get()
+                .getIndexedVariable(encode_bytes_arrays_index);
         if (array == null) {
             array = new ArrayList<>();
-            encode_bytes_arrays.set(array);
+            FastThreadLocal.get().setIndexedVariable(encode_bytes_arrays_index, array);
         }
         array.clear();
         return array;

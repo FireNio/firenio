@@ -82,7 +82,6 @@ public final class NioSocketChannel extends AttributesImpl
     private volatile boolean                    opened                = true;
     private ByteBuf                             plainRemainBuf;
     private final String                        remoteAddr;
-    private final String                        remoteAddrPort;
     private final int                           remotePort;
     private final SelectionKey                  selKey;
     private final SSLEngine                     sslEngine;
@@ -111,28 +110,15 @@ public final class NioSocketChannel extends AttributesImpl
         String idhex = Integer.toHexString(chId);
         this.remoteAddr = remote.getAddress().getHostAddress();
         this.remotePort = remote.getPort();
-        this.remoteAddrPort = remoteAddr + ":" + remotePort;
         this.localAddr = local.getAddress().getHostAddress();
         this.localPort = local.getPort();
-        this.desc = newDesc(idhex, remoteAddrPort);
+        this.desc = newDesc(idhex);
         if (ctx.isEnableSsl()) {
             this.sslEngine = ctx.getSslContext().newEngine(remoteAddr, remotePort);
         } else {
             this.sslHandshakeFinished = true;
             this.sslEngine = null;
         }
-    }
-
-    private String newDesc(String idhex, String remoteAddrPort) {
-        StringBuilder sb = FastThreadLocal.get().getStringBuilder();
-        sb.append("[id(0x");
-        sb.append(idhex);
-        sb.append(")R/");
-        sb.append(remoteAddrPort);
-        sb.append("; L:");
-        sb.append(getLocalPort());
-        sb.append("]");
-        return sb.toString();
     }
 
     private void accept(ByteBuf src) throws IOException {
@@ -237,10 +223,6 @@ public final class NioSocketChannel extends AttributesImpl
         eventLoop.execute(event);
     }
 
-    protected boolean isSslHandshakeFinished() {
-        return sslHandshakeFinished;
-    }
-
     private void finishHandshake() {
         this.sslHandshakeFinished = true;
         this.fireOpend();
@@ -335,6 +317,14 @@ public final class NioSocketChannel extends AttributesImpl
         flush(buf);
     }
 
+    public Integer getChannelId() {
+        return channelId;
+    }
+
+    public Charset getCharset() {
+        return context.getCharset();
+    }
+
     //    public void flush(List<ByteBuf> bufs) {
     //        if (bufs != null && !bufs.isEmpty()) {
     //            if (inEventLoop()) {
@@ -411,14 +401,6 @@ public final class NioSocketChannel extends AttributesImpl
     //        }
     //    }
 
-    public Integer getChannelId() {
-        return channelId;
-    }
-
-    public Charset getCharset() {
-        return context.getCharset();
-    }
-
     public ProtocolCodec getCodec() {
         return codec;
     }
@@ -433,6 +415,10 @@ public final class NioSocketChannel extends AttributesImpl
 
     public long getCreationTime() {
         return creationTime;
+    }
+
+    public String getDesc() {
+        return desc;
     }
 
     public NioEventLoop getEventLoop() {
@@ -475,10 +461,6 @@ public final class NioSocketChannel extends AttributesImpl
         return remoteAddr;
     }
 
-    public String getRemoteAddrPort() {
-        return remoteAddrPort;
-    }
-
     public int getRemotePort() {
         return remotePort;
     }
@@ -513,7 +495,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     @Override
     public int hashCode() {
-        return remoteAddrPort.hashCode();
+        return desc.hashCode();
     }
 
     public boolean inEventLoop() {
@@ -612,6 +594,24 @@ public final class NioSocketChannel extends AttributesImpl
 
     public boolean isOpened() {
         return opened;
+    }
+
+    protected boolean isSslHandshakeFinished() {
+        return sslHandshakeFinished;
+    }
+
+    private String newDesc(String idhex) {
+        StringBuilder sb = FastThreadLocal.get().getStringBuilder();
+        sb.append("[id(0x");
+        sb.append(idhex);
+        sb.append(")R/");
+        sb.append(remoteAddr);
+        sb.append(':');
+        sb.append(remotePort);
+        sb.append("; L:");
+        sb.append(getLocalPort());
+        sb.append("]");
+        return sb.toString();
     }
 
     protected void read(ByteBuf src) throws IOException {

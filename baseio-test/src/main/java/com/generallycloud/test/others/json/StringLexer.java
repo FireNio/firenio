@@ -19,9 +19,9 @@ public class StringLexer {
 
     private int    index;
 
-    private char[] codes;
+    private String codes;
 
-    public StringLexer(int index, char[] codes) {
+    public StringLexer(int index, String codes) {
         this.index = index;
         this.codes = codes;
     }
@@ -31,7 +31,7 @@ public class StringLexer {
     }
 
     public boolean next(int size) {
-        return (index += size) < codes.length;
+        return (index += size) < codes.length();
     }
 
     //	public char [] sub(int start,int size){
@@ -46,7 +46,7 @@ public class StringLexer {
     //	}
 
     public boolean next() {
-        return ++index < codes.length;
+        return ++index < codes.length();
         //		if (++index == codes.length) {
         //			//throw new JSONSyntaxException("eof");
         //			return EOF;
@@ -55,11 +55,11 @@ public class StringLexer {
     }
 
     public char charAt(int index) {
-        return codes[index];
+        return codes.charAt(index);
     }
 
     public char current() {
-        return codes[index];
+        return codes.charAt(index);
     }
 
     public int currentIndex() {
@@ -67,7 +67,7 @@ public class StringLexer {
     }
 
     public boolean complate() {
-        return index + 1 == codes.length;
+        return index + 1 == codes.length();
     }
 
     @Override

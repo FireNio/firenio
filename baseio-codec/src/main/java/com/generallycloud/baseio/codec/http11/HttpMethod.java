@@ -21,7 +21,7 @@ package com.generallycloud.baseio.codec.http11;
  */
 public enum HttpMethod {
 
-    GET(1, "GET"), POST(2, "POST"), CONNECT(3, "CONNECT"), OTHER(3, "OTHER");
+    GET(1, "GET"), POST(2, "POST"), CONNECT(3, "CONNECT"), OTHER(0, "OTHER");
 
     private final String value;
 
