@@ -196,9 +196,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     }
 
     protected void cancelSelectionKey(SocketChannel channel) {
-        SelectionKey key = channel.keyFor(selector);
-        if (key != null) {
-            key.cancel();
+        if (channel != null) {
+            SelectionKey key = channel.keyFor(selector);
+            if (key != null) {
+                key.cancel();
+            }
         }
     }
 

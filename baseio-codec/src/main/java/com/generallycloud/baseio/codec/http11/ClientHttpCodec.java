@@ -129,7 +129,7 @@ public class ClientHttpCodec extends HttpCodec {
     }
 
     @Override
-    void decodeRemainBody(NioSocketChannel ch, ByteBuf src, HttpFrame frame) {
+    int decodeRemainBody(NioSocketChannel ch, ByteBuf src, HttpFrame frame) {
         ClientHttpFrame f = (ClientHttpFrame) frame;
         if (f.bodyArray == null) {
             f.bodyArray = new byte[f.contentLength];
@@ -137,7 +137,7 @@ public class ClientHttpCodec extends HttpCodec {
         }
         f.bodyBuf.read(src);
         if (f.bodyBuf.hasRemaining()) {
-            return;
+            return decode_state_body;
         }
         if (HttpStatic.application_urlencoded.equals(f.contentType)) {
             // FIXME encoding
@@ -146,7 +146,7 @@ public class ClientHttpCodec extends HttpCodec {
         } else {
             // FIXME 解析BODY中的内容
         }
-        f.decode_state = decode_state_complate;
+        return decode_state_complate;
     }
 
     protected void parseFirstLine(HttpFrame f, StringBuilder line) {

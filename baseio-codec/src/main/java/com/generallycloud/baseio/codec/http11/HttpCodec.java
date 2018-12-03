@@ -165,7 +165,7 @@ public class HttpCodec extends ProtocolCodec {
             }
         }
         if (decode_state == decode_state_body) {
-            decodeRemainBody(ch, src, f);
+            decode_state = decodeRemainBody(ch, src, f);
         }
         if (decode_state == decode_state_complate) {
             doCompplete(ch, f);
@@ -177,12 +177,12 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    void decodeRemainBody(NioSocketChannel ch, ByteBuf src, HttpFrame f) {
+    int decodeRemainBody(NioSocketChannel ch, ByteBuf src, HttpFrame f) {
         int contentLength = f.contentLength;
         int remain = src.remaining();
         byte[] bodyArray = null;
         if (remain < contentLength) {
-            return;
+            return decode_state_body;
         } else if (remain == contentLength) {
             bodyArray = src.getBytes();
         } else {
@@ -197,7 +197,7 @@ public class HttpCodec extends ProtocolCodec {
         } else {
             f.bodyArray = bodyArray;
         }
-        f.decode_state = decode_state_complate;
+        return decode_state_complate;
     }
 
     void doCompplete(NioSocketChannel ch, HttpFrame f) {
