@@ -18,7 +18,6 @@ package com.generallycloud.baseio.codec.http11;
 import static com.generallycloud.baseio.codec.http11.HttpHeader.Content_Length;
 import static com.generallycloud.baseio.codec.http11.HttpHeader.Content_Type;
 import static com.generallycloud.baseio.codec.http11.HttpHeader.Cookie;
-import static com.generallycloud.baseio.codec.http11.HttpHeader.Date;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,6 +44,7 @@ import com.generallycloud.baseio.protocol.ProtocolCodec;
 public class HttpCodec extends ProtocolCodec {
 
     static final byte[]            CONTENT_LENGTH            = b("\r\nContent-Length: ");
+    static final byte[]            DATE                      = b("\r\nDate: ");
     static final HttpDateTimeClock httpDateTimeClock         = new HttpDateTimeClock();
     static final int               dbshIndex                 = nextIndexedVariablesIndex();
     static final int               decode_state_body         = 2;
@@ -168,7 +168,7 @@ public class HttpCodec extends ProtocolCodec {
             decode_state = decodeRemainBody(ch, src, f);
         }
         if (decode_state == decode_state_complate) {
-            doCompplete(ch, f);
+            ch.removeAttribute(FRAME_DECODE_KEY);
             return f;
         } else {
             f.decode_state = decode_state;
@@ -200,23 +200,20 @@ public class HttpCodec extends ProtocolCodec {
         return decode_state_complate;
     }
 
-    void doCompplete(NioSocketChannel ch, HttpFrame f) {
-        ch.removeAttribute(FRAME_DECODE_KEY);
-    }
-
     @Override
     public ByteBuf encode(final NioSocketChannel ch, Frame frame) throws IOException {
         HttpFrame f = (HttpFrame) frame;
-        f.setResponseHeader(Date, getHttpDateBytes());
         byte[] byte32 = FastThreadLocal.get().getBytes32();
         byte[] status_bytes = f.getStatus().getBinary();
+        byte[] date_bytes = getHttpDateBytes();
         int write_size = f.getWriteSize();
         int len_idx = Util.valueOf(write_size, byte32);
         int len_len = 32 - len_idx;
         int plen = PROTOCOL.length;
         int clen = CONTENT_LENGTH.length;
+        int dlen = DATE.length;
         int status_len = status_bytes.length;
-        int len = plen + status_len + clen + len_len + 2;
+        int len = plen + status_len + clen + len_len + dlen + date_bytes.length + 2;
         List<byte[]> encode_bytes_array = getEncodeBytesArray();
         int header_size = 0;
         int cookie_size = 0;
@@ -251,6 +248,8 @@ public class HttpCodec extends ProtocolCodec {
         buf.put(status_bytes);
         buf.put(CONTENT_LENGTH);
         buf.put(byte32, len_idx, len_len);
+        buf.put(DATE);
+        buf.put(date_bytes);
         buf.putByte(R);
         buf.putByte(N);
         int j = 0;
