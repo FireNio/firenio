@@ -118,7 +118,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                     }
                 } else if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                     try {
-                        ch.write(key.interestOps());
+                        ch.write();
                     } catch (Throwable e) {
                         writeExceptionCaught(ch, e);
                     }
@@ -127,7 +127,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 boolean writeComplete = true;
                 if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                     try {
-                        writeComplete = ch.write(key.interestOps());
+                        writeComplete = ch.write();
                     } catch (Throwable e) {
                         writeExceptionCaught(ch, e);
                     }
