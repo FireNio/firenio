@@ -26,11 +26,12 @@ public class WsUpgradeRequestFrame extends ClientHttpFrame {
     }
 
     private void setRequestHeaders() {
-        setRequestHeader("Connection", "Upgrade");
-        setRequestHeader("Upgrade", "websocket");
-        setRequestHeader("Sec-WebSocket-Version", "13");
-        setRequestHeader("Sec-WebSocket-Key",
+        setRequestHeader(HttpHeader.Connection, "Upgrade");
+        setRequestHeader(HttpHeader.Upgrade, "websocket");
+        setRequestHeader(HttpHeader.Sec_WebSocket_Version, "13");
+        setRequestHeader(HttpHeader.Sec_WebSocket_Key,
                 BASE64Util.byteArrayToBase64(Util.randomMostSignificantBits().getBytes()));
-        setRequestHeader("Sec-WebSocket-Extensions", "permessage-deflate; client_max_window_bits");
+        setRequestHeader(HttpHeader.Sec_WebSocket_Extensions,
+                "permessage-deflate; client_max_window_bits");
     }
 }

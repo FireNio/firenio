@@ -16,6 +16,8 @@
 package com.generallycloud.sample.baseio.http11.proxy4cloud;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
@@ -35,19 +37,33 @@ import com.generallycloud.baseio.component.LoggerChannelOpenListener;
 import com.generallycloud.baseio.component.NioEventLoop;
 import com.generallycloud.baseio.component.NioEventLoopGroup;
 import com.generallycloud.baseio.component.NioSocketChannel;
+import com.generallycloud.baseio.log.DebugUtil;
 import com.generallycloud.baseio.protocol.Frame;
 import com.generallycloud.baseio.protocol.ProtocolCodec;
 
 public class HttpProxy4CloudServer {
 
-//        static final String                netHost         = "47.52.62.51";
-        static final int                   netPort         = 18088;
-    static final String                netHost         = "127.0.0.1";
+    static final String                netHost;
+    static final int                   netPort         = 18088;
     static final String                CONNECT_RES     = "HTTP/1.1 200 Connection Established\r\n\r\n";
     static final ByteBuf               CONNECT_RES_BUF = ByteBufUtil.wrap(CONNECT_RES.getBytes());
     static final HttpProxy4CloudServer server          = new HttpProxy4CloudServer();
     private ChannelAcceptor            context;
     private volatile boolean           enable          = true;
+
+    static {
+        String host = null;
+        try {
+            Socket socket = new Socket();
+            socket.connect(new InetSocketAddress("127.0.0.1", netPort), 50);
+            Util.close(socket);
+            host = "127.0.0.1";
+        } catch (IOException e) {
+            host = "47.52.62.51";
+        }
+        netHost = host;
+        DebugUtil.debug("remote host: " + netHost);
+    }
 
     public synchronized void stop() {
         Util.unbind(context);
@@ -116,7 +132,7 @@ public class HttpProxy4CloudServer {
                         @Override
                         public void accept(NioSocketChannel ch, Frame frame) throws Exception {
                             ClientHttpFrame res = (ClientHttpFrame) frame;
-                            for(IntEntry<String> header : res.getResponse_headers().entries()){
+                            for (IntEntry<String> header : res.getResponse_headers().entries()) {
                                 if (header.value() == null) {
                                     continue;
                                 }
@@ -125,11 +141,13 @@ public class HttpProxy4CloudServer {
                             f.getResponseHeaders().remove(HttpHeader.Content_Length.getId());
                             if (res.getBodyContent() != null) {
                                 f.write(res.getBodyContent());
-                            }else if("chunked".equalsIgnoreCase(res.getResponse_headers().get(HttpHeader.Transfer_Encoding.getId()))){
-                                f.getResponseHeaders().remove(HttpHeader.Transfer_Encoding.getId()); 
-                                f.getResponseHeaders().remove(HttpHeader.Content_Encoding.getId()); 
-                                f.write("server response is chunked, not supported now.".getBytes());
-                                 
+                            } else if ("chunked".equalsIgnoreCase(res.getResponse_headers()
+                                    .get(HttpHeader.Transfer_Encoding.getId()))) {
+                                f.getResponseHeaders().remove(HttpHeader.Transfer_Encoding.getId());
+                                f.getResponseHeaders().remove(HttpHeader.Content_Encoding.getId());
+                                f.write("server response is chunked, not supported now."
+                                        .getBytes());
+
                             }
                             ch_src.flush(f);
                             ch.close();

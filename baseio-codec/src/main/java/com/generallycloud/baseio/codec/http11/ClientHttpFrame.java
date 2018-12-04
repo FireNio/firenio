@@ -47,7 +47,7 @@ public class ClientHttpFrame extends HttpFrame {
         if (ch.inEventLoop()) {
             ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
         } else {
-            ch.getEventLoop().executeAfterLoop(new Runnable() {
+            ch.getEventLoop().execute(new Runnable() {
 
                 @Override
                 public void run() {
@@ -60,7 +60,10 @@ public class ClientHttpFrame extends HttpFrame {
 
     @Override
     void setReadHeader(String name, String value) {
-        setRequestHeader0(name, value, client_response_headers);
+        HttpHeader header = getHeader(name);
+        if (header != null) {
+            client_response_headers.put(header.getId(), value);
+        }
     }
 
     @Override
