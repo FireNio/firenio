@@ -38,10 +38,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.generallycloud.baseio.common.Assert;
-import com.generallycloud.baseio.common.ClassUtil;
-import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 
 public class URLDynamicClassLoader extends URLClassLoader implements DynamicClassLoader {
 
@@ -322,7 +320,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
                 }
             }
         } finally {
-            CloseUtil.close(file);
+            Util.close(file);
         }
     }
 
@@ -395,13 +393,13 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
             list.clear();
         }
         this.resourcesMap.clear();
-        CloseUtil.close(this);
+        Util.close(this);
         try {
-            Field field = ClassUtil.getDeclaredFieldFC(getClass(), "defaultDomain");
+            Field field = Util.getDeclaredFieldFC(getClass(), "defaultDomain");
             if (field != null) {
                 field.setAccessible(true);
                 ProtectionDomain pd = (ProtectionDomain) field.get(this);
-                field = ClassUtil.getDeclaredFieldFC(pd.getClass(), "classloader");
+                field = Util.getDeclaredFieldFC(pd.getClass(), "classloader");
                 if (field != null) {
                     field.setAccessible(true);
                     field.set(pd, null);
@@ -409,7 +407,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
             }
         } catch (Throwable e) {}
         try {
-            Field field = ClassUtil.getDeclaredFieldFC(getClass(), "classes");
+            Field field = Util.getDeclaredFieldFC(getClass(), "classes");
             if (field != null) {
                 field.setAccessible(true);
                 @SuppressWarnings("unchecked")
@@ -493,7 +491,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
     @Override
     public void addExcludePath(String path) {
-        if (StringUtil.isNullOrBlank(path)) {
+        if (Util.isNullOrBlank(path)) {
             return;
         }
         excludePaths.add(path);
@@ -505,7 +503,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     }
 
     public void addMatchExtend(String extend) {
-        if (StringUtil.isNullOrBlank(extend)) {
+        if (Util.isNullOrBlank(extend)) {
             return;
         }
         matchExtend.add(extend);
@@ -516,7 +514,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     }
 
     public void addMatchStartWith(String extend) {
-        if (StringUtil.isNullOrBlank(extend)) {
+        if (Util.isNullOrBlank(extend)) {
             return;
         }
         matchStartWith.add(extend);

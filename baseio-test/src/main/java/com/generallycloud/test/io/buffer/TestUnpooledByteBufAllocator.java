@@ -17,7 +17,7 @@ package com.generallycloud.test.io.buffer;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
-import com.generallycloud.baseio.common.ReleaseUtil;
+import com.generallycloud.baseio.common.Util;
 
 /**
  * @author wangkai
@@ -34,7 +34,7 @@ public class TestUnpooledByteBufAllocator {
         ByteBuf buf = ByteBufUtil.direct(data.length);
         buf.put(data);
         buf.flip();
-        ReleaseUtil.release(buf);
+        Util.release(buf);
         for (;;) {
             ByteBuf buf2 = buf.duplicate();
             byte[] bb = buf2.getBytes();

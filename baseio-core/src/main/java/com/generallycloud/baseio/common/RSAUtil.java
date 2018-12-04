@@ -239,7 +239,7 @@ public class RSAUtil {
     }
 
     public static RSAPublicKey getRsaPublicKey(String content) {
-        if (StringUtil.isNullOrBlank(content)) {
+        if (Util.isNullOrBlank(content)) {
             throw new IllegalArgumentException("null content");
         }
         Map<String, String> map = parseRSAFromContent(content);
@@ -249,7 +249,7 @@ public class RSAUtil {
     }
 
     public static RSAPrivateKey getRsaPrivateKey(String content) {
-        if (StringUtil.isNullOrBlank(content)) {
+        if (Util.isNullOrBlank(content)) {
             throw new IllegalArgumentException("null content");
         }
         Map<String, String> map = parseRSAFromContent(content);

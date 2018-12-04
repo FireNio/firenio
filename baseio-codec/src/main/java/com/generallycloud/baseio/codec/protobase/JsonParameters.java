@@ -21,7 +21,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.collection.Parameters;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 
 public class JsonParameters implements Parameters {
 
@@ -30,7 +30,7 @@ public class JsonParameters implements Parameters {
     private String     json;
 
     public JsonParameters(String json) {
-        if (!StringUtil.isNullOrBlank(json)) {
+        if (!Util.isNullOrBlank(json)) {
             try {
                 jsonObject = JSON.parseObject(json);
             } catch (Exception e) {
@@ -116,7 +116,7 @@ public class JsonParameters implements Parameters {
             return defaultValue;
         }
         String value = jsonObject.getString(key);
-        if (StringUtil.isNullOrBlank(value)) {
+        if (Util.isNullOrBlank(value)) {
             return defaultValue;
         }
         return value;

@@ -37,14 +37,14 @@ public class SHAUtil {
         long startTime = System.currentTimeMillis();
         int count = 1000000;
         for (int i = 0; i < count; i++) {
-            MathUtil.bytes2HexString(SHA1(ss));
+            ByteUtil.bytes2HexString(SHA1(ss));
         }
         System.out.println("Time:"+(System.currentTimeMillis() - startTime));
-        System.out.println(MathUtil.bytes2HexString(SHA1(ss)));
+        System.out.println(ByteUtil.bytes2HexString(SHA1(ss)));
 
-        System.out.println(MathUtil.bytes2HexString(SHA256(ss)));
+        System.out.println(ByteUtil.bytes2HexString(SHA256(ss)));
 
-        System.out.println(MathUtil.bytes2HexString(SHA512(ss)));
+        System.out.println(ByteUtil.bytes2HexString(SHA512(ss)));
     }
 
     public static byte[] SHA1(byte[] decript) {

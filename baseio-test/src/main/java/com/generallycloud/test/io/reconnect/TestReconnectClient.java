@@ -16,8 +16,7 @@
 package com.generallycloud.test.io.reconnect;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -55,12 +54,12 @@ public class TestReconnectClient {
 
         int count = 99999;
         for (int i = 0; ; i++) {
-            ThreadUtil.sleep(1000);
+            Util.sleep(1000);
             if (i > count) {
                 break;
             }
         }
 
-        CloseUtil.close(connector);
+        Util.close(connector);
     }
 }

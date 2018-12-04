@@ -20,7 +20,7 @@ public class Properties extends java.util.Properties {
     private static final long serialVersionUID = 1L;
 
     public Properties loadString(String content) {
-        if (StringUtil.isNullOrBlank(content)) {
+        if (Util.isNullOrBlank(content)) {
             return this;
         }
         String[] lines = content.split("\n");
@@ -31,7 +31,7 @@ public class Properties extends java.util.Properties {
     }
 
     private void insertOneRow(String line) {
-        if (StringUtil.isNullOrBlank(line)) {
+        if (Util.isNullOrBlank(line)) {
             return;
         }
         int index = line.indexOf("=");
@@ -55,7 +55,7 @@ public class Properties extends java.util.Properties {
 
     public boolean getBooleanProperty(String key, boolean defaultValue) {
         String temp = getProperty(key);
-        if (StringUtil.isNullOrBlank(temp)) {
+        if (Util.isNullOrBlank(temp)) {
             return defaultValue;
         }
         return Boolean.valueOf(temp);
@@ -67,7 +67,7 @@ public class Properties extends java.util.Properties {
 
     public double getDoubleProperty(String key, double defaultValue) {
         String temp = getProperty(key);
-        if (StringUtil.isNullOrBlank(temp)) {
+        if (Util.isNullOrBlank(temp)) {
             return defaultValue;
         }
         return Double.valueOf(temp);
@@ -79,7 +79,7 @@ public class Properties extends java.util.Properties {
 
     public int getIntegerProperty(String key, int defaultValue) {
         String temp = getProperty(key);
-        if (StringUtil.isNullOrBlank(temp)) {
+        if (Util.isNullOrBlank(temp)) {
             return defaultValue;
         }
         return Integer.parseInt(temp);
@@ -91,7 +91,7 @@ public class Properties extends java.util.Properties {
 
     public long getLongProperty(String key, long defaultValue) {
         String temp = getProperty(key);
-        if (StringUtil.isNullOrBlank(temp)) {
+        if (Util.isNullOrBlank(temp)) {
             return defaultValue;
         }
         return Long.parseLong(temp);
@@ -99,7 +99,7 @@ public class Properties extends java.util.Properties {
 
     public String getPropertyNoBlank(String key) throws PropertiesException {
         String value = getProperty(key);
-        if (StringUtil.isNullOrBlank(value)) {
+        if (Util.isNullOrBlank(value)) {
             throw new PropertiesException("property " + key + " is empty");
         }
         return value;

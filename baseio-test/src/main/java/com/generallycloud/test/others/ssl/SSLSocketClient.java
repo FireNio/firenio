@@ -27,8 +27,8 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.FileUtil;
+import com.generallycloud.baseio.common.Util;
 
 public class SSLSocketClient {
 
@@ -84,8 +84,8 @@ public class SSLSocketClient {
         byte[] buf = new byte[length + 200];
         int len = input.read(buf);
 
-        CloseUtil.close(output);
-        CloseUtil.close(input);
+        Util.close(output);
+        Util.close(input);
         String str = new String(buf, 0, len);
         FileUtil.writeByCls("test.txt", str, false);
         System.out.println("received:" + str);

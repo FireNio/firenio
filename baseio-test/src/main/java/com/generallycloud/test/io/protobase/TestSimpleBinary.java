@@ -17,8 +17,7 @@ package com.generallycloud.test.io.protobase;
 
 import com.generallycloud.baseio.codec.protobase.ProtobaseCodec;
 import com.generallycloud.baseio.codec.protobase.ProtobaseFrame;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -48,8 +47,8 @@ public class TestSimpleBinary {
         f.write("text22222".getBytes());
         f.writeBinary("binary22222".getBytes());
         channel.flush(f);
-        ThreadUtil.sleep(500);
-        CloseUtil.close(context);
+        Util.sleep(500);
+        Util.close(context);
     }
 
 }

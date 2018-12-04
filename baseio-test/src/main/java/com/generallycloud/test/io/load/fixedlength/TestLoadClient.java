@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthCodec;
 import com.generallycloud.baseio.codec.fixedlength.FixedLengthFrame;
-import com.generallycloud.baseio.common.CloseUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelConnector;
 import com.generallycloud.baseio.component.IoEventHandle;
 import com.generallycloud.baseio.component.LoggerChannelOpenListener;
@@ -78,7 +78,7 @@ public class TestLoadClient {
                 BigDecimal.ROUND_HALF_UP));
         System.out.println("## Expend Time:" + spend);
 
-        CloseUtil.close(context);
+        Util.close(context);
 
     }
 }

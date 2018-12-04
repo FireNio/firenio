@@ -15,7 +15,7 @@
  */
 package com.generallycloud.test.others;
 
-import com.generallycloud.baseio.common.MathUtil;
+import com.generallycloud.baseio.common.ByteUtil;
 
 //一共有7*3=21个格子，要随机选取其中16个格子，一共有多少种可能，用程序表示出来
 public class Test1 {
@@ -145,7 +145,7 @@ public class Test1 {
                 120, 105, 102, 116, 103, 97, 100, 102, 51, 98, 99, 100, 121, 0, 0, 0, 118, 64, 7,
                 81, 85, 69, 85, 69, 95, 49 };
 
-        System.out.println(MathUtil.byte2Int(bb, 0));
+        System.out.println(ByteUtil.byte2Int(bb, 0));
 
     }
 

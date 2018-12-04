@@ -19,8 +19,7 @@ import org.springframework.stereotype.Service;
 
 import com.generallycloud.baseio.codec.http11.Cookie;
 import com.generallycloud.baseio.codec.http11.HttpFrame;
-import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.common.UUIDGenerator;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.sample.baseio.http11.HttpFrameAcceptor;
 
@@ -31,11 +30,11 @@ public class TestCookieHeaderServlet extends HttpFrameAcceptor {
     protected void doAccept(NioSocketChannel ch, HttpFrame frame) throws Exception {
         String name = frame.getRequestParam("name");
         String value = frame.getRequestParam("value");
-        if (StringUtil.isNullOrBlank(name)) {
+        if (Util.isNullOrBlank(name)) {
             name = "test8";
         }
-        if (StringUtil.isNullOrBlank(value)) {
-            value = UUIDGenerator.random();
+        if (Util.isNullOrBlank(value)) {
+            value = Util.randomUUID();
         }
         String res = "yes server already accept your message :) " + frame.getRequestParams();
         Cookie c = new Cookie(name, value);

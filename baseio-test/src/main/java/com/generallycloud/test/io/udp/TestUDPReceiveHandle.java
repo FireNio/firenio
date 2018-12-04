@@ -78,7 +78,7 @@ public class TestUDPReceiveHandle {
     //
     //            //			logger.debug("________________________send_packet:{}",packet);
     //
-    //            ThreadUtil.sleep(sleep);
+    //            Util.sleep(sleep);
     //        }
     //    }
     //
@@ -115,7 +115,7 @@ public class TestUDPReceiveHandle {
     //
     //            //			logger.debug("________________________send_packet:{}",packet);
     //
-    //            ThreadUtil.sleep(sleep);
+    //            Util.sleep(sleep);
     //        }
     //    }
     //

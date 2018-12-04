@@ -54,10 +54,9 @@ import javax.net.ssl.X509TrustManager;
 
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.BASE64Util;
-import com.generallycloud.baseio.common.CloseUtil;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.SslContext.ClientAuth;
 
 /**
@@ -107,7 +106,7 @@ public final class SslContextBuilder {
         if (keyPassword == null) {
             keyPassword = "";
         }
-        char[] keyPasswordChars = StringUtil.stringToCharArray(keyPassword);
+        char[] keyPasswordChars = keyPassword.toCharArray();
         KeyStore ks = buildKeyStore(certChain, key, keyPasswordChars);
         return buildKeyManagerFactory(ks, keyPasswordChars);
     }
@@ -165,7 +164,7 @@ public final class SslContextBuilder {
         }
         EncryptedPrivateKeyInfo epki = new EncryptedPrivateKeyInfo(key);
         SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(epki.getAlgName());
-        PBEKeySpec pbeKeySpec = new PBEKeySpec(StringUtil.stringToCharArray(password));
+        PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray());
         SecretKey pbeKey = keyFactory.generateSecret(pbeKeySpec);
         Cipher cipher = Cipher.getInstance(epki.getAlgName());
         cipher.init(Cipher.DECRYPT_MODE, pbeKey, epki.getAlgParameters());
@@ -216,8 +215,8 @@ public final class SslContextBuilder {
         try {
             return keyManager(certInput, keyInput, keyPassword);
         } finally {
-            CloseUtil.close(keyInput);
-            CloseUtil.close(certInput);
+            Util.close(keyInput);
+            Util.close(certInput);
         }
     }
 
@@ -240,7 +239,7 @@ public final class SslContextBuilder {
         } catch (Exception e) {
             throw new IllegalArgumentException("Input stream not contain valid certificates.", e);
         } finally {
-            CloseUtil.close(certChainInput);
+            Util.close(certChainInput);
         }
         try {
             key = toPrivateKey(keyInput, keyPassword);
@@ -248,7 +247,7 @@ public final class SslContextBuilder {
             throw new IllegalArgumentException("Input stream does not contain valid private key.",
                     e);
         } finally {
-            CloseUtil.close(keyInput);
+            Util.close(keyInput);
         }
         this.keyManagerFactory = buildKeyManagerFactory(keyCertChain, key, keyPassword);
         return this;
@@ -261,7 +260,7 @@ public final class SslContextBuilder {
             if (keyPassword == null) {
                 keyPassword = "";
             }
-            char[] keyPasswordChars = StringUtil.stringToCharArray(keyPassword);
+            char[] keyPasswordChars = keyPassword.toCharArray();
             KeyStore keystore = KeyStore.getInstance("JKS");
             keystore.load(keystoreInput, keyPasswordChars);
             this.keyManagerFactory = buildKeyManagerFactory(keystore, keyPasswordChars);
@@ -269,7 +268,7 @@ public final class SslContextBuilder {
         } catch (Exception e) {
             throw new SSLException(e);
         } finally {
-            CloseUtil.close(keystoreInput);
+            Util.close(keystoreInput);
         }
     }
 
@@ -446,7 +445,7 @@ public final class SslContextBuilder {
         } catch (FileNotFoundException e) {
             throw new CertificateException("could not find certificate file: " + file);
         } finally {
-            CloseUtil.close(in);
+            Util.close(in);
         }
     }
 

@@ -41,7 +41,7 @@ public abstract class Assert {
     }
 
     public static void hasText(String text, String message) {
-        if (!StringUtil.hasText(text)) {
+        if (!Util.hasText(text)) {
             throw new IllegalArgumentException(message);
         }
     }
@@ -51,7 +51,7 @@ public abstract class Assert {
     }
 
     public static void notEmpty(Object[] array, String message) {
-        if (CollectionUtil.isEmpty(array)) {
+        if (Util.isEmpty(array)) {
             throw new IllegalArgumentException(message);
         }
     }
@@ -61,7 +61,7 @@ public abstract class Assert {
     }
 
     public static void notEmpty(Collection<?> collection, String message) {
-        if (CollectionUtil.isEmpty(collection)) {
+        if (Util.isEmpty(collection)) {
             throw new IllegalArgumentException(message);
         }
     }
@@ -71,7 +71,7 @@ public abstract class Assert {
     }
 
     public static void notEmpty(Map<?, ?> map, String message) {
-        if (CollectionUtil.isEmpty(map)) {
+        if (Util.isEmpty(map)) {
             throw new IllegalArgumentException(message);
         }
     }

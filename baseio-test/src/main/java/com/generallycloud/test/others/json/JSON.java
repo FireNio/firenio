@@ -21,9 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.generallycloud.baseio.common.StringLexer;
-import com.generallycloud.baseio.common.StringUtil;
-
 public class JSON {
 
     private static String createUnexpectExceptionMessage(char token, int index) {
@@ -277,7 +274,7 @@ public class JSON {
         if (content == null || content.length() == 0) {
             return null;
         }
-        StringLexer lexer = new StringLexer(0, StringUtil.stringToCharArray(content));
+        StringLexer lexer = new StringLexer(0, content);
         if (lexer.current() != JSONToken.ARRAY_START) {
             throw new JSONSyntaxException("except token [ at index 0");
         }
@@ -292,7 +289,7 @@ public class JSON {
         if (content == null || content.length() == 0) {
             return null;
         }
-        StringLexer lexer = new StringLexer(0, StringUtil.stringToCharArray(content));
+        StringLexer lexer = new StringLexer(0, content);
         if (lexer.current() != JSONToken.OBJECT_START) {
             throw new JSONSyntaxException("except token { at index 0");
         }

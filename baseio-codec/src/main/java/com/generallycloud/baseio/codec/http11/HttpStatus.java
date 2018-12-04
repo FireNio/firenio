@@ -208,7 +208,7 @@ public enum HttpStatus {
         }
     }
     
-    public static HttpStatus getStatus(int status) {
+    public static HttpStatus get(int status) {
         if (status == 200) {
             return C200;
         }

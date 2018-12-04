@@ -125,7 +125,7 @@ public abstract class AbstractEventLoop implements EventLoop {
             }
             //            if (!inEventLoop()) {
             //                for (; !isStopped();) {
-            //                    ThreadUtil.sleep(4);
+            //                    Util.sleep(4);
             //                }
             //            }
             try {

@@ -15,7 +15,7 @@
  */
 package com.generallycloud.test.others;
 
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 
 /**
  * @author wangkai
@@ -25,11 +25,11 @@ public class TestSingleton {
 
     public static void main(String[] args) {
 
-        ThreadUtil.exec(() -> {
+        Util.exec(() -> {
             Singleton.getSingleton();
         });
 
-        ThreadUtil.exec(() -> {
+        Util.exec(() -> {
             Singleton.getSingleton();
         });
 

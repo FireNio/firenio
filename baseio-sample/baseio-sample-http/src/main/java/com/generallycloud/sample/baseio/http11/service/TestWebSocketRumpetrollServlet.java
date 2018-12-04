@@ -25,7 +25,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.generallycloud.baseio.LifeCycleUtil;
 import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.WebSocketFrame;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -44,8 +44,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptor {
         if (frame instanceof HttpFrame) {
             HttpFrame f = (HttpFrame) frame;
             f.updateWebSocketProtocol(ch);
-            ch.flush(frame);
-            msgAdapter.addClient(ch.getRemoteAddrPort(), ch);
+            msgAdapter.addClient(ch.getDesc(), ch);
             JSONObject o = new JSONObject();
             o.put("type", "welcome");
             o.put("id", ch.getChannelId());
@@ -71,8 +70,8 @@ public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptor {
             String msg = f.getReadText();
             JSONObject o = JSON.parseObject(msg);
             String name = o.getString("name");
-            if (StringUtil.isNullOrBlank(name)) {
-                name = ch.getRemoteAddrPort();
+            if (Util.isNullOrBlank(name)) {
+                name = Util.randomUUID();
             }
             o.put("name", name);
             o.put("id", ch.getChannelId());

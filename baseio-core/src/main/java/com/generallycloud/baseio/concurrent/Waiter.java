@@ -17,7 +17,7 @@ package com.generallycloud.baseio.concurrent;
 
 public class Waiter<T> implements Callback<T> {
 
-    protected boolean   isDnoe;
+    protected boolean   isDone;
     protected T         response;
     protected Throwable throwable;
     protected boolean   timeouted;
@@ -34,13 +34,13 @@ public class Waiter<T> implements Callback<T> {
      */
     public boolean await(long timeout) {
         synchronized (this) {
-            if (isDnoe) {
+            if (isDone) {
                 return false;
             }
             try {
                 this.wait(timeout);
             } catch (InterruptedException e) {}
-            timeouted = !isDnoe;
+            timeouted = !isDone;
         }
         return timeouted;
     }
@@ -48,7 +48,7 @@ public class Waiter<T> implements Callback<T> {
     @Override
     public void call(T res, Throwable ex) {
         synchronized (this) {
-            this.isDnoe = true;
+            this.isDone = true;
             this.response = res;
             this.throwable = ex;
             this.notify();
@@ -63,8 +63,8 @@ public class Waiter<T> implements Callback<T> {
         return response;
     }
 
-    public boolean isDnoe() {
-        return isDnoe;
+    public boolean isDone() {
+        return isDone;
     }
 
     //not include timeout

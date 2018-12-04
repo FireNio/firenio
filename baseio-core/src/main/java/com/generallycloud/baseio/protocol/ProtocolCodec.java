@@ -37,7 +37,9 @@ public abstract class ProtocolCodec {
 
     public abstract String getProtocolId();
 
-    public void initialize(ChannelContext context) {}
+    public void initialize(ChannelContext context) throws Exception {}
+
+    public void destory(ChannelContext context) {}
 
     public Frame ping(NioSocketChannel ch) {
         return null;

@@ -38,7 +38,7 @@ public class AESUtil {
         byte[] contentBytes = content.getBytes(charset);
         byte[] passwordBytes = password.getBytes(charset);
         byte[] res = encrypt(contentBytes, passwordBytes);
-        return MathUtil.bytes2HexString(res);
+        return ByteUtil.bytes2HexString(res);
     }
 
     public static byte[] encrypt(byte[] content, byte[] password) throws Exception {
@@ -86,7 +86,7 @@ public class AESUtil {
 
     public static String decrypt(String content, String password, Charset charset)
             throws Exception {
-        byte[] contentBytes = MathUtil.hexString2bytes(StringUtil.stringToCharArray(content));
+        byte[] contentBytes = ByteUtil.hexString2bytes(content);
         byte[] passowrdBytes = password.getBytes(charset);
         byte[] res = decrypt(contentBytes, passowrdBytes);
         return new String(res, charset);

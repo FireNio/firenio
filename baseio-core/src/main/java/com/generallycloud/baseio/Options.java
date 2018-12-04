@@ -15,7 +15,7 @@
  */
 package com.generallycloud.baseio;
 
-import com.generallycloud.baseio.common.PropertiesUtil;
+import com.generallycloud.baseio.common.Util;
 
 /**
  * @author wangkai
@@ -23,34 +23,43 @@ import com.generallycloud.baseio.common.PropertiesUtil;
  */
 public class Options {
 
-    static final String DEVELOP_DEBUG          = "com.generallycloud.baseio.develop.debug";
+    static final String DEVELOP_DEBUG          = "com.generallycloud.baseio.developDebug";
     static final String DISABLE_OPENSSL        = "com.generallycloud.baseio.ssl.disableOpenSsl";
     static final String OPENSSL_PATH           = "org.wildfly.openssl.path";
     static final String SSL_UNWRAP_BUFFER_SIZE = "com.generallycloud.baseio.ssl.unwrapBufferSize";
     static final String CHANNEL_READ_FIRST     = "com.generallycloud.baseio.channelReadFirst";
+    static final String BYTEBUF_DEBUG          = "com.generallycloud.baseio.bytebufDebug";
 
     public static String getOpensslPath() {
         return System.getProperty(OPENSSL_PATH);
     }
 
     public static int getSslUnwrapBufferSize(int defaultValue) {
-        return PropertiesUtil.getProperty(SSL_UNWRAP_BUFFER_SIZE, defaultValue);
+        return Util.getProperty(SSL_UNWRAP_BUFFER_SIZE, defaultValue);
     }
 
     public static boolean isDevelopDebug() {
-        return PropertiesUtil.isSystemTrue(DEVELOP_DEBUG);
+        return Util.isSystemTrue(DEVELOP_DEBUG);
+    }
+
+    public static boolean isByteBufDebug() {
+        return Util.isSystemTrue(BYTEBUF_DEBUG);
     }
 
     public static boolean isChannelReadFirst() {
-        return PropertiesUtil.isSystemTrue(CHANNEL_READ_FIRST);
+        return Util.isSystemTrue(CHANNEL_READ_FIRST);
     }
 
     public static boolean isDisableOpenssl() {
-        return PropertiesUtil.isSystemTrue(DISABLE_OPENSSL);
+        return Util.isSystemTrue(DISABLE_OPENSSL);
     }
 
     public static void setDevelopDebug(boolean debug) {
         System.setProperty(DEVELOP_DEBUG, String.valueOf(debug));
+    }
+
+    public static void setByteBufDebug(boolean debug) {
+        System.setProperty(BYTEBUF_DEBUG, String.valueOf(debug));
     }
 
     public static void setChannelReadFirst(boolean channelReadFirst) {

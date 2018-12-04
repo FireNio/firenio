@@ -19,27 +19,23 @@ import static com.generallycloud.baseio.codec.http11.HttpHeader.Connection;
 import static com.generallycloud.baseio.codec.http11.HttpHeader.Content_Type;
 import static com.generallycloud.baseio.codec.http11.HttpHeader.Sec_WebSocket_Accept;
 import static com.generallycloud.baseio.codec.http11.HttpHeader.Sec_WebSocket_Key;
-import static com.generallycloud.baseio.codec.http11.HttpHeader.Server;
 import static com.generallycloud.baseio.codec.http11.HttpHeader.Upgrade;
-import static com.generallycloud.baseio.codec.http11.HttpStatic.keep_alive_bytes;
-import static com.generallycloud.baseio.codec.http11.HttpStatic.server_baseio_bytes;
-import static com.generallycloud.baseio.codec.http11.HttpStatic.text_plain_gbk_bytes;
-import static com.generallycloud.baseio.codec.http11.HttpStatic.text_plain_utf8_bytes;
 import static com.generallycloud.baseio.codec.http11.HttpStatic.upgrade_bytes;
 import static com.generallycloud.baseio.codec.http11.HttpStatic.websocket_bytes;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.collection.IntMap;
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.BASE64Util;
-import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.SHAUtil;
-import com.generallycloud.baseio.common.StringUtil;
-import com.generallycloud.baseio.component.ChannelContext;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.protocol.AbstractFrame;
 
@@ -52,32 +48,25 @@ import com.generallycloud.baseio.protocol.AbstractFrame;
  */
 public class HttpFrame extends AbstractFrame implements HttpMessage {
 
-    byte[]                  bodyArray;
-    String                  boundary;
-    int                     contentLength;
-    String                  contentType;
-    List<Cookie>            cookieList;
-    StringBuilder           currentHeaderLine = new StringBuilder();
-    boolean                 header_complete;
-    int                     headerLength;
-    HttpMethod              method;
-    Map<String, String>     params            = new HashMap<>();
-    boolean                 parseFirstLine    = true;
-    String                  readText;
-    Map<HttpHeader, String> request_headers   = new HashMap<>();
-    String                  requestURI;
-    Map<HttpHeader, byte[]> response_headers  = new HashMap<>();
-    HttpStatus              status            = HttpStatus.C200;
-    boolean                 updateWebSocketProtocol;
-    HttpVersion             version;
-    Map<String, String>     cookies;
+    byte[]              bodyArray;
+    int                 contentLength;
+    int                 contentType;
+    List<Cookie>        cookieList;
+    Map<String, String> cookies;
+    int                 decode_state;
+    int                 headerLength;
+    int                 method;
+    Map<String, String> params           = new HashMap<>();
+    IntMap<String>      request_headers  = new IntMap<>(16);
+    String              requestURL;
+    IntMap<byte[]>      response_headers = new IntMap<>(8);
+    int                 status           = HttpStatus.C200.getStatus();
+    int                 version;
 
-    public HttpFrame() {}
-
-    public HttpFrame(ChannelContext context) {
-        setDefaultResponseHeaders(context);
+    public void setRequestHeaders(IntMap<String> requestHeaders) {
+        this.request_headers = requestHeaders;
     }
-
+    
     public void addCookie(Cookie cookie) {
         if (cookieList == null) {
             cookieList = new ArrayList<>();
@@ -104,15 +93,25 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
     }
 
     public String getBoundary() {
-        return boundary;
+        if (contentType == HttpContentType.MULTIPART.getId()) {
+            return HttpCodec.parseBoundary(getReadHeader(Content_Type));
+        }
+        return null;
     }
 
     public int getContentLength() {
         return contentLength;
     }
 
-    public String getContentType() {
+    public int getContentType() {
         return contentType;
+    }
+
+    public String getCookie(String name) {
+        if (cookies == null) {
+            return null;
+        }
+        return cookies.get(name);
     }
 
     public List<Cookie> getCookieList() {
@@ -121,7 +120,7 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
 
     @Override
     public String getFrameName() {
-        return getRequestURI();
+        return getRequestURL();
     }
 
     public String getHost() {
@@ -129,6 +128,10 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
     }
 
     public HttpMethod getMethod() {
+        return HttpMethod.get(method);
+    }
+
+    public int getMethodId() {
         return method;
     }
 
@@ -138,29 +141,22 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
 
     @Override
     public String getReadText() {
-        return readText;
+        return null;
     }
 
     public String getRequestHeader(HttpHeader name) {
         if (name == null) {
             return null;
         }
-        return request_headers.get(name);
+        return request_headers.get(name.getId());
     }
 
-    public Map<HttpHeader, String> getRequestHeaders() {
+    public IntMap<String> getRequestHeaders() {
         return request_headers;
     }
 
     public String getRequestParam(String key) {
         return params.get(key);
-    }
-
-    public String getCookie(String name) {
-        if (cookies == null) {
-            return null;
-        }
-        return cookies.get(name);
     }
 
     public Map<String, String> getRequestParams() {
@@ -186,19 +182,27 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
      * <td>/xyz
      * </table>
      */
-    public String getRequestURI() {
-        return requestURI;
+    public String getRequestURL() {
+        return requestURL;
     }
 
-    public Map<HttpHeader, byte[]> getResponseHeaders() {
+    public IntMap<byte[]> getResponseHeaders() {
         return response_headers;
     }
 
     public HttpStatus getStatus() {
+        return HttpStatus.get(status);
+    }
+
+    public int getStatusId() {
         return status;
     }
 
     public HttpVersion getVersion() {
+        return HttpVersion.getMethod(version);
+    }
+
+    public int getVersionId() {
         return version;
     }
 
@@ -206,63 +210,39 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
         return bodyArray != null;
     }
 
-    public boolean isUpdateWebSocketProtocol() {
-        return updateWebSocketProtocol;
-    }
-
     HttpFrame reset(NioSocketChannel ch) {
         this.bodyArray = null;
-        this.boundary = null;
+        this.requestURL = null;
         this.contentLength = 0;
-        this.contentType = null;
-        this.clear(cookieList);
-        this.header_complete = false;
         this.headerLength = 0;
-        this.method = null;
-        this.parseFirstLine = true;
-        this.readText = null;
-        this.requestURI = null;
-        this.status = HttpStatus.C200;
-        this.version = null;
-        this.currentHeaderLine.setLength(0);
+        this.status = HttpStatus.C200.getStatus();
+        this.method = HttpMethod.OTHER.getId();
+        this.version = HttpVersion.OTHER.getId();
+        this.contentType = HttpContentType.OTHER.getId();
+        this.decode_state = HttpCodec.decode_state_line_one;
+        this.clear(cookieList);
+        this.clear(cookies);
         this.request_headers.clear();
         this.response_headers.clear();
         this.params.clear();
-        this.updateWebSocketProtocol = false;
-        this.setDefaultResponseHeaders(ch.getContext());
         super.reset();
         return this;
     }
 
-    void setBoundary(String boundary) {
-        this.boundary = boundary;
-    }
-
-    void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    private void setDefaultResponseHeaders(ChannelContext context) {
-        Map<HttpHeader, byte[]> headers = getResponseHeaders();
-        if (context.getCharset() == Encoding.GBK) {
-            headers.put(Content_Type, text_plain_gbk_bytes);
-        } else {
-            headers.put(Content_Type, text_plain_utf8_bytes);
-        }
-        headers.put(Server, server_baseio_bytes);
-        headers.put(Connection, keep_alive_bytes); // or close
-    }
-
     public void setMethod(HttpMethod method) {
-        this.method = method;
+        this.method = method.getId();
     }
 
     void setReadHeader(String name, String value) {
         setRequestHeader(name, value);
     }
-    
-    void setRequestHeader0(String name, String value,Map<HttpHeader, String> data) {
-        if (StringUtil.isNullOrBlank(name)) {
+
+    public void setRequestHeader(String name, String value) {
+        setRequestHeader0(name, value, request_headers);
+    }
+
+    void setRequestHeader0(String name, String value, IntMap<String> data) {
+        if (Util.isNullOrBlank(name)) {
             return;
         }
         HttpHeader header = HttpHeader.ALL.get(name);
@@ -272,15 +252,7 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
                 return;
             }
         }
-        data.put(header, value);
-    }
-
-    public void setRequestHeader(String name, String value) {
-        setRequestHeader0(name, value, request_headers);
-    }
-
-    public void setRequestHeaders(Map<HttpHeader, String> headers) {
-        this.request_headers = headers;
+        data.put(header.getId(), value);
     }
 
     public void setRequestParams(Map<String, String> params) {
@@ -288,17 +260,18 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
     }
 
     void setRequestURI(String requestURI) {
-        this.requestURI = requestURI;
+        this.requestURL = requestURI;
     }
 
     public void setResponseHeader(HttpHeader name, byte[] value) {
         Assert.notNull(name, "null name");
         Assert.notNull(value, "null value");
-        response_headers.put(name, value);
+        response_headers.put(name.getId(), value);
     }
-
-    public void setResponseHeaders(Map<HttpHeader, byte[]> headers) {
-        this.response_headers = headers;
+    
+    public void setResponseHeader(int name, byte[] value) {
+        Assert.notNull(value, "null value");
+        response_headers.put(name, value);
     }
 
     public void setReuestParam(String key, String value) {
@@ -309,21 +282,21 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
     }
 
     public void setStatus(HttpStatus status) {
-        this.status = status;
+        this.status = status.getStatus();
     }
 
-    public void setVersion(HttpVersion version) {
+    public void setVersion(int version) {
         this.version = version;
     }
 
     @Override
     public String toString() {
-        return getRequestURI();
+        return getRequestURL();
     }
 
-    public boolean updateWebSocketProtocol(NioSocketChannel ch) {
+    public boolean updateWebSocketProtocol(final NioSocketChannel ch) throws IOException {
         String Sec_WebSocket_Key_Value = getRequestHeader(Sec_WebSocket_Key);
-        if (!StringUtil.isNullOrBlank(Sec_WebSocket_Key_Value)) {
+        if (!Util.isNullOrBlank(Sec_WebSocket_Key_Value)) {
             //FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
             String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key_Value
                     + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -333,7 +306,18 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
             setResponseHeader(Connection, upgrade_bytes);
             setResponseHeader(Upgrade, websocket_bytes);
             setResponseHeader(Sec_WebSocket_Accept, acceptKey.getBytes());
-            updateWebSocketProtocol = true;
+            ch.setAttribute(WebSocketCodec.CHANNEL_KEY_SERVICE_NAME, getFrameName());
+            ch.getEventLoop().execute(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        ByteBuf buf = ch.encode(HttpFrame.this);
+                        ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+                        ch.flush(buf);
+                    } catch (IOException e) {}
+                }
+            });
             return true;
         }
         return false;

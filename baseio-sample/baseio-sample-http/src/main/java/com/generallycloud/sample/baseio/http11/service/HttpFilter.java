@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 
 import com.generallycloud.baseio.codec.http11.HttpMessage;
 import com.generallycloud.baseio.collection.Parameters;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.NioSocketChannel;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
@@ -50,7 +50,7 @@ public class HttpFilter implements HttpFrameFilter {
     }
 
     private boolean endContains(String frameName) {
-        int idx = StringUtil.lastIndexOf(frameName, '.', 5);
+        int idx = Util.lastIndexOf(frameName, '.', 5);
         if (idx == -1) {
             return false;
         }
@@ -79,7 +79,7 @@ public class HttpFilter implements HttpFrameFilter {
         }
         String remoteAddr = ch.getRemoteAddr();
         String readText = m.getReadText();
-        if (!StringUtil.isNullOrBlank(readText)) {
+        if (!Util.isNullOrBlank(readText)) {
             logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, frameName,
                     readText);
             return false;

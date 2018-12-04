@@ -46,6 +46,10 @@ public class IntArray {
     public int size() {
         return size;
     }
+    
+    public boolean isEmpty(){
+        return size == 0;
+    }
 
     public void clear() {
         size = 0;

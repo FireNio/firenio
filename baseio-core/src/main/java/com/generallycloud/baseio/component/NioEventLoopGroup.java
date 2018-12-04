@@ -150,7 +150,8 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private void initializeByteBufAllocator() {
         if (getAllocatorGroup() == null) {
             if (isEnableMemoryPool()) {
-                this.allocatorGroup = new PooledByteBufAllocatorGroup(this);
+                this.allocatorGroup = new PooledByteBufAllocatorGroup(getEventLoopSize(),
+                        memoryPoolCapacity, memoryPoolUnit, enableMemoryPoolDirect);
             } else {
                 this.allocatorGroup = new UnpooledByteBufAllocatorGroup(this);
             }

@@ -15,7 +15,7 @@
  */
 package com.generallycloud.sample.baseio.http11.startup;
 
-import com.generallycloud.baseio.common.ThreadUtil;
+import com.generallycloud.baseio.common.Util;
 
 /**
  * @author wangkai
@@ -28,7 +28,7 @@ public class TestHttpStartupDebug {
         System.out.println("debug.................................");
         boolean test = true;
         for(;test;){
-            ThreadUtil.sleep(100);
+            Util.sleep(100);
         }
         TestHttpStartup.main(args);
     }

@@ -55,7 +55,7 @@ public class ByteBufUtil {
     public static UnpooledByteBufAllocator direct() {
         return UnpooledByteBufAllocator.getDirect();
     }
-
+    
     public static int read(ByteBuf buf, InputStream inputStream) throws IOException {
         return read(buf, inputStream, buf.capacity());
     }

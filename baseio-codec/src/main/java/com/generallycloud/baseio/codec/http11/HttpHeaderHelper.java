@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.generallycloud.test.others;
+package com.generallycloud.baseio.codec.http11;
 
-import com.alibaba.fastjson.util.TypeUtils;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class Test2 {
-
-    public static void main(String[] args) throws Exception {
-        TypeUtils.compatibleWithJavaBean = true;
-        
-//        String s = JSONObject.toJSONString(t);
-//        System.out.println(s);
-
-    }
+/**
+ * @author wangkai
+ *
+ */
+public class HttpHeaderHelper {
+    
+    public static final AtomicInteger HEADER_SEQ = new AtomicInteger();
 
 }

@@ -16,7 +16,7 @@
 package com.generallycloud.baseio.component;
 
 import static com.generallycloud.baseio.Develop.printException;
-import static com.generallycloud.baseio.common.ThrowableUtil.unknownStackTrace;
+import static com.generallycloud.baseio.common.Util.unknownStackTrace;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -43,9 +43,7 @@ import com.generallycloud.baseio.buffer.EmptyByteBuf;
 import com.generallycloud.baseio.collection.Attributes;
 import com.generallycloud.baseio.collection.AttributesImpl;
 import com.generallycloud.baseio.common.Assert;
-import com.generallycloud.baseio.common.CloseUtil;
-import com.generallycloud.baseio.common.ReleaseUtil;
-import com.generallycloud.baseio.common.ThrowableUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelContext.HeartBeatLogger;
 import com.generallycloud.baseio.concurrent.ExecutorEventLoop;
 import com.generallycloud.baseio.log.Logger;
@@ -58,12 +56,13 @@ public final class NioSocketChannel extends AttributesImpl
 
     private static final ClosedChannelException CLOSED_WHEN_FLUSH     = CLOSED_WHEN_FLUSH();
     private static final InetSocketAddress      ERROR_SOCKET_ADDRESS  = new InetSocketAddress(0);
+    private static final int                    INTEREST_WRITE        = INTEREST_WRITE();
     private static final Logger                 logger                = newLogger();
     private static final SSLException           NOT_TLS               = NOT_TLS();
     private static final int                    SSL_PACKET_LIMIT      = 1024 * 64;
     private static final SSLException           SSL_PACKET_OVER_LIMIT = SSL_PACKET_OVER_LIMIT();
     private static final SSLException           SSL_UNWRAP_OVER_LIMIT = SSL_UNWRAP_OVER_LIMIT();
-    
+
     private final SocketChannel                 channel;
     private final Integer                       channelId;
     private ProtocolCodec                       codec;
@@ -75,7 +74,8 @@ public final class NioSocketChannel extends AttributesImpl
     private final boolean                       enableSsl;
     private final NioEventLoop                  eventLoop;
     private final ExecutorEventLoop             executorEventLoop;
-    private boolean                             inEventBuffer;
+    private volatile boolean                    inEvent;
+    private int                                 interestOps           = SelectionKey.OP_READ;
     private IoEventHandle                       ioEventHandle;
     private long                                lastAccess;
     private final String                        localAddr;
@@ -84,7 +84,6 @@ public final class NioSocketChannel extends AttributesImpl
     private volatile boolean                    opened                = true;
     private ByteBuf                             plainRemainBuf;
     private final String                        remoteAddr;
-    private final String                        remoteAddrPort;
     private final int                           remotePort;
     private final SelectionKey                  selKey;
     private final SSLEngine                     sslEngine;
@@ -113,13 +112,13 @@ public final class NioSocketChannel extends AttributesImpl
         String idhex = Integer.toHexString(chId);
         this.remoteAddr = remote.getAddress().getHostAddress();
         this.remotePort = remote.getPort();
-        this.remoteAddrPort = remoteAddr + ":" + remotePort;
         this.localAddr = local.getAddress().getHostAddress();
         this.localPort = local.getPort();
-        this.desc = "[id(0x" + idhex + ")R/" + remoteAddrPort + "; L:" + getLocalPort() + "]";
+        this.desc = newDesc(idhex);
         if (ctx.isEnableSsl()) {
             this.sslEngine = ctx.getSslContext().newEngine(remoteAddr, remotePort);
         } else {
+            this.sslHandshakeFinished = true;
             this.sslEngine = null;
         }
     }
@@ -200,7 +199,7 @@ public final class NioSocketChannel extends AttributesImpl
             if (context.getSslContext().isClient()) {
                 try {
                     writeBufs.offer(wrap(EmptyByteBuf.get()));
-                    write(selKey.interestOps());
+                    write();
                 } catch (Exception e) {}
             }
             try {
@@ -227,12 +226,9 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private void finishHandshake() {
-        sslHandshakeFinished = true;
-        if (context.getSslContext().isClient()) {
-            ChannelConnector connector = (ChannelConnector) context;
-            connector.finishConnect(this, null);
-        }
-        fireOpend();
+        this.sslHandshakeFinished = true;
+        this.fireOpend();
+        this.context.channelEstablish(this, null);
     }
 
     private void fireClosed() {
@@ -249,12 +245,14 @@ public final class NioSocketChannel extends AttributesImpl
 
     protected void fireOpend() {
         final NioSocketChannel ch = this;
-        for (ChannelEventListener l : context.getChannelEventListeners()) {
+        List<ChannelEventListener> ls = context.getChannelEventListeners();
+        for (int i = 0, count = ls.size(); i < count; i++) {
+            ChannelEventListener l = ls.get(i);
             try {
                 l.channelOpened(ch);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
-                CloseUtil.close(ch);
+                Util.close(ch);
                 return;
             }
         }
@@ -281,8 +279,7 @@ public final class NioSocketChannel extends AttributesImpl
                 return;
             }
             writeBufs.offer(buf);
-            if (!inEventBuffer) {
-                inEventBuffer = true;
+            if (interestOps != INTEREST_WRITE) {
                 eventLoop.flush(this);
             }
         } else {
@@ -293,14 +290,13 @@ public final class NioSocketChannel extends AttributesImpl
             }
             writeBufs.offer(buf);
             if (isClosed()) {
-                ReleaseUtil.release(writeBufs.poll());
+                Util.release(buf);
                 return;
             }
-            //FIXME 确认这里这么判断是否有问题
-            if (writeBufs.size() != 1) {
-                return;
+            if (!inEvent) {
+                inEvent = true;
+                eventLoop.flushAndWakeup(this);
             }
-            eventLoop.flushAndWakeup(this);
         }
     }
 
@@ -314,88 +310,11 @@ public final class NioSocketChannel extends AttributesImpl
         try {
             buf = codec.encode(this, frame);
         } catch (Exception e) {
-            ReleaseUtil.release(buf);
+            Util.release(buf);
             exceptionCaught(frame, e);
             return;
         }
         flush(buf);
-    }
-
-    //FIXME ..使用该方法貌似会性能下降？查找原因
-    public void flush(List<ByteBuf> bufs) {
-        if (bufs != null && !bufs.isEmpty()) {
-            if (inEventLoop()) {
-                if (isClosed()) {
-                    ReleaseUtil.release(bufs);
-                    return;
-                }
-                final int bufsSize = bufs.size();
-                final Queue<ByteBuf> writeBufs = this.writeBufs;
-                if (writeBufs.isEmpty()) {
-                    final ByteBuf[] currentWriteBufs = this.currentWriteBufs;
-                    final int maxLen = currentWriteBufs.length;
-                    int currentWriteBufsLen = this.currentWriteBufsLen;
-                    if (currentWriteBufsLen == 0) {
-                        if (bufsSize > maxLen) {
-                            for (int i = 0; i < maxLen; i++) {
-                                currentWriteBufs[i] = bufs.get(i);
-                            }
-                            for (int i = maxLen; i < bufsSize; i++) {
-                                writeBufs.offer(bufs.get(i));
-                            }
-                            this.currentWriteBufsLen = maxLen;
-                        } else {
-                            for (int i = 0; i < bufsSize; i++) {
-                                currentWriteBufs[i] = bufs.get(i);
-                            }
-                            this.currentWriteBufsLen = bufsSize;
-                        }
-                    } else {
-                        final int currentRemain = maxLen - currentWriteBufsLen;
-                        if (bufsSize > currentRemain) {
-                            for (int i = 0; i < currentRemain; i++) {
-                                currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
-                            }
-                            for (int i = currentRemain; i < bufsSize; i++) {
-                                writeBufs.offer(bufs.get(i));
-                            }
-                            this.currentWriteBufsLen = maxLen;
-                        } else {
-                            for (int i = 0; i < bufsSize; i++) {
-                                currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
-                            }
-                            this.currentWriteBufsLen += bufsSize;
-                        }
-                    }
-                } else {
-                    for (ByteBuf buf : bufs) {
-                        writeBufs.offer(buf);
-                    }
-                }
-                if (!inEventBuffer) {
-                    inEventBuffer = true;
-                    eventLoop.flush(this);
-                }
-            } else {
-                Queue<ByteBuf> writeBufs = this.writeBufs;
-                if (isClosed()) {
-                    ReleaseUtil.release(bufs);
-                    return;
-                }
-                for (ByteBuf buf : bufs) {
-                    writeBufs.offer(buf);
-                }
-                if (isClosed()) {
-                    releaseWriteBufQueue();
-                    return;
-                }
-                //FIXME 确认这里这么判断是否有问题
-                if (writeBufs.size() != bufs.size()) {
-                    return;
-                }
-                eventLoop.flushAndWakeup(this);
-            }
-        }
     }
 
     public Integer getChannelId() {
@@ -410,6 +329,82 @@ public final class NioSocketChannel extends AttributesImpl
         return codec;
     }
 
+    //    public void flush(List<ByteBuf> bufs) {
+    //        if (bufs != null && !bufs.isEmpty()) {
+    //            if (inEventLoop()) {
+    //                if (isClosed()) {
+    //                    Util.release(bufs);
+    //                    return;
+    //                }
+    //                final int bufsSize = bufs.size();
+    //                final Queue<ByteBuf> writeBufs = this.writeBufs;
+    //                if (writeBufs.isEmpty()) {
+    //                    final ByteBuf[] currentWriteBufs = this.currentWriteBufs;
+    //                    final int maxLen = currentWriteBufs.length;
+    //                    int currentWriteBufsLen = this.currentWriteBufsLen;
+    //                    if (currentWriteBufsLen == 0) {
+    //                        if (bufsSize > maxLen) {
+    //                            for (int i = 0; i < maxLen; i++) {
+    //                                currentWriteBufs[i] = bufs.get(i);
+    //                            }
+    //                            for (int i = maxLen; i < bufsSize; i++) {
+    //                                writeBufs.offer(bufs.get(i));
+    //                            }
+    //                            this.currentWriteBufsLen = maxLen;
+    //                        } else {
+    //                            for (int i = 0; i < bufsSize; i++) {
+    //                                currentWriteBufs[i] = bufs.get(i);
+    //                            }
+    //                            this.currentWriteBufsLen = bufsSize;
+    //                        }
+    //                    } else {
+    //                        final int currentRemain = maxLen - currentWriteBufsLen;
+    //                        if (bufsSize > currentRemain) {
+    //                            for (int i = 0; i < currentRemain; i++) {
+    //                                currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
+    //                            }
+    //                            for (int i = currentRemain; i < bufsSize; i++) {
+    //                                writeBufs.offer(bufs.get(i));
+    //                            }
+    //                            this.currentWriteBufsLen = maxLen;
+    //                        } else {
+    //                            for (int i = 0; i < bufsSize; i++) {
+    //                                currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
+    //                            }
+    //                            this.currentWriteBufsLen += bufsSize;
+    //                        }
+    //                    }
+    //                } else {
+    //                    for (ByteBuf buf : bufs) {
+    //                        writeBufs.offer(buf);
+    //                    }
+    //                }
+    //                if (!inEventBuffer) {
+    //                    inEventBuffer = true;
+    //                    eventLoop.flush(this);
+    //                }
+    //            } else {
+    //                Queue<ByteBuf> writeBufs = this.writeBufs;
+    //                if (isClosed()) {
+    //                    Util.release(bufs);
+    //                    return;
+    //                }
+    //                for (ByteBuf buf : bufs) {
+    //                    writeBufs.offer(buf);
+    //                }
+    //                if (isClosed()) {
+    //                    releaseWriteBufQueue();
+    //                    return;
+    //                }
+    //                //FIXME 确认这里这么判断是否有问题
+    //                if (writeBufs.size() != bufs.size()) {
+    //                    return;
+    //                }
+    //                eventLoop.flushAndWakeup(this);
+    //            }
+    //        }
+    //    }
+
     public String getCodecId() {
         return codec.getProtocolId();
     }
@@ -420,6 +415,10 @@ public final class NioSocketChannel extends AttributesImpl
 
     public long getCreationTime() {
         return creationTime;
+    }
+
+    public String getDesc() {
+        return desc;
     }
 
     public NioEventLoop getEventLoop() {
@@ -462,10 +461,6 @@ public final class NioSocketChannel extends AttributesImpl
         return remoteAddr;
     }
 
-    public String getRemoteAddrPort() {
-        return remoteAddrPort;
-    }
-
     public int getRemotePort() {
         return remotePort;
     }
@@ -500,21 +495,23 @@ public final class NioSocketChannel extends AttributesImpl
 
     @Override
     public int hashCode() {
-        return remoteAddrPort.hashCode();
+        return desc.hashCode();
     }
 
     public boolean inEventLoop() {
         return eventLoop.inEventLoop();
     }
 
-    private void interestRead(SelectionKey key, int interestOps) {
+    private void interestRead(SelectionKey key) {
         if (SelectionKey.OP_READ != interestOps) {
+            interestOps = SelectionKey.OP_READ;
             key.interestOps(SelectionKey.OP_READ);
         }
     }
 
-    private void interestWrite(SelectionKey key, int interestOps) {
+    private void interestWrite(SelectionKey key) {
         if ((SelectionKey.OP_READ | SelectionKey.OP_WRITE) != interestOps) {
+            interestOps = SelectionKey.OP_READ | SelectionKey.OP_WRITE;
             key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
         }
     }
@@ -601,6 +598,24 @@ public final class NioSocketChannel extends AttributesImpl
         return opened;
     }
 
+    protected boolean isSslHandshakeFinished() {
+        return sslHandshakeFinished;
+    }
+
+    private String newDesc(String idhex) {
+        StringBuilder sb = FastThreadLocal.get().getStringBuilder();
+        sb.append("[id(0x");
+        sb.append(idhex);
+        sb.append(")R/");
+        sb.append(remoteAddr);
+        sb.append(':');
+        sb.append(remotePort);
+        sb.append("; L:");
+        sb.append(getLocalPort());
+        sb.append("]");
+        return sb.toString();
+    }
+
     protected void read(ByteBuf src) throws IOException {
         lastAccess = System.currentTimeMillis();
         src.clear();
@@ -609,7 +624,7 @@ public final class NioSocketChannel extends AttributesImpl
             int length = channel.read(src.nioBuffer());
             if (length < 1) {
                 if (length == -1) {
-                    CloseUtil.close(this);
+                    Util.close(this);
                     return;
                 }
                 if (src.position() > 0) {
@@ -642,7 +657,7 @@ public final class NioSocketChannel extends AttributesImpl
             int length = channel.read(src.nioBuffer());
             if (length < 1) {
                 if (length == -1) {
-                    CloseUtil.close(this);
+                    Util.close(this);
                     return;
                 }
                 if (src.position() > 0) {
@@ -701,7 +716,7 @@ public final class NioSocketChannel extends AttributesImpl
         if (!wfs.isEmpty()) {
             ByteBuf buf = wfs.poll();
             for (; buf != null;) {
-                ReleaseUtil.release(buf);
+                Util.release(buf);
                 buf = wfs.poll();
             }
         }
@@ -710,11 +725,14 @@ public final class NioSocketChannel extends AttributesImpl
     @Override
     public void run() {
         if (isOpened()) {
-            inEventBuffer = false;
-            try {
-                write(selKey.interestOps());
-            } catch (Exception e) {
-                close();
+            inEvent = false;
+            if (interestOps != INTEREST_WRITE) {
+                try {
+                    write();
+                } catch (Exception e) {
+                    printException(logger, e);
+                    close();
+                }
             }
         }
     }
@@ -735,9 +753,9 @@ public final class NioSocketChannel extends AttributesImpl
             closeSsl();
             releaseWriteBufQueue();
             releaseWriteBufArray();
-            ReleaseUtil.release(sslRemainBuf);
-            ReleaseUtil.release(plainRemainBuf);
-            CloseUtil.close(channel);
+            Util.release(sslRemainBuf);
+            Util.release(plainRemainBuf);
+            Util.close(channel);
             selKey.attach(null);
             selKey.cancel();
             fireClosed();
@@ -768,7 +786,7 @@ public final class NioSocketChannel extends AttributesImpl
 
     private void stopContext() {
         if (context instanceof ChannelConnector) {
-            CloseUtil.close(((ChannelConnector) context));
+            Util.close(((ChannelConnector) context));
         }
     }
 
@@ -926,7 +944,7 @@ public final class NioSocketChannel extends AttributesImpl
                 }
             }
         } catch (Throwable e) {
-            ReleaseUtil.release(out);
+            Util.release(out);
             if (e instanceof IOException) {
                 throw (IOException) e;
             }
@@ -934,7 +952,7 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    protected boolean write(final int interestOps) throws IOException {
+    protected boolean write() throws IOException {
         final NioEventLoop eventLoop = this.eventLoop;
         final Queue<ByteBuf> writeBufs = this.writeBufs;
         final SelectionKey selectionKey = this.selKey;
@@ -951,7 +969,7 @@ public final class NioSocketChannel extends AttributesImpl
                 cwBufs[cwLen++] = buf;
             }
             if (cwLen == 0) {
-                interestRead(selectionKey, interestOps);
+                interestRead(selectionKey);
                 return true;
             }
             for (int i = 0; i < cwLen; i++) {
@@ -964,7 +982,7 @@ public final class NioSocketChannel extends AttributesImpl
                 if (nioBuf.hasRemaining()) {
                     this.currentWriteBufsLen = 1;
                     cwBufs[0].reverse();
-                    interestWrite(selectionKey, interestOps);
+                    interestWrite(selectionKey);
                     return false;
                 } else {
                     ByteBuf buf = cwBufs[0];
@@ -972,7 +990,7 @@ public final class NioSocketChannel extends AttributesImpl
                     buf.release();
                     this.currentWriteBufsLen = 0;
                     if (writeBufs.isEmpty()) {
-                        interestRead(selectionKey, interestOps);
+                        interestRead(selectionKey);
                         return true;
                     }
                     continue;
@@ -988,7 +1006,7 @@ public final class NioSocketChannel extends AttributesImpl
                         fillNull(cwBufs, remain, cwLen);
                         fillNull(writeBuffers, i, cwLen);
                         this.currentWriteBufsLen = remain;
-                        interestWrite(selectionKey, interestOps);
+                        interestWrite(selectionKey);
                         if (writeBufs.size() > maxWriteBacklog) {
                             close();
                         }
@@ -1001,7 +1019,7 @@ public final class NioSocketChannel extends AttributesImpl
                 fillNull(cwBufs, 0, cwLen);
                 this.currentWriteBufsLen = 0;
                 if (writeBufs.isEmpty()) {
-                    interestRead(selectionKey, interestOps);
+                    interestRead(selectionKey);
                     return true;
                 }
             }
@@ -1029,7 +1047,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private static ClosedChannelException CLOSED_WHEN_FLUSH() {
-        return ThrowableUtil.unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class,
+        return Util.unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class,
                 "flush(...)");
     }
 
@@ -1038,19 +1056,22 @@ public final class NioSocketChannel extends AttributesImpl
             a[i] = null;
     }
 
+    private static int INTEREST_WRITE() {
+        return SelectionKey.OP_READ | SelectionKey.OP_WRITE;
+    }
+
     private static Logger newLogger() {
         return LoggerFactory.getLogger(NioSocketChannel.class);
     }
 
     private static SSLException NOT_TLS() {
-        return ThrowableUtil.unknownStackTrace(new SSLException("NOT TLS"), NioSocketChannel.class,
+        return Util.unknownStackTrace(new SSLException("NOT TLS"), NioSocketChannel.class,
                 "isEnoughSslUnwrap()");
     }
 
     private static SSLException SSL_PACKET_OVER_LIMIT() {
-        return ThrowableUtil.unknownStackTrace(
-                new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"), NioSocketChannel.class,
-                "isEnoughSslUnwrap()");
+        return Util.unknownStackTrace(new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"),
+                NioSocketChannel.class, "isEnoughSslUnwrap()");
     }
 
     private static SSLException SSL_UNWRAP_OVER_LIMIT() {

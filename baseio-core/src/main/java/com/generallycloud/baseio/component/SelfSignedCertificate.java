@@ -34,7 +34,7 @@ import java.util.Date;
 import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.Encoding;
 import com.generallycloud.baseio.common.FileUtil;
-import com.generallycloud.baseio.common.StringUtil;
+import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.log.Logger;
 import com.generallycloud.baseio.log.LoggerFactory;
 
@@ -311,7 +311,7 @@ public final class SelfSignedCertificate {
     private File write2file(String fileRoot, String name, String subfix, String text,
             Charset charset) throws IOException {
         File file;
-        if (StringUtil.isNullOrBlank(fileRoot)) {
+        if (Util.isNullOrBlank(fileRoot)) {
             file = File.createTempFile(name + "_", subfix);
         } else {
             file = new File(fileRoot + File.separator + name + subfix);
