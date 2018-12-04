@@ -37,12 +37,8 @@ import com.generallycloud.baseio.protocol.Frame;
  */
 public class ClientHttpCodec extends HttpCodec {
 
-    private static final byte[] COOKIE                  = "Cookie:".getBytes();
-    private static final byte[] PROTOCOL                = " HTTP/1.1\r\nContent-Length: "
-            .getBytes();
-    private static final byte   SEMICOLON               = ';';
-    private int                 websocketLimit          = 1024 * 128;
-    private int                 websocketFrameStackSize = 0;
+    private static final byte[] COOKIE                  = b("Cookie:");
+    private static final byte[] PROTOCOL                = b(" HTTP/1.1\r\nContent-Length: ");
 
     @Override
     ClientHttpFrame allocHttpFrame(NioSocketChannel ch) {
@@ -120,7 +116,7 @@ public class ClientHttpCodec extends HttpCodec {
             buf.put(encode_bytes_array.get(j++));
             buf.putByte((byte) ':');
             buf.put(encode_bytes_array.get(j++));
-            buf.putByte(SEMICOLON);
+            buf.putByte((byte) ':');
         }
         buf.putByte(R);
         buf.putByte(N);
@@ -151,32 +147,12 @@ public class ClientHttpCodec extends HttpCodec {
         return decode_state_complate;
     }
 
-    protected void parseFirstLine(HttpFrame f, StringBuilder line) {
+    @Override
+    protected void parse_line_one(HttpFrame f, StringBuilder line) {
         int index = Util.indexOf(line, ' ');
         int status = Integer.parseInt(line.substring(index + 1, index + 4));
         f.setVersion(HttpVersion.HTTP1_1.getId());
         f.setStatus(HttpStatus.get(status));
-    }
-
-    @Override
-    public String getProtocolId() {
-        return "HTTP11";
-    }
-
-    public int getWebsocketLimit() {
-        return websocketLimit;
-    }
-
-    public void setWebsocketLimit(int websocketLimit) {
-        this.websocketLimit = websocketLimit;
-    }
-
-    public int getWebsocketFrameStackSize() {
-        return websocketFrameStackSize;
-    }
-
-    public void setWebsocketFrameStackSize(int websocketFrameStackSize) {
-        this.websocketFrameStackSize = websocketFrameStackSize;
     }
 
     private String getRequestURI(HttpFrame frame) {
@@ -199,7 +175,7 @@ public class ClientHttpCodec extends HttpCodec {
 
     @Override
     public void initialize(ChannelContext context) throws Exception {
-        WebSocketCodec.init(context, websocketLimit, websocketFrameStackSize);
+        WebSocketCodec.init(context, getWebsocketLimit(), getWebsocketFrameStackSize());
     }
 
 }

@@ -180,14 +180,14 @@ public class HttpProxyServer {
         }
 
         @Override
-        protected void parseFirstLine(HttpFrame f, StringBuilder line) {
+        protected void parse_line_one(HttpFrame f, StringBuilder line) {
             if (line.charAt(0) == 'C' && line.charAt(1) == 'O' && line.charAt(2) == 'N'
                     && line.charAt(3) == 'N' && line.charAt(4) == 'E' && line.charAt(5) == 'C'
                     && line.charAt(6) == 'T' && line.charAt(7) == ' ') {
                 f.setMethod(HttpMethod.CONNECT);
                 parseRequestURL(f, 8, line);
             } else {
-                super.parseFirstLine(f, line);
+                super.parse_line_one(f, line);
             }
         }
 

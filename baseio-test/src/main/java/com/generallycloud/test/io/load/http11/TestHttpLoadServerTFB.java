@@ -45,7 +45,7 @@ public class TestHttpLoadServerTFB {
         LoggerFactory.setEnableSLF4JLogger(false);
         LoggerFactory.setLogLevel(LoggerFactory.LEVEL_INFO);
         Options.setDevelopDebug(false);
-        Options.setChannelReadFirst(true);
+        Options.setChannelReadFirst(false);
 
         IoEventHandle eventHandle = new IoEventHandle() {
 

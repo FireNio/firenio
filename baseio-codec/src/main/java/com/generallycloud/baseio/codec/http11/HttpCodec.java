@@ -120,7 +120,7 @@ public class HttpCodec extends ProtocolCodec {
             if (read_line(line, src, 0, headerLimit)) {
                 f.headerLength += line.length();
                 decode_state = decode_state_header;
-                parseFirstLine(f, line);
+                parse_line_one(f, line);
             }
         }
         if (decode_state == decode_state_header) {
@@ -377,7 +377,7 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    protected void parseFirstLine(HttpFrame f, StringBuilder line) {
+    protected void parse_line_one(HttpFrame f, StringBuilder line) {
         if (line.charAt(0) == 'G' && line.charAt(1) == 'E' && line.charAt(2) == 'T') {
             f.setMethod(HttpMethod.GET);
             parseRequestURL(f, 4, line);
@@ -403,27 +403,40 @@ public class HttpCodec extends ProtocolCodec {
     private static boolean read_line(StringBuilder line, ByteBuf src, int length, int limit)
             throws IOException {
         src.markP();
-        src.markL();
         int maybeRead = limit - length;
         if (src.remaining() > maybeRead) {
+            src.markL();
             src.limit(maybeRead);
-        }
-        for (; src.hasRemaining();) {
-            byte b = src.getByte();
-            if (b == N) {
-                int p = line.length() - 1;
-                if (line.charAt(p) == R) {
-                    line.setLength(p);
+            for (; src.hasRemaining();) {
+                byte b = src.getByte();
+                if (b == N) {
+                    int p = line.length() - 1;
+                    if (line.charAt(p) == R) {
+                        line.setLength(p);
+                    }
+                    src.resetL();
+                    return true;
+                } else {
+                    line.append((char) (b & 0xff));
                 }
-                src.resetL();
-                return true;
-            } else {
-                line.append((char) (b & 0xff));
             }
-        }
-        src.resetL();
-        if (src.hasRemaining()) {
-            throw new IOException("max http header length " + limit);
+            src.resetL();
+            if (src.hasRemaining()) {
+                throw new IOException("max http header length " + limit);
+            }
+        } else {
+            for (; src.hasRemaining();) {
+                byte b = src.getByte();
+                if (b == N) {
+                    int p = line.length() - 1;
+                    if (line.charAt(p) == R) {
+                        line.setLength(p);
+                    }
+                    return true;
+                } else {
+                    line.append((char) (b & 0xff));
+                }
+            }
         }
         src.resetP();
         return false;
@@ -451,7 +464,7 @@ public class HttpCodec extends ProtocolCodec {
         byte[] value;
     }
 
-    private static byte[] b(String s) {
+    static byte[] b(String s) {
         return s.getBytes();
     }
 
