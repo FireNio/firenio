@@ -403,36 +403,27 @@ public class HttpCodec extends ProtocolCodec {
     private static boolean read_line(StringBuilder line, ByteBuf src, int length, int limit)
             throws IOException {
         src.markP();
-        int len = length;
-        if (length + src.remaining() < limit) {
-            for (; src.hasRemaining();) {
-                byte b = src.getByte();
-                if (b == N) {
-                    int p = line.length() - 1;
-                    if (line.charAt(p) == R) {
-                        line.setLength(p);
-                    }
-                    return true;
-                } else {
-                    line.append((char) b);
+        src.markL();
+        int maybeRead = limit - length;
+        if (src.remaining() > maybeRead) {
+            src.limit(maybeRead);
+        }
+        for (; src.hasRemaining();) {
+            byte b = src.getByte();
+            if (b == N) {
+                int p = line.length() - 1;
+                if (line.charAt(p) == R) {
+                    line.setLength(p);
                 }
+                src.resetL();
+                return true;
+            } else {
+                line.append((char) (b & 0xff));
             }
-        } else {
-            for (; src.hasRemaining();) {
-                if (++len > limit) {
-                    throw new IOException("max http header length " + limit);
-                }
-                byte b = src.getByte();
-                if (b == N) {
-                    int p = line.length() - 1;
-                    if (line.charAt(p) == R) {
-                        line.setLength(p);
-                    }
-                    return true;
-                } else {
-                    line.append((char) b);
-                }
-            }
+        }
+        src.resetL();
+        if (src.hasRemaining()) {
+            throw new IOException("max http header length " + limit);
         }
         src.resetP();
         return false;

@@ -72,10 +72,10 @@ public class TestHttpLoadServerTFB {
 
         };
 
-        int core_size = Runtime.getRuntime().availableProcessors() / 2;
+        int core_size = Runtime.getRuntime().availableProcessors() * 2;
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setMemoryPoolCapacity(1024 * 128);
-        group.setMemoryPoolUnit(512);
+        group.setMemoryPoolUnit(256);
         group.setEventLoopSize(core_size);
         ChannelAcceptor context = new ChannelAcceptor(group, 8080);
         context.setProtocolCodec(new HttpCodec(1024 * 16));
