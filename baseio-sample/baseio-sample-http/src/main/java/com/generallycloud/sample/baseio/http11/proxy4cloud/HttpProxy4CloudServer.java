@@ -16,7 +16,6 @@
 package com.generallycloud.sample.baseio.http11.proxy4cloud;
 
 import java.io.IOException;
-import java.util.Map.Entry;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
@@ -27,6 +26,7 @@ import com.generallycloud.baseio.codec.http11.HttpFrame;
 import com.generallycloud.baseio.codec.http11.HttpHeader;
 import com.generallycloud.baseio.codec.http11.HttpMethod;
 import com.generallycloud.baseio.codec.http11.HttpStatus;
+import com.generallycloud.baseio.collection.IntEntry;
 import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelAcceptor;
 import com.generallycloud.baseio.component.ChannelConnector;
@@ -96,7 +96,7 @@ public class HttpProxy4CloudServer {
                     } else {
                         port = 80;
                     }
-                    if (f.getRequestHeaders().remove(HttpHeader.Proxy_Connection) == null) {
+                    if (f.getRequestHeaders().remove(HttpHeader.Proxy_Connection.getId()) == null) {
                         return;
                     }
                     NioEventLoop el = ch_src.getEventLoop();
@@ -116,25 +116,21 @@ public class HttpProxy4CloudServer {
                         @Override
                         public void accept(NioSocketChannel ch, Frame frame) throws Exception {
                             ClientHttpFrame res = (ClientHttpFrame) frame;
-                            for (Entry<HttpHeader, String> header : res.getResponse_headers()
-                                    .entrySet()) {
-                                if (header.getValue() == null) {
+                            for(IntEntry<String> header : res.getResponse_headers().entries()){
+                                if (header.value() == null) {
                                     continue;
                                 }
-                                f.setResponseHeader(header.getKey(), header.getValue().getBytes());
+                                f.setResponseHeader(header.key(), header.value().getBytes());
                             }
-                            f.getResponseHeaders().remove(HttpHeader.Content_Length);
+                            f.getResponseHeaders().remove(HttpHeader.Content_Length.getId());
                             if (res.getBodyContent() != null) {
                                 f.write(res.getBodyContent());
-                            } else if ("chunked".equalsIgnoreCase(
-                                    res.getResponse_headers().get(HttpHeader.Transfer_Encoding))) {
-                                f.getResponseHeaders().remove(HttpHeader.Transfer_Encoding);
-                                f.getResponseHeaders().remove(HttpHeader.Content_Encoding);
-                                f.write("server response is chunked, not supported now."
-                                        .getBytes());
-
+                            }else if("chunked".equalsIgnoreCase(res.getResponse_headers().get(HttpHeader.Transfer_Encoding.getId()))){
+                                f.getResponseHeaders().remove(HttpHeader.Transfer_Encoding.getId()); 
+                                f.getResponseHeaders().remove(HttpHeader.Content_Encoding.getId()); 
+                                f.write("server response is chunked, not supported now.".getBytes());
+                                 
                             }
-                            f.setStatus(res.getStatus());
                             ch_src.flush(f);
                             ch.close();
                         }

@@ -23,6 +23,8 @@ import java.util.Set;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
 import com.generallycloud.baseio.buffer.ByteBufUtil;
+import com.generallycloud.baseio.collection.IntEntry;
+import com.generallycloud.baseio.collection.IntMap;
 import com.generallycloud.baseio.common.Util;
 import com.generallycloud.baseio.component.ChannelContext;
 import com.generallycloud.baseio.component.FastThreadLocal;
@@ -64,12 +66,12 @@ public class ClientHttpCodec extends HttpCodec {
         List<byte[]> encode_bytes_array = getEncodeBytesArray();
         int header_size = 0;
         int cookie_size = 0;
-        Map<HttpHeader, String> headers = f.getRequestHeaders();
+        IntMap<String> headers = f.getRequestHeaders();
         if (headers != null) {
-            headers.remove(HttpHeader.Content_Length);
-            for (Entry<HttpHeader, String> header : headers.entrySet()) {
-                byte[] k = header.getKey().getBytes();
-                byte[] v = header.getValue().getBytes();
+            headers.remove(HttpHeader.Content_Length.getId());
+            for (IntEntry<String> header : headers.entries()) {
+                byte[] k = HttpHeader.get(header.key()).getBytes();
+                byte[] v = header.value().getBytes();
                 if (v == null) {
                     continue;
                 }
@@ -153,7 +155,7 @@ public class ClientHttpCodec extends HttpCodec {
         int index = Util.indexOf(line, ' ');
         int status = Integer.parseInt(line.substring(index + 1, index + 4));
         f.setVersion(HttpVersion.HTTP1_1.getId());
-        f.setStatus(HttpStatus.getStatus(status));
+        f.setStatus(HttpStatus.get(status));
     }
 
     @Override

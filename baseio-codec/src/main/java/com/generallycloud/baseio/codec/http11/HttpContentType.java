@@ -56,7 +56,7 @@ public enum HttpContentType {
         }
     }
 
-    public static HttpContentType getMethod(int id) {
+    public static HttpContentType get(int id) {
         return enums[id];
     }
 

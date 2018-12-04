@@ -68,7 +68,7 @@ public enum HttpMethod {
         }
     }
 
-    public static HttpMethod getMethod(int index) {
+    public static HttpMethod get(int index) {
         return enums[index];
     }
 

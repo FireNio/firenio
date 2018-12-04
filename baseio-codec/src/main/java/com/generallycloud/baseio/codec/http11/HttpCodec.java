@@ -24,9 +24,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.collection.IntEntry;
+import com.generallycloud.baseio.collection.IntMap;
 import com.generallycloud.baseio.common.DateUtil;
 import com.generallycloud.baseio.common.KMPUtil;
 import com.generallycloud.baseio.common.Util;
@@ -217,10 +218,10 @@ public class HttpCodec extends ProtocolCodec {
         List<byte[]> encode_bytes_array = getEncodeBytesArray();
         int header_size = 0;
         int cookie_size = 0;
-        Map<HttpHeader, byte[]> headers = f.getResponseHeaders();
-        for (Entry<HttpHeader, byte[]> header : headers.entrySet()) {
-            byte[] k = header.getKey().getBytes();
-            byte[] v = header.getValue();
+        IntMap<byte[]> headers = f.getResponseHeaders();
+        for (IntEntry<byte[]> header : headers.entries()) {
+            byte[] k = HttpHeader.get(header.key()).getBytes();
+            byte[] v = header.value();
             if (v == null) {
                 continue;
             }

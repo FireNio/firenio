@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.generallycloud.baseio.buffer.ByteBuf;
+import com.generallycloud.baseio.collection.IntMap;
 import com.generallycloud.baseio.common.Assert;
 import com.generallycloud.baseio.common.BASE64Util;
 import com.generallycloud.baseio.common.SHAUtil;
@@ -47,21 +48,25 @@ import com.generallycloud.baseio.protocol.AbstractFrame;
  */
 public class HttpFrame extends AbstractFrame implements HttpMessage {
 
-    byte[]                  bodyArray;
-    int                     contentLength;
-    int                     contentType;
-    List<Cookie>            cookieList;
-    Map<String, String>     cookies;
-    int                     headerLength;
-    int                     method;
-    Map<String, String>     params           = new HashMap<>();
-    int                     decode_state;
-    Map<HttpHeader, String> request_headers  = new HashMap<>();
-    String                  requestURL;
-    Map<HttpHeader, byte[]> response_headers = new HashMap<>();
-    HttpStatus              status           = HttpStatus.C200;
-    int                     version;
+    byte[]              bodyArray;
+    int                 contentLength;
+    int                 contentType;
+    List<Cookie>        cookieList;
+    Map<String, String> cookies;
+    int                 decode_state;
+    int                 headerLength;
+    int                 method;
+    Map<String, String> params           = new HashMap<>();
+    IntMap<String>      request_headers  = new IntMap<>(16);
+    String              requestURL;
+    IntMap<byte[]>      response_headers = new IntMap<>(8);
+    int                 status           = HttpStatus.C200.getStatus();
+    int                 version;
 
+    public void setRequestHeaders(IntMap<String> requestHeaders) {
+        this.request_headers = requestHeaders;
+    }
+    
     public void addCookie(Cookie cookie) {
         if (cookieList == null) {
             cookieList = new ArrayList<>();
@@ -123,7 +128,7 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
     }
 
     public HttpMethod getMethod() {
-        return HttpMethod.getMethod(method);
+        return HttpMethod.get(method);
     }
 
     public int getMethodId() {
@@ -143,10 +148,10 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
         if (name == null) {
             return null;
         }
-        return request_headers.get(name);
+        return request_headers.get(name.getId());
     }
 
-    public Map<HttpHeader, String> getRequestHeaders() {
+    public IntMap<String> getRequestHeaders() {
         return request_headers;
     }
 
@@ -181,11 +186,15 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
         return requestURL;
     }
 
-    public Map<HttpHeader, byte[]> getResponseHeaders() {
+    public IntMap<byte[]> getResponseHeaders() {
         return response_headers;
     }
 
     public HttpStatus getStatus() {
+        return HttpStatus.get(status);
+    }
+
+    public int getStatusId() {
         return status;
     }
 
@@ -206,7 +215,7 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
         this.requestURL = null;
         this.contentLength = 0;
         this.headerLength = 0;
-        this.status = HttpStatus.C200;
+        this.status = HttpStatus.C200.getStatus();
         this.method = HttpMethod.OTHER.getId();
         this.version = HttpVersion.OTHER.getId();
         this.contentType = HttpContentType.OTHER.getId();
@@ -232,7 +241,7 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
         setRequestHeader0(name, value, request_headers);
     }
 
-    void setRequestHeader0(String name, String value, Map<HttpHeader, String> data) {
+    void setRequestHeader0(String name, String value, IntMap<String> data) {
         if (Util.isNullOrBlank(name)) {
             return;
         }
@@ -243,11 +252,7 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
                 return;
             }
         }
-        data.put(header, value);
-    }
-
-    public void setRequestHeaders(Map<HttpHeader, String> headers) {
-        this.request_headers = headers;
+        data.put(header.getId(), value);
     }
 
     public void setRequestParams(Map<String, String> params) {
@@ -261,11 +266,12 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
     public void setResponseHeader(HttpHeader name, byte[] value) {
         Assert.notNull(name, "null name");
         Assert.notNull(value, "null value");
-        response_headers.put(name, value);
+        response_headers.put(name.getId(), value);
     }
-
-    public void setResponseHeaders(Map<HttpHeader, byte[]> headers) {
-        this.response_headers = headers;
+    
+    public void setResponseHeader(int name, byte[] value) {
+        Assert.notNull(value, "null value");
+        response_headers.put(name, value);
     }
 
     public void setReuestParam(String key, String value) {
@@ -276,7 +282,7 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
     }
 
     public void setStatus(HttpStatus status) {
-        this.status = status;
+        this.status = status.getStatus();
     }
 
     public void setVersion(int version) {

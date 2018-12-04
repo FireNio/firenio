@@ -60,7 +60,7 @@ public enum HttpVersion {
         return enums[id];
     }
 
-    public static HttpVersion getVersion(String version) {
+    public static HttpVersion get(String version) {
         if (HTTP1_1.value.equals(version)) {
             return HTTP1_1;
         } else if (HTTP1_0.value.equals(version)) {
