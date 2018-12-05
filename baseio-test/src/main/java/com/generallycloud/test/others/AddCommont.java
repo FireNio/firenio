@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 GenerallyCloud.com
+ * Copyright 2015 The Baseio Project
  *  
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class AddCommont {
 
         String commont = " * Copyright 2015 The Baseio Project";
 
-        replaceCommont0(new File("D:/GIT/baseio/baseio"), commont);
+        replaceCommont0(new File("C:/GIT/baseio"), commont);
 
     }
 
@@ -58,7 +58,7 @@ public class AddCommont {
 
         System.out.println(commont);
 
-        addCommontAll0(new File("D:/GIT/baseio/baseio"), commont);
+        addCommontAll0(new File("C:/GIT/baseio"), commont);
     }
 
     static void addCommontAll0(File file, String commont) throws Exception {
