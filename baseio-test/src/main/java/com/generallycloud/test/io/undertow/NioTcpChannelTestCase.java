@@ -1,5 +1,5 @@
 /*
- * JBoss, Home of Professional Open Source.
+ * Copyright 2015 The Baseio Project
  * Copyright 2013 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
