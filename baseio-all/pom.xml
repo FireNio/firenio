@@ -8,7 +8,7 @@
 	<description>The all in one project of baseio</description>
 
 	<parent>
-		<groupId>com.generallycloud</groupId>
+		<groupId>com.firenio</groupId>
 		<artifactId>baseio</artifactId>
 		<version>3.2.9-SNAPSHOT</version>
 		<relativePath>../baseio/pom.xml</relativePath>
@@ -48,18 +48,25 @@
 	</build>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
 			<version>1.2.7</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.2</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>3.1.0</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -71,18 +78,10 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.mortbay.jetty.alpn</groupId>
-			<artifactId>alpn-boot</artifactId>
-			<version>8.1.10.v20161026</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-codec</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
-			<optional>true</optional>
 		</dependency>
 
 		<dependency>
@@ -90,7 +89,6 @@
 			<artifactId>baseio-core</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
-			<optional>true</optional>
 		</dependency>
 
 	</dependencies>

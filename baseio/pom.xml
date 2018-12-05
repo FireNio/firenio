@@ -2,12 +2,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.generallycloud</groupId>
+	<groupId>com.firenio</groupId>
 	<artifactId>baseio</artifactId>
 	<version>3.2.9-SNAPSHOT</version>
 	<name>${project.artifactId}</name>
 	<description>An io framework project based on java nio</description>
-	<url>https://github.com/generallycloud/baseio</url>
+	<url>https://github.com/firenio/baseio</url>
 	<packaging>pom</packaging>
 
 	<inceptionYear>2015</inceptionYear>
@@ -77,18 +77,18 @@
 
 	<issueManagement>
 		<system>github</system>
-		<url>https://github.com/generallycloud/baseio/issues</url>
+		<url>https://github.com/firenio/baseio/issues</url>
 	</issueManagement>
 
 	<scm>
-		<url>https://github.com/generallycloud/baseio</url>
-		<connection>scm:git:git://github.com/generallycloud/baseio.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/generallycloud/baseio.git</developerConnection>
+		<url>https://github.com/firenio/baseio</url>
+		<connection>scm:git:git://github.com/firenio/baseio.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/firenio/baseio.git</developerConnection>
 	</scm>
 	
 	<organization>
-        <name>The generallycloud team</name>
-        <url>https://github.com/generallycloud</url>
+        <name>The firenio team</name>
+        <url>https://github.com/firenio</url>
     </organization>
 
 	<profiles>
@@ -154,8 +154,8 @@
 			<roles>
 				<role>Developer</role>
 			</roles>
-			<organization>The generallycloud team</organization>
-			<organizationUrl>https://github.com/generallycloud</organizationUrl>
+			<organization>The firenio team</organization>
+			<organizationUrl>https://github.com/firenio</organizationUrl>
 			<timezone>+8</timezone>
 		</developer>
 	</developers>

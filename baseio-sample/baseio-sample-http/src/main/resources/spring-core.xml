@@ -15,6 +15,6 @@
      http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
 
 	<!-- 扫描对应package，支持注解 -->
-	<context:component-scan base-package="com.generallycloud.sample.baseio.http11.service" />
+	<context:component-scan base-package="sample.baseio.http11.service" />
 	
 </beans>
