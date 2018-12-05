@@ -279,7 +279,7 @@ public class HttpFrameHandle extends IoEventHandle {
         } else {
             f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_plain_utf8_bytes);
         }
-        f.setResponseHeader(HttpHeader.Server, HttpStatic.server_baseio_bytes);
+//        f.setResponseHeader(HttpHeader.Server, HttpStatic.server_baseio_bytes);
         f.setResponseHeader(HttpHeader.Connection, HttpStatic.keep_alive_bytes); // or close
 
     }

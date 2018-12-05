@@ -280,7 +280,8 @@ public final class NioSocketChannel extends AttributesImpl
                 return;
             }
             writeBufs.offer(buf);
-            if (interestOps != INTEREST_WRITE) {
+            if (!inEvent && interestOps != INTEREST_WRITE) {
+                inEvent = true;
                 eventLoop.flush(this);
             }
         } else {

@@ -59,6 +59,19 @@ public class ByteBufUtil {
     public static int read(ByteBuf buf, InputStream inputStream) throws IOException {
         return read(buf, inputStream, buf.capacity());
     }
+    
+    public static void skip(ByteBuf src,byte v){
+        int p = src.absPos();
+        int l = src.absLimit();
+        int i = p;
+        for (; i < l; i++) {
+            if (src.absByte(p) != v) {
+                src.skip(i - p);
+                return;
+            }
+        }
+        src.position(src.limit());
+    }
 
     public static int read(ByteBuf buf, InputStream inputStream, long limit) throws IOException {
         byte[] array = buf.array();

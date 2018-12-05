@@ -23,20 +23,25 @@ public enum HttpVersion {
 
     HTTP1_0(1, "HTTP/1.0"), HTTP1_1(2, "HTTP/1.1"), OTHER(0, "OTHER");
 
-    private final String value;
+    private static final HttpVersion[] enums;
+
+    static {
+        enums = new HttpVersion[values().length];
+        for (HttpVersion m : values()) {
+            enums[m.id] = m;
+        }
+    }
+
+    private final byte[] bytes;
 
     private final int    id;
 
-    private final byte[] bytes;
+    private final String value;
 
     private HttpVersion(int id, String value) {
         this.id = id;
         this.value = value;
         this.bytes = value.getBytes();
-    }
-
-    public String getValue() {
-        return value;
     }
 
     public byte[] getBytes() {
@@ -47,17 +52,8 @@ public enum HttpVersion {
         return id;
     }
 
-    private static final HttpVersion[] enums;
-
-    static {
-        enums = new HttpVersion[values().length];
-        for (HttpVersion m : values()) {
-            enums[m.id] = m;
-        }
-    }
-
-    public static HttpVersion getMethod(int id) {
-        return enums[id];
+    public String getValue() {
+        return value;
     }
 
     public static HttpVersion get(String version) {
@@ -68,6 +64,10 @@ public enum HttpVersion {
         } else {
             return HttpVersion.OTHER;
         }
+    }
+
+    public static HttpVersion getMethod(int id) {
+        return enums[id];
     }
 
 }

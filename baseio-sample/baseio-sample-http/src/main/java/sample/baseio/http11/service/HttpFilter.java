@@ -22,15 +22,13 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
 
-import com.firenio.baseio.codec.http11.HttpMessage;
-import com.firenio.baseio.collection.Parameters;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.NioSocketChannel;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 import com.firenio.baseio.protocol.Frame;
 import com.firenio.baseio.protocol.NamedFrame;
-import com.firenio.baseio.protocol.ParametersFrame;
+import com.firenio.baseio.protocol.TextFrame;
 
 import sample.baseio.http11.HttpFrameFilter;
 
@@ -73,27 +71,21 @@ public class HttpFilter implements HttpFrameFilter {
     }
 
     private boolean log(NioSocketChannel ch, Frame frame) throws Exception {
-        HttpMessage m = (HttpMessage) frame;
+        NamedFrame m = (NamedFrame) frame;
         String frameName = m.getFrameName();
-        if (noneLoggerUrlSet.contains(frameName) || endContains(frameName)) {
-            return false;
-        }
-        String remoteAddr = ch.getRemoteAddr();
-        String readText = m.getReadText();
-        if (!Util.isNullOrBlank(readText)) {
-            logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, frameName,
-                    readText);
-            return false;
-        }
-        if (frame instanceof ParametersFrame) {
-            Parameters parameters = ((ParametersFrame) frame).getParameters();
-            if (parameters.size() > 0) {
-                logger.info("request ip:{}, service name:{}, content: {}", remoteAddr, frameName,
-                        parameters.toString());
-                return false;
+        if (!noneLoggerUrlSet.contains(frameName) && !endContains(frameName)) {
+            String remoteAddr = ch.getRemoteAddr();
+            if (frame instanceof TextFrame) {
+                String readText = ((TextFrame) frame).getReadText();
+                if (!Util.isNullOrBlank(readText)) {
+                    logger.info("request ip:{}, service name:{}, content: {}", remoteAddr,
+                            frameName, readText);
+                    return false;
+                }
+            } else {
+                logger.info("request ip:{}, service name:{}", remoteAddr, frameName);
             }
         }
-        logger.info("request ip:{}, service name:{}", remoteAddr, frameName);
         return false;
     }
 

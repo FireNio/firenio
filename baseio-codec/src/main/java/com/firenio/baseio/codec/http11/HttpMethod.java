@@ -21,43 +21,7 @@ package com.firenio.baseio.codec.http11;
  */
 public enum HttpMethod {
 
-    GET(1, "GET"), POST(2, "POST"), CONNECT(3, "CONNECT"), OTHER(0, "OTHER");
-
-    private final String value;
-
-    private final int    id;
-
-    private final byte[] bytes;
-
-    private HttpMethod(int id, String value) {
-        this.id = id;
-        this.value = value;
-        this.bytes = value.getBytes();
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public static HttpMethod getMethod(String method) {
-        if (GET.value.equals(method)) {
-            return GET;
-        } else if (POST.value.equals(method)) {
-            return POST;
-        } else if (CONNECT.value.equals(method)) {
-            return CONNECT;
-        } else {
-            return HttpMethod.OTHER;
-        }
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public byte[] getBytes() {
-        return bytes;
-    }
+    CONNECT(3, "CONNECT"), GET(1, "GET"), OTHER(0, "OTHER"), POST(2, "POST");
 
     private static final HttpMethod[] enums;
 
@@ -66,6 +30,30 @@ public enum HttpMethod {
         for (HttpMethod m : values()) {
             enums[m.id] = m;
         }
+    }
+
+    private final byte[] bytes;
+
+    private final int    id;
+
+    private final String value;
+
+    private HttpMethod(int id, String value) {
+        this.id = id;
+        this.value = value;
+        this.bytes = value.getBytes();
+    }
+
+    public byte[] getBytes() {
+        return bytes;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getValue() {
+        return value;
     }
 
     public static HttpMethod get(int index) {

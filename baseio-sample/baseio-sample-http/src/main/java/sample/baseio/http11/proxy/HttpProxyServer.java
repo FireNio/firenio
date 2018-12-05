@@ -90,8 +90,8 @@ public class HttpProxyServer {
                                 f.setResponseHeader(header.key(), header.value().getBytes());
                             }
                             f.getResponseHeaders().remove(HttpHeader.Content_Length.getId());
-                            if (res.getBodyContent() != null) {
-                                f.write(res.getBodyContent());
+                            if (res.getContent() != null) {
+                                f.write(res.getContent());
                             }else if("chunked".equalsIgnoreCase(res.getResponse_headers().get(HttpHeader.Transfer_Encoding.getId()))){
                                 f.getResponseHeaders().remove(HttpHeader.Transfer_Encoding.getId()); 
                                 f.getResponseHeaders().remove(HttpHeader.Content_Encoding.getId()); 
@@ -110,7 +110,7 @@ public class HttpProxyServer {
                             req.setRequestHeaders(f.getRequestHeaders());
                             req.getRequestHeaders().remove(HttpHeader.Proxy_Connection.getId());
                             if (f.getMethod() == HttpMethod.POST) {
-                                req.write(f.getBodyContent());
+                                req.write(f.getContent());
                             }
                             ch.flush(req);
                         }
@@ -180,7 +180,7 @@ public class HttpProxyServer {
         }
 
         @Override
-        protected void parse_line_one(HttpFrame f, StringBuilder line) {
+        protected void parse_line_one(HttpFrame f, CharSequence line) {
             if (line.charAt(0) == 'C' && line.charAt(1) == 'O' && line.charAt(2) == 'N'
                     && line.charAt(3) == 'N' && line.charAt(4) == 'E' && line.charAt(5) == 'C'
                     && line.charAt(6) == 'T' && line.charAt(7) == ' ') {

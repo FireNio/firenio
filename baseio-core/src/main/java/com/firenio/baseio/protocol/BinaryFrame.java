@@ -31,7 +31,7 @@ public abstract class BinaryFrame extends AbstractFrame {
     }
 
     @Override
-    protected Frame reset() {
+    public Frame reset() {
         this.binaryWriteSize = 0;
         this.binaryWriteBuffer = null;
         return super.reset();

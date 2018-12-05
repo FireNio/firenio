@@ -168,13 +168,22 @@ public enum HttpStatus {
      */
     C505(505, "HTTP Version Not Supported", "505 HTTP Version Not Supported");
 
-    private int    status;
+    private static final IntMap<HttpStatus> STATUSES = new IntMap<>();
+
+    static {
+        HttpStatus[] values = HttpStatus.values();
+        for (HttpStatus v : values) {
+            STATUSES.put(v.status, v);
+        }
+    }
+
+    private byte[] binary;
 
     private String description;
 
-    private String text;
+    private int    status;
 
-    private byte[] binary;
+    private String text;
 
     private HttpStatus(int status, String description, String headerText) {
         this.status = status;
@@ -183,31 +192,22 @@ public enum HttpStatus {
         this.binary = headerText.getBytes();
     }
 
-    public int getStatus() {
-        return status;
+    public byte[] getBinary() {
+        return binary;
     }
 
     public String getDescription() {
         return description;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
     public String getText() {
         return text;
     }
 
-    public byte[] getBinary() {
-        return binary;
-    }
-    
-    private static final IntMap<HttpStatus> STATUSES = new IntMap<>();
-    
-    static{
-        HttpStatus[] values = HttpStatus.values();
-        for (HttpStatus v : values) {
-            STATUSES.put(v.status, v);
-        }
-    }
-    
     public static HttpStatus get(int status) {
         if (status == 200) {
             return C200;

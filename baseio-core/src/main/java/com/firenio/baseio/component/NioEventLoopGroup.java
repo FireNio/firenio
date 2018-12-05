@@ -19,6 +19,7 @@ import com.firenio.baseio.LifeCycleUtil;
 import com.firenio.baseio.buffer.ByteBufAllocatorGroup;
 import com.firenio.baseio.buffer.PooledByteBufAllocatorGroup;
 import com.firenio.baseio.buffer.UnpooledByteBufAllocatorGroup;
+import com.firenio.baseio.common.Util;
 import com.firenio.baseio.concurrent.AbstractEventLoopGroup;
 import com.firenio.baseio.concurrent.FixedAtomicInteger;
 
@@ -34,6 +35,7 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private int                   channelReadBuffer      = 1024 * 512;
     //允许的最大连接数(单核)
     private int                   channelSizeLimit       = 1024 * 64;
+    private boolean               concurrentFrameStack   = true;
     private ChannelContext        context;
     private boolean               enableMemoryPool       = true;
     //内存池是否使用启用堆外内存
@@ -46,23 +48,20 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     //内存池单元大小
     private int                   memoryPoolUnit         = 512;
     private boolean               sharable;
+
     //单条连接write(srcs)的数量
-    private int                   writeBuffers           = 16;
+    private int writeBuffers = 32;
 
     public NioEventLoopGroup() {
-        this(Runtime.getRuntime().availableProcessors() / 2);
+        this(false);
     }
 
     public NioEventLoopGroup(boolean sharable) {
-        this(sharable, Runtime.getRuntime().availableProcessors() / 2);
+        this(sharable, Util.availableProcessors() / 2);
     }
 
     public NioEventLoopGroup(boolean sharable, int eventLoopSize) {
         this(sharable, eventLoopSize, 30 * 1000);
-    }
-
-    public NioEventLoopGroup(String name) {
-        super(name, 1);
     }
 
     public NioEventLoopGroup(boolean sharable, int eventLoopSize, int idleTime) {
@@ -77,6 +76,10 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
 
     public NioEventLoopGroup(int eventLoopSize, int idleTime) {
         this(false, eventLoopSize, idleTime);
+    }
+
+    public NioEventLoopGroup(String name) {
+        super(name, 1);
     }
 
     @Override
@@ -159,6 +162,10 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         LifeCycleUtil.start(getAllocatorGroup());
     }
 
+    public boolean isConcurrentFrameStack() {
+        return concurrentFrameStack;
+    }
+
     public boolean isEnableMemoryPool() {
         return enableMemoryPool;
     }
@@ -184,6 +191,11 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     public void setChannelSizeLimit(int channelSizeLimit) {
         checkNotRunning();
         this.channelSizeLimit = channelSizeLimit;
+    }
+
+    public void setConcurrentFrameStack(boolean concurrentFrameStack) {
+        checkNotRunning();
+        this.concurrentFrameStack = concurrentFrameStack;
     }
 
     protected void setContext(ChannelContext context) {

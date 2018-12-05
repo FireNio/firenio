@@ -36,6 +36,8 @@ public interface Frame {
 
     boolean isTyped();
 
+    Frame reset();
+
     Frame setPing();
 
     Frame setPong();

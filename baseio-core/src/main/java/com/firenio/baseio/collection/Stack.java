@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.baseio.codec.http11;
-
-import com.firenio.baseio.protocol.NamedFrame;
-import com.firenio.baseio.protocol.TextFrame;
+package com.firenio.baseio.collection;
 
 /**
  * @author wangkai
  *
  */
-public interface HttpMessage extends NamedFrame, TextFrame {
+public interface Stack<V> {
+
+    V pop();
+
+    void push(V v);
+
+    void clear();
+
+    int size();
 
 }

@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.component.ChannelContext;
+import com.firenio.baseio.component.FastThreadLocal;
 import com.firenio.baseio.component.NioEventLoop;
 import com.firenio.baseio.component.NioSocketChannel;
 
@@ -43,6 +44,10 @@ public abstract class ProtocolCodec {
 
     public Frame ping(NioSocketChannel ch) {
         return null;
+    }
+
+    protected static int nextIndexedVariablesIndex() {
+        return FastThreadLocal.nextIndexedVariablesIndex();
     }
 
     public Frame pong(NioSocketChannel ch, Frame ping) {

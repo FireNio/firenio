@@ -50,7 +50,7 @@ public class TestSimpleHttpClient2 {
             public void accept(NioSocketChannel ch, Frame frame) throws Exception {
                 ClientHttpFrame res = (ClientHttpFrame) frame;
                 System.out.println();
-                System.out.println(new String(res.getBodyContent()));
+                System.out.println(new String(res.getContent()));
                 System.out.println();
                 Util.close(context);
             }

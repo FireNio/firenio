@@ -19,48 +19,52 @@ import com.alibaba.fastjson.JSON;
 import com.firenio.baseio.Options;
 import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.codec.http11.HttpCodec;
-import com.firenio.baseio.codec.http11.HttpFrame;
-import com.firenio.baseio.codec.http11.HttpHeader;
+import com.firenio.baseio.codec.http11.HttpFrameLite;
+import com.firenio.baseio.codec.http11.HttpLiteCodec;
 import com.firenio.baseio.codec.http11.HttpStatic;
 import com.firenio.baseio.codec.http11.HttpStatus;
 import com.firenio.baseio.common.Encoding;
+import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.ChannelAcceptor;
 import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.NioEventLoopGroup;
 import com.firenio.baseio.component.NioSocketChannel;
+import com.firenio.baseio.log.DebugUtil;
 import com.firenio.baseio.log.LoggerFactory;
 import com.firenio.baseio.protocol.Frame;
+import com.firenio.baseio.protocol.ProtocolCodec;
 
 /**
  * @author wangkai
  *
  */
 public class TestHttpLoadServerTFB {
-    
-    
+
     static final byte[] STATIC_PLAINTEXT = "Hello, World!".getBytes(Encoding.UTF8);
-    static final byte[] STATIC_SERVER    = "baseio".getBytes();
 
     public static void main(String[] args) throws Exception {
         LoggerFactory.setEnableSLF4JLogger(false);
         LoggerFactory.setLogLevel(LoggerFactory.LEVEL_INFO);
         Options.setDevelopDebug(false);
         Options.setChannelReadFirst(false);
+        Options.setBytebufRecycle(false);
+        boolean lite = Util.isSystemTrue("lite");
+        int core = Util.getProperty("core", 1);
+        DebugUtil.info("lite mode: {}", lite);
 
         IoEventHandle eventHandle = new IoEventHandle() {
 
             @Override
             public void accept(NioSocketChannel ch, Frame frame) throws Exception {
-                HttpFrame f = (HttpFrame) frame;
+                HttpFrameLite f = (HttpFrameLite) frame;
                 String action = f.getRequestURL();
-                f.setResponseHeader(HttpHeader.Server, STATIC_SERVER);
 
                 if ("/plaintext".equals(action)) {
                     f.write(STATIC_PLAINTEXT);
-                    f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_plain_bytes);
+                    f.setContentType(HttpStatic.text_plain_bytes);
                 } else if ("/json".equals(action)) {
                     f.write(JSON.toJSONString(new Message("Hello, World!")), ch);
-                    f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.application_json_bytes);
+                    f.setContentType(HttpStatic.application_json_bytes);
                 } else {
                     f.write("404,page not found!", ch);
                     f.setStatus(HttpStatus.C404);
@@ -72,13 +76,16 @@ public class TestHttpLoadServerTFB {
 
         };
 
-        int core_size = Runtime.getRuntime().availableProcessors() * 2;
+        ProtocolCodec codec = lite ? new HttpLiteCodec("baseio", 1024 * 16)
+                : new HttpCodec("baseio", 1024 * 16);
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setMemoryPoolCapacity(1024 * 128);
         group.setMemoryPoolUnit(256);
-        group.setEventLoopSize(core_size);
+        group.setWriteBuffers(32);
+        group.setEventLoopSize(Util.availableProcessors() * core);
+        group.setConcurrentFrameStack(false);
         ChannelAcceptor context = new ChannelAcceptor(group, 8080);
-        context.setProtocolCodec(new HttpCodec(1024 * 16));
+        context.setProtocolCodec(codec);
         context.setIoEventHandle(eventHandle);
         context.bind();
     }

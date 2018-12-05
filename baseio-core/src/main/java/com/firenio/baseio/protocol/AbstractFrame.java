@@ -67,7 +67,7 @@ public abstract class AbstractFrame implements Frame {
         return isTyped;
     }
 
-    protected Frame reset() {
+    public Frame reset() {
         this.frameType = 0;
         this.isTyped = false;
         this.writeSize = 0;

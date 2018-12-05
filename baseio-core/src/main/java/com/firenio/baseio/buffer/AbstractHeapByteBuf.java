@@ -31,6 +31,11 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
         super(allocator);
         this.memory = memory;
     }
+    
+    @Override
+    public byte absByte(int pos) {
+        return memory[pos];
+    }
 
     @Override
     public int absLimit() {
@@ -38,8 +43,20 @@ public abstract class AbstractHeapByteBuf extends AbstractByteBuf {
     }
 
     @Override
+    public ByteBuf absLimit(int limit) {
+        this.limit = limit;
+        return this;
+    }
+
+    @Override
     public int absPos() {
         return position;
+    }
+
+    @Override
+    public ByteBuf absPos(int pos) {
+        this.position = pos;
+        return this;
     }
 
     @Override

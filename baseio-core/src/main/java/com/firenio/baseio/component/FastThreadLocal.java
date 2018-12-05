@@ -18,7 +18,10 @@ package com.firenio.baseio.component;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -78,7 +81,27 @@ public final class FastThreadLocal extends AttributesImpl implements Attributes 
     public Object getIndexedVariable(int index) {
         return indexedVariables[index];
     }
-    
+
+    public List<?> getList(int index) {
+        List<?> list = (List<?>) getIndexedVariable(index);
+        if (list == null) {
+            list = new ArrayList<>();
+            setIndexedVariable(index, list);
+        }
+        list.clear();
+        return list;
+    }
+
+    public Map<?, ?> getMap(int index) {
+        Map<?, ?> map = (Map<?, ?>) getIndexedVariable(index);
+        if (map == null) {
+            map = new HashMap<>();
+            setIndexedVariable(index, map);
+        }
+        map.clear();
+        return map;
+    }
+
     public ByteBuf getSslUnwrapBuf() {
         if (sslUnwrapBuf == null) {
             sslUnwrapBuf = ByteBufUtil.direct(SslContext.SSL_UNWRAP_BUFFER_SIZE);

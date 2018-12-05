@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  */
 public class HttpHeaderHelper {
-    
+
     public static final AtomicInteger HEADER_SEQ = new AtomicInteger();
 
 }

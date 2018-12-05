@@ -42,8 +42,12 @@ import com.firenio.baseio.log.LoggerFactory;
 public class Util {
 
     private static final Logger  logger = LoggerFactory.getLogger(Util.class);
-    private static byte[] NUMS = new byte[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+    private static final byte[] NUMS = new byte[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
+    public static int availableProcessors(){
+        return Runtime.getRuntime().availableProcessors();
+    }
+    
     public static void close(AutoCloseable closeable) {
         if (closeable == null) {
             return;
@@ -214,11 +218,11 @@ public class Util {
         return text != null && text.trim().length() > 0;
     }
 
-    public static int indexOf(StringBuilder sb, char ch) {
+    public static int indexOf(CharSequence sb, char ch) {
         return indexOf(sb, ch, 0);
     }
 
-    public static int indexOf(StringBuilder sb, char ch, int index) {
+    public static int indexOf(CharSequence sb, char ch, int index) {
         int count = sb.length();
         for (int i = index; i < count; i++) {
             if (ch == sb.charAt(i)) {
@@ -257,6 +261,16 @@ public class Util {
         return "true".equals(value) || "1".equals(value);
     }
 
+    public static int lastIndexOf(CharSequence sb, char ch) {
+        int count = sb.length();
+        for (int i = count - 1; i > -1; i--) {
+            if (ch == sb.charAt(i)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public static int lastIndexOf(String str, char ch, int length) {
         int end = -1;
         if (str.length() > length) {
@@ -264,16 +278,6 @@ public class Util {
         }
         for (int i = str.length() - 1; i > end; i--) {
             if (str.charAt(i) == ch) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public static int lastIndexOf(StringBuilder sb, char ch) {
-        int count = sb.length();
-        for (int i = count - 1; i > -1; i--) {
-            if (ch == sb.charAt(i)) {
                 return i;
             }
         }

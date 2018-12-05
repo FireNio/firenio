@@ -1,1 +1,1 @@
-java -XX:+PrintGCDetails -Xloggc:gc.log -cp ./lib/*; -Dcontainer.runtime=prod com.generallycloud.sample.baseio.http11.startup.TestHttpStartup
+java -XX:+PrintGCDetails -Xloggc:gc.log -cp ./lib/*; -Dcontainer.runtime=prod sample.baseio.http11.startup.TestHttpStartup

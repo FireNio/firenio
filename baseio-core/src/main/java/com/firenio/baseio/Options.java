@@ -23,12 +23,13 @@ import com.firenio.baseio.common.Util;
  */
 public class Options {
 
+    static final String BYTEBUF_DEBUG          = "com.firenio.baseio.bytebufDebug";
+    static final String BYTEBUF_RECYCLE          = "com.firenio.baseio.bytebufRecycle";
+    static final String CHANNEL_READ_FIRST     = "com.firenio.baseio.channelReadFirst";
     static final String DEVELOP_DEBUG          = "com.firenio.baseio.developDebug";
     static final String DISABLE_OPENSSL        = "com.firenio.baseio.ssl.disableOpenSsl";
     static final String OPENSSL_PATH           = "org.wildfly.openssl.path";
     static final String SSL_UNWRAP_BUFFER_SIZE = "com.firenio.baseio.ssl.unwrapBufferSize";
-    static final String CHANNEL_READ_FIRST     = "com.firenio.baseio.channelReadFirst";
-    static final String BYTEBUF_DEBUG          = "com.firenio.baseio.bytebufDebug";
 
     public static String getOpensslPath() {
         return System.getProperty(OPENSSL_PATH);
@@ -38,32 +39,40 @@ public class Options {
         return Util.getProperty(SSL_UNWRAP_BUFFER_SIZE, defaultValue);
     }
 
-    public static boolean isDevelopDebug() {
-        return Util.isSystemTrue(DEVELOP_DEBUG);
-    }
-
     public static boolean isByteBufDebug() {
         return Util.isSystemTrue(BYTEBUF_DEBUG);
     }
 
+    public static boolean isBytebufRecycle() {
+        return Util.isSystemTrue(BYTEBUF_RECYCLE);
+    }
+    
     public static boolean isChannelReadFirst() {
         return Util.isSystemTrue(CHANNEL_READ_FIRST);
+    }
+
+    public static boolean isDevelopDebug() {
+        return Util.isSystemTrue(DEVELOP_DEBUG);
     }
 
     public static boolean isDisableOpenssl() {
         return Util.isSystemTrue(DISABLE_OPENSSL);
     }
 
-    public static void setDevelopDebug(boolean debug) {
-        System.setProperty(DEVELOP_DEBUG, String.valueOf(debug));
-    }
-
     public static void setByteBufDebug(boolean debug) {
         System.setProperty(BYTEBUF_DEBUG, String.valueOf(debug));
     }
 
+    public static void setBytebufRecycle(boolean recycle) {
+        System.setProperty(BYTEBUF_RECYCLE, String.valueOf(recycle));
+    }
+    
     public static void setChannelReadFirst(boolean channelReadFirst) {
         System.setProperty(CHANNEL_READ_FIRST, String.valueOf(channelReadFirst));
+    }
+
+    public static void setDevelopDebug(boolean debug) {
+        System.setProperty(DEVELOP_DEBUG, String.valueOf(debug));
     }
 
     public static void setDisableOpenssl(boolean disable) {

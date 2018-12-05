@@ -24,13 +24,13 @@ import java.util.TimeZone;
 
 public class CookieUtil {
 
+    private static final boolean    ALWAYS_ADD_EXPIRES;
     private static final String     ancientDate;
+    private static final DateFormat OLD_COOKIE_PATTERN_FORMAT;
+    private static final boolean    STRICT_SERVLET_COMPLIANCE;
     private static final String     tspecials         = ",; ";
     private static final String     tspecials2        = "()<>@,;:\\\"/[]?={} \t";
     private static final String     tspecials2NoSlash = "()<>@,;:\\\"[]?={} \t";
-    private static final boolean    STRICT_SERVLET_COMPLIANCE;
-    private static final boolean    ALWAYS_ADD_EXPIRES;
-    private static final DateFormat OLD_COOKIE_PATTERN_FORMAT;
 
     static {
         final String OLD_COOKIE_PATTERN = "EEE, dd-MMM-yyyy HH:mm:ss z";
@@ -41,57 +41,12 @@ public class CookieUtil {
         ALWAYS_ADD_EXPIRES = true;
     }
 
-    private static boolean isToken(String value, String literals) {
-        String tspecials = (literals == null ? CookieUtil.tspecials : literals);
-        if (value == null) {
-            return true;
-        }
-        int len = value.length();
-
-        for (int i = 0; i < len; i++) {
-            char c = value.charAt(i);
-
-            if (tspecials.indexOf(c) != -1) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean containsCTL(String value, int version) {
-        if (value == null) {
+    private static boolean alreadyQuoted(String value) {
+        if (value == null || value.length() == 0) {
             return false;
         }
-        int len = value.length();
-        for (int i = 0; i < len; i++) {
-            char c = value.charAt(i);
-            if (c < 0x20 || c >= 0x7f) {
-                if (c == 0x09) {
-                    continue; // allow horizontal tabs
-                }
-                return true;
-            }
-        }
-        return false;
+        return (value.charAt(0) == '\"' && value.charAt(value.length() - 1) == '\"');
     }
-
-    private static boolean isToken2(String value, String literals) {
-        String tspecials2 = (literals == null ? CookieUtil.tspecials2 : literals);
-        if (value == null) {
-            return true;
-        }
-        int len = value.length();
-
-        for (int i = 0; i < len; i++) {
-            char c = value.charAt(i);
-            if (tspecials2.indexOf(c) != -1) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    // -------------------- Cookie parsing tools
 
     // TODO RFC2965 fields also need to be passed
     public static void appendCookieValue(StringBuilder headerBuf, int version, String name,
@@ -164,11 +119,82 @@ public class CookieUtil {
         headerBuf.append(buf);
     }
 
-    private static boolean alreadyQuoted(String value) {
-        if (value == null || value.length() == 0) {
+    private static boolean containsCTL(String value, int version) {
+        if (value == null) {
             return false;
         }
-        return (value.charAt(0) == '\"' && value.charAt(value.length() - 1) == '\"');
+        int len = value.length();
+        for (int i = 0; i < len; i++) {
+            char c = value.charAt(i);
+            if (c < 0x20 || c >= 0x7f) {
+                if (c == 0x09) {
+                    continue; // allow horizontal tabs
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // -------------------- Cookie parsing tools
+
+    private static String escapeDoubleQuotes(String s, int beginIndex, int endIndex) {
+
+        if (s == null || s.length() == 0 || s.indexOf('"') == -1) {
+            return s;
+        }
+
+        StringBuffer b = new StringBuffer();
+        for (int i = beginIndex; i < endIndex; i++) {
+            char c = s.charAt(i);
+            if (c == '\\') {
+                b.append(c);
+                // ignore the character after an escape, just append it
+                if (++i >= endIndex) {
+                    throw new IllegalArgumentException("Invalid escape character in cookie value.");
+                }
+                b.append(s.charAt(i));
+            } else if (c == '"') {
+                b.append('\\').append('"');
+            } else {
+                b.append(c);
+            }
+        }
+
+        return b.toString();
+    }
+
+    private static boolean isToken(String value, String literals) {
+        String tspecials = (literals == null ? CookieUtil.tspecials : literals);
+        if (value == null) {
+            return true;
+        }
+        int len = value.length();
+
+        for (int i = 0; i < len; i++) {
+            char c = value.charAt(i);
+
+            if (tspecials.indexOf(c) != -1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isToken2(String value, String literals) {
+        String tspecials2 = (literals == null ? CookieUtil.tspecials2 : literals);
+        if (value == null) {
+            return true;
+        }
+        int len = value.length();
+
+        for (int i = 0; i < len; i++) {
+            char c = value.charAt(i);
+            if (tspecials2.indexOf(c) != -1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static int maybeQuote2(int version, StringBuffer buf, String value) {
@@ -209,31 +235,5 @@ public class CookieUtil {
             buf.append(value);
         }
         return version;
-    }
-
-    private static String escapeDoubleQuotes(String s, int beginIndex, int endIndex) {
-
-        if (s == null || s.length() == 0 || s.indexOf('"') == -1) {
-            return s;
-        }
-
-        StringBuffer b = new StringBuffer();
-        for (int i = beginIndex; i < endIndex; i++) {
-            char c = s.charAt(i);
-            if (c == '\\') {
-                b.append(c);
-                // ignore the character after an escape, just append it
-                if (++i >= endIndex) {
-                    throw new IllegalArgumentException("Invalid escape character in cookie value.");
-                }
-                b.append(s.charAt(i));
-            } else if (c == '"') {
-                b.append('\\').append('"');
-            } else {
-                b.append(c);
-            }
-        }
-
-        return b.toString();
     }
 }

@@ -30,10 +30,10 @@ public class TestUploadServlet extends HttpFrameAcceptor {
     @Override
     protected void doAccept(NioSocketChannel ch, HttpFrame frame) throws Exception {
         String res;
-        if (frame.hasBodyContent()) {
+        if (frame.hasContent()) {
             res = "yes server already accept your message :) " + frame.getRequestParams()
                     + " </BR><PRE style='font-size: 18px;color: #FF9800;'>"
-                    + new String(frame.getBodyContent()) + "</PRE>";
+                    + new String(frame.getContent()) + "</PRE>";
         } else {
             res = "yes server already accept your message :) " + frame.getRequestParams();
         }

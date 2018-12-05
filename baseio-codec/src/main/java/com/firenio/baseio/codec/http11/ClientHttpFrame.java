@@ -22,25 +22,50 @@ import com.firenio.baseio.component.NioSocketChannel;
 
 public class ClientHttpFrame extends HttpFrame {
 
-    IntMap<String> client_response_headers = new IntMap<>();
     ByteBuf        bodyBuf;
+    boolean        chunked;
+    IntMap<String> client_response_headers = new IntMap<>();
 
-    public ClientHttpFrame(String url, HttpMethod method) {
-        this.setMethod(method);
-        this.setRequestURI(url);
+    public ClientHttpFrame() {
+        this.setMethod(HttpMethod.GET);
     }
 
     public ClientHttpFrame(String url) {
         this(url, HttpMethod.GET);
     }
 
-    public ClientHttpFrame() {
-        this.setMethod(HttpMethod.GET);
+    public ClientHttpFrame(String url, HttpMethod method) {
+        this.setMethod(method);
+        this.setRequestURL(url);
+    }
+
+    public String getResponse(HttpHeader header) {
+        return getResponse(header.getId());
+    }
+
+    public String getResponse(int header) {
+        return client_response_headers.get(header);
+    }
+
+    public IntMap<String> getResponse_headers() {
+        return client_response_headers;
+    }
+
+    public boolean isChunked() {
+        return chunked || "chunked".equals(getResponse(HttpHeader.Transfer_Encoding));
+    }
+
+    @Override
+    void setReadHeader(String name, String value) {
+        HttpHeader header = getHeader(name);
+        if (header != null) {
+            client_response_headers.put(header.getId(), value);
+        }
     }
 
     @Override
     public boolean updateWebSocketProtocol(final NioSocketChannel ch) {
-        String key = getReadHeader(HttpHeader.Sec_WebSocket_Accept);
+        String key = getResponse(HttpHeader.Sec_WebSocket_Accept);
         if (Util.isNullOrBlank(key)) {
             return false;
         }
@@ -56,23 +81,6 @@ public class ClientHttpFrame extends HttpFrame {
             });
         }
         return true;
-    }
-
-    @Override
-    void setReadHeader(String name, String value) {
-        HttpHeader header = getHeader(name);
-        if (header != null) {
-            client_response_headers.put(header.getId(), value);
-        }
-    }
-
-    @Override
-    String getReadHeader(HttpHeader name) {
-        return client_response_headers.get(name.getId());
-    }
-
-    public IntMap<String> getResponse_headers() {
-        return client_response_headers;
     }
 
 }

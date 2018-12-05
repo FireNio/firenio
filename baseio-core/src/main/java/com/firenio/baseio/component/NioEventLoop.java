@@ -45,15 +45,19 @@ import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.buffer.ByteBufAllocator;
 import com.firenio.baseio.buffer.ByteBufUtil;
 import com.firenio.baseio.buffer.EmptyByteBuf;
+import com.firenio.baseio.collection.ArrayListStack;
 import com.firenio.baseio.collection.Attributes;
 import com.firenio.baseio.collection.DelayedQueue;
+import com.firenio.baseio.collection.DelayedQueue.DelayTask;
 import com.firenio.baseio.collection.IntArray;
 import com.firenio.baseio.collection.IntMap;
-import com.firenio.baseio.collection.DelayedQueue.DelayTask;
+import com.firenio.baseio.collection.LinkedBQStack;
+import com.firenio.baseio.collection.Stack;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.concurrent.AbstractEventLoop;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
+import com.firenio.baseio.protocol.Frame;
 
 /**
  * @author wangkai
@@ -72,6 +76,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private ByteBuf                        buf;
     private final IntMap<NioSocketChannel> channels           = new IntMap<>();
     private final int                      chSizeLimit;
+    private DelayedQueue                   delayedQueue       = new DelayedQueue();
     private final Queue<Runnable>          events             = new LinkedBlockingQueue<>();
     private final NioEventLoopGroup        group;
     private volatile boolean               hasTask            = false;
@@ -84,7 +89,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     private final boolean                  sharable;
     private final AtomicInteger            wakener            = new AtomicInteger();
     private ByteBuffer[]                   writeBuffers;
-    private DelayedQueue                   delayedQueue       = new DelayedQueue();
 
     NioEventLoop(NioEventLoopGroup group, int index) {
         this.index = index;
@@ -195,40 +199,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    protected void cancelSelectionKey(SocketChannel channel) {
-        if (channel != null) {
-            SelectionKey key = channel.keyFor(selector);
-            if (key != null) {
-                key.cancel();
-            }
-        }
-    }
-
-    private void readExceptionCaught(NioSocketChannel ch, Throwable ex) {
-        ch.close();
-        if (DEBUG) {
-            logger.error(ex.getMessage() + ch, ex);
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug(ex.getMessage() + ch, ex);
-            }
-        }
-        if (!ch.isSslHandshakeFinished()) {
-            ch.getContext().channelEstablish(ch, ex);
-        }
-    }
-
-    private void writeExceptionCaught(NioSocketChannel ch, Throwable ex) {
-        ch.close();
-        if (DEBUG) {
-            logger.error(ex.getMessage() + ch, ex);
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug(ex.getMessage() + ch, ex);
-            }
-        }
-    }
-
     public ByteBufAllocator alloc() {
         return alloc;
     }
@@ -236,6 +206,15 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
     @Override
     public Map<Object, Object> attributes() {
         return attributes;
+    }
+
+    protected void cancelSelectionKey(SocketChannel channel) {
+        if (channel != null) {
+            SelectionKey key = channel.keyFor(selector);
+            if (key != null) {
+                key.cancel();
+            }
+        }
     }
 
     private void channelIdle(ChannelIdleEventListener l, NioSocketChannel ch, long lastIdleTime,
@@ -339,6 +318,24 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         return channels.get(channelId);
     }
 
+    @SuppressWarnings("unchecked")
+    public Stack<Frame> getFrameBuffer(String key, int max) {
+        Stack<Frame> buffer = (Stack<Frame>) getAttribute(key);
+        if (buffer == null) {
+            if (group.isConcurrentFrameStack()) {
+                buffer = new LinkedBQStack<>(max);
+            } else {
+                buffer = new ArrayListStack<>(max);
+            }
+            setAttribute(key, buffer);
+        }
+        return buffer;
+    }
+
+    public Frame getFrameFromBuffer(NioSocketChannel ch, String key, int max) {
+        return getFrameBuffer(key, max).pop();
+    }
+
     @Override
     public NioEventLoopGroup getGroup() {
         return group;
@@ -372,11 +369,25 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         }
     }
 
-    protected void schedule(DelayTask task) {
-        if (inEventLoop()) {
-            delayedQueue.offer(task);
+    private void readExceptionCaught(NioSocketChannel ch, Throwable ex) {
+        ch.close();
+        if (DEBUG) {
+            logger.error(ex.getMessage() + ch, ex);
         } else {
-            executeAfterLoop(task);
+            if (logger.isDebugEnabled()) {
+                logger.debug(ex.getMessage() + ch, ex);
+            }
+        }
+        if (!ch.isSslHandshakeFinished()) {
+            ch.getContext().channelEstablish(ch, ex);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void releaseFrame(String key, Frame frame) {
+        Stack<Frame> buffer = (Stack<Frame>) getAttribute(key);
+        if (buffer != null) {
+            buffer.push(frame);
         }
     }
 
@@ -448,18 +459,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         preCloseChIds.add(chId);
     }
 
-    private void removeClosedChannels() {
-        IntArray list = preCloseChIds;
-        if (list.isEmpty()) {
-            return;
-        }
-        for (int i = 0, count = list.size(); i < count; i++) {
-            NioSocketChannel ch = channels.remove(list.get(i));
-            ch.getContext().getChannelManager().removeChannel(ch);
-        }
-        list.clear();
-    }
-
     @Override
     public void run() {
         // does it useful to set variables locally ?
@@ -469,6 +468,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         final SelectionKeySet keySet = this.selectionKeySet;
         final Queue<Runnable> events = this.events;
         final DelayedQueue dq = this.delayedQueue;
+        final IntArray preCloseChIds = this.preCloseChIds;
         long nextIdle = 0;
         long selectTime = idle;
         for (;;) {
@@ -556,10 +556,25 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                         break;
                     }
                 }
-                removeClosedChannels();
+                IntArray list = preCloseChIds;
+                if (!list.isEmpty()) {
+                    for (int i = 0, count = list.size(); i < count; i++) {
+                        NioSocketChannel ch = channels.remove(list.get(i));
+                        ch.getContext().getChannelManager().removeChannel(ch);
+                    }
+                    list.clear();
+                }
             } catch (Throwable e) {
                 printException(logger, e);
             }
+        }
+    }
+
+    protected void schedule(DelayTask task) {
+        if (inEventLoop()) {
+            delayedQueue.offer(task);
+        } else {
+            executeAfterLoop(task);
         }
     }
 
@@ -581,6 +596,17 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
                 super.wakeup();
             }
             wakener.set(0);
+        }
+    }
+
+    private void writeExceptionCaught(NioSocketChannel ch, Throwable ex) {
+        ch.close();
+        if (DEBUG) {
+            logger.error(ex.getMessage() + ch, ex);
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug(ex.getMessage() + ch, ex);
+            }
         }
     }
 

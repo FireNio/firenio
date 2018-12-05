@@ -30,13 +30,30 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
     }
 
     @Override
+    public byte absByte(int pos) {
+        return memory.get(pos);
+    }
+
+    @Override
     public int absLimit() {
         return memory.limit();
     }
 
     @Override
+    public ByteBuf absLimit(int limit) {
+        this.memory.limit(limit);
+        return this;
+    }
+
+    @Override
     public int absPos() {
         return memory.position();
+    }
+
+    @Override
+    public ByteBuf absPos(int pos) {
+        this.memory.position(pos);
+        return this;
     }
 
     @Override
@@ -268,7 +285,7 @@ public abstract class AbstractDirectByteBuf extends AbstractByteBuf {
         }
         return -1;
     }
-    
+
     @Override
     public int lastIndexOf(byte b) {
         ByteBuffer m = memory;

@@ -25,8 +25,10 @@ import static com.firenio.baseio.codec.http11.WebSocketCodec.TYPE_TEXT;
 import com.firenio.baseio.component.NioSocketChannel;
 import com.firenio.baseio.protocol.AbstractFrame;
 import com.firenio.baseio.protocol.Frame;
+import com.firenio.baseio.protocol.NamedFrame;
+import com.firenio.baseio.protocol.TextFrame;
 
-public class WebSocketFrame extends AbstractFrame implements HttpMessage {
+public class WebSocketFrame extends AbstractFrame implements NamedFrame, TextFrame {
 
     private byte[]  byteArray;
     private boolean eof;

@@ -15,10 +15,13 @@
  */
 package com.firenio.baseio.codec.http11;
 
+import static com.firenio.baseio.codec.http11.HttpHeader.Content_Length;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.buffer.ByteBufUtil;
@@ -30,16 +33,14 @@ import com.firenio.baseio.component.FastThreadLocal;
 import com.firenio.baseio.component.NioSocketChannel;
 import com.firenio.baseio.protocol.Frame;
 
-import java.util.Set;
-
 /**
  * @author wangkai
  *
  */
 public class ClientHttpCodec extends HttpCodec {
 
-    private static final byte[] COOKIE                  = b("Cookie:");
-    private static final byte[] PROTOCOL                = b(" HTTP/1.1\r\nContent-Length: ");
+    private static final byte[] COOKIE   = b("Cookie:");
+    private static final byte[] PROTOCOL = b(" HTTP/1.1\r\nContent-Length: ");
 
     @Override
     ClientHttpFrame allocHttpFrame(NioSocketChannel ch) {
@@ -48,6 +49,25 @@ public class ClientHttpCodec extends HttpCodec {
             return new ClientHttpFrame();
         }
         return f;
+    }
+
+    @Override
+    int decodeRemainBody(NioSocketChannel ch, ByteBuf src, HttpFrame frame) {
+        ClientHttpFrame f = (ClientHttpFrame) frame;
+        if (f.isChunked()) {
+            //TODO chunked support
+            return decode_state_complate;
+        } else {
+            if (f.getContent() == null) {
+                f.setContent(new byte[f.getContentLength()]);
+                f.bodyBuf = ByteBufUtil.wrap(f.getContent());
+            }
+            f.bodyBuf.read(src);
+            if (f.bodyBuf.hasRemaining()) {
+                return decode_state_body;
+            }
+            return decode_state_complate;
+        }
     }
 
     @Override
@@ -60,9 +80,9 @@ public class ClientHttpCodec extends HttpCodec {
         int len_idx = Util.valueOf(write_size, byte32);
         int len_len = 32 - len_idx;
         int len = method_bytes.length + 1 + url_bytes.length + PROTOCOL.length + len_len + 2;
-        List<byte[]> encode_bytes_array = getEncodeBytesArray();
         int header_size = 0;
         int cookie_size = 0;
+        List<byte[]> encode_bytes_array = getEncodeBytesArray();
         IntMap<String> headers = f.getRequestHeaders();
         if (headers != null) {
             headers.remove(HttpHeader.Content_Length.getId());
@@ -127,35 +147,6 @@ public class ClientHttpCodec extends HttpCodec {
         return buf.flip();
     }
 
-    @Override
-    int decodeRemainBody(NioSocketChannel ch, ByteBuf src, HttpFrame frame) {
-        ClientHttpFrame f = (ClientHttpFrame) frame;
-        if (f.bodyArray == null) {
-            f.bodyArray = new byte[f.contentLength];
-            f.bodyBuf = ByteBufUtil.wrap(f.bodyArray);
-        }
-        f.bodyBuf.read(src);
-        if (f.bodyBuf.hasRemaining()) {
-            return decode_state_body;
-        }
-        if (HttpStatic.application_urlencoded.equals(f.contentType)) {
-            // FIXME encoding
-            String paramString = new String(f.bodyArray, ch.getCharset());
-            parse_kv(f.params, paramString, '=', '&');
-        } else {
-            // FIXME 解析BODY中的内容
-        }
-        return decode_state_complate;
-    }
-
-    @Override
-    protected void parse_line_one(HttpFrame f, StringBuilder line) {
-        int index = Util.indexOf(line, ' ');
-        int status = Integer.parseInt(line.substring(index + 1, index + 4));
-        f.setVersion(HttpVersion.HTTP1_1.getId());
-        f.setStatus(HttpStatus.get(status));
-    }
-
     private String getRequestURI(HttpFrame frame) {
         Map<String, String> params = frame.getRequestParams();
         if (params == null || params.isEmpty()) {
@@ -177,6 +168,36 @@ public class ClientHttpCodec extends HttpCodec {
     @Override
     public void initialize(ChannelContext context) throws Exception {
         WebSocketCodec.init(context, getWebsocketLimit(), getWebsocketFrameStackSize());
+    }
+
+    int onHeaderReadComplete(HttpFrame frame) throws IOException {
+        ClientHttpFrame f = (ClientHttpFrame) frame;
+        int contentLength = 0;
+        String clength = f.getResponse(Content_Length);
+        if (!Util.isNullOrBlank(clength)) {
+            contentLength = Integer.parseInt(clength);
+            f.setContentLength(contentLength);
+        }
+        if (contentLength < 1) {
+            if (f.isChunked()) {
+                return decode_state_body;
+            } else {
+                return decode_state_complate;
+            }
+        } else {
+            if (contentLength > getBodyLimit()) {
+                throw new IOException("over limit:" + clength);
+            }
+            return decode_state_body;
+        }
+    }
+
+    @Override
+    protected void parse_line_one(HttpFrame f, CharSequence line) {
+        int index = Util.indexOf(line, ' ');
+        int status = Integer.parseInt((String) line.subSequence(index + 1, index + 4));
+        f.setVersion(HttpVersion.HTTP1_1.getId());
+        f.setStatus(HttpStatus.get(status));
     }
 
 }

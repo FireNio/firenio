@@ -13,35 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.baseio.collection;
+package test.io.load.http11;
 
 /**
  * @author wangkai
  *
  */
-public class FixedThreadStack<V> {
+public class TestLiteHttpLoadServerTFB {
 
-    private V[] vs;
-    private int size;
-
-    @SuppressWarnings("unchecked")
-    public FixedThreadStack(int capacity) {
-        this.size = 0;
-        this.vs = (V[]) new Object[capacity];
-    }
-
-    public V pop() {
-        if (size == 0) {
-            return null;
-        }
-        return vs[--size];
-    }
-
-    public void push(V v) {
-        if (size == vs.length) {
-            return;
-        }
-        vs[size++] = v;
+    public static void main(String[] args) throws Exception {
+        System.setProperty("lite", "true");
+        TestHttpLoadServerTFB.main(args);
     }
 
 }

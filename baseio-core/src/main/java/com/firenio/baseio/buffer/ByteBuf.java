@@ -20,10 +20,16 @@ import java.nio.ByteBuffer;
 import com.firenio.baseio.Releasable;
 
 public interface ByteBuf extends Releasable {
+    
+    byte absByte(int pos);
 
     int absLimit();
 
+    ByteBuf absLimit(int limit);
+    
     int absPos();
+
+    ByteBuf absPos(int pos);
 
     byte[] array();
 

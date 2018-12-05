@@ -25,19 +25,15 @@ import static com.firenio.baseio.codec.http11.HttpStatic.websocket_bytes;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.collection.IntMap;
-import com.firenio.baseio.common.Assert;
 import com.firenio.baseio.common.BASE64Util;
 import com.firenio.baseio.common.SHAUtil;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.NioSocketChannel;
-import com.firenio.baseio.protocol.AbstractFrame;
 
 //FIXME 改进header parser
 /**
@@ -46,22 +42,13 @@ import com.firenio.baseio.protocol.AbstractFrame;
  * multipart/form-data; boundary=----WebKitFormBoundaryKA6dsRskWA4CdJek
  *
  */
-public class HttpFrame extends AbstractFrame implements HttpMessage {
+public class HttpFrame extends HttpFrameLite {
 
-    byte[]              bodyArray;
-    int                 contentLength;
-    int                 contentType;
-    List<Cookie>        cookieList;
-    Map<String, String> cookies;
-    int                 decode_state;
-    int                 headerLength;
-    int                 method;
-    Map<String, String> params           = new HashMap<>();
-    IntMap<String>      request_headers  = new IntMap<>(16);
-    String              requestURL;
-    IntMap<byte[]>      response_headers = new IntMap<>(8);
-    int                 status           = HttpStatus.C200.getStatus();
-    int                 version;
+    private List<Cookie>        cookieList;
+    private Map<String, String> cookies;
+    private boolean             isForm;
+    private IntMap<String>      request_headers = new IntMap<>(16);
+    private int                 version;
 
     public void addCookie(Cookie cookie) {
         if (cookieList == null) {
@@ -70,37 +57,11 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
         cookieList.add(cookie);
     }
 
-    void clear(Collection<?> coll) {
-        if (coll == null) {
-            return;
-        }
-        coll.clear();
-    }
-
-    void clear(Map<?, ?> map) {
-        if (map == null) {
-            return;
-        }
-        map.clear();
-    }
-
-    public byte[] getBodyContent() {
-        return bodyArray;
-    }
-
     public String getBoundary() {
-        if (contentType == HttpContentType.MULTIPART.getId()) {
+        if (isForm) {
             return HttpCodec.parseBoundary(getRequestHeader(Content_Type.getId()));
         }
         return null;
-    }
-
-    public int getContentLength() {
-        return contentLength;
-    }
-
-    public int getContentType() {
-        return contentType;
     }
 
     public String getCookie(String name) {
@@ -114,9 +75,8 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
         return cookieList;
     }
 
-    @Override
-    public String getFrameName() {
-        return getRequestURL();
+    public Map<String, String> getCookies() {
+        return cookies;
     }
 
     HttpHeader getHeader(String name) {
@@ -131,27 +91,7 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
         return getRequestHeader(HttpHeader.Host);
     }
 
-    public HttpMethod getMethod() {
-        return HttpMethod.get(method);
-    }
-
-    public int getMethodId() {
-        return method;
-    }
-
-    String getReadHeader(HttpHeader header) {
-        return request_headers.get(header.getId());
-    }
-
-    @Override
-    public String getReadText() {
-        return null;
-    }
-
     public String getRequestHeader(HttpHeader name) {
-        if (name == null) {
-            return null;
-        }
         return request_headers.get(name.getId());
     }
 
@@ -163,49 +103,6 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
         return request_headers;
     }
 
-    public String getRequestParam(String key) {
-        return params.get(key);
-    }
-
-    public Map<String, String> getRequestParams() {
-        return params;
-    }
-
-    /**
-     * <table summary="Examples of Returned Values">
-     * <tr align=left>
-     * <th>First line of HTTP request</th>
-     * <th>Returned Value</th>
-     * <tr>
-     * <td>POST /some/path.html HTTP/1.1
-     * <td>
-     * <td>/some/path.html
-     * <tr>
-     * <td>GET http://foo.bar/a.html HTTP/1.0
-     * <td>
-     * <td>/a.html
-     * <tr>
-     * <td>GET /xyz?a=b HTTP/1.1
-     * <td>
-     * <td>/xyz
-     * </table>
-     */
-    public String getRequestURL() {
-        return requestURL;
-    }
-
-    public IntMap<byte[]> getResponseHeaders() {
-        return response_headers;
-    }
-
-    public HttpStatus getStatus() {
-        return HttpStatus.get(status);
-    }
-
-    public int getStatusId() {
-        return status;
-    }
-
     public HttpVersion getVersion() {
         return HttpVersion.getMethod(version);
     }
@@ -214,31 +111,27 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
         return version;
     }
 
-    public boolean hasBodyContent() {
-        return bodyArray != null;
+    public boolean isForm() {
+        return isForm;
     }
 
-    HttpFrame reset(NioSocketChannel ch) {
-        this.bodyArray = null;
-        this.requestURL = null;
-        this.contentLength = 0;
-        this.headerLength = 0;
-        this.status = HttpStatus.C200.getStatus();
-        this.method = HttpMethod.OTHER.getId();
+    @Override
+    public HttpFrame reset() {
         this.version = HttpVersion.OTHER.getId();
-        this.contentType = HttpContentType.OTHER.getId();
-        this.decode_state = HttpCodec.decode_state_line_one;
+        this.isForm = false;
         this.clear(cookieList);
         this.clear(cookies);
         this.request_headers.clear();
-        this.response_headers.clear();
-        this.params.clear();
         super.reset();
         return this;
     }
 
-    public void setMethod(HttpMethod method) {
-        this.method = method.getId();
+    public void setCookies(Map<String, String> cookies) {
+        this.cookies = cookies;
+    }
+
+    public void setForm(boolean isForm) {
+        this.isForm = isForm;
     }
 
     void setReadHeader(String name, String value) {
@@ -256,43 +149,8 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
         this.request_headers = requestHeaders;
     }
 
-    public void setRequestParams(Map<String, String> params) {
-        this.params = params;
-    }
-
-    void setRequestURI(String requestURI) {
-        this.requestURL = requestURI;
-    }
-
-    public void setResponseHeader(HttpHeader name, byte[] value) {
-        Assert.notNull(name, "null name");
-        Assert.notNull(value, "null value");
-        response_headers.put(name.getId(), value);
-    }
-
-    public void setResponseHeader(int name, byte[] value) {
-        Assert.notNull(value, "null value");
-        response_headers.put(name, value);
-    }
-
-    public void setReuestParam(String key, String value) {
-        if (params == null) {
-            params = new HashMap<>();
-        }
-        this.params.put(key, value);
-    }
-
-    public void setStatus(HttpStatus status) {
-        this.status = status.getStatus();
-    }
-
     public void setVersion(int version) {
         this.version = version;
-    }
-
-    @Override
-    public String toString() {
-        return getRequestURL();
     }
 
     public boolean updateWebSocketProtocol(final NioSocketChannel ch) throws IOException {
@@ -310,7 +168,6 @@ public class HttpFrame extends AbstractFrame implements HttpMessage {
             ch.setAttribute(WebSocketCodec.CHANNEL_KEY_SERVICE_NAME, getFrameName());
             ch.getEventLoop().execute(new Runnable() {
 
-                @Override
                 public void run() {
                     try {
                         ByteBuf buf = ch.encode(HttpFrame.this);
