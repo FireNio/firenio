@@ -8,7 +8,7 @@
 	<description>The all in one project of baseio</description>
 
 	<parent>
-		<groupId>com.generallycloud</groupId>
+		<groupId>com.firenio</groupId>
 		<artifactId>baseio</artifactId>
 		<version>3.2.9-SNAPSHOT</version>
 		<relativePath>../baseio/pom.xml</relativePath>
@@ -67,13 +67,6 @@
 			<groupId>org.wildfly.openssl</groupId>
 			<artifactId>wildfly-openssl-java</artifactId>
 			<version>1.0.6.Final</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.mortbay.jetty.alpn</groupId>
-			<artifactId>alpn-boot</artifactId>
-			<version>8.1.10.v20161026</version>
 			<scope>provided</scope>
 		</dependency>
 

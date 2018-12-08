@@ -8,7 +8,7 @@
 	<description>The codec of baseio</description>
 
 	<parent>
-		<groupId>com.generallycloud</groupId>
+		<groupId>com.firenio</groupId>
 		<artifactId>baseio</artifactId>
 		<version>3.2.9-SNAPSHOT</version>
 		<relativePath>../baseio/pom.xml</relativePath>
@@ -17,7 +17,7 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>com.generallycloud</groupId>
+			<groupId>com.firenio</groupId>
 			<artifactId>baseio-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>

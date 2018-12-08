@@ -12,10 +12,10 @@
      http://www.springframework.org/schema/aop 
      http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
 
-	<context:component-scan base-package="com.generallycloud.test.spring" />
+	<context:component-scan base-package="com.firenio.test.spring" />
 
 	<aop:config expose-proxy="true" proxy-target-class="true">
-		<aop:pointcut id="pointcut_service" expression="execution(* com.generallycloud.test.spring.*.service*(..))" />
+		<aop:pointcut id="pointcut_service" expression="execution(* com.firenio.test.spring.*.service*(..))" />
 		<aop:aspect ref="log">
 			<aop:before pointcut-ref="pointcut_service" method="log" />
 		</aop:aspect>
