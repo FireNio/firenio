@@ -17,6 +17,7 @@ package com.firenio.baseio.component;
 
 import static com.firenio.baseio.Develop.printException;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -63,7 +65,7 @@ import com.firenio.baseio.protocol.Frame;
  * @author wangkai
  *
  */
-public final class NioEventLoop extends AbstractEventLoop implements Attributes {
+public final class NioEventLoop extends AbstractEventLoop implements Attributes, Executor {
 
     private static final boolean           CHANNEL_READ_FIRST = Options.isChannelReadFirst();
     private static final boolean           ENABLE_SELKEY_SET  = checkEnableSelectionKeySet();
@@ -292,8 +294,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
         if (inEventLoop()) {
             return;
         }
-        if (!isRunning() && events.remove(event)) {
-            group.getRejectedExecutionHandle().reject(this, event);
+        if (!isRunning() && events.remove(event) && event instanceof Closeable) {
+            Util.close((Closeable) event);
             return;
         }
         wakeup();
@@ -301,8 +303,8 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes 
 
     public void executeAfterLoop(Runnable event) {
         events.offer(event);
-        if (!isRunning() && events.remove(event)) {
-            group.getRejectedExecutionHandle().reject(this, event);
+        if (!isRunning() && events.remove(event) && event instanceof Closeable) {
+            Util.close((Closeable) event);
         }
     }
 

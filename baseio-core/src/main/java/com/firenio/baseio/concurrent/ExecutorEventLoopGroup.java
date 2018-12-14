@@ -24,4 +24,8 @@ public interface ExecutorEventLoopGroup extends EventLoopGroup {
     @Override
     ExecutorEventLoop getNext();
 
+    int getMaxQueueSize();
+
+    int getEventLoopSize();
+
 }

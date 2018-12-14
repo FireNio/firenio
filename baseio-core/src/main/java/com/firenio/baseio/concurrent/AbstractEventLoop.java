@@ -17,10 +17,7 @@ package com.firenio.baseio.concurrent;
 
 import com.firenio.baseio.AbstractLifeCycle;
 import com.firenio.baseio.LifeCycleUtil;
-import com.firenio.baseio.common.Assert;
 import com.firenio.baseio.component.FastThreadLocalThread;
-import com.firenio.baseio.component.RejectedExecutionHandle;
-import com.firenio.baseio.component.RejectedExecutionHandle.DefaultRejectedExecutionHandle;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 
@@ -46,9 +43,6 @@ public abstract class AbstractEventLoop implements EventLoop {
     protected void doStartup() throws Exception {}
 
     protected void doStop() {}
-
-    @Override
-    public void execute(Runnable event) {}
 
     @Override
     public EventLoopGroup getGroup() {
@@ -144,9 +138,8 @@ public abstract class AbstractEventLoop implements EventLoop {
 
     class DefaultEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
 
-        private EventLoop               eventLoop;
-        private EventLoopListener       listener;
-        private RejectedExecutionHandle rejectedExecutionHandle = new DefaultRejectedExecutionHandle();
+        private EventLoop         eventLoop;
+        private EventLoopListener listener;
 
         DefaultEventLoopGroup(EventLoop eventLoop) {
             this.eventLoop = eventLoop;
@@ -176,18 +169,8 @@ public abstract class AbstractEventLoop implements EventLoop {
         }
 
         @Override
-        public RejectedExecutionHandle getRejectedExecutionHandle() {
-            return rejectedExecutionHandle;
-        }
-
-        @Override
         public void setEventLoopListener(EventLoopListener listener) {
             this.listener = listener;
-        }
-
-        public void setRejectedExecutionHandle(RejectedExecutionHandle rejectedExecutionHandle) {
-            Assert.notNull(rejectedExecutionHandle, "null rejectedExecutionHandle");
-            this.rejectedExecutionHandle = rejectedExecutionHandle;
         }
 
     }

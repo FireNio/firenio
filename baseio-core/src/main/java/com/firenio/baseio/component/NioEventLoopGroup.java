@@ -227,12 +227,13 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         checkNotRunning();
         this.memoryPoolRate = memoryPoolRate;
     }
-    
+
     public boolean isReadBufDirect() {
         return readBufDirect;
     }
 
     public void setReadBufDirect(boolean readBufDirect) {
+        checkNotRunning();
         this.readBufDirect = readBufDirect;
     }
 

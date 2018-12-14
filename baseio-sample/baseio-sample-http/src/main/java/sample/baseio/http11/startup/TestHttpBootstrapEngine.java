@@ -27,6 +27,7 @@ import com.firenio.baseio.component.ChannelAliveIdleEventListener;
 import com.firenio.baseio.component.ConfigurationParser;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.NioEventLoopGroup;
+import com.firenio.baseio.concurrent.ThreadEventLoopGroup;
 import com.firenio.baseio.container.BootstrapEngine;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
@@ -56,6 +57,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new CountChannelListener());
+        context.setExecutorEventLoopGroup(new ThreadEventLoopGroup("event-process"));
         context.addLifeCycleListener(new AbstractLifeCycleListener() {
             @Override
             public void lifeCycleStopped(LifeCycle lifeCycle) {

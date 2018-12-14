@@ -17,23 +17,34 @@ package com.firenio.baseio.concurrent;
 
 import com.firenio.baseio.AbstractLifeCycle;
 import com.firenio.baseio.LifeCycleUtil;
-import com.firenio.baseio.common.Assert;
-import com.firenio.baseio.component.RejectedExecutionHandle;
-import com.firenio.baseio.component.RejectedExecutionHandle.DefaultRejectedExecutionHandle;
+import com.firenio.baseio.common.Util;
 
 public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
         implements ExecutorEventLoopGroup {
 
+    private int               eventLoopSize;
+    private int               maxQueueSize;
     private ExecutorEventLoop eventLoop;
     private EventLoopListener eventLoopListener;
     private String            eventLoopName;
-    private RejectedExecutionHandle rejectedExecutionHandle = new DefaultRejectedExecutionHandle();
 
-    public ExecutorPoolEventLoopGroup(String eventLoopName, int coreEventLoopSize,
-            int maxEventLoopSize, int maxEventQueueSize, long keepAliveTime) {
-        this.eventLoopName = eventLoopName;
-        this.eventLoop = new ExecutorPoolEventLoop(this, coreEventLoopSize, maxEventLoopSize,
-                maxEventQueueSize, keepAliveTime);
+    public ExecutorPoolEventLoopGroup() {
+        this("event-process");
+    }
+
+    public ExecutorPoolEventLoopGroup(String eventLoopName) {
+        this(eventLoopName, 1024 * 4 * Util.availableProcessors());
+    }
+
+    public ExecutorPoolEventLoopGroup(String eventLoopName, int maxQueueSize) {
+        this(eventLoopName, Util.availableProcessors() * 2, maxQueueSize);
+    }
+
+    public ExecutorPoolEventLoopGroup(String name, int eventLoopSize, int maxQueueSize) {
+        this.eventLoopName = name;
+        this.maxQueueSize = maxQueueSize;
+        this.eventLoopSize = eventLoopSize;
+        this.eventLoop = new ExecutorPoolEventLoop(this);
     }
 
     @Override
@@ -58,6 +69,16 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
     }
 
     @Override
+    public int getMaxQueueSize() {
+        return maxQueueSize;
+    }
+
+    @Override
+    public int getEventLoopSize() {
+        return eventLoopSize;
+    }
+
+    @Override
     public EventLoopListener getEventLoopListener() {
         return eventLoopListener;
     }
@@ -70,16 +91,6 @@ public class ExecutorPoolEventLoopGroup extends AbstractLifeCycle
     @Override
     public void setEventLoopListener(EventLoopListener eventLoopListener) {
         this.eventLoopListener = eventLoopListener;
-    }
-
-    @Override
-    public RejectedExecutionHandle getRejectedExecutionHandle() {
-        return rejectedExecutionHandle;
-    }
-
-    public void setRejectedExecutionHandle(RejectedExecutionHandle rejectedExecutionHandle) {
-        Assert.notNull(rejectedExecutionHandle, "null rejectedExecutionHandle");
-        this.rejectedExecutionHandle = rejectedExecutionHandle;
     }
 
 }

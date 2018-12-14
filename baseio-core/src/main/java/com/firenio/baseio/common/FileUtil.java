@@ -350,14 +350,20 @@ public class FileUtil {
     }
 
     public static List<String> readLines(Reader input) throws IOException {
-        BufferedReader reader = toBufferedReader(input);
-        List<String> list = new ArrayList<>();
-        String line = reader.readLine();
-        while (line != null) {
-            list.add(line);
-            line = reader.readLine();
+        BufferedReader reader = null;
+        try {
+            reader = toBufferedReader(input);
+            List<String> list = new ArrayList<>();
+            String line = reader.readLine();
+            while (line != null) {
+                list.add(line);
+                line = reader.readLine();
+            }
+            return list;
+        } finally {
+            Util.close(reader);
+            Util.close(input);
         }
-        return list;
     }
 
     public static Properties readProperties(InputStream inputStream, Charset charset)

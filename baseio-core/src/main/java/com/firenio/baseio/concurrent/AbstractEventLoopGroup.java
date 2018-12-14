@@ -17,9 +17,6 @@ package com.firenio.baseio.concurrent;
 
 import com.firenio.baseio.AbstractLifeCycle;
 import com.firenio.baseio.LifeCycleUtil;
-import com.firenio.baseio.common.Assert;
-import com.firenio.baseio.component.RejectedExecutionHandle;
-import com.firenio.baseio.component.RejectedExecutionHandle.DefaultRejectedExecutionHandle;
 
 public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implements EventLoopGroup {
 
@@ -27,7 +24,6 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
     private EventLoopListener       eventLoopListener;
     private String                  eventLoopName;
     private int                     eventLoopSize;
-    private RejectedExecutionHandle rejectedExecutionHandle = new DefaultRejectedExecutionHandle();
 
     protected AbstractEventLoopGroup() {}
 
@@ -84,10 +80,6 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
         return eventLoopIndex.getAndIncrement();
     }
 
-    public RejectedExecutionHandle getRejectedExecutionHandle() {
-        return rejectedExecutionHandle;
-    }
-
     protected abstract EventLoop[] initEventLoops();
 
     protected abstract EventLoop newEventLoop(int index);
@@ -106,11 +98,6 @@ public abstract class AbstractEventLoopGroup extends AbstractLifeCycle implement
     public void setEventLoopSize(int eventLoopSize) {
         this.checkNotRunning();
         this.eventLoopSize = eventLoopSize;
-    }
-
-    public void setRejectedExecutionHandle(RejectedExecutionHandle rejectedExecutionHandle) {
-        Assert.notNull(rejectedExecutionHandle, "null rejectedExecutionHandle");
-        this.rejectedExecutionHandle = rejectedExecutionHandle;
     }
 
 }

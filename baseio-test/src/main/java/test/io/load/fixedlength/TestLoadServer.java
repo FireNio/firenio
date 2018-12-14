@@ -21,6 +21,7 @@ import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.NioEventLoopGroup;
 import com.firenio.baseio.component.NioSocketChannel;
+import com.firenio.baseio.concurrent.ThreadEventLoopGroup;
 import com.firenio.baseio.protocol.Frame;
 import com.firenio.baseio.protocol.TextFrame;
 
@@ -52,7 +53,7 @@ public class TestLoadServer {
         group.setMemoryPoolUnit(MEM_UNIT);
         group.setEnableMemoryPool(ENABLE_POOL);
         group.setEnableMemoryPoolDirect(ENABLE_POOL_DIRECT);
-        ChannelAcceptor context = new ChannelAcceptor(group,8300);
+        ChannelAcceptor context = new ChannelAcceptor(group, 8300);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setProtocolCodec(new FixedLengthCodec());
         context.setIoEventHandle(eventHandle);
@@ -61,9 +62,11 @@ public class TestLoadServer {
             context.setCertCrt("localhost.crt");
             context.setCertKey("localhost.key");
         }
-        context.setWorkEventQueueSize(1024 * 1024);
-        context.setEnableWorkEventLoop(ENABLE_WORK_EVENT_LOOP);
         context.addChannelEventListener(new LoggerChannelOpenListener());
+        if (ENABLE_WORK_EVENT_LOOP) {
+            context.setExecutorEventLoopGroup(
+                    new ThreadEventLoopGroup("ep", 1024 * 256 * CLIENT_CORE_SIZE));
+        }
         context.bind();
 
     }

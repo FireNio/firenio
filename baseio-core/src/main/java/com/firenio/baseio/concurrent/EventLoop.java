@@ -15,9 +15,7 @@
  */
 package com.firenio.baseio.concurrent;
 
-import java.util.concurrent.Executor;
-
-public interface EventLoop extends Runnable, Executor {
+public interface EventLoop extends Runnable {
 
     EventLoopGroup getGroup();
 

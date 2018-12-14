@@ -16,54 +16,33 @@
 package com.firenio.baseio.concurrent;
 
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.firenio.baseio.component.FastThreadLocalThread;
-import com.firenio.baseio.component.RejectedExecutionHandle;
 
 public class ExecutorPoolEventLoop implements ExecutorEventLoop {
 
-    private int                    coreEventLoopSize;
-    private int                    maxEventLoopSize;
-    private long                   keepAliveTime;
-    private int                    maxEventQueueSize;
     private NamedThreadFactory     threadFactory;
-    private ExecutorEventLoopGroup eventLoopGroup;
+    private ExecutorEventLoopGroup group;
 
-    public ExecutorPoolEventLoop(ExecutorEventLoopGroup eventLoopGroup, int coreEventLoopSize,
-            int maxEventLoopSize, int maxEventQueueSize, long keepAliveTime) {
-        this.eventLoopGroup = eventLoopGroup;
-        this.coreEventLoopSize = coreEventLoopSize;
-        this.maxEventLoopSize = maxEventLoopSize;
-        this.maxEventQueueSize = maxEventQueueSize;
-        this.keepAliveTime = keepAliveTime;
+    public ExecutorPoolEventLoop(ExecutorEventLoopGroup group) {
+        this.group = group;
     }
 
     private ThreadPoolExecutor poolExecutor;
 
     @Override
-    public void execute(Runnable job) {
-        this.poolExecutor.execute(job);
-    }
-
-    @Override
     public void startup(String threadName) throws Exception {
+        int eventLoopSize = group.getEventLoopSize();
+        int maxQueueSize = group.getMaxQueueSize();
         threadFactory = new NamedThreadFactory(threadName);
-        poolExecutor = new ThreadPoolExecutor(coreEventLoopSize, maxEventLoopSize, keepAliveTime,
-                TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(maxEventQueueSize),
+        poolExecutor = new ThreadPoolExecutor(eventLoopSize, eventLoopSize, Long.MAX_VALUE,
+                TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(maxQueueSize),
                 threadFactory);
-        final EventLoop eventLoop = this;
-        final RejectedExecutionHandle handle = eventLoopGroup.getRejectedExecutionHandle();
-        poolExecutor.setRejectedExecutionHandler(new RejectedExecutionHandler() {
-            @Override
-            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                handle.reject(eventLoop, r);
-            }
-        });
     }
 
     @Override
@@ -71,6 +50,16 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
         if (poolExecutor != null) {
             poolExecutor.shutdown();
         }
+    }
+
+    @Override
+    public BlockingQueue<Runnable> getJobs() {
+        return poolExecutor.getQueue();
+    }
+
+    @Override
+    public int getEventSize() {
+        return poolExecutor.getQueue().size();
     }
 
     @Override
@@ -105,7 +94,7 @@ public class ExecutorPoolEventLoop implements ExecutorEventLoop {
 
     @Override
     public ExecutorEventLoopGroup getGroup() {
-        return eventLoopGroup;
+        return group;
     }
 
     class NamedThreadFactory implements ThreadFactory {

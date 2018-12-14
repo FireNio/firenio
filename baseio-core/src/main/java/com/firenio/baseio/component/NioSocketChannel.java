@@ -29,12 +29,14 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLEngineResult.Status;
+import javax.net.ssl.SSLException;
 
 import com.firenio.baseio.Develop;
 import com.firenio.baseio.buffer.ByteBuf;
@@ -51,48 +53,47 @@ import com.firenio.baseio.log.LoggerFactory;
 import com.firenio.baseio.protocol.Frame;
 import com.firenio.baseio.protocol.ProtocolCodec;
 
-import javax.net.ssl.SSLException;
-
 public final class NioSocketChannel extends AttributesImpl
         implements Runnable, Attributes, Closeable {
 
-    private static final ClosedChannelException CLOSED_WHEN_FLUSH     = CLOSED_WHEN_FLUSH();
-    private static final InetSocketAddress      ERROR_SOCKET_ADDRESS  = new InetSocketAddress(0);
-    private static final int                    INTEREST_WRITE        = INTEREST_WRITE();
-    private static final Logger                 logger                = newLogger();
-    private static final SSLException           NOT_TLS               = NOT_TLS();
-    private static final int                    SSL_PACKET_LIMIT      = 1024 * 64;
-    private static final SSLException           SSL_PACKET_OVER_LIMIT = SSL_PACKET_OVER_LIMIT();
-    private static final SSLException           SSL_UNWRAP_OVER_LIMIT = SSL_UNWRAP_OVER_LIMIT();
+    public static final ClosedChannelException CLOSED_WHEN_FLUSH     = CLOSED_WHEN_FLUSH();
+    public static final InetSocketAddress      ERROR_SOCKET_ADDRESS  = new InetSocketAddress(0);
+    public static final int                    INTEREST_WRITE        = INTEREST_WRITE();
+    public static final Logger                 logger                = newLogger();
+    public static final SSLException           NOT_TLS               = NOT_TLS();
+    public static final int                    SSL_PACKET_LIMIT      = 1024 * 64;
+    public static final SSLException           SSL_PACKET_OVER_LIMIT = SSL_PACKET_OVER_LIMIT();
+    public static final SSLException           SSL_UNWRAP_OVER_LIMIT = SSL_UNWRAP_OVER_LIMIT();
+    public static final IOException            TAST_REJECT           = TASK_REJECT();
 
-    private final SocketChannel                 channel;
-    private final Integer                       channelId;
-    private ProtocolCodec                       codec;
-    private final ChannelContext                context;
-    private final long                          creationTime          = System.currentTimeMillis();
-    private final ByteBuf[]                     currentWriteBufs;
-    private int                                 currentWriteBufsLen;
-    private final String                        desc;
-    private final boolean                       enableSsl;
-    private final NioEventLoop                  eventLoop;
-    private final ExecutorEventLoop             executorEventLoop;
-    private volatile boolean                    inEvent;
-    private int                                 interestOps           = SelectionKey.OP_READ;
-    private IoEventHandle                       ioEventHandle;
-    private long                                lastAccess;
-    private final String                        localAddr;
-    private final int                           localPort;
-    private final int                           maxWriteBacklog;
-    private volatile boolean                    opened                = true;
-    private ByteBuf                             plainRemainBuf;
-    private final String                        remoteAddr;
-    private final int                           remotePort;
-    private final SelectionKey                  selKey;
-    private final SSLEngine                     sslEngine;
-    private boolean                             sslHandshakeFinished;
-    private ByteBuf                             sslRemainBuf;
-    private byte                                sslWrapExt;
-    private final Queue<ByteBuf>                writeBufs;
+    private final SocketChannel                channel;
+    private final Integer                      channelId;
+    private ProtocolCodec                      codec;
+    private final ChannelContext               context;
+    private final long                         creationTime          = System.currentTimeMillis();
+    private final ByteBuf[]                    currentWriteBufs;
+    private int                                currentWriteBufsLen;
+    private final String                       desc;
+    private final boolean                      enableSsl;
+    private final NioEventLoop                 eventLoop;
+    private final ExecutorEventLoop            executorEventLoop;
+    private volatile boolean                   inEvent;
+    private int                                interestOps           = SelectionKey.OP_READ;
+    private IoEventHandle                      ioEventHandle;
+    private long                               lastAccess;
+    private final String                       localAddr;
+    private final int                          localPort;
+    private final int                          maxWriteBacklog;
+    private volatile boolean                   opened                = true;
+    private ByteBuf                            plainRemainBuf;
+    private final String                       remoteAddr;
+    private final int                          remotePort;
+    private final SelectionKey                 selKey;
+    private final SSLEngine                    sslEngine;
+    private boolean                            sslHandshakeFinished;
+    private ByteBuf                            sslRemainBuf;
+    private byte                               sslWrapExt;
+    private final Queue<ByteBuf>               writeBufs;
 
     NioSocketChannel(NioEventLoop el, SelectionKey sk, ChannelContext ctx, int chId) {
         NioEventLoopGroup g = el.getGroup();
@@ -149,21 +150,29 @@ public final class NioSocketChannel extends AttributesImpl
             } else {
                 if (enableWorkEventLoop) {
                     final Frame f = frame;
-                    getExecutorEventLoop().execute(new Runnable() {
+                    final ExecutorEventLoop executorEventLoop = getExecutorEventLoop();
+                    final BlockingQueue<Runnable> jobs = executorEventLoop.getJobs();
+                    final Runnable job = new Runnable() {
+
                         @Override
                         public void run() {
+                            NioSocketChannel ch = NioSocketChannel.this;
                             try {
-                                eventHandle.accept(NioSocketChannel.this, f);
+                                ch.getIoEventHandle().accept(ch, f);
                             } catch (Exception e) {
-                                eventHandle.exceptionCaught(NioSocketChannel.this, f, e);
+                                ch.getIoEventHandle().exceptionCaught(ch, f, e);
                             }
                         }
-                    });
+                    };
+                    if (!jobs.offer(job) || (!executorEventLoop.isRunning() && jobs.remove(job))) {
+                        exceptionCaught(frame, TAST_REJECT);
+                        return;
+                    }
                 } else {
                     try {
                         eventHandle.accept(this, frame);
                     } catch (Exception e) {
-                        eventHandle.exceptionCaught(this, frame, e);
+                        exceptionCaught(frame, e);
                     }
                 }
             }
@@ -1102,6 +1111,11 @@ public final class NioSocketChannel extends AttributesImpl
     private static ClosedChannelException CLOSED_WHEN_FLUSH() {
         return Util.unknownStackTrace(new ClosedChannelException(), NioSocketChannel.class,
                 "flush(...)");
+    }
+
+    private static IOException TASK_REJECT() {
+        return Util.unknownStackTrace(new IOException(), NioSocketChannel.class,
+                "accept_reject(...)");
     }
 
     private static void fillNull(Object[] a, int fromIndex, int toIndex) {

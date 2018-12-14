@@ -38,7 +38,6 @@ import com.firenio.baseio.common.Properties;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.concurrent.ExecutorEventLoop;
 import com.firenio.baseio.concurrent.ExecutorEventLoopGroup;
-import com.firenio.baseio.concurrent.ThreadEventLoopGroup;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 import com.firenio.baseio.protocol.ProtocolCodec;
@@ -55,8 +54,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     private List<ChannelIdleEventListener> ciels              = new ArrayList<>();
     private boolean                        enableHeartbeatLog = true;
     private boolean                        enableSsl;
-    //是否启用work event loop，如果启用，则frame在work event loop中处理
-    private boolean                        enableWorkEventLoop;
+  //是否启用work event loop，如果启用，则frame在work event loop中处理
     private ExecutorEventLoopGroup         executorEventLoopGroup;
     private HeartBeatLogger                heartBeatLogger;
     private String                         host;
@@ -74,7 +72,6 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     private SslContext                     sslContext;
     private String                         sslKeystore;
     private long                           startupTime        = System.currentTimeMillis();
-    private int                            workEventQueueSize = 1024 * 8;
 
     ChannelContext(NioEventLoopGroup group, String host, int port) {
         Assert.notNull(host, "null host");
@@ -117,9 +114,6 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         NioEventLoopGroup g = this.processorGroup;
         int eventLoopSize = g.getEventLoopSize();
         protocolCodec.initialize(this);
-        if (isEnableWorkEventLoop() && executorEventLoopGroup == null) {
-            executorEventLoopGroup = new ThreadEventLoopGroup(this, "event-process", eventLoopSize);
-        }
         serverAddress = new InetSocketAddress(host, port);
         LifeCycleUtil.start(executorEventLoopGroup);
         LifeCycleUtil.start(processorGroup);
@@ -265,10 +259,6 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         return startupTime;
     }
 
-    public int getWorkEventQueueSize() {
-        return workEventQueueSize;
-    }
-
     private void initHeartBeatLogger() {
         if (isEnableHeartbeatLog()) {
             heartBeatLogger = new HeartBeatLogger() {
@@ -341,10 +331,6 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         return enableSsl;
     }
 
-    public boolean isEnableWorkEventLoop() {
-        return enableWorkEventLoop;
-    }
-
     public boolean isPrintConfig() {
         return printConfig;
     }
@@ -385,11 +371,6 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     public void setEnableSsl(boolean enableSsl) {
         checkNotRunning();
         this.enableSsl = enableSsl;
-    }
-
-    public void setEnableWorkEventLoop(boolean enableWorkEventLoop) {
-        checkNotRunning();
-        this.enableWorkEventLoop = enableWorkEventLoop;
     }
 
     public void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup) {
@@ -454,11 +435,6 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     public void setSslKeystore(String sslKeystore) {
         checkNotRunning();
         this.sslKeystore = sslKeystore;
-    }
-
-    public void setWorkEventQueueSize(int workEventQueueSize) {
-        checkNotRunning();
-        this.workEventQueueSize = workEventQueueSize;
     }
 
     private String sslType() {

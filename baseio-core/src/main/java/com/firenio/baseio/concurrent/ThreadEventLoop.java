@@ -17,25 +17,18 @@ package com.firenio.baseio.concurrent;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import com.firenio.baseio.component.ChannelContext;
-import com.firenio.baseio.component.RejectedExecutionHandle;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 
 public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventLoop {
 
-    private static final Logger logger = LoggerFactory.getLogger(ThreadEventLoop.class);
-    private ChannelContext         context;
-    private ExecutorEventLoopGroup executorEventLoopGroup;
-    private RejectedExecutionHandle rejectedExecutionHandle;
+    private static final Logger    logger = LoggerFactory.getLogger(ThreadEventLoop.class);
+    private ExecutorEventLoopGroup group;
 
-    public ThreadEventLoop(ExecutorEventLoopGroup eventLoopGroup, ChannelContext context) {
-        this.context = context;
-        this.executorEventLoopGroup = eventLoopGroup;
-        this.rejectedExecutionHandle = eventLoopGroup.getRejectedExecutionHandle();
+    public ThreadEventLoop(ExecutorEventLoopGroup group) {
+        this.group = group;
     }
 
     private BlockingQueue<Runnable> jobs;
@@ -51,20 +44,23 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 
     @Override
     protected void doStartup() throws Exception {
-        int eventQueueSize = context.getWorkEventQueueSize();
-        this.jobs = new ArrayBlockingQueue<>(eventQueueSize);
+        int maxQueueSize = group.getMaxQueueSize();
+        this.jobs = new ArrayBlockingQueue<>(maxQueueSize);
         super.doStartup();
     }
 
     @Override
-    public void execute(Runnable job) throws RejectedExecutionException {
-        if (!jobs.offer(job)) {
-            rejectedExecutionHandle.reject(this, job);
-            return;
-        }
-        if (!isRunning() && jobs.remove(job)) {
-            rejectedExecutionHandle.reject(this, job);
-        }
+    public int getEventSize() {
+        return jobs.size();
+    }
+
+    @Override
+    public BlockingQueue<Runnable> getJobs() {
+        return jobs;
+    }
+
+    public boolean offer(Runnable runnable) {
+        return jobs.offer(runnable);
     }
 
     @Override
@@ -85,7 +81,7 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
 
     @Override
     public ExecutorEventLoopGroup getGroup() {
-        return executorEventLoopGroup;
+        return group;
     }
 
 }

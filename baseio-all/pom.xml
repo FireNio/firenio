@@ -81,14 +81,14 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-codec</artifactId>
 			<version>${project.version}</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>baseio-core</artifactId>
 			<version>${project.version}</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>

@@ -16,7 +16,6 @@
 package com.firenio.baseio.concurrent;
 
 import com.firenio.baseio.LifeCycle;
-import com.firenio.baseio.component.RejectedExecutionHandle;
 
 public interface EventLoopGroup extends LifeCycle {
 
@@ -26,10 +25,6 @@ public interface EventLoopGroup extends LifeCycle {
 
     EventLoop getNext();
 
-    RejectedExecutionHandle getRejectedExecutionHandle();
-
     void setEventLoopListener(EventLoopListener listener);
-
-    void setRejectedExecutionHandle(RejectedExecutionHandle rejectedExecutionHandle);
 
 }

@@ -15,13 +15,19 @@
  */
 package com.firenio.baseio.concurrent;
 
+import java.util.concurrent.BlockingQueue;
+
 /**
  * @author wangkai
  *
  */
 public interface ExecutorEventLoop extends EventLoop {
 
+    int getEventSize();
+
     @Override
     ExecutorEventLoopGroup getGroup();
-    
+
+    BlockingQueue<Runnable> getJobs();
+
 }
