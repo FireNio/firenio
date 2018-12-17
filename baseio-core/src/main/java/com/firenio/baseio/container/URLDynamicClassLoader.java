@@ -46,13 +46,13 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     static final ClassLoader        PARENT_CL      = URLDynamicClassLoader.class.getClassLoader();
 
     private Map<String, ClassEntry> clazzEntries   = new HashMap<>();
-    private Map<String, URL>        resourceMap    = new HashMap<>();
-    private Map<String, List<URL>>  resourcesMap   = new HashMap<>();
+    private boolean                entrustFirst   = true;
     private Set<String>             excludePaths   = new HashSet<>();
     private Set<String>             matchExtend    = new HashSet<>();
     private List<String>            matchStartWith = new ArrayList<>();
+    private Map<String, URL>        resourceMap    = new HashMap<>();
+    private Map<String, List<URL>>  resourcesMap   = new HashMap<>();
     private Set<String>             systemMatch    = new HashSet<>();
-    private boolean                entrustFirst   = true;
 
     // entrustFirst 是否优先委托父类加载class
     // 最外层classloader（PCL）一般设置优先委托自己加载class，因为到后面对象需要用PCL去加载resources
@@ -70,24 +70,26 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         this.initialize();
     }
 
-    private void initialize() {
-        systemMatch.add("java.");
-        systemMatch.add("javax.");
-        systemMatch.add("sun.");
-        systemMatch.add("com.sun.");
-
-        matchStartWith.addAll(systemMatch);
+    @Override
+    public void addExcludePath(String path) {
+        if (Util.isNullOrBlank(path)) {
+            return;
+        }
+        excludePaths.add(path);
     }
 
-    private void storeResource(URL url, String pathName, String fileName)
-            throws DuplicateClassException {
-        resourceMap.put(pathName, url);
-        List<URL> urls = resourcesMap.get(fileName);
-        if (urls == null) {
-            urls = new ArrayList<>();
-            resourcesMap.put(fileName, urls);
+    public void addMatchExtend(String extend) {
+        if (Util.isNullOrBlank(extend)) {
+            return;
         }
-        urls.add(url);
+        matchExtend.add(extend);
+    }
+
+    public void addMatchStartWith(String extend) {
+        if (Util.isNullOrBlank(extend)) {
+            return;
+        }
+        matchStartWith.add(extend);
     }
 
     private synchronized Class<?> defineClass(ClassEntry entry) {
@@ -109,6 +111,10 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         entry.loadedClass = clazz;
         entry.classBinary = null;
         return clazz;
+    }
+
+    private boolean endWidthClass(String filePathName) {
+        return filePathName.endsWith(".class");
     }
 
     private Class<?> entrustLoadClass(ClassLoader classLoader, String name) {
@@ -178,22 +184,13 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         };
     }
 
-    private boolean matchExtend(String name) {
-        return matchExtend.contains(name);
-    }
+    private void initialize() {
+        systemMatch.add("java.");
+        systemMatch.add("javax.");
+        systemMatch.add("sun.");
+        systemMatch.add("com.sun.");
 
-    private boolean matchStartWith(String name) {
-        List<String> temp = matchStartWith;
-        for (String s : temp) {
-            if (name.startsWith(s)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean matchSystem(String name) {
-        return matchExtend(name) || matchStartWith(name);
+        matchStartWith.addAll(systemMatch);
     }
 
     @Override
@@ -231,10 +228,38 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         throw new ClassNotFoundException(name);
     }
 
+    private boolean matchExtend(String name) {
+        return matchExtend.contains(name);
+    }
+
+    private boolean matchStartWith(String name) {
+        List<String> temp = matchStartWith;
+        for (String s : temp) {
+            if (name.startsWith(s)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean matchSystem(String name) {
+        return matchExtend(name) || matchStartWith(name);
+    }
+
     @Override
-    public synchronized void scan(String file) throws IOException {
-        Assert.notNull(file, "null file");
-        scan(new File(file));
+    public void removeExcludePath(String path) {
+        excludePaths.remove(path);
+    }
+
+    public boolean removeMatchExtend(String extend) {
+        return matchExtend.remove(extend);
+    }
+
+    public boolean removeMatchStartWith(String extend) {
+        if (systemMatch.contains(extend)) {
+            return false;
+        }
+        return matchStartWith.remove(extend);
     }
 
     @Override
@@ -243,20 +268,26 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         scanFile(file);
     }
 
-    private void scanFile(File file) throws IOException {
-        if (!file.exists()) {
-            return;
-        }
-        this.scanFile(file, null);
-        this.scanFile(file, ".", ".");
-    }
-
     @Override
     public synchronized void scan(File[] files) throws IOException {
         Assert.notNull(files, "null files");
         for (File file : files) {
             scanFile(file);
         }
+    }
+
+    @Override
+    public synchronized void scan(String file) throws IOException {
+        Assert.notNull(file, "null file");
+        scan(new File(file));
+    }
+
+    private void scanFile(File file) throws IOException {
+        if (!file.exists()) {
+            return;
+        }
+        this.scanFile(file, null);
+        this.scanFile(file, ".", ".");
     }
 
     private void scanFile(File file, String pathName) throws IOException {
@@ -322,11 +353,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         } finally {
             Util.close(file);
         }
-    }
-
-    private boolean endWidthClass(String filePathName) {
-        return filePathName.endsWith(".class");
-    }
+    };
 
     private ClassEntry storeClass(String filePathName, InputStream inputStream) throws IOException {
         String className = filePathName.replace('/', '.').substring(0, filePathName.length() - 6);
@@ -342,6 +369,17 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         classEntry.className = className;
         clazzEntries.put(className, classEntry);
         return classEntry;
+    }
+
+    private void storeResource(URL url, String pathName, String fileName)
+            throws DuplicateClassException {
+        resourceMap.put(pathName, url);
+        List<URL> urls = resourcesMap.get(fileName);
+        if (urls == null) {
+            urls = new ArrayList<>();
+            resourcesMap.put(fileName, urls);
+        }
+        urls.add(url);
     }
 
     private void unloadClass(Class<?> clazz) {
@@ -422,43 +460,17 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
     class ClassEntry {
 
+        private Certificate[] certificates = null;
+
         private byte[]        classBinary;
 
         private String        className;
 
-        private Class<?>      loadedClass;
-
         private URL           codeBase     = null;
 
-        private Certificate[] certificates = null;
+        private Class<?>      loadedClass;
 
     }
-
-    class ResourceEnumeration implements Enumeration<URL> {
-
-        private int       index = 0;
-
-        private List<URL> urls;
-
-        ResourceEnumeration(List<URL> urls) {
-            this.urls = urls;
-        }
-
-        @Override
-        public boolean hasMoreElements() {
-            return index < urls.size();
-        }
-
-        @Override
-        public URL nextElement() {
-
-            if (!hasMoreElements()) {
-                throw new NoSuchElementException();
-            }
-
-            return urls.get(index++);
-        }
-    };
 
     class CompoundEnumeration<E> implements Enumeration<E> {
         private Enumeration<E>[] enums;
@@ -489,42 +501,30 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         }
     }
 
-    @Override
-    public void addExcludePath(String path) {
-        if (Util.isNullOrBlank(path)) {
-            return;
+    class ResourceEnumeration implements Enumeration<URL> {
+
+        private int       index = 0;
+
+        private List<URL> urls;
+
+        ResourceEnumeration(List<URL> urls) {
+            this.urls = urls;
         }
-        excludePaths.add(path);
-    }
 
-    @Override
-    public void removeExcludePath(String path) {
-        excludePaths.remove(path);
-    }
-
-    public void addMatchExtend(String extend) {
-        if (Util.isNullOrBlank(extend)) {
-            return;
+        @Override
+        public boolean hasMoreElements() {
+            return index < urls.size();
         }
-        matchExtend.add(extend);
-    }
 
-    public boolean removeMatchExtend(String extend) {
-        return matchExtend.remove(extend);
-    }
+        @Override
+        public URL nextElement() {
 
-    public void addMatchStartWith(String extend) {
-        if (Util.isNullOrBlank(extend)) {
-            return;
+            if (!hasMoreElements()) {
+                throw new NoSuchElementException();
+            }
+
+            return urls.get(index++);
         }
-        matchStartWith.add(extend);
-    }
-
-    public boolean removeMatchStartWith(String extend) {
-        if (systemMatch.contains(extend)) {
-            return false;
-        }
-        return matchStartWith.remove(extend);
     }
 
 }

@@ -25,19 +25,19 @@ import com.firenio.baseio.protocol.Frame;
  */
 public class DefaultIoEventHandle extends IoEventHandle {
 
-    private DefaultIoEventHandle() {}
-
     private static final DefaultIoEventHandle handle = new DefaultIoEventHandle();
 
-    public static DefaultIoEventHandle get() {
-        return handle;
-    }
-
     private Logger logger = LoggerFactory.getLogger(getClass());
+
+    private DefaultIoEventHandle() {}
 
     @Override
     public void accept(NioSocketChannel ch, Frame frame) throws Exception {
         logger.info("you did not set IoEventHandleAdaptor and the msg is coming:{}", frame);
+    }
+
+    public static DefaultIoEventHandle get() {
+        return handle;
     }
 
 }

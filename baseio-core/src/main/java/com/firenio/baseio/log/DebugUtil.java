@@ -19,6 +19,10 @@ public class DebugUtil {
 
     private static DebugLogger logger = new DebugLogger(DebugUtil.class);
 
+    public static void debug(Exception e) {
+        debug(e.getMessage(), e);
+    }
+
     public static void debug(String message) {
         logger.debug(message);
     }
@@ -62,6 +66,10 @@ public class DebugUtil {
         return builder.toString();
     }
 
+    public static DebugLogger getLogger() {
+        return logger;
+    }
+
     public static void info(String message) {
         logger.info(message);
     }
@@ -76,14 +84,6 @@ public class DebugUtil {
 
     public static void info(String message, Object[] param) {
         logger.info(message, param);
-    }
-
-    public static DebugLogger getLogger() {
-        return logger;
-    }
-
-    public static void debug(Exception e) {
-        debug(e.getMessage(), e);
     }
 
 }

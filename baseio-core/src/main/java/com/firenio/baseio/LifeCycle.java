@@ -17,13 +17,13 @@ package com.firenio.baseio;
 
 public interface LifeCycle {
 
+    int FAILED   = 5;
+
     int RUNNING  = 2;
 
     int STARTING = 1;
 
     int STOPPED  = 4;
-
-    int FAILED   = 5;
 
     int STOPPING = 3;
 

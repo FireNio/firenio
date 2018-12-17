@@ -17,12 +17,16 @@ package com.firenio.baseio.protocol;
 
 public class Calculagraph {
 
-    private int  markInterval = 1;
-    private long nextMark;
-    private long currentMark;
-    private int  sequenceNO;
     private long alphaTimestamp;
     //	private Logger	logger		= LoggerFactory.getLogger(Calculagraph.class);
+    private long currentMark;
+    private int  markInterval = 1;
+    private long nextMark;
+    private int  sequenceNO;
+
+    public Calculagraph(int markInterval) {
+        this(markInterval, System.currentTimeMillis());
+    }
 
     public Calculagraph(int markInterval, long currentMark) {
         this.markInterval = markInterval;
@@ -32,8 +36,12 @@ public class Calculagraph {
         //		logger.debug("________________lastMark______create:{}", currentMark);
     }
 
-    public Calculagraph(int markInterval) {
-        this(markInterval, System.currentTimeMillis());
+    public long getAlphaTimestamp() {
+        return alphaTimestamp;
+    }
+
+    public int getSequenceNO() {
+        return sequenceNO++;
     }
 
     public long getTimestamp() {
@@ -57,13 +65,5 @@ public class Calculagraph {
 
         return currentMark;
 
-    }
-
-    public int getSequenceNO() {
-        return sequenceNO++;
-    }
-
-    public long getAlphaTimestamp() {
-        return alphaTimestamp;
     }
 }

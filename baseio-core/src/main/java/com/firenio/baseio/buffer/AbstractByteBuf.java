@@ -88,6 +88,15 @@ public abstract class AbstractByteBuf implements ByteBuf {
     }
 
     @Override
+    public boolean isReleased() {
+        return referenceCount < 1;
+    }
+
+    protected int ix(int index) {
+        return offset + index;
+    }
+
+    @Override
     public int lastIndexOf(byte b) {
         return lastIndexOf(b, absLimit());
     }
@@ -95,15 +104,6 @@ public abstract class AbstractByteBuf implements ByteBuf {
     @Override
     public int lastIndexOf(byte b, int absPos) {
         return lastIndexOf(b, absPos, remaining());
-    }
-
-    @Override
-    public boolean isReleased() {
-        return referenceCount < 1;
-    }
-
-    protected int ix(int index) {
-        return offset + index;
     }
 
     @Override

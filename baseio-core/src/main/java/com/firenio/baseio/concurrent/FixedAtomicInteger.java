@@ -25,31 +25,35 @@ public class FixedAtomicInteger {
 
     private int           min_value;
 
-    public FixedAtomicInteger(int min, int max) {
-        this.min_value = min;
-        this.max_value = max;
-        this.atomiticInteger = new AtomicInteger(min);
+    public FixedAtomicInteger() {
+        this(0, Integer.MAX_VALUE);
     }
 
     public FixedAtomicInteger(int max) {
         this(0, max);
     }
 
-    public FixedAtomicInteger() {
-        this(0, Integer.MAX_VALUE);
+    public FixedAtomicInteger(int min, int max) {
+        this.min_value = min;
+        this.max_value = max;
+        this.atomiticInteger = new AtomicInteger(min);
     }
 
-    public final int getAndIncrement() {
+    public boolean compareAndSet(int expect, int update) {
+        return atomiticInteger.compareAndSet(expect, update);
+    }
+
+    public final int decrementAndGet() {
         for (;;) {
             int current = atomiticInteger.get();
             int next;
-            if (current == max_value) {
-                next = min_value;
+            if (current == min_value) {
+                next = max_value;
             } else {
-                next = current + 1;
+                next = current - 1;
             }
             if (atomiticInteger.compareAndSet(current, next)) {
-                return current;
+                return next;
             }
         }
     }
@@ -69,6 +73,29 @@ public class FixedAtomicInteger {
         }
     }
 
+    public final int getAndIncrement() {
+        for (;;) {
+            int current = atomiticInteger.get();
+            int next;
+            if (current == max_value) {
+                next = min_value;
+            } else {
+                next = current + 1;
+            }
+            if (atomiticInteger.compareAndSet(current, next)) {
+                return current;
+            }
+        }
+    }
+
+    public int getMaxValue() {
+        return max_value;
+    }
+
+    public int getMinValue() {
+        return min_value;
+    }
+
     public final int incrementAndGet() {
         for (;;) {
             int current = atomiticInteger.get();
@@ -82,32 +109,5 @@ public class FixedAtomicInteger {
                 return next;
             }
         }
-    }
-
-    public final int decrementAndGet() {
-        for (;;) {
-            int current = atomiticInteger.get();
-            int next;
-            if (current == min_value) {
-                next = max_value;
-            } else {
-                next = current - 1;
-            }
-            if (atomiticInteger.compareAndSet(current, next)) {
-                return next;
-            }
-        }
-    }
-
-    public boolean compareAndSet(int expect, int update) {
-        return atomiticInteger.compareAndSet(expect, update);
-    }
-
-    public int getMaxValue() {
-        return max_value;
-    }
-
-    public int getMinValue() {
-        return min_value;
     }
 }

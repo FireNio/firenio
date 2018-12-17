@@ -36,10 +36,14 @@ import com.firenio.baseio.protocol.Frame;
  */
 public final class ChannelAcceptor extends ChannelContext {
 
+    private NioEventLoopGroup   bindGroup;
     private Logger              logger = LoggerFactory.getLogger(getClass());
     private ServerSocketChannel selectableChannel;
-    private NioEventLoopGroup   bindGroup;
     private ServerSocket        serverSocket;
+
+    public ChannelAcceptor(int port) {
+        this("0.0.0.0", port);
+    }
 
     public ChannelAcceptor(NioEventLoopGroup group) {
         this(group, "0.0.0.0", 0);
@@ -55,10 +59,6 @@ public final class ChannelAcceptor extends ChannelContext {
 
     public ChannelAcceptor(String host, int port) {
         this(new NioEventLoopGroup(), host, port);
-    }
-
-    public ChannelAcceptor(int port) {
-        this("0.0.0.0", port);
     }
 
     public void bind() throws IOException {
@@ -120,12 +120,12 @@ public final class ChannelAcceptor extends ChannelContext {
         logger.info("server listening @" + getServerAddress());
     }
 
-    public void broadcast(Frame frame) throws IOException {
-        getChannelManager().broadcast(frame);
-    }
-
     public void broadcast(ByteBuf buf) throws IOException {
         getChannelManager().broadcast(buf);
+    }
+
+    public void broadcast(Frame frame) throws IOException {
+        getChannelManager().broadcast(frame);
     }
 
     @Override

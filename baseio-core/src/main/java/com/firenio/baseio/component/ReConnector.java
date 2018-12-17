@@ -24,38 +24,21 @@ import com.firenio.baseio.log.LoggerFactory;
 
 public class ReConnector implements Closeable {
 
-    private Logger           logger      = LoggerFactory.getLogger(getClass());
     private ChannelConnector connector   = null;
-    private long             retryTime   = 15000;
+    private Logger           logger      = LoggerFactory.getLogger(getClass());
     private volatile boolean reconnect   = true;
+    private long             retryTime   = 15000;
 
     public ReConnector(ChannelConnector connector) {
         this.connector = connector;
         this.init();
     }
     
-    @SuppressWarnings("resource")
-    private void init(){
-        final ReConnector reConnector = this;
-        this.connector.addChannelEventListener(new ChannelEventListenerAdapter() {
-            @Override
-            public void channelClosed(NioSocketChannel ch) {
-                Util.exec(new Runnable() {
-                    @Override
-                    public void run() {
-                        reConnector.connect();
-                    }
-                });
-            }
-        });
-    }
-
-    public boolean isConnected() {
-        return connector.isConnected();
-    }
-
-    public NioSocketChannel getChannel() {
-        return connector.getChannel();
+    @Override
+    public synchronized void close() {
+        this.reconnect = false;
+        Util.close(connector);
+        LifeCycleUtil.stop(connector.getProcessorGroup());
     }
 
     public synchronized void connect() {
@@ -80,23 +63,40 @@ public class ReConnector implements Closeable {
         }
     }
 
-    @Override
-    public synchronized void close() {
-        this.reconnect = false;
-        Util.close(connector);
-        LifeCycleUtil.stop(connector.getProcessorGroup());
+    public NioSocketChannel getChannel() {
+        return connector.getChannel();
+    }
+
+    public ChannelConnector getRealConnector() {
+        return connector;
     }
 
     public long getRetryTime() {
         return retryTime;
     }
 
-    public void setRetryTime(long retryTime) {
-        this.retryTime = retryTime;
+    @SuppressWarnings("resource")
+    private void init(){
+        final ReConnector reConnector = this;
+        this.connector.addChannelEventListener(new ChannelEventListenerAdapter() {
+            @Override
+            public void channelClosed(NioSocketChannel ch) {
+                Util.exec(new Runnable() {
+                    @Override
+                    public void run() {
+                        reConnector.connect();
+                    }
+                });
+            }
+        });
     }
 
-    public ChannelConnector getRealConnector() {
-        return connector;
+    public boolean isConnected() {
+        return connector.isConnected();
+    }
+
+    public void setRetryTime(long retryTime) {
+        this.retryTime = retryTime;
     }
     
     @Override

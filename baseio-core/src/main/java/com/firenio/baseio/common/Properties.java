@@ -19,36 +19,6 @@ public class Properties extends java.util.Properties {
 
     private static final long serialVersionUID = 1L;
 
-    public Properties loadString(String content) {
-        if (Util.isNullOrBlank(content)) {
-            return this;
-        }
-        String[] lines = content.split("\n");
-        for (String line : lines) {
-            insertOneRow(line);
-        }
-        return this;
-    }
-
-    private void insertOneRow(String line) {
-        if (Util.isNullOrBlank(line)) {
-            return;
-        }
-        int index = line.indexOf("=");
-        if (index == -1) {
-            return;
-        }
-        String key = line.substring(0, index);
-        String value = line.substring(index + 1, line.length());
-        key = trim(key);
-        value = trim(value);
-        put(key, value);
-    }
-
-    private String trim(String value) {
-        return value.trim().replace("\r", "").replace("\t", "");
-    }
-
     public boolean getBooleanProperty(String key) {
         return getBooleanProperty(key, false);
     }
@@ -103,6 +73,36 @@ public class Properties extends java.util.Properties {
             throw new PropertiesException("property " + key + " is empty");
         }
         return value;
+    }
+
+    private void insertOneRow(String line) {
+        if (Util.isNullOrBlank(line)) {
+            return;
+        }
+        int index = line.indexOf("=");
+        if (index == -1) {
+            return;
+        }
+        String key = line.substring(0, index);
+        String value = line.substring(index + 1, line.length());
+        key = trim(key);
+        value = trim(value);
+        put(key, value);
+    }
+
+    public Properties loadString(String content) {
+        if (Util.isNullOrBlank(content)) {
+            return this;
+        }
+        String[] lines = content.split("\n");
+        for (String line : lines) {
+            insertOneRow(line);
+        }
+        return this;
+    }
+
+    private String trim(String value) {
+        return value.trim().replace("\r", "").replace("\t", "");
     }
 
     class PropertiesException extends Exception {

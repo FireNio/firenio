@@ -37,13 +37,13 @@ import com.firenio.baseio.log.LoggerFactory;
 //ref from netty && undertow
 public final class SslContext {
 
-    static final Logger              logger = LoggerFactory.getLogger(SslContext.class);
-    public static final boolean      OPENSSL_AVAILABLE;
     public static final List<String> ENABLED_CIPHERS;
     public static final String[]     ENABLED_PROTOCOLS;
-    public static final Set<String>  SUPPORTED_CIPHERS;
+    static final Logger              logger = LoggerFactory.getLogger(SslContext.class);
+    public static final boolean      OPENSSL_AVAILABLE;
     public static final int          SSL_PACKET_BUFFER_SIZE;
     public static final int          SSL_UNWRAP_BUFFER_SIZE;
+    public static final Set<String>  SUPPORTED_CIPHERS;
 
     static {
         try {
@@ -118,34 +118,15 @@ public final class SslContext {
         ENABLED_CIPHERS = Collections.unmodifiableList(enabledCiphers);
     }
 
-    private static void addIfSupported(Set<String> supported, List<String> enabled,
-            String... names) {
-        for (String n : names) {
-            if (supported.contains(n)) {
-                enabled.add(n);
-            }
-        }
-    }
-
-    static SSLContext newSSLContext() throws NoSuchAlgorithmException {
-        if (OPENSSL_AVAILABLE) {
-            return SSLContext.getInstance("openssl.TLS");
-        } else {
-            return SSLContext.getInstance("TLS");
-        }
-    }
-
-    public static int getPacketBufferSize() {
-        return SSL_PACKET_BUFFER_SIZE;
-    }
+    private final String[]     applicationProtocols;
 
     private final String[]     cipherSuites;
+
     private final ClientAuth   clientAuth;
+
     private final boolean      isServer;
     private final SSLContext   sslContext;
     private final List<String> unmodifiableCipherSuites;
-    private final String[]     applicationProtocols;
-
     SslContext(SSLContext sslContext, boolean isServer, List<String> ciphers, ClientAuth clientAuth,
             String[] applicationProtocols) throws SSLException {
         this.applicationProtocols = applicationProtocols;
@@ -158,11 +139,9 @@ public final class SslContext {
             throw new SSLException("applicationProtocols enabled but openssl not available");
         }
     }
-
     public final List<String> cipherSuites() {
         return unmodifiableCipherSuites;
     }
-
     private SSLEngine configureEngine(SSLEngine engine) {
         engine.setEnabledCipherSuites(cipherSuites);
         engine.setEnabledProtocols(ENABLED_PROTOCOLS);
@@ -238,6 +217,27 @@ public final class SslContext {
         OPTIONAL,
 
         REQUIRE
+    }
+
+    private static void addIfSupported(Set<String> supported, List<String> enabled,
+            String... names) {
+        for (String n : names) {
+            if (supported.contains(n)) {
+                enabled.add(n);
+            }
+        }
+    }
+
+    public static int getPacketBufferSize() {
+        return SSL_PACKET_BUFFER_SIZE;
+    }
+
+    static SSLContext newSSLContext() throws NoSuchAlgorithmException {
+        if (OPENSSL_AVAILABLE) {
+            return SSLContext.getInstance("openssl.TLS");
+        } else {
+            return SSLContext.getInstance("TLS");
+        }
     }
 
 }

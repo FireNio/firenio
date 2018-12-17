@@ -29,9 +29,9 @@ public class InternalLogger implements Logger {
     private String        debugClassName;
     private String        errorClassName;
     private String        infoClassName;
-    private String        warnClassName;
     private String        name;
     private LoggerPrinter printer;
+    private String        warnClassName;
 
     public InternalLogger(LoggerPrinter printer, Class<?> clazz) {
         this(printer, clazz.getSimpleName());
@@ -174,6 +174,26 @@ public class InternalLogger implements Logger {
         }
     }
 
+    @Override
+    public boolean isDebugEnabled() {
+        return LoggerFactory.isDebugEnabled();
+    }
+
+    @Override
+    public boolean isErrorEnabled() {
+        return LoggerFactory.isErrorEnabled();
+    }
+
+    @Override
+    public boolean isInfoEnabled() {
+        return LoggerFactory.isInfoEnabled();
+    }
+
+    @Override
+    public boolean isWarnEnabled() {
+        return LoggerFactory.isWarnEnabled();
+    }
+
     private void print(String className, String msg) {
         printer.println(getTimeFormat() + className + msg);
     }
@@ -224,26 +244,6 @@ public class InternalLogger implements Logger {
             print(warnClassName, msg);
             printer.printThrowable(throwable);
         }
-    }
-
-    @Override
-    public boolean isDebugEnabled() {
-        return LoggerFactory.isDebugEnabled();
-    }
-
-    @Override
-    public boolean isErrorEnabled() {
-        return LoggerFactory.isErrorEnabled();
-    }
-
-    @Override
-    public boolean isInfoEnabled() {
-        return LoggerFactory.isInfoEnabled();
-    }
-
-    @Override
-    public boolean isWarnEnabled() {
-        return LoggerFactory.isWarnEnabled();
     }
 
 }

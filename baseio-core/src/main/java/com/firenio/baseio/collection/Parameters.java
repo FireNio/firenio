@@ -25,21 +25,21 @@ public interface Parameters {
 
     int getIntegerParameter(String key, int defaultValue);
 
-    Map<String,Object> getMap();
-    
-    void put(String key,Object value);
-    
-    void putAll(Map<String,Object> params);
-
     long getLongParameter(String key);
-
+    
     long getLongParameter(String key, long defaultValue);
+    
+    Map<String,Object> getMap();
 
     Object getObjectParameter(String key);
 
     String getParameter(String key);
 
     String getParameter(String key, String defaultValue);
+
+    void put(String key,Object value);
+
+    void putAll(Map<String,Object> params);
 
     int size();
 

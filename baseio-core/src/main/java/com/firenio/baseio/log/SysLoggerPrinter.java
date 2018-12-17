@@ -23,10 +23,6 @@ public class SysLoggerPrinter implements LoggerPrinter {
 
     private static SysLoggerPrinter printer = new SysLoggerPrinter();
 
-    public static SysLoggerPrinter get() {
-        return printer;
-    }
-
     @Override
     public void println(String msg) {
         System.out.println(msg);
@@ -35,6 +31,10 @@ public class SysLoggerPrinter implements LoggerPrinter {
     @Override
     public void printThrowable(Throwable t) {
         t.printStackTrace(System.out);
+    }
+
+    public static SysLoggerPrinter get() {
+        return printer;
     }
 
 }

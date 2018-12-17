@@ -32,22 +32,22 @@ import com.firenio.baseio.common.DateUtil;
  */
 public class PooledByteBufAllocator extends AbstractByteBufAllocator {
 
-    static final int                           BYTEBUF_BUFFER  = 1024 * 8;
-    static final boolean                       BYTEBUF_RECYCLE = Options.isBytebufRecycle();
-    static final boolean                       BYTEBUF_DEBUG   = Options.isByteBufDebug();
     public static final Map<ByteBuf, BufDebug> BUF_DEBUGS      = new LinkedHashMap<>();
+    static final int                           BYTEBUF_BUFFER  = 1024 * 8;
+    static final boolean                       BYTEBUF_DEBUG   = Options.isByteBufDebug();
+    static final boolean                       BYTEBUF_RECYCLE = Options.isBytebufRecycle();
 
+    private final int                          allocatorGroupSize;
     private int[]                              blockEnds;
+    private final Stack<PooledByteBuf>         bufBuffer;
     private final int                          capacity;
+    private ByteBuffer                         directMemory;
     private BitSet                             frees;
+    private byte[]                             heapMemory;
     private final ReentrantLock                lock            = new ReentrantLock();
     private int                                mask;
     private PooledByteBufAllocator             next;
     private final int                          unitMemorySize;
-    private byte[]                             heapMemory;
-    private ByteBuffer                         directMemory;
-    private final int                          allocatorGroupSize;
-    private final Stack<PooledByteBuf>         bufBuffer;
 
     public PooledByteBufAllocator(int capacity, int unit, boolean isDirect,
             int allocatorGroupSize) {
@@ -60,6 +60,48 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         } else {
             bufBuffer = null;
         }
+    }
+
+    @Override
+    public ByteBuf allocate(int limit) {
+        if (BYTEBUF_DEBUG) {
+            ByteBuf buf = allocate(limit, 0);
+            if (buf instanceof PooledByteBuf) {
+                BufDebug d = new BufDebug();
+                d.buf = buf;
+                d.e = new Exception(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss_SSS());
+                synchronized (BUF_DEBUGS) {
+                    BUF_DEBUGS.put(buf, d);
+                }
+            }
+            return buf;
+        } else {
+            return allocate(limit, 0);
+        }
+    }
+
+    private ByteBuf allocate(int limit, int current) {
+        if (current == allocatorGroupSize) {
+            // FIXME 是否申请java内存
+            return ByteBufUtil.heap(limit);
+        }
+        int size = (limit + unitMemorySize - 1) / unitMemorySize;
+        int blockStart;
+        ReentrantLock lock = this.lock;
+        lock.lock();
+        try {
+            int mask = this.mask;
+            blockStart = allocate(mask, capacity, size);
+            if (blockStart == -1) {
+                blockStart = allocate(0, mask, size);
+            }
+        } finally {
+            lock.unlock();
+        }
+        if (blockStart == -1) {
+            return next.allocate(limit, current + 1);
+        }
+        return newByteBuf().produce(blockStart, blockEnds[blockStart], limit);
     }
 
     // FIXME 判断余下的是否足够，否则退出循环
@@ -88,70 +130,6 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         return -1;
     }
 
-    PooledByteBuf newByteBuf() {
-        if (BYTEBUF_RECYCLE) {
-            PooledByteBuf buf = bufBuffer.pop();
-            if (buf == null) {
-                return isDirect() ? new PooledDirectByteBuf(this, directMemory.duplicate())
-                        : new PooledHeapByteBuf(this, heapMemory);
-            }
-            return buf;
-        } else {
-            return isDirect() ? new PooledDirectByteBuf(this, directMemory.duplicate())
-                    : new PooledHeapByteBuf(this, heapMemory);
-        }
-    }
-
-    @Override
-    public ByteBuf allocate(int limit) {
-        if (BYTEBUF_DEBUG) {
-            ByteBuf buf = allocate(limit, 0);
-            if (buf instanceof PooledByteBuf) {
-                BufDebug d = new BufDebug();
-                d.buf = buf;
-                d.e = new Exception(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss_SSS());
-                synchronized (BUF_DEBUGS) {
-                    BUF_DEBUGS.put(buf, d);
-                }
-            }
-            return buf;
-        } else {
-            return allocate(limit, 0);
-        }
-    }
-
-    protected ByteBuffer getDirectMemory() {
-        return directMemory;
-    }
-
-    protected byte[] getHeapMemory() {
-        return heapMemory;
-    }
-
-    private ByteBuf allocate(int limit, int current) {
-        if (current == allocatorGroupSize) {
-            // FIXME 是否申请java内存
-            return ByteBufUtil.heap(limit);
-        }
-        int size = (limit + unitMemorySize - 1) / unitMemorySize;
-        int blockStart;
-        ReentrantLock lock = this.lock;
-        lock.lock();
-        try {
-            int mask = this.mask;
-            blockStart = allocate(mask, capacity, size);
-            if (blockStart == -1) {
-                blockStart = allocate(0, mask, size);
-            }
-        } finally {
-            lock.unlock();
-        }
-        if (blockStart == -1) {
-            return next.allocate(limit, current + 1);
-        }
-        return newByteBuf().produce(blockStart, blockEnds[blockStart], limit);
-    }
-
     @Override
     protected void doStart() throws Exception {
         this.blockEnds = new int[getCapacity()];
@@ -170,7 +148,7 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
     }
 
     @Override
-    protected void doStop() throws Exception {
+    protected void doStop() {
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
@@ -178,57 +156,6 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         } finally {
             lock.unlock();
         }
-    }
-
-    private int usedBuf() {
-        int used = 0;
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!frees.get(i)) {
-                used++;
-            }
-        }
-        return used;
-    }
-
-    private int maxFree() {
-        int free = 0;
-        int maxFree = 0;
-        for (int i = 0; i < getCapacity(); i++) {
-            if (frees.get(i)) {
-                free++;
-            } else {
-                maxFree = Integer.max(maxFree, free);
-                i = blockEnds[i] - 1;
-                free = 0;
-            }
-        }
-        return Integer.max(maxFree, free);
-    }
-
-    private int usedMem() {
-        int used = 0;
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!frees.get(i)) {
-                int next = blockEnds[i];
-                used += (next - i);
-                i = next - 1;
-            }
-        }
-        return used;
-    }
-
-    public ByteBuf getUsedBuf(int skip) {
-        int skiped = 0;
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!frees.get(i)) {
-                skiped++;
-                if (skiped > skip) {
-                    int limit = (blockEnds[i] - i) * getUnitMemorySize();
-                    return newByteBuf().produce(i, blockEnds[i], limit);
-                }
-            }
-        }
-        return null;
     }
 
     @Override
@@ -246,6 +173,14 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         return capacity;
     }
 
+    protected ByteBuffer getDirectMemory() {
+        return directMemory;
+    }
+
+    protected byte[] getHeapMemory() {
+        return heapMemory;
+    }
+
     protected PooledByteBufAllocator getNext() {
         return next;
     }
@@ -253,6 +188,49 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
     @Override
     public final int getUnitMemorySize() {
         return unitMemorySize;
+    }
+
+    public ByteBuf getUsedBuf(int skip) {
+        int skiped = 0;
+        for (int i = 0; i < getCapacity(); i++) {
+            if (!frees.get(i)) {
+                skiped++;
+                if (skiped > skip) {
+                    int limit = (blockEnds[i] - i) * getUnitMemorySize();
+                    return newByteBuf().produce(i, blockEnds[i], limit);
+                }
+            }
+        }
+        return null;
+    }
+
+    private int maxFree() {
+        int free = 0;
+        int maxFree = 0;
+        for (int i = 0; i < getCapacity(); i++) {
+            if (frees.get(i)) {
+                free++;
+            } else {
+                maxFree = Integer.max(maxFree, free);
+                i = blockEnds[i] - 1;
+                free = 0;
+            }
+        }
+        return Integer.max(maxFree, free);
+    }
+
+    PooledByteBuf newByteBuf() {
+        if (BYTEBUF_RECYCLE) {
+            PooledByteBuf buf = bufBuffer.pop();
+            if (buf == null) {
+                return isDirect() ? new PooledDirectByteBuf(this, directMemory.duplicate())
+                        : new PooledHeapByteBuf(this, heapMemory);
+            }
+            return buf;
+        } else {
+            return isDirect() ? new PooledDirectByteBuf(this, directMemory.duplicate())
+                    : new PooledHeapByteBuf(this, heapMemory);
+        }
     }
 
     @Override
@@ -302,10 +280,32 @@ public class PooledByteBufAllocator extends AbstractByteBufAllocator {
         return b.toString();
     }
 
+    private int usedBuf() {
+        int used = 0;
+        for (int i = 0; i < getCapacity(); i++) {
+            if (!frees.get(i)) {
+                used++;
+            }
+        }
+        return used;
+    }
+
+    private int usedMem() {
+        int used = 0;
+        for (int i = 0; i < getCapacity(); i++) {
+            if (!frees.get(i)) {
+                int next = blockEnds[i];
+                used += (next - i);
+                i = next - 1;
+            }
+        }
+        return used;
+    }
+
     public class BufDebug {
 
-        public volatile Exception e;
         public volatile ByteBuf   buf;
+        public volatile Exception e;
 
     }
 

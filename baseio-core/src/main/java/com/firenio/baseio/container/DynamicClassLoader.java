@@ -28,35 +28,35 @@ import java.util.Enumeration;
  */
 public interface DynamicClassLoader extends Closeable {
 
-    URL getResource(String name);
-
-    Enumeration<URL> getResources(String name) throws IOException;
-
-    InputStream getResourceAsStream(String name);
-
-    ClassLoader getParent();
-
-    void setDefaultAssertionStatus(boolean enabled);
-
-    void setPackageAssertionStatus(String packageName, boolean enabled);
-
-    void setClassAssertionStatus(String className, boolean enabled);
+    void addExcludePath(String path);
 
     void clearAssertionStatus();
 
+    ClassLoader getParent();
+
+    URL getResource(String name);
+
+    InputStream getResourceAsStream(String name);
+
+    Enumeration<URL> getResources(String name) throws IOException;
+
     Class<?> loadClass(String name) throws ClassNotFoundException;
 
-    void scan(String file) throws IOException;
+    void removeExcludePath(String path);
 
     void scan(File file) throws IOException;
 
     void scan(File[] files) throws IOException;
 
+    void scan(String file) throws IOException;
+
+    void setClassAssertionStatus(String className, boolean enabled);
+
+    void setDefaultAssertionStatus(boolean enabled);
+
+    void setPackageAssertionStatus(String packageName, boolean enabled);
+
     void unloadClassLoader();
-
-    void addExcludePath(String path);
-
-    void removeExcludePath(String path);
 
     class DuplicateClassException extends IOException {
 

@@ -24,12 +24,12 @@ public class MapParameters implements Parameters {
 
     private Map<String, Object> map;
 
-    public MapParameters(Map<String, Object> object) {
-        this.map = object;
-    }
-
     public MapParameters() {
         this(new HashMap<String, Object>());
+    }
+
+    public MapParameters(Map<String, Object> object) {
+        this.map = object;
     }
 
     @Override
@@ -75,6 +75,11 @@ public class MapParameters implements Parameters {
     }
 
     @Override
+    public Map<String, Object> getMap() {
+        return map;
+    }
+
+    @Override
     public Object getObjectParameter(String key) {
         if (map == null) {
             return null;
@@ -112,11 +117,6 @@ public class MapParameters implements Parameters {
     @Override
     public int size() {
         return map.size();
-    }
-
-    @Override
-    public Map<String, Object> getMap() {
-        return map;
     }
 
 }

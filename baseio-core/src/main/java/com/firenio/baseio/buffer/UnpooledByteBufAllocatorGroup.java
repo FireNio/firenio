@@ -26,16 +26,11 @@ import com.firenio.baseio.component.NioEventLoopGroup;
 public class UnpooledByteBufAllocatorGroup extends AbstractLifeCycle
         implements ByteBufAllocatorGroup {
 
-    private NioEventLoopGroup group;
     private ByteBufAllocator  allocator;
+    private NioEventLoopGroup group;
 
     public UnpooledByteBufAllocatorGroup(NioEventLoopGroup group) {
         this.group = group;
-    }
-
-    @Override
-    public ByteBufAllocator getNext() {
-        return allocator;
     }
 
     @Override
@@ -48,8 +43,13 @@ public class UnpooledByteBufAllocatorGroup extends AbstractLifeCycle
     }
 
     @Override
-    protected void doStop() throws Exception {
+    protected void doStop() {
         LifeCycleUtil.stop(allocator);
+    }
+
+    @Override
+    public ByteBufAllocator getNext() {
+        return allocator;
     }
 
 }

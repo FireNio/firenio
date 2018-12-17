@@ -33,12 +33,24 @@ public class ChannelManager {
     private Map<Integer, NioSocketChannel> channels         = new ConcurrentHashMap<>();
     private Map<Integer, NioSocketChannel> readOnlyChannels = Collections.unmodifiableMap(channels);
 
-    public int getManagedChannelSize() {
-        return channels.size();
+    public void broadcast(ByteBuf buf) {
+        broadcast(buf, channels.values());
+    }
+
+    public void broadcast(Frame frame) throws IOException {
+        broadcast(frame, channels.values());
     }
 
     public NioSocketChannel getChannel(Integer channelId) {
         return channels.get(channelId);
+    }
+
+    public Map<Integer, NioSocketChannel> getManagedChannels() {
+        return readOnlyChannels;
+    }
+
+    public int getManagedChannelSize() {
+        return channels.size();
     }
 
     public void putChannel(NioSocketChannel ch) {
@@ -47,25 +59,6 @@ public class ChannelManager {
 
     public void removeChannel(NioSocketChannel ch) {
         channels.remove(ch.getChannelId());
-    }
-
-    public void broadcast(Frame frame) throws IOException {
-        broadcast(frame, channels.values());
-    }
-
-    public void broadcast(ByteBuf buf) {
-        broadcast(buf, channels.values());
-    }
-
-    public static void broadcast(Frame frame, Collection<NioSocketChannel> chs)
-            throws IOException {
-        if (chs.size() == 0) {
-            return;
-        }
-        NioSocketChannel ch = chs.iterator().next();
-        if (ch != null) {
-            broadcast(ch.encode(frame), chs);
-        }
     }
 
     public static void broadcast(ByteBuf buf, Collection<NioSocketChannel> chs) {
@@ -82,8 +75,15 @@ public class ChannelManager {
         }
     }
 
-    public Map<Integer, NioSocketChannel> getManagedChannels() {
-        return readOnlyChannels;
+    public static void broadcast(Frame frame, Collection<NioSocketChannel> chs)
+            throws IOException {
+        if (chs.size() == 0) {
+            return;
+        }
+        NioSocketChannel ch = chs.iterator().next();
+        if (ch != null) {
+            broadcast(ch.encode(frame), chs);
+        }
     }
 
 }

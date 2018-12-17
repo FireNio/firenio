@@ -20,7 +20,7 @@ import com.firenio.baseio.buffer.ByteBufAllocatorGroup;
 import com.firenio.baseio.buffer.PooledByteBufAllocatorGroup;
 import com.firenio.baseio.buffer.UnpooledByteBufAllocatorGroup;
 import com.firenio.baseio.common.Util;
-import com.firenio.baseio.concurrent.AbstractEventLoopGroup;
+import com.firenio.baseio.concurrent.EventLoopGroup;
 import com.firenio.baseio.concurrent.FixedAtomicInteger;
 
 /**
@@ -28,7 +28,7 @@ import com.firenio.baseio.concurrent.FixedAtomicInteger;
  * 注意：如需共享group，且group担当acceptor和connector时，一定要先起acceptor，
  * 或者显示调用group.setAcceptor(true)
  */
-public class NioEventLoopGroup extends AbstractEventLoopGroup {
+public class NioEventLoopGroup extends EventLoopGroup {
 
     private ByteBufAllocatorGroup allocatorGroup;
     private FixedAtomicInteger    channelIds;
@@ -47,11 +47,10 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
     private int                   memoryPoolRate         = 32;
     //内存池单元大小
     private int                   memoryPoolUnit         = 512;
-    private boolean               sharable;
     private boolean               readBufDirect          = false;
-
+    private boolean               sharable;
     //单条连接write(srcs)的数量
-    private int writeBuffers = 32;
+    private int                   writeBuffers           = 32;
 
     public NioEventLoopGroup() {
         this(false);
@@ -175,6 +174,10 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         return enableMemoryPoolDirect;
     }
 
+    public boolean isReadBufDirect() {
+        return readBufDirect;
+    }
+
     public boolean isSharable() {
         return sharable;
     }
@@ -228,18 +231,14 @@ public class NioEventLoopGroup extends AbstractEventLoopGroup {
         this.memoryPoolRate = memoryPoolRate;
     }
 
-    public boolean isReadBufDirect() {
-        return readBufDirect;
+    public void setMemoryPoolUnit(int memoryPoolUnit) {
+        checkNotRunning();
+        this.memoryPoolUnit = memoryPoolUnit;
     }
 
     public void setReadBufDirect(boolean readBufDirect) {
         checkNotRunning();
         this.readBufDirect = readBufDirect;
-    }
-
-    public void setMemoryPoolUnit(int memoryPoolUnit) {
-        checkNotRunning();
-        this.memoryPoolUnit = memoryPoolUnit;
     }
 
     public void setWriteBuffers(int writeBuffers) {

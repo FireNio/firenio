@@ -55,12 +55,12 @@ public class Waiter<T> implements Callback<T> {
         }
     }
 
-    public Throwable getThrowable() {
-        return throwable;
-    }
-
     public T getResponse() {
         return response;
+    }
+
+    public Throwable getThrowable() {
+        return throwable;
     }
 
     public boolean isDone() {

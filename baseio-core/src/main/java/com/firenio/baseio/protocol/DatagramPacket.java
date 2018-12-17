@@ -33,18 +33,29 @@ import com.firenio.baseio.common.Encoding;
  */
 public class DatagramPacket {
 
-    public static final int TYPE_ACTION   = 0;
-    public static final int TYPE_DATA     = 1;
-    public static final int PACKET_HEADER = 1 + 8 + 4;
-    public static final int IP_HEADER     = 20;
-    public static final int UDP_HEADER    = 8;
-    public static final int PACKET_MAX    = 1500 - IP_HEADER - UDP_HEADER;
+    public static final int IP_HEADER;
+    public static final int PACKET_HEADER;
+    public static final int PACKET_MAX;
+    public static final int TYPE_ACTION;
+    public static final int TYPE_DATA;
+    public static final int UDP_HEADER;
 
-    private byte[]          data;
-    private int             type;
-    private int             sequenceNo    = -1;                           // 4 byte
-    private long            timestamp     = -1;                           // 8 byte
-    private String          dataString;
+    static {
+        IP_HEADER = 20;
+        PACKET_HEADER = 1 + 8 + 4;
+        TYPE_ACTION = 0;
+        TYPE_DATA = 1;
+        UDP_HEADER = 8;
+        PACKET_MAX = 1500 - IP_HEADER - UDP_HEADER;
+    }
+
+    private byte[] data;
+    private String dataString;
+    private int    sequenceNo = -1; // 4 byte
+    private long   timestamp  = -1; // 8 byte
+    private int    type;
+
+    private DatagramPacket() {}
 
     protected DatagramPacket(int type, long timestamp, int sequenceNO, byte[] data) {
         this.timestamp = timestamp;
@@ -53,14 +64,8 @@ public class DatagramPacket {
         this.data = data;
     }
 
-    private DatagramPacket() {}
-
     public byte[] getData() {
         return data;
-    }
-
-    public int getOffset() {
-        return PACKET_HEADER;
     }
 
     public String getDataString() {
@@ -75,8 +80,8 @@ public class DatagramPacket {
         return dataString;
     }
 
-    public int getType() {
-        return type;
+    public int getOffset() {
+        return PACKET_HEADER;
     }
 
     public int getSequenceNo() {
@@ -87,6 +92,10 @@ public class DatagramPacket {
         return timestamp;
     }
 
+    public int getType() {
+        return type;
+    }
+
     @Override
     public String toString() {
 
@@ -94,6 +103,20 @@ public class DatagramPacket {
                 .append(getSequenceNo()).append(",timestamp:").append(getTimestamp()).append("]")
                 .toString();
 
+    }
+
+    public static DatagramPacket createPacket(ByteBuf buf) {
+        byte[] data = buf.getBytes();
+        DatagramPacket p = new DatagramPacket();
+        p.type = data[0];
+        p.timestamp = ByteUtil.byte2Long(data, 1);
+        p.sequenceNo = ByteUtil.byte2Int(data, 9);
+        p.data = data;
+        return p;
+    }
+
+    public static DatagramPacket createSendPacket(byte[] data) {
+        return createSendPacket(TYPE_ACTION, 0, 0, data);
     }
 
     public static DatagramPacket createSendPacket(int type, long timestamp, int sequenceNo,
@@ -111,22 +134,8 @@ public class DatagramPacket {
         return p;
     }
 
-    public static DatagramPacket createSendPacket(byte[] data) {
-        return createSendPacket(TYPE_ACTION, 0, 0, data);
-    }
-
     public static DatagramPacket wrapSendPacket(byte[] data) {
         DatagramPacket p = new DatagramPacket();
-        p.data = data;
-        return p;
-    }
-
-    public static DatagramPacket createPacket(ByteBuf buf) {
-        byte[] data = buf.getBytes();
-        DatagramPacket p = new DatagramPacket();
-        p.type = data[0];
-        p.timestamp = ByteUtil.byte2Long(data, 1);
-        p.sequenceNo = ByteUtil.byte2Int(data, 9);
         p.data = data;
         return p;
     }

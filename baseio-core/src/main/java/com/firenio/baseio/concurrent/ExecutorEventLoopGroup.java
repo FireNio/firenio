@@ -15,17 +15,50 @@
  */
 package com.firenio.baseio.concurrent;
 
-/**
- * @author wangkai
- *
- */
-public interface ExecutorEventLoopGroup extends EventLoopGroup {
+import com.firenio.baseio.LifeCycleUtil;
+import com.firenio.baseio.common.Util;
+
+public class ExecutorEventLoopGroup extends EventLoopGroup {
+
+    private ExecutorEventLoop eventLoop;
+
+    public ExecutorEventLoopGroup() {
+        this("event-process");
+    }
+
+    public ExecutorEventLoopGroup(String eventLoopName) {
+        this(eventLoopName, 1024 * 4 * Util.availableProcessors());
+    }
+
+    public ExecutorEventLoopGroup(String eventLoopName, int maxQueueSize) {
+        this(eventLoopName, Util.availableProcessors() * 2, maxQueueSize);
+    }
+
+    public ExecutorEventLoopGroup(String name, int eventLoopSize, int maxQueueSize) {
+        super(name, eventLoopSize, maxQueueSize);
+    }
 
     @Override
-    ExecutorEventLoop getNext();
+    protected void doStart() throws Exception {
+        if (eventLoop == null) {
+            this.eventLoop = new ExecutorEventLoop(this);
+        }
+        eventLoop.startup(getEventLoopName());
+    }
 
-    int getMaxQueueSize();
+    @Override
+    protected void doStop() {
+        LifeCycleUtil.stop(eventLoop);
+    }
 
-    int getEventLoopSize();
+    @Override
+    public EventLoop getEventLoop(int index) {
+        return eventLoop;
+    }
+
+    @Override
+    public ExecutorEventLoop getNext() {
+        return eventLoop;
+    }
 
 }

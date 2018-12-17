@@ -21,12 +21,12 @@ import com.firenio.baseio.LifeCycleUtil;
 public class PooledByteBufAllocatorGroup extends AbstractLifeCycle
         implements ByteBufAllocatorGroup {
 
-    private PooledByteBufAllocator[] allocators;
     private PooledByteBufAllocator   allocator;
-    private int                      core   = 1;
+    private PooledByteBufAllocator[] allocators;
     private int                      cap    = 1024 * 64;
-    private int                      unit   = 512;
+    private int                      core   = 1;
     private boolean                  direct = true;
+    private int                      unit   = 512;
 
     public PooledByteBufAllocatorGroup() {}
 
@@ -68,7 +68,7 @@ public class PooledByteBufAllocatorGroup extends AbstractLifeCycle
     }
 
     @Override
-    protected void doStop() throws Exception {
+    protected void doStop() {
         for (PooledByteBufAllocator allocator : allocators) {
             if (allocator == null) {
                 continue;

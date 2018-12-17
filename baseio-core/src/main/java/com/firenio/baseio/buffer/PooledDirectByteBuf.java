@@ -19,15 +19,10 @@ import java.nio.ByteBuffer;
 
 final class PooledDirectByteBuf extends AbstractDirectByteBuf implements PooledByteBuf {
 
-    PooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
-        super(allocator, memory);
-    }
-
     private int unitOffset;
 
-    @Override
-    public int getUnitOffset() {
-        return unitOffset;
+    PooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
+        super(allocator, memory);
     }
 
     @Override
@@ -37,6 +32,11 @@ final class PooledDirectByteBuf extends AbstractDirectByteBuf implements PooledB
         }
         addReferenceCount();
         return new DuplicatedDirectByteBuf(memory.duplicate(), this);
+    }
+
+    @Override
+    public int getUnitOffset() {
+        return unitOffset;
     }
 
     @Override

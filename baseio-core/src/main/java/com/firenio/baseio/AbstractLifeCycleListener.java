@@ -18,13 +18,13 @@ package com.firenio.baseio;
 public class AbstractLifeCycleListener implements LifeCycleListener {
 
     @Override
-    public int lifeCycleListenerSortIndex() {
-        return 0;
+    public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
+
     }
 
     @Override
-    public void lifeCycleStarting(LifeCycle lifeCycle) {
-
+    public int lifeCycleListenerSortIndex() {
+        return 0;
     }
 
     @Override
@@ -33,17 +33,17 @@ public class AbstractLifeCycleListener implements LifeCycleListener {
     }
 
     @Override
-    public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {
-
-    }
-
-    @Override
-    public void lifeCycleStopping(LifeCycle lifeCycle) {
+    public void lifeCycleStarting(LifeCycle lifeCycle) {
 
     }
 
     @Override
     public void lifeCycleStopped(LifeCycle lifeCycle) {
+
+    }
+
+    @Override
+    public void lifeCycleStopping(LifeCycle lifeCycle) {
 
     }
 

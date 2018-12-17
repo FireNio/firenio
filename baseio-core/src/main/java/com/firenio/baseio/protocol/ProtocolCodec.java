@@ -33,6 +33,8 @@ public abstract class ProtocolCodec {
     // 这样多次以后可能会导致内存溢出
     public abstract Frame decode(NioSocketChannel ch, ByteBuf src) throws IOException;
 
+    public void destory(ChannelContext context) {}
+
     // 注意：encode失败要release掉encode过程中申请的内存
     public abstract ByteBuf encode(NioSocketChannel ch, Frame frame) throws IOException;
 
@@ -40,14 +42,8 @@ public abstract class ProtocolCodec {
 
     public void initialize(ChannelContext context) throws Exception {}
 
-    public void destory(ChannelContext context) {}
-
     public Frame ping(NioSocketChannel ch) {
         return null;
-    }
-
-    protected static int nextIndexedVariablesIndex() {
-        return FastThreadLocal.nextIndexedVariablesIndex();
     }
 
     public Frame pong(NioSocketChannel ch, Frame ping) {
@@ -55,5 +51,9 @@ public abstract class ProtocolCodec {
     }
 
     public void release(NioEventLoop eventLoop, Frame frame) {}
+
+    protected static int nextIndexedVariablesIndex() {
+        return FastThreadLocal.nextIndexedVariablesIndex();
+    }
 
 }

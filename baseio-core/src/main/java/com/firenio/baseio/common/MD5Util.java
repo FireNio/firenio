@@ -23,15 +23,6 @@ public class MD5Util {
 
     private static final ThreadLocal<MD5Util> md5Utils = new ThreadLocal<>();
 
-    public static MD5Util get() {
-        MD5Util u = md5Utils.get();
-        if (u == null) {
-            u = new MD5Util();
-            md5Utils.set(u);
-        }
-        return u;
-    }
-
     private final MessageDigest md5;
 
     public MD5Util() {
@@ -50,14 +41,6 @@ public class MD5Util {
         return get32(value.getBytes(encoding)).substring(8, 24);
     }
 
-    public String get32(String value) {
-        return get32(value, Encoding.UTF8);
-    }
-
-    public String get32(String value, Charset encoding) {
-        return get32(value.getBytes(encoding));
-    }
-
     public String get32(byte[] array) {
         return get32(array, 0, array.length);
     }
@@ -70,6 +53,23 @@ public class MD5Util {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    public String get32(String value) {
+        return get32(value, Encoding.UTF8);
+    }
+
+    public String get32(String value, Charset encoding) {
+        return get32(value.getBytes(encoding));
+    }
+
+    public static MD5Util get() {
+        MD5Util u = md5Utils.get();
+        if (u == null) {
+            u = new MD5Util();
+            md5Utils.set(u);
+        }
+        return u;
     }
 
 }

@@ -17,14 +17,10 @@ package com.firenio.baseio.buffer;
 
 public final class EmptyByteBuf extends UnpooledHeapByteBuf {
 
-    private EmptyByteBuf() {
-        super(ByteBufUtil.heap(), new byte[] {});
-    }
-
     private static final EmptyByteBuf INSTANCE = new EmptyByteBuf();
 
-    public static final ByteBuf get() {
-        return INSTANCE;
+    private EmptyByteBuf() {
+        super(ByteBufUtil.heap(), new byte[] {});
     }
 
     @Override
@@ -35,5 +31,9 @@ public final class EmptyByteBuf extends UnpooledHeapByteBuf {
     @Override
     public boolean isReleased() {
         return true;
+    }
+
+    public static final ByteBuf get() {
+        return INSTANCE;
     }
 }

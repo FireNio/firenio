@@ -80,6 +80,11 @@ public final class SslContextBuilder {
         this.isServer = isServer;
     }
 
+    public SslContextBuilder applicationProtocols(String[] applicationProtocols) {
+        this.applicationProtocols = applicationProtocols;
+        return this;
+    }
+
     public SslContext build() throws SSLException {
         SSLContext context = newSSLContext();
         return new SslContext(context, isServer, ciphers, clientAuth, applicationProtocols);
@@ -344,11 +349,6 @@ public final class SslContextBuilder {
 
     public SslContextBuilder sessionTimeout(long sessionTimeout) {
         this.sessionTimeout = sessionTimeout;
-        return this;
-    }
-
-    public SslContextBuilder applicationProtocols(String[] applicationProtocols) {
-        this.applicationProtocols = applicationProtocols;
         return this;
     }
 

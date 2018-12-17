@@ -29,12 +29,13 @@ public class ByteArrayInputStream extends InputStream {
     protected byte buf[];
 
     /**
-     * The index of the next character to read from the input stream buffer.
-     * This value should always be nonnegative and not larger than the value of
-     * <code>count</code>. The next byte to be read from the input stream
-     * buffer will be <code>buf[pos]</code>.
+     * The index one greater than the last valid character in the input stream
+     * buffer. This value should always be nonnegative and not larger than the
+     * length of <code>buf</code>. It is one greater than the position of the
+     * last byte within <code>buf</code> that can ever be read from the input
+     * stream buffer.
      */
-    protected int  pos;
+    protected int  count;
 
     /**
      * The currently marked position in the stream. ByteArrayInputStream
@@ -51,13 +52,12 @@ public class ByteArrayInputStream extends InputStream {
     protected int  mark = 0;
 
     /**
-     * The index one greater than the last valid character in the input stream
-     * buffer. This value should always be nonnegative and not larger than the
-     * length of <code>buf</code>. It is one greater than the position of the
-     * last byte within <code>buf</code> that can ever be read from the input
-     * stream buffer.
+     * The index of the next character to read from the input stream buffer.
+     * This value should always be nonnegative and not larger than the value of
+     * <code>count</code>. The next byte to be read from the input stream
+     * buffer will be <code>buf[pos]</code>.
      */
-    protected int  count;
+    protected int  pos;
 
     /**
      * Creates a <code>ByteArrayInputStream</code> so that it uses
@@ -94,6 +94,80 @@ public class ByteArrayInputStream extends InputStream {
         this.pos = offset;
         this.count = Math.min(offset + length, buf.length);
         this.mark = offset;
+    }
+
+    /**
+     * Returns the number of remaining bytes that can be read (or skipped over)
+     * from this input stream.
+     * <p>
+     * The value returned is <code>count&nbsp;- pos</code>, which is the number
+     * of bytes remaining to be read from the input buffer.
+     *
+     * @return the number of remaining bytes that can be read (or skipped over)
+     *         from this input stream without blocking.
+     */
+    @Override
+    public int available() {
+        return count - pos;
+    }
+
+    /**
+     * Closing a <tt>ByteArrayInputStream</tt> has no effect. The methods in
+     * this class can be called after the stream has been closed without
+     * generating an <tt>IOException</tt>.
+     */
+    @Override
+    public void close() throws IOException {}
+
+    /**
+     * @return the buf
+     */
+    public byte[] getBuf() {
+        return buf;
+    }
+
+    /**
+     * @return the count
+     */
+    public int getCount() {
+        return count;
+    }
+
+    /**
+     * @return the pos
+     */
+    public int getPos() {
+        return pos;
+    }
+
+    /**
+     * Set the current marked position in the stream. ByteArrayInputStream
+     * objects are marked at position zero by default when constructed. They
+     * may be marked at another position within the buffer by this method.
+     * <p>
+     * If no mark has been set, then the value of the mark is the offset passed
+     * to the constructor (or 0 if the offset was not supplied).
+     *
+     * <p>
+     * Note: The <code>readAheadLimit</code> for this class has no meaning.
+     *
+     * @since JDK1.1
+     */
+    @Override
+    public void mark(int readAheadLimit) {
+        mark = pos;
+    }
+
+    /**
+     * Tests if this <code>InputStream</code> supports mark/reset. The
+     * <code>markSupported</code> method of <code>ByteArrayInputStream</code>
+     * always returns <code>true</code>.
+     *
+     * @since JDK1.1
+     */
+    @Override
+    public boolean markSupported() {
+        return true;
     }
 
     /**
@@ -167,6 +241,16 @@ public class ByteArrayInputStream extends InputStream {
     }
 
     /**
+     * Resets the buffer to the marked position. The marked position is 0
+     * unless another position was marked or an offset was specified in the
+     * constructor.
+     */
+    @Override
+    public void reset() {
+        pos = mark;
+    }
+
+    /**
      * Skips <code>n</code> bytes of input from this input stream. Fewer bytes
      * might be skipped if the end of the input stream is reached. The actual
      * number <code>k</code> of bytes to be skipped is equal to the smaller of
@@ -186,90 +270,6 @@ public class ByteArrayInputStream extends InputStream {
 
         pos += k;
         return k;
-    }
-
-    /**
-     * Returns the number of remaining bytes that can be read (or skipped over)
-     * from this input stream.
-     * <p>
-     * The value returned is <code>count&nbsp;- pos</code>, which is the number
-     * of bytes remaining to be read from the input buffer.
-     *
-     * @return the number of remaining bytes that can be read (or skipped over)
-     *         from this input stream without blocking.
-     */
-    @Override
-    public int available() {
-        return count - pos;
-    }
-
-    /**
-     * Tests if this <code>InputStream</code> supports mark/reset. The
-     * <code>markSupported</code> method of <code>ByteArrayInputStream</code>
-     * always returns <code>true</code>.
-     *
-     * @since JDK1.1
-     */
-    @Override
-    public boolean markSupported() {
-        return true;
-    }
-
-    /**
-     * Set the current marked position in the stream. ByteArrayInputStream
-     * objects are marked at position zero by default when constructed. They
-     * may be marked at another position within the buffer by this method.
-     * <p>
-     * If no mark has been set, then the value of the mark is the offset passed
-     * to the constructor (or 0 if the offset was not supplied).
-     *
-     * <p>
-     * Note: The <code>readAheadLimit</code> for this class has no meaning.
-     *
-     * @since JDK1.1
-     */
-    @Override
-    public void mark(int readAheadLimit) {
-        mark = pos;
-    }
-
-    /**
-     * Resets the buffer to the marked position. The marked position is 0
-     * unless another position was marked or an offset was specified in the
-     * constructor.
-     */
-    @Override
-    public void reset() {
-        pos = mark;
-    }
-
-    /**
-     * Closing a <tt>ByteArrayInputStream</tt> has no effect. The methods in
-     * this class can be called after the stream has been closed without
-     * generating an <tt>IOException</tt>.
-     */
-    @Override
-    public void close() throws IOException {}
-
-    /**
-     * @return the buf
-     */
-    public byte[] getBuf() {
-        return buf;
-    }
-
-    /**
-     * @return the pos
-     */
-    public int getPos() {
-        return pos;
-    }
-
-    /**
-     * @return the count
-     */
-    public int getCount() {
-        return count;
     }
 
 }

@@ -36,15 +36,6 @@ public class DatagramPacketGroup {
 
     }
 
-    public DatagramPacket[] getDatagramPackets() {
-
-        return packets;
-    }
-
-    public int size() {
-        return size;
-    }
-
     public void foreach(DPForeach foreach) {
 
         int size = this.size;
@@ -60,6 +51,15 @@ public class DatagramPacketGroup {
 
             foreach.onPacket(p);
         }
+    }
+
+    public DatagramPacket[] getDatagramPackets() {
+
+        return packets;
+    }
+
+    public int size() {
+        return size;
     }
 
     public interface DPForeach {

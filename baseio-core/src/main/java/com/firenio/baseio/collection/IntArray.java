@@ -39,22 +39,6 @@ public class IntArray {
         array[size++] = value;
     }
 
-    public int get(int index) {
-        return array[index];
-    }
-
-    public int size() {
-        return size;
-    }
-    
-    public boolean isEmpty(){
-        return size == 0;
-    }
-
-    public void clear() {
-        size = 0;
-    }
-
     public int capacity() {
         return array.length;
     }
@@ -63,5 +47,21 @@ public class IntArray {
         if (array.length == size) {
             array = Arrays.copyOf(array, array.length * 2);
         }
+    }
+    
+    public void clear() {
+        size = 0;
+    }
+
+    public int get(int index) {
+        return array[index];
+    }
+
+    public boolean isEmpty(){
+        return size == 0;
+    }
+
+    public int size() {
+        return size;
     }
 }

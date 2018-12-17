@@ -39,7 +39,7 @@ public class UnpooledByteBufAllocator extends AbstractByteBufAllocator {
     protected void doStart() throws Exception {}
 
     @Override
-    protected void doStop() throws Exception {}
+    protected void doStop() {}
 
     @Override
     public void freeMemory() {}

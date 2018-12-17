@@ -36,8 +36,8 @@ import com.firenio.baseio.common.Encoding;
 import com.firenio.baseio.common.FileUtil;
 import com.firenio.baseio.common.Properties;
 import com.firenio.baseio.common.Util;
-import com.firenio.baseio.concurrent.ExecutorEventLoop;
-import com.firenio.baseio.concurrent.ExecutorEventLoopGroup;
+import com.firenio.baseio.concurrent.EventLoop;
+import com.firenio.baseio.concurrent.EventLoopGroup;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 import com.firenio.baseio.protocol.ProtocolCodec;
@@ -54,8 +54,8 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     private List<ChannelIdleEventListener> ciels              = new ArrayList<>();
     private boolean                        enableHeartbeatLog = true;
     private boolean                        enableSsl;
-  //是否启用work event loop，如果启用，则frame在work event loop中处理
-    private ExecutorEventLoopGroup         executorEventLoopGroup;
+    //是否启用work event loop，如果启用，则frame在work event loop中处理
+    private EventLoopGroup                 executorEventLoopGroup;
     private HeartBeatLogger                heartBeatLogger;
     private String                         host;
     private boolean                        initialized;
@@ -147,7 +147,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     }
 
     @Override
-    protected void doStop() throws Exception {
+    protected void doStop() {
         for (NioSocketChannel ch : channelManager.getManagedChannels().values()) {
             Util.close(ch);
         }
@@ -194,7 +194,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         return charset;
     }
 
-    public ExecutorEventLoopGroup getExecutorEventLoopGroup() {
+    public EventLoopGroup getExecutorEventLoopGroup() {
         return executorEventLoopGroup;
     }
 
@@ -205,7 +205,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
     public String getHost() {
         return host;
     }
-    
+
     public IoEventHandle getIoEventHandle() {
         return ioEventHandle;
     }
@@ -214,7 +214,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         return maxWriteBacklog;
     }
 
-    public ExecutorEventLoop getNextExecutorEventLoop(){
+    public EventLoop getNextExecutorEventLoop() {
         if (executorEventLoopGroup == null) {
             return null;
         }
@@ -373,7 +373,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
         this.enableSsl = enableSsl;
     }
 
-    public void setExecutorEventLoopGroup(ExecutorEventLoopGroup executorEventLoopGroup) {
+    public void setExecutorEventLoopGroup(EventLoopGroup executorEventLoopGroup) {
         checkNotRunning();
         this.executorEventLoopGroup = executorEventLoopGroup;
     }

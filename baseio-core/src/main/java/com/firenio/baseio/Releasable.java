@@ -17,8 +17,8 @@ package com.firenio.baseio;
 
 public interface Releasable {
 
-    void release();
-
     boolean isReleased();
+
+    void release();
 
 }

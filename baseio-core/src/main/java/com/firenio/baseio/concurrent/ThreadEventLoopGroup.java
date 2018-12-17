@@ -17,9 +17,9 @@ package com.firenio.baseio.concurrent;
 
 import com.firenio.baseio.common.Util;
 
-public class ThreadEventLoopGroup extends AbstractEventLoopGroup implements ExecutorEventLoopGroup {
+public class ThreadEventLoopGroup extends EventLoopGroup {
 
-    private int maxQueueSize;
+    private ThreadEventLoop[] executorEventLoops;
 
     public ThreadEventLoopGroup() {
         this("event-process");
@@ -34,36 +34,28 @@ public class ThreadEventLoopGroup extends AbstractEventLoopGroup implements Exec
     }
 
     public ThreadEventLoopGroup(String eventLoopName, int eventLoopSize, int maxQueueSize) {
-        super(eventLoopName, eventLoopSize);
-        this.maxQueueSize = maxQueueSize;
-    }
-
-    @Override
-    protected ExecutorEventLoop newEventLoop(int coreIndex) {
-        return new ThreadEventLoop(this);
-    }
-
-    @Override
-    public int getMaxQueueSize() {
-        return maxQueueSize;
-    }
-
-    private ExecutorEventLoop[] executorEventLoops;
-
-    @Override
-    public ExecutorEventLoop getNext() {
-        return executorEventLoops[getNextEventLoopIndex()];
-    }
-
-    @Override
-    protected EventLoop[] initEventLoops() {
-        executorEventLoops = new ExecutorEventLoop[getEventLoopSize()];
-        return executorEventLoops;
+        super(eventLoopName, eventLoopSize, maxQueueSize);
     }
 
     @Override
     public EventLoop getEventLoop(int index) {
         return executorEventLoops[index];
+    }
+
+    @Override
+    public ThreadEventLoop getNext() {
+        return executorEventLoops[getNextEventLoopIndex()];
+    }
+
+    @Override
+    protected EventLoop[] initEventLoops() {
+        executorEventLoops = new ThreadEventLoop[getEventLoopSize()];
+        return executorEventLoops;
+    }
+
+    @Override
+    protected ThreadEventLoop newEventLoop(int coreIndex) {
+        return new ThreadEventLoop(this);
     }
 
 }

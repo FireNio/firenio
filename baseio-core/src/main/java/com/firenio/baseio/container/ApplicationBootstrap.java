@@ -29,6 +29,51 @@ public class ApplicationBootstrap {
     public static final String RUNTIME_DEV  = "dev";
     public static final String RUNTIME_PROD = "prod";
 
+    public interface ClassPathScaner {
+        void scanClassPaths(URLDynamicClassLoader classLoader, String mode, String rootPath)
+                throws IOException;
+    }
+
+    static class DefaultClassPathScaner implements ClassPathScaner {
+
+        @Override
+        public void scanClassPaths(URLDynamicClassLoader classLoader, String mode, String rootPath)
+                throws IOException {
+            if (isRuntimeDevMode(mode)) {
+                classLoader.addExcludePath("/app");
+                classLoader.scan(rootPath);
+            } else {
+                classLoader.scan(rootPath + "/conf");
+            }
+        }
+    }
+
+    public static boolean isRuntimeDevMode(String mode) {
+        return RUNTIME_DEV.equalsIgnoreCase(mode);
+    }
+
+    public static boolean isRuntimeProdMode(String mode) {
+        return RUNTIME_PROD.equalsIgnoreCase(mode);
+    }
+
+    public static URLDynamicClassLoader newClassLoader(ClassLoader parent, String mode,
+            boolean entrustFirst, String rootLocalAddress, List<ClassPathScaner> classPathScaners)
+            throws IOException {
+        //这里需要设置优先委托自己加载class，因为到后面对象需要用该classloader去加载resources
+        URLDynamicClassLoader classLoader = new URLDynamicClassLoader(parent, entrustFirst);
+        classLoader.addMatchExtend(BootstrapEngine.class.getName());
+        if (classPathScaners == null || classPathScaners.size() == 0) {
+            throw new IOException("null classPathScaners");
+        }
+        for (ClassPathScaner scaner : classPathScaners) {
+            if (scaner == null) {
+                continue;
+            }
+            scaner.scanClassPaths(classLoader, mode, rootLocalAddress);
+        }
+        return classLoader;
+    }
+
     public static void startup() throws Exception {
         startup(System.getProperty("container.class"));
     }
@@ -74,32 +119,6 @@ public class ApplicationBootstrap {
         engine.bootstrap(rootPath, mode);
     }
 
-    public static boolean isRuntimeProdMode(String mode) {
-        return RUNTIME_PROD.equalsIgnoreCase(mode);
-    }
-
-    public static boolean isRuntimeDevMode(String mode) {
-        return RUNTIME_DEV.equalsIgnoreCase(mode);
-    }
-
-    public static URLDynamicClassLoader newClassLoader(ClassLoader parent, String mode,
-            boolean entrustFirst, String rootLocalAddress, List<ClassPathScaner> classPathScaners)
-            throws IOException {
-        //这里需要设置优先委托自己加载class，因为到后面对象需要用该classloader去加载resources
-        URLDynamicClassLoader classLoader = new URLDynamicClassLoader(parent, entrustFirst);
-        classLoader.addMatchExtend(BootstrapEngine.class.getName());
-        if (classPathScaners == null || classPathScaners.size() == 0) {
-            throw new IOException("null classPathScaners");
-        }
-        for (ClassPathScaner scaner : classPathScaners) {
-            if (scaner == null) {
-                continue;
-            }
-            scaner.scanClassPaths(classLoader, mode, rootLocalAddress);
-        }
-        return classLoader;
-    }
-
     public static List<ClassPathScaner> withDefault() {
         return withDefault(new ClassPathScaner[0]);
     }
@@ -116,25 +135,6 @@ public class ApplicationBootstrap {
             }
         }
         return classPathScaners;
-    }
-
-    public interface ClassPathScaner {
-        void scanClassPaths(URLDynamicClassLoader classLoader, String mode, String rootPath)
-                throws IOException;
-    }
-
-    static class DefaultClassPathScaner implements ClassPathScaner {
-
-        @Override
-        public void scanClassPaths(URLDynamicClassLoader classLoader, String mode, String rootPath)
-                throws IOException {
-            if (isRuntimeDevMode(mode)) {
-                classLoader.addExcludePath("/app");
-                classLoader.scan(rootPath);
-            } else {
-                classLoader.scan(rootPath + "/conf");
-            }
-        }
     }
 
 }

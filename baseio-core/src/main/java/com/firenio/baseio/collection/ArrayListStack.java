@@ -23,14 +23,20 @@ import java.util.Arrays;
  */
 public class ArrayListStack<V> implements Stack<V> {
 
+    private V[] list;
     private int max;
     private int size;
-    private V[] list;
 
     @SuppressWarnings("unchecked")
     public ArrayListStack(int max) {
         this.max = max;
         this.list = (V[]) new Object[max];
+    }
+
+    @Override
+    public void clear() {
+        Arrays.fill(list, 0, size, null);
+        size = 0;
     }
 
     @Override
@@ -46,12 +52,6 @@ public class ArrayListStack<V> implements Stack<V> {
         if (size < max) {
             list[size++] = v;
         }
-    }
-
-    @Override
-    public void clear() {
-        Arrays.fill(list, 0, size, null);
-        size = 0;
     }
 
     @Override

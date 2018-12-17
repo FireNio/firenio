@@ -26,10 +26,16 @@ class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
         this.produce(memory.length);
     }
 
-    protected void produce(int capacity) {
-        this.capacity = capacity;
+    @Override
+    public ByteBuf clear() {
+        this.position = 0;
         this.limit = capacity;
-        this.referenceCount = 1;
+        return this;
+    }
+
+    @Override
+    public ByteBuf duplicate() {
+        return new DuplicatedHeapByteBuf(memory, this);
     }
 
     protected UnpooledHeapByteBuf produce(ByteBuf buf) {
@@ -39,17 +45,11 @@ class UnpooledHeapByteBuf extends AbstractHeapByteBuf {
         this.referenceCount = 1;
         return this;
     }
-
-    @Override
-    public ByteBuf clear() {
-        this.position = 0;
-        this.limit = capacity;
-        return this;
-    }
     
-    @Override
-    public ByteBuf duplicate() {
-        return new DuplicatedHeapByteBuf(memory, this);
+    protected void produce(int capacity) {
+        this.capacity = capacity;
+        this.limit = capacity;
+        this.referenceCount = 1;
     }
 
     @Override

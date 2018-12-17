@@ -23,19 +23,6 @@ public class LifeCycleUtil {
 
     private static Logger logger = LoggerFactory.getLogger(LifeCycleUtil.class);
 
-    public static void stop(LifeCycle lifeCycle) {
-        if (lifeCycle == null) {
-            return;
-        }
-        try {
-            if (lifeCycle.isRunning()) {
-                lifeCycle.stop();
-            }
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
-
     public static void start(LifeCycle lifeCycle) {
         if (lifeCycle == null) {
             return;
@@ -56,6 +43,19 @@ public class LifeCycleUtil {
         }
         try {
             eventLoop.stop();
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    public static void stop(LifeCycle lifeCycle) {
+        if (lifeCycle == null) {
+            return;
+        }
+        try {
+            if (lifeCycle.isRunning()) {
+                lifeCycle.stop();
+            }
         } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }

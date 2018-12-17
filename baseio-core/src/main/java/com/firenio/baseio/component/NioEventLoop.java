@@ -35,8 +35,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,7 +56,7 @@ import com.firenio.baseio.collection.IntMap;
 import com.firenio.baseio.collection.LinkedBQStack;
 import com.firenio.baseio.collection.Stack;
 import com.firenio.baseio.common.Util;
-import com.firenio.baseio.concurrent.AbstractEventLoop;
+import com.firenio.baseio.concurrent.EventLoop;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 import com.firenio.baseio.protocol.Frame;
@@ -65,7 +65,7 @@ import com.firenio.baseio.protocol.Frame;
  * @author wangkai
  *
  */
-public final class NioEventLoop extends AbstractEventLoop implements Attributes, Executor {
+public final class NioEventLoop extends EventLoop implements Attributes, Executor {
 
     private static final boolean           CHANNEL_READ_FIRST = Options.isChannelReadFirst();
     private static final boolean           ENABLE_SELKEY_SET  = checkEnableSelectionKeySet();
@@ -79,7 +79,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes,
     private final IntMap<NioSocketChannel> channels           = new IntMap<>();
     private final int                      chSizeLimit;
     private DelayedQueue                   delayedQueue       = new DelayedQueue();
-    private final Queue<Runnable>          events             = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Runnable>  events             = new LinkedBlockingQueue<>();
     private final NioEventLoopGroup        group;
     private volatile boolean               hasTask            = false;
     private final int                      index;
@@ -358,6 +358,11 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes,
         return index;
     }
 
+    @Override
+    public BlockingQueue<Runnable> getJobs() {
+        return events;
+    }
+
     protected Selector getSelector() {
         return selector;
     }
@@ -366,7 +371,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes,
         return writeBuffers;
     }
 
-    private void handleEvents(Queue<Runnable> events) {
+    private void handleEvents(BlockingQueue<Runnable> events) {
         if (!events.isEmpty()) {
             for (;;) {
                 Runnable event = events.poll();
@@ -387,14 +392,6 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes,
         Develop.printException(logger, ex, 2);
         if (!ch.isSslHandshakeFinished()) {
             ch.getContext().channelEstablish(ch, ex);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void releaseFrame(String key, Frame frame) {
-        Stack<Frame> buffer = (Stack<Frame>) getAttribute(key);
-        if (buffer != null) {
-            buffer.push(frame);
         }
     }
 
@@ -457,6 +454,14 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes,
         //        this.selector = newSelector;
     }
 
+    @SuppressWarnings("unchecked")
+    public void releaseFrame(String key, Frame frame) {
+        Stack<Frame> buffer = (Stack<Frame>) getAttribute(key);
+        if (buffer != null) {
+            buffer.push(frame);
+        }
+    }
+
     @Override
     public Object removeAttribute(Object key) {
         return this.attributes.remove(key);
@@ -473,7 +478,7 @@ public final class NioEventLoop extends AbstractEventLoop implements Attributes,
         final Selector selector = this.selector;
         final AtomicInteger selecting = this.selecting;
         final SelectionKeySet keySet = this.selectionKeySet;
-        final Queue<Runnable> events = this.events;
+        final BlockingQueue<Runnable> events = this.events;
         final DelayedQueue dq = this.delayedQueue;
         final IntArray preCloseChIds = this.preCloseChIds;
         long nextIdle = 0;

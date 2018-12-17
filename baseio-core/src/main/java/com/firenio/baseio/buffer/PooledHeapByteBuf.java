@@ -17,15 +17,10 @@ package com.firenio.baseio.buffer;
 
 final class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteBuf {
 
-    PooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
-        super(allocator, memory);
-    }
-
     private int unitOffset;
 
-    @Override
-    public int getUnitOffset() {
-        return unitOffset;
+    PooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
+        super(allocator, memory);
     }
 
     @Override
@@ -35,6 +30,11 @@ final class PooledHeapByteBuf extends AbstractHeapByteBuf implements PooledByteB
         }
         addReferenceCount();
         return new DuplicatedHeapByteBuf(memory, this);
+    }
+
+    @Override
+    public int getUnitOffset() {
+        return unitOffset;
     }
 
     @Override

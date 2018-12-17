@@ -21,56 +21,24 @@ import java.nio.ByteBuffer;
 
 public class ByteBufUtil {
 
-    @SuppressWarnings("restriction")
-    public static void release(ByteBuffer buffer) {
-        if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
-            ((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
-        }
-    }
-
-    public static ByteBuf wrap(byte[] data) {
-        return wrap(data, 0, data.length);
-    }
-
-    public static ByteBuf wrap(byte[] data, int offset, int length) {
-        return heap().wrap(data, offset, length);
-    }
-
-    public static ByteBuf wrap(ByteBuffer buffer) {
-        return heap().wrap(buffer);
+    public static UnpooledByteBufAllocator direct() {
+        return UnpooledByteBufAllocator.getDirect();
     }
 
     public static ByteBuf direct(int cap) {
         return direct().allocate(cap);
     }
 
-    public static ByteBuf heap(int cap) {
-        return heap().allocate(cap);
-    }
-
     public static UnpooledByteBufAllocator heap() {
         return UnpooledByteBufAllocator.getHeap();
     }
 
-    public static UnpooledByteBufAllocator direct() {
-        return UnpooledByteBufAllocator.getDirect();
+    public static ByteBuf heap(int cap) {
+        return heap().allocate(cap);
     }
-    
+
     public static int read(ByteBuf buf, InputStream inputStream) throws IOException {
         return read(buf, inputStream, buf.capacity());
-    }
-    
-    public static void skip(ByteBuf src,byte v){
-        int p = src.absPos();
-        int l = src.absLimit();
-        int i = p;
-        for (; i < l; i++) {
-            if (src.absByte(p) != v) {
-                src.skip(i - p);
-                return;
-            }
-        }
-        src.position(src.limit());
     }
 
     public static int read(ByteBuf buf, InputStream inputStream, long limit) throws IOException {
@@ -94,6 +62,38 @@ public class ByteBufUtil {
             buf.limit(remaining + len);
         }
         return len;
+    }
+
+    @SuppressWarnings("restriction")
+    public static void release(ByteBuffer buffer) {
+        if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
+            ((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
+        }
+    }
+
+    public static void skip(ByteBuf src,byte v){
+        int p = src.absPos();
+        int l = src.absLimit();
+        int i = p;
+        for (; i < l; i++) {
+            if (src.absByte(p) != v) {
+                src.skip(i - p);
+                return;
+            }
+        }
+        src.position(src.limit());
+    }
+    
+    public static ByteBuf wrap(byte[] data) {
+        return wrap(data, 0, data.length);
+    }
+    
+    public static ByteBuf wrap(byte[] data, int offset, int length) {
+        return heap().wrap(data, offset, length);
+    }
+
+    public static ByteBuf wrap(ByteBuffer buffer) {
+        return heap().wrap(buffer);
     }
 
 }

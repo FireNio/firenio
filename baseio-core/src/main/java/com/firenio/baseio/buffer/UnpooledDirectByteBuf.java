@@ -28,10 +28,10 @@ final class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
         this.produce(memory.capacity());
     }
 
-    protected void produce(int capacity) {
-        this.capacity = capacity;
-        this.limit(capacity);
-        this.referenceCount = 1;
+    @Override
+    public ByteBuf clear() {
+        memory.clear();
+        return this;
     }
 
     @Override
@@ -42,6 +42,18 @@ final class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
         //请勿移除此行，DirectByteBuffer需要手动回收，release要确保被执行
         addReferenceCount();
         return new DuplicatedDirectByteBuf(memory.duplicate(), this);
+    }
+
+    @Override
+    public ByteBuf flip() {
+        memory.flip();
+        return this;
+    }
+
+    protected void produce(int capacity) {
+        this.capacity = capacity;
+        this.limit(capacity);
+        this.referenceCount = 1;
     }
 
     @Override
@@ -68,18 +80,6 @@ final class UnpooledDirectByteBuf extends AbstractDirectByteBuf {
                 }
             }
         }
-    }
-
-    @Override
-    public ByteBuf clear() {
-        memory.clear();
-        return this;
-    }
-
-    @Override
-    public ByteBuf flip() {
-        memory.flip();
-        return this;
     }
 
 }

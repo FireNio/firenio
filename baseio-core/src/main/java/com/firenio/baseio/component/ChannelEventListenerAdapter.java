@@ -18,9 +18,9 @@ package com.firenio.baseio.component;
 public class ChannelEventListenerAdapter implements ChannelEventListener {
 
     @Override
-    public void channelOpened(NioSocketChannel ch) throws Exception {}
+    public void channelClosed(NioSocketChannel ch) {}
 
     @Override
-    public void channelClosed(NioSocketChannel ch) {}
+    public void channelOpened(NioSocketChannel ch) throws Exception {}
 
 }

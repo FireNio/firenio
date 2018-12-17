@@ -47,7 +47,7 @@ import com.firenio.baseio.collection.AttributesImpl;
 import com.firenio.baseio.common.Assert;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.ChannelContext.HeartBeatLogger;
-import com.firenio.baseio.concurrent.ExecutorEventLoop;
+import com.firenio.baseio.concurrent.EventLoop;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 import com.firenio.baseio.protocol.Frame;
@@ -76,7 +76,7 @@ public final class NioSocketChannel extends AttributesImpl
     private final String                       desc;
     private final boolean                      enableSsl;
     private final NioEventLoop                 eventLoop;
-    private final ExecutorEventLoop            executorEventLoop;
+    private final EventLoop                    executorEventLoop;
     private volatile boolean                   inEvent;
     private int                                interestOps           = SelectionKey.OP_READ;
     private IoEventHandle                      ioEventHandle;
@@ -150,7 +150,7 @@ public final class NioSocketChannel extends AttributesImpl
             } else {
                 if (enableWorkEventLoop) {
                     final Frame f = frame;
-                    final ExecutorEventLoop executorEventLoop = getExecutorEventLoop();
+                    final EventLoop executorEventLoop = getExecutorEventLoop();
                     final BlockingQueue<Runnable> jobs = executorEventLoop.getJobs();
                     final Runnable job = new Runnable() {
 
@@ -437,7 +437,7 @@ public final class NioSocketChannel extends AttributesImpl
         return eventLoop;
     }
 
-    public ExecutorEventLoop getExecutorEventLoop() {
+    public EventLoop getExecutorEventLoop() {
         return executorEventLoop;
     }
 
@@ -681,15 +681,6 @@ public final class NioSocketChannel extends AttributesImpl
             src.reverse();
             src.flip();
             accept(src);
-        }
-    }
-
-    private static int nativeRead(SocketChannel channel, ByteBuffer src) {
-        try {
-            return channel.read(src);
-        } catch (IOException e) {
-            printException(logger, e, 1);
-            return -1;
         }
     }
 
@@ -970,25 +961,6 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    private static int nativeWrite(SocketChannel channel, ByteBuffer src) {
-        try {
-            return channel.write(src);
-        } catch (IOException e) {
-            Develop.printException(logger, e, 1);
-            return -1;
-        }
-    }
-
-    private static long nativeWrite(SocketChannel channel, ByteBuffer[] srcs, int offset,
-            int length) {
-        try {
-            return channel.write(srcs, offset, length);
-        } catch (IOException e) {
-            Develop.printException(logger, e, 1);
-            return -1;
-        }
-    }
-
     protected int write() {
         final NioEventLoop eventLoop = this.eventLoop;
         final Queue<ByteBuf> writeBufs = this.writeBufs;
@@ -1113,11 +1085,6 @@ public final class NioSocketChannel extends AttributesImpl
                 "flush(...)");
     }
 
-    private static IOException TASK_REJECT() {
-        return Util.unknownStackTrace(new IOException(), NioSocketChannel.class,
-                "accept_reject(...)");
-    }
-
     private static void fillNull(Object[] a, int fromIndex, int toIndex) {
         for (int i = fromIndex; i < toIndex; i++)
             a[i] = null;
@@ -1125,6 +1092,34 @@ public final class NioSocketChannel extends AttributesImpl
 
     private static int INTEREST_WRITE() {
         return SelectionKey.OP_READ | SelectionKey.OP_WRITE;
+    }
+
+    private static int nativeRead(SocketChannel channel, ByteBuffer src) {
+        try {
+            return channel.read(src);
+        } catch (IOException e) {
+            printException(logger, e, 1);
+            return -1;
+        }
+    }
+
+    private static int nativeWrite(SocketChannel channel, ByteBuffer src) {
+        try {
+            return channel.write(src);
+        } catch (IOException e) {
+            Develop.printException(logger, e, 1);
+            return -1;
+        }
+    }
+
+    private static long nativeWrite(SocketChannel channel, ByteBuffer[] srcs, int offset,
+            int length) {
+        try {
+            return channel.write(srcs, offset, length);
+        } catch (IOException e) {
+            Develop.printException(logger, e, 1);
+            return -1;
+        }
     }
 
     private static Logger newLogger() {
@@ -1144,6 +1139,11 @@ public final class NioSocketChannel extends AttributesImpl
     private static SSLException SSL_UNWRAP_OVER_LIMIT() {
         return unknownStackTrace(new SSLException("over limit (SSL_UNWRAP_BUFFER_SIZE)"),
                 NioSocketChannel.class, "unwrap()");
+    }
+
+    private static IOException TASK_REJECT() {
+        return Util.unknownStackTrace(new IOException(), NioSocketChannel.class,
+                "accept_reject(...)");
     }
 
 }

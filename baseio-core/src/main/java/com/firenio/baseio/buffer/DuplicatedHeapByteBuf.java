@@ -35,11 +35,6 @@ final class DuplicatedHeapByteBuf extends AbstractHeapByteBuf {
         return proto.duplicate();
     }
 
-    @Override
-    public void release() {
-        proto.release();
-    }
-
     private ByteBuf produce(ByteBuf buf) {
         this.offset = buf.offset();
         this.capacity = buf.capacity();
@@ -47,6 +42,11 @@ final class DuplicatedHeapByteBuf extends AbstractHeapByteBuf {
         this.limit = offset + buf.limit();
         this.referenceCount = 1;
         return this;
+    }
+
+    @Override
+    public void release() {
+        proto.release();
     }
 
 }

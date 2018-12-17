@@ -32,6 +32,11 @@ public class LinkedBQStack<V> implements Stack<V> {
     }
 
     @Override
+    public void clear() {
+        queue.clear();
+    }
+
+    @Override
     public V pop() {
         if (queue.isEmpty()) {
             return null;
@@ -44,11 +49,6 @@ public class LinkedBQStack<V> implements Stack<V> {
         if (queue.size() < max) {
             queue.offer(v);
         }
-    }
-
-    @Override
-    public void clear() {
-        queue.clear();
     }
 
     @Override

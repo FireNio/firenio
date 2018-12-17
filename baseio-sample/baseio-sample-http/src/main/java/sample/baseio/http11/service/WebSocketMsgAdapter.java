@@ -26,15 +26,15 @@ import com.firenio.baseio.common.Encoding;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.ChannelManager;
 import com.firenio.baseio.component.NioSocketChannel;
-import com.firenio.baseio.concurrent.AbstractEventLoop;
+import com.firenio.baseio.concurrent.EventLoop;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 
-public class WebSocketMsgAdapter extends AbstractEventLoop {
+public class WebSocketMsgAdapter extends EventLoop {
 
     private Logger                        logger     = LoggerFactory.getLogger(getClass());
     private Map<String, NioSocketChannel> clientsMap = new ConcurrentHashMap<>();
-    private BlockingQueue<Msg>            msgs       = new ArrayBlockingQueue<>(1024 * 4);
+    private BlockingQueue<Runnable>       msgs       = new ArrayBlockingQueue<>(1024 * 4);
 
     public void addClient(String username, NioSocketChannel ch) {
         ch.setAttribute("username", username);
@@ -49,6 +49,11 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public BlockingQueue<Runnable> getJobs() {
+        return msgs;
     }
 
     public NioSocketChannel getChannel(String username) {
@@ -69,7 +74,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
     @Override
     protected void doLoop() throws InterruptedException {
-        Msg msg = msgs.poll(16, TimeUnit.MILLISECONDS);
+        Msg msg = (Msg) msgs.poll(16, TimeUnit.MILLISECONDS);
         if (msg == null) {
             return;
         }
@@ -89,7 +94,7 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
         }
     }
 
-    class Msg {
+    class Msg implements Runnable {
 
         Msg(NioSocketChannel ch, String msg) {
             this.msg = msg;
@@ -98,5 +103,10 @@ public class WebSocketMsgAdapter extends AbstractEventLoop {
 
         String           msg;
         NioSocketChannel ch;
+
+        @Override
+        public void run() {}
+
     }
+
 }

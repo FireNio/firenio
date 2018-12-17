@@ -22,16 +22,16 @@ import java.util.concurrent.TimeUnit;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 
-public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventLoop {
+public final class ThreadEventLoop extends EventLoop {
 
-    private static final Logger    logger = LoggerFactory.getLogger(ThreadEventLoop.class);
-    private ExecutorEventLoopGroup group;
-
-    public ThreadEventLoop(ExecutorEventLoopGroup group) {
-        this.group = group;
-    }
+    private static final Logger     logger = LoggerFactory.getLogger(ThreadEventLoop.class);
+    private ThreadEventLoopGroup    group;
 
     private BlockingQueue<Runnable> jobs;
+
+    public ThreadEventLoop(ThreadEventLoopGroup group) {
+        this.group = group;
+    }
 
     @Override
     protected void doLoop() throws InterruptedException {
@@ -47,20 +47,6 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
         int maxQueueSize = group.getMaxQueueSize();
         this.jobs = new ArrayBlockingQueue<>(maxQueueSize);
         super.doStartup();
-    }
-
-    @Override
-    public int getEventSize() {
-        return jobs.size();
-    }
-
-    @Override
-    public BlockingQueue<Runnable> getJobs() {
-        return jobs;
-    }
-
-    public boolean offer(Runnable runnable) {
-        return jobs.offer(runnable);
     }
 
     @Override
@@ -80,8 +66,17 @@ public class ThreadEventLoop extends AbstractEventLoop implements ExecutorEventL
     }
 
     @Override
-    public ExecutorEventLoopGroup getGroup() {
+    public ThreadEventLoopGroup getGroup() {
         return group;
+    }
+
+    @Override
+    public BlockingQueue<Runnable> getJobs() {
+        return jobs;
+    }
+
+    public boolean offer(Runnable runnable) {
+        return jobs.offer(runnable);
     }
 
 }

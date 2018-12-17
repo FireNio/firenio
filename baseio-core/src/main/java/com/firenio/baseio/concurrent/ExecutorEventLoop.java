@@ -15,19 +15,121 @@
  */
 package com.firenio.baseio.concurrent;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * @author wangkai
- *
- */
-public interface ExecutorEventLoop extends EventLoop {
+import com.firenio.baseio.component.FastThreadLocalThread;
 
-    int getEventSize();
+public final class ExecutorEventLoop extends EventLoop {
+
+    private ExecutorEventLoopGroup group;
+    private ThreadPoolExecutor     poolExecutor;
+    private NamedThreadFactory     threadFactory;
+
+    public ExecutorEventLoop(ExecutorEventLoopGroup group) {
+        this.group = group;
+    }
 
     @Override
-    ExecutorEventLoopGroup getGroup();
+    public ExecutorEventLoopGroup getGroup() {
+        return group;
+    }
 
-    BlockingQueue<Runnable> getJobs();
+    @Override
+    public BlockingQueue<Runnable> getJobs() {
+        return poolExecutor.getQueue();
+    }
+
+    @Override
+    public Thread getMonitor() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean inEventLoop() {
+        return false;
+    }
+
+    @Override
+    public boolean inEventLoop(Thread thread) {
+        return false;
+    }
+
+    @Override
+    public boolean isRunning() {
+        return !poolExecutor.isShutdown();
+    }
+
+    @Override
+    public void run() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void startup(String threadName) throws Exception {
+        EventLoopListener l = group.getEventLoopListener();
+        if (l != null) {
+            try {
+                l.onStartup(this);
+            } catch (Exception e) {
+            }
+        }
+        int eventLoopSize = group.getEventLoopSize();
+        int maxQueueSize = group.getMaxQueueSize();
+        threadFactory = new NamedThreadFactory(threadName);
+        poolExecutor = new ThreadPoolExecutor(eventLoopSize, eventLoopSize, Long.MAX_VALUE,
+                TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(maxQueueSize),
+                threadFactory);
+    }
+
+    @Override
+    public void stop() {
+        EventLoopListener l = group.getEventLoopListener();
+        if (l != null) {
+            try {
+                l.onStop(this);
+            } catch (Exception e) {
+            }
+        }
+        if (poolExecutor != null) {
+            poolExecutor.shutdown();
+        }
+    }
+
+    @Override
+    public void wakeup() {
+        throw new UnsupportedOperationException();
+    }
+
+    class NamedThreadFactory implements ThreadFactory {
+
+        private final ThreadGroup   group;
+        private final String        namePrefix;
+        private final AtomicInteger threadNumber = new AtomicInteger(1);
+
+        public NamedThreadFactory(String namePrefix) {
+            SecurityManager s = System.getSecurityManager();
+            this.group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+            this.namePrefix = namePrefix;
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            String threadName = namePrefix + "-" + threadNumber.getAndIncrement();
+            Thread t = new FastThreadLocalThread(group, r, threadName, 0);
+            if (t.isDaemon()) {
+                t.setDaemon(false);
+            }
+            if (t.getPriority() != Thread.NORM_PRIORITY) {
+                t.setPriority(Thread.NORM_PRIORITY);
+            }
+            return t;
+        }
+
+    }
 
 }

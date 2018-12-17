@@ -37,11 +37,6 @@ final class DuplicatedDirectByteBuf extends AbstractDirectByteBuf {
         return proto.duplicate();
     }
     
-    @Override
-    public void release() {
-        proto.release();
-    }
-
     private ByteBuf produce(ByteBuf buf) {
         this.offset = buf.offset();
         this.capacity = buf.capacity();
@@ -49,6 +44,11 @@ final class DuplicatedDirectByteBuf extends AbstractDirectByteBuf {
         this.position(buf.position());
         this.referenceCount = 1;
         return this;
+    }
+
+    @Override
+    public void release() {
+        proto.release();
     }
 
 }

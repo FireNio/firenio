@@ -23,14 +23,6 @@ final public class MessageFormatter {
     private static final String DELIM_STR   = "{}";
     private static final char   ESCAPE_CHAR = '\\';
 
-    final public static String format(String messagePattern, Object arg) {
-        return arrayFormat(messagePattern, new Object[] { arg });
-    }
-
-    final public static String format(final String messagePattern, Object arg1, Object arg2) {
-        return arrayFormat(messagePattern, new Object[] { arg1, arg2 });
-    }
-
     final public static String arrayFormat(final String messagePattern, final Object[] argArray) {
         if (messagePattern == null) {
             return null;
@@ -88,94 +80,6 @@ final public class MessageFormatter {
         }
     }
 
-    private final static boolean isEscapedDelimeter(String messagePattern,
-            int delimeterStartIndex) {
-        if (delimeterStartIndex == 0) {
-            return false;
-        }
-        char potentialEscape = messagePattern.charAt(delimeterStartIndex - 1);
-        if (potentialEscape == ESCAPE_CHAR) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private final static boolean isDoubleEscaped(String messagePattern, int delimeterStartIndex) {
-        if (delimeterStartIndex >= 2
-                && messagePattern.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // special treatment of array values was suggested by 'lizongbo'
-    private static void deeplyAppendParameter(StringBuilder sbuf, Object o, Map<?, ?> seenMap) {
-        if (o == null) {
-            sbuf.append("null");
-            return;
-        }
-        if (!o.getClass().isArray()) {
-            safeObjectAppend(sbuf, o);
-        } else {
-            // check for primitive array types because they
-            // unfortunately cannot be cast to Object[]
-            if (o instanceof boolean[]) {
-                booleanArrayAppend(sbuf, (boolean[]) o);
-            } else if (o instanceof byte[]) {
-                byteArrayAppend(sbuf, (byte[]) o);
-            } else if (o instanceof char[]) {
-                charArrayAppend(sbuf, (char[]) o);
-            } else if (o instanceof short[]) {
-                shortArrayAppend(sbuf, (short[]) o);
-            } else if (o instanceof int[]) {
-                intArrayAppend(sbuf, (int[]) o);
-            } else if (o instanceof long[]) {
-                longArrayAppend(sbuf, (long[]) o);
-            } else if (o instanceof float[]) {
-                floatArrayAppend(sbuf, (float[]) o);
-            } else if (o instanceof double[]) {
-                doubleArrayAppend(sbuf, (double[]) o);
-            } else {
-                objectArrayAppend(sbuf, (Object[]) o, seenMap);
-            }
-        }
-    }
-
-    private static void safeObjectAppend(StringBuilder sbuf, Object o) {
-        try {
-            String oAsString = o.toString();
-            sbuf.append(oAsString);
-        } catch (Throwable t) {
-            System.err.println("SLF4J: Failed toString() invocation on an object of type ["
-                    + o.getClass().getName() + "]");
-            t.printStackTrace();
-            sbuf.append("[FAILED toString()]");
-        }
-
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static void objectArrayAppend(StringBuilder sbuf, Object[] a, Map seenMap) {
-        sbuf.append('[');
-        if (!seenMap.containsKey(a)) {
-            seenMap.put(a, null);
-            final int len = a.length;
-            for (int i = 0; i < len; i++) {
-                deeplyAppendParameter(sbuf, a[i], seenMap);
-                if (i != len - 1) {
-                    sbuf.append(", ");
-                }
-            }
-            // allow repeats in siblings
-            seenMap.remove(a);
-        } else {
-            sbuf.append("...");
-        }
-        sbuf.append(']');
-    }
-
     private static void booleanArrayAppend(StringBuilder sbuf, boolean[] a) {
         sbuf.append('[');
         final int len = a.length;
@@ -212,31 +116,40 @@ final public class MessageFormatter {
         sbuf.append(']');
     }
 
-    private static void shortArrayAppend(StringBuilder sbuf, short[] a) {
-        sbuf.append('[');
-        final int len = a.length;
-        for (int i = 0; i < len; i++) {
-            sbuf.append(a[i]);
-            if (i != len - 1) {
-                sbuf.append(", ");
+    // special treatment of array values was suggested by 'lizongbo'
+    private static void deeplyAppendParameter(StringBuilder sbuf, Object o, Map<?, ?> seenMap) {
+        if (o == null) {
+            sbuf.append("null");
+            return;
+        }
+        if (!o.getClass().isArray()) {
+            safeObjectAppend(sbuf, o);
+        } else {
+            // check for primitive array types because they
+            // unfortunately cannot be cast to Object[]
+            if (o instanceof boolean[]) {
+                booleanArrayAppend(sbuf, (boolean[]) o);
+            } else if (o instanceof byte[]) {
+                byteArrayAppend(sbuf, (byte[]) o);
+            } else if (o instanceof char[]) {
+                charArrayAppend(sbuf, (char[]) o);
+            } else if (o instanceof short[]) {
+                shortArrayAppend(sbuf, (short[]) o);
+            } else if (o instanceof int[]) {
+                intArrayAppend(sbuf, (int[]) o);
+            } else if (o instanceof long[]) {
+                longArrayAppend(sbuf, (long[]) o);
+            } else if (o instanceof float[]) {
+                floatArrayAppend(sbuf, (float[]) o);
+            } else if (o instanceof double[]) {
+                doubleArrayAppend(sbuf, (double[]) o);
+            } else {
+                objectArrayAppend(sbuf, (Object[]) o, seenMap);
             }
         }
-        sbuf.append(']');
     }
 
-    private static void intArrayAppend(StringBuilder sbuf, int[] a) {
-        sbuf.append('[');
-        final int len = a.length;
-        for (int i = 0; i < len; i++) {
-            sbuf.append(a[i]);
-            if (i != len - 1) {
-                sbuf.append(", ");
-            }
-        }
-        sbuf.append(']');
-    }
-
-    private static void longArrayAppend(StringBuilder sbuf, long[] a) {
+    private static void doubleArrayAppend(StringBuilder sbuf, double[] a) {
         sbuf.append('[');
         final int len = a.length;
         for (int i = 0; i < len; i++) {
@@ -260,7 +173,94 @@ final public class MessageFormatter {
         sbuf.append(']');
     }
 
-    private static void doubleArrayAppend(StringBuilder sbuf, double[] a) {
+    final public static String format(String messagePattern, Object arg) {
+        return arrayFormat(messagePattern, new Object[] { arg });
+    }
+
+    final public static String format(final String messagePattern, Object arg1, Object arg2) {
+        return arrayFormat(messagePattern, new Object[] { arg1, arg2 });
+    }
+
+    private static void intArrayAppend(StringBuilder sbuf, int[] a) {
+        sbuf.append('[');
+        final int len = a.length;
+        for (int i = 0; i < len; i++) {
+            sbuf.append(a[i]);
+            if (i != len - 1) {
+                sbuf.append(", ");
+            }
+        }
+        sbuf.append(']');
+    }
+
+    private final static boolean isDoubleEscaped(String messagePattern, int delimeterStartIndex) {
+        if (delimeterStartIndex >= 2
+                && messagePattern.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private final static boolean isEscapedDelimeter(String messagePattern,
+            int delimeterStartIndex) {
+        if (delimeterStartIndex == 0) {
+            return false;
+        }
+        char potentialEscape = messagePattern.charAt(delimeterStartIndex - 1);
+        if (potentialEscape == ESCAPE_CHAR) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private static void longArrayAppend(StringBuilder sbuf, long[] a) {
+        sbuf.append('[');
+        final int len = a.length;
+        for (int i = 0; i < len; i++) {
+            sbuf.append(a[i]);
+            if (i != len - 1) {
+                sbuf.append(", ");
+            }
+        }
+        sbuf.append(']');
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static void objectArrayAppend(StringBuilder sbuf, Object[] a, Map seenMap) {
+        sbuf.append('[');
+        if (!seenMap.containsKey(a)) {
+            seenMap.put(a, null);
+            final int len = a.length;
+            for (int i = 0; i < len; i++) {
+                deeplyAppendParameter(sbuf, a[i], seenMap);
+                if (i != len - 1) {
+                    sbuf.append(", ");
+                }
+            }
+            // allow repeats in siblings
+            seenMap.remove(a);
+        } else {
+            sbuf.append("...");
+        }
+        sbuf.append(']');
+    }
+
+    private static void safeObjectAppend(StringBuilder sbuf, Object o) {
+        try {
+            String oAsString = o.toString();
+            sbuf.append(oAsString);
+        } catch (Throwable t) {
+            System.err.println("SLF4J: Failed toString() invocation on an object of type ["
+                    + o.getClass().getName() + "]");
+            t.printStackTrace();
+            sbuf.append("[FAILED toString()]");
+        }
+
+    }
+
+    private static void shortArrayAppend(StringBuilder sbuf, short[] a) {
         sbuf.append('[');
         final int len = a.length;
         for (int i = 0; i < len; i++) {

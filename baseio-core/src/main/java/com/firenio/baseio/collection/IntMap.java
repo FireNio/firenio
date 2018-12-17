@@ -40,18 +40,18 @@ public class IntMap<V> implements Iterable<IntEntry<V>> {
      */
     private static final Object NULL_VALUE          = new Object();
 
-    /**
-     * The maximum number of elements allowed without allocating more space.
-     */
-    private int                 maxSize;
+    private int[]               keys;
 
     /** The load factor for the map. Used to calculate {@link #maxSize}. */
     private final float         loadFactor;
 
-    private int[]               keys;
-    private V[]                 values;
-    private Collection<V>       valueCollection;
+    /**
+     * The maximum number of elements allowed without allocating more space.
+     */
+    private int                 maxSize;
     private int                 size;
+    private Collection<V>       valueCollection;
+    private V[]                 values;
 
     public IntMap() {
         this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
@@ -86,87 +86,13 @@ public class IntMap<V> implements Iterable<IntEntry<V>> {
         maxSize = calcMaxSize(capacity);
     }
 
-    private static <T> T toExternal(T value) {
-        return value == NULL_VALUE ? null : value;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T toInternal(T value) {
-        return value == null ? (T) NULL_VALUE : value;
-    }
-
-    public V get(int key) {
-        int index = indexOf(key);
-        return index == -1 ? null : toExternal(values[index]);
-    }
-
-    public V put(int key, V value) {
-        int startIndex = hashIndex(key);
-        int index = startIndex;
-
-        for (;;) {
-            if (values[index] == null) {
-                // Found empty slot, use it.
-                keys[index] = key;
-                values[index] = toInternal(value);
-                growSize();
-                return null;
-            }
-            if (keys[index] == key) {
-                // Found existing entry with this key, just replace the value.
-                V previousValue = values[index];
-                values[index] = toInternal(value);
-                return toExternal(previousValue);
-            }
-
-            // Conflict, keep probing ...
-            if ((index = probeNext(index)) == startIndex) {
-                // Can only happen if the map was full at MAX_ARRAY_SIZE and couldn't grow.
-                throw new IllegalStateException("Unable to insert");
-            }
-        }
-    }
-
-    private int probeNext(int index) {
-        return index == values.length - 1 ? 0 : index + 1;
-    }
-
-    public void putAll(IntMap<V> sourceMap) {
-        if (sourceMap instanceof IntMap) {
-            // Optimization - iterate through the arrays.
-            IntMap<V> source = (IntMap<V>) sourceMap;
-            for (int i = 0; i < source.values.length; ++i) {
-                V sourceValue = source.values[i];
-                if (sourceValue != null) {
-                    put(source.keys[i], sourceValue);
-                }
-            }
-            return;
-        }
-
-        // Otherwise, just add each entry.
-        for (IntEntry<V> entry : sourceMap.entries()) {
-            put(entry.key(), entry.value());
-        }
-    }
-
-    public V remove(int key) {
-        int index = indexOf(key);
-        if (index == -1) {
-            return null;
-        }
-
-        V prev = values[index];
-        removeAt(index);
-        return toExternal(prev);
-    }
-
-    public int size() {
-        return size;
-    }
-
-    public boolean isEmpty() {
-        return size == 0;
+    /**
+     * Calculates the maximum size allowed before rehashing.
+     */
+    private int calcMaxSize(int capacity) {
+        // Clip the upper bound so that there will always be at least one available slot.
+        int upperBound = capacity - 1;
+        return Math.min(upperBound, (int) (capacity * loadFactor));
     }
 
     public void clear() {
@@ -192,83 +118,6 @@ public class IntMap<V> implements Iterable<IntEntry<V>> {
 
     public Iterable<IntEntry<V>> entries() {
         return this;
-    }
-
-    public Iterator<IntEntry<V>> iterator() {
-        return new IteratorImpl();
-    }
-
-    public int[] keys() {
-        int[] outKeys = new int[size()];
-        int targetIx = 0;
-        for (int i = 0; i < values.length; ++i) {
-            if (values[i] != null) {
-                outKeys[targetIx++] = keys[i];
-            }
-        }
-        return outKeys;
-    }
-
-    public V[] values(Class<V> clazz) {
-        @SuppressWarnings("unchecked")
-        V[] outValues = (V[]) Array.newInstance(clazz, size());
-        int targetIx = 0;
-        for (V value : values) {
-            if (value != null) {
-                outValues[targetIx++] = value;
-            }
-        }
-        return outValues;
-    }
-
-    public Collection<V> values() {
-        Collection<V> valueCollection = this.valueCollection;
-        if (valueCollection == null) {
-            this.valueCollection = valueCollection = new AbstractCollection<V>() {
-
-                public Iterator<V> iterator() {
-                    return new Iterator<V>() {
-                        final Iterator<IntEntry<V>> iter = IntMap.this.iterator();
-
-                        public boolean hasNext() {
-                            return iter.hasNext();
-                        }
-
-                        public V next() {
-                            return iter.next().value();
-                        }
-
-                        public void remove() {
-                            throw new UnsupportedOperationException();
-                        }
-                    };
-                }
-
-                public int size() {
-                    return size;
-                }
-            };
-        }
-
-        return valueCollection;
-    }
-
-    public int hashCode() {
-        // Hashcode is based on all non-zero, valid keys. We have to scan the whole keys
-        // array, which may have different lengths for two maps of same size(), so the
-        // capacity cannot be used as input for hashing but the size can.
-        int hash = size;
-        for (int key : keys) {
-            // 0 can be a valid key or unused slot, but won't impact the hashcode in either case.
-            // This way we can use a cheap loop without conditionals, or hard-to-unroll operations,
-            // or the devastatingly bad memory locality of visiting value objects.
-            // Also, it's important to use a hash function that does not depend on the ordering
-            // of terms, only their values; since the map is an unordered collection and
-            // entries can end up in different positions in different maps that have the same
-            // elements, but with different history of puts/removes, due to conflicts.
-            hash ^= key;
-        }
-        return hash;
     }
 
     public boolean equals(Object obj) {
@@ -300,6 +149,55 @@ public class IntMap<V> implements Iterable<IntEntry<V>> {
         return true;
     }
 
+    public V get(int key) {
+        int index = indexOf(key);
+        return index == -1 ? null : toExternal(values[index]);
+    }
+
+    /**
+     * Grows the map size after an insertion. If necessary, performs a rehash
+     * of the map.
+     */
+    private void growSize() {
+        size++;
+
+        if (size > maxSize) {
+            // Need to grow the arrays. We take care to detect integer overflow,
+            // also limit array size to ArrayList.MAX_ARRAY_SIZE.
+            rehash(adjustCapacity((int) Math.min(keys.length * 2.0, Integer.MAX_VALUE - 8)));
+        } else if (size == keys.length) {
+            // Open addressing requires that we have at least 1 slot available. Need to refresh
+            // the arrays to clear any removed elements.
+            rehash(keys.length);
+        }
+    }
+
+    public int hashCode() {
+        // Hashcode is based on all non-zero, valid keys. We have to scan the whole keys
+        // array, which may have different lengths for two maps of same size(), so the
+        // capacity cannot be used as input for hashing but the size can.
+        int hash = size;
+        for (int key : keys) {
+            // 0 can be a valid key or unused slot, but won't impact the hashcode in either case.
+            // This way we can use a cheap loop without conditionals, or hard-to-unroll operations,
+            // or the devastatingly bad memory locality of visiting value objects.
+            // Also, it's important to use a hash function that does not depend on the ordering
+            // of terms, only their values; since the map is an unordered collection and
+            // entries can end up in different positions in different maps that have the same
+            // elements, but with different history of puts/removes, due to conflicts.
+            hash ^= key;
+        }
+        return hash;
+    }
+
+    /**
+     * Returns the hashed index for the given key.
+     */
+    private int hashIndex(int key) {
+        // Allowing for negative keys by adding the length after the first mod operation.
+        return (key % keys.length + keys.length) % keys.length;
+    }
+
     /**
      * Locates the index for the given key. This method probes using double
      * hashing.
@@ -329,82 +227,81 @@ public class IntMap<V> implements Iterable<IntEntry<V>> {
         }
     }
 
-    /**
-     * Returns the hashed index for the given key.
-     */
-    private int hashIndex(int key) {
-        // Allowing for negative keys by adding the length after the first mod operation.
-        return (key % keys.length + keys.length) % keys.length;
+    public boolean isEmpty() {
+        return size == 0;
     }
 
-    /**
-     * Grows the map size after an insertion. If necessary, performs a rehash
-     * of the map.
-     */
-    private void growSize() {
-        size++;
+    public Iterator<IntEntry<V>> iterator() {
+        return new IteratorImpl();
+    }
 
-        if (size > maxSize) {
-            // Need to grow the arrays. We take care to detect integer overflow,
-            // also limit array size to ArrayList.MAX_ARRAY_SIZE.
-            rehash(adjustCapacity((int) Math.min(keys.length * 2.0, Integer.MAX_VALUE - 8)));
-        } else if (size == keys.length) {
-            // Open addressing requires that we have at least 1 slot available. Need to refresh
-            // the arrays to clear any removed elements.
-            rehash(keys.length);
+    public int[] keys() {
+        int[] outKeys = new int[size()];
+        int targetIx = 0;
+        for (int i = 0; i < values.length; ++i) {
+            if (values[i] != null) {
+                outKeys[targetIx++] = keys[i];
+            }
         }
+        return outKeys;
     }
 
     /**
-     * Adjusts the given capacity value to ensure that it's odd. Even
-     * capacities can break probing.
+     * Helper method called by {@link #toString()} in order to convert a single
+     * map key into a string.
      */
-    private static int adjustCapacity(int capacity) {
-        return capacity | 1;
+    protected String keyToString(int key) {
+        return Integer.toString(key);
     }
 
-    /**
-     * Removes entry at the given index position. Also performs opportunistic,
-     * incremental rehashing if necessary to not break conflict chains.
-     *
-     * @param index
-     *             the index position of the element to remove.
-     */
-    private void removeAt(int index) {
-        --size;
-        // Clearing the key is not strictly necessary (for GC like in a regular collection),
-        // but recommended for security. The memory location is still fresh in the cache anyway.
-        keys[index] = 0;
-        values[index] = null;
+    private int probeNext(int index) {
+        return index == values.length - 1 ? 0 : index + 1;
+    }
 
-        // In the interval from index to the next available entry, the arrays may have entries
-        // that are displaced from their base position due to prior conflicts. Iterate these
-        // entries and move them back if possible, optimizing frame lookups.
-        // Knuth Section 6.4 Algorithm R, also used by the JDK's IdentityHashMap.
+    public V put(int key, V value) {
+        int startIndex = hashIndex(key);
+        int index = startIndex;
 
-        int nextFree = index;
-        for (int i = probeNext(index); values[i] != null; i = probeNext(i)) {
-            int bucket = hashIndex(keys[i]);
-            if (i < bucket && (bucket <= nextFree || nextFree <= i)
-                    || bucket <= nextFree && nextFree <= i) {
-                // Move the displaced entry "back" to the first available position.
-                keys[nextFree] = keys[i];
-                values[nextFree] = values[i];
-                // Put the first entry after the displaced entry
-                keys[i] = 0;
-                values[i] = null;
-                nextFree = i;
+        for (;;) {
+            if (values[index] == null) {
+                // Found empty slot, use it.
+                keys[index] = key;
+                values[index] = toInternal(value);
+                growSize();
+                return null;
+            }
+            if (keys[index] == key) {
+                // Found existing entry with this key, just replace the value.
+                V previousValue = values[index];
+                values[index] = toInternal(value);
+                return toExternal(previousValue);
+            }
+
+            // Conflict, keep probing ...
+            if ((index = probeNext(index)) == startIndex) {
+                // Can only happen if the map was full at MAX_ARRAY_SIZE and couldn't grow.
+                throw new IllegalStateException("Unable to insert");
             }
         }
     }
 
-    /**
-     * Calculates the maximum size allowed before rehashing.
-     */
-    private int calcMaxSize(int capacity) {
-        // Clip the upper bound so that there will always be at least one available slot.
-        int upperBound = capacity - 1;
-        return Math.min(upperBound, (int) (capacity * loadFactor));
+    public void putAll(IntMap<V> sourceMap) {
+        if (sourceMap instanceof IntMap) {
+            // Optimization - iterate through the arrays.
+            IntMap<V> source = (IntMap<V>) sourceMap;
+            for (int i = 0; i < source.values.length; ++i) {
+                V sourceValue = source.values[i];
+                if (sourceValue != null) {
+                    put(source.keys[i], sourceValue);
+                }
+            }
+            return;
+        }
+
+        // Otherwise, just add each entry.
+        for (IntEntry<V> entry : sourceMap.entries()) {
+            put(entry.key(), entry.value());
+        }
     }
 
     /**
@@ -447,27 +344,133 @@ public class IntMap<V> implements Iterable<IntEntry<V>> {
         }
     }
 
+    public V remove(int key) {
+        int index = indexOf(key);
+        if (index == -1) {
+            return null;
+        }
+
+        V prev = values[index];
+        removeAt(index);
+        return toExternal(prev);
+    }
+
+    /**
+     * Removes entry at the given index position. Also performs opportunistic,
+     * incremental rehashing if necessary to not break conflict chains.
+     *
+     * @param index
+     *             the index position of the element to remove.
+     */
+    private void removeAt(int index) {
+        --size;
+        // Clearing the key is not strictly necessary (for GC like in a regular collection),
+        // but recommended for security. The memory location is still fresh in the cache anyway.
+        keys[index] = 0;
+        values[index] = null;
+
+        // In the interval from index to the next available entry, the arrays may have entries
+        // that are displaced from their base position due to prior conflicts. Iterate these
+        // entries and move them back if possible, optimizing frame lookups.
+        // Knuth Section 6.4 Algorithm R, also used by the JDK's IdentityHashMap.
+
+        int nextFree = index;
+        for (int i = probeNext(index); values[i] != null; i = probeNext(i)) {
+            int bucket = hashIndex(keys[i]);
+            if (i < bucket && (bucket <= nextFree || nextFree <= i)
+                    || bucket <= nextFree && nextFree <= i) {
+                // Move the displaced entry "back" to the first available position.
+                keys[nextFree] = keys[i];
+                values[nextFree] = values[i];
+                // Put the first entry after the displaced entry
+                keys[i] = 0;
+                values[i] = null;
+                nextFree = i;
+            }
+        }
+    }
+
+    public int size() {
+        return size;
+    }
+
+    public String toString() {
+        if (size == 0) {
+            return "{}";
+        }
+        StringBuilder sb = new StringBuilder(4 * size);
+        for (int i = 0; i < values.length; ++i) {
+            V value = values[i];
+            if (value != null) {
+                sb.append(sb.length() == 0 ? "{" : ", ");
+                sb.append(keyToString(keys[i])).append('=')
+                        .append(value == this ? "(this Map)" : value);
+            }
+        }
+        return sb.append('}').toString();
+    }
+
+    public Collection<V> values() {
+        Collection<V> valueCollection = this.valueCollection;
+        if (valueCollection == null) {
+            this.valueCollection = valueCollection = new AbstractCollection<V>() {
+
+                public Iterator<V> iterator() {
+                    return new Iterator<V>() {
+                        final Iterator<IntEntry<V>> iter = IntMap.this.iterator();
+
+                        public boolean hasNext() {
+                            return iter.hasNext();
+                        }
+
+                        public V next() {
+                            return iter.next().value();
+                        }
+
+                        public void remove() {
+                            throw new UnsupportedOperationException();
+                        }
+                    };
+                }
+
+                public int size() {
+                    return size;
+                }
+            };
+        }
+
+        return valueCollection;
+    }
+
+    public V[] values(Class<V> clazz) {
+        @SuppressWarnings("unchecked")
+        V[] outValues = (V[]) Array.newInstance(clazz, size());
+        int targetIx = 0;
+        for (V value : values) {
+            if (value != null) {
+                outValues[targetIx++] = value;
+            }
+        }
+        return outValues;
+    }
+
     /**
      * Iterator for traversing the entries in this map.
      */
     private final class IteratorImpl implements Iterator<IntEntry<V>>, IntEntry<V> {
-        private int prevIndex  = -1;
-        private int nextIndex  = -1;
         private int entryIndex = -1;
-
-        private void scanNext() {
-            for (;;) {
-                if (++nextIndex == values.length || values[nextIndex] != null) {
-                    break;
-                }
-            }
-        }
+        private int nextIndex  = -1;
+        private int prevIndex  = -1;
 
         public boolean hasNext() {
             if (nextIndex == -1) {
                 scanNext();
             }
             return nextIndex < keys.length;
+        }
+
+        public int key() {
+            return keys[entryIndex];
         }
 
         public IntEntry<V> next() {
@@ -494,41 +497,38 @@ public class IntMap<V> implements Iterable<IntEntry<V>> {
         // Entry implementation. Since this implementation uses a single Entry, we coalesce that
         // into the Iterator object (potentially making loop optimization much easier).
 
-        public int key() {
-            return keys[entryIndex];
-        }
-
-        public V value() {
-            return toExternal(values[entryIndex]);
+        private void scanNext() {
+            for (;;) {
+                if (++nextIndex == values.length || values[nextIndex] != null) {
+                    break;
+                }
+            }
         }
 
         public void setValue(V value) {
             values[entryIndex] = toInternal(value);
         }
-    }
 
-    public String toString() {
-        if (size == 0) {
-            return "{}";
+        public V value() {
+            return toExternal(values[entryIndex]);
         }
-        StringBuilder sb = new StringBuilder(4 * size);
-        for (int i = 0; i < values.length; ++i) {
-            V value = values[i];
-            if (value != null) {
-                sb.append(sb.length() == 0 ? "{" : ", ");
-                sb.append(keyToString(keys[i])).append('=')
-                        .append(value == this ? "(this Map)" : value);
-            }
-        }
-        return sb.append('}').toString();
     }
 
     /**
-     * Helper method called by {@link #toString()} in order to convert a single
-     * map key into a string.
+     * Adjusts the given capacity value to ensure that it's odd. Even
+     * capacities can break probing.
      */
-    protected String keyToString(int key) {
-        return Integer.toString(key);
+    private static int adjustCapacity(int capacity) {
+        return capacity | 1;
+    }
+
+    private static <T> T toExternal(T value) {
+        return value == NULL_VALUE ? null : value;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T toInternal(T value) {
+        return value == null ? (T) NULL_VALUE : value;
     }
 
 }

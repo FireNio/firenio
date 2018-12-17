@@ -19,12 +19,12 @@ public class DatagramPacketFactory {
 
     private Calculagraph calculagraph;
 
-    public DatagramPacketFactory(int markInterval, long currentMark) {
-        this.calculagraph = new Calculagraph(markInterval, currentMark);
-    }
-
     public DatagramPacketFactory(int markInterval) {
         this.calculagraph = new Calculagraph(markInterval);
+    }
+
+    public DatagramPacketFactory(int markInterval, long currentMark) {
+        this.calculagraph = new Calculagraph(markInterval, currentMark);
     }
 
     public DatagramPacket createDatagramPacket(byte[] data) {

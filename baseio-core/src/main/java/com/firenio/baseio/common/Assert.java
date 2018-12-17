@@ -20,24 +20,8 @@ import java.util.Map;
 
 public abstract class Assert {
 
-    public static void isTrue(boolean expression, String message) {
-        if (!expression) {
-            throw new IllegalArgumentException(message);
-        }
-    }
-
-    public static void isTrue(boolean expression) {
-        isTrue(expression, "expression must be true");
-    }
-
-    public static void notNull(Object object, String message) {
-        if (object == null) {
-            throw new IllegalArgumentException(message);
-        }
-    }
-
-    public static void notNull(Object object) {
-        notNull(object, "argument is required; it must not be null");
+    public static void hasText(String text) {
+        hasText(text, "argument must have text; it must not be null, empty, or blank");
     }
 
     public static void hasText(String text, String message) {
@@ -46,22 +30,12 @@ public abstract class Assert {
         }
     }
 
-    public static void hasText(String text) {
-        hasText(text, "argument must have text; it must not be null, empty, or blank");
+    public static void isTrue(boolean expression) {
+        isTrue(expression, "expression must be true");
     }
 
-    public static void notEmpty(Object[] array, String message) {
-        if (Util.isEmpty(array)) {
-            throw new IllegalArgumentException(message);
-        }
-    }
-
-    public static void notEmpty(Object[] array) {
-        notEmpty(array, "empty array");
-    }
-
-    public static void notEmpty(Collection<?> collection, String message) {
-        if (Util.isEmpty(collection)) {
+    public static void isTrue(boolean expression, String message) {
+        if (!expression) {
             throw new IllegalArgumentException(message);
         }
     }
@@ -70,14 +44,40 @@ public abstract class Assert {
         notEmpty(collection, "empty collection");
     }
 
-    public static void notEmpty(Map<?, ?> map, String message) {
-        if (Util.isEmpty(map)) {
+    public static void notEmpty(Collection<?> collection, String message) {
+        if (Util.isEmpty(collection)) {
             throw new IllegalArgumentException(message);
         }
     }
 
     public static void notEmpty(Map<?, ?> map) {
         notEmpty(map, "empty map");
+    }
+
+    public static void notEmpty(Map<?, ?> map, String message) {
+        if (Util.isEmpty(map)) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    public static void notEmpty(Object[] array) {
+        notEmpty(array, "empty array");
+    }
+
+    public static void notEmpty(Object[] array, String message) {
+        if (Util.isEmpty(array)) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    public static void notNull(Object object) {
+        notNull(object, "argument is required; it must not be null");
+    }
+
+    public static void notNull(Object object, String message) {
+        if (object == null) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
 }

@@ -21,11 +21,11 @@ package com.firenio.baseio.collection;
  */
 public interface Stack<V> {
 
+    void clear();
+
     V pop();
 
     void push(V v);
-
-    void clear();
 
     int size();
 

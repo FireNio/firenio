@@ -27,48 +27,29 @@ public class DelayedQueue {
     private DelayTask[]      queue            = new DelayTask[INITIAL_CAPACITY];
     private int              size             = 0;
 
-    private void setIndex(DelayTask f, int idx) {
-
+    public void clear() {
+        for (int i = 0; i < size; i++) {
+            DelayTask t = queue[i];
+            if (t != null) {
+                queue[i] = null;
+                setIndex(t, -1);
+            }
+        }
+        size = 0;
     }
 
-    /**
-     * Sifts element added at bottom up to its heap-ordered spot.
-     * Call only when holding lock.
-     */
-    private void siftUp(int k, DelayTask key) {
-        while (k > 0) {
-            int parent = (k - 1) >>> 1;
-            DelayTask e = queue[parent];
-            if (key.compareTo(e) >= 0)
-                break;
-            queue[k] = e;
-            setIndex(e, k);
-            k = parent;
-        }
-        queue[k] = key;
-        setIndex(key, k);
+    public boolean contains(Object x) {
+        return indexOf(x) != -1;
     }
 
-    /**
-     * Sifts element added at top down to its heap-ordered spot.
-     * Call only when holding lock.
-     */
-    private void siftDown(int k, DelayTask key) {
-        int half = size >>> 1;
-        while (k < half) {
-            int child = (k << 1) + 1;
-            DelayTask c = queue[child];
-            int right = child + 1;
-            if (right < size && c.compareTo(queue[right]) > 0)
-                c = queue[child = right];
-            if (key.compareTo(c) <= 0)
-                break;
-            queue[k] = c;
-            setIndex(c, k);
-            k = child;
-        }
-        queue[k] = key;
-        setIndex(key, k);
+    private DelayTask finishPoll(DelayTask f) {
+        int s = --size;
+        DelayTask x = queue[s];
+        queue[s] = null;
+        if (s != 0)
+            siftDown(0, x);
+        setIndex(f, -1);
+        return f;
     }
 
     /**
@@ -94,40 +75,8 @@ public class DelayedQueue {
         return -1;
     }
 
-    public boolean contains(Object x) {
-        return indexOf(x) != -1;
-    }
-
-    public boolean remove(Object x) {
-        int i = indexOf(x);
-        if (i < 0)
-            return false;
-        setIndex(queue[i], -1);
-        int s = --size;
-        DelayTask replacement = queue[s];
-        queue[s] = null;
-        if (s != i) {
-            siftDown(i, replacement);
-            if (queue[i] == replacement)
-                siftUp(i, replacement);
-        }
-        return true;
-    }
-
-    public int size() {
-        return size;
-    }
-
     public boolean isEmpty() {
         return size() == 0;
-    }
-
-    public int remainingCapacity() {
-        return Integer.MAX_VALUE;
-    }
-
-    public DelayTask peek() {
-        return queue[0];
     }
 
     public boolean offer(DelayTask e) {
@@ -146,14 +95,8 @@ public class DelayedQueue {
         return true;
     }
 
-    private DelayTask finishPoll(DelayTask f) {
-        int s = --size;
-        DelayTask x = queue[s];
-        queue[s] = null;
-        if (s != 0)
-            siftDown(0, x);
-        setIndex(f, -1);
-        return f;
+    public DelayTask peek() {
+        return queue[0];
     }
 
     public DelayTask poll() {
@@ -163,15 +106,72 @@ public class DelayedQueue {
         return finishPoll(queue[0]);
     }
 
-    public void clear() {
-        for (int i = 0; i < size; i++) {
-            DelayTask t = queue[i];
-            if (t != null) {
-                queue[i] = null;
-                setIndex(t, -1);
-            }
+    public int remainingCapacity() {
+        return Integer.MAX_VALUE;
+    }
+
+    public boolean remove(Object x) {
+        int i = indexOf(x);
+        if (i < 0)
+            return false;
+        setIndex(queue[i], -1);
+        int s = --size;
+        DelayTask replacement = queue[s];
+        queue[s] = null;
+        if (s != i) {
+            siftDown(i, replacement);
+            if (queue[i] == replacement)
+                siftUp(i, replacement);
         }
-        size = 0;
+        return true;
+    }
+
+    private void setIndex(DelayTask f, int idx) {
+
+    }
+
+    /**
+     * Sifts element added at top down to its heap-ordered spot.
+     * Call only when holding lock.
+     */
+    private void siftDown(int k, DelayTask key) {
+        int half = size >>> 1;
+        while (k < half) {
+            int child = (k << 1) + 1;
+            DelayTask c = queue[child];
+            int right = child + 1;
+            if (right < size && c.compareTo(queue[right]) > 0)
+                c = queue[child = right];
+            if (key.compareTo(c) <= 0)
+                break;
+            queue[k] = c;
+            setIndex(c, k);
+            k = child;
+        }
+        queue[k] = key;
+        setIndex(key, k);
+    }
+
+    /**
+     * Sifts element added at bottom up to its heap-ordered spot.
+     * Call only when holding lock.
+     */
+    private void siftUp(int k, DelayTask key) {
+        while (k > 0) {
+            int parent = (k - 1) >>> 1;
+            DelayTask e = queue[parent];
+            if (key.compareTo(e) >= 0)
+                break;
+            queue[k] = e;
+            setIndex(e, k);
+            k = parent;
+        }
+        queue[k] = key;
+        setIndex(key, k);
+    }
+
+    public int size() {
+        return size;
     }
 
     /**
@@ -179,11 +179,18 @@ public class DelayedQueue {
      */
     public abstract static class DelayTask implements Runnable {
 
-        final long delay;
         boolean    canceled;
+        final long delay;
 
         public DelayTask(long delay) {
             this.delay = delay + System.currentTimeMillis();
+        }
+
+        /**
+         * NOT THREAD SAFE
+         */
+        public void cancel() {
+            this.canceled = true;
         }
 
         long compareTo(DelayTask o) {
@@ -192,13 +199,6 @@ public class DelayedQueue {
 
         public long getDelay() {
             return delay;
-        }
-
-        /**
-         * NOT THREAD SAFE
-         */
-        public void cancel() {
-            this.canceled = true;
         }
 
         /**

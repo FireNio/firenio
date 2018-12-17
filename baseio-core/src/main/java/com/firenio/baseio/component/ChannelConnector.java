@@ -34,11 +34,11 @@ import com.firenio.baseio.concurrent.Waiter;
  */
 public final class ChannelConnector extends ChannelContext implements Closeable {
 
+    private volatile Callback<NioSocketChannel> callback;
+    private volatile boolean                    callbacked = true;
     private NioSocketChannel                    ch;
     private NioEventLoop                        eventLoop;
     private SocketChannel                       javaChannel;
-    private volatile boolean                    callbacked = true;
-    private volatile Callback<NioSocketChannel> callback;
     private volatile DelayTask                  timeoutTask;
 
     public ChannelConnector(int port) {
@@ -66,6 +66,22 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     }
 
     @Override
+    protected void channelEstablish(NioSocketChannel ch, Throwable ex) {
+        if (!callbacked) {
+            this.ch = ch;
+            this.callbacked = true;
+            this.timeoutTask.cancel();
+            try {
+                this.callback.call(ch, ex);
+            } catch (Throwable e) {
+                if (e instanceof Error) {
+                    e.printStackTrace(System.err);
+                }
+            }
+        }
+    }
+
+    @Override
     public synchronized void close() throws IOException {
         Util.close(ch);
         Util.close(javaChannel);
@@ -78,29 +94,6 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
     public synchronized NioSocketChannel connect() throws IOException {
         return connect(3000);
-    }
-
-    public synchronized NioSocketChannel connect(long timeout) throws IOException {
-        ConnectCallback<NioSocketChannel> callback = new ConnectCallback<>();
-        this.connect(callback, timeout);
-        if (eventLoop.inEventLoop()) {
-            throw new IOException("can not blocking connect in its event loop");
-        }
-        // If your application blocking here, check if you are blocking the io thread.
-        // Notice that do not blocking io thread at any time.
-        if (callback.await()) {
-            Util.close(this);
-            throw new TimeoutException("connect to " + getServerAddress() + " time out");
-        }
-        if (callback.isFailed()) {
-            Util.close(this);
-            Throwable ex = callback.getThrowable();
-            if (ex instanceof IOException) {
-                throw (IOException) callback.getThrowable();
-            }
-            throw new IOException("connect failed", ex);
-        }
-        return getChannel();
     }
 
     public synchronized void connect(Callback<NioSocketChannel> callback) throws IOException {
@@ -143,20 +136,27 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         });
     }
 
-    @Override
-    protected void channelEstablish(NioSocketChannel ch, Throwable ex) {
-        if (!callbacked) {
-            this.ch = ch;
-            this.callbacked = true;
-            this.timeoutTask.cancel();
-            try {
-                this.callback.call(ch, ex);
-            } catch (Throwable e) {
-                if (e instanceof Error) {
-                    e.printStackTrace(System.err);
-                }
-            }
+    public synchronized NioSocketChannel connect(long timeout) throws IOException {
+        ConnectCallback<NioSocketChannel> callback = new ConnectCallback<>();
+        this.connect(callback, timeout);
+        if (eventLoop.inEventLoop()) {
+            throw new IOException("can not blocking connect in its event loop");
         }
+        // If your application blocking here, check if you are blocking the io thread.
+        // Notice that do not blocking io thread at any time.
+        if (callback.await()) {
+            Util.close(this);
+            throw new TimeoutException("connect to " + getServerAddress() + " time out");
+        }
+        if (callback.isFailed()) {
+            Util.close(this);
+            Throwable ex = callback.getThrowable();
+            if (ex instanceof IOException) {
+                throw (IOException) callback.getThrowable();
+            }
+            throw new IOException("connect failed", ex);
+        }
+        return getChannel();
     }
 
     public NioSocketChannel getChannel() {

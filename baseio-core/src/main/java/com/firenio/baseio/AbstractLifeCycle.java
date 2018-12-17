@@ -26,9 +26,9 @@ import com.firenio.baseio.log.LoggerFactory;
 //FIXME status volatile modify ?
 public abstract class AbstractLifeCycle implements LifeCycle {
 
-    private List<LifeCycleListener> lifeCycleListeners = new ArrayList<>();
     private static final Logger     logger             = LoggerFactory
             .getLogger(AbstractLifeCycle.class);
+    private List<LifeCycleListener> lifeCycleListeners = new ArrayList<>();
     private int                     state              = STOPPED;
 
     @Override
@@ -38,7 +38,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
             Collections.sort(lifeCycleListeners, new LifeCycleListenerSorter());
         }
     }
-    
+
     protected void checkNotRunning() {
         if (isRunning()) {
             throw new UnsupportedOperationException("already running");
@@ -47,7 +47,7 @@ public abstract class AbstractLifeCycle implements LifeCycle {
 
     protected abstract void doStart() throws Exception;
 
-    protected abstract void doStop() throws Exception;
+    protected abstract void doStop();
 
     private void fireEvent(int event, Exception exception) {
         if (lifeCycleListeners.size() == 0) {

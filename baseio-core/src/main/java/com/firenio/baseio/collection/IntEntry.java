@@ -27,13 +27,13 @@ public interface IntEntry<V> {
     int key();
 
     /**
-     * Gets the value for this entry.
-     */
-    V value();
-
-    /**
      * Sets the value for this entry.
      */
     void setValue(V value);
+
+    /**
+     * Gets the value for this entry.
+     */
+    V value();
 
 }
