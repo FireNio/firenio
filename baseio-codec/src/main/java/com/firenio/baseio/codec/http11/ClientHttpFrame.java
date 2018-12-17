@@ -69,17 +69,7 @@ public class ClientHttpFrame extends HttpFrame {
         if (Util.isNullOrBlank(key)) {
             return false;
         }
-        if (ch.inEventLoop()) {
-            ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
-        } else {
-            ch.getEventLoop().execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
-                }
-            });
-        }
+        ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
         return true;
     }
 

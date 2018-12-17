@@ -84,7 +84,7 @@ public final class ChannelAcceptor extends ChannelContext {
         this.selectableChannel = ServerSocketChannel.open();
         this.selectableChannel.configureBlocking(false);
         this.serverSocket = selectableChannel.socket();
-        bindEventLoop.execute(new Runnable() {
+        bindEventLoop.submit(new Runnable() {
 
             @Override
             public void run() {

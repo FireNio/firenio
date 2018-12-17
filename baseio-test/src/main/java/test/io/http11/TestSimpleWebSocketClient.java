@@ -26,6 +26,7 @@ import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.NioSocketChannel;
 import com.firenio.baseio.component.SslContextBuilder;
+import com.firenio.baseio.concurrent.ExecutorEventLoopGroup;
 import com.firenio.baseio.protocol.Frame;
 
 public class TestSimpleWebSocketClient {
@@ -52,6 +53,7 @@ public class TestSimpleWebSocketClient {
         };
 
         ChannelConnector context = new ChannelConnector(443);
+        context.setExecutorEventLoopGroup(new ExecutorEventLoopGroup());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setProtocolCodec(new ClientHttpCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());

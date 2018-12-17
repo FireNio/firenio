@@ -110,7 +110,7 @@ public class TestLoadClient1 extends ITestThread {
             context.setExecutorEventLoopGroup(
                     new ThreadEventLoopGroup("ep", 1024 * 256));
         }
-        context.connect();
+        context.connect(6000);
     }
 
     @Override

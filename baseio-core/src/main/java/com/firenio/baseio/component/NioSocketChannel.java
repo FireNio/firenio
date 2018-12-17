@@ -29,7 +29,6 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.net.ssl.SSLEngine;
@@ -46,7 +45,6 @@ import com.firenio.baseio.collection.Attributes;
 import com.firenio.baseio.collection.AttributesImpl;
 import com.firenio.baseio.common.Assert;
 import com.firenio.baseio.common.Util;
-import com.firenio.baseio.component.ChannelContext.HeartBeatLogger;
 import com.firenio.baseio.concurrent.EventLoop;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
@@ -79,7 +77,6 @@ public final class NioSocketChannel extends AttributesImpl
     private final EventLoop                    executorEventLoop;
     private volatile boolean                   inEvent;
     private int                                interestOps           = SelectionKey.OP_READ;
-    private IoEventHandle                      ioEventHandle;
     private long                               lastAccess;
     private final String                       localAddr;
     private final int                          localPort;
@@ -127,9 +124,8 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private void accept(ByteBuf src) throws IOException {
-        final ProtocolCodec codec = this.codec;
-        final IoEventHandle eventHandle = this.ioEventHandle;
-        final HeartBeatLogger heartBeatLogger = context.getHeartBeatLogger();
+        final ProtocolCodec codec = getCodec();
+        final IoEventHandle eventHandle = getIoEventHandle();
         final boolean enableWorkEventLoop = getExecutorEventLoop() != null;
         for (;;) {
             Frame frame = codec.decode(this, src);
@@ -139,24 +135,23 @@ public final class NioSocketChannel extends AttributesImpl
             }
             if (frame.isTyped()) {
                 if (frame.isPing()) {
-                    heartBeatLogger.logPing(this);
+                    context.getHeartBeatLogger().logPing(this);
                     Frame f = codec.pong(this, frame);
                     if (f != null) {
                         flush(f);
                     }
                 } else if (frame.isPong()) {
-                    heartBeatLogger.logPong(this);
+                    context.getHeartBeatLogger().logPong(this);
                 }
             } else {
                 if (enableWorkEventLoop) {
                     final Frame f = frame;
                     final EventLoop executorEventLoop = getExecutorEventLoop();
-                    final BlockingQueue<Runnable> jobs = executorEventLoop.getJobs();
                     final Runnable job = new Runnable() {
 
                         @Override
                         public void run() {
-                            NioSocketChannel ch = NioSocketChannel.this;
+                            final NioSocketChannel ch = NioSocketChannel.this;
                             try {
                                 ch.getIoEventHandle().accept(ch, f);
                             } catch (Exception e) {
@@ -164,9 +159,8 @@ public final class NioSocketChannel extends AttributesImpl
                             }
                         }
                     };
-                    if (!jobs.offer(job) || (!executorEventLoop.isRunning() && jobs.remove(job))) {
+                    if (!executorEventLoop.submit(job)) {
                         exceptionCaught(frame, TAST_REJECT);
-                        return;
                     }
                 } else {
                     try {
@@ -194,7 +188,7 @@ public final class NioSocketChannel extends AttributesImpl
             if (isClosed()) {
                 return;
             }
-            execute(new CloseEvent(this));
+            eventLoop.submit(new CloseEvent(this));
         }
     }
 
@@ -229,10 +223,6 @@ public final class NioSocketChannel extends AttributesImpl
         }
     }
 
-    private void execute(Runnable event) {
-        eventLoop.execute(event);
-    }
-
     private void finishHandshake() {
         this.sslHandshakeFinished = true;
         this.fireOpened();
@@ -240,11 +230,12 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     private void fireClosed() {
-        final NioSocketChannel ch = this;
-        eventLoop.removeChannel(ch.channelId);
-        for (ChannelEventListener l : context.getChannelEventListeners()) {
+        eventLoop.removeChannel(channelId);
+        List<ChannelEventListener> ls = context.getChannelEventListeners();
+        for (int i = 0, count = ls.size(); i < count; i++) {
+            ChannelEventListener l = ls.get(i);
             try {
-                l.channelClosed(ch);
+                l.channelClosed(this);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -266,9 +257,6 @@ public final class NioSocketChannel extends AttributesImpl
             if (ch.isClosed()) {
                 return;
             }
-        }
-        if (ioEventHandle == null) {
-            ioEventHandle = context.getIoEventHandle();
         }
     }
 
@@ -292,7 +280,7 @@ public final class NioSocketChannel extends AttributesImpl
             writeBufs.offer(buf);
             if (!inEvent && interestOps != INTEREST_WRITE) {
                 inEvent = true;
-                eventLoop.flush(this);
+                eventLoop.getJobs().offer(this);
             }
         } else {
             Queue<ByteBuf> writeBufs = this.writeBufs;
@@ -307,7 +295,8 @@ public final class NioSocketChannel extends AttributesImpl
             }
             if (!inEvent) {
                 inEvent = true;
-                eventLoop.flushAndWakeup(this);
+                eventLoop.getJobs().offer(this);
+                eventLoop.wakeup();
             }
         }
     }
@@ -442,7 +431,7 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public IoEventHandle getIoEventHandle() {
-        return ioEventHandle;
+        return context.getIoEventHandle();
     }
 
     public long getLastAccessTime() {
@@ -774,12 +763,14 @@ public final class NioSocketChannel extends AttributesImpl
     }
 
     public void setCodec(ProtocolCodec codec) {
-        this.eventLoop.assertInEventLoop();
-        this.codec = codec;
-    }
-
-    public void setIoEventHandle(IoEventHandle ioEventHandle) {
-        this.ioEventHandle = ioEventHandle;
+        if (inEventLoop()) {
+            this.codec = codec;
+        }else{
+            //FIXME .. is this work?
+            synchronized (this) {
+                this.codec = codec;
+            }
+        }
     }
 
     public <T> void setOption(SocketOption<T> name, T value) throws IOException {

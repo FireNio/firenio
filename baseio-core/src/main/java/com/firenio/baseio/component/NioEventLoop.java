@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -65,7 +64,7 @@ import com.firenio.baseio.protocol.Frame;
  * @author wangkai
  *
  */
-public final class NioEventLoop extends EventLoop implements Attributes, Executor {
+public final class NioEventLoop extends EventLoop implements Attributes {
 
     private static final boolean           CHANNEL_READ_FIRST = Options.isChannelReadFirst();
     private static final boolean           ENABLE_SELKEY_SET  = checkEnableSelectionKeySet();
@@ -173,7 +172,7 @@ public final class NioEventLoop extends EventLoop implements Attributes, Executo
                     final NioEventLoopGroup group = acceptor.getProcessorGroup();
                     final NioEventLoop targetEL = group.getNext();
                     ch.configureBlocking(false);
-                    targetEL.execute(new Runnable() {
+                    targetEL.submit(new Runnable() {
 
                         @Override
                         public void run() {
@@ -280,41 +279,27 @@ public final class NioEventLoop extends EventLoop implements Attributes, Executo
     }
 
     @Override
-    protected void doStartup() throws IOException {
+    protected void doStartup() throws Exception {
         int readBuf = group.getChannelReadBuffer();
         boolean readBufDirect = group.isReadBufDirect();
         this.buf = readBufDirect ? ByteBufUtil.direct(readBuf) : ByteBufUtil.heap(readBuf);
         this.writeBuffers = new ByteBuffer[group.getWriteBuffers()];
         this.selector = openSelector(selectionKeySet);
+        super.doStartup();
     }
 
-    @Override
-    public void execute(Runnable event) {
-        events.offer(event);
-        if (inEventLoop()) {
-            return;
+    public boolean submit(Runnable event) {
+        if (super.submit(event)) {
+            if (!inEventLoop()) {
+                wakeup();
+            }
+            return true;
+        } else {
+            if (event instanceof Closeable) {
+                Util.close((Closeable) event);
+            }
+            return false;
         }
-        if (!isRunning() && events.remove(event) && event instanceof Closeable) {
-            Util.close((Closeable) event);
-            return;
-        }
-        wakeup();
-    }
-
-    public void executeAfterLoop(Runnable event) {
-        events.offer(event);
-        if (!isRunning() && events.remove(event) && event instanceof Closeable) {
-            Util.close((Closeable) event);
-        }
-    }
-
-    protected void flush(NioSocketChannel ch) {
-        events.offer(ch);
-    }
-
-    protected void flushAndWakeup(NioSocketChannel ch) {
-        events.offer(ch);
-        wakeup();
     }
 
     @Override
@@ -582,11 +567,18 @@ public final class NioEventLoop extends EventLoop implements Attributes, Executo
         }
     }
 
-    protected void schedule(DelayTask task) {
+    protected boolean schedule(final DelayTask task) {
         if (inEventLoop()) {
             delayedQueue.offer(task);
+            return true;
         } else {
-            executeAfterLoop(task);
+            return submit(new Runnable() {
+                
+                @Override
+                public void run() {
+                    delayedQueue.offer(task);
+                }
+            });
         }
     }
 

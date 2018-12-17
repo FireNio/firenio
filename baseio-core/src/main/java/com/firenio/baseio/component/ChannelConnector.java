@@ -121,7 +121,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         }
         this.javaChannel = SocketChannel.open();
         this.javaChannel.configureBlocking(false);
-        this.eventLoop.execute(new Runnable() {
+        this.eventLoop.submit(new Runnable() {
 
             @Override
             public void run() {

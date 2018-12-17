@@ -124,7 +124,7 @@ public abstract class ChannelContext extends AbstractLifeCycle implements Config
             logger.info("event loop size       : [ {} ]", eventLoopSize);
             logger.info("enable ssl            : [ {} ]", sslType());
             logger.info("channel idle          : [ {} ]", g.getIdleTime());
-            logger.info("listen port(tcp)      : [ {} ]", port);
+            logger.info("host and port         : [ {}:{} ]", getHost(), port);
             if (g.isEnableMemoryPool()) {
                 long memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();
                 long memoryPoolByteSize = memoryPoolCapacity * g.getMemoryPoolUnit();

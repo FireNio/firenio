@@ -35,11 +35,17 @@ public final class ThreadEventLoop extends EventLoop {
 
     @Override
     protected void doLoop() throws InterruptedException {
-        Runnable runnable = jobs.poll(32, TimeUnit.MILLISECONDS);
-        if (runnable == null) {
-            return;
+        runJob(jobs.poll(1000, TimeUnit.MILLISECONDS));
+    }
+
+    private static void runJob(Runnable job) {
+        if (job != null) {
+            try {
+                job.run();
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
         }
-        runnable.run();
     }
 
     @Override
@@ -52,15 +58,11 @@ public final class ThreadEventLoop extends EventLoop {
     @Override
     protected void doStop() {
         for (;;) {
-            Runnable runnable = jobs.poll();
-            if (runnable == null) {
+            Runnable job = jobs.poll();
+            if (job == null) {
                 break;
             }
-            try {
-                runnable.run();
-            } catch (Throwable e) {
-                logger.error(e);
-            }
+            runJob(job);
         }
         super.doStop();
     }

@@ -166,16 +166,9 @@ public class HttpFrame extends HttpFrameLite {
             setResponseHeader(Upgrade, websocket_bytes);
             setResponseHeader(Sec_WebSocket_Accept, acceptKey.getBytes());
             ch.setAttribute(WebSocketCodec.CHANNEL_KEY_SERVICE_NAME, getFrameName());
-            ch.getEventLoop().execute(new Runnable() {
-
-                public void run() {
-                    try {
-                        ByteBuf buf = ch.encode(HttpFrame.this);
-                        ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
-                        ch.flush(buf);
-                    } catch (IOException e) {}
-                }
-            });
+            ByteBuf buf = ch.encode(HttpFrame.this);
+            ch.setCodec(WebSocketCodec.WS_PROTOCOL_CODEC);
+            ch.flush(buf);
             return true;
         }
         return false;

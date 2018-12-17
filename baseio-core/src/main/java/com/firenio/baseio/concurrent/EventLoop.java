@@ -28,6 +28,7 @@ public abstract class EventLoop implements Runnable {
     private EventLoopGroup        defaultGroup = new DefaultEventLoopGroup(this);
     private FastThreadLocalThread monitor      = null;
     private volatile boolean      running      = false;
+    private String                threadName;
 
     public final void assertInEventLoop() {
         assertInEventLoop("this operation must eval in event loop");
@@ -41,7 +42,10 @@ public abstract class EventLoop implements Runnable {
 
     protected void doLoop() throws Exception {}
 
-    protected void doStartup() throws Exception {}
+    protected void doStartup() throws Exception {
+        this.monitor = new FastThreadLocalThread(this, threadName);
+        this.monitor.start();
+    }
 
     protected void doStop() {}
 
@@ -49,10 +53,22 @@ public abstract class EventLoop implements Runnable {
         return defaultGroup;
     }
 
-    public abstract BlockingQueue<Runnable> getJobs();
+    protected abstract BlockingQueue<Runnable> getJobs();
 
     public int getMaxQueueSize() {
         return getGroup().getMaxQueueSize();
+    }
+
+    public boolean submit(Runnable job) {
+        final BlockingQueue<Runnable> jobs = getJobs();
+        if (!jobs.offer(job)) {
+            return false;
+        }
+        return !(!isRunning() && jobs.remove(job));
+    }
+
+    public int getPendingSize() {
+        return getJobs().size();
     }
 
     public Thread getMonitor() {
@@ -73,15 +89,7 @@ public abstract class EventLoop implements Runnable {
 
     @Override
     public void run() {
-        for (;;) {
-            if (!running) {
-                try {
-                    doStop();
-                } catch (Throwable e) {
-                    logger.error(e.getMessage(), e);
-                }
-                return;
-            }
+        for (; running;) {
             try {
                 doLoop();
             } catch (Throwable e) {
@@ -95,14 +103,13 @@ public abstract class EventLoop implements Runnable {
             if (running) {
                 return;
             }
-            this.running = true;
-            this.monitor = new FastThreadLocalThread(this, threadName);
-            this.doStartup();
+            this.threadName = threadName;
             EventLoopListener listener = getGroup().getEventLoopListener();
             if (listener != null) {
                 listener.onStartup(this);
             }
-            this.monitor.start();
+            this.doStartup();
+            this.running = true;
         }
     }
 
@@ -130,6 +137,7 @@ public abstract class EventLoop implements Runnable {
                     logger.error(e.getMessage(), e);
                 }
             }
+            this.doStop();
         }
     }
 
