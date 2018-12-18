@@ -30,8 +30,8 @@ public class SimpleTestFIxedLengthServer {
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
                 FixedLengthFrame f = (FixedLengthFrame) frame;
-                frame.write("yes server already accept your message:", channel.getCharset());
-                frame.write(f.getReadText(), channel.getCharset());
+                frame.write("yes server already accept your message:", channel);
+                frame.write(f.getReadText(), channel);
                 channel.flush(frame);
             }
         };

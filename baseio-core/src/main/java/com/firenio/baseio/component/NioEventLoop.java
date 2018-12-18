@@ -80,7 +80,6 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     private DelayedQueue                   delayedQueue       = new DelayedQueue();
     private final BlockingQueue<Runnable>  events             = new LinkedBlockingQueue<>();
     private final NioEventLoopGroup        group;
-    private volatile boolean               hasTask            = false;
     private final int                      index;
     private long                           lastIdleTime       = 0;
     private final IntArray                 preCloseChIds      = new IntArray();
@@ -469,9 +468,6 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         long nextIdle = 0;
         long selectTime = idle;
         for (;;) {
-            // when this event loop is going to shutdown,we handle the last events 
-            // and set stopped to true, to tell the waiter "I was stopped!"
-            // now you can shutdown it safely
             if (!isRunning()) {
                 handleEvents(events);
                 closeChannels();
@@ -480,28 +476,21 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                 return;
             }
             try {
-                // the method selector.wakeup is a weight operator, so we use flag "hasTask"
-                // and race flag "selecting" to reduce execution times of wake up
-                // I am not sure events.size if visible immediately by other thread ?
-                // can we use events.getBufferSize() > 0 instead of hasTask ?
-                // example method selector.select(...) may throw an io exception 
-                // and if we need to try with the method who may will throw an io exception ?
                 int selected;
-                if (hasTask) {
-                    selected = selector.selectNow();
-                } else {
+                if (events.isEmpty()) {
                     if (selecting.compareAndSet(0, 1)) {
-                        if (!events.isEmpty()) {
-                            selected = selector.selectNow();
-                        } else {
+                        if (events.isEmpty()) {
                             selected = selector.select(selectTime);
+                        } else {
+                            selected = selector.selectNow();
                         }
                         selecting.set(0);
                     } else {
                         selected = selector.selectNow();
                     }
+                } else {
+                    selected = selector.selectNow();
                 }
-                hasTask = false;
                 if (selected > 0) {
                     if (ENABLE_SELKEY_SET) {
                         for (int i = 0; i < keySet.size; i++) {
@@ -592,7 +581,6 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     @Override
     public void wakeup() {
         if (wakener.compareAndSet(0, 1)) {
-            hasTask = true;
             if (selecting.compareAndSet(0, 1)) {
                 selecting.set(0);
             } else {

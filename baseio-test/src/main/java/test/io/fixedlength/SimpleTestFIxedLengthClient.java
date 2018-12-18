@@ -26,9 +26,7 @@ import com.firenio.baseio.protocol.Frame;
 public class SimpleTestFIxedLengthClient {
 
     public static void main(String[] args) throws Exception {
-
         ChannelConnector context = new ChannelConnector(8300);
-
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
             public void accept(NioSocketChannel channel, Frame frame) throws Exception {
@@ -47,7 +45,6 @@ public class SimpleTestFIxedLengthClient {
             FixedLengthFrame frame = new FixedLengthFrame();
             frame.write("hello server!", ch);
             ch.flush(frame);
-
         });
     }
 
