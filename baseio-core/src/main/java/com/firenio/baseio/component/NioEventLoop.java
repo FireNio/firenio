@@ -89,6 +89,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     private final boolean                  sharable;
     private final AtomicInteger            wakener            = new AtomicInteger();
     private ByteBuffer[]                   writeBuffers;
+    private volatile boolean               hasTask            = false;
 
     NioEventLoop(NioEventLoopGroup group, int index) {
         this.index = index;
@@ -454,6 +455,8 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     protected void removeChannel(int chId) {
         preCloseChIds.add(chId);
     }
+    
+    static final boolean USE_HAS_TASK = true;
 
     @Override
     public void run() {
@@ -477,19 +480,21 @@ public final class NioEventLoop extends EventLoop implements Attributes {
             }
             try {
                 int selected;
-                if (events.isEmpty()) {
-                    if (selecting.compareAndSet(0, 1)) {
-                        if (events.isEmpty()) {
-                            selected = selector.select(selectTime);
-                        } else {
-                            selected = selector.selectNow();
-                        }
+                if (USE_HAS_TASK) {
+                    if (!hasTask && selecting.compareAndSet(0, 1)) {
+                        selected = selector.select(selectTime);
                         selecting.set(0);
                     } else {
                         selected = selector.selectNow();
                     }
-                } else {
-                    selected = selector.selectNow();
+                    hasTask = false;
+                }else{
+                    if (events.isEmpty() && selecting.compareAndSet(0, 1)) {
+                        selected = selector.select(selectTime);
+                        selecting.set(0);
+                    } else {
+                        selected = selector.selectNow();
+                    }
                 }
                 if (selected > 0) {
                     if (ENABLE_SELKEY_SET) {
@@ -581,6 +586,9 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     @Override
     public void wakeup() {
         if (wakener.compareAndSet(0, 1)) {
+            if (USE_HAS_TASK) {
+                hasTask = true;
+            }
             if (selecting.compareAndSet(0, 1)) {
                 selecting.set(0);
             } else {
