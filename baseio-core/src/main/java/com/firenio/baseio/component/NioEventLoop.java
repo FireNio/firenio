@@ -356,22 +356,6 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         return writeBuffers;
     }
 
-    private void handleEvents(BlockingQueue<Runnable> events) {
-        if (!events.isEmpty()) {
-            for (;;) {
-                Runnable event = events.poll();
-                if (event == null) {
-                    break;
-                }
-                try {
-                    event.run();
-                } catch (Throwable e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        }
-    }
-
     private void readExceptionCaught(NioSocketChannel ch, Throwable ex) {
         ch.close();
         Develop.printException(logger, ex, 2);
@@ -472,7 +456,6 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         long selectTime = idle;
         for (;;) {
             if (!isRunning()) {
-                handleEvents(events);
                 closeChannels();
                 Util.close(selector);
                 Util.release(buf);
@@ -482,7 +465,11 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                 int selected;
                 if (USE_HAS_TASK) {
                     if (!hasTask && selecting.compareAndSet(0, 1)) {
-                        selected = selector.select(selectTime);
+                        if(events.isEmpty()){
+                            selected = selector.select(selectTime);
+                        }else{
+                            selected = selector.selectNow();    
+                        }
                         selecting.set(0);
                     } else {
                         selected = selector.selectNow();
@@ -490,7 +477,11 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                     hasTask = false;
                 } else {
                     if (events.isEmpty() && selecting.compareAndSet(0, 1)) {
-                        selected = selector.select(selectTime);
+                        if(events.isEmpty()){
+                            selected = selector.select(selectTime);
+                        }else{
+                            selected = selector.selectNow();    
+                        }
                         selecting.set(0);
                     } else {
                         selected = selector.selectNow();
@@ -520,7 +511,19 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                 } else {
                     selectTime = nextIdle - now;
                 }
-                handleEvents(events);
+                if (!events.isEmpty()) {
+                    for (;;) {
+                        Runnable event = events.poll();
+                        if (event == null) {
+                            break;
+                        }
+                        try {
+                            event.run();
+                        } catch (Throwable e) {
+                            logger.error(e.getMessage(), e);
+                        }
+                    }
+                }
                 if (!dq.isEmpty()) {
                     for (;;) {
                         DelayTask t = dq.peek();
