@@ -23,12 +23,10 @@ import com.firenio.baseio.log.LoggerFactory;
 
 public class ITestThreadHandle {
 
-    private static Logger       logger = LoggerFactory.getLogger(ITestThreadHandle.class);
-
+    private static Logger       logger    = LoggerFactory.getLogger(ITestThreadHandle.class);
     private static long         sum;
-
     private static long         numOftime;
-
+    private static long         startTime = System.currentTimeMillis();
     public static ITestThread[] ts;
 
     public static void doTest(Class<? extends ITestThread> clazz, int threads, int time) {
@@ -41,6 +39,8 @@ public class ITestThreadHandle {
             doTest0(clazz, threads, time / threads);
             Util.sleep(2000);
         }
+        logger.info("cost time:{}",(System.currentTimeMillis() - startTime));
+        logger.info("################## Test end ####################");
     }
 
     private static void doTest0(Class<? extends ITestThread> clazz, int threads, int time) {
