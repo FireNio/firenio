@@ -455,7 +455,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     protected void removeChannel(int chId) {
         preCloseChIds.add(chId);
     }
-    
+
     static final boolean USE_HAS_TASK = true;
 
     @Override
@@ -488,7 +488,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                         selected = selector.selectNow();
                     }
                     hasTask = false;
-                }else{
+                } else {
                     if (events.isEmpty() && selecting.compareAndSet(0, 1)) {
                         selected = selector.select(selectTime);
                         selecting.set(0);
@@ -567,7 +567,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
             return true;
         } else {
             return submit(new Runnable() {
-                
+
                 @Override
                 public void run() {
                     delayedQueue.offer(task);
@@ -593,7 +593,6 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                 selecting.set(0);
             } else {
                 selector.wakeup();
-                super.wakeup();
             }
             wakener.set(0);
         }
