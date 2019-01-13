@@ -15,7 +15,97 @@
  */
 package com.firenio.baseio.common;
 
-public class BASE64Util {
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+/**
+ * @author wangkai
+ *
+ */
+public class Cryptos {
+
+    public static byte[] aes_de(byte[] content, byte[] password) throws Exception {
+        // 创建AES的Key生产者
+        KeyGenerator kgen = KeyGenerator.getInstance("AES");
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        random.setSeed(password);
+        kgen.init(128, random);
+        // 根据用户密码，生成一个密钥
+        SecretKey secretKey = kgen.generateKey();
+        // 返回基本编码格式的密钥
+        byte[] enCodeFormat = secretKey.getEncoded();
+        // 转换为AES专用密钥
+        SecretKeySpec key = new SecretKeySpec(enCodeFormat, "AES");
+        // 创建密码器
+        Cipher cipher = Cipher.getInstance("AES");
+        // 初始化为解密模式的密码器
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        return cipher.doFinal(content);
+    }
+
+    public static String aes_de(String content, String password) throws Exception {
+        return aes_de(content, password, Util.UTF8);
+    }
+
+    public static String aes_de(String content, String password, Charset charset) throws Exception {
+        byte[] contentBytes = ByteUtil.getBytesFromHexString(content);
+        byte[] passowrdBytes = password.getBytes(charset);
+        byte[] res = aes_de(contentBytes, passowrdBytes);
+        return new String(res, charset);
+    }
+
+    public static byte[] aes_en(byte[] content, byte[] password) throws Exception {
+        KeyGenerator kgen = KeyGenerator.getInstance("AES");// 创建AES的Key生产者
+        // 利用用户密码作为随机数初始化出,128位的key生产者
+        //加密没关系，SecureRandom是生成安全随机数序列，password.getBytes()是种子，只要种子相同，序列就一样，所以解密只要有password就行
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        random.setSeed(password);
+        kgen.init(128, random);
+        SecretKey secretKey = kgen.generateKey();// 根据用户密码，生成一个密钥
+        // 返回基本编码格式的密钥，如果此密钥不支持编码，则返回null
+        byte[] enCodeFormat = secretKey.getEncoded();
+        // 转换为AES专用密钥
+        SecretKeySpec key = new SecretKeySpec(enCodeFormat, "AES");
+        // 创建密码器
+        Cipher cipher = Cipher.getInstance("AES");
+        // 初始化为加密模式的密码器
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        // 加密
+        return cipher.doFinal(content);
+    }
+
+    public static String aes_en(String content, String password) throws Exception {
+        return aes_en(content, password, Util.UTF8);
+    }
+
+    public static String aes_en(String content, String password, Charset charset) throws Exception {
+        byte[] contentBytes = content.getBytes(charset);
+        byte[] passwordBytes = password.getBytes(charset);
+        byte[] res = aes_en(contentBytes, passwordBytes);
+        return ByteUtil.getHexString(res);
+    }
+
+    public static void testAes() throws Exception {
+
+        String text = "test";
+        String key = "key";
+        System.out.println("TEXT:" + text);
+        System.out.println("KEY:" + key);
+        String mi = aes_en(text, key);
+        System.out.println("MI:" + mi);
+        text = aes_de(mi, key);
+        System.out.println("TEXT:" + text);
+
+    }
 
     /**
      * This array is the analogue of base64ToInt, but for the nonstandard
@@ -71,19 +161,19 @@ public class BASE64Util {
      * Translates the specified "alternate representation" Base64 string into a
      * byte array.
      */
-    public static byte[] altBase64ToByteArray(String s) {
-        return base64ToByteArray(s, true);
+    public static byte[] alt_base64_de(String s) {
+        return base64_de(s, true);
     }
 
     /**
      * Translates the specified Base64 string (as per Preferences.get(byte[]))
      * into a byte array.
      */
-    public static byte[] base64ToByteArray(String s) {
-        return base64ToByteArray(s, false);
+    public static byte[] base64_de(String s) {
+        return base64_de(s, false);
     }
 
-    private static byte[] base64ToByteArray(String s, boolean alternate) {
+    private static byte[] base64_de(String s, boolean alternate) {
         byte[] alphaToInt = (alternate ? altBase64ToInt : base64ToInt);
         int sLen = s.length();
         int numGroups = sLen / 4;
@@ -153,19 +243,19 @@ public class BASE64Util {
      * contain the uppercase alphabetic characters, which makes it suitable for
      * use in situations where case-folding occurs.
      */
-    public static String byteArrayToAltBase64(byte[] a) {
-        return byteArrayToBase64(a, true);
+    public static String alt_base64_en(byte[] a) {
+        return base64_en(a, true);
     }
 
     /**
      * Translates the specified byte array into a Base64 string as per
      * Preferences.put(byte[]).
      */
-    public static String byteArrayToBase64(byte[] a) {
-        return byteArrayToBase64(a, false);
+    public static String base64_en(byte[] a) {
+        return base64_en(a, false);
     }
 
-    private static String byteArrayToBase64(byte[] a, boolean alternate) {
+    private static String base64_en(byte[] a, boolean alternate) {
         int aLen = a.length;
         int numFullGroups = aLen / 3;
         int numBytesInPartialGroup = aLen - 3 * numFullGroups;
@@ -205,11 +295,125 @@ public class BASE64Util {
         return result.toString();
     }
 
-    public static void main(String[] args) {
+    public static void testBase64() {
 
-        String s = new String(base64ToByteArray("ODg4ODg4"));
+        String s = new String(base64_de("ODg4ODg4"));
         System.out.println(s);
 
+    }
+
+    public String getMd5_16(String value) {
+        return getMd5_16(value, Util.UTF8);
+    }
+
+    public String getMd5_16(String value, Charset encoding) {
+        return getMd5_32(value.getBytes(encoding)).substring(8, 24);
+    }
+
+    public String getMd5_32(byte[] array) {
+        return getMd5_32(array, 0, array.length);
+    }
+
+    public String getMd5_32(byte[] input, int off, int len) {
+        return ByteUtil.getHexString(update(input, off, len, "MD5"));
+    }
+
+    public String get32(String value) {
+        return get32(value, Util.UTF8);
+    }
+
+    public String get32(String value, Charset encoding) {
+        return getMd5_32(value.getBytes(encoding));
+    }
+
+    static final ThreadLocal<Cryptos> mdh = new ThreadLocal<Cryptos>() {
+
+        protected Cryptos initialValue() {
+            return new Cryptos();
+        }
+    };
+
+    private static MessageDigest get(String algorithm) {
+        return mdh.get().get0(algorithm);
+    }
+
+    private Map<String, MessageDigest> digests = new HashMap<>();
+
+    private MessageDigest get0(String algorithm) {
+        MessageDigest d = digests.get(algorithm);
+        if (d == null) {
+            try {
+                d = MessageDigest.getInstance(algorithm);
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
+            digests.put(algorithm, d);
+            return d;
+        }
+        d.reset();
+        return d;
+    }
+
+    private static byte[] update(byte[] input, String algorithm) {
+        return update(input, 0, input.length, algorithm);
+    }
+
+    private static byte[] update(byte[] input, int off, int len, String algorithm) {
+        MessageDigest digest = get(algorithm);
+        digest.update(input, off, len);
+        return digest.digest();
+    }
+
+    public static void testSHA1() {
+
+        String ss = "test2";
+        long startTime = System.currentTimeMillis();
+        int count = 1000000;
+        for (int i = 0; i < count; i++) {
+            ByteUtil.getHexString(SHA1(ss));
+        }
+        System.out.println("Time:" + (System.currentTimeMillis() - startTime));
+        System.out.println(ByteUtil.getHexString(SHA1(ss)));
+
+        System.out.println(ByteUtil.getHexString(SHA256(ss)));
+
+        System.out.println(ByteUtil.getHexString(SHA512(ss)));
+    }
+
+    public static byte[] SHA1(byte[] decript) {
+        return Cryptos.update(decript, "SHA-1");
+    }
+
+    public static byte[] SHA1(String decript) {
+        return SHA1(decript, Util.UTF8);
+    }
+
+    public static byte[] SHA1(String decript, Charset encoding) {
+        return SHA1(decript.getBytes(encoding));
+    }
+
+    public static byte[] SHA256(byte[] decript) {
+        return update(decript, "SHA-256");
+    }
+
+    public static byte[] SHA256(String decript) {
+        return SHA256(decript, Util.UTF8);
+    }
+
+    public static byte[] SHA256(String decript, Charset encoding) {
+        return SHA256(decript.getBytes(encoding));
+    }
+
+    public static byte[] SHA512(byte[] decript) {
+        return update(decript, "SHA-512");
+    }
+
+    public static byte[] SHA512(String decript) {
+        return SHA512(decript, Util.UTF8);
+    }
+
+    public static byte[] SHA512(String decript, Charset encoding) {
+        return SHA512(decript.getBytes(encoding));
     }
 
 }

@@ -247,17 +247,6 @@ public class HelloGeneratorClass implements Opcodes {
     }
 
     /**
-     * 生成保存class文件
-     *
-     * @param args
-     * @author SHANHY
-     * @create 2016年2月3日
-     */
-    public static void main3(String[] args) {
-
-    }
-
-    /**
      * AOP测试
      *
      * @param args
@@ -296,6 +285,17 @@ public class HelloGeneratorClass implements Opcodes {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 生成保存class文件
+     *
+     * @param args
+     * @author SHANHY
+     * @create 2016年2月3日
+     */
+    public static void main3(String[] args) {
+
     }
 
 }

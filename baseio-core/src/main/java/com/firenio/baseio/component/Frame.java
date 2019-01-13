@@ -128,16 +128,16 @@ public abstract class Frame {
         setBytes(value.getBytes());
     }
 
+    public void setString(String text, Channel ch) {
+        setString(text, ch.getCharset());
+    }
+
     public void setString(String text, ChannelContext context) {
         setString(text, context.getCharset());
     }
 
     public void setString(String text, Charset charset) {
         setBytes(text.getBytes(charset));
-    }
-
-    public void setString(String text, Channel ch) {
-        setString(text, ch.getCharset());
     }
 
     public void write(byte[] bytes) {
@@ -149,16 +149,16 @@ public abstract class Frame {
         c.put(bytes, off, len);
     }
 
+    public void write(String text, Channel ch) {
+        write(text, ch.getCharset());
+    }
+
     public void write(String text, ChannelContext context) {
         write(text, context.getCharset());
     }
 
     public void write(String text, Charset charset) {
         write(text.getBytes(charset));
-    }
-
-    public void write(String text, Channel ch) {
-        write(text, ch.getCharset());
     }
 
 }

@@ -31,6 +31,11 @@ final class DuplicatedByteBuf extends ByteBuf {
         this.m = memory;
         this.referenceCount = refCnt;
     }
+    
+    @Override
+    public long address() {
+        return p.address();
+    }
 
     @Override
     public byte absByte(int pos) {
@@ -45,6 +50,11 @@ final class DuplicatedByteBuf extends ByteBuf {
     @Override
     public ByteBuf absLimit(int limit) {
         throw unsupportedOperationException();
+    }
+    
+    @Override
+    public boolean isPooled() {
+        return p.isPooled();
     }
 
     @Override

@@ -35,16 +35,15 @@ public class TestConcurrentHashMap {
 
     }
 
-    static void testLinkedList(int count) {
-        LinkedList<String> list = new LinkedList<>();
+    static void testConcurrentHashMap(int count) {
+        Map<Integer, String> map = new ConcurrentHashMap<>();
         //      map = new HashMap<>();
-
         for (int i = 0; i < count; i++) {
-            list.add(String.valueOf(i));
+            map.put(i, String.valueOf(i));
         }
         boolean con = false;
         long startTime = System.currentTimeMillis();
-        for (String v : list) {
+        for (String v : map.values()) {
             //          if ("1".equals(v)) {
             //              con = true;
             //          }
@@ -71,11 +70,11 @@ public class TestConcurrentHashMap {
         }
         boolean con = false;
         long startTime = System.currentTimeMillis();
-        for (String v : map.values()) {
+//        for (String v : map.values()) {
             //          if ("1".equals(v)) {
             //              con = true;
             //          }
-        }
+//        }
         //      for(String v : map.values()){
         ////          if ("1".equals(v)) {
         ////              con = true;
@@ -90,15 +89,16 @@ public class TestConcurrentHashMap {
         System.out.println(con);
     }
 
-    static void testConcurrentHashMap(int count) {
-        Map<Integer, String> map = new ConcurrentHashMap<>();
+    static void testLinkedList(int count) {
+        LinkedList<String> list = new LinkedList<>();
         //      map = new HashMap<>();
+
         for (int i = 0; i < count; i++) {
-            map.put(i, String.valueOf(i));
+            list.add(String.valueOf(i));
         }
         boolean con = false;
         long startTime = System.currentTimeMillis();
-        for (String v : map.values()) {
+        for (String v : list) {
             //          if ("1".equals(v)) {
             //              con = true;
             //          }

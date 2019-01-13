@@ -19,18 +19,35 @@ import com.firenio.baseio.common.Unsafe;
 
 //FIXME read byte by array[i] instead of unsafe
 public final class Lz4RawDecompressor {
-    private static final int   LAST_LITERAL_SIZE = 5;
-    private static final int   MIN_MATCH         = 4;
-
-    private static final int   SIZE_OF_SHORT     = 2;
-    private static final int   SIZE_OF_INT       = 4;
-    private static final int   SIZE_OF_LONG      = 8;
     private static final int[] DEC_32_TABLE      = { 4, 1, 2, 1, 4, 4, 4, 4 };
     private static final int[] DEC_64_TABLE      = { 0, 0, 0, -1, 0, 1, 2, 3 };
+
+    private static final int   LAST_LITERAL_SIZE = 5;
+    private static final int   MIN_MATCH         = 4;
     private static final int   OFFSET_SIZE       = 2;
+    private static final int   SIZE_OF_INT       = 4;
+    private static final int   SIZE_OF_LONG      = 8;
+    private static final int   SIZE_OF_SHORT     = 2;
     private static final int   TOKEN_SIZE        = 1;
 
     private Lz4RawDecompressor() {}
+
+    private static class MalformedInputException extends RuntimeException {
+        private final long offset;
+
+        public MalformedInputException(long offset) {
+            this(offset, "Malformed input");
+        }
+
+        public MalformedInputException(long offset, String reason) {
+            super(reason + ": offset=" + offset);
+            this.offset = offset;
+        }
+
+        public long getOffset() {
+            return offset;
+        }
+    }
 
     public static int decompress(byte[] input, int inputOffset, int inputLength, byte[] output,
             int outputOffset, int maxOutputLength) throws MalformedInputException {
@@ -40,6 +57,51 @@ public final class Lz4RawDecompressor {
         long outputLimit = outputAddress + maxOutputLength;
 
         return decompress(input, inputAddress, inputLimit, output, outputAddress, outputLimit);
+    }
+
+    public static void decompress(ByteBuffer input, ByteBuffer output)
+            throws MalformedInputException {
+        Object inputBase;
+        long inputAddress;
+        long inputLimit;
+        if (input.isDirect()) {
+            inputBase = null;
+            long address = Unsafe.address(input);
+            inputAddress = address + input.position();
+            inputLimit = address + input.limit();
+        } else if (input.hasArray()) {
+            inputBase = input.array();
+            inputAddress = Unsafe.ARRAY_BASE_OFFSET + input.arrayOffset() + input.position();
+            inputLimit = Unsafe.ARRAY_BASE_OFFSET + input.arrayOffset() + input.limit();
+        } else {
+            throw new IllegalArgumentException(
+                    "Unsupported input ByteBuffer implementation " + input.getClass().getName());
+        }
+
+        Object outputBase;
+        long outputAddress;
+        long outputLimit;
+        if (output.isDirect()) {
+            outputBase = null;
+            long address = Unsafe.address(output);
+            outputAddress = address + output.position();
+            outputLimit = address + output.limit();
+        } else if (output.hasArray()) {
+            outputBase = output.array();
+            outputAddress = Unsafe.ARRAY_BASE_OFFSET + output.arrayOffset() + output.position();
+            outputLimit = Unsafe.ARRAY_BASE_OFFSET + output.arrayOffset() + output.limit();
+        } else {
+            throw new IllegalArgumentException(
+                    "Unsupported output ByteBuffer implementation " + output.getClass().getName());
+        }
+
+        // HACK: Assure JVM does not collect Slice wrappers while decompressing, since the
+        // collection may trigger freeing of the underlying memory resulting in a segfault
+        // There is no other known way to signal to the JVM that an object should not be
+        // collected in a block, and technically, the JVM is allowed to eliminate these locks.
+        int written = Lz4RawDecompressor.decompress(inputBase, inputAddress, inputLimit, outputBase,
+                outputAddress, outputLimit);
+        output.position(output.position() + written);
     }
 
     public static int decompress(final Object inputBase, final long inputAddress,
@@ -189,67 +251,5 @@ public final class Lz4RawDecompressor {
         }
 
         return (int) (output - outputAddress);
-    }
-
-    public static void decompress(ByteBuffer input, ByteBuffer output)
-            throws MalformedInputException {
-        Object inputBase;
-        long inputAddress;
-        long inputLimit;
-        if (input.isDirect()) {
-            inputBase = null;
-            long address = Unsafe.addressOffset(input);
-            inputAddress = address + input.position();
-            inputLimit = address + input.limit();
-        } else if (input.hasArray()) {
-            inputBase = input.array();
-            inputAddress = Unsafe.ARRAY_BASE_OFFSET + input.arrayOffset() + input.position();
-            inputLimit = Unsafe.ARRAY_BASE_OFFSET + input.arrayOffset() + input.limit();
-        } else {
-            throw new IllegalArgumentException(
-                    "Unsupported input ByteBuffer implementation " + input.getClass().getName());
-        }
-
-        Object outputBase;
-        long outputAddress;
-        long outputLimit;
-        if (output.isDirect()) {
-            outputBase = null;
-            long address = Unsafe.addressOffset(output);
-            outputAddress = address + output.position();
-            outputLimit = address + output.limit();
-        } else if (output.hasArray()) {
-            outputBase = output.array();
-            outputAddress = Unsafe.ARRAY_BASE_OFFSET + output.arrayOffset() + output.position();
-            outputLimit = Unsafe.ARRAY_BASE_OFFSET + output.arrayOffset() + output.limit();
-        } else {
-            throw new IllegalArgumentException(
-                    "Unsupported output ByteBuffer implementation " + output.getClass().getName());
-        }
-
-        // HACK: Assure JVM does not collect Slice wrappers while decompressing, since the
-        // collection may trigger freeing of the underlying memory resulting in a segfault
-        // There is no other known way to signal to the JVM that an object should not be
-        // collected in a block, and technically, the JVM is allowed to eliminate these locks.
-        int written = Lz4RawDecompressor.decompress(inputBase, inputAddress, inputLimit, outputBase,
-                outputAddress, outputLimit);
-        output.position(output.position() + written);
-    }
-
-    private static class MalformedInputException extends RuntimeException {
-        private final long offset;
-
-        public MalformedInputException(long offset) {
-            this(offset, "Malformed input");
-        }
-
-        public MalformedInputException(long offset, String reason) {
-            super(reason + ": offset=" + offset);
-            this.offset = offset;
-        }
-
-        public long getOffset() {
-            return offset;
-        }
     }
 }

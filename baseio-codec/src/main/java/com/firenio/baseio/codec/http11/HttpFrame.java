@@ -29,8 +29,7 @@ import java.util.Map;
 
 import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.collection.IntMap;
-import com.firenio.baseio.common.BASE64Util;
-import com.firenio.baseio.common.SHAUtil;
+import com.firenio.baseio.common.Cryptos;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.Channel;
 
@@ -158,8 +157,8 @@ public class HttpFrame extends HttpFrameLite {
             //FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
             String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key_Value
                     + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-            byte[] key_array = SHAUtil.SHA1(Sec_WebSocket_Key_Magic);
-            String acceptKey = BASE64Util.byteArrayToBase64(key_array);
+            byte[] key_array = Cryptos.SHA1(Sec_WebSocket_Key_Magic);
+            String acceptKey = Cryptos.base64_en(key_array);
             setStatus(HttpStatus.C101);
             setResponseHeader(Connection, upgrade_bytes);
             setResponseHeader(Upgrade, websocket_bytes);

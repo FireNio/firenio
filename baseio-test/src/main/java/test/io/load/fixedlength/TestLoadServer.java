@@ -27,19 +27,27 @@ import com.firenio.baseio.concurrent.ThreadEventLoopGroup;
 
 public class TestLoadServer {
 
-    public static final int     SERVER_CORE_SIZE       = 8;
-    public static final int     CLIENT_CORE_SIZE       = SERVER_CORE_SIZE * 2;
-    public static final int     WRITE_BUFFERS          = 16;
-    public static final int     MEM_UNIT               = 256;
-    public static final boolean ENABLE_SSL             = false;
-    public static final boolean ENABLE_POOL            = true;
-    public static final boolean ENABLE_WORK_EVENT_LOOP = false;
-    public static final boolean ENABLE_POOL_DIRECT     = true;
     public static final boolean AUTO_EXPANSION         = false;
+    public static final int     CLIENT_CORE_SIZE;
+    public static final boolean ENABLE_POOL            = true;
+    public static final boolean ENABLE_POOL_DIRECT     = true;
+    public static final boolean ENABLE_SSL             = false;
+    public static final boolean ENABLE_WORK_EVENT_LOOP = false;
+    public static final int     MEM_UNIT               = 256;
+    public static final int     SERVER_CORE_SIZE;
+    public static final int     WRITE_BUFFERS          = 16;
+    public static final boolean ENABLE_EPOLL           = true;
+    public static final boolean ENABLE_UNSAFE_BUF      = true;
+
+    static {
+        SERVER_CORE_SIZE = 8;
+        CLIENT_CORE_SIZE = SERVER_CORE_SIZE * 2;
+    }
 
     public static void main(String[] args) throws Exception {
-
         Options.setBufAutoExpansion(AUTO_EXPANSION);
+        Options.setEnableEpoll(ENABLE_EPOLL);
+        Options.setEnableUnsafeBuf(ENABLE_UNSAFE_BUF);
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
             public void accept(Channel ch, Frame f) throws Exception {

@@ -19,16 +19,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.firenio.baseio.Options;
 import com.firenio.baseio.codec.protobase.ProtobaseCodec;
 import com.firenio.baseio.codec.protobase.ProtobaseFrame;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ChannelAcceptor;
-import com.firenio.baseio.component.ChannelAliveIdleEventListener;
+import com.firenio.baseio.component.ChannelAliveListener;
 import com.firenio.baseio.component.ChannelConnector;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
-import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.concurrent.Waiter;
 import com.firenio.baseio.log.DebugUtil;
 
@@ -36,10 +37,19 @@ import junit.framework.Assert;
 
 public class TestProtobase {
 
-    ChannelAcceptor     context = new ChannelAcceptor(8300);
+    static {
+        Options.setEnableEpoll(true);
+    }
 
     static final String hello   = "hello server!";
+
     static final String res     = "yes server already accept your text message:";
+    ChannelAcceptor     context = new ChannelAcceptor(8300);
+
+    @After
+    public void clean() {
+        Util.unbind(context);
+    }
 
     @Before
     public void main() throws Exception {
@@ -66,39 +76,16 @@ public class TestProtobase {
             }
         };
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
+        context.addChannelIdleEventListener(new ChannelAliveListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.addProtocolCodec(new ProtobaseCodec());
         context.bind();
     }
 
-    public void testText() throws Exception {
-
-        Waiter<String> w = new Waiter<>();
-        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
-
-            @Override
-            public void accept(Channel ch, Frame frame) throws Exception {
-                String text = frame.getStringContent();
-                System.out.println();
-                System.out.println("____________________" + text);
-                System.out.println();
-                Util.close(ch);
-                w.call(text, null);
-            }
-        };
-
-        ChannelConnector context = new ChannelConnector(8300);
-        context.setIoEventHandle(eventHandleAdaptor);
-        context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addProtocolCodec(new ProtobaseCodec());
-        Channel ch = context.connect();
-        ProtobaseFrame f = new ProtobaseFrame();
-        f.setContent(ch.allocate());
-        f.write(hello.getBytes());
-        ch.writeAndFlush(f);
-        w.await(3000);
-        Assert.assertTrue(w.getResponse().equals(res + hello));
+    @Test
+    public void test() throws Exception {
+        testText();
+        testBinary();
     }
 
     public void testBinary() throws Exception {
@@ -131,15 +118,33 @@ public class TestProtobase {
         Assert.assertTrue(w.getResponse().equals(res + hello));
     }
 
-    @Test
-    public void test() throws Exception {
-        testText();
-        testBinary();
-    }
+    public void testText() throws Exception {
 
-    @After
-    public void clean() {
-        Util.unbind(context);
+        Waiter<String> w = new Waiter<>();
+        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
+
+            @Override
+            public void accept(Channel ch, Frame frame) throws Exception {
+                String text = frame.getStringContent();
+                System.out.println();
+                System.out.println("____________________" + text);
+                System.out.println();
+                Util.close(ch);
+                w.call(text, null);
+            }
+        };
+
+        ChannelConnector context = new ChannelConnector(8300);
+        context.setIoEventHandle(eventHandleAdaptor);
+        context.addChannelEventListener(new LoggerChannelOpenListener());
+        context.addProtocolCodec(new ProtobaseCodec());
+        Channel ch = context.connect();
+        ProtobaseFrame f = new ProtobaseFrame();
+        f.setContent(ch.allocate());
+        f.write(hello.getBytes());
+        ch.writeAndFlush(f);
+        w.await(3000);
+        Assert.assertTrue(w.getResponse().equals(res + hello));
     }
 
 }

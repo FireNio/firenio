@@ -17,21 +17,21 @@ package test.others.json;
 
 public class StringLexer {
 
-    private int    index;
-
     private String codes;
+
+    private int    index;
 
     public StringLexer(int index, String codes) {
         this.index = index;
         this.codes = codes;
     }
 
-    public void previous() {
-        index--;
+    public char charAt(int index) {
+        return codes.charAt(index);
     }
 
-    public boolean next(int size) {
-        return (index += size) < codes.length();
+    public boolean complate() {
+        return index + 1 == codes.length();
     }
 
     //	public char [] sub(int start,int size){
@@ -45,6 +45,14 @@ public class StringLexer {
     //		}
     //	}
 
+    public char current() {
+        return codes.charAt(index);
+    }
+
+    public int currentIndex() {
+        return index;
+    }
+
     public boolean next() {
         return ++index < codes.length();
         //		if (++index == codes.length) {
@@ -54,20 +62,12 @@ public class StringLexer {
         //		return codes[index];
     }
 
-    public char charAt(int index) {
-        return codes.charAt(index);
+    public boolean next(int size) {
+        return (index += size) < codes.length();
     }
 
-    public char current() {
-        return codes.charAt(index);
-    }
-
-    public int currentIndex() {
-        return index;
-    }
-
-    public boolean complate() {
-        return index + 1 == codes.length();
+    public void previous() {
+        index--;
     }
 
     @Override

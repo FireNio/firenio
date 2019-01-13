@@ -41,8 +41,9 @@ public class TestDuplicatedByteBuf {
     }
 
     @Test
-    public void testHeap() throws Exception {
-        ByteBuf buf = ByteBuf.direct(16);
+    public void testDirectP() throws Exception {
+        ByteBufAllocator a = TestAllocUtil.direct();
+        ByteBuf buf = a.allocate(16);
 
         buf.put(data.getBytes());
         buf.flip();
@@ -51,9 +52,8 @@ public class TestDuplicatedByteBuf {
     }
 
     @Test
-    public void testDirectP() throws Exception {
-        ByteBufAllocator a = TestAllocUtil.direct();
-        ByteBuf buf = a.allocate(16);
+    public void testHeap() throws Exception {
+        ByteBuf buf = ByteBuf.direct(16);
 
         buf.put(data.getBytes());
         buf.flip();

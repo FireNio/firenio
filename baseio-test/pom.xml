@@ -152,12 +152,6 @@
 			<version>0.9.23</version>
 		</dependency>
 		
-		<dependency>
-            <groupId>org.smartboot.http</groupId>
-            <artifactId>smart-http-server</artifactId>
-            <version>1.0.10.0107-beta</version>
-        </dependency>
-
 	</dependencies>
 
 </project>

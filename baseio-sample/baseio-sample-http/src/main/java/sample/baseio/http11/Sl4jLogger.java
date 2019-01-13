@@ -48,13 +48,6 @@ public class Sl4jLogger implements Log {
 
     public Sl4jLogger() {}
 
-    /**
-     * Base constructor.
-     */
-    public Sl4jLogger(String name) {
-        this.logger = getLogger(name);
-    }
-
     /** 
      * For use with a log4j factory.
      */
@@ -64,6 +57,13 @@ public class Sl4jLogger implements Log {
                     "Warning - null logger in constructor; possible log4j misconfiguration.");
         }
         this.logger = logger;
+    }
+
+    /**
+     * Base constructor.
+     */
+    public Sl4jLogger(String name) {
+        this.logger = getLogger(name);
     }
 
     // --------------------------------------------------------- 
@@ -82,33 +82,6 @@ public class Sl4jLogger implements Log {
     // methods taking Level objects and then would fail to run against
     // version 1.2 of log4j.
     // --------------------------------------------------------- 
-
-    /**
-     * Logs a message with <code>org.apache.log4j.Priority.TRACE</code>.
-     * When using a log4j version that does not support the <code>TRACE</code>
-     * level, the message will be logged at the <code>DEBUG</code> level.
-     *
-     * @param message to log
-     * @see org.apache.commons.logging.Log#trace(Object)
-     */
-    @Override
-    public void trace(Object message) {
-        getLogger().trace(String.valueOf(message));
-    }
-
-    /**
-     * Logs a message with <code>org.apache.log4j.Priority.TRACE</code>.
-     * When using a log4j version that does not support the <code>TRACE</code>
-     * level, the message will be logged at the <code>DEBUG</code> level.
-     *
-     * @param message to log
-     * @param t log this cause
-     * @see org.apache.commons.logging.Log#trace(Object, Throwable)
-     */
-    @Override
-    public void trace(Object message, Throwable t) {
-        getLogger().trace(String.valueOf(message), t);
-    }
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.DEBUG</code>.
@@ -131,52 +104,6 @@ public class Sl4jLogger implements Log {
     @Override
     public void debug(Object message, Throwable t) {
         getLogger().debug(String.valueOf(message), t);
-    }
-
-    /**
-     * Logs a message with <code>org.apache.log4j.Priority.INFO</code>.
-     *
-     * @param message to log
-     * @see org.apache.commons.logging.Log#info(Object)
-     */
-    @Override
-    public void info(Object message) {
-        getLogger().info(String.valueOf(message));
-    }
-
-    /**
-     * Logs a message with <code>org.apache.log4j.Priority.INFO</code>.
-     *
-     * @param message to log
-     * @param t log this cause
-     * @see org.apache.commons.logging.Log#info(Object, Throwable)
-     */
-    @Override
-    public void info(Object message, Throwable t) {
-        getLogger().info(String.valueOf(message), t);
-    }
-
-    /**
-     * Logs a message with <code>org.apache.log4j.Priority.WARN</code>.
-     *
-     * @param message to log
-     * @see org.apache.commons.logging.Log#warn(Object)
-     */
-    @Override
-    public void warn(Object message) {
-        getLogger().warn(String.valueOf(message));
-    }
-
-    /**
-     * Logs a message with <code>org.apache.log4j.Priority.WARN</code>.
-     *
-     * @param message to log
-     * @param t log this cause
-     * @see org.apache.commons.logging.Log#warn(Object, Throwable)
-     */
-    @Override
-    public void warn(Object message, Throwable t) {
-        getLogger().warn(String.valueOf(message), t);
     }
 
     /**
@@ -229,6 +156,13 @@ public class Sl4jLogger implements Log {
         return logger;
     }
 
+    public Logger getLogger(Class<?> clazz) {
+        if (logger == null) {
+            logger = LoggerFactory.getLogger(clazz);
+        }
+        return (this.logger);
+    }
+
     /**
      * Return the native Logger instance we are using.
      */
@@ -239,11 +173,27 @@ public class Sl4jLogger implements Log {
         return (this.logger);
     }
 
-    public Logger getLogger(Class<?> clazz) {
-        if (logger == null) {
-            logger = LoggerFactory.getLogger(clazz);
-        }
-        return (this.logger);
+    /**
+     * Logs a message with <code>org.apache.log4j.Priority.INFO</code>.
+     *
+     * @param message to log
+     * @see org.apache.commons.logging.Log#info(Object)
+     */
+    @Override
+    public void info(Object message) {
+        getLogger().info(String.valueOf(message));
+    }
+
+    /**
+     * Logs a message with <code>org.apache.log4j.Priority.INFO</code>.
+     *
+     * @param message to log
+     * @param t log this cause
+     * @see org.apache.commons.logging.Log#info(Object, Throwable)
+     */
+    @Override
+    public void info(Object message, Throwable t) {
+        getLogger().info(String.valueOf(message), t);
     }
 
     /**
@@ -294,5 +244,55 @@ public class Sl4jLogger implements Log {
     @Override
     public boolean isWarnEnabled() {
         return getLogger().isWarnEnabled();
+    }
+
+    /**
+     * Logs a message with <code>org.apache.log4j.Priority.TRACE</code>.
+     * When using a log4j version that does not support the <code>TRACE</code>
+     * level, the message will be logged at the <code>DEBUG</code> level.
+     *
+     * @param message to log
+     * @see org.apache.commons.logging.Log#trace(Object)
+     */
+    @Override
+    public void trace(Object message) {
+        getLogger().trace(String.valueOf(message));
+    }
+
+    /**
+     * Logs a message with <code>org.apache.log4j.Priority.TRACE</code>.
+     * When using a log4j version that does not support the <code>TRACE</code>
+     * level, the message will be logged at the <code>DEBUG</code> level.
+     *
+     * @param message to log
+     * @param t log this cause
+     * @see org.apache.commons.logging.Log#trace(Object, Throwable)
+     */
+    @Override
+    public void trace(Object message, Throwable t) {
+        getLogger().trace(String.valueOf(message), t);
+    }
+
+    /**
+     * Logs a message with <code>org.apache.log4j.Priority.WARN</code>.
+     *
+     * @param message to log
+     * @see org.apache.commons.logging.Log#warn(Object)
+     */
+    @Override
+    public void warn(Object message) {
+        getLogger().warn(String.valueOf(message));
+    }
+
+    /**
+     * Logs a message with <code>org.apache.log4j.Priority.WARN</code>.
+     *
+     * @param message to log
+     * @param t log this cause
+     * @see org.apache.commons.logging.Log#warn(Object, Throwable)
+     */
+    @Override
+    public void warn(Object message, Throwable t) {
+        getLogger().warn(String.valueOf(message), t);
     }
 }

@@ -21,8 +21,8 @@ package test.others;
  */
 public class PossibleReordering {
 
-    static int x = 0, y = 0;
     static int a = 0, b = 0;
+    static int x = 0, y = 0;
 
     public static void main(String[] args) throws InterruptedException {
         Thread one = new Thread(new Runnable() {

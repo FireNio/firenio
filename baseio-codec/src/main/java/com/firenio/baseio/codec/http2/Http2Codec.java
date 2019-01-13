@@ -174,8 +174,8 @@ public class Http2Codec extends ProtocolCodec {
                 for (int i = 0; i < 6; i++) {
                     int realI = i + 1;
                     int offset = i * 6;
-                    ByteUtil.unsignedShort2Byte(payload, realI, offset);
-                    ByteUtil.unsignedInt2Byte(payload, settings[realI], offset + 2);
+                    ByteUtil.putShort(payload, (short)realI, offset);
+                    ByteUtil.putInt(payload, (int)settings[realI], offset + 2);
                 }
                 break;
             case FRAME_TYPE_WINDOW_UPDATE:
@@ -254,7 +254,7 @@ public class Http2Codec extends ProtocolCodec {
                 Http2WindowUpdateFrame fw = new Http2WindowUpdateFrame();
                 fw.setFlags(flags);
                 fw.setStreamIdentifier(streamIdentifier);
-                fw.setUpdateValue(ByteUtil.int2int31(src.getInt()));
+                fw.setUpdateValue(ByteUtil.getInt31(src.getInt()));
                 return fw;
             default:
                 break;

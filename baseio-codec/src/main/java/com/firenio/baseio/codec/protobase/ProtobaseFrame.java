@@ -48,18 +48,25 @@ public class ProtobaseFrame extends Frame {
         return frameId;
     }
 
+    public byte[] getReadBinary() {
+        if (isBinary()) {
+            return getArrayContent();
+        }
+        return null;
+    }
+
     @Override
     public int headerLength() {
         return ProtobaseCodec.PROTOCOL_HEADER;
     }
 
-    public boolean isBroadcast() {
-        return broadcast;
+    @Override
+    public boolean isBinary() {
+        return !text;
     }
 
-    @Override
-    public boolean isLast() {
-        return last;
+    public boolean isBroadcast() {
+        return broadcast;
     }
 
     @Override
@@ -68,13 +75,13 @@ public class ProtobaseFrame extends Frame {
     }
 
     @Override
-    public boolean isText() {
-        return text;
+    public boolean isLast() {
+        return last;
     }
 
     @Override
-    public boolean isBinary() {
-        return !text;
+    public boolean isText() {
+        return text;
     }
 
     public void setBroadcast(boolean broadcast) {
@@ -87,13 +94,6 @@ public class ProtobaseFrame extends Frame {
 
     public void setExtType(byte extType) {
         this.extType = extType;
-    }
-
-    public byte[] getReadBinary() {
-        if (isBinary()) {
-            return getArrayContent();
-        }
-        return null;
     }
 
     public void setFrameId(int frameId) {

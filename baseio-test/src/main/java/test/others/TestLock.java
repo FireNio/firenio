@@ -23,17 +23,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class TestLock {
 
+    private Object        lock       = new Object();
+
     private AtomicBoolean lockCAS    = new AtomicBoolean();
-
-    private AtomicBoolean unlockCAS  = new AtomicBoolean();
-
-    private AtomicBoolean releaseCAS = new AtomicBoolean();
-
-    private Thread        owner      = null;
 
     private int           locks      = 0;
 
-    private Object        lock       = new Object();
+    private Thread        owner      = null;
+
+    private AtomicBoolean releaseCAS = new AtomicBoolean();
+
+    private AtomicBoolean unlockCAS  = new AtomicBoolean();
+
+    private boolean cas(AtomicBoolean cas) {
+        return cas.compareAndSet(false, true);
+    }
+
+    private Thread currentThread() {
+        return Thread.currentThread();
+    }
+
+    private Thread getOwner() {
+        return owner;
+    }
 
     public void lock() {
         if (getOwner() == currentThread()) {
@@ -58,24 +70,12 @@ public class TestLock {
 
     }
 
-    private boolean cas(AtomicBoolean cas) {
-        return cas.compareAndSet(false, true);
-    }
-
     private void releaseCas(AtomicBoolean cas) {
         cas.set(false);
     }
 
     private void setOwner() {
         owner = currentThread();
-    }
-
-    private Thread currentThread() {
-        return Thread.currentThread();
-    }
-
-    private Thread getOwner() {
-        return owner;
     }
 
     public void unlock() {

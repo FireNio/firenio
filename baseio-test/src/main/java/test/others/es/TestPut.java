@@ -35,6 +35,18 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
  */
 public class TestPut {
 
+    public static void main(String[] args) throws Exception {
+        test();
+    }
+
+    static String newString(int len) {
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            sb.append(i % 10);
+        }
+        return sb.toString();
+    }
+
     @SuppressWarnings("resource")
     public static void test() throws Exception {
 
@@ -85,18 +97,6 @@ public class TestPut {
         System.out.println(getResponse.getSource());
 
         client.close();
-    }
-
-    public static void main(String[] args) throws Exception {
-        test();
-    }
-
-    static String newString(int len) {
-        StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            sb.append(i % 10);
-        }
-        return sb.toString();
     }
 
 }

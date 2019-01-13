@@ -31,11 +31,11 @@ import org.rapidoid.setup.App;
  */
 public class TestRapidoidTFB extends AbstractHttpServer {
 
-    private static final byte[] URI_PLAINTEXT = "/plaintext".getBytes();
+    private static final byte[] HELLO_WORLD   = "Hello, World!".getBytes();
 
     private static final byte[] URI_JSON      = "/json".getBytes();
 
-    private static final byte[] HELLO_WORLD   = "Hello, World!".getBytes();
+    private static final byte[] URI_PLAINTEXT = "/plaintext".getBytes();
 
     public TestRapidoidTFB() {
         super("X", "", "", false);

@@ -15,6 +15,7 @@
  */
 package sample.baseio.http11.startup;
 
+import com.firenio.baseio.DevelopConfig;
 import com.firenio.baseio.LifeCycle;
 import com.firenio.baseio.LifeCycleListener;
 import com.firenio.baseio.Options;
@@ -25,7 +26,7 @@ import com.firenio.baseio.codec.http2.Http2Codec;
 import com.firenio.baseio.common.FileUtil;
 import com.firenio.baseio.common.Properties;
 import com.firenio.baseio.component.ChannelAcceptor;
-import com.firenio.baseio.component.ChannelAliveIdleEventListener;
+import com.firenio.baseio.component.ChannelAliveListener;
 import com.firenio.baseio.component.ConfigurationParser;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.NioEventLoopGroup;
@@ -48,7 +49,10 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
 
     @Override
     public void bootstrap(final String rootPath, final String mode) throws Exception {
-        Options.setDebug(true);
+        DevelopConfig.NATIVE_DEBUG = true;
+        DevelopConfig.BUF_DEBUG = true;
+        Options.setEnableEpoll(true);
+        Options.setEnableOpenssl(true);
         final SpringHttpFrameHandle handle = new SpringHttpFrameHandle();
         Properties properties = FileUtil.readPropertiesByCls("server.properties");
         NioEventLoopGroup group = new NioEventLoopGroup(true);
@@ -57,16 +61,11 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         ConfigurationParser.parseConfiguration("server.", group, properties);
         context.setIoEventHandle(handle);
         context.addChannelEventListener(new WebSocketChannelListener());
-        context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
+        context.addChannelIdleEventListener(new ChannelAliveListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new CountChannelListener());
         context.setExecutorEventLoopGroup(new ThreadEventLoopGroup());
         context.addLifeCycleListener(new LifeCycleListener() {
-            @Override
-            public void lifeCycleStopped(LifeCycle lifeCycle) {
-                handle.destroy(context);
-            }
-
             @Override
             public void lifeCycleStarting(LifeCycle lifeCycle) {
                 try {
@@ -74,6 +73,11 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
+            }
+
+            @Override
+            public void lifeCycleStopped(LifeCycle lifeCycle) {
+                handle.destroy(context);
             }
         });
         if (properties.getBooleanProperty("app.enableHttp2")) {

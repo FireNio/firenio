@@ -93,7 +93,7 @@ public abstract class EventLoopGroup extends LifeCycle {
         return null;
     }
 
-    protected EventLoop newEventLoop(int index, String threadName) {
+    protected EventLoop newEventLoop(int index, String threadName) throws Exception {
         return null;
     }
 

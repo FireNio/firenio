@@ -89,11 +89,6 @@ public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptor {
         }
     }
 
-    @PostConstruct
-    public void init() throws Exception {
-        Util.start(msgAdapter);
-    }
-
     @PreDestroy
     public void destroy() throws Exception {
         Util.stop(msgAdapter);
@@ -104,6 +99,11 @@ public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptor {
      */
     public WebSocketMsgAdapter getMsgAdapter() {
         return msgAdapter;
+    }
+
+    @PostConstruct
+    public void init() throws Exception {
+        Util.start(msgAdapter);
     }
 
 }

@@ -60,62 +60,6 @@ public class JSON {
         throw new JSONSyntaxException("EOF");
     }
 
-    private static Object parseNullValue(StringLexer lexer) throws JSONSyntaxException {
-        if (lexer.next(3)) {
-            int index = lexer.currentIndex();
-            if (lexer.charAt(index) == JSONToken.L && lexer.charAt(index - 1) == JSONToken.L
-                    && lexer.charAt(index - 2) == JSONToken.U) {
-                return null;
-            } else {
-                throw new JSONSyntaxException(
-                        "is there should be a 'null',at index " + lexer.currentIndex());
-            }
-        } else {
-            throw new JSONSyntaxException("EOF");
-        }
-    }
-
-    private static Boolean parseTrueValue(StringLexer lexer) throws JSONSyntaxException {
-        if (lexer.next(3)) {
-            int index = lexer.currentIndex();
-            if (lexer.charAt(index) == JSONToken.E && lexer.charAt(index - 1) == JSONToken.U
-                    && lexer.charAt(index - 2) == JSONToken.R) {
-                return Boolean.TRUE;
-            } else {
-                throw new JSONSyntaxException(
-                        "is there should be a 'true',at index " + lexer.currentIndex());
-            }
-        } else {
-            throw new JSONSyntaxException("EOF");
-        }
-    }
-
-    private static Boolean parseFalseValue(StringLexer lexer) throws JSONSyntaxException {
-        if (lexer.next(4)) {
-            int index = lexer.currentIndex();
-            if (lexer.charAt(index) == JSONToken.E && lexer.charAt(index - 1) == JSONToken.S
-                    && lexer.charAt(index - 2) == JSONToken.L
-                    && lexer.charAt(index - 3) == JSONToken.A) {
-                return Boolean.FALSE;
-            } else {
-                throw new JSONSyntaxException(
-                        "is there should be a 'false',at index " + lexer.currentIndex());
-            }
-        } else {
-            throw new JSONSyntaxException("EOF");
-        }
-    }
-
-    private static char skipWhitespace(StringLexer lexer) {
-        char ch = lexer.current();
-        for (; isWhitespace(ch);) {
-            lexer.next();
-            ch = lexer.current();
-        }
-        return ch;
-
-    }
-
     private static Object findMapValue(StringLexer lexer) throws JSONSyntaxException {
         lexer.next();
         char ch = skipWhitespace(lexer);
@@ -181,6 +125,22 @@ public class JSON {
         throw new JSONSyntaxException("EOF");
     }
 
+    private static Boolean parseFalseValue(StringLexer lexer) throws JSONSyntaxException {
+        if (lexer.next(4)) {
+            int index = lexer.currentIndex();
+            if (lexer.charAt(index) == JSONToken.E && lexer.charAt(index - 1) == JSONToken.S
+                    && lexer.charAt(index - 2) == JSONToken.L
+                    && lexer.charAt(index - 3) == JSONToken.A) {
+                return Boolean.FALSE;
+            } else {
+                throw new JSONSyntaxException(
+                        "is there should be a 'false',at index " + lexer.currentIndex());
+            }
+        } else {
+            throw new JSONSyntaxException("EOF");
+        }
+    }
+
     private static Map<?, ?> parseMap(StringLexer lexer) throws JSONSyntaxException {
         Map<String, Object> map = new HashMap<>();
         String key = findMapKey(lexer);
@@ -220,6 +180,21 @@ public class JSON {
             }
         }
         return map;
+    }
+
+    private static Object parseNullValue(StringLexer lexer) throws JSONSyntaxException {
+        if (lexer.next(3)) {
+            int index = lexer.currentIndex();
+            if (lexer.charAt(index) == JSONToken.L && lexer.charAt(index - 1) == JSONToken.L
+                    && lexer.charAt(index - 2) == JSONToken.U) {
+                return null;
+            } else {
+                throw new JSONSyntaxException(
+                        "is there should be a 'null',at index " + lexer.currentIndex());
+            }
+        } else {
+            throw new JSONSyntaxException("EOF");
+        }
     }
 
     private static Number parseNumberValue(StringLexer lexer) throws JSONSyntaxException {
@@ -268,6 +243,31 @@ public class JSON {
             }
         }
         return builder.toString();
+    }
+
+    private static Boolean parseTrueValue(StringLexer lexer) throws JSONSyntaxException {
+        if (lexer.next(3)) {
+            int index = lexer.currentIndex();
+            if (lexer.charAt(index) == JSONToken.E && lexer.charAt(index - 1) == JSONToken.U
+                    && lexer.charAt(index - 2) == JSONToken.R) {
+                return Boolean.TRUE;
+            } else {
+                throw new JSONSyntaxException(
+                        "is there should be a 'true',at index " + lexer.currentIndex());
+            }
+        } else {
+            throw new JSONSyntaxException("EOF");
+        }
+    }
+
+    private static char skipWhitespace(StringLexer lexer) {
+        char ch = lexer.current();
+        for (; isWhitespace(ch);) {
+            lexer.next();
+            ch = lexer.current();
+        }
+        return ch;
+
     }
 
     public static List<?> stringToArray(String content) throws JSONSyntaxException {

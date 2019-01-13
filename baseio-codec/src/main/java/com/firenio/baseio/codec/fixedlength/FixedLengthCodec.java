@@ -69,16 +69,6 @@ public class FixedLengthCodec extends ProtocolCodec {
         this.limit = limit;
     }
 
-    private Frame decodePing(int len) throws IOException {
-        if (len == FixedLengthCodec.PROTOCOL_PING) {
-            return new FixedLengthFrame().setPing();
-        } else if (len == FixedLengthCodec.PROTOCOL_PONG) {
-            return new FixedLengthFrame().setPong();
-        } else {
-            throw ILLEGAL_PROTOCOL;
-        }
-    }
-
     @Override
     public Frame decode(Channel ch, ByteBuf src) throws IOException {
         if (src.remaining() < PROTOCOL_HEADER) {
@@ -98,6 +88,16 @@ public class FixedLengthCodec extends ProtocolCodec {
         byte[] data = new byte[len];
         src.get(data);
         return new FixedLengthFrame(new String(data, ch.getCharset()));
+    }
+
+    private Frame decodePing(int len) throws IOException {
+        if (len == FixedLengthCodec.PROTOCOL_PING) {
+            return new FixedLengthFrame().setPing();
+        } else if (len == FixedLengthCodec.PROTOCOL_PONG) {
+            return new FixedLengthFrame().setPong();
+        } else {
+            throw ILLEGAL_PROTOCOL;
+        }
     }
 
     @Override

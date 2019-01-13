@@ -28,18 +28,8 @@ import junit.framework.Assert;
  */
 public class TestExpansion {
 
-    static final byte[] data = "aaaa".getBytes();
     static final byte   a    = 'a';
-
-    @Test
-    public void arrayUnPool() {
-        ByteBuf buf = ByteBuf.heap(2);
-        for (int i = 0; i < 10; i++) {
-            buf.put(data);
-            buf.putByte(a);
-        }
-        Assert.assertTrue(v(buf));
-    }
+    static final byte[] data = "aaaa".getBytes();
 
     @Test
     public void arrayPool() throws Exception {
@@ -49,6 +39,16 @@ public class TestExpansion {
             buf.put(data);
             buf.putByte(a);
             alloc.allocate(1);
+        }
+        Assert.assertTrue(v(buf));
+    }
+
+    @Test
+    public void arrayUnPool() {
+        ByteBuf buf = ByteBuf.heap(2);
+        for (int i = 0; i < 10; i++) {
+            buf.put(data);
+            buf.putByte(a);
         }
         Assert.assertTrue(v(buf));
     }

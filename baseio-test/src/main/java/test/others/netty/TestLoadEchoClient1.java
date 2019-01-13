@@ -22,13 +22,9 @@ import test.test.ITestThreadHandle;
 
 public class TestLoadEchoClient1 extends ITestThread {
 
-    private ChannelInboundHandlerAdapter eventHandleAdaptor = null;
-    private EventLoopGroup               group              = new NioEventLoopGroup();
-    private ChannelFuture                f;
-    static final int                     core_size          = 16;
-    private static final byte[]          req;
-    private static final String          reqS;
-
+    static final int            core_size = 16;
+    private static final byte[] req;
+    private static final String reqS;
     static {
         int len = 128;
         String s = "hello server!";
@@ -38,14 +34,10 @@ public class TestLoadEchoClient1 extends ITestThread {
         reqS = s;
         req = s.getBytes();
     }
+    private ChannelInboundHandlerAdapter eventHandleAdaptor = null;
+    private ChannelFuture                f;
 
-    @Override
-    public void run() {
-        int time1 = getTime();
-        for (int i = 0; i < time1; i++) {
-            f.channel().writeAndFlush(reqS);
-        }
-    }
+    private EventLoopGroup               group              = new NioEventLoopGroup();
 
     @Override
     public void prepare() throws Exception {
@@ -76,6 +68,14 @@ public class TestLoadEchoClient1 extends ITestThread {
         });
 
         f = b.connect("localhost", 8300).sync();
+    }
+
+    @Override
+    public void run() {
+        int time1 = getTime();
+        for (int i = 0; i < time1; i++) {
+            f.channel().writeAndFlush(reqS);
+        }
     }
 
     @Override

@@ -27,6 +27,11 @@ public class TestCollection {
 
     private static List<String> test = new ArrayList<>();
 
+    static Collection<String> getColls() {
+        System.out.println("_______________GET");
+        return test;
+    }
+
     public static void main(String[] args) {
 
         test.add("aaa");
@@ -39,10 +44,5 @@ public class TestCollection {
 
         }
 
-    }
-
-    static Collection<String> getColls() {
-        System.out.println("_______________GET");
-        return test;
     }
 }

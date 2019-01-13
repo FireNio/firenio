@@ -15,34 +15,37 @@
  */
 package test.others;
 
-import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.nio.channels.SocketChannel;
 
-import com.firenio.baseio.common.Encoding;
-import com.firenio.baseio.common.FileUtil;
-import com.firenio.baseio.common.KMPByteUtil;
+import com.firenio.baseio.common.Util;
 
-import test.test.ITest;
-import test.test.ITestHandle;
-
-public class TestKMPHttpHeader {
-
+/**
+ * @author wangkai
+ *
+ */
+public class TestSocketChannel {
+    
+    
     public static void main(String[] args) throws Exception {
-
-        final KMPByteUtil KMP_HEADER = new KMPByteUtil("\r\n\r\n".getBytes());
-
-        File file = new File("test.header");
-
-        String content = FileUtil.readStringByFile(file, Encoding.UTF8);
-
-        final byte[] array = content.getBytes();
-
-        ITestHandle.doTest(new ITest() {
-
-            @Override
-            public void test(int i) throws Exception {
-
-                KMP_HEADER.match(array);
+        
+        SocketChannel ch = SocketChannel.open();
+        Field ff = ch.getClass().getDeclaredField("fd");
+        if (ff != null) {
+            Util.trySetAccessible(ff);
+            Object fo = ff.get(ch);
+            Field f2 = fo.getClass().getDeclaredField("fd");
+            if (f2 != null) {
+                Util.trySetAccessible(f2);
+                Object f2o = f2.get(fo);
+                System.out.println(f2o);
             }
-        }, 1000000, "kmp-http-header");
+            
+        }
+        
+        
+        
     }
+
 }

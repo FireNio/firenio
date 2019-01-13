@@ -63,79 +63,6 @@ public class ZeroOnePackage {
         return table[pWeight - 1][valuesLen - 1];
     }
 
-    private static void printTable(int[][] table, boolean print) {
-        if (!print) {
-            return;
-        }
-        System.out.println("==================================");
-        for (int i = 0; i < table.length; i++) {
-            int[] rows = table[i];
-            System.out.print('[');
-            for (int j = 0; j < rows.length; j++) {
-                System.out.print(rows[j]);
-                System.out.print(", ");
-
-            }
-            System.out.println("]");
-        }
-    }
-
-    public static void main(String[] args) {
-        long time = 1 * 10000;
-
-        //		test3(time);
-        test2(time);
-    }
-
-    static void test1() {
-        int[] values = new int[] { 0, 6, 4, 5, 3, 6 };
-        int[] weights = new int[] { 0, 4, 5, 6, 2, 2 };
-        int pWeight = 10;
-        int[][] table = new int[pWeight + 1][values.length];
-
-        int max = getValue(values, weights, pWeight + 1, table, true);
-
-        System.out.println(max);
-    }
-
-    static void test2(long time) {
-
-        int[] values = new int[] { 0, 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787,
-                701, 605, 644 };
-        int[] weights = new int[] { 0, 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787,
-                701, 605, 644 };
-        int pWeight = 5000;
-        int[][] table = new int[pWeight + 1][values.length];
-
-        ITestHandle.doTest(new ITest() {
-
-            @Override
-            public void test(int i) throws Exception {
-                getValue(values, weights, pWeight + 1, table, false);
-
-            }
-        }, time, "My");
-
-    }
-
-    static void test3(long time) {
-
-        int[] values = new int[] { 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787, 701,
-                605, 644 };
-        int[] weights = new int[] { 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787, 701,
-                605, 644 };
-        int pWeight = 5000;
-        // Items are in rows and weight at in columns +1 on each side
-        int[][] V = new int[weights.length + 1][pWeight + 1];
-
-        ITestHandle.doTest(new ITest() {
-            @Override
-            public void test(int i) throws Exception {
-                knapsack(values, weights, pWeight, V, false);
-            }
-        }, time, "knapsack");
-    }
-
     public static int knapsack(int val[], int wt[], int W, int[][] V, boolean print) {
         // Get the total number of items.
         // Could be wt.length or val.length. Doesn't matter
@@ -193,6 +120,79 @@ public class ZeroOnePackage {
             System.out.println("choose index : " + result.substring(0, result.length() - 1));
         }
         return V[N][W];
+    }
+
+    public static void main(String[] args) {
+        long time = 1 * 10000;
+
+        //		test3(time);
+        test2(time);
+    }
+
+    private static void printTable(int[][] table, boolean print) {
+        if (!print) {
+            return;
+        }
+        System.out.println("==================================");
+        for (int i = 0; i < table.length; i++) {
+            int[] rows = table[i];
+            System.out.print('[');
+            for (int j = 0; j < rows.length; j++) {
+                System.out.print(rows[j]);
+                System.out.print(", ");
+
+            }
+            System.out.println("]");
+        }
+    }
+
+    static void test1() {
+        int[] values = new int[] { 0, 6, 4, 5, 3, 6 };
+        int[] weights = new int[] { 0, 4, 5, 6, 2, 2 };
+        int pWeight = 10;
+        int[][] table = new int[pWeight + 1][values.length];
+
+        int max = getValue(values, weights, pWeight + 1, table, true);
+
+        System.out.println(max);
+    }
+
+    static void test2(long time) {
+
+        int[] values = new int[] { 0, 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787,
+                701, 605, 644 };
+        int[] weights = new int[] { 0, 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787,
+                701, 605, 644 };
+        int pWeight = 5000;
+        int[][] table = new int[pWeight + 1][values.length];
+
+        ITestHandle.doTest(new ITest() {
+
+            @Override
+            public void test(int i) throws Exception {
+                getValue(values, weights, pWeight + 1, table, false);
+
+            }
+        }, time, "My");
+
+    }
+
+    static void test3(long time) {
+
+        int[] values = new int[] { 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787, 701,
+                605, 644 };
+        int[] weights = new int[] { 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787, 701,
+                605, 644 };
+        int pWeight = 5000;
+        // Items are in rows and weight at in columns +1 on each side
+        int[][] V = new int[weights.length + 1][pWeight + 1];
+
+        ITestHandle.doTest(new ITest() {
+            @Override
+            public void test(int i) throws Exception {
+                knapsack(values, weights, pWeight, V, false);
+            }
+        }, time, "knapsack");
     }
 
 }

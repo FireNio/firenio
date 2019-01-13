@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.ChannelAcceptor;
-import com.firenio.baseio.component.ChannelActiveIdleEventListener;
-import com.firenio.baseio.component.ChannelAliveIdleEventListener;
+import com.firenio.baseio.component.ChannelActiveListener;
+import com.firenio.baseio.component.ChannelAliveListener;
 import com.firenio.baseio.component.ChannelConnector;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
@@ -44,40 +44,44 @@ public class NetDataTransferServer {
     private static final NetDataTransferServer instance          = new NetDataTransferServer();
     private AtomicInteger                      connectorCallback = new AtomicInteger();
 
-    public static NetDataTransferServer get() {
-        return instance;
-    }
-
-    public static void mask(ByteBuf src, byte m) {
-        ByteBuffer buf = src.nioBuffer();
-        int p = buf.position();
-        int l = buf.limit();
-        for (; p < l; p++) {
-            buf.put(p, (byte) (buf.get(p) ^ m));
-        }
-    }
-
     public synchronized void startup(NioEventLoopGroup group, int port) throws Exception {
 
         ChannelAcceptor context = new ChannelAcceptor(group, port);
         context.addProtocolCodec(new NetDataTransfer());
-        context.addChannelIdleEventListener(new ChannelAliveIdleEventListener());
+        context.addChannelIdleEventListener(new ChannelAliveListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new CountChannelListener());
         context.bind();
     }
 
-    public static void main(String[] args) throws Exception {
+    class HttpProxyConnect extends ProtocolCodec {
 
-        get().startup(new NioEventLoopGroup(true), 18088);
+        Channel ch_src;
+        byte    mask;
 
-    }
+        public HttpProxyConnect(Channel ch_src, byte mask) {
+            this.ch_src = ch_src;
+            this.mask = mask;
+        }
 
-    class NetDataTransfer extends ProtocolCodec {
+        @Override
+        public Frame decode(Channel ch, ByteBuf src) throws IOException {
+            ByteBuf buf = ch_src.alloc().allocate(src.remaining());
+            buf.put(src);
+            buf.flip();
+            mask(buf, mask);
+            ch_src.writeAndFlush(buf);
+            return null;
+        }
+
+        @Override
+        public ByteBuf encode(Channel ch, Frame frame) throws IOException {
+            return null;
+        }
 
         @Override
         public String getProtocolId() {
-            return "NetDataTransfer";
+            return "HttpProxyConnect";
         }
 
         @Override
@@ -85,10 +89,9 @@ public class NetDataTransferServer {
             return 0;
         }
 
-        @Override
-        public ByteBuf encode(Channel ch, Frame frame) throws IOException {
-            return null;
-        }
+    }
+
+    class NetDataTransfer extends ProtocolCodec {
 
         @Override
         public Frame decode(Channel ch_src, ByteBuf src) throws Exception {
@@ -99,7 +102,7 @@ public class NetDataTransferServer {
                     ChannelConnector context = new ChannelConnector(el, s.host, s.port);
                     context.addProtocolCodec(new HttpProxyConnect(ch_src, s.mask));
                     context.setPrintConfig(false);
-                    context.addChannelIdleEventListener(new ChannelActiveIdleEventListener());
+                    context.addChannelIdleEventListener(new ChannelActiveListener());
                     context.addChannelEventListener(new LoggerChannelOpenListener());
                     context.addChannelEventListener(new CountChannelListener());
                     ByteBuf buf = ch_src.alloc().allocate(src.remaining());
@@ -150,26 +153,14 @@ public class NetDataTransferServer {
             return null;
         }
 
-    }
-
-    class HttpProxyConnect extends ProtocolCodec {
-
-        Channel ch_src;
-        byte    mask;
-
-        public HttpProxyConnect(Channel ch_src, byte mask) {
-            this.ch_src = ch_src;
-            this.mask = mask;
+        @Override
+        public ByteBuf encode(Channel ch, Frame frame) throws IOException {
+            return null;
         }
 
         @Override
         public String getProtocolId() {
-            return "HttpProxyConnect";
-        }
-
-        @Override
-        public ByteBuf encode(Channel ch, Frame frame) throws IOException {
-            return null;
+            return "NetDataTransfer";
         }
 
         @Override
@@ -177,16 +168,25 @@ public class NetDataTransferServer {
             return 0;
         }
 
-        @Override
-        public Frame decode(Channel ch, ByteBuf src) throws IOException {
-            ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-            buf.put(src);
-            buf.flip();
-            mask(buf, mask);
-            ch_src.writeAndFlush(buf);
-            return null;
-        }
+    }
 
+    public static NetDataTransferServer get() {
+        return instance;
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        get().startup(new NioEventLoopGroup(true), 18088);
+
+    }
+
+    public static void mask(ByteBuf src, byte m) {
+        ByteBuffer buf = src.nioBuffer();
+        int p = buf.position();
+        int l = buf.limit();
+        for (; p < l; p++) {
+            buf.put(p, (byte) (buf.get(p) ^ m));
+        }
     }
 
 }

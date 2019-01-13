@@ -36,6 +36,8 @@ public abstract class ByteBuf implements Releasable {
 
     protected volatile int referenceCount = 0;
 
+    public abstract long address();
+
     public abstract byte absByte(int pos);
 
     public abstract int absLimit();
@@ -58,6 +60,8 @@ public abstract class ByteBuf implements Releasable {
             }
         }
     }
+
+    public abstract boolean isPooled();
 
     public abstract byte[] array();
 
@@ -471,7 +475,7 @@ public abstract class ByteBuf implements Releasable {
     static final class EmptyByteBuf extends UnpooledHeapByteBuf {
 
         EmptyByteBuf() {
-            super(ByteBuf.heap(), new byte[] {}, 0, 0);
+            super(new byte[] {}, 0, 0);
         }
 
         @Override
@@ -490,40 +494,28 @@ public abstract class ByteBuf implements Releasable {
         System.arraycopy(src, srcPos, dst, dstPos, len);
     }
 
-    static void copy(byte[] src, int srcPos, ByteBuffer dst, int len) {
-        long dstAddress = Unsafe.addressOffset(dst);
-        Unsafe.copyFromArray(src, srcPos, dstAddress + dst.position(), len);
+    static void copy(byte[] src, int srcPos, long dst, int len) {
+        Unsafe.copyFromArray(src, srcPos, dst, len);
     }
 
-    static void copy(ByteBuffer src, byte[] dst, int dstPos, int len) {
-        long srcAddress = Unsafe.addressOffset(src);
-        Unsafe.copyToArray(srcAddress + src.position(), dst, dstPos, len);
+    static void copy(long src, byte[] dst, int dstPos, int len) {
+        Unsafe.copyToArray(src, dst, dstPos, len);
     }
 
-    static void copy(ByteBuffer src, ByteBuffer dst, int len) {
-        long srcAddress = Unsafe.addressOffset(src);
-        long dstAddress = Unsafe.addressOffset(dst);
-        Unsafe.copyMemory(srcAddress + src.position(), dstAddress + dst.position(), len);
-    }
-
-    private static UnpooledByteBufAllocator direct() {
-        return UnpooledByteBufAllocator.getDirect();
+    static void copy(long src, long dst, int len) {
+        Unsafe.copyMemory(src, dst, len);
     }
 
     public static ByteBuf direct(int cap) {
-        return direct().allocate(cap);
+        return wrap(ByteBuffer.allocateDirect(cap));
     }
 
     public static final ByteBuf empty() {
         return EMPTY;
     }
 
-    private static UnpooledByteBufAllocator heap() {
-        return UnpooledByteBufAllocator.getHeap();
-    }
-
     public static ByteBuf heap(int cap) {
-        return heap().allocate(cap);
+        return wrap(new byte[cap]);
     }
 
     public static ByteBuf wrap(byte[] data) {
@@ -531,11 +523,15 @@ public abstract class ByteBuf implements Releasable {
     }
 
     public static ByteBuf wrap(byte[] data, int offset, int length) {
-        return heap().wrap(data, offset, length);
+        return new UnpooledHeapByteBuf(data, offset, length);
     }
 
     public static ByteBuf wrap(ByteBuffer buffer) {
-        return heap().wrap(buffer);
+        if (buffer.isDirect()) {
+            return new UnpooledDirectByteBuf(buffer);
+        }else{
+            return new UnpooledHeapByteBuf(buffer);
+        }
     }
 
 }

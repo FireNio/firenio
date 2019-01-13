@@ -18,7 +18,7 @@ package test.io.fixedlength;
 import com.firenio.baseio.codec.fixedlength.FixedLengthCodec;
 import com.firenio.baseio.codec.fixedlength.FixedLengthFrame;
 import com.firenio.baseio.common.Util;
-import com.firenio.baseio.component.ChannelActiveIdleEventListener;
+import com.firenio.baseio.component.ChannelActiveListener;
 import com.firenio.baseio.component.ChannelConnector;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.IoEventHandle;
@@ -42,7 +42,7 @@ public class TestHeartBeat {
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setIdleTime(20);
         ChannelConnector context = new ChannelConnector(group, "127.0.0.1", 8300);
-        context.addChannelIdleEventListener(new ChannelActiveIdleEventListener());
+        context.addChannelIdleEventListener(new ChannelActiveListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addProtocolCodec(new FixedLengthCodec());
         context.setIoEventHandle(eventHandleAdaptor);

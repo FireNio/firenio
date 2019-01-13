@@ -38,11 +38,6 @@ public class TestBytebufAllocator {
         v(dst);
     }
 
-    static void v(ByteBuf buf) {
-        byte[] res = buf.getBytes();
-        Assert.assertTrue(new String(res).equals(data));
-    }
-
     @Test
     public void testput1() {
 
@@ -126,6 +121,11 @@ public class TestBytebufAllocator {
         dst.put(src);
         dst.flip();
         v(dst);
+    }
+
+    static void v(ByteBuf buf) {
+        byte[] res = buf.getBytes();
+        Assert.assertTrue(new String(res).equals(data));
     }
 
 }

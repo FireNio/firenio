@@ -23,19 +23,6 @@ import java.math.BigInteger;
  */
 public class FibonacciSeq {
 
-    public static void main(String[] args) {
-
-        int c = 20;
-        for (int i = 0; i < c; i++) {
-            System.out.println(fi1(i));
-        }
-        long start = System.currentTimeMillis();
-        BigInteger res = fi1(1024 * 1024);
-        long end = System.currentTimeMillis();
-        System.out.println("Time;" + (end - start));
-        System.out.println(res.toByteArray().length);
-    }
-
     static int fi(int n) {
         if (n == 0) {
             return 1;
@@ -64,6 +51,19 @@ public class FibonacciSeq {
             sum = n_2.add(n_1);
         }
         return sum;
+    }
+
+    public static void main(String[] args) {
+
+        int c = 20;
+        for (int i = 0; i < c; i++) {
+            System.out.println(fi1(i));
+        }
+        long start = System.currentTimeMillis();
+        BigInteger res = fi1(1024 * 1024);
+        long end = System.currentTimeMillis();
+        System.out.println("Time;" + (end - start));
+        System.out.println(res.toByteArray().length);
     }
 
 }

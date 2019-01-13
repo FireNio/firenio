@@ -82,8 +82,9 @@ public class DebugUtil {
         logger.info(message, param, param1);
     }
 
-    public static void info(String message, Object[] param) {
-        logger.info(message, param);
+    public static void info(String msg, Object... params){
+        logger.info(msg, params);
+        
     }
 
 }

@@ -17,6 +17,19 @@ package test.others;
 
 import com.firenio.baseio.common.Util;
 
+class Singleton {
+
+    private static final Singleton instance = new Singleton();
+
+    private Singleton() {
+        System.out.println("init singleton");
+    }
+
+    public static Singleton getSingleton() {
+        return instance;
+    }
+}
+
 /**
  * @author wangkai
  *
@@ -35,17 +48,4 @@ public class TestSingleton {
 
     }
 
-}
-
-class Singleton {
-
-    private static final Singleton instance = new Singleton();
-
-    private Singleton() {
-        System.out.println("init singleton");
-    }
-
-    public static Singleton getSingleton() {
-        return instance;
-    }
 }

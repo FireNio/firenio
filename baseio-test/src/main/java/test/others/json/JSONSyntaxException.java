@@ -16,9 +16,9 @@
 package test.others.json;
 
 public class JSONSyntaxException extends Exception {
+    private static final long serialVersionUID = 1L;
+
     public JSONSyntaxException(String string) {
         super(string);
     }
-
-    private static final long serialVersionUID = 1L;
 }

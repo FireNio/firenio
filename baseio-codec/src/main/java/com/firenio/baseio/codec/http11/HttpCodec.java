@@ -26,15 +26,13 @@ import java.util.Map;
 
 import com.firenio.baseio.Develop;
 import com.firenio.baseio.buffer.ByteBuf;
-import com.firenio.baseio.collection.IntEntry;
 import com.firenio.baseio.collection.IntMap;
 import com.firenio.baseio.common.DateUtil;
-import com.firenio.baseio.common.KMPUtil;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.FastThreadLocal;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.NioEventLoop;
-import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ProtocolCodec;
 
 /**
@@ -223,9 +221,9 @@ public class HttpCodec extends ProtocolCodec {
         List<byte[]> encode_bytes_array = getEncodeBytesArray();
         IntMap<byte[]> headers = f.getResponseHeaders();
         if (headers != null) {
-            for (IntEntry<byte[]> header : headers.entries()) {
-                byte[] k = HttpHeader.get(header.key()).getBytes();
-                byte[] v = header.value();
+            for (headers.scan();headers.hasNext();) {
+                byte[] k = HttpHeader.get(headers.nextKey()).getBytes();
+                byte[] v = headers.value();
                 header_size++;
                 encode_bytes_array.add(k);
                 encode_bytes_array.add(v);
@@ -249,7 +247,7 @@ public class HttpCodec extends ProtocolCodec {
             len += write_size;
         }
         ByteBuf buf;
-        if (Develop.DEBUG) {
+        if (Develop.BUF_DEBUG) {
             buf = ch.allocate();
         } else {
             buf = ch.alloc().allocate(len);

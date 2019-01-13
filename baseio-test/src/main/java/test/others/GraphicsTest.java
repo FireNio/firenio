@@ -39,32 +39,16 @@ import com.firenio.baseio.common.ByteUtil;
 @SuppressWarnings("serial")
 public class GraphicsTest {
 
-    public static void main(String[] args) {
-        /*
-         * 在 AWT 的事件队列线程中创建窗口和组件, 确保线程安全,
-         * 即 组件创建、绘制、事件响应 需要处于同一线程。
-         */
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                // 创建窗口对象
-                JFrame frame = new MyFrame();
-                // 显示窗口
-                frame.setVisible(true);
-            }
-        });
-    }
-
     /**
      * 窗口
      */
 
     public static class MyFrame extends JFrame {
 
-        public static final String TITLE  = "Java图形绘制";
-
-        public static final int    WIDTH  = 800;
         public static final int    HEIGHT = 600;
+
+        public static final String TITLE  = "Java图形绘制";
+        public static final int    WIDTH  = 800;
 
         public MyFrame() {
             super();
@@ -102,37 +86,47 @@ public class GraphicsTest {
         }
 
         /**
-         * 绘制面板的内容: 创建 JPanel 后会调用一次该方法绘制内容,
-         * 之后如果数据改变需要重新绘制, 可调用 updateUI() 方法触发
-         * 系统再次调用该方法绘制更新 JPanel 的内容。
+         * 3. 圆弧 / 扇形
          */
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
+        void drawArc(Graphics g) {
+            frame.setTitle("3. 圆弧 / 扇形");
+            Graphics2D g2d = (Graphics2D) g.create();
 
-            // 重新调用 Graphics 的绘制方法绘制时将自动擦除旧的内容
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setColor(Color.RED);
 
-            /* 自行打开下面注释查看各绘制效果 */
+            // 1. 绘制一条圆弧: 椭圆的外切矩形 左上角坐标为(0, 0), 宽100, 高100,
+            //                弧的开始角度为0度, 需要绘制的角度数为-90度,
+            //                椭圆右边水平线为0度, 逆时针为正角度, 顺时针为负角度
+            g2d.drawArc(0, 0, 100, 100, 0, -90);
 
-            // 1. 线段 / 折线
-            // drawLine(g);
+            // 2. 绘制一个圆: 圆的外切矩形 左上角坐标为(120, 20), 宽高为100
+            g2d.drawArc(120, 20, 100, 100, 0, 360);
 
-            // 2. 矩形 / 多边形
-            // drawRect(g);
+            g2d.setColor(Color.GRAY);
 
-            // 3. 圆弧 / 扇形
-            // drawArc(g);
+            // 3. 填充一个扇形
+            g2d.fillArc(80, 150, 100, 100, 90, 270);
 
-            // 4. 椭圆
-            // drawOval(g);
+            g2d.dispose();
+        }
 
-            // 5. 图片
-            // drawImage(g);
+        /**
+         * 5. 图片
+         */
+        void drawImage(Graphics g) {
+            frame.setTitle("5. 图片");
+            Graphics2D g2d = (Graphics2D) g.create();
 
-            // 6. 文本
-            // drawString(g);
+            // 从本地读取一张图片
+            String filepath = "demo.jpg";
+            Image image = Toolkit.getDefaultToolkit().getImage(filepath);
 
-            drawTest(g);
+            // 绘制图片（如果宽高传的不是图片原本的宽高, 则图片将会适当缩放绘制）
+            g2d.drawImage(image, 50, 50, image.getWidth(this), image.getHeight(this), this);
+
+            g2d.dispose();
         }
 
         /**
@@ -180,6 +174,28 @@ public class GraphicsTest {
         }
 
         /**
+         * 4. 椭圆 (实际上通过绘制360度的圆弧/扇形也能达到绘制圆/椭圆的效果)
+         */
+        void drawOval(Graphics g) {
+            frame.setTitle("4. 椭圆");
+            Graphics2D g2d = (Graphics2D) g.create();
+
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setColor(Color.RED);
+
+            // 1. 绘制一个圆: 圆的外切矩形 左上角坐标为(0, 0), 宽高为100
+            g2d.drawOval(0, 0, 100, 100);
+
+            g2d.setColor(Color.GRAY);
+
+            // 2. 填充一个椭圆
+            g2d.fillOval(120, 100, 100, 150);
+
+            g2d.dispose();
+        }
+
+        /**
          * 2. 矩形 / 多边形
          */
         void drawRect(Graphics g) {
@@ -209,49 +225,24 @@ public class GraphicsTest {
         }
 
         /**
-         * 3. 圆弧 / 扇形
+         * 6. 文本
          */
-        void drawArc(Graphics g) {
-            frame.setTitle("3. 圆弧 / 扇形");
+        void drawString(Graphics g) {
+            frame.setTitle("6. 文本");
             Graphics2D g2d = (Graphics2D) g.create();
 
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setColor(Color.RED);
 
-            // 1. 绘制一条圆弧: 椭圆的外切矩形 左上角坐标为(0, 0), 宽100, 高100,
-            //                弧的开始角度为0度, 需要绘制的角度数为-90度,
-            //                椭圆右边水平线为0度, 逆时针为正角度, 顺时针为负角度
-            g2d.drawArc(0, 0, 100, 100, 0, -90);
+            // 设置字体样式, null 表示使用默认字体, Font.PLAIN 为普通样式, 大小为 25px
+            g2d.setFont(new Font(null, Font.PLAIN, 25));
 
-            // 2. 绘制一个圆: 圆的外切矩形 左上角坐标为(120, 20), 宽高为100
-            g2d.drawArc(120, 20, 100, 100, 0, 360);
-
-            g2d.setColor(Color.GRAY);
-
-            // 3. 填充一个扇形
-            g2d.fillArc(80, 150, 100, 100, 90, 270);
+            // 绘制文本, 其中坐标参数指的是文本绘制后的 左下角 的位置
+            // 首次绘制需要初始化字体, 可能需要较耗时
+            g2d.drawString("Hello World!", 20, 60);
+            g2d.drawString("你好, 世界!", 20, 120);
 
             g2d.dispose();
-        }
-
-        byte[] randomArray(int n) {
-            byte[] array = new byte[n];
-            Random r = new Random();
-            for (int i = 0; i < array.length; i++) {
-                array[i] = (byte) r.nextInt(256);
-            }
-            return array;
-        }
-
-        byte[] randomArray1(int n) {
-            byte[] seed = "abcdefghijklmnopqrstuvwxyz1234567890".getBytes();
-            byte[] array = new byte[n];
-            Random r = new Random();
-            for (int i = 0; i < array.length; i++) {
-                array[i] = seed[r.nextInt(seed.length)];
-            }
-            return array;
         }
 
         /**
@@ -321,65 +312,74 @@ public class GraphicsTest {
         }
 
         /**
-         * 4. 椭圆 (实际上通过绘制360度的圆弧/扇形也能达到绘制圆/椭圆的效果)
+         * 绘制面板的内容: 创建 JPanel 后会调用一次该方法绘制内容,
+         * 之后如果数据改变需要重新绘制, 可调用 updateUI() 方法触发
+         * 系统再次调用该方法绘制更新 JPanel 的内容。
          */
-        void drawOval(Graphics g) {
-            frame.setTitle("4. 椭圆");
-            Graphics2D g2d = (Graphics2D) g.create();
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
 
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setColor(Color.RED);
+            // 重新调用 Graphics 的绘制方法绘制时将自动擦除旧的内容
 
-            // 1. 绘制一个圆: 圆的外切矩形 左上角坐标为(0, 0), 宽高为100
-            g2d.drawOval(0, 0, 100, 100);
+            /* 自行打开下面注释查看各绘制效果 */
 
-            g2d.setColor(Color.GRAY);
+            // 1. 线段 / 折线
+            // drawLine(g);
 
-            // 2. 填充一个椭圆
-            g2d.fillOval(120, 100, 100, 150);
+            // 2. 矩形 / 多边形
+            // drawRect(g);
 
-            g2d.dispose();
+            // 3. 圆弧 / 扇形
+            // drawArc(g);
+
+            // 4. 椭圆
+            // drawOval(g);
+
+            // 5. 图片
+            // drawImage(g);
+
+            // 6. 文本
+            // drawString(g);
+
+            drawTest(g);
         }
 
-        /**
-         * 5. 图片
-         */
-        void drawImage(Graphics g) {
-            frame.setTitle("5. 图片");
-            Graphics2D g2d = (Graphics2D) g.create();
-
-            // 从本地读取一张图片
-            String filepath = "demo.jpg";
-            Image image = Toolkit.getDefaultToolkit().getImage(filepath);
-
-            // 绘制图片（如果宽高传的不是图片原本的宽高, 则图片将会适当缩放绘制）
-            g2d.drawImage(image, 50, 50, image.getWidth(this), image.getHeight(this), this);
-
-            g2d.dispose();
+        byte[] randomArray(int n) {
+            byte[] array = new byte[n];
+            Random r = new Random();
+            for (int i = 0; i < array.length; i++) {
+                array[i] = (byte) r.nextInt(256);
+            }
+            return array;
         }
 
-        /**
-         * 6. 文本
-         */
-        void drawString(Graphics g) {
-            frame.setTitle("6. 文本");
-            Graphics2D g2d = (Graphics2D) g.create();
-
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            // 设置字体样式, null 表示使用默认字体, Font.PLAIN 为普通样式, 大小为 25px
-            g2d.setFont(new Font(null, Font.PLAIN, 25));
-
-            // 绘制文本, 其中坐标参数指的是文本绘制后的 左下角 的位置
-            // 首次绘制需要初始化字体, 可能需要较耗时
-            g2d.drawString("Hello World!", 20, 60);
-            g2d.drawString("你好, 世界!", 20, 120);
-
-            g2d.dispose();
+        byte[] randomArray1(int n) {
+            byte[] seed = "abcdefghijklmnopqrstuvwxyz1234567890".getBytes();
+            byte[] array = new byte[n];
+            Random r = new Random();
+            for (int i = 0; i < array.length; i++) {
+                array[i] = seed[r.nextInt(seed.length)];
+            }
+            return array;
         }
 
+    }
+
+    public static void main(String[] args) {
+        /*
+         * 在 AWT 的事件队列线程中创建窗口和组件, 确保线程安全,
+         * 即 组件创建、绘制、事件响应 需要处于同一线程。
+         */
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                // 创建窗口对象
+                JFrame frame = new MyFrame();
+                // 显示窗口
+                frame.setVisible(true);
+            }
+        });
     }
 
 }

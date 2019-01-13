@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.baseio.common;
+package com.firenio.baseio.codec.http11;
 
 import com.firenio.baseio.collection.IntArray;
+import com.firenio.baseio.common.Util;
 
 //关键字：前缀，后缀，部分匹配表
 public class KMPUtil {

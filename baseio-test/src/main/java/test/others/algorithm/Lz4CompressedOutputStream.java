@@ -11,13 +11,13 @@ import com.firenio.baseio.common.ByteUtil;
  */
 public class Lz4CompressedOutputStream extends OutputStream {
 
-    private OutputStream     target;
-
     private Lz4RawCompressor compressor = new Lz4RawCompressor();
 
     private byte[]           outputBuffer;
 
     private int              outputBufferLen;
+
+    private OutputStream     target;
 
     public Lz4CompressedOutputStream(OutputStream target) {
         this(target, 1024 * 128);
@@ -30,18 +30,9 @@ public class Lz4CompressedOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(int b) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void write(byte[] b, int off, int len) throws IOException {
-        Lz4RawCompressor compressor = this.compressor;
-        byte[] outputBuffer = this.outputBuffer;
-        int compressedDataLength = compressor.compress(b, off, len, outputBuffer, 4,
-                outputBufferLen);
-        ByteUtil.int2Byte(outputBuffer, compressedDataLength, 0);
-        target.write(outputBuffer, 0, compressedDataLength + 4);
+    public void close() throws IOException {
+        target.flush();
+        target.close();
     }
 
     @Override
@@ -50,9 +41,18 @@ public class Lz4CompressedOutputStream extends OutputStream {
     }
 
     @Override
-    public void close() throws IOException {
-        target.flush();
-        target.close();
+    public void write(byte[] b, int off, int len) throws IOException {
+        Lz4RawCompressor compressor = this.compressor;
+        byte[] outputBuffer = this.outputBuffer;
+        int compressedDataLength = compressor.compress(b, off, len, outputBuffer, 4,
+                outputBufferLen);
+        ByteUtil.putInt(outputBuffer, compressedDataLength, 0);
+        target.write(outputBuffer, 0, compressedDataLength + 4);
+    }
+
+    @Override
+    public void write(int b) throws IOException {
+        throw new UnsupportedOperationException();
     }
 
 }

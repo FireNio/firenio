@@ -53,7 +53,7 @@ public final class SslContext {
         }
         boolean testOpenSsl = false;
         try {
-            if (!Options.isDisableOpenssl()) {
+            if (Options.isEnableOpenssl()) {
                 Class.forName("org.wildfly.openssl.OpenSSLProvider");
                 org.wildfly.openssl.OpenSSLProvider.register();
                 testOpenSsl = true;

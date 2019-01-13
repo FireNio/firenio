@@ -19,12 +19,24 @@ import java.nio.ByteBuffer;
 
 final class PooledDirectByteBuf extends DirectByteBuf {
 
-    private int capacity;
-    private int offset;
-    private int unitOffset;
+    private PooledByteBufAllocator allocator;
+    private int                    capacity;
+    private int                    offset;
+    private int                    unitOffset;
 
-    PooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
-        super(allocator, memory);
+    PooledDirectByteBuf(PooledByteBufAllocator allocator, ByteBuffer memory) {
+        super(memory);
+        this.allocator = allocator;
+    }
+    
+    @Override
+    public long address() {
+        return allocator.getAddress();
+    }
+
+    @Override
+    public boolean isPooled() {
+        return true;
     }
 
     @Override

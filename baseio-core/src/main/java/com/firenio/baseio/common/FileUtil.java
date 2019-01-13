@@ -37,7 +37,7 @@ public class FileUtil {
 
     private static final ClassLoader CLASS_LOADER     = FileUtil.class.getClassLoader();
 
-    private static final Charset     ENCODING         = Encoding.UTF8;
+    private static final Charset     ENCODING         = Util.UTF8;
 
     private static final byte[]      SKIP_BYTE_BUFFER = new byte[2048];
 

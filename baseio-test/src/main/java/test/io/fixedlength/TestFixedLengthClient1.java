@@ -18,49 +18,43 @@ package test.io.fixedlength;
 import com.firenio.baseio.codec.fixedlength.FixedLengthCodec;
 import com.firenio.baseio.codec.fixedlength.FixedLengthFrame;
 import com.firenio.baseio.common.Util;
-import com.firenio.baseio.component.ChannelAcceptor;
+import com.firenio.baseio.component.ChannelConnector;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.Channel;
 
-public class TestFIxedLengthBroadcastServer {
+public class TestFixedLengthClient1 {
 
     public static void main(String[] args) throws Exception {
-
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
-
             @Override
             public void accept(Channel ch, Frame frame) throws Exception {
                 FixedLengthFrame f = (FixedLengthFrame) frame;
-                frame.write("yes server already accept your message:", ch);
-                frame.write(f.getStringContent(), ch);
-                ch.writeAndFlush(f);
+                System.out.println();
+                System.out.println("____________________" + f.getStringContent());
+                System.out.println();
             }
+
         };
-
-        ChannelAcceptor context = new ChannelAcceptor(8300);
-        context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addChannelEventListener(new SetOptionListener());
+        ChannelConnector context = new ChannelConnector(8300);
         context.setIoEventHandle(eventHandleAdaptor);
+        context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addProtocolCodec(new FixedLengthCodec());
-        context.bind();
 
-        Util.exec(new Runnable() {
+        Channel ch = context.connect();
+        StringBuilder sb = new StringBuilder(1024 * 6);
+        for (int i = 0; i < 1; i++) {
+            sb.append("hello!");
+        }
 
-            @Override
-            public void run() {
-                for (;;) {
-                    Util.sleep(1000);
-                    FixedLengthFrame frame = new FixedLengthFrame();
-                    frame.write("broadcast msg .........................", context);
-                    try {
-                        context.broadcast(frame);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+        for (int i = 0; i < 20; i++) {
+            FixedLengthFrame frame = new FixedLengthFrame();
+            frame.write(sb.toString(), ch);
+            ch.writeAndFlush(frame);
+        }
+        Util.sleep(100);
+        Util.close(context);
     }
+
 }

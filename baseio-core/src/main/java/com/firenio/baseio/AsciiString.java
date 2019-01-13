@@ -25,11 +25,11 @@ import com.firenio.baseio.common.ByteUtil;
  */
 public class AsciiString implements CharSequence, Comparable<AsciiString> {
 
-    private byte[] value;
-    private int    offset;
-    private int    length;
     private int    hash;
+    private int    length;
+    private int    offset;
     private String string;
+    private byte[] value;
 
     public AsciiString(byte[] value) {
         this(value, 0, value.length);
@@ -42,21 +42,8 @@ public class AsciiString implements CharSequence, Comparable<AsciiString> {
     }
 
     @Override
-    public int length() {
-        return length;
-    }
-
-    @Override
-    public int hashCode() {
-        int h = hash;
-        if (h == 0 && length > 0) {
-            byte val[] = value;
-            for (int i = offset, end = offset + length; i < end; i++) {
-                h = 31 * h + val[i];
-            }
-            hash = h;
-        }
-        return h;
+    public char charAt(int index) {
+        return (char) (value[offset + index] & 0xff);
     }
 
     @Override
@@ -81,13 +68,34 @@ public class AsciiString implements CharSequence, Comparable<AsciiString> {
     }
 
     @Override
-    public char charAt(int index) {
-        return (char) (value[offset + index] & 0xff);
+    public boolean equals(Object obj) {
+        if (obj == null || obj.getClass() != AsciiString.class) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+        AsciiString other = (AsciiString) obj;
+        return length() == other.length()
+                && ByteUtil.equalsArray(value, offset, other.value, other.offset, length);
     }
 
     @Override
-    public CharSequence subSequence(int start, int end) {
-        return new AsciiString(value, start, end);
+    public int hashCode() {
+        int h = hash;
+        if (h == 0 && length > 0) {
+            byte val[] = value;
+            for (int i = offset, end = offset + length; i < end; i++) {
+                h = 31 * h + val[i];
+            }
+            hash = h;
+        }
+        return h;
+    }
+
+    @Override
+    public int length() {
+        return length;
     }
 
     public void reset(byte[] value, int offset, int length) {
@@ -99,16 +107,8 @@ public class AsciiString implements CharSequence, Comparable<AsciiString> {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null || obj.getClass() != AsciiString.class) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
-        AsciiString other = (AsciiString) obj;
-        return length() == other.length()
-                && ByteUtil.equalsArray(value, offset, other.value, other.offset, length);
+    public CharSequence subSequence(int start, int end) {
+        return new AsciiString(value, start, end);
     }
 
     @Override

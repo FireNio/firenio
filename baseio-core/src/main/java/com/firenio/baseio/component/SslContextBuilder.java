@@ -15,6 +15,7 @@
  */
 package com.firenio.baseio.component;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -53,8 +54,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import com.firenio.baseio.common.Assert;
-import com.firenio.baseio.common.BASE64Util;
-import com.firenio.baseio.common.Encoding;
+import com.firenio.baseio.common.Cryptos;
 import com.firenio.baseio.common.FileUtil;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.SslContext.ClientAuth;
@@ -432,7 +432,7 @@ public final class SslContextBuilder {
     static List<byte[]> readCertificates(InputStream in) throws CertificateException {
         List<String> ls;
         try {
-            ls = FileUtil.readLines(in, Encoding.UTF8);
+            ls = FileUtil.readLines(in, Util.UTF8);
         } catch (IOException e) {
             throw new CertificateException("failed to read certificate input stream", e);
         }
@@ -444,7 +444,7 @@ public final class SslContextBuilder {
             if (s.startsWith("----")) {
                 readEnd++;
                 if (readEnd == 2) {
-                    byte[] data = BASE64Util.base64ToByteArray(b.toString());
+                    byte[] data = Cryptos.base64_de(b.toString());
                     certs.add(data);
                     readEnd = 0;
                     b.setLength(0);

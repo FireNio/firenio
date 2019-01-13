@@ -15,9 +15,6 @@
  */
 package test.others;
 
-import static com.firenio.baseio.common.ByteUtil.binaryString2HexString;
-import static com.firenio.baseio.common.ByteUtil.byte2BinaryString;
-
 public class TestMathUtil {
 
     public static void main(String[] args) {
@@ -47,14 +44,11 @@ public class TestMathUtil {
 
         //		System.out.println(binaryString2HexString("00111111"));
         //		System.out.println(binaryString2HexString("01111111"));
-        System.out.println(binaryString2HexString("01110000"));
-        System.out.println(binaryString2HexString("01010000"));
         //0x50=01010000,0x70=01110000
         int v = Integer.MAX_VALUE >> 1;
 
         System.out.println(v);
         System.out.println(Integer.toBinaryString(v));
-        System.out.println(byte2BinaryString((byte) 0x3F));
         System.out.println((Integer.MAX_VALUE + 5) & 0x7fffffff);
 
         System.out.println();

@@ -40,10 +40,8 @@ public class TestLoadClient1 extends ITestThread {
 
     public static final boolean debug   = false;
     static final Object         lock    = new Object();
-    static boolean              running = true;
-    final AtomicInteger         count   = new AtomicInteger();
-
     private static final byte[] req;
+    static boolean              running = true;
 
     static {
         int len = debug ? 10 : 1;
@@ -56,32 +54,7 @@ public class TestLoadClient1 extends ITestThread {
 
     private ChannelConnector context = null;
 
-    @Override
-    public void run() {
-        int time1 = getTime();
-        Channel ch = context.getChannel();
-        try {
-            for (int i = 0; i < time1; i++) {
-                Frame frame = new FixedLengthFrame();
-                frame.setContent(ch.allocate());
-                if (debug) {
-                    byte[] bb = new byte[4];
-                    ByteUtil.int2Byte(bb, i, 0);
-                    frame.write(bb);
-                }
-                frame.write(req);
-                if (debug) {
-                    frame.write(String.valueOf(i).getBytes());
-                }
-                ch.writeAndFlush(frame);
-                if (debug) {
-                    count.incrementAndGet();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    final AtomicInteger      count   = new AtomicInteger();
 
     @Override
     public void prepare() throws Exception {
@@ -118,6 +91,33 @@ public class TestLoadClient1 extends ITestThread {
     }
 
     @Override
+    public void run() {
+        int time1 = getTime();
+        Channel ch = context.getChannel();
+        try {
+            for (int i = 0; i < time1; i++) {
+                Frame frame = new FixedLengthFrame();
+                frame.setContent(ch.allocate());
+                if (debug) {
+                    byte[] bb = new byte[4];
+                    ByteUtil.putInt(bb, i, 0);
+                    frame.write(bb);
+                }
+                frame.write(req);
+                if (debug) {
+                    frame.write(String.valueOf(i).getBytes());
+                }
+                ch.writeAndFlush(frame);
+                if (debug) {
+                    count.incrementAndGet();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void stop() {
         Util.close(context);
         running = false;
@@ -128,6 +128,8 @@ public class TestLoadClient1 extends ITestThread {
 
     public static void main(String[] args) throws IOException {
         Options.setBufAutoExpansion(TestLoadServer.AUTO_EXPANSION);
+        Options.setEnableEpoll(TestLoadServer.ENABLE_EPOLL);
+        Options.setEnableUnsafeBuf(TestLoadServer.ENABLE_UNSAFE_BUF);
         if (args != null && args.length == 999) {
             running = true;
             Util.exec(() -> {

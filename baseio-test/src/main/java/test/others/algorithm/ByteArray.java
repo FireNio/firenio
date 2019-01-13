@@ -23,9 +23,9 @@ public class ByteArray {
 
     private byte[] data;
 
-    private int    off;
-
     private int    length;
+
+    private int    off;
 
     public ByteArray() {}
 
@@ -35,12 +35,20 @@ public class ByteArray {
         this.length = length;
     }
 
+    public byte getByte(int pos) {
+        return data[ix(pos)];
+    }
+
     public byte[] getData() {
         return data;
     }
 
-    public void setData(byte[] data) {
-        this.data = data;
+    public int getLength() {
+        return length;
+    }
+
+    public int getOff() {
+        return off;
     }
 
     public boolean greater(ByteArray o) {
@@ -51,6 +59,46 @@ public class ByteArray {
             return false;
         }
         return greater(this, o);
+    }
+
+    public boolean greaterOrEquals(ByteArray o) {
+        if (getLength() > o.getLength()) {
+            return true;
+        }
+        if (getLength() < o.getLength()) {
+            return false;
+        }
+        return greaterOrEquals(this, o);
+    }
+
+    private int ix(int pos) {
+        return off + pos;
+    }
+
+    public boolean lessOrEquals(ByteArray o) {
+        if (getLength() > o.getLength()) {
+            return false;
+        }
+        if (getLength() < o.getLength()) {
+            return true;
+        }
+        return lessOrEquals(this, o);
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public void setOff(int off) {
+        this.off = off;
+    }
+
+    public String toString1() {
+        return new String(data, off, length);
     }
 
     private static boolean greater(ByteArray b1, ByteArray b2) {
@@ -87,53 +135,5 @@ public class ByteArray {
             }
         }
         return true;
-    }
-
-    public boolean greaterOrEquals(ByteArray o) {
-        if (getLength() > o.getLength()) {
-            return true;
-        }
-        if (getLength() < o.getLength()) {
-            return false;
-        }
-        return greaterOrEquals(this, o);
-    }
-
-    public boolean lessOrEquals(ByteArray o) {
-        if (getLength() > o.getLength()) {
-            return false;
-        }
-        if (getLength() < o.getLength()) {
-            return true;
-        }
-        return lessOrEquals(this, o);
-    }
-
-    public int getLength() {
-        return length;
-    }
-
-    public byte getByte(int pos) {
-        return data[ix(pos)];
-    }
-
-    private int ix(int pos) {
-        return off + pos;
-    }
-
-    public void setLength(int length) {
-        this.length = length;
-    }
-
-    public int getOff() {
-        return off;
-    }
-
-    public void setOff(int off) {
-        this.off = off;
-    }
-
-    public String toString1() {
-        return new String(data, off, length);
     }
 }

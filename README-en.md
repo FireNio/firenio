@@ -2,7 +2,7 @@
 # BaseIO Project
 
 [![Website](https://img.shields.io/badge/website-firenio-green.svg)](https://www.firenio.com)
-[![Maven central](https://img.shields.io/badge/maven-3.2.9.BETA-green.svg)](http://mvnrepository.com/artifact/com.firenio/baseio-all)
+[![Maven central](https://img.shields.io/badge/maven-3.2.9.beta5-green.svg)](http://mvnrepository.com/artifact/com.firenio/baseio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/firenio/baseio/blob/master/LICENSE.txt)
 
 BaseIO is an io framework which can build network project fast, it based on java nio, it is popular with Developers because of simple and easy of use APIs and high-performance.
@@ -11,15 +11,14 @@ BaseIO is an io framework which can build network project fast, it based on java
 
  * support protocol extend, known:
    * Redis protocol(for test), for detail {baseio-test}
-   * LineBased protocol, for detail {baseio-test}
    * FixedLength protocol, for detail {baseio-test}
    * HTTP1.1 protocol(lite), for detail: https://www.firenio.com/
    * WebSocket protocol, for detail: https://www.firenio.com/web-socket/chat/index.html 
-   * Protobase(custom) support text and binay and text binay mixed transfer, for detail {baseio-test}
+   * Protobase(custom) support text or binay, for detail {baseio-test}
  * easy to support reconnect (easy to support heart beat)
  * supported ssl (jdkssl, openssl)
  * load test
-   * [tfb benchmark](https://www.techempower.com/benchmarks/#section=test&runid=89191c04-89d9-4f7a-8da0-5d7b493f3d35&hw=ph&test=plaintext)
+   * [tfb benchmark](https://www.techempower.com/benchmarks/#section=test&runid=ee5b26dc-6606-4925-8b30-584584cb5931&hw=ph&test=plaintext)
  
 ## Quick Start
 
@@ -29,7 +28,7 @@ BaseIO is an io framework which can build network project fast, it based on java
 	<dependency>
 		<groupId>com.firenio</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.2.9.BETA-4</version>
+		<version>3.2.9.beta5</version>
 	</dependency>  
   ```
   
@@ -40,17 +39,18 @@ BaseIO is an io framework which can build network project fast, it based on java
     public static void main(String[] args) throws Exception {
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
-            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-                FixedLengthFrame f = (FixedLengthFrame) frame;
-                frame.write("yes server already accept your message:", channel.getCharset());
-                frame.write(f.getReadText(), channel.getCharset());
-                channel.flush(frame);
+            public void accept(Channel ch, Frame f) throws Exception {
+                String text = f.getStringContent();
+                f.setContent(ch.allocate());
+                f.write("yes server already accept your message:", ch);
+                f.write(text, ch);
+                ch.writeAndFlush(f);
             }
         };
         ChannelAcceptor context = new ChannelAcceptor(8300);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandle);
-        context.setProtocolCodec(new FixedLengthCodec());
+        context.addProtocolCodec(new FixedLengthCodec());
         context.bind();
     }
 
@@ -59,15 +59,14 @@ BaseIO is an io framework which can build network project fast, it based on java
  * Simple Client:
 
   ```Java
-
+    
+    public static void main(String[] args) throws Exception {
         ChannelConnector context = new ChannelConnector(8300);
-
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
-            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-                FixedLengthFrame f = (FixedLengthFrame) frame;
+            public void accept(Channel ch, Frame f) throws Exception {
                 System.out.println();
-                System.out.println("____________________" + f.getReadText());
+                System.out.println("____________________" + f.getStringContent());
                 System.out.println();
                 context.close();
             }
@@ -75,12 +74,12 @@ BaseIO is an io framework which can build network project fast, it based on java
 
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.setProtocolCodec(new FixedLengthCodec());
-        context.connect((ch, ex) -> {
-            FixedLengthFrame frame = new FixedLengthFrame();
-            frame.write("hello server!", ch);
-            ch.flush(frame);
-        });
+        context.addProtocolCodec(new FixedLengthCodec());
+        Channel ch = context.connect();
+        FixedLengthFrame frame = new FixedLengthFrame();
+        frame.setContent(ch.allocate());
+        frame.write("hello world!", ch);
+        ch.writeAndFlush(frame);
     }
 
   ```

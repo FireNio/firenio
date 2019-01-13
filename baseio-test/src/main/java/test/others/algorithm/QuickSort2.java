@@ -49,15 +49,6 @@ public class QuickSort2 {
         return high;
     }
 
-    private static void swap(ByteArray a, ByteArray b) {
-        int tmpOff = a.getOff();
-        int tmpLen = a.getLength();
-        a.setLength(b.getLength());
-        a.setOff(b.getOff());
-        b.setLength(tmpLen);
-        b.setOff(tmpOff);
-    }
-
     public static void sort(ByteArray[] array, int low, int high) {
         if (low >= high) {
             return;
@@ -65,6 +56,15 @@ public class QuickSort2 {
         int index = partition(array, low, high);
         sort(array, low, index - 1);
         sort(array, index + 1, high);
+    }
+
+    private static void swap(ByteArray a, ByteArray b) {
+        int tmpOff = a.getOff();
+        int tmpLen = a.getLength();
+        a.setLength(b.getLength());
+        a.setOff(b.getOff());
+        b.setLength(tmpLen);
+        b.setOff(tmpOff);
     }
 
 }

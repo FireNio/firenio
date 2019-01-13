@@ -18,6 +18,7 @@ package com.firenio.baseio.common;
 import java.lang.reflect.Field;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 
@@ -28,12 +29,13 @@ import java.security.PrivilegedExceptionAction;
 @SuppressWarnings("restriction")
 public class Unsafe {
 
-    public static final long            ARRAY_BASE_OFFSET;
-    public static final long            BUFFER_ADDRESS_OFFSET;
-    public static final boolean         ENABLE;
-    public static final boolean         HAS_UNSAFE_ARRAY_OPERATIONS;
-    public static final boolean         HAS_UNSAFE_BYTEBUFFER_OPERATIONS;
-    public static final sun.misc.Unsafe UNSAFE;
+    public static final long             ARRAY_BASE_OFFSET;
+    public static final long             BUFFER_ADDRESS_OFFSET;
+    public static final boolean          ENABLE;
+    public static final boolean          HAS_UNSAFE_ARRAY_OPERATIONS;
+    public static final boolean          HAS_UNSAFE_BYTEBUFFER_OPERATIONS;
+    private static final ByteOrder       nativeByteOrder;
+    private static final sun.misc.Unsafe UNSAFE;
 
     // This number limits the number of bytes to copy per call to Unsafe's
     // copyMemory method. A limit is imposed to allow for safepoint polling
@@ -47,12 +49,17 @@ public class Unsafe {
         HAS_UNSAFE_BYTEBUFFER_OPERATIONS = supportsUnsafeByteBufferOperations();
         HAS_UNSAFE_ARRAY_OPERATIONS = supportsUnsafeArrayOperations();
         ARRAY_BASE_OFFSET = byteArrayBaseOffset();
+        nativeByteOrder = detectByteOrder();
     }
 
     private Unsafe() {}
 
-    public static long addressOffset(ByteBuffer buffer) {
+    public static long address(ByteBuffer buffer) {
         return UNSAFE.getLong(buffer, BUFFER_ADDRESS_OFFSET);
+    }
+
+    public static long allocate(long length) {
+        return UNSAFE.allocateMemory(length);
     }
 
     public static Object allocateInstance(Class<?> clazz) {
@@ -110,7 +117,7 @@ public class Unsafe {
     }
 
     public static void copyMemory(ByteBuffer buf, long targetAddress, long length) {
-        UNSAFE.copyMemory(addressOffset(buf) + buf.position(), targetAddress, length);
+        UNSAFE.copyMemory(address(buf) + buf.position(), targetAddress, length);
     }
 
     public static void copyMemory(long srcAddress, long targetAddress, long length) {
@@ -147,6 +154,25 @@ public class Unsafe {
         }
     }
 
+    private static ByteOrder detectByteOrder() {
+        long a = UNSAFE.allocateMemory(8);
+        try {
+            UNSAFE.putLong(a, 0x0102030405060708L);
+            byte b = UNSAFE.getByte(a);
+            switch (b) {
+                case 0x01:
+                    return ByteOrder.BIG_ENDIAN;
+                case 0x08:
+                    return ByteOrder.LITTLE_ENDIAN;
+                default:
+                    assert false;
+                    return null;
+            }
+        } finally {
+            UNSAFE.freeMemory(a);
+        }
+    }
+
     private static Field field(Class<?> clazz, String fieldName) {
         Field field;
         try {
@@ -161,6 +187,10 @@ public class Unsafe {
 
     private static long fieldOffset(Field field) {
         return field == null || UNSAFE == null ? -1 : UNSAFE.objectFieldOffset(field);
+    }
+
+    public static void free(long address) {
+        UNSAFE.freeMemory(address);
     }
 
     public static long getArrayBaseOffset() {
@@ -237,6 +267,24 @@ public class Unsafe {
                     });
         } catch (Throwable e) {}
         return unsafe;
+    }
+
+    public static ByteOrder nativeByteOrder() {
+        if (nativeByteOrder == null)
+            throw new Error("Unknown byte order");
+        return nativeByteOrder;
+    }
+    
+    public static boolean bigOrder() {
+        if (nativeByteOrder == null)
+            throw new Error("Unknown byte order");
+        return nativeByteOrder == ByteOrder.BIG_ENDIAN;
+    }
+    
+    public static boolean littleOrder() {
+        if (nativeByteOrder == null)
+            throw new Error("Unknown byte order");
+        return nativeByteOrder == ByteOrder.LITTLE_ENDIAN;
     }
 
     public static long objectFieldOffset(Field field) {

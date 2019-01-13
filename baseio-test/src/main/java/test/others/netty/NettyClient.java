@@ -22,8 +22,13 @@ import io.netty.util.CharsetUtil;
 
 public class NettyClient {
 
-    public static int                  time  = 1000000;
-    public static final CountDownLatch latch = new CountDownLatch(time);
+    public static final CountDownLatch latch;
+    public static final int            time;
+
+    static {
+        time = 1000000;
+        latch = new CountDownLatch(time);
+    }
 
     public static void main(String[] args) throws Exception {
         EventLoopGroup group = new NioEventLoopGroup();

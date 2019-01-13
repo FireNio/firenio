@@ -19,7 +19,7 @@ import com.firenio.baseio.common.Util;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 
-public class ChannelAliveIdleEventListener implements ChannelIdleEventListener {
+public class ChannelAliveListener implements ChannelIdleListener {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 

@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.baseio.common;
+package com.firenio.baseio.component;
 
-import java.nio.charset.Charset;
+import java.util.EventListener;
 
-public class Encoding {
+public interface ChannelIdleListener extends EventListener {
 
-    public static Charset ASCII = Charset.forName("ASCII");
-
-    public static Charset GBK   = Charset.forName("GBK");
-
-    public static Charset UTF8  = Charset.forName("UTF-8");
+    void channelIdled(Channel ch, long lastIdleTime, long currentTime);
 
 }

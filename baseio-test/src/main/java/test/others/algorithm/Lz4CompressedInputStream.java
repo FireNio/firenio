@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.firenio.baseio.buffer.ByteBuf;
-import com.firenio.baseio.buffer.ByteBufUtil;
 import com.firenio.baseio.common.ByteUtil;
 
 /**
@@ -15,14 +14,19 @@ public class Lz4CompressedInputStream extends InputStream {
 
     private ByteBuf     buf;
 
-    private InputStream inputStream;
-
     private boolean     hasRemaining = true;
+
+    private InputStream inputStream;
 
     public Lz4CompressedInputStream(InputStream inputStream, int bufSize) {
         this.inputStream = inputStream;
         this.buf = ByteBuf.heap(bufSize);
         this.buf.limit(0);
+    }
+
+    @Override
+    public void close() throws IOException {
+        inputStream.close();
     }
 
     @Override
@@ -48,7 +52,7 @@ public class Lz4CompressedInputStream extends InputStream {
             read(buf);
             return read(b, off, len);
         }
-        int _len = ByteUtil.byte2Int(readBuffer, offset);
+        int _len = ByteUtil.getInt(readBuffer, offset);
         offset += 4;
         if (limit - offset < _len) {
             if (!hasRemaining) {
@@ -62,16 +66,38 @@ public class Lz4CompressedInputStream extends InputStream {
     }
 
     private int read(ByteBuf buf) throws IOException {
-        int len = ByteBufUtil.read(buf, inputStream);
+        int len = read(buf, inputStream);
         if (len == -1) {
             hasRemaining = false;
         }
         return len;
     }
+    
+    public static int read(ByteBuf dst, InputStream src) throws IOException {
+        return read(dst, src, dst.capacity());
+    }
 
-    @Override
-    public void close() throws IOException {
-        inputStream.close();
+    public static int read(ByteBuf dst, InputStream src, long limit) throws IOException {
+        byte[] array = dst.array();
+        if (!dst.hasRemaining()) {
+            int read = (int) Math.min(limit, dst.capacity());
+            int len = src.read(array, 0, read);
+            if (len > 0) {
+                dst.position(0);
+                dst.limit(len);
+            }
+            return len;
+        }
+        int remaining = dst.remaining();
+        System.arraycopy(array, dst.position(), array, 0, remaining);
+        dst.position(0);
+        dst.limit(remaining);
+        int read = (int) Math.min(limit, dst.capacity() - remaining);
+        int len = src.read(array, remaining, read);
+        if (len > 0) {
+            dst.limit(remaining + len);
+        }
+        return len;
     }
 
 }

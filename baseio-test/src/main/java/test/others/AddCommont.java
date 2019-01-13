@@ -19,29 +19,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.firenio.baseio.common.Encoding;
 import com.firenio.baseio.common.FileUtil;
 import com.firenio.baseio.common.FileUtil.OnDirectoryScan;
+import com.firenio.baseio.common.Util;
 
 /**
  * @author wangkai
  *
  */
 public class AddCommont {
-
-    public static void main(String[] args) throws Exception {
-
-        replaceCommont();
-
-    }
-
-    static void replaceCommont() throws Exception {
-
-        String commont = " * Copyright 2015 The Baseio Project";
-
-        replaceCommont0(new File("C:/GIT/baseio"), commont);
-
-    }
 
     static void addCommontAll() throws Exception {
 
@@ -70,11 +56,11 @@ public class AddCommont {
 
                 if (file.getName().endsWith(".java")) {
 
-                    String content = FileUtil.readStringByFile(file, Encoding.UTF8);
+                    String content = FileUtil.readStringByFile(file, Util.UTF8);
 
                     content = commont + content;
 
-                    FileUtil.writeByFile(file, content.getBytes(Encoding.UTF8), false);
+                    FileUtil.writeByFile(file, content.getBytes(Util.UTF8), false);
 
                     System.out.println("File:" + file.getAbsolutePath());
                 }
@@ -82,6 +68,20 @@ public class AddCommont {
             }
 
         });
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        replaceCommont();
+
+    }
+
+    static void replaceCommont() throws Exception {
+
+        String commont = " * Copyright 2015 The Baseio Project";
+
+        replaceCommont0(new File("C:/GIT/baseio"), commont);
+
     }
 
     static void replaceCommont0(File file, String commont) throws Exception {
@@ -110,7 +110,7 @@ public class AddCommont {
                         //						}
                     }
 
-                    FileUtil.writeByFile(file, ss.toString().getBytes(Encoding.UTF8), false);
+                    FileUtil.writeByFile(file, ss.toString().getBytes(Util.UTF8), false);
 
                     System.out.println("File:" + file.getAbsolutePath());
                 }

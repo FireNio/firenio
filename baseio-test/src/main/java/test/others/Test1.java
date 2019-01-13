@@ -22,6 +22,75 @@ public class Test1 {
 
     static int size;
 
+    static void assembly(StringBuilder src, int length) {
+
+        int remain = src.length() - length;
+
+        for (int i = 0; i < remain; i++) {
+
+            int start = i;
+
+            int end = length + i + 1;
+
+            String s = src.substring(start, end);
+
+            StringBuilder b2 = new StringBuilder(s);
+
+            int len = b2.length();
+
+            int j = (i + 1) % 2;
+
+            for (; j < len; j++) {
+
+                StringBuilder b2_copy = new StringBuilder(b2);
+
+                b2_copy.deleteCharAt(j);
+
+                assembly(null, b2_copy);
+            }
+        }
+    }
+
+    static void assembly(StringBuilder appender, StringBuilder remaining) {
+
+        for (int i = 0; i < remaining.length(); i++) {
+
+            StringBuilder _appender;
+
+            if (appender == null) {
+
+                _appender = new StringBuilder();
+
+            } else {
+
+                _appender = new StringBuilder(appender);
+            }
+
+            StringBuilder _remaining = new StringBuilder(remaining.toString());
+
+            char c = _remaining.charAt(i);
+
+            _appender.append(c);
+
+            _remaining.deleteCharAt(i);
+
+            if (_remaining.length() > 0) {
+
+                assembly(_appender, _remaining);
+
+            } else {
+
+                System.out.println(_appender);
+
+                size++;
+
+                //				if (size % 1000000 == 0) {
+                //					System.out.println(size);
+                //				}
+            }
+        }
+    }
+
     public static void main(String[] args) {
 
         byte[] bb = new byte[] { 0, 0, 8, 98, 64, 7, 81, 85, 69, 85, 69, 95, 49, 0, 0, 4, 3, -128,
@@ -145,76 +214,7 @@ public class Test1 {
                 120, 105, 102, 116, 103, 97, 100, 102, 51, 98, 99, 100, 121, 0, 0, 0, 118, 64, 7,
                 81, 85, 69, 85, 69, 95, 49 };
 
-        System.out.println(ByteUtil.byte2Int(bb, 0));
+        System.out.println(ByteUtil.getInt(bb, 0));
 
-    }
-
-    static void assembly(StringBuilder src, int length) {
-
-        int remain = src.length() - length;
-
-        for (int i = 0; i < remain; i++) {
-
-            int start = i;
-
-            int end = length + i + 1;
-
-            String s = src.substring(start, end);
-
-            StringBuilder b2 = new StringBuilder(s);
-
-            int len = b2.length();
-
-            int j = (i + 1) % 2;
-
-            for (; j < len; j++) {
-
-                StringBuilder b2_copy = new StringBuilder(b2);
-
-                b2_copy.deleteCharAt(j);
-
-                assembly(null, b2_copy);
-            }
-        }
-    }
-
-    static void assembly(StringBuilder appender, StringBuilder remaining) {
-
-        for (int i = 0; i < remaining.length(); i++) {
-
-            StringBuilder _appender;
-
-            if (appender == null) {
-
-                _appender = new StringBuilder();
-
-            } else {
-
-                _appender = new StringBuilder(appender);
-            }
-
-            StringBuilder _remaining = new StringBuilder(remaining.toString());
-
-            char c = _remaining.charAt(i);
-
-            _appender.append(c);
-
-            _remaining.deleteCharAt(i);
-
-            if (_remaining.length() > 0) {
-
-                assembly(_appender, _remaining);
-
-            } else {
-
-                System.out.println(_appender);
-
-                size++;
-
-                //				if (size % 1000000 == 0) {
-                //					System.out.println(size);
-                //				}
-            }
-        }
     }
 }

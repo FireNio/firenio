@@ -23,10 +23,10 @@ import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.Channel;
 
-public class TestFIxedLengthClient {
+public class TestFixedLengthClient {
 
     public static void main(String[] args) throws Exception {
-        ChannelConnector context = new ChannelConnector("192.168.1.115", 8300);
+        ChannelConnector context = new ChannelConnector("192.168.133.134", 8300);
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
             public void accept(Channel ch, Frame frame) throws Exception {

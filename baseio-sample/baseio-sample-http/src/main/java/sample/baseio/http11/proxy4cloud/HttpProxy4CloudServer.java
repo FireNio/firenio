@@ -27,8 +27,9 @@ import com.firenio.baseio.codec.http11.HttpFrame;
 import com.firenio.baseio.codec.http11.HttpHeader;
 import com.firenio.baseio.codec.http11.HttpMethod;
 import com.firenio.baseio.codec.http11.HttpStatus;
-import com.firenio.baseio.collection.IntEntry;
+import com.firenio.baseio.collection.IntMap;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ChannelAcceptor;
 import com.firenio.baseio.component.ChannelConnector;
 import com.firenio.baseio.component.Frame;
@@ -36,20 +37,16 @@ import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.NioEventLoop;
 import com.firenio.baseio.component.NioEventLoopGroup;
-import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ProtocolCodec;
 import com.firenio.baseio.log.DebugUtil;
 
 public class HttpProxy4CloudServer {
 
-    static final String                netHost;
-    static final int                   netPort         = 18088;
     static final String                CONNECT_RES     = "HTTP/1.1 200 Connection Established\r\n\r\n";
     static final ByteBuf               CONNECT_RES_BUF = ByteBuf.wrap(CONNECT_RES.getBytes());
+    static final String                netHost;
+    static final int                   netPort         = 18088;
     static final HttpProxy4CloudServer server          = new HttpProxy4CloudServer();
-    private ChannelAcceptor            context;
-    private volatile boolean           enable          = true;
-
     static {
         String host = null;
         try {
@@ -63,17 +60,20 @@ public class HttpProxy4CloudServer {
         netHost = host;
         DebugUtil.debug("remote host: " + netHost);
     }
+    private ChannelAcceptor  context;
 
-    public synchronized void stop() {
-        Util.unbind(context);
+    private volatile boolean enable = true;
+
+    public void disable() {
+        enable = false;
     }
 
     public void enable() {
         enable = true;
     }
 
-    public void disable() {
-        enable = false;
+    public synchronized void stop() {
+        Util.unbind(context);
     }
 
     public synchronized void strtup(NioEventLoopGroup serverG, int port) throws Exception {
@@ -131,11 +131,13 @@ public class HttpProxy4CloudServer {
                         @Override
                         public void accept(Channel ch, Frame frame) throws Exception {
                             ClientHttpFrame res = (ClientHttpFrame) frame;
-                            for (IntEntry<String> header : res.getResponse_headers().entries()) {
-                                if (header.value() == null) {
+                            IntMap<String> hs = res.getResponse_headers();
+                            for(hs.scan();hs.hasNext();){
+                                String v = hs.nextValue();
+                                if (v == null) {
                                     continue;
                                 }
-                                f.setResponseHeader(header.key(), header.value().getBytes());
+                                f.setResponseHeader(hs.key(), v.getBytes());
                             }
                             f.removeResponseHeader(HttpHeader.Content_Length);
                             if (res.getContent() != null) {
@@ -191,10 +193,6 @@ public class HttpProxy4CloudServer {
         context.bind();
     }
 
-    public static HttpProxy4CloudServer get() {
-        return server;
-    }
-
     class HttpProxy4CloudCodec extends HttpCodec {
 
         @Override
@@ -207,13 +205,13 @@ public class HttpProxy4CloudServer {
                     context.addProtocolCodec(new ProtocolCodec() {
 
                         @Override
-                        public String getProtocolId() {
-                            return "http-proxy-connect";
-                        }
-
-                        @Override
-                        public int headerLength() {
-                            return 0;
+                        public Frame decode(Channel ch, ByteBuf src) throws IOException {
+                            ByteBuf buf = ch_src.alloc().allocate(src.remaining());
+                            buf.put(src);
+                            buf.flip();
+                            NetDataTransferServer.mask(buf, s.mask);
+                            ch_src.writeAndFlush(buf);
+                            return null;
                         }
 
                         @Override
@@ -222,13 +220,13 @@ public class HttpProxy4CloudServer {
                         }
 
                         @Override
-                        public Frame decode(Channel ch, ByteBuf src) throws IOException {
-                            ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-                            buf.put(src);
-                            buf.flip();
-                            NetDataTransferServer.mask(buf, s.mask);
-                            ch_src.writeAndFlush(buf);
-                            return null;
+                        public String getProtocolId() {
+                            return "http-proxy-connect";
+                        }
+
+                        @Override
+                        public int headerLength() {
+                            return 0;
                         }
                     });
                     context.setPrintConfig(false);
@@ -285,22 +283,15 @@ public class HttpProxy4CloudServer {
     public static class ProxySession4Cloud {
 
         static final String     ProxySessionChAttr = "_ProxySessionChAttr";
+        public ChannelConnector connector;
         public boolean          handshakeFinished;
         public String           host;
-        public int              port               = 80;
         public byte             mask;
-        public ChannelConnector connector;
+        public int              port               = 80;
 
         @Override
         public String toString() {
             return host + ":" + port;
-        }
-
-        public static void remove(Channel ch) {
-            ProxySession4Cloud s = (ProxySession4Cloud) ch.removeAttribute(ProxySessionChAttr);
-            if (s != null) {
-                s.connector = null;
-            }
         }
 
         public static ProxySession4Cloud get(Channel ch) {
@@ -311,6 +302,17 @@ public class HttpProxy4CloudServer {
             }
             return s;
         }
+
+        public static void remove(Channel ch) {
+            ProxySession4Cloud s = (ProxySession4Cloud) ch.removeAttribute(ProxySessionChAttr);
+            if (s != null) {
+                s.connector = null;
+            }
+        }
+    }
+
+    public static HttpProxy4CloudServer get() {
+        return server;
     }
 
     public static void main(String[] args) throws Exception {

@@ -15,12 +15,10 @@
  */
 package com.firenio.baseio.buffer;
 
-import java.nio.ByteBuffer;
-
 public final class UnpooledByteBufAllocator extends ByteBufAllocator {
 
-    private static final UnpooledByteBufAllocator direct = new UnpooledByteBufAllocator(true);
-    private static final UnpooledByteBufAllocator heap   = new UnpooledByteBufAllocator(false);
+    private static final UnpooledByteBufAllocator directAlloc = new UnpooledByteBufAllocator(true);
+    private static final UnpooledByteBufAllocator heapAlloc   = new UnpooledByteBufAllocator(false);
     private final boolean                         isDirect;
 
     private UnpooledByteBufAllocator(boolean isDirect) {
@@ -35,9 +33,9 @@ public final class UnpooledByteBufAllocator extends ByteBufAllocator {
     @Override
     public ByteBuf allocate(int capacity) {
         if (isDirect()) {
-            return wrap(ByteBuffer.allocateDirect(capacity));
+            return ByteBuf.direct(capacity);
         } else {
-            return wrap(new byte[capacity]);
+            return ByteBuf.heap(capacity);
         }
     }
 
@@ -74,29 +72,16 @@ public final class UnpooledByteBufAllocator extends ByteBufAllocator {
         throw new UnsupportedOperationException();
     }
 
-    public ByteBuf wrap(byte[] data) {
-        return wrap(data, 0, data.length);
+    public static UnpooledByteBufAllocator get(boolean direct) {
+        return direct ? directAlloc : heapAlloc;
     }
 
-    public ByteBuf wrap(byte[] data, int offset, int length) {
-        return new UnpooledHeapByteBuf(this, data, offset, length);
-    }
-
-    public ByteBuf wrap(ByteBuffer buffer) {
-        if (buffer.isDirect()) {
-            return new UnpooledDirectByteBuf(this, buffer);
-        } else {
-            return new UnpooledHeapByteBuf(this, buffer);
-        }
-    }
-
-    //FIXME 回收机制
     public static UnpooledByteBufAllocator getDirect() {
-        return direct;
+        return directAlloc;
     }
 
     public static UnpooledByteBufAllocator getHeap() {
-        return heap;
+        return heapAlloc;
     }
 
 }

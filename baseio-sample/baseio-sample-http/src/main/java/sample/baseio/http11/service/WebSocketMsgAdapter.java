@@ -22,58 +22,28 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.firenio.baseio.codec.http11.WebSocketFrame;
-import com.firenio.baseio.common.Encoding;
 import com.firenio.baseio.common.Util;
-import com.firenio.baseio.component.ChannelManager;
 import com.firenio.baseio.component.Channel;
+import com.firenio.baseio.component.ChannelManager;
 import com.firenio.baseio.concurrent.EventLoop;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 
 public class WebSocketMsgAdapter extends EventLoop {
 
+    private Map<String, Channel>    clientsMap = new ConcurrentHashMap<>();
+
+    private Logger                  logger     = LoggerFactory.getLogger(getClass());
+    private BlockingQueue<Runnable> msgs       = new ArrayBlockingQueue<>(1024 * 4);
+
     public WebSocketMsgAdapter(String threadName) {
         super(threadName);
     }
-
-    private Logger                  logger     = LoggerFactory.getLogger(getClass());
-    private Map<String, Channel>    clientsMap = new ConcurrentHashMap<>();
-    private BlockingQueue<Runnable> msgs       = new ArrayBlockingQueue<>(1024 * 4);
 
     public void addClient(String username, Channel ch) {
         ch.setAttribute("username", username);
         clientsMap.put(username, ch);
         logger.info("client joined {} ,clients size: {}", ch, clientsMap.size());
-    }
-
-    public boolean removeClient(Channel ch) {
-        String username = (String) ch.getAttribute("username");
-        if ((!Util.isNullOrBlank(username)) && clientsMap.remove(username) != null) {
-            logger.info("client left {} ,clients size: {}", ch, clientsMap.size());
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public BlockingQueue<Runnable> getJobs() {
-        return msgs;
-    }
-
-    public Channel getChannel(String username) {
-        return clientsMap.get(username);
-    }
-
-    public void sendMsg(String msg) {
-        sendMsg(null, msg);
-    }
-
-    public void sendMsg(Channel ch, String msg) {
-        msgs.offer(new Msg(ch, msg));
-    }
-
-    public int getClientSize() {
-        return clientsMap.size();
     }
 
     @Override
@@ -95,7 +65,7 @@ public class WebSocketMsgAdapter extends EventLoop {
         } else {
             if (!clientsMap.isEmpty()) {
                 WebSocketFrame f = new WebSocketFrame();
-                f.setString(msg.msg, Encoding.UTF8);
+                f.setString(msg.msg, Util.UTF8);
                 try {
                     ChannelManager.broadcast(f, clientsMap.values());
                 } catch (Exception e) {
@@ -105,15 +75,46 @@ public class WebSocketMsgAdapter extends EventLoop {
         }
     }
 
+    public Channel getChannel(String username) {
+        return clientsMap.get(username);
+    }
+
+    public int getClientSize() {
+        return clientsMap.size();
+    }
+
+    @Override
+    public BlockingQueue<Runnable> getJobs() {
+        return msgs;
+    }
+
+    public boolean removeClient(Channel ch) {
+        String username = (String) ch.getAttribute("username");
+        if ((!Util.isNullOrBlank(username)) && clientsMap.remove(username) != null) {
+            logger.info("client left {} ,clients size: {}", ch, clientsMap.size());
+            return true;
+        }
+        return false;
+    }
+
+    public void sendMsg(Channel ch, String msg) {
+        msgs.offer(new Msg(ch, msg));
+    }
+
+    public void sendMsg(String msg) {
+        sendMsg(null, msg);
+    }
+
     class Msg implements Runnable {
+
+        Channel ch;
+
+        String  msg;
 
         Msg(Channel ch, String msg) {
             this.msg = msg;
             this.ch = ch;
         }
-
-        String  msg;
-        Channel ch;
 
         @Override
         public void run() {}

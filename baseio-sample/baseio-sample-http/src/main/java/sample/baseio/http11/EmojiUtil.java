@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.baseio.common;
+package sample.baseio.http11;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.firenio.baseio.common.Util;
 
 /**
  * @author wangkai
@@ -55,11 +57,11 @@ public class EmojiUtil {
         List<String> list = new ArrayList<>(array.length * 2 / 7);
         for (int i = 0; i < array.length;) {
             if (array[i] == -16) {
-                list.add(new String(array, i, 4, Encoding.UTF8));
+                list.add(new String(array, i, 4, Util.UTF8));
                 i += 4;
             } else {
                 //array[i] == -30 || array[i] == -17 || array[i] == -29
-                list.add(new String(array, i, 3, Encoding.UTF8));
+                list.add(new String(array, i, 3, Util.UTF8));
                 i += 3;
             }
         }

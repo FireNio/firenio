@@ -23,7 +23,8 @@ import com.firenio.baseio.log.Logger;
  */
 public class Develop {
 
-    public static final boolean DEBUG             = Options.isDebug();
+    public static final boolean BUF_DEBUG         = DevelopConfig.BUF_DEBUG;
+    public static final boolean NATIVE_DEBUG      = DevelopConfig.NATIVE_DEBUG;
     public static final int     DEBUG_ERROR_LEVEL = Options.getDebugErrorLevel();
 
     public static final void printException(Logger logger, Throwable e, int level) {

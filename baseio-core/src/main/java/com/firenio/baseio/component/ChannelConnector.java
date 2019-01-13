@@ -17,6 +17,7 @@ package com.firenio.baseio.component;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
@@ -24,6 +25,8 @@ import com.firenio.baseio.TimeoutException;
 import com.firenio.baseio.collection.DelayedQueue.DelayTask;
 import com.firenio.baseio.common.Assert;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.NioEventLoop.EpollNioEventLoopUnsafe;
+import com.firenio.baseio.component.NioEventLoop.JavaNioEventLoopUnsafe;
 import com.firenio.baseio.concurrent.Callback;
 import com.firenio.baseio.concurrent.Waiter;
 
@@ -37,8 +40,8 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     private volatile boolean           callbacked = true;
     private Channel                    ch;
     private NioEventLoop               eventLoop;
-    private SocketChannel              javaChannel;
     private volatile DelayTask         timeoutTask;
+    private ConnectorUnsafe            unsafe;
 
     public ChannelConnector(int port) {
         this("127.0.0.1", port);
@@ -58,6 +61,11 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         if (!group.isSharable() && !group.isRunning()) {
             group.setEventLoopSize(1);
         }
+        if (Native.EPOLL_AVAIABLE) {
+            unsafe = new EpollConnectorUnsafe();
+        } else {
+            unsafe = new JavaConnectorUnsafe();
+        }
     }
 
     public ChannelConnector(String host, int port) {
@@ -67,6 +75,9 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     @Override
     protected void channelEstablish(Channel ch, Throwable ex) {
         if (!callbacked) {
+            if (ex != null) {
+                unsafe.cancel(this, eventLoop);
+            }
             this.ch = ch;
             this.callbacked = true;
             this.timeoutTask.cancel();
@@ -83,7 +94,9 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     @Override
     public synchronized void close() throws IOException {
         Util.close(ch);
-        Util.close(javaChannel);
+        if (ch == null && eventLoop != null) {
+            unsafe.cancel(this, eventLoop);
+        }
         Util.stop(this);
         if (!getProcessorGroup().isSharable()) {
             this.eventLoop = null;
@@ -109,7 +122,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
             throw new IOException("connect is pending");
         }
         this.callbacked = false;
-        this.timeoutTask = new TimeoutTask(timeout);
+        this.timeoutTask = new TimeoutTask(this, timeout);
         this.callback = callback;
         this.getProcessorGroup().setContext(this);
         Util.start(getProcessorGroup());
@@ -117,17 +130,13 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         if (eventLoop == null) {
             eventLoop = getProcessorGroup().getNext();
         }
-        this.javaChannel = SocketChannel.open();
-        this.javaChannel.configureBlocking(false);
         boolean submitted = this.eventLoop.submit(new Runnable() {
 
             @Override
             public void run() {
                 try {
-                    if (!javaChannel.connect(getServerAddress())) {
-                        eventLoop.registSelector(ChannelConnector.this, SelectionKey.OP_CONNECT);
-                        eventLoop.schedule(timeoutTask);
-                    }
+                    ChannelConnector ctx = ChannelConnector.this;
+                    unsafe.connect(ctx, ctx.eventLoop);
                 } catch (Throwable e) {
                     channelEstablish(null, e);
                 }
@@ -169,9 +178,8 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         return eventLoop;
     }
 
-    @Override
-    public SocketChannel getSelectableChannel() {
-        return javaChannel;
+    protected ConnectorUnsafe getUnsafe() {
+        return unsafe;
     }
 
     @Override
@@ -193,24 +201,110 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         return ch.toString();
     }
 
-    class TimeoutTask extends DelayTask {
+    static abstract class ConnectorUnsafe {
 
-        public TimeoutTask(long delay) {
-            super(delay);
+        abstract void connect(ChannelConnector ctx, NioEventLoop el) throws IOException;
+
+        abstract void cancel(ChannelConnector ctx, NioEventLoop el);
+
+    }
+
+    static final class EpollConnectorUnsafe extends ConnectorUnsafe {
+
+        private int     fd = -1;
+        private volatile boolean needCancel;
+        private String remoteAddr;
+
+        @Override
+        void connect(ChannelConnector ctx, NioEventLoop el) throws IOException {
+            this.cancel(ctx, el);
+            EpollNioEventLoopUnsafe un = (EpollNioEventLoopUnsafe) el.getUnsafe();
+            InetAddress host = InetAddress.getByName(ctx.getHost());
+            this.remoteAddr = host.getHostAddress();
+            int fd = Native.connect(host.getHostAddress(), ctx.getPort());
+            if (fd == -1) {
+                Native.throwException();
+            }
+            this.needCancel = true;
+            this.fd = fd;
+            el.schedule(ctx.timeoutTask);
+            un.ctxs.put(fd, ctx);
+            int res = Native.epoll_add(un.epfd, fd, Native.EPOLLOUT);
+            if (res == -1) {
+                Native.throwException();
+            }
         }
 
         @Override
-        @SuppressWarnings("resource")
-        public void run() {
-            setDone(true);
-            ChannelConnector connector = ChannelConnector.this;
-            NioEventLoop eventLoop = connector.eventLoop;
-            if (eventLoop != null) {
-                eventLoop.cancelSelectionKey(connector.javaChannel);
+        void cancel(ChannelConnector ctx, NioEventLoop el) {
+            if (needCancel) {
+                EpollNioEventLoopUnsafe un = (EpollNioEventLoopUnsafe) el.getUnsafe();
+                un.ctxs.remove(fd);
+                Native.epoll_del(un.epfd, fd);
+                Native.close(fd);
+                fd = -1;
+                needCancel = false;
             }
-            connector.channelEstablish(null, new TimeoutException("connect timeout"));
+        }
+        
+        String getRemoteAddr() {
+            return remoteAddr;
         }
 
+        int getFd() {
+            return fd;
+        }
+
+    }
+
+    static final class JavaConnectorUnsafe extends ConnectorUnsafe {
+
+        private SocketChannel javaChannel;
+
+        @Override
+        void connect(ChannelConnector ctx, NioEventLoop el) throws IOException {
+            Util.close(javaChannel);
+            this.javaChannel = SocketChannel.open();
+            this.javaChannel.configureBlocking(false);
+            if (!javaChannel.connect(ctx.getServerAddress())) {
+                el.schedule(ctx.timeoutTask);
+                JavaNioEventLoopUnsafe elUnsafe = (JavaNioEventLoopUnsafe) el.getUnsafe();
+                javaChannel.register(elUnsafe.getSelector(), SelectionKey.OP_CONNECT, ctx);
+            }
+        }
+
+        SocketChannel getSelectableChannel() {
+            return javaChannel;
+        }
+
+        @Override
+        void cancel(ChannelConnector ctx, NioEventLoop el) {
+            final SocketChannel channel = this.javaChannel;
+            final JavaNioEventLoopUnsafe un = (JavaNioEventLoopUnsafe) el.getUnsafe();
+            if (channel != null) {
+                SelectionKey key = channel.keyFor(un.getSelector());
+                if (key != null) {
+                    key.cancel();
+                }
+                Util.close(channel);
+            }
+        }
+
+    }
+
+    static final class TimeoutTask extends DelayTask {
+
+        private ChannelConnector ctx;
+
+        public TimeoutTask(ChannelConnector ctx, long delay) {
+            super(delay);
+            this.ctx = ctx;
+        }
+
+        @Override
+        public void run() {
+            ctx.channelEstablish(null, new TimeoutException("connect timeout"));
+        }
     }
 
 }

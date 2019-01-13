@@ -25,13 +25,12 @@ import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.codec.http11.HttpFrame;
 import com.firenio.baseio.codec.http11.HttpHeader;
 import com.firenio.baseio.codec.http11.HttpStatic;
-import com.firenio.baseio.common.EmojiUtil;
-import com.firenio.baseio.common.Encoding;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.Channel;
 
-import sample.baseio.http11.HttpUtil;
+import sample.baseio.http11.EmojiUtil;
 import sample.baseio.http11.HttpFrameAcceptor;
+import sample.baseio.http11.HttpUtil;
 
 @Service("/test-emoji")
 public class TestEmojiServlet extends HttpFrameAcceptor {
@@ -46,7 +45,7 @@ public class TestEmojiServlet extends HttpFrameAcceptor {
         builder.append(
                 "\t\t<div id=\"container\" style=\"width: 90%;margin-left: auto;margin-right: auto;margin-top: 10px;font-size: 26px;color: rgb(175, 46, 46);\">\n");
 
-        List<String> emojiList = EmojiUtil.bytes2Emojis(emoji.getBytes(Encoding.UTF8));
+        List<String> emojiList = EmojiUtil.bytes2Emojis(emoji.getBytes(Util.UTF8));
 
         String limitStr = frame.getRequestParam("limit");
         int limit;
@@ -79,27 +78,6 @@ public class TestEmojiServlet extends HttpFrameAcceptor {
         ch.writeAndFlush(frame);
     }
 
-    private String getScript() {
-        return "\t\t<script>\n" + "\t\t\tvar container = document.getElementById(\"container\");\n"
-                + "\t\t\tvar children = container.children;\n" + "\t\t\tvar forward = true;\n"
-                + "\t\t\tfunction changeColor(children){\n"
-                + "\t\t\t	var index = children[0].style.color.indexOf(\",\");\n"
-                + "\t\t\t	var r = children[0].style.color.substring(4,index);\n"
-                + "\t\t\t	r = getNextR(parseInt(r));\n"
-                + "\t\t\t	for(var i=0;i<children.length;i++){\n"
-                + "\t\t\t		var node = children[i];\n"
-                + "\t\t\t		var rgb = \"rgb(\"+r+node.style.color.substring(index);\n"
-                + "\t\t\t		node.style.color = rgb;\n" + "\t\t\t	}\n"
-                + "\t\t\t	setTimeout(\"changeColor(children)\",16);\n" + "\t\t\t}\n"
-                + "\t\t\tfunction getNextR(r){\n" + "\t\t\t	if(r == 0){\n"
-                + "\t\t\t		forward = true;\n" + "\t\t\t		return 1;\n"
-                + "\t\t\t	}else if(r >= 255){\n" + "\t\t\t		forward = false;\n"
-                + "\t\t\t		r = 254;\n" + "\t\t\t	}\n" + "\t\t\t	if(forward){\n"
-                + "\t\t\t		return r + 1;\n" + "\t\t\t	}else{\n" + "\t\t\t		return r - 1;\n"
-                + "\t\t\t	}\n" + "\t\t\t}\n" + "\t\t\twindow.onload = function(){\n"
-                + "\t\t\t	changeColor(children);\n" + "\t\t\t};\n" + "\t\t</script>\n";
-    }
-
     private List<String> getRGBList(String r, int size) {
         List<String> list = new ArrayList<>(size);
         int i = 0;
@@ -126,6 +104,27 @@ public class TestEmojiServlet extends HttpFrameAcceptor {
         }
 
         return list;
+    }
+
+    private String getScript() {
+        return "\t\t<script>\n" + "\t\t\tvar container = document.getElementById(\"container\");\n"
+                + "\t\t\tvar children = container.children;\n" + "\t\t\tvar forward = true;\n"
+                + "\t\t\tfunction changeColor(children){\n"
+                + "\t\t\t	var index = children[0].style.color.indexOf(\",\");\n"
+                + "\t\t\t	var r = children[0].style.color.substring(4,index);\n"
+                + "\t\t\t	r = getNextR(parseInt(r));\n"
+                + "\t\t\t	for(var i=0;i<children.length;i++){\n"
+                + "\t\t\t		var node = children[i];\n"
+                + "\t\t\t		var rgb = \"rgb(\"+r+node.style.color.substring(index);\n"
+                + "\t\t\t		node.style.color = rgb;\n" + "\t\t\t	}\n"
+                + "\t\t\t	setTimeout(\"changeColor(children)\",16);\n" + "\t\t\t}\n"
+                + "\t\t\tfunction getNextR(r){\n" + "\t\t\t	if(r == 0){\n"
+                + "\t\t\t		forward = true;\n" + "\t\t\t		return 1;\n"
+                + "\t\t\t	}else if(r >= 255){\n" + "\t\t\t		forward = false;\n"
+                + "\t\t\t		r = 254;\n" + "\t\t\t	}\n" + "\t\t\t	if(forward){\n"
+                + "\t\t\t		return r + 1;\n" + "\t\t\t	}else{\n" + "\t\t\t		return r - 1;\n"
+                + "\t\t\t	}\n" + "\t\t\t}\n" + "\t\t\twindow.onload = function(){\n"
+                + "\t\t\t	changeColor(children);\n" + "\t\t\t};\n" + "\t\t</script>\n";
     }
 
 }

@@ -2,7 +2,7 @@
 # BaseIO Project
 
 [![Website](https://img.shields.io/badge/website-firenio-green.svg)](https://www.firenio.com)
-[![Maven central](https://img.shields.io/badge/maven-3.2.9.BETA-green.svg)](http://mvnrepository.com/artifact/com.firenio/baseio-all)
+[![Maven central](https://img.shields.io/badge/maven-3.2.9.beta5-green.svg)](http://mvnrepository.com/artifact/com.firenio/baseio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/firenio/baseio/blob/master/LICENSE.txt)
 
 BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步IO框架，其以简单易用的API和优良的性能深受开发者喜爱。
@@ -11,15 +11,14 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
 
  * 支持协议扩展，已知的扩展协议有：
    * Redis协议(仅作测试)，示例：详见 {baseio-test}
-   * LineBased协议(基于换行符的消息分割)，示例：详见 {baseio-test}
    * FixedLength协议(固定长度报文头)，支持传输文本和二进制数据
    * HTTP1.1协议(lite)，示例： https://www.firenio.com/
    * WebSocket协议，示例： https://www.firenio.com/web-socket/chat/index.html 
-   * Protobase(自定义协议)，支持传输文本和二进制数据及混合数据
+   * Protobase(自定义协议)，支持传输文本或二进制数据
  * 轻松实现断线重连(轻松实现心跳机制)
  * 支持SSL(jdkssl,openssl)
  * 压力测试
-   * [tfb benchmark](https://www.techempower.com/benchmarks/#section=test&runid=89191c04-89d9-4f7a-8da0-5d7b493f3d35&hw=ph&test=plaintext)
+   * [tfb benchmark](https://www.techempower.com/benchmarks/#section=test&runid=ee5b26dc-6606-4925-8b30-584584cb5931&hw=ph&test=plaintext)
  
 ## 快速入门
 
@@ -29,7 +28,7 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
 	<dependency>
 		<groupId>com.firenio</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.2.9.BETA-4</version>
+		<version>3.2.9.beta5</version>
 	</dependency>  
   ```
   
@@ -40,17 +39,18 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
     public static void main(String[] args) throws Exception {
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
-            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-                FixedLengthFrame f = (FixedLengthFrame) frame;
-                frame.write("yes server already accept your message:", channel.getCharset());
-                frame.write(f.getReadText(), channel.getCharset());
-                channel.flush(frame);
+            public void accept(Channel ch, Frame f) throws Exception {
+                String text = f.getStringContent();
+                f.setContent(ch.allocate());
+                f.write("yes server already accept your message:", ch);
+                f.write(text, ch);
+                ch.writeAndFlush(f);
             }
         };
         ChannelAcceptor context = new ChannelAcceptor(8300);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandle);
-        context.setProtocolCodec(new FixedLengthCodec());
+        context.addProtocolCodec(new FixedLengthCodec());
         context.bind();
     }
 
@@ -60,14 +60,13 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
 
   ```Java
 
+    public static void main(String[] args) throws Exception {
         ChannelConnector context = new ChannelConnector(8300);
-
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
-            public void accept(NioSocketChannel channel, Frame frame) throws Exception {
-                FixedLengthFrame f = (FixedLengthFrame) frame;
+            public void accept(Channel ch, Frame f) throws Exception {
                 System.out.println();
-                System.out.println("____________________" + f.getReadText());
+                System.out.println("____________________" + f.getStringContent());
                 System.out.println();
                 context.close();
             }
@@ -75,12 +74,12 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
 
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.setProtocolCodec(new FixedLengthCodec());
-        context.connect((ch, ex) -> {
-            FixedLengthFrame frame = new FixedLengthFrame();
-            frame.write("hello server!", ch);
-            ch.flush(frame);
-        });
+        context.addProtocolCodec(new FixedLengthCodec());
+        Channel ch = context.connect();
+        FixedLengthFrame frame = new FixedLengthFrame();
+        frame.setContent(ch.allocate());
+        frame.write("hello world!", ch);
+        ch.writeAndFlush(frame);
     }
 
   ```

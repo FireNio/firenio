@@ -15,32 +15,41 @@
  */
 package test.io.fixedlength;
 
-import java.net.StandardSocketOptions;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.firenio.baseio.Options;
 import com.firenio.baseio.codec.fixedlength.FixedLengthCodec;
 import com.firenio.baseio.codec.fixedlength.FixedLengthFrame;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ChannelAcceptor;
 import com.firenio.baseio.component.ChannelConnector;
 import com.firenio.baseio.component.ChannelEventListenerAdapter;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
-import com.firenio.baseio.component.Channel;
+import com.firenio.baseio.component.SocketOptions;
 import com.firenio.baseio.concurrent.Waiter;
 
 import junit.framework.Assert;
 
-public class TestFIxedLengthServerJunit {
+public class TestFixedLengthServerJunit {
 
-    static final String hello   = "hello server!";
-    static final String res     = "yes server already accept your message:";
+    static final String hello = "hello server!";
+    static final String res   = "yes server already accept your message:";
 
-    ChannelAcceptor     context = new ChannelAcceptor(8300);
+    static {
+        Options.setEnableEpoll(true);
+    }
+
+    ChannelAcceptor context = new ChannelAcceptor(8300);
+
+    @After
+    public void clean() {
+        Util.unbind(context);
+    }
 
     @Before
     public void server() throws Exception {
@@ -61,12 +70,22 @@ public class TestFIxedLengthServerJunit {
 
             @Override
             public void channelOpened(Channel ch) throws Exception {
-                ch.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-                ch.setOption(StandardSocketOptions.TCP_NODELAY, true);
+                System.out.println(ch.getOption(SocketOptions.TCP_NODELAY));
+                System.out.println(ch.getOption(SocketOptions.SO_RCVBUF));
+                ch.setOption(SocketOptions.TCP_NODELAY, 1);
+                ch.setOption(SocketOptions.SO_RCVBUF, 1028);
+                System.out.println(ch.getOption(SocketOptions.TCP_NODELAY));
+                System.out.println(ch.getOption(SocketOptions.SO_RCVBUF));
             }
 
         });
         context.bind();
+    }
+
+    @Test
+    public void test() throws Exception {
+        testClient();
+        testClientAsync();
     }
 
     public void testClient() throws Exception {
@@ -93,12 +112,6 @@ public class TestFIxedLengthServerJunit {
         ch.writeAndFlush(frame);
         w.await(1000);
         v(w.getResponse());
-    }
-
-    @Test
-    public void test() throws Exception {
-        testClient();
-        testClientAsync();
     }
 
     public void testClientAsync() throws Exception {
@@ -134,11 +147,6 @@ public class TestFIxedLengthServerJunit {
 
     static void v(String r) {
         Assert.assertTrue(r.equals(res + hello));
-    }
-
-    @After
-    public void clean() {
-        Util.unbind(context);
     }
 
 }

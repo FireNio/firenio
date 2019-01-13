@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.InetSocketAddress;
-import java.nio.channels.SelectableChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +31,6 @@ import java.util.Set;
 import com.firenio.baseio.LifeCycle;
 import com.firenio.baseio.Options;
 import com.firenio.baseio.common.Assert;
-import com.firenio.baseio.common.Encoding;
 import com.firenio.baseio.common.FileUtil;
 import com.firenio.baseio.common.Properties;
 import com.firenio.baseio.common.Util;
@@ -46,10 +44,11 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
     private String[]                       applicationProtocols;
     private Map<Object, Object>            attributes         = new HashMap<>();
     private List<ChannelEventListener>     cels               = new ArrayList<>();
-    private String                         sslPem;
     private ChannelManager                 channelManager     = new ChannelManager();
-    private Charset                        charset            = Encoding.UTF8;
-    private List<ChannelIdleEventListener> ciels              = new ArrayList<>();
+    private Charset                        charset            = Util.UTF8;
+    private List<ChannelIdleListener> ciels              = new ArrayList<>();
+    private Map<String, ProtocolCodec>     codecs             = new HashMap<>();
+    private ProtocolCodec                  defaultCodec;
     private boolean                        enableHeartbeatLog = true;
     private boolean                        enableSsl;
     //是否启用work event loop，如果启用，则frame在work event loop中处理
@@ -65,12 +64,11 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
     private boolean                        printConfig        = true;
     private NioEventLoopGroup              processorGroup;
     private Properties                     properties;
-    private ProtocolCodec                  defaultCodec;
     private InetSocketAddress              serverAddress;
     private SslContext                     sslContext;
     private String                         sslKeystore;
+    private String                         sslPem;
     private long                           startupTime        = System.currentTimeMillis();
-    private Map<String, ProtocolCodec>     codecs             = new HashMap<>();
 
     ChannelContext(NioEventLoopGroup group, String host, int port) {
         Assert.notNull(host, "null host");
@@ -85,9 +83,17 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         cels.add(listener);
     }
 
-    public void addChannelIdleEventListener(ChannelIdleEventListener listener) {
+    public void addChannelIdleEventListener(ChannelIdleListener listener) {
         checkNotRunning();
         ciels.add(listener);
+    }
+
+    public void addProtocolCodec(ProtocolCodec codec) {
+        checkNotRunning();
+        if (defaultCodec == null) {
+            defaultCodec = codec;
+        }
+        codecs.put(codec.getProtocolId(), codec);
     }
 
     protected void channelEstablish(Channel ch, Throwable ex) {}
@@ -98,18 +104,6 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
             Options.setOpensslPath(openSslPath);
         }
         this.properties = properties;
-    }
-
-    private void startCodecs() throws Exception {
-        for (ProtocolCodec codec : codecs.values()) {
-            codec.start();
-        }
-    }
-
-    private void stopCodecs() {
-        for (ProtocolCodec codec : codecs.values()) {
-            Util.stop(codec);
-        }
     }
 
     @Override
@@ -124,7 +118,11 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         initSslContext(getClass().getClassLoader());
         NioEventLoopGroup g = this.processorGroup;
         int eventLoopSize = g.getEventLoopSize();
-        this.serverAddress = new InetSocketAddress(host, port);
+        if (Util.isNullOrBlank(host)) {
+            this.serverAddress = new InetSocketAddress(port);
+        } else {
+            this.serverAddress = new InetSocketAddress(host, port);
+        }
         this.startCodecs();
         Util.start(executorEventLoopGroup);
         Util.start(processorGroup);
@@ -140,15 +138,17 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
             logger.info("protocol              : [ {} ]", sb.toString());
             logger.info("event loop size       : [ {} ]", eventLoopSize);
             logger.info("enable ssl            : [ {} ]", sslType());
+            logger.info("enable epoll          : [ {} ]", Native.EPOLL_AVAIABLE);
             logger.info("channel idle          : [ {} ]", g.getIdleTime());
             logger.info("host and port         : [ {}:{} ]", getHost(), port);
             if (g.isEnableMemoryPool()) {
                 long memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();
                 long memoryPoolByteSize = memoryPoolCapacity * g.getMemoryPoolUnit();
                 double memoryPoolSize = memoryPoolByteSize / (1024 * 1024);
-                logger.info("memory pool           : [ {}/{}/{}M ]", g.getMemoryPoolUnit(),
+                logger.info("memory pool           : [ {}/{}/{}M ({}) ]", g.getMemoryPoolUnit(),
                         memoryPoolCapacity,
-                        BigDecimal.valueOf(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP));
+                        BigDecimal.valueOf(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP),
+                        getByteBufPoolType(g));
             }
             if (isEnableSsl()) {
                 sb.setLength(0);
@@ -162,15 +162,20 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
             }
         }
     }
+    
+    private String getByteBufPoolType(NioEventLoopGroup g){
+        if (Options.isEnableUnsafeBuf()) {
+            return "unsafe";
+        }
+        return g.isEnableMemoryPoolDirect() ? "direct" : "heap";
+    }
 
     @Override
     protected void doStop() {
         for (Channel ch : channelManager.getManagedChannels().values()) {
             Util.close(ch);
         }
-        if (!getProcessorGroup().isSharable()) {
-            Util.stop(getProcessorGroup());
-        }
+        stopEventLoopGroup(getProcessorGroup());
         Util.stop(executorEventLoopGroup);
         this.stopCodecs();
         this.attributes.clear();
@@ -192,7 +197,7 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         return cels;
     }
 
-    public List<ChannelIdleEventListener> getChannelIdleEventListeners() {
+    public List<ChannelIdleListener> getChannelIdleEventListeners() {
         return ciels;
     }
 
@@ -202,6 +207,10 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
 
     public Charset getCharset() {
         return charset;
+    }
+
+    public ProtocolCodec getDefaultCodec() {
+        return defaultCodec;
     }
 
     public EventLoopGroup getExecutorEventLoopGroup() {
@@ -247,10 +256,6 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         return properties;
     }
 
-    public ProtocolCodec getDefaultCodec() {
-        return defaultCodec;
-    }
-
     public ProtocolCodec getProtocolCodec(String id) throws IOException {
         ProtocolCodec codec = codecs.get(id);
         if (codec == null) {
@@ -258,8 +263,6 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         }
         return codec;
     }
-
-    abstract SelectableChannel getSelectableChannel();
 
     InetSocketAddress getServerAddress() {
         return serverAddress;
@@ -271,6 +274,10 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
 
     public String getSslKeystore() {
         return sslKeystore;
+    }
+
+    public String getSslPem() {
+        return sslPem;
     }
 
     public long getStartupTime() {
@@ -376,15 +383,6 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         this.attributes.put(key, value);
     }
 
-    public String getSslPem() {
-        return sslPem;
-    }
-
-    public void setSslPem(String sslPem) {
-        checkNotRunning();
-        this.sslPem = sslPem;
-    }
-
     public void setCharset(Charset charset) {
         checkNotRunning();
         this.charset = charset;
@@ -445,14 +443,6 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         this.properties = properties;
     }
 
-    public void addProtocolCodec(ProtocolCodec codec) {
-        checkNotRunning();
-        if (defaultCodec == null) {
-            defaultCodec = codec;
-        }
-        codecs.put(codec.getProtocolId(), codec);
-    }
-
     public void setSslContext(SslContext sslContext) {
         checkNotRunning();
         if (sslContext == null) {
@@ -467,8 +457,31 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         this.sslKeystore = sslKeystore;
     }
 
+    public void setSslPem(String sslPem) {
+        checkNotRunning();
+        this.sslPem = sslPem;
+    }
+
     private String sslType() {
         return enableSsl ? SslContext.OPENSSL_AVAILABLE ? "openssl" : "jdkssl" : "false";
+    }
+
+    private void startCodecs() throws Exception {
+        for (ProtocolCodec codec : codecs.values()) {
+            codec.start();
+        }
+    }
+
+    private void stopCodecs() {
+        for (ProtocolCodec codec : codecs.values()) {
+            Util.stop(codec);
+        }
+    }
+
+    protected void stopEventLoopGroup(NioEventLoopGroup group) {
+        if (group != null && !group.isSharable()) {
+            Util.stop(group);
+        }
     }
 
     public interface HeartBeatLogger {

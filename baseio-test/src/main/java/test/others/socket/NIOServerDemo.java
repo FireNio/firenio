@@ -28,15 +28,15 @@ import java.util.Set;
 
 public class NIOServerDemo {
 
-    /* 标识数字 */
-    private int        flag          = 0;
     /* 缓冲区大小 */
     private int        BLOCK         = 4096;
-    /* 接受数据缓冲区 */
-    private ByteBuffer sendbuffer    = ByteBuffer.allocate(BLOCK);
+    /* 标识数字 */
+    private int        flag          = 0;
     /* 发送数据缓冲区 */
     private ByteBuffer receivebuffer = ByteBuffer.allocate(BLOCK);
     private Selector   selector;
+    /* 接受数据缓冲区 */
+    private ByteBuffer sendbuffer    = ByteBuffer.allocate(BLOCK);
 
     public NIOServerDemo(int port) throws IOException {
         // 打开服务器套接字通道
@@ -52,22 +52,6 @@ public class NIOServerDemo {
         // 注册到selector，等待连接
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
         System.out.println("Server Start----8888:");
-    }
-
-    // 监听
-    private void listen() throws IOException {
-        while (true) {
-            // 选择一组键，并且相应的通道已经打开
-            selector.select();
-            // 返回此选择器的已选择键集。
-            Set<SelectionKey> selectionKeys = selector.selectedKeys();
-            Iterator<SelectionKey> iterator = selectionKeys.iterator();
-            while (iterator.hasNext()) {
-                SelectionKey selectionKey = iterator.next();
-                iterator.remove();
-                handleKey(selectionKey);
-            }
-        }
     }
 
     // 处理请求
@@ -115,6 +99,22 @@ public class NIOServerDemo {
             client.write(sendbuffer);
             System.out.println("服务器端向客户端发送数据--：" + sendText);
             client.register(selector, SelectionKey.OP_READ);
+        }
+    }
+
+    // 监听
+    private void listen() throws IOException {
+        while (true) {
+            // 选择一组键，并且相应的通道已经打开
+            selector.select();
+            // 返回此选择器的已选择键集。
+            Set<SelectionKey> selectionKeys = selector.selectedKeys();
+            Iterator<SelectionKey> iterator = selectionKeys.iterator();
+            while (iterator.hasNext()) {
+                SelectionKey selectionKey = iterator.next();
+                iterator.remove();
+                handleKey(selectionKey);
+            }
         }
     }
 

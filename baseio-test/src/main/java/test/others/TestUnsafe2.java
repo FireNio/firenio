@@ -41,7 +41,7 @@ public class TestUnsafe2 {
 
     static void testRadByteUnsafeDirectByteBuffer(int time, ByteBuffer array) {
         long e = 0;
-        long address = Unsafe.addressOffset(array);
+        long address = Unsafe.address(array);
         long end = address + array.capacity();
         for (int i = 0; i < time; i++) {
             for (long j = address; j < end; j++) {

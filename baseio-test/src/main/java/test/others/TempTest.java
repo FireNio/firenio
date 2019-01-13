@@ -15,29 +15,28 @@
  */
 package test.others;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
-import com.firenio.baseio.component.ByteArrayOutputStream;
-
 public class TempTest {
 
+    private static long[]                ls  = new long[10];
+
+    private static Long[]                ls2 = new Long[10];
     private static ByteArrayOutputStream writeBinaryBuffer;
 
-    private static long[]                ls  = new long[10];
-    private static Long[]                ls2 = new Long[10];
+    private static String getDefaultCharSet() {
+        OutputStreamWriter writer = new OutputStreamWriter(new ByteArrayOutputStream());
+        String enc = writer.getEncoding();
+        return enc;
+    }
 
     public static void main(String[] args) {
         System.out.println("Default Charset=" + Charset.defaultCharset());
         System.out.println("file.encoding=" + System.getProperty("file.encoding"));
         System.out.println("Default Charset=" + Charset.defaultCharset());
         System.out.println("Default Charset in Use=" + getDefaultCharSet());
-    }
-
-    private static String getDefaultCharSet() {
-        OutputStreamWriter writer = new OutputStreamWriter(new ByteArrayOutputStream());
-        String enc = writer.getEncoding();
-        return enc;
     }
 
 }

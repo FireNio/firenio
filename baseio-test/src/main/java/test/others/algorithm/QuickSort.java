@@ -25,6 +25,19 @@ import com.firenio.baseio.common.Util;
  */
 public class QuickSort {
 
+    public static void main(String[] args) {
+
+        int[] array = new int[30];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = new Random().nextInt(30);
+        }
+
+        Util.printArray(array);
+        sort(array, 0, 29);
+        Util.printArray(array);
+
+    }
+
     private static int partition(int[] array, int low, int high) {
         //三数取中
         int mid = low + (high - low) / 2;
@@ -53,12 +66,6 @@ public class QuickSort {
         return high;
     }
 
-    private static void swap(int[] array, int a, int b) {
-        int temp = array[a];
-        array[a] = array[b];
-        array[b] = temp;
-    }
-
     public static void sort(int[] array, int low, int high) {
         if (low >= high) {
             return;
@@ -68,17 +75,10 @@ public class QuickSort {
         sort(array, index + 1, high);
     }
 
-    public static void main(String[] args) {
-
-        int[] array = new int[30];
-        for (int i = 0; i < array.length; i++) {
-            array[i] = new Random().nextInt(30);
-        }
-
-        Util.printArray(array);
-        sort(array, 0, 29);
-        Util.printArray(array);
-
+    private static void swap(int[] array, int a, int b) {
+        int temp = array[a];
+        array[a] = array[b];
+        array[b] = temp;
     }
 
 }

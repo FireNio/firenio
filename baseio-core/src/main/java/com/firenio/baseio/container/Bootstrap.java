@@ -90,19 +90,6 @@ public class Bootstrap {
         startup(bootClass, "/app");
     }
 
-    public static void startup(final String bootClass, final String libPath) throws Exception {
-        startup(bootClass, withDefault(new ClassPathScaner() {
-
-            @Override
-            public void scanClassPaths(URLDynamicClassLoader classLoader, String mode,
-                    String rootLocalAddress) throws IOException {
-                if (!isRuntimeDevMode(mode)) {
-                    classLoader.scan(rootLocalAddress + libPath);
-                }
-            }
-        }));
-    }
-
     public static void startup(String className, List<ClassPathScaner> cpScaners) throws Exception {
         Assert.notNull(className, "className");
         Assert.notNull(cpScaners, "cpScaners");
@@ -117,6 +104,19 @@ public class Bootstrap {
         Thread.currentThread().setContextClassLoader(classLoader);
         BootstrapEngine engine = (BootstrapEngine) bootClass.newInstance();
         engine.bootstrap(rootPath, mode);
+    }
+
+    public static void startup(final String bootClass, final String libPath) throws Exception {
+        startup(bootClass, withDefault(new ClassPathScaner() {
+
+            @Override
+            public void scanClassPaths(URLDynamicClassLoader classLoader, String mode,
+                    String rootLocalAddress) throws IOException {
+                if (!isRuntimeDevMode(mode)) {
+                    classLoader.scan(rootLocalAddress + libPath);
+                }
+            }
+        }));
     }
 
     public static List<ClassPathScaner> withDefault() {

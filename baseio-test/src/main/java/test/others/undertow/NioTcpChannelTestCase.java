@@ -51,14 +51,14 @@ public class NioTcpChannelTestCase {
 
     protected static final Logger log             = Logger.getLogger("TEST");
 
-    private final List<Throwable> problems        = new CopyOnWriteArrayList<>();
-
     protected static final int    SERVER_PORT     = 12345;
+
+    private OptionMap             clientOptionMap = OptionMap.EMPTY;
+
+    private final List<Throwable> problems        = new CopyOnWriteArrayList<>();
 
     private OptionMap             serverOptionMap = OptionMap.create(Options.REUSE_ADDRESSES,
             Boolean.TRUE);                                                                   // any random map
-
-    private OptionMap             clientOptionMap = OptionMap.EMPTY;
 
     private int                   threads         = 1;
 
@@ -87,8 +87,8 @@ public class NioTcpChannelTestCase {
                     new InetSocketAddress(InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 }), 0),
                     new ChannelListener<ConnectedStreamChannel>() {
                         private final ByteBuffer inboundBuf  = ByteBuffer.allocate(512);
-                        private int      readCnt     = 0;
                         private final ByteBuffer outboundBuf = ByteBuffer.wrap(bytes);
+                        private int      readCnt     = 0;
 
                         @Override
                         public void handleEvent(final ConnectedStreamChannel ch) {
@@ -153,8 +153,8 @@ public class NioTcpChannelTestCase {
             final InetSocketAddress localAddress = futureAddress.get();
             worker.connectStream(localAddress, new ChannelListener<ConnectedStreamChannel>() {
                 private final ByteBuffer inboundBuf  = ByteBuffer.allocate(512);
-                private int              readCnt     = 0;
                 private final ByteBuffer outboundBuf = ByteBuffer.wrap(bytes);
+                private int              readCnt     = 0;
 
                 @Override
                 public void handleEvent(final ConnectedStreamChannel ch) {

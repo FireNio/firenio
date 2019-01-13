@@ -16,18 +16,15 @@
 package com.firenio.baseio.buffer;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import com.firenio.baseio.common.Unsafe;
 
 abstract class DirectByteBuf extends ByteBuf {
 
-    protected ByteBufAllocator allocator;
-    protected int              markLimit;
-    protected ByteBuffer       memory;
+    protected int        markLimit;
+    protected ByteBuffer memory;
 
-    DirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
-        this.allocator = allocator;
+    DirectByteBuf(ByteBuffer memory) {
         this.memory = memory;
     }
 
@@ -84,9 +81,9 @@ abstract class DirectByteBuf extends ByteBuf {
     @Override
     protected int get0(ByteBuffer dst, int len) {
         if (dst.hasArray()) {
-            copy(memory, dst.array(), dst.position(), len);
+            copy(address() + absPos(), dst.array(), dst.position(), len);
         } else {
-            copy(memory, dst, len);
+            copy(address() + absPos(), Unsafe.address(dst) + dst.position(), len);
         }
         dst.position(dst.position() + len);
         skip(len);
@@ -115,18 +112,12 @@ abstract class DirectByteBuf extends ByteBuf {
 
     @Override
     public int getIntLE() {
-        memory.order(ByteOrder.LITTLE_ENDIAN);
-        int v = memory.getInt();
-        memory.order(ByteOrder.BIG_ENDIAN);
-        return v;
+        return Integer.reverseBytes(memory.getInt());
     }
 
     @Override
     public int getIntLE(int index) {
-        memory.order(ByteOrder.LITTLE_ENDIAN);
-        int v = memory.getInt(ix(index));
-        memory.order(ByteOrder.BIG_ENDIAN);
-        return v;
+        return Integer.reverseBytes(memory.getInt(ix(index)));
     }
 
     @Override
@@ -141,18 +132,12 @@ abstract class DirectByteBuf extends ByteBuf {
 
     @Override
     public long getLongLE() {
-        memory.order(ByteOrder.LITTLE_ENDIAN);
-        long v = memory.getLong();
-        memory.order(ByteOrder.BIG_ENDIAN);
-        return v;
+        return Long.reverseBytes(memory.getLong());
     }
 
     @Override
     public long getLongLE(int index) {
-        memory.order(ByteOrder.LITTLE_ENDIAN);
-        long v = memory.getLong(ix(index));
-        memory.order(ByteOrder.BIG_ENDIAN);
-        return v;
+        return Long.reverseBytes(memory.getLong(ix(index)));
     }
 
     @Override
@@ -172,18 +157,12 @@ abstract class DirectByteBuf extends ByteBuf {
 
     @Override
     public short getShortLE() {
-        memory.order(ByteOrder.LITTLE_ENDIAN);
-        short v = memory.getShort();
-        memory.order(ByteOrder.BIG_ENDIAN);
-        return v;
+        return Short.reverseBytes(memory.getShort());
     }
 
     @Override
     public short getShortLE(int index) {
-        memory.order(ByteOrder.LITTLE_ENDIAN);
-        short v = memory.getShort(ix(index));
-        memory.order(ByteOrder.BIG_ENDIAN);
-        return v;
+        return Short.reverseBytes(memory.getShort(ix(index)));
     }
 
     @Override
@@ -209,18 +188,12 @@ abstract class DirectByteBuf extends ByteBuf {
 
     @Override
     public long getUnsignedIntLE() {
-        memory.order(ByteOrder.LITTLE_ENDIAN);
-        long v = toUnsignedInt(memory.getInt());
-        memory.order(ByteOrder.BIG_ENDIAN);
-        return v;
+        return toUnsignedInt(Integer.reverseBytes(memory.getInt()));
     }
 
     @Override
     public long getUnsignedIntLE(int index) {
-        memory.order(ByteOrder.LITTLE_ENDIAN);
-        long v = toUnsignedInt(memory.getInt(ix(index)));
-        memory.order(ByteOrder.BIG_ENDIAN);
-        return v;
+        return toUnsignedInt(Integer.reverseBytes(memory.getInt(ix(index))));
     }
 
     @Override
@@ -235,18 +208,12 @@ abstract class DirectByteBuf extends ByteBuf {
 
     @Override
     public int getUnsignedShortLE() {
-        memory.order(ByteOrder.LITTLE_ENDIAN);
-        int v = memory.getShort() & 0xffff;
-        memory.order(ByteOrder.BIG_ENDIAN);
-        return v;
+        return Short.reverseBytes(memory.getShort()) & 0xffff;
     }
 
     @Override
     public int getUnsignedShortLE(int index) {
-        memory.order(ByteOrder.LITTLE_ENDIAN);
-        int v = memory.getShort(ix(index)) & 0xff;
-        memory.order(ByteOrder.BIG_ENDIAN);
-        return v;
+        return Short.reverseBytes(memory.getShort(ix(index))) & 0xffff;
     }
 
     @Override
@@ -265,7 +232,7 @@ abstract class DirectByteBuf extends ByteBuf {
         int p = absPos;
         int l = p + size;
         if (Unsafe.ENABLE) {
-            long addr = Unsafe.addressOffset(m);
+            long addr = Unsafe.address(m);
             for (; p < l; p++) {
                 if (Unsafe.getByte(addr + ((long) p << 0)) == b) {
                     return p;
@@ -287,7 +254,7 @@ abstract class DirectByteBuf extends ByteBuf {
         int p = absPos;
         int l = p - size - 1;
         if (Unsafe.ENABLE) {
-            long addr = Unsafe.addressOffset(m);
+            long addr = Unsafe.address(m);
             for (; p > l; p--) {
                 if (Unsafe.getByte(addr + ((long) p << 0)) == b) {
                     return p;
@@ -350,9 +317,9 @@ abstract class DirectByteBuf extends ByteBuf {
     @Override
     protected int put00(ByteBuf src, int len) {
         if (src.hasArray()) {
-            copy(src.array(), src.position(), memory, len);
+            copy(src.array(), src.position(), address() + absPos(), len);
         } else {
-            copy(src.nioBuffer(), memory, len);
+            copy(src.address() + src.absPos(), address() + absPos(), len);
         }
         src.skip(len);
         skip(len);
@@ -362,9 +329,9 @@ abstract class DirectByteBuf extends ByteBuf {
     @Override
     protected int put00(ByteBuffer src, int len) {
         if (src.hasArray()) {
-            copy(src.array(), src.position(), memory, len);
+            copy(src.array(), src.position(), address() + absPos(), len);
         } else {
-            copy(src, memory, len);
+            copy(Unsafe.address(src) + src.position(), address() + absPos(), len);
         }
         src.position(src.position() + len);
         skip(len);

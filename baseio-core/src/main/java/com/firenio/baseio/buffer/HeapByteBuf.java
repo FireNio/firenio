@@ -18,24 +18,22 @@ package com.firenio.baseio.buffer;
 import java.nio.ByteBuffer;
 
 import com.firenio.baseio.common.ByteUtil;
+import com.firenio.baseio.common.Unsafe;
 
 abstract class HeapByteBuf extends ByteBuf {
 
-    protected ByteBufAllocator allocator;
-    protected int              limit;
-    protected int              markLimit;
-    protected int              markPos;
-    protected byte[]           memory;
-    protected ByteBuffer       nioBuffer;
-    protected int              position;
+    protected int        limit;
+    protected int        markLimit;
+    protected int        markPos;
+    protected byte[]     memory;
+    protected ByteBuffer nioBuffer;
+    protected int        pos;
 
-    HeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
-        this.allocator = allocator;
+    HeapByteBuf(byte[] memory) {
         this.memory = memory;
     }
 
-    HeapByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
-        this.allocator = allocator;
+    HeapByteBuf(ByteBuffer memory) {
         this.nioBuffer = memory;
         this.memory = memory.array();
     }
@@ -58,12 +56,12 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public int absPos() {
-        return position;
+        return pos;
     }
 
     @Override
     public ByteBuf absPos(int pos) {
-        this.position = pos;
+        this.pos = pos;
         return this;
     }
 
@@ -74,22 +72,22 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public ByteBuf clear() {
-        this.position = offset();
+        this.pos = offset();
         this.limit = ix(capacity());
         return this;
     }
 
     @Override
     public ByteBuf flip() {
-        this.limit = position;
-        this.position = offset();
+        this.limit = pos;
+        this.pos = offset();
         return this;
     }
 
     @Override
     public void get(byte[] dst, int offset, int length) {
-        System.arraycopy(memory, position, dst, offset, length);
-        this.position += length;
+        System.arraycopy(memory, pos, dst, offset, length);
+        this.pos += length;
     }
 
     @Override
@@ -97,7 +95,7 @@ abstract class HeapByteBuf extends ByteBuf {
         if (dst.hasArray()) {
             copy(memory, absPos(), dst.array(), dst.position(), len);
         } else {
-            copy(memory, absPos(), dst, len);
+            copy(memory, absPos(), Unsafe.address(dst) + dst.position(), len);
         }
         dst.position(dst.position() + len);
         skip(len);
@@ -106,7 +104,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public byte getByte() {
-        return memory[position++];
+        return memory[pos++];
     }
 
     @Override
@@ -116,50 +114,50 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public int getInt() {
-        int v = ByteUtil.byte2Int(memory, position);
-        this.position += 4;
+        int v = ByteUtil.getInt(memory, pos);
+        this.pos += 4;
         return v;
     }
 
     @Override
     public int getInt(int index) {
-        return ByteUtil.byte2Int(memory, ix(index));
+        return ByteUtil.getInt(memory, ix(index));
     }
 
     @Override
     public int getIntLE() {
-        int v = ByteUtil.byte2IntLE(memory, position);
-        this.position += 4;
+        int v = ByteUtil.getIntLE(memory, pos);
+        this.pos += 4;
         return v;
     }
 
     @Override
     public int getIntLE(int offset) {
-        return ByteUtil.byte2IntLE(memory, ix(offset));
+        return ByteUtil.getIntLE(memory, ix(offset));
     }
 
     @Override
     public long getLong() {
-        long v = ByteUtil.byte2Long(memory, position);
-        this.position += 8;
+        long v = ByteUtil.getLong(memory, pos);
+        this.pos += 8;
         return v;
     }
 
     @Override
     public long getLong(int index) {
-        return ByteUtil.byte2Long(memory, ix(index));
+        return ByteUtil.getLong(memory, ix(index));
     }
 
     @Override
     public long getLongLE() {
-        long v = ByteUtil.byte2LongLE(memory, position);
-        this.position += 8;
+        long v = ByteUtil.getLongLE(memory, pos);
+        this.pos += 8;
         return v;
     }
 
     @Override
     public long getLongLE(int index) {
-        return ByteUtil.byte2LongLE(memory, ix(index));
+        return ByteUtil.getLongLE(memory, ix(index));
     }
 
     @Override
@@ -172,26 +170,26 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public short getShort() {
-        short v = ByteUtil.byte2Short(memory, position);
-        this.position += 2;
+        short v = ByteUtil.getShort(memory, pos);
+        this.pos += 2;
         return v;
     }
 
     @Override
     public short getShort(int index) {
-        return ByteUtil.byte2Short(memory, ix(index));
+        return ByteUtil.getShort(memory, ix(index));
     }
 
     @Override
     public short getShortLE() {
-        short v = ByteUtil.byte2ShortLE(memory, position);
-        this.position += 2;
+        short v = ByteUtil.getShortLE(memory, pos);
+        this.pos += 2;
         return v;
     }
 
     @Override
     public short getShortLE(int index) {
-        return ByteUtil.byte2ShortLE(memory, ix(index));
+        return ByteUtil.getShortLE(memory, ix(index));
     }
 
     @Override
@@ -206,50 +204,50 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public long getUnsignedInt() {
-        long v = ByteUtil.byte2UnsignedInt(memory, position);
-        this.position += 4;
+        long v = ByteUtil.getInt(memory, pos) & 0xffffffffL;
+        this.pos += 4;
         return v;
     }
 
     @Override
     public long getUnsignedInt(int index) {
-        return ByteUtil.byte2UnsignedInt(memory, ix(index));
+        return ByteUtil.getInt(memory, ix(index)) & 0xffffffffL;
     }
 
     @Override
     public long getUnsignedIntLE() {
-        long v = ByteUtil.byte2UnsignedIntLE(memory, position);
-        this.position += 4;
+        long v = ByteUtil.getIntLE(memory, pos) & 0xffffffffL;
+        this.pos += 4;
         return v;
     }
 
     @Override
     public long getUnsignedIntLE(int index) {
-        return ByteUtil.byte2UnsignedIntLE(memory, ix(index));
+        return ByteUtil.getIntLE(memory, ix(index)) & 0xffffffffL;
     }
 
     @Override
     public int getUnsignedShort() {
-        int v = ByteUtil.byte2UnsignedShort(memory, position);
-        this.position += 2;
+        int v = ByteUtil.getShort(memory, pos) & 0xffff;
+        this.pos += 2;
         return v;
     }
 
     @Override
     public int getUnsignedShort(int index) {
-        return ByteUtil.byte2UnsignedShort(memory, ix(index));
+        return ByteUtil.getShort(memory, ix(index)) & 0xffff;
     }
 
     @Override
     public int getUnsignedShortLE() {
-        int v = ByteUtil.byte2UnsignedShortLE(memory, position);
-        this.position += 2;
+        int v = ByteUtil.getShortLE(memory, pos) & 0xffff;
+        this.pos += 2;
         return v;
     }
 
     @Override
     public int getUnsignedShortLE(int index) {
-        return ByteUtil.byte2UnsignedShortLE(memory, ix(index));
+        return ByteUtil.getShortLE(memory, ix(index)) & 0xffff;
     }
 
     @Override
@@ -259,7 +257,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public boolean hasRemaining() {
-        return position < limit;
+        return pos < limit;
     }
 
     @Override
@@ -307,31 +305,31 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public ByteBuf markP() {
-        markPos = position;
+        markPos = pos;
         return this;
     }
 
     @Override
     public ByteBuffer nioBuffer() {
         ByteBuffer buffer = getNioBuffer();
-        return (ByteBuffer) buffer.limit(limit).position(position);
+        return (ByteBuffer) buffer.limit(limit).position(pos);
     }
 
     @Override
     public int position() {
-        return position - offset();
+        return pos - offset();
     }
 
     @Override
     public ByteBuf position(int position) {
-        this.position = ix(position);
+        this.pos = ix(position);
         return this;
     }
 
     @Override
     protected void put0(byte[] src, int offset, int length) {
-        System.arraycopy(src, offset, memory, position, length);
-        this.position += length;
+        System.arraycopy(src, offset, memory, pos, length);
+        this.pos += length;
     }
 
     @Override
@@ -339,7 +337,7 @@ abstract class HeapByteBuf extends ByteBuf {
         if (src.hasArray()) {
             copy(src.array(), src.absPos(), memory, absPos(), len);
         } else {
-            copy(src.nioBuffer(), memory, absPos(), len);
+            copy(src.address() + src.absPos(), memory, absPos(), len);
         }
         src.skip(len);
         skip(len);
@@ -351,7 +349,7 @@ abstract class HeapByteBuf extends ByteBuf {
         if (src.hasArray()) {
             copy(src.array(), src.position(), memory, absPos(), len);
         } else {
-            copy(src, memory, absPos(), len);
+            copy(Unsafe.address(src) + src.position(), memory, absPos(), len);
         }
         src.position(src.position() + len);
         skip(len);
@@ -365,122 +363,122 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     protected void putByte0(byte b) {
-        memory[position++] = b;
+        memory[pos++] = b;
     }
 
     @Override
     public void putInt(int index, int value) {
-        ByteUtil.int2Byte(memory, value, ix(index));
+        ByteUtil.putInt(memory, value, ix(index));
     }
 
     @Override
     protected void putInt0(int value) {
-        ByteUtil.int2Byte(memory, value, position);
-        position += 4;
+        ByteUtil.putInt(memory, value, pos);
+        pos += 4;
     }
 
     @Override
     public void putIntLE(int index, int value) {
-        ByteUtil.int2ByteLE(memory, value, ix(index));
+        ByteUtil.putIntLE(memory, value, ix(index));
     }
 
     @Override
     protected void putIntLE0(int value) {
-        ByteUtil.int2ByteLE(memory, value, position);
-        position += 4;
+        ByteUtil.putIntLE(memory, value, pos);
+        pos += 4;
     }
 
     @Override
     public void putLong(int index, long value) {
-        ByteUtil.long2Byte(memory, value, ix(index));
+        ByteUtil.putLong(memory, value, ix(index));
     }
 
     @Override
     protected void putLong0(long value) {
-        ByteUtil.long2Byte(memory, value, position);
-        position += 8;
+        ByteUtil.putLong(memory, value, pos);
+        pos += 8;
     }
 
     @Override
     public void putLongLE(int index, long value) {
-        ByteUtil.long2ByteLE(memory, value, ix(index));
+        ByteUtil.putLongLE(memory, value, ix(index));
     }
 
     @Override
     protected void putLongLE0(long value) {
-        ByteUtil.long2ByteLE(memory, value, position);
-        position += 8;
+        ByteUtil.putLongLE(memory, value, pos);
+        pos += 8;
     }
 
     @Override
     public void putShort(int index, short value) {
-        ByteUtil.short2Byte(memory, value, ix(index));
+        ByteUtil.putShort(memory, value, ix(index));
     }
 
     @Override
     protected void putShort0(short value) {
-        ByteUtil.short2Byte(memory, value, position);
-        position += 2;
+        ByteUtil.putShort(memory, value, pos);
+        pos += 2;
     }
 
     @Override
     public void putShortLE(int index, short value) {
-        ByteUtil.short2ByteLE(memory, value, ix(index));
+        ByteUtil.putShortLE(memory, value, ix(index));
     }
 
     @Override
     protected void putShortLE0(short value) {
-        ByteUtil.short2ByteLE(memory, value, position);
-        position += 2;
+        ByteUtil.putShortLE(memory, value, pos);
+        pos += 2;
     }
 
     @Override
     public void putUnsignedInt(int index, long value) {
-        ByteUtil.int2Byte(memory, (int) value, ix(index));
+        ByteUtil.putInt(memory, (int) value, ix(index));
     }
 
     @Override
     protected void putUnsignedInt0(long value) {
-        ByteUtil.unsignedInt2Byte(memory, value, position);
-        position += 4;
+        ByteUtil.putInt(memory, (int) value, pos);
+        pos += 4;
     }
 
     @Override
     public void putUnsignedIntLE(int index, long value) {
-        ByteUtil.int2ByteLE(memory, (int) value, ix(index));
+        ByteUtil.putIntLE(memory, (int) value, ix(index));
     }
 
     @Override
     protected void putUnsignedIntLE0(long value) {
-        ByteUtil.unsignedInt2ByteLE(memory, value, position);
-        position += 4;
+        ByteUtil.putIntLE(memory, (int) value, pos);
+        pos += 4;
     }
 
     @Override
     public void putUnsignedShort(int index, int value) {
-        ByteUtil.short2Byte(memory, (short) value, ix(index));
+        ByteUtil.putShort(memory, (short) value, ix(index));
     }
 
     @Override
     protected void putUnsignedShort0(int value) {
-        ByteUtil.unsignedShort2Byte(memory, value, position);
-        position += 2;
+        ByteUtil.putShort(memory, (short) value, pos);
+        pos += 2;
     }
 
     @Override
     public void putUnsignedShortLE(int index, int value) {
-        ByteUtil.short2ByteLE(memory, (short) value, ix(index));
+        ByteUtil.putShortLE(memory, (short) value, ix(index));
     }
 
     @Override
     protected void putUnsignedShortLE0(int value) {
-        ByteUtil.unsignedShort2ByteLE(memory, value, position);
-        position += 2;
+        ByteUtil.putShortLE(memory, (short) value, pos);
+        pos += 2;
     }
 
     @Override
     public int remaining() {
-        return limit - position;
+        return limit - pos;
     }
 
     @Override
@@ -491,19 +489,19 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public ByteBuf resetP() {
-        position = markPos;
+        pos = markPos;
         return this;
     }
 
     @Override
     public ByteBuf reverse() {
-        position = nioBuffer.position();
+        pos = nioBuffer.position();
         return this;
     }
 
     @Override
     public ByteBuf skip(int length) {
-        position += length;
+        pos += length;
         return this;
     }
 

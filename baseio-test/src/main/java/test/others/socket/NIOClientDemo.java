@@ -26,14 +26,14 @@ import java.util.Set;
 
 public class NIOClientDemo {
 
-    /* 标识数字 */
-    private static int                     flag           = 0;
     /* 缓冲区大小 */
     private static int                     BLOCK          = 4096;
-    /* 接受数据缓冲区 */
-    private static ByteBuffer              sendbuffer     = ByteBuffer.allocate(BLOCK);
+    /* 标识数字 */
+    private static int                     flag           = 0;
     /* 发送数据缓冲区 */
     private static ByteBuffer              receivebuffer  = ByteBuffer.allocate(BLOCK);
+    /* 接受数据缓冲区 */
+    private static ByteBuffer              sendbuffer     = ByteBuffer.allocate(BLOCK);
     /* 服务器端地址 */
     private final static InetSocketAddress SERVER_ADDRESS = new InetSocketAddress("localhost",
             8888);

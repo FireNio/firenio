@@ -24,9 +24,9 @@ import com.firenio.baseio.log.LoggerFactory;
 public class ITestThreadHandle {
 
     private static Logger       logger    = LoggerFactory.getLogger(ITestThreadHandle.class);
-    private static long         sum;
     private static long         numOftime;
     private static long         startTime = System.currentTimeMillis();
+    private static long         sum;
     public static ITestThread[] ts;
 
     public static void doTest(Class<? extends ITestThread> clazz, int threads, int time) {

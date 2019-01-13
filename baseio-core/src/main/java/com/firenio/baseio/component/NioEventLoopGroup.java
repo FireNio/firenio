@@ -15,9 +15,11 @@
  */
 package com.firenio.baseio.component;
 
+import java.io.IOException;
+
 import com.firenio.baseio.buffer.ByteBufAllocator;
 import com.firenio.baseio.buffer.ByteBufAllocatorGroup;
-import com.firenio.baseio.buffer.ByteBufUtil;
+import com.firenio.baseio.buffer.UnpooledByteBufAllocator;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.concurrent.EventLoopGroup;
 import com.firenio.baseio.concurrent.FixedAtomicInteger;
@@ -46,10 +48,10 @@ public class NioEventLoopGroup extends EventLoopGroup {
     private int                   memoryPoolRate         = 32;
     //内存池单元大小
     private int                   memoryPoolUnit         = 512;
-    private boolean               readBufDirect          = false;
     private boolean               sharable;
     //单条连接write(srcs)的数量
     private int                   writeBuffers           = 32;
+    private boolean               acceptor;
 
     public NioEventLoopGroup() {
         this(false);
@@ -95,6 +97,12 @@ public class NioEventLoopGroup extends EventLoopGroup {
         }
         Util.start(getAllocatorGroup());
         super.doStart();
+    }
+
+    @Override
+    protected void doStop() {
+        Util.stop(allocatorGroup);
+        super.doStop();
     }
 
     public ByteBufAllocatorGroup getAllocatorGroup() {
@@ -146,7 +154,7 @@ public class NioEventLoopGroup extends EventLoopGroup {
     public ByteBufAllocator getNextByteBufAllocator(int index) {
         ByteBufAllocatorGroup group = allocatorGroup;
         if (group == null) {
-            return isEnableMemoryPoolDirect() ? ByteBufUtil.direct() : ByteBufUtil.heap();
+            return UnpooledByteBufAllocator.get(isEnableMemoryPoolDirect());
         } else {
             return group.getAllocator(index);
         }
@@ -174,16 +182,12 @@ public class NioEventLoopGroup extends EventLoopGroup {
         return enableMemoryPoolDirect;
     }
 
-    public boolean isReadBufDirect() {
-        return readBufDirect;
-    }
-
     public boolean isSharable() {
         return sharable;
     }
 
     @Override
-    protected NioEventLoop newEventLoop(int index, String threadName) {
+    protected NioEventLoop newEventLoop(int index, String threadName) throws IOException {
         return new NioEventLoop(this, index, threadName);
     }
 
@@ -236,14 +240,18 @@ public class NioEventLoopGroup extends EventLoopGroup {
         this.memoryPoolUnit = memoryPoolUnit;
     }
 
-    public void setReadBufDirect(boolean readBufDirect) {
-        checkNotRunning();
-        this.readBufDirect = readBufDirect;
-    }
-
     public void setWriteBuffers(int writeBuffers) {
         checkNotRunning();
         this.writeBuffers = writeBuffers;
+    }
+
+    protected boolean isAcceptor() {
+        return acceptor;
+    }
+
+    protected void setAcceptor(boolean acceptor) {
+        checkNotRunning();
+        this.acceptor = acceptor;
     }
 
 }

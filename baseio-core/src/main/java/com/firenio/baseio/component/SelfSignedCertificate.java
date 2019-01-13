@@ -31,8 +31,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
-import com.firenio.baseio.common.BASE64Util;
-import com.firenio.baseio.common.Encoding;
+import com.firenio.baseio.common.Cryptos;
 import com.firenio.baseio.common.FileUtil;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.log.Logger;
@@ -275,19 +274,19 @@ public final class SelfSignedCertificate {
         // Encode the private key into a file.
         byte keyArray[] = key.getEncoded();
 
-        String keyText = BASE64Util.byteArrayToBase64(keyArray);
+        String keyText = Cryptos.base64_en(keyArray);
 
         keyText = "-----BEGIN PRIVATE KEY-----\n" + keyText + "\n-----END PRIVATE KEY-----\n";
 
-        File keyFile = write2file(fileRoot, "keyutil_" + fqdn, ".key", keyText, Encoding.UTF8);
+        File keyFile = write2file(fileRoot, "keyutil_" + fqdn, ".key", keyText, Util.UTF8);
 
         byte certArray[] = cert.getEncoded();
 
-        String certText = BASE64Util.byteArrayToBase64(certArray);
+        String certText = Cryptos.base64_en(certArray);
 
         certText = "-----BEGIN CERTIFICATE-----\n" + certText + "\n-----END CERTIFICATE-----\n";
 
-        File certFile = write2file(fileRoot, "keyutil_" + fqdn, ".crt", certText, Encoding.UTF8);
+        File certFile = write2file(fileRoot, "keyutil_" + fqdn, ".crt", certText, Util.UTF8);
 
         return new File[] { certFile, keyFile };
     }

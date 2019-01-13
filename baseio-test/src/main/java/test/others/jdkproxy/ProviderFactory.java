@@ -21,18 +21,18 @@ import com.firenio.baseio.common.Util;
 
 public class ProviderFactory {
 
-    public static FontProvider getFontProvider() {
-        return (FontProvider) Proxy.newProxyInstance(FontProvider.class.getClassLoader(),
-                Util.getInterfaces(FontProvider.class),
-                new CachedProviderHandler(new FontProviderFromDisk()));
-    }
-
     static class FontProviderFromDisk implements FontProvider {
 
         @Override
         public String getFont(String name) {
             return "DISK:" + name;
         }
+    }
+
+    public static FontProvider getFontProvider() {
+        return (FontProvider) Proxy.newProxyInstance(FontProvider.class.getClassLoader(),
+                Util.getInterfaces(FontProvider.class),
+                new CachedProviderHandler(new FontProviderFromDisk()));
     }
 
 }

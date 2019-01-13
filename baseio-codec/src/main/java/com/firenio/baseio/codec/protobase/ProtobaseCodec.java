@@ -63,16 +63,6 @@ public class ProtobaseCodec extends ProtocolCodec {
         this.limit = limit;
     }
 
-    private Frame decodePing(int type) throws IOException {
-        if (type == PROTOCOL_PING) {
-            return newProtobaseFrame().setPing();
-        } else if (type == PROTOCOL_PONG) {
-            return newProtobaseFrame().setPong();
-        } else {
-            throw ILLEGAL_PROTOCOL;
-        }
-    }
-
     @Override
     public Frame decode(Channel ch, ByteBuf src) throws IOException {
         if (src.remaining() < 4) {
@@ -113,6 +103,16 @@ public class ProtobaseCodec extends ProtocolCodec {
             f.setContent(data);
         }
         return f;
+    }
+
+    private Frame decodePing(int type) throws IOException {
+        if (type == PROTOCOL_PING) {
+            return newProtobaseFrame().setPing();
+        } else if (type == PROTOCOL_PONG) {
+            return newProtobaseFrame().setPong();
+        } else {
+            throw ILLEGAL_PROTOCOL;
+        }
     }
 
     @Override

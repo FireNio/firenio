@@ -15,57 +15,47 @@
  */
 package test.io.fixedlength;
 
-import java.util.Scanner;
-
 import com.firenio.baseio.codec.fixedlength.FixedLengthCodec;
 import com.firenio.baseio.codec.fixedlength.FixedLengthFrame;
 import com.firenio.baseio.common.Util;
-import com.firenio.baseio.component.ChannelConnector;
+import com.firenio.baseio.component.ChannelAcceptor;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.Channel;
 
-public class TestFIxedLengthClientPush {
+public class TestFixedLengthBroadcastServer {
 
-    @SuppressWarnings("resource")
     public static void main(String[] args) throws Exception {
+
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
+
             @Override
             public void accept(Channel ch, Frame frame) throws Exception {
-                System.out.println(">msg from server: " + frame);
+                FixedLengthFrame f = (FixedLengthFrame) frame;
+                frame.write("yes server already accept your message:", ch);
+                frame.write(f.getStringContent(), ch);
+                ch.writeAndFlush(f);
             }
         };
-        ChannelConnector context = new ChannelConnector(8300);
-        context.setIoEventHandle(eventHandleAdaptor);
+
+        ChannelAcceptor context = new ChannelAcceptor(8300);
         context.addChannelEventListener(new LoggerChannelOpenListener());
+        context.addChannelEventListener(new SetOptionListener());
+        context.setIoEventHandle(eventHandleAdaptor);
         context.addProtocolCodec(new FixedLengthCodec());
-        Channel ch = context.connect();
+        context.bind();
+
         Util.exec(new Runnable() {
 
             @Override
             public void run() {
-                System.out.println("************************************************");
-                System.out.println("提示:");
-                System.out.println("list(获取所有客户端id)");
-                System.out.println("id(获取当前客户端id)");
-                System.out.println("push id msg(推送消息到)");
-                System.out.println("broadcast msg(广播消息)");
-                System.out.println("exit(退出客户端)");
-                System.out.println("仅用于演示，msg请勿包含空格");
-                System.out.println("************************************************");
-                Scanner scanner = new Scanner(System.in);
                 for (;;) {
-                    System.out.println(">");
-                    String line = scanner.nextLine();
-                    if ("exit".equals(line)) {
-                        Util.close(ch);
-                        break;
-                    }
+                    Util.sleep(1000);
                     FixedLengthFrame frame = new FixedLengthFrame();
-                    frame.write(line, context);
+                    frame.write("broadcast msg .........................", context);
                     try {
-                        ch.writeAndFlush(frame);
+                        context.broadcast(frame);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -73,5 +63,4 @@ public class TestFIxedLengthClientPush {
             }
         });
     }
-
 }

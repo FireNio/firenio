@@ -23,16 +23,26 @@ import java.nio.ByteBuffer;
  */
 class UnpooledHeapByteBuf extends HeapByteBuf {
 
-    UnpooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory, int off, int len) {
-        super(allocator, memory);
-        this.position = off;
+    UnpooledHeapByteBuf(byte[] memory, int off, int len) {
+        super(memory);
+        this.pos = off;
         this.limit = off + len;
     }
 
-    UnpooledHeapByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
-        super(allocator, memory);
-        this.position = memory.position();
+    UnpooledHeapByteBuf(ByteBuffer memory) {
+        super(memory);
+        this.pos = memory.position();
         this.limit = memory.limit();
+    }
+
+    @Override
+    public long address() {
+        return -1;
+    }
+
+    @Override
+    public boolean isPooled() {
+        return false;
     }
 
     @Override
@@ -49,8 +59,8 @@ class UnpooledHeapByteBuf extends HeapByteBuf {
     public void expansion(int cap) {
         byte[] oldBuffer = memory;
         byte[] newBuffer = new byte[cap];
-        if (position > 0) {
-            copy(oldBuffer, 0, newBuffer, 0, position);
+        if (pos > 0) {
+            copy(oldBuffer, 0, newBuffer, 0, pos);
         }
         memory = newBuffer;
         limit = capacity();

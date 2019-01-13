@@ -38,9 +38,10 @@ public class SSLSocketClient {
         X509TrustManager x509m = new X509TrustManager() {
 
             @Override
-            public X509Certificate[] getAcceptedIssuers() {
-                System.out.println("getAcceptedIssuers......");
-                return null;
+            public void checkClientTrusted(X509Certificate[] chain, String authType)
+                    throws CertificateException {
+                System.out.println("checkClientTrusted......");
+
             }
 
             @Override
@@ -53,16 +54,15 @@ public class SSLSocketClient {
             }
 
             @Override
-            public void checkClientTrusted(X509Certificate[] chain, String authType)
-                    throws CertificateException {
-                System.out.println("checkClientTrusted......");
-
+            public X509Certificate[] getAcceptedIssuers() {
+                System.out.println("getAcceptedIssuers......");
+                return null;
             }
         };
         context.init(null, new TrustManager[] { x509m }, new SecureRandom());
 
         SSLSocketFactory factory = context.getSocketFactory();
-        SSLSocket s = (SSLSocket) factory.createSocket("localhost", 443);
+        SSLSocket s = (SSLSocket) factory.createSocket("192.168.133.134", 1443);
         System.out.println("ok");
 
         OutputStream output = s.getOutputStream();

@@ -51,12 +51,12 @@ public class SpringHttpFrameHandle extends HttpFrameHandle {
         acceptor.accept(ch, f);
     }
 
-    private HttpFrameAcceptor getFrameAcceptor(String name) {
-        return (HttpFrameAcceptor) ContextUtil.getBean(name);
-    }
-
     public void destroy(ChannelContext context) {
         applicationContext.destroy();
+    }
+
+    private HttpFrameAcceptor getFrameAcceptor(String name) {
+        return (HttpFrameAcceptor) ContextUtil.getBean(name);
     }
 
     @Override

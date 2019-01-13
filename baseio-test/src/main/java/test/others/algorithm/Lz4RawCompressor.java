@@ -20,39 +20,33 @@ import com.firenio.baseio.common.Unsafe;
 
 public final class Lz4RawCompressor {
 
-    public static final int  LAST_LITERAL_SIZE = 5;
-    public static final int  MIN_MATCH         = 4;
-    public static final int  SIZE_OF_SHORT     = 2;
-    public static final int  SIZE_OF_INT       = 4;
-    public static final int  SIZE_OF_LONG      = 8;
-    private static final int MAX_INPUT_SIZE    = 0x7E000000;             // 2113929216 bytes
-    private static final int HASH_LOG          = 12;
-    private static final int MIN_TABLE_SIZE    = 16;
-    private static final int MAX_TABLE_SIZE    = (1 << HASH_LOG);
     private static final int COPY_LENGTH       = 8;
-    private static final int MATCH_FIND_LIMIT  = COPY_LENGTH + MIN_MATCH;
-    private static final int MIN_LENGTH        = MATCH_FIND_LIMIT + 1;
+    private static final int HASH_LOG          = 12;
+    public static final int  LAST_LITERAL_SIZE = 5;
+    private static final int MATCH_FIND_LIMIT;
+    private static final int MAX_DISTANCE      = ((1 << 16) - 1);
+    private static final int MAX_INPUT_SIZE    = 0x7E000000;         // 2113929216 bytes
+    private static final int MAX_TABLE_SIZE    = (1 << HASH_LOG);
+    private static final int MIN_LENGTH;
+    public static final int  MIN_MATCH;
+    private static final int MIN_TABLE_SIZE    = 16;
     private static final int ML_BITS           = 4;
     private static final int ML_MASK           = (1 << ML_BITS) - 1;
     private static final int RUN_BITS          = 8 - ML_BITS;
     private static final int RUN_MASK          = (1 << RUN_BITS) - 1;
-    private static final int MAX_DISTANCE      = ((1 << 16) - 1);
-    private static final int SKIP_TRIGGER      = 6;                      // Increase this value ==> compression run slower on incompressible data 
+    public static final int  SIZE_OF_INT       = 4;
+    public static final int  SIZE_OF_LONG      = 8;
+    public static final int  SIZE_OF_SHORT     = 2;
+    private static final int SKIP_TRIGGER      = 6;                  // Increase this value ==> compression run slower on incompressible data 
 
-    private final int[]      table             = new int[MAX_TABLE_SIZE];
+    static {
+        MIN_MATCH = 4;
+        MATCH_FIND_LIMIT = COPY_LENGTH + MIN_MATCH;
+        MIN_LENGTH = MATCH_FIND_LIMIT + 1;
 
-    private static int hash(long value, int mask) {
-        // Multiplicative hash. It performs the equivalent to
-        // this computation:
-        //
-        //  value * frac(a)
-        //
-        // for some real number 'a' with a good & random mix
-        // of 1s and 0s in its binary representation
-        //
-        // For performance, it does it using fixed point math
-        return (int) ((value * 889523592379L >>> 28) & mask);
     }
+
+    private final int[] table = new int[MAX_TABLE_SIZE];
 
     public int compress(byte[] input, int inputOffset, int inputLength, byte[] output,
             int outputOffset, int maxOutputLength) {
@@ -69,7 +63,7 @@ public final class Lz4RawCompressor {
         long inputLimit;
         if (input.isDirect()) {
             inputBase = null;
-            long address = Unsafe.addressOffset(input);
+            long address = Unsafe.address(input);
             inputAddress = address + input.position();
             inputLimit = address + input.limit();
         } else if (input.hasArray()) {
@@ -86,7 +80,7 @@ public final class Lz4RawCompressor {
         long outputLimit;
         if (output.isDirect()) {
             outputBase = null;
-            long address = Unsafe.addressOffset(output);
+            long address = Unsafe.address(output);
             outputAddress = address + output.position();
             outputLimit = address + output.limit();
         } else if (output.hasArray()) {
@@ -106,10 +100,6 @@ public final class Lz4RawCompressor {
                 (int) (inputLimit - inputAddress), outputBase, outputAddress,
                 outputLimit - outputAddress, table);
         output.position(output.position() + written);
-    }
-
-    public static int maxCompressedLength(int sourceLength) {
-        return sourceLength + sourceLength / 255 + 16;
     }
 
     public static int compress(final Object inputBase, final long inputAddress,
@@ -237,47 +227,12 @@ public final class Lz4RawCompressor {
         return (int) (output - outputAddress);
     }
 
-    private static long emitLiteral(Object inputBase, Object outputBase, long input,
-            int literalLength, long output) {
-        output = encodeRunLength(outputBase, output, literalLength);
+    private static int computeTableSize(int inputSize) {
+        // smallest power of 2 larger than inputSize
+        int target = Integer.highestOneBit(inputSize - 1) << 1;
 
-        final long outputLimit = output + literalLength;
-        do {
-            Unsafe.putLong(outputBase, output, Unsafe.getLong(inputBase, input));
-            input += SIZE_OF_LONG;
-            output += SIZE_OF_LONG;
-        } while (output < outputLimit);
-
-        return outputLimit;
-    }
-
-    private static long emitMatch(Object outputBase, long output, long tokenAddress, short offset,
-            long matchLength) {
-        // write offset
-        Unsafe.putShort(outputBase, output, offset);
-        output += SIZE_OF_SHORT;
-
-        // write match length
-        if (matchLength >= ML_MASK) {
-            Unsafe.putByte(outputBase, tokenAddress,
-                    (byte) (Unsafe.getByte(outputBase, tokenAddress) | ML_MASK));
-            long remaining = matchLength - ML_MASK;
-            while (remaining >= 510) {
-                Unsafe.putShort(outputBase, output, (short) 0xFFFF);
-                output += SIZE_OF_SHORT;
-                remaining -= 510;
-            }
-            if (remaining >= 255) {
-                Unsafe.putByte(outputBase, output++, (byte) 255);
-                remaining -= 255;
-            }
-            Unsafe.putByte(outputBase, output++, (byte) remaining);
-        } else {
-            Unsafe.putByte(outputBase, tokenAddress,
-                    (byte) (Unsafe.getByte(outputBase, tokenAddress) | matchLength));
-        }
-
-        return output;
+        // keep it between MIN_TABLE_SIZE and MAX_TABLE_SIZE
+        return Math.max(Math.min(target, MAX_TABLE_SIZE), MIN_TABLE_SIZE);
     }
 
     private static int count(Object inputBase, final long start, long matchStart, long matchLimit) {
@@ -323,6 +278,49 @@ public final class Lz4RawCompressor {
         return output + length;
     }
 
+    private static long emitLiteral(Object inputBase, Object outputBase, long input,
+            int literalLength, long output) {
+        output = encodeRunLength(outputBase, output, literalLength);
+
+        final long outputLimit = output + literalLength;
+        do {
+            Unsafe.putLong(outputBase, output, Unsafe.getLong(inputBase, input));
+            input += SIZE_OF_LONG;
+            output += SIZE_OF_LONG;
+        } while (output < outputLimit);
+
+        return outputLimit;
+    }
+
+    private static long emitMatch(Object outputBase, long output, long tokenAddress, short offset,
+            long matchLength) {
+        // write offset
+        Unsafe.putShort(outputBase, output, offset);
+        output += SIZE_OF_SHORT;
+
+        // write match length
+        if (matchLength >= ML_MASK) {
+            Unsafe.putByte(outputBase, tokenAddress,
+                    (byte) (Unsafe.getByte(outputBase, tokenAddress) | ML_MASK));
+            long remaining = matchLength - ML_MASK;
+            while (remaining >= 510) {
+                Unsafe.putShort(outputBase, output, (short) 0xFFFF);
+                output += SIZE_OF_SHORT;
+                remaining -= 510;
+            }
+            if (remaining >= 255) {
+                Unsafe.putByte(outputBase, output++, (byte) 255);
+                remaining -= 255;
+            }
+            Unsafe.putByte(outputBase, output++, (byte) remaining);
+        } else {
+            Unsafe.putByte(outputBase, tokenAddress,
+                    (byte) (Unsafe.getByte(outputBase, tokenAddress) | matchLength));
+        }
+
+        return output;
+    }
+
     private static long encodeRunLength(final Object base, long output, final long length) {
         if (length >= RUN_MASK) {
             Unsafe.putByte(base, output++, (byte) (RUN_MASK << ML_BITS));
@@ -340,11 +338,20 @@ public final class Lz4RawCompressor {
         return output;
     }
 
-    private static int computeTableSize(int inputSize) {
-        // smallest power of 2 larger than inputSize
-        int target = Integer.highestOneBit(inputSize - 1) << 1;
+    private static int hash(long value, int mask) {
+        // Multiplicative hash. It performs the equivalent to
+        // this computation:
+        //
+        //  value * frac(a)
+        //
+        // for some real number 'a' with a good & random mix
+        // of 1s and 0s in its binary representation
+        //
+        // For performance, it does it using fixed point math
+        return (int) ((value * 889523592379L >>> 28) & mask);
+    }
 
-        // keep it between MIN_TABLE_SIZE and MAX_TABLE_SIZE
-        return Math.max(Math.min(target, MAX_TABLE_SIZE), MIN_TABLE_SIZE);
+    public static int maxCompressedLength(int sourceLength) {
+        return sourceLength + sourceLength / 255 + 16;
     }
 }

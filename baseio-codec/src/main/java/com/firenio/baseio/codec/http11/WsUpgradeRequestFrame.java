@@ -15,7 +15,7 @@
  */
 package com.firenio.baseio.codec.http11;
 
-import com.firenio.baseio.common.BASE64Util;
+import com.firenio.baseio.common.Cryptos;
 import com.firenio.baseio.common.Util;
 
 public class WsUpgradeRequestFrame extends ClientHttpFrame {
@@ -30,7 +30,7 @@ public class WsUpgradeRequestFrame extends ClientHttpFrame {
         setRequestHeader(HttpHeader.Upgrade, "websocket");
         setRequestHeader(HttpHeader.Sec_WebSocket_Version, "13");
         setRequestHeader(HttpHeader.Sec_WebSocket_Key,
-                BASE64Util.byteArrayToBase64(Util.randomMostSignificantBits().getBytes()));
+                Cryptos.base64_en(Util.randomMostSignificantBits().getBytes()));
         setRequestHeader(HttpHeader.Sec_WebSocket_Extensions,
                 "permessage-deflate; client_max_window_bits");
     }

@@ -38,7 +38,6 @@ import com.firenio.baseio.codec.http11.HttpStatus;
 import com.firenio.baseio.codec.http11.WebSocketCodec;
 import com.firenio.baseio.codec.http11.WebSocketFrame;
 import com.firenio.baseio.common.DateUtil;
-import com.firenio.baseio.common.Encoding;
 import com.firenio.baseio.common.FileUtil;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.Channel;
@@ -51,10 +50,10 @@ import com.firenio.baseio.log.LoggerFactory;
 //FIXME limit too large file
 public class HttpFrameHandle extends IoEventHandle {
 
-    private Charset                 charset        = Encoding.UTF8;
+    private Charset                 charset        = Util.UTF8;
     private Map<String, HttpEntity> htmlCache      = new HashMap<>();
-    private ScanFileFilter          scanFileFilter = new IgnoreDotStartFile();
     private Logger                  logger         = LoggerFactory.getLogger(getClass());
+    private ScanFileFilter          scanFileFilter = new IgnoreDotStartFile();
 
     @Override
     public void accept(Channel ch, Frame frame) throws Exception {
@@ -137,13 +136,6 @@ public class HttpFrameHandle extends IoEventHandle {
         }
     }
 
-    private void writeAndFlush(Channel ch, HttpFrame frame, HttpEntity entity) throws Exception {
-        frame.setResponseHeader(HttpHeader.Content_Type, entity.getContentTypeBytes());
-        frame.setResponseHeader(HttpHeader.Last_Modified, entity.getLastModifyGTMBytes());
-        frame.setContent(entity.content.duplicate());
-        ch.writeAndFlush(frame);
-    }
-
     public Charset getCharset() {
         return charset;
     }
@@ -163,6 +155,10 @@ public class HttpFrameHandle extends IoEventHandle {
 
     protected Map<String, HttpEntity> getHtmlCache() {
         return htmlCache;
+    }
+
+    public ScanFileFilter getScanFileFilter() {
+        return scanFileFilter;
     }
 
     public void initialize(ChannelContext context, String rootPath, String mode) throws Exception {
@@ -283,8 +279,12 @@ public class HttpFrameHandle extends IoEventHandle {
         }
     }
 
+    public void setCharset(Charset charset) {
+        this.charset = charset;
+    }
+
     protected void setDefaultResponseHeaders(HttpFrame f) {
-        if (getCharset() == Encoding.GBK) {
+        if (getCharset() == Util.GBK) {
             f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_plain_gbk_bytes);
         } else {
             f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_plain_utf8_bytes);
@@ -294,23 +294,58 @@ public class HttpFrameHandle extends IoEventHandle {
 
     }
 
-    public void setCharset(Charset charset) {
-        this.charset = charset;
+    public void setScanFileFilter(ScanFileFilter scanFileFilter) {
+        this.scanFileFilter = scanFileFilter;
+    }
+
+    private void writeAndFlush(Channel ch, HttpFrame frame, HttpEntity entity) throws Exception {
+        frame.setResponseHeader(HttpHeader.Content_Type, entity.getContentTypeBytes());
+        frame.setResponseHeader(HttpHeader.Last_Modified, entity.getLastModifyGTMBytes());
+        frame.setContent(entity.content.duplicate());
+        ch.writeAndFlush(frame);
     }
 
     class HttpEntity {
 
+        private ByteBuf content;
         private String  contentType;
+        private byte[]  contentTypeBytes;
         private File    file;
         private long    lastModify;
-        private long    lastModifyGTMTime;
-        private ByteBuf content;
         private String  lastModifyGTM;
         private byte[]  lastModifyGTMBytes;
-        private byte[]  contentTypeBytes;
+        private long    lastModifyGTMTime;
+
+        public ByteBuf getContent() {
+            return content;
+        }
 
         public String getContentType() {
             return contentType;
+        }
+
+        public byte[] getContentTypeBytes() {
+            return contentTypeBytes;
+        }
+
+        public File getFile() {
+            return file;
+        }
+
+        public long getLastModify() {
+            return lastModify;
+        }
+
+        public String getLastModifyGTM() {
+            return lastModifyGTM;
+        }
+
+        public byte[] getLastModifyGTMBytes() {
+            return lastModifyGTMBytes;
+        }
+
+        public long getLastModifyGTMTime() {
+            return lastModifyGTMTime;
         }
 
         public void setBinary(byte[] readBytesByFile) {
@@ -324,16 +359,8 @@ public class HttpFrameHandle extends IoEventHandle {
             this.contentTypeBytes = contentType.getBytes();
         }
 
-        public File getFile() {
-            return file;
-        }
-
         public void setFile(File file) {
             this.file = file;
-        }
-
-        public long getLastModify() {
-            return lastModify;
         }
 
         public void setLastModify(long lastModify) {
@@ -344,38 +371,6 @@ public class HttpFrameHandle extends IoEventHandle {
             this.lastModifyGTMTime = format.parseHttp(lastModifyGTM).getTime();
         }
 
-        public ByteBuf getContent() {
-            return content;
-        }
-
-        public String getLastModifyGTM() {
-            return lastModifyGTM;
-        }
-
-        public long getLastModifyGTMTime() {
-            return lastModifyGTMTime;
-        }
-
-        public byte[] getLastModifyGTMBytes() {
-            return lastModifyGTMBytes;
-        }
-
-        public byte[] getContentTypeBytes() {
-            return contentTypeBytes;
-        }
-
-    }
-
-    public ScanFileFilter getScanFileFilter() {
-        return scanFileFilter;
-    }
-
-    public void setScanFileFilter(ScanFileFilter scanFileFilter) {
-        this.scanFileFilter = scanFileFilter;
-    }
-
-    public interface ScanFileFilter {
-        boolean filter(File file);
     }
 
     class IgnoreDotStartFile implements ScanFileFilter {
@@ -385,6 +380,10 @@ public class HttpFrameHandle extends IoEventHandle {
             return !file.getName().startsWith(".");
         }
 
+    }
+
+    public interface ScanFileFilter {
+        boolean filter(File file);
     }
 
 }

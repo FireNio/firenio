@@ -55,6 +55,107 @@ public class TestUnsafe {
         DebugUtil.info("Time:{}", System.currentTimeMillis() - startTime);
     }
 
+    static void testGetIntDirectByteBuffer(int time, ByteBuffer buffer) {
+        buffer.order(ByteOrder.BIG_ENDIAN);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        for (int i = 0; i < time; i++) {
+            buffer.clear();
+            for (; buffer.hasRemaining();) {
+                buffer.getInt();
+            }
+        }
+    }
+
+    static void testGetIntUnsafe(int time, ByteBuffer buffer) {
+        long address = Unsafe.address(buffer);
+        long end = address + buffer.capacity();
+        for (int i = 0; i < time; i++) {
+            long address1 = address;
+            for (long j = address1; j < end;) {
+                Unsafe.getInt(address1);
+                j += 4;
+            }
+        }
+    }
+
+    static void testPutIntByteArray(int time, byte[] array) {
+        int len = array.length;
+        for (int i = 0; i < time; i++) {
+            for (int j = 0; j < len;) {
+                //				MathUtil.int2ByteLE(array, 999809234, j);
+                ByteUtil.putInt(array, 999809234, j);
+                j += 4;
+            }
+        }
+    }
+
+    static void testPutIntDirectByteBuffer(int time, ByteBuffer buffer) {
+        buffer.order(ByteOrder.BIG_ENDIAN);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        for (int i = 0; i < time; i++) {
+            buffer.clear();
+            for (; buffer.hasRemaining();) {
+                buffer.putInt(999809234);
+            }
+        }
+    }
+
+    static void testPutIntHeapBuffer(int time, ByteBuffer buffer) {
+        buffer.order(ByteOrder.BIG_ENDIAN);
+        for (int i = 0; i < time; i++) {
+            buffer.clear();
+            for (; buffer.hasRemaining();) {
+                buffer.putInt(999809234);
+            }
+        }
+    }
+
+    static void testPutIntUnsafe(int time, ByteBuffer buffer) {
+        long address = Unsafe.address(buffer);
+        long end = address + buffer.capacity();
+        for (int i = 0; i < time; i++) {
+            long address1 = address;
+            for (long j = address1; j < end;) {
+                Unsafe.putInt(address1, 999809234);
+                j += 4;
+            }
+        }
+    }
+
+    static void testRadByteUnsafeDirectByteBuffer(int time, ByteBuffer array) {
+        byte e = 0;
+        long address = Unsafe.address(array);
+        long end = address + array.capacity();
+        for (int i = 0; i < time; i++) {
+            for (long j = address; j < end; j++) {
+                e = Unsafe.getByte(j);
+            }
+        }
+        DebugUtil.info("e={}", e);
+    }
+
+    static void testReadByteByteArray(int time, byte[] array) {
+        byte e = 0;
+        int len = array.length;
+        for (int i = 0; i < time; i++) {
+            for (int j = 0; j < len; j++) {
+                e = array[j];
+            }
+        }
+        DebugUtil.info("e={}", e);
+    }
+
+    static void testReadByteDirectByteBuffer(int time, ByteBuffer array) {
+        byte e = 0;
+        int len = array.capacity();
+        for (int i = 0; i < time; i++) {
+            for (int j = 0; j < len; j++) {
+                e = array.get(j);
+            }
+        }
+        DebugUtil.info("e={}", e);
+    }
+
     static void testReadByteUnsafe(int time, byte[] array) {
         int len = array.length;
         byte e = 0;
@@ -63,21 +164,6 @@ public class TestUnsafe {
         for (int i = 0; i < time; i++) {
             for (long j = address; j < end; j++) {
                 e = Unsafe.getByte(array, j);
-            }
-        }
-        DebugUtil.info("e={}", e);
-    }
-
-    static void testWriteByteUnsafe(int time, byte[] array) {
-        int len = array.length;
-        byte b = 1;
-        long e = 0;
-        long address = Unsafe.getArrayBaseOffset();
-        long end = address + len;
-        for (int i = 0; i < time; i++) {
-            for (long j = address; j < end; j++) {
-                Unsafe.putByte(array, j, b);
-                e++;
             }
         }
         DebugUtil.info("e={}", e);
@@ -96,105 +182,19 @@ public class TestUnsafe {
         DebugUtil.info("e={}", e);
     }
 
-    static void testReadByteByteArray(int time, byte[] array) {
-        byte e = 0;
+    static void testWriteByteUnsafe(int time, byte[] array) {
         int len = array.length;
-        for (int i = 0; i < time; i++) {
-            for (int j = 0; j < len; j++) {
-                e = array[j];
-            }
-        }
-        DebugUtil.info("e={}", e);
-    }
-
-    static void testRadByteUnsafeDirectByteBuffer(int time, ByteBuffer array) {
-        byte e = 0;
-        long address = Unsafe.addressOffset(array);
-        long end = address + array.capacity();
+        byte b = 1;
+        long e = 0;
+        long address = Unsafe.getArrayBaseOffset();
+        long end = address + len;
         for (int i = 0; i < time; i++) {
             for (long j = address; j < end; j++) {
-                e = Unsafe.getByte(j);
+                Unsafe.putByte(array, j, b);
+                e++;
             }
         }
         DebugUtil.info("e={}", e);
-    }
-
-    static void testReadByteDirectByteBuffer(int time, ByteBuffer array) {
-        byte e = 0;
-        int len = array.capacity();
-        for (int i = 0; i < time; i++) {
-            for (int j = 0; j < len; j++) {
-                e = array.get(j);
-            }
-        }
-        DebugUtil.info("e={}", e);
-    }
-
-    static void testPutIntDirectByteBuffer(int time, ByteBuffer buffer) {
-        buffer.order(ByteOrder.BIG_ENDIAN);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        for (int i = 0; i < time; i++) {
-            buffer.clear();
-            for (; buffer.hasRemaining();) {
-                buffer.putInt(999809234);
-            }
-        }
-    }
-
-    static void testGetIntDirectByteBuffer(int time, ByteBuffer buffer) {
-        buffer.order(ByteOrder.BIG_ENDIAN);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        for (int i = 0; i < time; i++) {
-            buffer.clear();
-            for (; buffer.hasRemaining();) {
-                buffer.getInt();
-            }
-        }
-    }
-
-    static void testPutIntHeapBuffer(int time, ByteBuffer buffer) {
-        buffer.order(ByteOrder.BIG_ENDIAN);
-        for (int i = 0; i < time; i++) {
-            buffer.clear();
-            for (; buffer.hasRemaining();) {
-                buffer.putInt(999809234);
-            }
-        }
-    }
-
-    static void testPutIntByteArray(int time, byte[] array) {
-        int len = array.length;
-        for (int i = 0; i < time; i++) {
-            for (int j = 0; j < len;) {
-                //				MathUtil.int2ByteLE(array, 999809234, j);
-                ByteUtil.int2Byte(array, 999809234, j);
-                j += 4;
-            }
-        }
-    }
-
-    static void testPutIntUnsafe(int time, ByteBuffer buffer) {
-        long address = Unsafe.addressOffset(buffer);
-        long end = address + buffer.capacity();
-        for (int i = 0; i < time; i++) {
-            long address1 = address;
-            for (long j = address1; j < end;) {
-                Unsafe.putInt(address1, 999809234);
-                j += 4;
-            }
-        }
-    }
-
-    static void testGetIntUnsafe(int time, ByteBuffer buffer) {
-        long address = Unsafe.addressOffset(buffer);
-        long end = address + buffer.capacity();
-        for (int i = 0; i < time; i++) {
-            long address1 = address;
-            for (long j = address1; j < end;) {
-                Unsafe.getInt(address1);
-                j += 4;
-            }
-        }
     }
 
 }

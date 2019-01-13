@@ -39,14 +39,14 @@ public class TestScanLargeFile {
         FileUtil.scanDirectory(new File(file), new OnDirectoryScan() {
 
             @Override
-            public void onFile(File file) throws Exception {
-                fs.add(file);
-
+            public boolean onDirectory(File directory) throws Exception {
+                return !directory.getName().startsWith(".");
             }
 
             @Override
-            public boolean onDirectory(File directory) throws Exception {
-                return !directory.getName().startsWith(".");
+            public void onFile(File file) throws Exception {
+                fs.add(file);
+
             }
         });
 

@@ -39,8 +39,31 @@ public class ContextUtil implements ApplicationContextAware {
         ContextUtil.applicationContext = applicationContext;
     }
 
+    /**
+     * 如果BeanFactory包含一个与所给名称匹配的bean定义，则返回true 
+     * @param name
+     * @return boolean
+     */
+    public static boolean containsBean(String name) {
+        return applicationContext.containsBean(name);
+    }
+
+    /**
+     * 如果给定的bean名字在bean定义中有别名，则返回这些别名   
+     * @param name
+     * @return
+     * @throws NoSuchBeanDefinitionException
+     */
+    public static String[] getAliases(String name) throws NoSuchBeanDefinitionException {
+        return applicationContext.getAliases(name);
+    }
+
     public static ApplicationContext getApplicationContext() {
         return applicationContext;
+    }
+
+    public static <T> T getBean(Class<T> beanClass) throws NoSuchBeanDefinitionException {
+        return applicationContext.getBean(beanClass);
     }
 
     /***
@@ -69,12 +92,12 @@ public class ContextUtil implements ApplicationContextAware {
     }
 
     /**
-     * 如果BeanFactory包含一个与所给名称匹配的bean定义，则返回true 
      * @param name
-     * @return boolean
+     * @return Class 注册对象的类型
+     * @throws NoSuchBeanDefinitionException
      */
-    public static boolean containsBean(String name) {
-        return applicationContext.containsBean(name);
+    public static Class<?> getType(String name) throws NoSuchBeanDefinitionException {
+        return applicationContext.getType(name);
     }
 
     /**
@@ -86,28 +109,5 @@ public class ContextUtil implements ApplicationContextAware {
      */
     public static boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
         return applicationContext.isSingleton(name);
-    }
-
-    /**
-     * @param name
-     * @return Class 注册对象的类型
-     * @throws NoSuchBeanDefinitionException
-     */
-    public static Class<?> getType(String name) throws NoSuchBeanDefinitionException {
-        return applicationContext.getType(name);
-    }
-
-    /**
-     * 如果给定的bean名字在bean定义中有别名，则返回这些别名   
-     * @param name
-     * @return
-     * @throws NoSuchBeanDefinitionException
-     */
-    public static String[] getAliases(String name) throws NoSuchBeanDefinitionException {
-        return applicationContext.getAliases(name);
-    }
-
-    public static <T> T getBean(Class<T> beanClass) throws NoSuchBeanDefinitionException {
-        return applicationContext.getBean(beanClass);
     }
 }

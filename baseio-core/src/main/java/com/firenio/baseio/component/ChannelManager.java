@@ -55,8 +55,8 @@ public class ChannelManager {
         channels.put(ch.getChannelId(), ch);
     }
 
-    public void removeChannel(Channel ch) {
-        channels.remove(ch.getChannelId());
+    public void removeChannel(Integer id) {
+        channels.remove(id);
     }
 
     public static void broadcast(ByteBuf buf, Collection<Channel> chs) {

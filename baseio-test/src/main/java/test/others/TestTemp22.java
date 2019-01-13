@@ -17,9 +17,9 @@ package test.others;
 
 import java.io.File;
 
-import com.firenio.baseio.common.Encoding;
 import com.firenio.baseio.common.FileUtil;
 import com.firenio.baseio.common.FileUtil.OnDirectoryScan;
+import com.firenio.baseio.common.Util;
 import com.firenio.baseio.log.DebugUtil;
 
 /**
@@ -46,7 +46,7 @@ public class TestTemp22 {
 
                         String code = fname.substring(0, fname.length() - 5);
 
-                        String content = FileUtil.readStringByFile(file, Encoding.UTF8);
+                        String content = FileUtil.readStringByFile(file, Util.UTF8);
 
                         int index = content.indexOf("{");
 
@@ -60,7 +60,7 @@ public class TestTemp22 {
                         String newContent = content.substring(0, index + 1) + append
                                 + content.substring(index + 1);
 
-                        FileUtil.writeByFile(file, newContent, Encoding.UTF8, false);
+                        FileUtil.writeByFile(file, newContent, Util.UTF8, false);
 
                         DebugUtil.debug("file:" + file.getAbsolutePath());
 

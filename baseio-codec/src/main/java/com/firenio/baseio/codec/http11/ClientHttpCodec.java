@@ -24,12 +24,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.firenio.baseio.buffer.ByteBuf;
-import com.firenio.baseio.collection.IntEntry;
 import com.firenio.baseio.collection.IntMap;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.FastThreadLocal;
 import com.firenio.baseio.component.Frame;
-import com.firenio.baseio.component.Channel;
 
 /**
  * @author wangkai
@@ -96,9 +95,9 @@ public class ClientHttpCodec extends HttpCodec {
         IntMap<String> headers = f.getRequestHeaders();
         if (headers != null) {
             headers.remove(HttpHeader.Content_Length.getId());
-            for (IntEntry<String> header : headers.entries()) {
-                byte[] k = HttpHeader.get(header.key()).getBytes();
-                byte[] v = header.value().getBytes();
+            for (headers.scan();headers.hasNext();) {
+                byte[] k = HttpHeader.get(headers.nextKey()).getBytes();
+                byte[] v = headers.value().getBytes();
                 if (v == null) {
                     continue;
                 }

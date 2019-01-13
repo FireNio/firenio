@@ -25,31 +25,23 @@ public class TwoThreeTree {
 
     private Node4 node4 = new Node4();
 
-    class Node {
-        public Node(int key) {
-            this.keyL = key;
+    private Node  root;
+
+    private void filterInsert(int key, Node r) {
+        if (r == null) {
+            r = root;
+            r.isTwo = true;
+            if (key > r.keyR) {
+                Node n = new Node(r.keyR);
+                n.left = r;
+                n.right = new Node(key);
+
+            }
+
+            return;
         }
-
-        int     keyL;
-        int     keyR;
-        Node    left;
-        Node    middle;
-        Node    right;
-        boolean isTwo = true;
-        Node    parent;
+        insert(key, r);
     }
-
-    class Node4 {
-        int  key1;
-        int  key2;
-        int  key3;
-        Node n1;
-        Node n2;
-        Node n3;
-        Node n4;
-    }
-
-    private Node root;
 
     public void insert(int key) {
         if (root == null) {
@@ -111,20 +103,29 @@ public class TwoThreeTree {
 
     }
 
-    private void filterInsert(int key, Node r) {
-        if (r == null) {
-            r = root;
-            r.isTwo = true;
-            if (key > r.keyR) {
-                Node n = new Node(r.keyR);
-                n.left = r;
-                n.right = new Node(key);
+    class Node {
+        boolean isTwo = true;
 
-            }
+        int     keyL;
+        int     keyR;
+        Node    left;
+        Node    middle;
+        Node    parent;
+        Node    right;
 
-            return;
+        public Node(int key) {
+            this.keyL = key;
         }
-        insert(key, r);
+    }
+
+    class Node4 {
+        int  key1;
+        int  key2;
+        int  key3;
+        Node n1;
+        Node n2;
+        Node n3;
+        Node n4;
     }
 
     public static void main(String[] args) {

@@ -17,20 +17,33 @@ package com.firenio.baseio.buffer;
 
 import java.nio.ByteBuffer;
 
+import com.firenio.baseio.common.ByteUtil;
+import com.firenio.baseio.common.Unsafe;
+
 /**
  * @author wangkai
  *
  */
 final class UnpooledDirectByteBuf extends DirectByteBuf {
 
-    UnpooledDirectByteBuf(ByteBufAllocator allocator, ByteBuffer memory) {
-        super(allocator, memory);
+    UnpooledDirectByteBuf(ByteBuffer memory) {
+        super(memory);
         this.referenceCount = 1;
+    }
+
+    @Override
+    public long address() {
+        return Unsafe.address(memory);
     }
 
     @Override
     public int capacity() {
         return memory.capacity();
+    }
+
+    @Override
+    public boolean isPooled() {
+        return false;
     }
 
     @Override
@@ -52,18 +65,19 @@ final class UnpooledDirectByteBuf extends DirectByteBuf {
             oldBuffer.position(0);
             oldBuffer.limit(pos);
             if (pos > 0) {
-                copy(oldBuffer, newBuffer, pos);
+                copy(Unsafe.address(oldBuffer) + oldBuffer.position(),
+                        Unsafe.address(newBuffer) + newBuffer.position(), pos);
             }
             newBuffer.position(pos);
             memory = newBuffer;
         } finally {
-            ByteBufUtil.release(oldBuffer);
+            ByteUtil.free(oldBuffer);
         }
     }
 
     @Override
     protected void release0() {
-        ByteBufUtil.release(memory);
+        ByteUtil.free(memory);
     }
 
 }

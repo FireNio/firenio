@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.baseio.common;
+package test.others.algorithm;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +33,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.crypto.Cipher;
+
+import com.firenio.baseio.common.FileUtil;
+import com.firenio.baseio.common.Util;
 
 public class RSAUtil {
 
@@ -236,10 +239,10 @@ public class RSAUtil {
         RSAPublicKey pubKey = RSAUtil.getPublicKey(modulus, public_exponent);
         RSAPrivateKey priKey = RSAUtil.getPrivateKey(modulus, private_exponent);
         // 加密后的密文
-        byte[] mi = RSAUtil.encryptByPublicKey(ming.getBytes(Encoding.GBK), pubKey);
+        byte[] mi = RSAUtil.encryptByPublicKey(ming.getBytes(Util.GBK), pubKey);
         System.out.println("mi.length:" + mi.length);
         // 解密后的明文
-        ming = new String(RSAUtil.decryptByPrivateKey(mi, priKey), Encoding.GBK);
+        ming = new String(RSAUtil.decryptByPrivateKey(mi, priKey), Util.GBK);
         System.err.println("明文：" + ming);
     }
 

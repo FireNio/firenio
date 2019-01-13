@@ -18,6 +18,23 @@ package test.others;
 import test.test.ITest;
 import test.test.ITestHandle;
 
+class Node {
+
+    private Node next;
+
+    public Node getNext() {
+        return next;
+    }
+
+    public void hello() {
+
+    }
+
+    public void setNext(Node next) {
+        this.next = next;
+    }
+}
+
 public class TestLinkAndArrayList {
 
     public static void main(String[] args) {
@@ -26,6 +43,24 @@ public class TestLinkAndArrayList {
 
         testArrayList(size);
         //		testLinkedList(size);
+
+    }
+
+    static void testArrayList(int size) {
+
+        final Node[] ns = new Node[size];
+
+        for (int i = 0; i < ns.length; i++) {
+            ns[i] = new Node();
+        }
+
+        ITestHandle.doTest(new ITest() {
+
+            @Override
+            public void test(int i1) throws Exception {
+                ns[i1].hello();
+            }
+        }, size, "TestArrayList");
 
     }
 
@@ -57,39 +92,4 @@ public class TestLinkAndArrayList {
 
     }
 
-    static void testArrayList(int size) {
-
-        final Node[] ns = new Node[size];
-
-        for (int i = 0; i < ns.length; i++) {
-            ns[i] = new Node();
-        }
-
-        ITestHandle.doTest(new ITest() {
-
-            @Override
-            public void test(int i1) throws Exception {
-                ns[i1].hello();
-            }
-        }, size, "TestArrayList");
-
-    }
-
-}
-
-class Node {
-
-    private Node next;
-
-    public Node getNext() {
-        return next;
-    }
-
-    public void setNext(Node next) {
-        this.next = next;
-    }
-
-    public void hello() {
-
-    }
 }

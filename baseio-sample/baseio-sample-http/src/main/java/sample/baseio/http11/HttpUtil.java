@@ -21,11 +21,11 @@ import com.firenio.baseio.component.Channel;
 
 public class HttpUtil {
 
+    public static final String HTML_BOTTOM;
+
     public static final String HTML_HEADER;
 
     public static final String HTML_POWER_BY;
-
-    public static final String HTML_BOTTOM;
 
     static {
 

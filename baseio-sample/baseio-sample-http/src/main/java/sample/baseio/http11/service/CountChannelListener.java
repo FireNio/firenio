@@ -30,13 +30,13 @@ public class CountChannelListener implements ChannelEventListener {
     public static final Map<Integer, Channel> chs = new ConcurrentHashMap<>();
 
     @Override
-    public void channelOpened(Channel ch) throws Exception {
-        chs.put(ch.getChannelId(), ch);
+    public void channelClosed(Channel ch) {
+        chs.remove(ch.getChannelId());
     }
 
     @Override
-    public void channelClosed(Channel ch) {
-        chs.remove(ch.getChannelId());
+    public void channelOpened(Channel ch) throws Exception {
+        chs.put(ch.getChannelId(), ch);
     }
 
 }

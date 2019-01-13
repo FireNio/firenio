@@ -7,6 +7,12 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public class HelloClient extends ChannelInboundHandlerAdapter {
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        // TODO Auto-generated method stub
+        System.out.println("channelActive>>>>>>>>");
+    }
+
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
         CountDownLatch latch = NettyClient.latch;
@@ -18,12 +24,6 @@ public class HelloClient extends ChannelInboundHandlerAdapter {
         }
 
         //		System.out.println(msg);
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        // TODO Auto-generated method stub
-        System.out.println("channelActive>>>>>>>>");
     }
 
     @Override

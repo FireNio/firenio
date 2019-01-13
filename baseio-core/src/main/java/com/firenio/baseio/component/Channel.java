@@ -20,6 +20,7 @@ import static com.firenio.baseio.common.Util.unknownStackTrace;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.SocketOption;
 import java.nio.ByteBuffer;
@@ -42,16 +43,20 @@ import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.buffer.ByteBufAllocator;
 import com.firenio.baseio.collection.Attributes;
 import com.firenio.baseio.collection.AttributesImpl;
+import com.firenio.baseio.common.Unsafe;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.NioEventLoop.EpollNioEventLoopUnsafe;
+import com.firenio.baseio.component.NioEventLoop.JavaNioEventLoopUnsafe;
+import com.firenio.baseio.component.NioEventLoop.NioEventLoopUnsafe;
 import com.firenio.baseio.concurrent.EventLoop;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 
+//请勿使用remote.getRemoteHost(),可能出现阻塞
 public final class Channel extends AttributesImpl implements Runnable, Attributes, Closeable {
 
     public static final ClosedChannelException CLOSED_WHEN_FLUSH     = CLOSED_WHEN_FLUSH();
     public static final InetSocketAddress      ERROR_SOCKET_ADDRESS  = new InetSocketAddress(0);
-    public static final int                    INTEREST_WRITE        = INTEREST_WRITE();
     public static final Logger                 logger                = newLogger();
     public static final SSLException           NOT_TLS               = NOT_TLS();
     public static final int                    SSL_PACKET_LIMIT      = 1024 * 64;
@@ -59,62 +64,51 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     public static final SSLException           SSL_UNWRAP_OVER_LIMIT = SSL_UNWRAP_OVER_LIMIT();
     public static final IOException            TAST_REJECT           = TASK_REJECT();
 
-    private final SocketChannel                javaChannel;
-    private final Integer                      channelId;
     private ProtocolCodec                      codec;
     private final ChannelContext               context;
     private final long                         creationTime          = System.currentTimeMillis();
-    private final ByteBuf[]                    currentWriteBufs;
-    private int                                currentWriteBufsLen;
     private final String                       desc;
     private final boolean                      enableSsl;
     private final NioEventLoop                 eventLoop;
     private final EventLoop                    executorEventLoop;
     private volatile boolean                   inEvent;
-    private int                                interestOps           = SelectionKey.OP_READ;
     private long                               lastAccess;
-    private final String                       localAddr;
-    private final int                          localPort;
-    private final int                          maxWriteBacklog;
     private volatile boolean                   opened                = true;
     private ByteBuf                            plainRemainBuf;
-    private final String                       remoteAddr;
-    private final int                          remotePort;
-    private final SelectionKey                 selKey;
     private final SSLEngine                    sslEngine;
     private boolean                            sslHandshakeFinished;
     private ByteBuf                            sslRemainBuf;
     private byte                               sslWrapExt;
+    private final ChannelUnsafe                unsafe;
     private final Queue<ByteBuf>               writeBufs;
+    private final ByteBuf[]                    currentWriteBufs;
+    private int                                currentWriteBufsLen;
+    private final int                          maxWriteBacklog;
 
-    Channel(NioEventLoop el, SelectionKey sk, ChannelContext ctx, int chId) {
-        NioEventLoopGroup g = el.getGroup();
+    Channel(NioEventLoop el, ChannelContext ctx, ChannelUnsafe unsafe) {
         this.context = ctx;
-        this.selKey = sk;
         this.eventLoop = el;
-        this.channelId = chId;
+        this.unsafe = unsafe;
         this.enableSsl = ctx.isEnableSsl();
         this.codec = ctx.getDefaultCodec();
         this.maxWriteBacklog = ctx.getMaxWriteBacklog();
-        this.currentWriteBufs = new ByteBuf[g.getWriteBuffers()];
         this.executorEventLoop = ctx.getNextExecutorEventLoop();
-        this.javaChannel = (SocketChannel) sk.channel();
-        this.lastAccess = creationTime + g.getIdleTime();
+        this.lastAccess = creationTime + el.getGroup().getIdleTime();
         this.writeBufs = new LinkedBlockingQueue<>();
-        //请勿使用remote.getRemoteHost(),可能出现阻塞
-        InetSocketAddress remote = getRemoteSocketAddress0();
-        InetSocketAddress local = getLocalSocketAddress0();
-        String idhex = Integer.toHexString(chId);
-        this.remoteAddr = remote.getAddress().getHostAddress();
-        this.remotePort = remote.getPort();
-        this.localAddr = local.getAddress().getHostAddress();
-        this.localPort = local.getPort();
+        this.currentWriteBufs = new ByteBuf[el.getGroup().getWriteBuffers()];
+        String idhex = Integer.toHexString(unsafe.channelId);
         this.desc = newDesc(idhex);
         if (ctx.isEnableSsl()) {
-            this.sslEngine = ctx.getSslContext().newEngine(remoteAddr, remotePort);
+            this.sslEngine = ctx.getSslContext().newEngine(getRemoteAddr(), getRemotePort());
         } else {
             this.sslHandshakeFinished = true;
             this.sslEngine = null;
+        }
+    }
+
+    protected void checkWriteOverflow() {
+        if (writeBufs.size() > maxWriteBacklog) {
+            close();
         }
     }
 
@@ -198,14 +192,11 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
 
     private void closeSsl() {
         if (enableSsl) {
-            if (!javaChannel.isOpen()) {
-                return;
-            }
             sslEngine.closeOutbound();
             if (context.getSslContext().isClient()) {
                 try {
                     writeBufs.offer(wrap(ByteBuf.empty()));
-                    write();
+                    write(eventLoop.getUnsafe());
                 } catch (Exception e) {}
             }
             try {
@@ -234,7 +225,7 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     }
 
     private void fireClosed() {
-        eventLoop.removeChannel(channelId);
+        eventLoop.removeChannel(unsafe.channelId);
         List<ChannelEventListener> ls = context.getChannelEventListeners();
         for (int i = 0, count = ls.size(); i < count; i++) {
             ChannelEventListener l = ls.get(i);
@@ -266,7 +257,7 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
 
     public void flush() {
         if (inEventLoop()) {
-            if (!inEvent && interestOps != INTEREST_WRITE) {
+            if (!inEvent && !unsafe.interestWrite()) {
                 inEvent = true;
                 eventLoop.getJobs().offer(this);
             }
@@ -279,7 +270,7 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     }
 
     public Integer getChannelId() {
-        return channelId;
+        return unsafe.channelId;
     }
 
     public Charset getCharset() {
@@ -294,47 +285,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         return codec.getProtocolId();
     }
 
-    //    public void flush(ByteBuf buf) {
-    //        Assert.notNull(buf, "null buf");
-    //        if (enableSsl) {
-    //            ByteBuf old = buf;
-    //            try {
-    //                buf = wrap(old);
-    //            } catch (Exception e) {
-    //                printException(logger, e, 1);
-    //            } finally {
-    //                old.release();
-    //            }
-    //        }
-    //        if (inEventLoop()) {
-    //            if (isClosed()) {
-    //                buf.release();
-    //                return;
-    //            }
-    //            writeBufs.offer(buf);
-    //            if (!inEvent && interestOps != INTEREST_WRITE) {
-    //                inEvent = true;
-    //                eventLoop.getJobs().offer(this);
-    //            }
-    //        } else {
-    //            Queue<ByteBuf> writeBufs = this.writeBufs;
-    //            if (isClosed()) {
-    //                buf.release();
-    //                return;
-    //            }
-    //            writeBufs.offer(buf);
-    //            if (isClosed()) {
-    //                Util.release(buf);
-    //                return;
-    //            }
-    //            if (!inEvent) {
-    //                inEvent = true;
-    //                eventLoop.getJobs().offer(this);
-    //                eventLoop.wakeup();
-    //            }
-    //        }
-    //    }
-
     public ChannelContext getContext() {
         return context;
     }
@@ -342,82 +292,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     public long getCreationTime() {
         return creationTime;
     }
-
-    //    public void flush(List<ByteBuf> bufs) {
-    //        if (bufs != null && !bufs.isEmpty()) {
-    //            if (inEventLoop()) {
-    //                if (isClosed()) {
-    //                    Util.release(bufs);
-    //                    return;
-    //                }
-    //                final int bufsSize = bufs.size();
-    //                final Queue<ByteBuf> writeBufs = this.writeBufs;
-    //                if (writeBufs.isEmpty()) {
-    //                    final ByteBuf[] currentWriteBufs = this.currentWriteBufs;
-    //                    final int maxLen = currentWriteBufs.length;
-    //                    int currentWriteBufsLen = this.currentWriteBufsLen;
-    //                    if (currentWriteBufsLen == 0) {
-    //                        if (bufsSize > maxLen) {
-    //                            for (int i = 0; i < maxLen; i++) {
-    //                                currentWriteBufs[i] = bufs.get(i);
-    //                            }
-    //                            for (int i = maxLen; i < bufsSize; i++) {
-    //                                writeBufs.offer(bufs.get(i));
-    //                            }
-    //                            this.currentWriteBufsLen = maxLen;
-    //                        } else {
-    //                            for (int i = 0; i < bufsSize; i++) {
-    //                                currentWriteBufs[i] = bufs.get(i);
-    //                            }
-    //                            this.currentWriteBufsLen = bufsSize;
-    //                        }
-    //                    } else {
-    //                        final int currentRemain = maxLen - currentWriteBufsLen;
-    //                        if (bufsSize > currentRemain) {
-    //                            for (int i = 0; i < currentRemain; i++) {
-    //                                currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
-    //                            }
-    //                            for (int i = currentRemain; i < bufsSize; i++) {
-    //                                writeBufs.offer(bufs.get(i));
-    //                            }
-    //                            this.currentWriteBufsLen = maxLen;
-    //                        } else {
-    //                            for (int i = 0; i < bufsSize; i++) {
-    //                                currentWriteBufs[i + currentWriteBufsLen] = bufs.get(i);
-    //                            }
-    //                            this.currentWriteBufsLen += bufsSize;
-    //                        }
-    //                    }
-    //                } else {
-    //                    for (ByteBuf buf : bufs) {
-    //                        writeBufs.offer(buf);
-    //                    }
-    //                }
-    //                if (!inEventBuffer) {
-    //                    inEventBuffer = true;
-    //                    eventLoop.flush(this);
-    //                }
-    //            } else {
-    //                Queue<ByteBuf> writeBufs = this.writeBufs;
-    //                if (isClosed()) {
-    //                    Util.release(bufs);
-    //                    return;
-    //                }
-    //                for (ByteBuf buf : bufs) {
-    //                    writeBufs.offer(buf);
-    //                }
-    //                if (isClosed()) {
-    //                    releaseWriteBufQueue();
-    //                    return;
-    //                }
-    //                //FIXME 确认这里这么判断是否有问题
-    //                if (writeBufs.size() != bufs.size()) {
-    //                    return;
-    //                }
-    //                eventLoop.flushAndWakeup(this);
-    //            }
-    //        }
-    //    }
 
     public String getDesc() {
         return desc;
@@ -439,39 +313,20 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         return lastAccess;
     }
 
-    public String getLocalAddr() {
-        return localAddr;
-    }
-
     public int getLocalPort() {
-        return localPort;
+        return unsafe.localPort;
     }
 
-    private InetSocketAddress getLocalSocketAddress0() {
-        try {
-            return (InetSocketAddress) javaChannel.getLocalAddress();
-        } catch (IOException e) {
-            return ERROR_SOCKET_ADDRESS;
-        }
-    }
-
-    public <T> T getOption(SocketOption<T> name) throws IOException {
-        return javaChannel.getOption(name);
+    public int getOption(int name) throws IOException {
+        return unsafe.getOption(name);
     }
 
     public String getRemoteAddr() {
-        return remoteAddr;
+        return unsafe.remoteAddr;
     }
 
     public int getRemotePort() {
-        return remotePort;
-    }
-
-    private InetSocketAddress getRemoteSocketAddress0() {
-        try {
-            return (InetSocketAddress) javaChannel.getRemoteAddress();
-        } catch (Exception e) {}
-        return ERROR_SOCKET_ADDRESS;
+        return unsafe.remotePort;
     }
 
     public SSLEngine getSSLEngine() {
@@ -485,7 +340,7 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
 
     //FIXME not correct ,fix this
     private int guessWrapOut(int src, int ext) {
-        if (Develop.DEBUG) {
+        if (Develop.BUF_DEBUG) {
             return 1;
         } else {
             if (SslContext.OPENSSL_AVAILABLE) {
@@ -506,24 +361,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
 
     public boolean inEventLoop() {
         return eventLoop.inEventLoop();
-    }
-
-    private void interestRead(SelectionKey key) {
-        if (SelectionKey.OP_READ != interestOps) {
-            interestOps = SelectionKey.OP_READ;
-            key.interestOps(SelectionKey.OP_READ);
-        }
-    }
-
-    private void interestWrite(SelectionKey key) {
-        if (interestOps != INTEREST_WRITE) {
-            interestOps = INTEREST_WRITE;
-            key.interestOps(INTEREST_WRITE);
-        }
-    }
-
-    public boolean isBlocking() {
-        return javaChannel.isBlocking();
     }
 
     public boolean isClosed() {
@@ -613,68 +450,90 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         sb.append("[id(0x");
         sb.append(idhex);
         sb.append(")R/");
-        sb.append(remoteAddr);
+        sb.append(getRemoteAddr());
         sb.append(':');
-        sb.append(remotePort);
+        sb.append(getRemotePort());
         sb.append("; L:");
         sb.append(getLocalPort());
         sb.append("]");
         return sb.toString();
     }
 
-    protected void read(ByteBuf src) throws Exception {
+    protected void read() throws Exception {
+        ByteBuf src = eventLoop.getReadBuf();
         lastAccess = System.currentTimeMillis();
-        src.clear();
         if (enableSsl) {
-            readSslRemainingBuf(src);
-            int length = nativeRead(javaChannel, src.nioBuffer());
-            if (length < 1) {
-                if (length == -1) {
-                    Util.close(this);
-                    return;
-                }
-                if (src.position() > 0) {
-                    src.flip();
-                    sslRemainBuf = sliceRemain(src);
-                }
-                return;
-            }
-            src.reverse();
-            src.flip();
             for (;;) {
-                if (isEnoughSslUnwrap(src)) {
-                    ByteBuf res = unwrap(src);
-                    if (res != null) {
-                        accept(res);
-                    }
-                    src.resetL();
-                    if (!src.hasRemaining()) {
+                src.clear();
+                readSslRemainingBuf(src);
+                int length = unsafe.read(eventLoop);
+                if (length < 1) {
+                    if (length == -1) {
+                        Util.close(this);
                         return;
                     }
-                } else {
-                    if (src.hasRemaining()) {
+                    if (src.position() > 0) {
+                        src.flip();
                         sslRemainBuf = sliceRemain(src);
                     }
                     return;
                 }
+                if (Native.EPOLL_AVAIABLE) {
+                    src.skip(length);
+                } else {
+                    src.reverse();
+                }
+                src.flip();
+                boolean b = src.absLimit() != src.capacity();
+                for (;;) {
+                    if (isEnoughSslUnwrap(src)) {
+                        ByteBuf res = unwrap(src);
+                        if (res != null) {
+                            accept(res);
+                        }
+                        src.resetL();
+                        if (!src.hasRemaining()) {
+                            break;
+                        }
+                    } else {
+                        if (src.hasRemaining()) {
+                            sslRemainBuf = sliceRemain(src);
+                        }
+                        break;
+                    }
+                }
+                if (b) {
+                    break;
+                }
             }
         } else {
-            readPlainRemainingBuf(src);
-            int length = nativeRead(javaChannel, src.nioBuffer());
-            if (length < 1) {
-                if (length == -1) {
-                    Util.close(this);
+            for (;;) {
+                src.clear();
+                readPlainRemainingBuf(src);
+                int length = unsafe.read(eventLoop);
+                if (length < 1) {
+                    if (length == -1) {
+                        Util.close(this);
+                        return;
+                    }
+                    if (src.position() > 0) {
+                        src.flip();
+                        plainRemainBuf = sliceRemain(src);
+                    }
                     return;
                 }
-                if (src.position() > 0) {
-                    src.flip();
-                    plainRemainBuf = sliceRemain(src);
+                if (Native.EPOLL_AVAIABLE) {
+                    src.skip(length);
+                } else {
+                    src.reverse();
                 }
-                return;
+                src.flip();
+                boolean b = src.absLimit() != src.capacity();
+                accept(src);
+                if (b) {
+                    break;
+                }
             }
-            src.reverse();
-            src.flip();
-            accept(src);
         }
     }
 
@@ -702,21 +561,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         codec.release(eventLoop, frame);
     }
 
-    private void releaseWriteBufArray() {
-        final ByteBuf[] cwbs = this.currentWriteBufs;
-        final int maxLen = cwbs.length;
-        // 这里有可能是因为异常关闭，currentWriteFrameLen不准确
-        // 对所有不为空的frame release
-        for (int i = 0; i < maxLen; i++) {
-            ByteBuf buf = cwbs[i];
-            if (buf == null) {
-                break;
-            }
-            buf.release();
-            cwbs[i] = null;
-        }
-    }
-
     private void releaseWriteBufQueue() {
         Queue<ByteBuf> wfs = this.writeBufs;
         if (!wfs.isEmpty()) {
@@ -732,8 +576,8 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     public void run() {
         if (isOpened()) {
             inEvent = false;
-            if (interestOps != INTEREST_WRITE) {
-                if (write() == -1) {
+            if (!unsafe.interestWrite()) {
+                if (write(eventLoop.getUnsafe()) == -1) {
                     safeClose();
                 }
             }
@@ -754,16 +598,21 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         if (isOpened()) {
             opened = false;
             closeSsl();
-            releaseWriteBufQueue();
             releaseWriteBufArray();
+            releaseWriteBufQueue();
+            removeChannel();
             Util.release(sslRemainBuf);
             Util.release(plainRemainBuf);
-            Util.close(javaChannel);
-            selKey.attach(null);
-            selKey.cancel();
+            Util.close(unsafe);
             fireClosed();
             stopContext();
         }
+    }
+
+    private void removeChannel() {
+        Integer id = getChannelId();
+        context.getChannelManager().removeChannel(id);
+        eventLoop.removeChannel(id.intValue());
     }
 
     public void setCodec(String codecId) throws IOException {
@@ -777,8 +626,8 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         }
     }
 
-    public <T> void setOption(SocketOption<T> name, T value) throws IOException {
-        javaChannel.setOption(name, value);
+    public void setOption(int name, int value) throws IOException {
+        unsafe.setOption(name, value);
     }
 
     private ByteBuf sliceRemain(ByteBuf src) {
@@ -799,6 +648,21 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         ByteBuf out = allocator.allocate(buf.limit());
         out.put(buf);
         return out.flip();
+    }
+
+    private void releaseWriteBufArray() {
+        final ByteBuf[] cwbs = this.currentWriteBufs;
+        final int maxLen = cwbs.length;
+        // 这里有可能是因为异常关闭，currentWriteFrameLen不准确
+        // 对所有不为空的frame release
+        for (int i = 0; i < maxLen; i++) {
+            ByteBuf buf = cwbs[i];
+            if (buf == null) {
+                break;
+            }
+            buf.release();
+            cwbs[i] = null;
+        }
     }
 
     private void synchByteBuf(SSLEngineResult result, ByteBuf src, ByteBuf dst) {
@@ -949,103 +813,8 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         }
     }
 
-    protected int write() {
-        final NioEventLoop eventLoop = this.eventLoop;
-        final Queue<ByteBuf> writeBufs = this.writeBufs;
-        final SelectionKey selectionKey = this.selKey;
-        final ByteBuf[] cwBufs = this.currentWriteBufs;
-        final ByteBuffer[] writeBuffers = eventLoop.getWriteBuffers();
-        final int maxLen = cwBufs.length;
-        for (;;) {
-            int cwLen = this.currentWriteBufsLen;
-            for (; cwLen < maxLen;) {
-                ByteBuf buf = writeBufs.poll();
-                if (buf == null) {
-                    break;
-                }
-                cwBufs[cwLen++] = buf;
-            }
-            if (cwLen == 0) {
-                interestRead(selectionKey);
-                return 1;
-            }
-            for (int i = 0; i < cwLen; i++) {
-                ByteBuf buf = cwBufs[i];
-                writeBuffers[i] = buf.nioBuffer();
-            }
-            if (cwLen == 1) {
-                ByteBuffer nioBuf = writeBuffers[0];
-                int len = nativeWrite(javaChannel, nioBuf);
-                if (len == -1) {
-                    return -1;
-                }
-                //                int len = channel.write(nioBuf);
-                //                if (nioBuf.hasRemaining() && len > 0) {
-                //                    for (;;) {
-                //                        len = channel.write(nioBuf);
-                //                        if (!nioBuf.hasRemaining() || len == 0) {
-                //                            break;
-                //                        }
-                //                    }
-                //                }
-                if (nioBuf.hasRemaining()) {
-                    this.currentWriteBufsLen = 1;
-                    cwBufs[0].reverse();
-                    interestWrite(selectionKey);
-                    return 0;
-                } else {
-                    ByteBuf buf = cwBufs[0];
-                    cwBufs[0] = null;
-                    buf.release();
-                    this.currentWriteBufsLen = 0;
-                    if (writeBufs.isEmpty()) {
-                        interestRead(selectionKey);
-                        return 1;
-                    }
-                    continue;
-                }
-            } else {
-                long len = nativeWrite(javaChannel, writeBuffers, 0, cwLen);
-                if (len == -1) {
-                    return -1;
-                }
-                //                ByteBuffer lastBuf = writeBuffers[cwLen - 1]; 
-                //                long len = channel.write(writeBuffers, 0, cwLen);
-                //                if (lastBuf.hasRemaining() && len > 0) {
-                //                    for (;;) {
-                //                        len = channel.write(writeBuffers, 0, cwLen);
-                //                        if (!lastBuf.hasRemaining() || len == 0) {
-                //                            break;
-                //                        }
-                //                    }
-                //                }
-                for (int i = 0; i < cwLen; i++) {
-                    ByteBuf buf = cwBufs[i];
-                    if (writeBuffers[i].hasRemaining()) {
-                        buf.reverse();
-                        int remain = cwLen - i;
-                        System.arraycopy(cwBufs, i, cwBufs, 0, remain);
-                        fillNull(cwBufs, remain, cwLen);
-                        fillNull(writeBuffers, i, cwLen);
-                        this.currentWriteBufsLen = remain;
-                        interestWrite(selectionKey);
-                        if (writeBufs.size() > maxWriteBacklog) {
-                            close();
-                        }
-                        return 0;
-                    } else {
-                        writeBuffers[i] = null;
-                        buf.release();
-                    }
-                }
-                fillNull(cwBufs, 0, cwLen);
-                this.currentWriteBufsLen = 0;
-                if (writeBufs.isEmpty()) {
-                    interestRead(selectionKey);
-                    return 1;
-                }
-            }
-        }
+    protected int write(NioEventLoopUnsafe unsafe) {
+        return this.unsafe.write(unsafe, this);
     }
 
     public void write(ByteBuf buf) {
@@ -1056,7 +825,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
                     buf = wrap(old);
                 } catch (Exception e) {
                     printException(logger, e, 1);
-                    return;
                 } finally {
                     old.release();
                 }
@@ -1069,9 +837,7 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     }
 
     public void write(Frame frame) throws Exception {
-        if (frame != null) {
-            write(codec.encode(this, frame));
-        }
+        write(codec.encode(this, frame));
     }
 
     public void writeAndFlush(ByteBuf buf) {
@@ -1080,8 +846,35 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     }
 
     public void writeAndFlush(Frame frame) throws Exception {
-        write(frame);
+        write(codec.encode(this, frame));
         flush();
+    }
+
+    abstract static class ChannelUnsafe implements Closeable {
+
+        final Integer channelId;
+        final int     localPort;
+        final String  remoteAddr;
+        final int     remotePort;
+
+        public ChannelUnsafe(String ra, int lp, int rp, Integer id) {
+            this.remoteAddr = ra;
+            this.localPort = lp;
+            this.remotePort = rp;
+            this.channelId = id;
+        }
+
+        abstract int getOption(int name) throws IOException;
+
+        abstract int read(NioEventLoop eventLoop);
+
+        abstract void setOption(int name, int value) throws IOException;
+
+        //1 complete, 0 keep write, -1 close
+        abstract int write(NioEventLoopUnsafe unsafe, Channel ch);
+
+        abstract boolean interestWrite();
+
     }
 
     class CloseEvent implements Runnable, Closeable {
@@ -1104,8 +897,339 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
 
     }
 
-    private static ClosedChannelException CLOSED_WHEN_FLUSH() {
-        return Util.unknownStackTrace(new ClosedChannelException(), Channel.class, "flush(...)");
+    static final class EpollChannelUnsafe extends ChannelUnsafe {
+
+        private final int epfd;
+        private final int fd;
+        private boolean   interestWrite;
+
+        public EpollChannelUnsafe(int epfd, int fd, String ra, int lp, int rp) {
+            super(ra, lp, rp, fd);
+            this.fd = fd;
+            this.epfd = epfd;
+        }
+
+        @Override
+        public void close() {
+            Native.epoll_del(this.epfd, this.fd);
+            Native.close(this.fd);
+        }
+
+        @Override
+        int read(NioEventLoop eventLoop) {
+            ByteBuf buf = eventLoop.getReadBuf();
+            return Native.read(fd, eventLoop.getBufAddress() + buf.absPos(), buf.remaining());
+        }
+
+        @Override
+        int getOption(int name) throws IOException {
+            return Native.get_socket_opt(fd, (name >> 16), name & 0xff);
+        }
+
+        @Override
+        void setOption(int name, int value) throws IOException {
+            Native.set_socket_opt(fd, (name >> 16), name & 0xff, value);
+        }
+
+        @Override
+        int write(NioEventLoopUnsafe unsafe, Channel ch) {
+            final int fd = this.fd;
+            final ByteBuf[] cw_bufs = ch.currentWriteBufs;
+            final Queue<ByteBuf> write_bufs = ch.writeBufs;
+            final long iovec = ((EpollNioEventLoopUnsafe) unsafe).getIovec();
+            final int iov_len = cw_bufs.length;
+            for (;;) {
+                int cw_len = ch.currentWriteBufsLen;
+                for (; cw_len < iov_len;) {
+                    ByteBuf buf = write_bufs.poll();
+                    if (buf == null) {
+                        break;
+                    }
+                    cw_bufs[cw_len++] = buf;
+                }
+                if (cw_len == 0) {
+                    interestWrite = false;
+                    return 1;
+                }
+                if (cw_len == 1) {
+                    ByteBuf buf = cw_bufs[0];
+                    int len = Native.write(fd, buf.address() + buf.absPos(), buf.remaining());
+                    if (len == -1) {
+                        return -1;
+                    }
+                    buf.skip(len);
+                    if (buf.hasRemaining()) {
+                        ch.currentWriteBufsLen = 1;
+                        interestWrite = true;
+                        return 0;
+                    } else {
+                        cw_bufs[0] = null;
+                        buf.release();
+                        ch.currentWriteBufsLen = 0;
+                        if (write_bufs.isEmpty()) {
+                            interestWrite = false;
+                            return 1;
+                        }
+                        continue;
+                    }
+                } else {
+                    long iov_pos = iovec;
+                    for (int i = 0; i < cw_len; i++) {
+                        ByteBuf buf = cw_bufs[i];
+                        Unsafe.putLong(iov_pos, buf.address() + buf.absPos());
+                        iov_pos += 8;
+                        Unsafe.putLong(iov_pos, buf.remaining());
+                        iov_pos += 8;
+                    }
+                    long len = Native.writev(fd, iovec, cw_len);
+                    if (len == -1) {
+                        return -1;
+                    }
+                    for (int i = 0; i < cw_len; i++) {
+                        ByteBuf buf = cw_bufs[i];
+                        int r = buf.remaining();
+                        if (len < r) {
+                            buf.skip((int) len);
+                            int remain = cw_len - i;
+                            System.arraycopy(cw_bufs, i, cw_bufs, 0, remain);
+                            fillNull(cw_bufs, remain, cw_len);
+                            interestWrite = true;
+                            ch.currentWriteBufsLen = remain;
+                            ch.checkWriteOverflow();
+                            return 0;
+                        } else {
+                            len -= r;
+                            buf.release();
+                        }
+                    }
+                    fillNull(cw_bufs, 0, cw_len);
+                    ch.currentWriteBufsLen = 0;
+                    if (write_bufs.isEmpty()) {
+                        interestWrite = false;
+                        return 1;
+                    }
+                }
+            }
+        }
+
+        @Override
+        boolean interestWrite() {
+            return interestWrite;
+        }
+
+    }
+
+    static final class JavaChannelUnsafe extends ChannelUnsafe {
+
+        static final boolean ENABLE_FD;
+        static final int     INTEREST_WRITE = INTEREST_WRITE();
+        static final Field   S_FD;
+        static final Field   S_FD_FD;
+
+        static {
+            Field sfd = null;
+            Field sfdfd = null;
+            boolean enableFd = false;
+            try {
+                SocketChannel ch = SocketChannel.open();
+                sfd = ch.getClass().getDeclaredField("fd");
+                if (sfd != null) {
+                    Util.trySetAccessible(sfd);
+                    Object fo = sfd.get(ch);
+                    sfdfd = fo.getClass().getDeclaredField("fd");
+                    if (sfdfd != null) {
+                        Util.trySetAccessible(sfdfd);
+                        Object f2o = sfdfd.get(fo);
+                        enableFd = f2o != null;
+                    }
+
+                }
+            } catch (Throwable e) {}
+            S_FD = sfd;
+            S_FD_FD = sfdfd;
+            ENABLE_FD = enableFd;
+        }
+
+        private final SocketChannel channel;
+        private final SelectionKey  key;
+        private boolean             interestWrite;
+
+        JavaChannelUnsafe(SelectionKey key, String ra, int lp, int rp, Integer chid) {
+            super(ra, lp, rp, chid);
+            this.key = key;
+            this.channel = (SocketChannel) key.channel();
+        }
+
+        @Override
+        public void close() {
+            Util.close(channel);
+            key.attach(null);
+            key.cancel();
+        }
+
+        @Override
+        int getOption(int name) throws IOException {
+            SocketOption<Object> s = SocketOptions.getSocketOption(name);
+            if (s != null) {
+                Object res = channel.getOption(s);
+                if (res != null) {
+                    if (res instanceof Integer) {
+                        return (Integer) (res);
+                    } else if (res instanceof Boolean) {
+                        return ((Boolean) res) ? 1 : 0;
+                    }
+                }
+            }
+            return -1;
+        }
+
+        @Override
+        void setOption(int name, int value) throws IOException {
+            SocketOption<Object> s = SocketOptions.getSocketOption(name);
+            if (s != null) {
+                if (SocketOptions.isParamBoolean(name)) {
+                    channel.setOption(s, value != 0);
+                } else {
+                    channel.setOption(s, value);
+                }
+            }
+        }
+
+        private void _interestRead() {
+            if (interestWrite) {
+                interestWrite = false;
+                key.interestOps(SelectionKey.OP_READ);
+            }
+        }
+
+        private void _interestWrite() {
+            if (!interestWrite) {
+                interestWrite = true;
+                key.interestOps(INTEREST_WRITE);
+            }
+        }
+
+        @Override
+        boolean interestWrite() {
+            return interestWrite;
+        }
+
+        private int nativeWrite(ByteBuffer src) {
+            try {
+                return channel.write(src);
+            } catch (IOException e) {
+                return -1;
+            }
+        }
+
+        private long nativeWrite(ByteBuffer[] srcs, int off, int len) {
+            try {
+                return channel.write(srcs, off, len);
+            } catch (IOException e) {
+                return -1;
+            }
+        }
+
+        @Override
+        int read(NioEventLoop eventLoop) {
+            try {
+                return channel.read(eventLoop.getReadBuf().nioBuffer());
+            } catch (IOException e) {
+                return -1;
+            }
+        }
+
+        @Override
+        int write(NioEventLoopUnsafe unsafe, Channel ch) {
+            final ByteBuf[] cwBufs = ch.currentWriteBufs;
+            final Queue<ByteBuf> writeBufs = ch.writeBufs;
+            final JavaNioEventLoopUnsafe un = (JavaNioEventLoopUnsafe) unsafe;
+            final ByteBuffer[] writeBuffers = un.getWriteBuffers();
+            final int maxLen = cwBufs.length;
+            for (;;) {
+                int cwLen = ch.currentWriteBufsLen;
+                for (; cwLen < maxLen;) {
+                    ByteBuf buf = writeBufs.poll();
+                    if (buf == null) {
+                        break;
+                    }
+                    cwBufs[cwLen++] = buf;
+                }
+                if (cwLen == 0) {
+                    _interestRead();
+                    return 1;
+                }
+                if (cwLen == 1) {
+                    ByteBuffer nioBuf = cwBufs[0].nioBuffer();
+                    int len = nativeWrite(nioBuf);
+                    if (len == -1) {
+                        return -1;
+                    }
+                    if (nioBuf.hasRemaining()) {
+                        ch.currentWriteBufsLen = 1;
+                        cwBufs[0].reverse();
+                        _interestWrite();
+                        return 0;
+                    } else {
+                        ByteBuf buf = cwBufs[0];
+                        cwBufs[0] = null;
+                        buf.release();
+                        ch.currentWriteBufsLen = 0;
+                        if (writeBufs.isEmpty()) {
+                            _interestRead();
+                            return 1;
+                        }
+                        continue;
+                    }
+                } else {
+                    for (int i = 0; i < cwLen; i++) {
+                        writeBuffers[i] = cwBufs[i].nioBuffer();
+                    }
+                    long len = nativeWrite(writeBuffers, 0, cwLen);
+                    if (len == -1) {
+                        return -1;
+                    }
+                    for (int i = 0; i < cwLen; i++) {
+                        ByteBuf buf = cwBufs[i];
+                        if (writeBuffers[i].hasRemaining()) {
+                            buf.reverse();
+                            int remain = cwLen - i;
+                            System.arraycopy(cwBufs, i, cwBufs, 0, remain);
+                            fillNull(cwBufs, remain, cwLen);
+                            fillNull(writeBuffers, i, cwLen);
+                            _interestWrite();
+                            ch.currentWriteBufsLen = remain;
+                            ch.checkWriteOverflow();
+                            return 0;
+                        } else {
+                            writeBuffers[i] = null;
+                            buf.release();
+                        }
+                    }
+                    fillNull(cwBufs, 0, cwLen);
+                    ch.currentWriteBufsLen = 0;
+                    if (writeBufs.isEmpty()) {
+                        _interestRead();
+                        return 1;
+                    }
+                }
+            }
+        }
+
+        static int getFd(SocketChannel javaChannel) {
+            try {
+                Object fd = S_FD.get(javaChannel);
+                Integer fdfd = (Integer) S_FD_FD.get(fd);
+                return fdfd.intValue();
+            } catch (Throwable e) {
+                return -1;
+            }
+        }
+
+        private static int INTEREST_WRITE() {
+            return SelectionKey.OP_READ | SelectionKey.OP_WRITE;
+        }
+
     }
 
     private static void fillNull(Object[] a, int fromIndex, int toIndex) {
@@ -1113,36 +1237,8 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
             a[i] = null;
     }
 
-    private static int INTEREST_WRITE() {
-        return SelectionKey.OP_READ | SelectionKey.OP_WRITE;
-    }
-
-    private static int nativeRead(SocketChannel javaChannel, ByteBuffer src) {
-        try {
-            return javaChannel.read(src);
-        } catch (IOException e) {
-            printException(logger, e, 1);
-            return -1;
-        }
-    }
-
-    private static int nativeWrite(SocketChannel javaChannel, ByteBuffer src) {
-        try {
-            return javaChannel.write(src);
-        } catch (IOException e) {
-            Develop.printException(logger, e, 1);
-            return -1;
-        }
-    }
-
-    private static long nativeWrite(SocketChannel javaChannel, ByteBuffer[] srcs, int offset,
-            int length) {
-        try {
-            return javaChannel.write(srcs, offset, length);
-        } catch (IOException e) {
-            Develop.printException(logger, e, 1);
-            return -1;
-        }
+    private static ClosedChannelException CLOSED_WHEN_FLUSH() {
+        return Util.unknownStackTrace(new ClosedChannelException(), Channel.class, "flush(...)");
     }
 
     private static Logger newLogger() {

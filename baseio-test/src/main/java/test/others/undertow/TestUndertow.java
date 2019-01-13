@@ -15,7 +15,7 @@
  */
 package test.others.undertow;
 
-import com.firenio.baseio.common.Encoding;
+import com.firenio.baseio.common.Util;
 
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -35,21 +35,10 @@ public class TestUndertow {
 
     public static void main(final String[] args) {
         FormParserFactory.Builder builder = FormParserFactory.builder();
-        builder.setDefaultCharset(Encoding.UTF8.name());
+        builder.setDefaultCharset(Util.UTF8.name());
         FormParserFactory formParserFactory = builder.build();
         Undertow server = Undertow.builder().addHttpListener(8087, "0.0.0.0")
                 .setHandler(new HttpHandler() { //设置HttpHandler回调方法  
-
-                    private boolean hasBody(HttpServerExchange exchange) {
-                        int length = (int) exchange.getRequestContentLength();
-                        if (length == 0) {
-                            return false; // if body is empty, skip reading
-                        }
-
-                        HttpString method = exchange.getRequestMethod();
-                        return Methods.POST.equals(method) || Methods.PUT.equals(method)
-                                || Methods.PATCH.equals(method);
-                    }
 
                     @Override
                     public void handleRequest(final HttpServerExchange exchange) throws Exception {
@@ -63,6 +52,17 @@ public class TestUndertow {
                         }
                         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
                         exchange.getResponseSender().send("Hello World");
+                    }
+
+                    private boolean hasBody(HttpServerExchange exchange) {
+                        int length = (int) exchange.getRequestContentLength();
+                        if (length == 0) {
+                            return false; // if body is empty, skip reading
+                        }
+
+                        HttpString method = exchange.getRequestMethod();
+                        return Methods.POST.equals(method) || Methods.PUT.equals(method)
+                                || Methods.PATCH.equals(method);
                     }
                 }).setIoThreads(2).build();
         server.start();

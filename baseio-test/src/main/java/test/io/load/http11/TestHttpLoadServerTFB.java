@@ -25,12 +25,15 @@ import com.firenio.baseio.codec.http11.HttpFrameLite;
 import com.firenio.baseio.codec.http11.HttpStatic;
 import com.firenio.baseio.codec.http11.HttpStatus;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ChannelAcceptor;
+import com.firenio.baseio.component.ChannelAliveListener;
+import com.firenio.baseio.component.ChannelEventListenerAdapter;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.NioEventLoopGroup;
-import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ProtocolCodec;
+import com.firenio.baseio.component.SocketOptions;
 import com.firenio.baseio.log.DebugUtil;
 import com.firenio.baseio.log.LoggerFactory;
 import com.jsoniter.output.JsonStream;
@@ -44,6 +47,20 @@ import com.jsoniter.spi.JsonException;
 public class TestHttpLoadServerTFB {
 
     static final byte[] STATIC_PLAINTEXT = "Hello, World!".getBytes();
+
+    static class Message {
+
+        private final String message;
+
+        public Message(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+    }
 
     public static void main(String[] args) throws Exception {
         boolean lite = Util.getBooleanProperty("lite");
@@ -59,6 +76,8 @@ public class TestHttpLoadServerTFB {
         Options.setDebugErrorLevel(level);
         Options.setChannelReadFirst(read);
         Options.setBufAutoExpansion(false);
+        Options.setEnableEpoll(true);
+        Options.setEnableUnsafeBuf(true);
         DebugUtil.info("lite: {}", lite);
         DebugUtil.info("read: {}", read);
         DebugUtil.info("pool: {}", pool);
@@ -81,11 +100,13 @@ public class TestHttpLoadServerTFB {
                     f.setContent(serializeMsg(new Message("Hello, World!")));
                     f.setContentType(HttpStatic.application_json_bytes);
                 } else {
-                    f.write("404,page not found!", ch);
+                    System.err.println("404");
+                    f.setContent("404,page not found!".getBytes());
                     f.setStatus(HttpStatus.C404);
                 }
                 ch.writeAndFlush(f);
                 ch.release(f);
+//                ch.close();
             }
 
         };
@@ -93,8 +114,6 @@ public class TestHttpLoadServerTFB {
         ProtocolCodec codec;
         if (lite) {
             HttpCodecLite c = new HttpCodecLite("baseio", 1024 * 16);
-            //            c.addUrl("/plaintext");
-            //            c.addUrl("/json");
             codec = c;
         } else {
             codec = new HttpCodec("baseio", 1024 * 16);
@@ -104,9 +123,21 @@ public class TestHttpLoadServerTFB {
         group.setMemoryPoolUnit(256);
         group.setWriteBuffers(32);
         group.setEventLoopSize(Util.availableProcessors() * core);
+//        group.setEventLoopSize(1);
         group.setConcurrentFrameStack(false);
         ChannelAcceptor context = new ChannelAcceptor(group, 8080);
         context.addProtocolCodec(codec);
+//        context.addChannelIdleEventListener(new ChannelAliveListener());
+//        context.addChannelEventListener(new LoggerChannelOpenListener());
+        context.addChannelEventListener(new ChannelEventListenerAdapter(){
+            
+            @Override
+            public void channelOpened(Channel ch) throws Exception {
+                ch.setOption(SocketOptions.TCP_NODELAY, 1);
+                ch.setOption(SocketOptions.TCP_QUICKACK, 1);
+                ch.setOption(SocketOptions.SO_KEEPALIVE, 0);
+            }
+        });
         context.setIoEventHandle(eventHandle);
         context.bind();
     }
@@ -122,20 +153,6 @@ public class TestHttpLoadServerTFB {
         } finally {
             JsonStreamPool.returnJsonStream(stream);
         }
-    }
-
-    static class Message {
-
-        private final String message;
-
-        public Message(String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
     }
 
 }

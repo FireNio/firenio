@@ -15,10 +15,9 @@
  */
 package test.io.fixedlength;
 
-import java.net.StandardSocketOptions;
-
-import com.firenio.baseio.component.ChannelEventListener;
 import com.firenio.baseio.component.Channel;
+import com.firenio.baseio.component.ChannelEventListener;
+import com.firenio.baseio.component.SocketOptions;
 
 /**
  * @author wangkai
@@ -27,14 +26,14 @@ import com.firenio.baseio.component.Channel;
 public class SetOptionListener implements ChannelEventListener {
 
     @Override
-    public void channelOpened(Channel ch) throws Exception {
-        ch.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-        ch.setOption(StandardSocketOptions.TCP_NODELAY, true);
+    public void channelClosed(Channel ch) {
+
     }
 
     @Override
-    public void channelClosed(Channel ch) {
-
+    public void channelOpened(Channel ch) throws Exception {
+        ch.setOption(SocketOptions.SO_KEEPALIVE, 1);
+        ch.setOption(SocketOptions.TCP_NODELAY, 1);
     }
 
 }

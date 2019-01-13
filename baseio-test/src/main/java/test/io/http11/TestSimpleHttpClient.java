@@ -17,6 +17,7 @@ package test.io.http11;
 
 import org.junit.Test;
 
+import com.firenio.baseio.Options;
 import com.firenio.baseio.codec.http11.ClientHttpCodec;
 import com.firenio.baseio.codec.http11.ClientHttpFrame;
 import com.firenio.baseio.codec.http11.WebSocketCodec;
@@ -36,6 +37,7 @@ public class TestSimpleHttpClient {
 
     @Test
     public void main() throws Exception {
+        Options.setEnableEpoll(true);
         Waiter<String> w = new Waiter<>();
         ChannelConnector context = new ChannelConnector("firenio.com", 443);
         SslContext sslContext = SslContextBuilder.forClient(true).build();

@@ -19,16 +19,14 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.firenio.baseio.buffer.ByteBuf;
-import com.firenio.baseio.buffer.ByteBufUtil;
-import com.firenio.baseio.collection.IntEntry;
 import com.firenio.baseio.collection.IntMap;
+import com.firenio.baseio.common.ByteUtil;
 import com.firenio.baseio.common.DateUtil;
-import com.firenio.baseio.common.KMPUtil;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.FastThreadLocal;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.NioEventLoop;
-import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ProtocolCodec;
 
 /**
@@ -155,7 +153,7 @@ public class HttpCodecLite extends ProtocolCodec {
                     if (!f.isGet()) {
                         if (startWith(src, ps, pe, CONTENT_LENGTH_MATCH)) {
                             int cp = ps + CONTENT_LENGTH_MATCH.length;
-                            int cps = ByteBufUtil.skip(src, cp, pe, SPACE);
+                            int cps = ByteUtil.skip(src, cp, pe, SPACE);
                             if (cps == -1) {
                                 throw OVER_LIMIT;
                             }
@@ -233,9 +231,9 @@ public class HttpCodecLite extends ProtocolCodec {
         int len = plen + len_len + dlen + date_bytes.length + 2 + conn_len + type_len;
         IntMap<byte[]> headers = f.getResponseHeaders();
         if (headers != null) {
-            for (IntEntry<byte[]> header : headers.entries()) {
-                byte[] k = HttpHeader.get(header.key()).getBytes();
-                byte[] v = header.value();
+            for (headers.scan();headers.hasNext();) {
+                byte[] k = HttpHeader.get(headers.nextKey()).getBytes();
+                byte[] v = headers.value();
                 len += 4;
                 len += k.length;
                 len += v.length;
@@ -261,9 +259,9 @@ public class HttpCodecLite extends ProtocolCodec {
         buf.putByte(R);
         buf.putByte(N);
         if (headers != null) {
-            for (IntEntry<byte[]> header : headers.entries()) {
-                byte[] k = HttpHeader.get(header.key()).getBytes();
-                byte[] v = header.value();
+            for (headers.scan();headers.hasNext();) {
+                byte[] k = HttpHeader.get(headers.nextKey()).getBytes();
+                byte[] v = headers.value();
                 buf.put(k);
                 buf.putByte((byte) ':');
                 buf.putByte(SPACE);

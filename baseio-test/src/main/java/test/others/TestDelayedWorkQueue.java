@@ -24,6 +24,19 @@ import com.firenio.baseio.collection.DelayedQueue.DelayTask;
  */
 public class TestDelayedWorkQueue {
 
+    static class TestDelayTask extends DelayTask {
+
+        public TestDelayTask(long delay) {
+            super(delay - System.currentTimeMillis());
+        }
+
+        @Override
+        public void run() {
+            System.out.println(getDelay());
+        }
+
+    }
+
     public static void main(String[] args) {
         DelayedQueue q = new DelayedQueue();
         q.offer(new TestDelayTask(10));
@@ -41,19 +54,6 @@ public class TestDelayedWorkQueue {
                 break;
             }
             t.run();
-        }
-
-    }
-
-    static class TestDelayTask extends DelayTask {
-
-        public TestDelayTask(long delay) {
-            super(delay - System.currentTimeMillis());
-        }
-
-        @Override
-        public void run() {
-            System.out.println(getDelay());
         }
 
     }

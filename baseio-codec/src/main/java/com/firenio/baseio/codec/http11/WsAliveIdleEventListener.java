@@ -15,14 +15,14 @@
  */
 package com.firenio.baseio.codec.http11;
 
-import com.firenio.baseio.component.ChannelAliveIdleEventListener;
+import com.firenio.baseio.component.ChannelAliveListener;
 import com.firenio.baseio.component.Channel;
 
 /**
  * @author wangkai
  *
  */
-public class WsAliveIdleEventListener extends ChannelAliveIdleEventListener {
+public class WsAliveIdleEventListener extends ChannelAliveListener {
 
     @Override
     protected boolean matched(Channel ch) {

@@ -18,15 +18,22 @@ package test.io;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.firenio.baseio.common.Encoding;
 import com.firenio.baseio.common.FileUtil;
-import com.firenio.baseio.common.MessageFormatter;
+import com.firenio.baseio.common.Util;
 
 /**
  * @author wangkai
  *
  */
 public class Test {
+
+    static List<String> getList(int max) {
+        List<String> list = new ArrayList<>(max);
+        for (int i = 0; i < max; i++) {
+            list.add(String.valueOf(i));
+        }
+        return list;
+    }
 
     public static void main(String[] args) throws Exception {
         int max = 8;
@@ -42,6 +49,35 @@ public class Test {
         long endTime = System.currentTimeMillis();
         System.out.println("Time:" + (endTime - startTime));
 
+    }
+
+    static void test() throws Exception {
+
+        List<String> ls = FileUtil.readLines(FileUtil.readInputStreamByCls("test.txt"), Util.UTF8);
+        boolean req = true;
+        for (String l : ls) {
+            l = l.trim();
+            if (l.length() == 0) {
+                req = false;
+                continue;
+            }
+            int idx = l.indexOf(" ");
+            String key = l.substring(0, idx);
+            String desc = l.substring(idx + 1);
+            String key1;
+            String key2;
+            if (req) {
+                key1 = "Req_" + key.replace("-", "_");
+                key2 = key.toLowerCase();
+            } else {
+                key1 = key.replace("-", "_");
+                key2 = key;
+            }
+            String s = Util.format("public static final String {} = \"{}\";", key1, key2);
+            System.out.println("//" + desc.trim());
+            System.out.println(s);
+
+        }
     }
 
     static boolean testForeach(List<String> list, int max) {
@@ -69,45 +105,6 @@ public class Test {
             }
         }
         return false;
-    }
-
-    static List<String> getList(int max) {
-        List<String> list = new ArrayList<>(max);
-        for (int i = 0; i < max; i++) {
-            list.add(String.valueOf(i));
-        }
-        return list;
-    }
-
-    static void test() throws Exception {
-
-        List<String> ls = FileUtil.readLines(FileUtil.readInputStreamByCls("test.txt"),
-                Encoding.UTF8);
-        boolean req = true;
-        for (String l : ls) {
-            l = l.trim();
-            if (l.length() == 0) {
-                req = false;
-                continue;
-            }
-            int idx = l.indexOf(" ");
-            String key = l.substring(0, idx);
-            String desc = l.substring(idx + 1);
-            String key1;
-            String key2;
-            if (req) {
-                key1 = "Req_" + key.replace("-", "_");
-                key2 = key.toLowerCase();
-            } else {
-                key1 = key.replace("-", "_");
-                key2 = key;
-            }
-            String s = MessageFormatter.format("public static final String {} = \"{}\";", key1,
-                    key2);
-            System.out.println("//" + desc.trim());
-            System.out.println(s);
-
-        }
     }
 
 }

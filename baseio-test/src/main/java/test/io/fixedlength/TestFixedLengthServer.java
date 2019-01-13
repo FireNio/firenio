@@ -22,7 +22,7 @@ import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.Channel;
 
-public class TestFIxedLengthServer {
+public class TestFixedLengthServer {
 
     public static void main(String[] args) throws Exception {
 

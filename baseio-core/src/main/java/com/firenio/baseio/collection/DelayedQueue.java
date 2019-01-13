@@ -182,37 +182,39 @@ public class DelayedQueue {
      */
     public abstract static class DelayTask implements Runnable, Comparable<DelayTask> {
 
-        private boolean    canceled;
-        private boolean    done;
-        private final long delay;
+        static final long CANCEL_MASK = 1L << 63;
+        static final long DONE_MASK   = 1L << 62;
+        static final long DELAY_MASK  = ~(CANCEL_MASK | DONE_MASK);
+
+        private long      flags;
 
         public DelayTask(long delay) {
-            this.delay = delay + Util.now();
+            this.flags = delay + Util.now();
         }
 
         public void cancel() {
-            this.canceled = true;
+            this.flags |= CANCEL_MASK;
         }
 
         @Override
         public int compareTo(DelayTask o) {
-            return (int) (delay - o.delay);
-        }
-
-        public boolean isDone() {
-            return done;
-        }
-
-        public void setDone(boolean done) {
-            this.done = done;
+            return (int) (getDelay() - o.getDelay());
         }
 
         public long getDelay() {
-            return delay;
+            return (this.flags & DELAY_MASK);
         }
 
         public boolean isCanceled() {
-            return canceled;
+            return (this.flags & CANCEL_MASK) != 0;
+        }
+
+        public boolean isDone() {
+            return (this.flags & DONE_MASK) != 0;
+        }
+
+        public void done() {
+            this.flags |= DONE_MASK;
         }
 
     }

@@ -39,6 +39,7 @@ public class TestHttpLoadServer {
                 HttpFrame f = (HttpFrame) frame;
                 f.setResponseHeader(HttpHeader.Connection, HttpStatic.keep_alive_bytes);
                 f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_plain_bytes);
+                f.setContent(ch.allocate());
                 f.write("Hello World", ch);
                 ByteBuf buf = ch.encode(f);
                 ch.writeAndFlush(buf);

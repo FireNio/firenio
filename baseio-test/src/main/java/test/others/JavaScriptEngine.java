@@ -25,6 +25,10 @@ import javax.script.ScriptException;
  */
 public class JavaScriptEngine {
 
+    public static void main(String[] args) throws ScriptException {
+        test();
+    }
+
     public static void test() throws ScriptException {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine engine = manager.getEngineByName("JavaScript");
@@ -36,10 +40,6 @@ public class JavaScriptEngine {
         Object res = engine.eval("1+1");
 
         System.out.println(res);
-    }
-
-    public static void main(String[] args) throws ScriptException {
-        test();
     }
 
 }

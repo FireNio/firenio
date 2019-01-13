@@ -16,6 +16,7 @@
 package com.firenio.baseio;
 
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.Native;
 
 /**
  * @author wangkai
@@ -24,11 +25,12 @@ import com.firenio.baseio.common.Util;
 public class Options {
 
     static final String BUF_AUTO_EXPANSION     = "com.firenio.baseio.bufAutoExpansion";
-    static final String BUF_RECYCLE            = "com.firenio.baseio.bytebufRecycle";
+    static final String BUF_RECYCLE            = "com.firenio.baseio.bufRecycle";
     static final String CHANNEL_READ_FIRST     = "com.firenio.baseio.channelReadFirst";
-    static final String DEBUG                  = "com.firenio.baseio.debug";
-    static final String DEBUG_ERROR_LEVEL      = "com.firenio.baseio.DebugErrorLevel";
-    static final String DISABLE_OPENSSL        = "com.firenio.baseio.ssl.disableOpenSsl";
+    static final String DEBUG_ERROR_LEVEL      = "com.firenio.baseio.debugErrorLevel";
+    static final String ENABLE_EPOLL           = "com.firenio.baseio.ssl.enableEpoll";
+    static final String ENABLE_OPENSSL         = "com.firenio.baseio.ssl.enableOpenSsl";
+    static final String ENABLE_UNSAFE_BUF      = "com.firenio.baseio.ssl.enableUnsafeBuf";
     static final String OPENSSL_PATH           = "org.wildfly.openssl.path";
     static final String SSL_UNWRAP_BUFFER_SIZE = "com.firenio.baseio.ssl.unwrapBufferSize";
 
@@ -56,12 +58,16 @@ public class Options {
         return Util.getBooleanProperty(CHANNEL_READ_FIRST);
     }
 
-    public static boolean isDebug() {
-        return Util.getBooleanProperty(DEBUG);
+    public static boolean isEnableEpoll() {
+        return Util.getBooleanProperty(ENABLE_EPOLL);
     }
 
-    public static boolean isDisableOpenssl() {
-        return Util.getBooleanProperty(DISABLE_OPENSSL);
+    public static boolean isEnableOpenssl() {
+        return Util.getBooleanProperty(ENABLE_OPENSSL);
+    }
+
+    public static boolean isEnableUnsafeBuf() {
+        return Native.EPOLL_AVAIABLE && Util.getBooleanProperty(ENABLE_UNSAFE_BUF);
     }
 
     public static void setBufAutoExpansion(boolean auto) {
@@ -76,16 +82,20 @@ public class Options {
         System.setProperty(CHANNEL_READ_FIRST, String.valueOf(channelReadFirst));
     }
 
-    public static void setDebug(boolean debug) {
-        System.setProperty(DEBUG, String.valueOf(debug));
-    }
-
     public static void setDebugErrorLevel(int level) {
         System.setProperty(DEBUG_ERROR_LEVEL, String.valueOf(level));
     }
 
-    public static void setDisableOpenssl(boolean disable) {
-        System.setProperty(DISABLE_OPENSSL, String.valueOf(disable));
+    public static void setEnableEpoll(boolean enable) {
+        System.setProperty(ENABLE_EPOLL, String.valueOf(enable));
+    }
+
+    public static void setEnableOpenssl(boolean enable) {
+        System.setProperty(ENABLE_OPENSSL, String.valueOf(enable));
+    }
+
+    public static void setEnableUnsafeBuf(boolean enable) {
+        System.setProperty(ENABLE_UNSAFE_BUF, String.valueOf(enable));
     }
 
     public static void setOpensslPath(String path) {

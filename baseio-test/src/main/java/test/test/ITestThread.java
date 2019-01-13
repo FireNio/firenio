@@ -21,28 +21,11 @@ import com.firenio.baseio.log.DebugUtil;
 
 public abstract class ITestThread implements Runnable {
 
+    private long           last_time;
+
     private CountDownLatch latch;
 
     private int            time;
-
-    private long           last_time;
-
-    protected void setTime(int time) {
-        this.time = time;
-        this.latch = new CountDownLatch(time);
-    }
-
-    public int getTime() {
-        return time;
-    }
-
-    public void await() throws InterruptedException {
-        latch.await();
-    }
-
-    public abstract void prepare() throws Exception;
-
-    public abstract void stop();
 
     public void addCount(int passage) {
 
@@ -67,5 +50,22 @@ public abstract class ITestThread implements Runnable {
         }
 
     }
+
+    public void await() throws InterruptedException {
+        latch.await();
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public abstract void prepare() throws Exception;
+
+    protected void setTime(int time) {
+        this.time = time;
+        this.latch = new CountDownLatch(time);
+    }
+
+    public abstract void stop();
 
 }

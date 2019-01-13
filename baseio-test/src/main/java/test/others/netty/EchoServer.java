@@ -39,8 +39,8 @@ import io.netty.handler.ssl.SslContextBuilder;
  */
 public class EchoServer {
 
-    static final boolean SSL  = System.getProperty("ssl") == null;
     static final int     PORT = Integer.parseInt(System.getProperty("port", "443"));
+    static final boolean SSL  = System.getProperty("ssl") == null;
 
     public static void main(String[] args) throws Exception {
         // Configure SSL.

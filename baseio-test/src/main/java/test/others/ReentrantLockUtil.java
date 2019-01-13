@@ -21,10 +21,6 @@ public class ReentrantLockUtil {
 
     private ReentrantLock lock = new ReentrantLock();
 
-    public static void main(String[] args) {
-
-    }
-
     void test() {
 
         ReentrantLock lock = this.lock;
@@ -36,6 +32,10 @@ public class ReentrantLockUtil {
         } finally {
             lock.unlock();
         }
+
+    }
+
+    public static void main(String[] args) {
 
     }
 

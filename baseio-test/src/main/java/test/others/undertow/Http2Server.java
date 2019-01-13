@@ -52,6 +52,31 @@ public class Http2Server {
 
     private static final char[] STORE_PASSWORD = "password".toCharArray();
 
+    private static SSLContext createSSLContext() throws Exception {
+        InputStream key = FileUtil.readInputStreamByCls("l.key");
+        InputStream cert = FileUtil.readInputStreamByCls("l.crt");
+        return SslContextBuilder.forServer().keyManager(key, cert, "").build().getSSLContext();
+    }
+
+    private static KeyStore loadKeyStore(String name) throws Exception {
+        String storeLoc = System.getProperty(name);
+        final InputStream stream;
+        if (storeLoc == null) {
+            stream = Http2Server.class.getResourceAsStream(name);
+        } else {
+            stream = Files.newInputStream(Paths.get(storeLoc));
+        }
+
+        if (stream == null) {
+            throw new RuntimeException("Could not load keystore");
+        }
+        try (InputStream is = stream) {
+            KeyStore loadedKeystore = KeyStore.getInstance("JKS");
+            loadedKeystore.load(is, password(name));
+            return loadedKeystore;
+        }
+    }
+
     public static void main(final String[] args) throws Exception {
         String version = System.getProperty("java.version");
         System.out.println("Java version " + version);
@@ -113,34 +138,9 @@ public class Http2Server {
 
     }
 
-    private static KeyStore loadKeyStore(String name) throws Exception {
-        String storeLoc = System.getProperty(name);
-        final InputStream stream;
-        if (storeLoc == null) {
-            stream = Http2Server.class.getResourceAsStream(name);
-        } else {
-            stream = Files.newInputStream(Paths.get(storeLoc));
-        }
-
-        if (stream == null) {
-            throw new RuntimeException("Could not load keystore");
-        }
-        try (InputStream is = stream) {
-            KeyStore loadedKeystore = KeyStore.getInstance("JKS");
-            loadedKeystore.load(is, password(name));
-            return loadedKeystore;
-        }
-    }
-
     static char[] password(String name) {
         String pw = System.getProperty(name + ".password");
         return pw != null ? pw.toCharArray() : STORE_PASSWORD;
-    }
-
-    private static SSLContext createSSLContext() throws Exception {
-        InputStream key = FileUtil.readInputStreamByCls("l.key");
-        InputStream cert = FileUtil.readInputStreamByCls("l.crt");
-        return SslContextBuilder.forServer().keyManager(key, cert, "").build().getSSLContext();
     }
 
 }

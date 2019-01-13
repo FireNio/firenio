@@ -17,17 +17,29 @@ package com.firenio.baseio.buffer;
 
 final class PooledHeapByteBuf extends HeapByteBuf {
 
+    private PooledByteBufAllocator allocator;
     private int capacity;
     private int offset;
     private int unitOffset;
 
-    PooledHeapByteBuf(ByteBufAllocator allocator, byte[] memory) {
-        super(allocator, memory);
+    PooledHeapByteBuf(PooledByteBufAllocator allocator, byte[] memory) {
+        super( memory);
+        this.allocator = allocator;
+    }
+    
+    @Override
+    public long address() {
+        return allocator.getAddress();
     }
 
     @Override
     public int capacity() {
         return capacity;
+    }
+    
+    @Override
+    public boolean isPooled() {
+        return true;
     }
 
     @Override
@@ -64,7 +76,7 @@ final class PooledHeapByteBuf extends HeapByteBuf {
         int unit = allocator.getUnit();
         this.offset = unitOffset * unit;
         this.capacity = (unitEnd - unitOffset) * unit;
-        this.position = offset;
+        this.pos = offset;
         this.limit = offset + capacity;
         this.unitOffset = unitOffset;
         this.referenceCount = 1;

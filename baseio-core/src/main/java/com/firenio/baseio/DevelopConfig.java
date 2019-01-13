@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.baseio.component;
+package com.firenio.baseio;
 
-import java.util.EventListener;
+/**
+ * @author wangkai
+ *
+ */
+public class DevelopConfig {
 
-public interface ChannelIdleEventListener extends EventListener {
-
-    void channelIdled(Channel ch, long lastIdleTime, long currentTime);
+    public static boolean BUF_DEBUG = false;
+    public static boolean NATIVE_DEBUG = false;
 
 }

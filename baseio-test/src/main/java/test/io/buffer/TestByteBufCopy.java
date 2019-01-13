@@ -35,10 +35,10 @@ import junit.framework.Assert;
 public class TestByteBufCopy {
 
     static final byte[]     _data = "abc123abc123".getBytes();
-    static final ByteBuffer jArrayData;
-    static final ByteBuffer jDirectData;
     static final ByteBuf    arrayData;
     static final ByteBuf    directData;
+    static final ByteBuffer jArrayData;
+    static final ByteBuffer jDirectData;
 
     static {
         jArrayData = ByteBuffer.wrap(_data);
@@ -49,38 +49,50 @@ public class TestByteBufCopy {
         directData = ByteBuf.wrap(jDirectData).skip(6);
     }
 
-    static ByteBuf _array() {
-        return ByteBuf.heap(12).position(6);
+    void _invoke(Method m) throws Exception {
+        String name = m.getName();
+        if (name == null) {
+
+        }
+        Object res = m.invoke(this, null);
+        byte[] bytes;
+        if (res instanceof ByteBuf) {
+            ((ByteBuf) res).flip();
+            ((ByteBuf) res).position(((ByteBuf) res).limit() - 6);
+            bytes = ((ByteBuf) res).getBytes();
+        } else if (res instanceof ByteBuffer) {
+            ((ByteBuffer) res).flip();
+            ((ByteBuffer) res).position(((ByteBuffer) res).limit() - 6);
+            bytes = new byte[6];
+            ((ByteBuffer) res).get(bytes);
+        } else {
+            bytes = "1".getBytes();
+        }
+        Assert.assertTrue("abc123".equals(new String(bytes)));
     }
 
-    static ByteBuf _direct() {
-        return ByteBuf.direct(12).position(6);
-    }
+    @Test
+    @SuppressWarnings("unchecked")
+    public void _testAll() throws Exception {
 
-    static ByteBuffer _jArray() {
-        return (ByteBuffer) ByteBuffer.allocate(12).position(6);
-    }
+        Method[] ms = TestByteBufCopy.class.getDeclaredMethods();
+        List<Method> list = Util.array2List(ms);
+        Collections.sort(list, new Comparator<Method>() {
+            public int compare(Method o1, Method o2) {
+                return o1.getName().compareTo(o2.getName());
+            };
+        });
 
-    static ByteBuffer _jDirect() {
-        return (ByteBuffer) ByteBuffer.allocateDirect(12).position(6);
-    }
-
-    static ByteBuf arrayData() {
-        return arrayData.limit(12).position(6);
-    }
-
-    static ByteBuf directData() {
-        return directData.limit(12).position(6);
-    }
-
-    static ByteBuffer jDirectData() {
-        jDirectData.limit(12).position(6);
-        return jDirectData;
-    }
-
-    static ByteBuffer jArrayData() {
-        jArrayData.limit(12).position(6);
-        return jArrayData;
+        for (int i = 0; i < list.size(); i++) {
+            Method m = list.get(i);
+            String name = m.getName();
+            if ("main".equals(name) || name.startsWith("_")) {
+                continue;
+            }
+            System.out.println("------------------" + name + "-----------------");
+            m.setAccessible(true);
+            _invoke(m);
+        }
     }
 
     Object arrayGetArray() {
@@ -179,50 +191,38 @@ public class TestByteBufCopy {
         return buf;
     }
 
-    void _invoke(Method m) throws Exception {
-        String name = m.getName();
-        if (name == null) {
-
-        }
-        Object res = m.invoke(this, null);
-        byte[] bytes;
-        if (res instanceof ByteBuf) {
-            ((ByteBuf) res).flip();
-            ((ByteBuf) res).position(((ByteBuf) res).limit() - 6);
-            bytes = ((ByteBuf) res).getBytes();
-        } else if (res instanceof ByteBuffer) {
-            ((ByteBuffer) res).flip();
-            ((ByteBuffer) res).position(((ByteBuffer) res).limit() - 6);
-            bytes = new byte[6];
-            ((ByteBuffer) res).get(bytes);
-        } else {
-            bytes = "1".getBytes();
-        }
-        Assert.assertTrue("abc123".equals(new String(bytes)));
+    static ByteBuf _array() {
+        return ByteBuf.heap(12).position(6);
     }
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void _testAll() throws Exception {
+    static ByteBuf _direct() {
+        return ByteBuf.direct(12).position(6);
+    }
 
-        Method[] ms = TestByteBufCopy.class.getDeclaredMethods();
-        List<Method> list = Util.array2List(ms);
-        Collections.sort(list, new Comparator<Method>() {
-            public int compare(Method o1, Method o2) {
-                return o1.getName().compareTo(o2.getName());
-            };
-        });
+    static ByteBuffer _jArray() {
+        return (ByteBuffer) ByteBuffer.allocate(12).position(6);
+    }
 
-        for (int i = 0; i < list.size(); i++) {
-            Method m = list.get(i);
-            String name = m.getName();
-            if ("main".equals(name) || name.startsWith("_")) {
-                continue;
-            }
-            System.out.println("------------------" + name + "-----------------");
-            m.setAccessible(true);
-            _invoke(m);
-        }
+    static ByteBuffer _jDirect() {
+        return (ByteBuffer) ByteBuffer.allocateDirect(12).position(6);
+    }
+
+    static ByteBuf arrayData() {
+        return arrayData.limit(12).position(6);
+    }
+
+    static ByteBuf directData() {
+        return directData.limit(12).position(6);
+    }
+
+    static ByteBuffer jArrayData() {
+        jArrayData.limit(12).position(6);
+        return jArrayData;
+    }
+
+    static ByteBuffer jDirectData() {
+        jDirectData.limit(12).position(6);
+        return jDirectData;
     }
 
 }

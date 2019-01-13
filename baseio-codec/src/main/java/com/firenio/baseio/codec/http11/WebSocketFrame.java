@@ -58,14 +58,14 @@ public class WebSocketFrame extends Frame {
         return type == WebSocketCodec.TYPE_CLOSE;
     }
 
+    public boolean isContinuationFrame() {
+        return type == WebSocketCodec.TYPE_CONTINUE;
+    }
+
     @Override
     public boolean isContinue() {
         // ????????? is that mean ??????
         return isContinuationFrame();
-    }
-
-    public boolean isContinuationFrame() {
-        return type == WebSocketCodec.TYPE_CONTINUE;
     }
 
     public boolean isEof() {

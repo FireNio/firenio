@@ -26,6 +26,7 @@ import com.firenio.baseio.Develop;
 import com.firenio.baseio.Options;
 import com.firenio.baseio.collection.LinkedBQStack;
 import com.firenio.baseio.collection.Stack;
+import com.firenio.baseio.common.ByteUtil;
 import com.firenio.baseio.common.DateUtil;
 import com.firenio.baseio.common.Unsafe;
 import com.firenio.baseio.common.Util;
@@ -36,25 +37,26 @@ import com.firenio.baseio.common.Util;
  */
 public final class PooledByteBufAllocator extends ByteBufAllocator {
 
-    public static final Map<ByteBuf, BufDebug> BUF_DEBUGS       = new LinkedHashMap<>();
-    static final int                           BYTEBUF_BUFFER   = 1024 * 8;
-    static final boolean                       BYTEBUF_RECYCLE  = Options.isBufRecycle();
-    public static final ByteBufException       EXPANSION_FAILED = EXPANSION_FAILED();
+    public static Map<ByteBuf, BufDebug> BUF_DEBUGS        = new LinkedHashMap<>();
+    static final int                     BYTEBUF_BUFFER    = 1024 * 8;
+    static final boolean                 BYTEBUF_RECYCLE   = Options.isBufRecycle();
+    public static final ByteBufException EXPANSION_FAILED  = EXPANSION_FAILED();
+    static final boolean                 ENABLE_UNSAFE_BUF = Options.isEnableUnsafeBuf();
 
-    private long                               address;
-    private final int[]                        blockEnds;
-    private final Stack<ByteBuf>               bufBuffer;
-    private final int                          capacity;
-    private ByteBuffer                         directMemory;
-    private final BitSet                       frees;
-    private final ByteBufAllocatorGroup        group;
-    private final int                          groupSize;
-    private byte[]                             heapMemory;
-    private final boolean                      isDirect;
-    private final ReentrantLock                lock             = new ReentrantLock();
-    private int                                mark;
-    private final int                          nextIndex;
-    private final int                          unit;
+    private long                         address           = -1;
+    private final int[]                  blockEnds;
+    private final Stack<ByteBuf>         bufBuffer;
+    private final int                    capacity;
+    private ByteBuffer                   directMemory;
+    private final BitSet                 frees;
+    private final ByteBufAllocatorGroup  group;
+    private final int                    groupSize;
+    private byte[]                       heapMemory;
+    private final boolean                isDirect;
+    private final ReentrantLock          lock              = new ReentrantLock();
+    private int                          mark;
+    private final int                    nextIndex;
+    private final int                    unit;
 
     public PooledByteBufAllocator(ByteBufAllocatorGroup group, int index) {
         this.group = group;
@@ -81,9 +83,13 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         return allocate(unit);
     }
 
+    public long getAddress() {
+        return address;
+    }
+
     @Override
     public ByteBuf allocate(int limit) {
-        if (Develop.DEBUG) {
+        if (Develop.BUF_DEBUG) {
             ByteBuf buf = allocate(limit, 0);
             if (buf instanceof ByteBuf) {
                 BufDebug d = new BufDebug();
@@ -154,15 +160,20 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         Arrays.fill(blockEnds, 0);
         this.frees.set(0, getCapacity(), true);
         int cap = capacity * unit;
-        if (isDirect()) {
-            this.directMemory = ByteBuffer.allocateDirect(cap);
-            this.address = Unsafe.addressOffset(directMemory);
+        if (ENABLE_UNSAFE_BUF) {
+            this.address = Unsafe.allocate(cap);
         } else {
-            byte[] memory = this.heapMemory;
-            if (memory != null && memory.length == cap) {
-                return;
+            if (isDirect()) {
+                this.directMemory = ByteBuffer.allocateDirect(cap);
+                this.address = Unsafe.address(directMemory);
+            } else {
+                byte[] memory = this.heapMemory;
+                if (memory != null && memory.length == cap) {
+                    return;
+                }
+                this.address = -1;
+                this.heapMemory = new byte[cap];
             }
-            this.heapMemory = new byte[cap];
         }
     }
 
@@ -215,10 +226,14 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
                     int oldPos = buf.absPos();
                     int copy = oldPos - oldOffset;
                     buf.produce(pos, blockEnds[pos]);
-                    if (isDirect) {
+                    if (ENABLE_UNSAFE_BUF) {
                         Unsafe.copyMemory(address + oldOffset, address + buf.offset(), copy);
                     } else {
-                        System.arraycopy(heapMemory, oldOffset, heapMemory, buf.offset(), copy);
+                        if (isDirect) {
+                            Unsafe.copyMemory(address + oldOffset, address + buf.offset(), copy);
+                        } else {
+                            System.arraycopy(heapMemory, oldOffset, heapMemory, buf.offset(), copy);
+                        }
                     }
                     buf.position(copy);
                 }
@@ -232,11 +247,15 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
 
     @Override
     public void freeMemory() {
-        if (isDirect()) {
-            ByteBufUtil.release(directMemory);
+        if (ENABLE_UNSAFE_BUF) {
+            Unsafe.free(address);
         } else {
-            // FIXME 这里不free了，如果在次申请的时候大小和这次一致，则不在重新申请
-            // this.memory = null;
+            if (isDirect()) {
+                ByteUtil.free(directMemory);
+            } else {
+                // FIXME 这里不free了，如果在次申请的时候大小和这次一致，则不在重新申请
+                // this.memory = null;
+            }
         }
     }
 
@@ -303,14 +322,21 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         return Integer.max(maxFree, free);
     }
 
-    ByteBuf newByteBuf() {
+    private ByteBuf newByteBuf() {
         if (BYTEBUF_RECYCLE) {
             ByteBuf buf = bufBuffer.pop();
             if (buf == null) {
-                return isDirect() ? new PooledDirectByteBuf(this, directMemory.duplicate())
-                        : new PooledHeapByteBuf(this, heapMemory);
+                return newByteBuf0();
             }
             return buf;
+        } else {
+            return newByteBuf0();
+        }
+    }
+
+    private ByteBuf newByteBuf0() {
+        if (ENABLE_UNSAFE_BUF) {
+            return new PooledUnsafeByteBuf(this, address);
         } else {
             return isDirect() ? new PooledDirectByteBuf(this, directMemory.duplicate())
                     : new PooledHeapByteBuf(this, heapMemory);
@@ -330,7 +356,7 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         if (BYTEBUF_RECYCLE) {
             bufBuffer.push(b);
         }
-        if (Develop.DEBUG) {
+        if (Develop.BUF_DEBUG) {
             synchronized (BUF_DEBUGS) {
                 BufDebug d = BUF_DEBUGS.remove(buf);
                 if (d == null) {
