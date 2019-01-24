@@ -58,7 +58,7 @@ public final class IntMap<V> {
 
     public void scan() {
         this.scanSize = 0;
-        this.scanIndex = -1;
+        this.scanIndex = 0;
     }
 
     public boolean hasNext() {
@@ -118,7 +118,7 @@ public final class IntMap<V> {
     }
 
     private int scan(int[] keys, int index) {
-        for (int i = index + 1, cnt = keys.length; i < cnt; i++) {
+        for (int i = index, cnt = keys.length; i < cnt; i++) {
             if (keys[i] != -1) {
                 return i;
             }
@@ -127,7 +127,7 @@ public final class IntMap<V> {
     }
 
     public int next() {
-        int scanIndex = scan(keys, this.scanIndex);
+        int scanIndex = scan(keys, this.scanIndex + 1);
         if (scanIndex == cap) {
             return scanIndex;
         }

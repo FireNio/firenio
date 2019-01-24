@@ -177,7 +177,7 @@ public enum HttpStatus {
         }
     }
 
-    private byte[] binary;
+    private byte[] line;
 
     private String description;
 
@@ -189,11 +189,11 @@ public enum HttpStatus {
         this.status = status;
         this.description = description;
         this.text = headerText;
-        this.binary = headerText.getBytes();
+        this.line = ("HTTP/1.1 " + headerText).getBytes();
     }
 
-    public byte[] getBinary() {
-        return binary;
+    public byte[] getLine() {
+        return line;
     }
 
     public String getDescription() {

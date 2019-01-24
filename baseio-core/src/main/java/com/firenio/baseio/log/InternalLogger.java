@@ -18,7 +18,6 @@ package com.firenio.baseio.log;
 import java.util.Date;
 
 import com.firenio.baseio.common.DateUtil;
-import com.firenio.baseio.common.Util;
 
 /**
  * @author wangkai
@@ -199,15 +198,15 @@ public class InternalLogger implements Logger {
     }
 
     private void print(String className, String msg, Object param) {
-        printer.println(getTimeFormat() + className + Util.format(msg, param));
+        printer.println(getTimeFormat() + className + Log.format(msg, param));
     }
 
     private void print(String className, String msg, Object... param) {
-        printer.println(getTimeFormat() + className + Util.arrayFormat(msg, param));
+        printer.println(getTimeFormat() + className + Log.arrayFormat(msg, param));
     }
 
     private void print(String className, String msg, Object param, Object param1) {
-        printer.println(getTimeFormat() + className + Util.format(msg, param, param1));
+        printer.println(getTimeFormat() + className + Log.format(msg, param, param1));
     }
 
     @Override

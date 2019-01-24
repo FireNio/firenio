@@ -42,10 +42,10 @@ public class TestSimpleHttpClient2 {
         host = "127.0.0.1";
 //        host = "fe80::a793:9577:4396:8ca6";
         //        host = "www.baidu.com";
-        host = "clickc.admaster.com.cn";
+        host = "api.weixin.qq.com";
         int port = 1443;
         port = 8080;
-        port = 80;
+        port = 443;
 
         ChannelConnector context = new ChannelConnector(host, port);
         context.addProtocolCodec(new ClientHttpCodec());
@@ -66,8 +66,8 @@ public class TestSimpleHttpClient2 {
             context.setSslContext(SslContextBuilder.forClient(true).build());
         }
         Channel ch = context.connect(999999);
-        ClientHttpFrame f = new ClientHttpFrame("/c/a121853,b3161507,c1849,i0,m101,8a2,8b1,0a1,z805666898ada24bf8d2fa26a629d602f,0c,n,0d,o,f180.168.141.103,0iPUB_954862,h", HttpMethod.GET);
-        f.setRequestHeader(HttpHeader.Host, host);
+        ClientHttpFrame f = new ClientHttpFrame("/sns/jscode2session?appid=wx79aa0a72112c6d1c&secret=bac597074f9a93a68377c94cf24527f5&grant_type=authorization_code&js_code=123", HttpMethod.GET);
+//        f.setRequestHeader(HttpHeader.Host, host);
 //        f.setContent("abc123".getBytes());
         ch.writeAndFlush(f);
         ch.writeAndFlush(f);

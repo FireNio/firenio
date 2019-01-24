@@ -22,9 +22,8 @@ import java.util.Random;
 import org.springframework.stereotype.Service;
 
 import com.firenio.baseio.buffer.ByteBuf;
+import com.firenio.baseio.codec.http11.HttpContentType;
 import com.firenio.baseio.codec.http11.HttpFrame;
-import com.firenio.baseio.codec.http11.HttpHeader;
-import com.firenio.baseio.codec.http11.HttpStatic;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.Channel;
 
@@ -74,7 +73,7 @@ public class TestEmojiServlet extends HttpFrameAcceptor {
         ByteBuf buf = ByteBuf.wrap(builder.toString().getBytes(ch.getCharset()));
         buf.position(buf.limit());
         frame.setContent(buf);
-        frame.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_html_utf8_bytes);
+        frame.setContentType(HttpContentType.text_html_utf8);
         ch.writeAndFlush(frame);
     }
 

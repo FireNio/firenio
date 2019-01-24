@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>com.firenio</groupId>
 		<artifactId>baseio</artifactId>
-		<version>3.2.9.beta5</version>
+		<version>3.2.9.beta6</version>
 		<relativePath>../baseio/pom.xml</relativePath>
 	</parent>
 

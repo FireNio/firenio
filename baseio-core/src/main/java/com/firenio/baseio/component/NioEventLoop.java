@@ -454,7 +454,10 @@ public final class NioEventLoop extends EventLoop implements Attributes {
             this.ep_events = Native.new_epoll_event_array(ep_size);
             this.data = Unsafe.allocate(256);
             this.iovec = Unsafe.allocate(iovec_len * 16);
-            Native.epoll_add(epfd, eventfd, Native.EPOLLIN_ET);
+            int res = Native.epoll_add(epfd, eventfd, Native.EPOLLIN_ET);
+            if (res == -1) {
+                throw new RuntimeException(Native.errstr());
+            }
         }
 
         @Override
@@ -587,14 +590,14 @@ public final class NioEventLoop extends EventLoop implements Attributes {
             int epfd = ((EpollNioEventLoopUnsafe) el.unsafe).epfd;
             int res;
             if (add) {
-                res = Native.epoll_add(epfd, fd, Native.all_event());
+                res = Native.epoll_add(epfd, fd, Native.EPOLLIN_OUT_ET);
             } else {
-                res = Native.epoll_mod(epfd, fd, Native.all_event());
+                res = Native.epoll_mod(epfd, fd, Native.EPOLLIN_OUT_ET);
             }
             if (res == -1) {
                 if (add) {
                     Native.close(fd);
-                }else{
+                } else {
                     ctx.channelEstablish(null, new IOException(Native.errstr()));
                 }
                 return;

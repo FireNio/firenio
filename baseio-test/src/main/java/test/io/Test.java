@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.firenio.baseio.common.FileUtil;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.log.Log;
 
 /**
  * @author wangkai
@@ -73,7 +74,7 @@ public class Test {
                 key1 = key.replace("-", "_");
                 key2 = key;
             }
-            String s = Util.format("public static final String {} = \"{}\";", key1, key2);
+            String s = Log.format("public static final String {} = \"{}\";", key1, key2);
             System.out.println("//" + desc.trim());
             System.out.println(s);
 

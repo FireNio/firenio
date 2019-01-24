@@ -17,8 +17,6 @@ package test.others;
 
 import java.security.cert.CertificateException;
 
-import com.firenio.baseio.component.SelfSignedCertificate;
-
 public class TestCrt {
 
     public static void main(String[] args) throws CertificateException {

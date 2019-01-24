@@ -91,7 +91,7 @@ public class ClientHttpCodec extends HttpCodec {
         int len = method_bytes.length + 1 + url_bytes.length + PROTOCOL.length + len_len + 2;
         int header_size = 0;
         int cookie_size = 0;
-        List<byte[]> encode_bytes_array = getEncodeBytesArray();
+        List<byte[]> encode_bytes_array = getEncodeBytesArray(FastThreadLocal.get());
         IntMap<String> headers = f.getRequestHeaders();
         if (headers != null) {
             headers.remove(HttpHeader.Content_Length.getId());
@@ -208,7 +208,6 @@ public class ClientHttpCodec extends HttpCodec {
     protected void parse_line_one(HttpFrame f, CharSequence line) {
         int index = Util.indexOf(line, ' ');
         int status = Integer.parseInt((String) line.subSequence(index + 1, index + 4));
-        f.setVersion(HttpVersion.HTTP1_1.getId());
         f.setStatus(HttpStatus.get(status));
     }
 

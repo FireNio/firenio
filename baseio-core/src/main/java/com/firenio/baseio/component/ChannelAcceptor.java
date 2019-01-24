@@ -170,15 +170,10 @@ public final class ChannelAcceptor extends ChannelContext {
             this.close();
             this.active = true;
             this.listenfd = Native.bind(acceptor.getHost(), acceptor.getPort(), backlog);
-            if (listenfd == -1) {
-                Native.throwException();
-            }
+            Native.throwException(listenfd);
             EpollNioEventLoopUnsafe elUnsafe = (EpollNioEventLoopUnsafe) eventLoop.getUnsafe();
             elUnsafe.ctxs.put(listenfd, acceptor);
-            int res = Native.epoll_add(elUnsafe.epfd, listenfd, Native.EPOLLIN);
-            if (res == -1) {
-                Native.throwException();
-            }
+            Native.throwException(Native.epoll_add(elUnsafe.epfd, listenfd, Native.EPOLLIN));
         }
 
         @Override

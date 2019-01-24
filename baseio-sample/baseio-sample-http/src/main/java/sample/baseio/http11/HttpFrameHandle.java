@@ -15,15 +15,6 @@
  */
 package sample.baseio.http11;
 
-import static com.firenio.baseio.codec.http11.HttpStatic.application_js_utf8;
-import static com.firenio.baseio.codec.http11.HttpStatic.image_gif;
-import static com.firenio.baseio.codec.http11.HttpStatic.image_jpeg;
-import static com.firenio.baseio.codec.http11.HttpStatic.image_png;
-import static com.firenio.baseio.codec.http11.HttpStatic.text_css_utf8;
-import static com.firenio.baseio.codec.http11.HttpStatic.text_html_utf8;
-import static com.firenio.baseio.codec.http11.HttpStatic.text_html_utf8_bytes;
-import static com.firenio.baseio.codec.http11.HttpStatic.text_plain_utf8;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -31,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.firenio.baseio.buffer.ByteBuf;
+import com.firenio.baseio.codec.http11.HttpContentType;
 import com.firenio.baseio.codec.http11.HttpFrame;
 import com.firenio.baseio.codec.http11.HttpHeader;
 import com.firenio.baseio.codec.http11.HttpStatic;
@@ -140,15 +132,15 @@ public class HttpFrameHandle extends IoEventHandle {
         return charset;
     }
 
-    private String getContentType(String fileName, Map<String, String> mapping) {
+    private HttpContentType getContentType(String fileName, Map<String, HttpContentType> mapping) {
         int index = fileName.lastIndexOf(".");
         if (index == -1) {
-            return text_plain_utf8;
+            return HttpContentType.text_plain_utf8;
         }
         String subfix = fileName.substring(index + 1);
-        String contentType = mapping.get(subfix);
+        HttpContentType contentType = mapping.get(subfix);
         if (contentType == null) {
-            contentType = text_plain_utf8;
+            contentType = HttpContentType.text_plain_utf8;
         }
         return contentType;
     }
@@ -163,17 +155,17 @@ public class HttpFrameHandle extends IoEventHandle {
 
     public void initialize(ChannelContext context, String rootPath, String mode) throws Exception {
         File rootFile = new File(rootPath + "/app/html");
-        Map<String, String> mapping = new HashMap<>();
-        mapping.put("htm", text_html_utf8);
-        mapping.put("html", text_html_utf8);
-        mapping.put("js", application_js_utf8);
-        mapping.put("css", text_css_utf8);
-        mapping.put("png", image_png);
-        mapping.put("jpg", image_jpeg);
-        mapping.put("jpeg", image_jpeg);
-        mapping.put("gif", image_gif);
-        mapping.put("txt", text_plain_utf8);
-        mapping.put("ico", image_png);
+        Map<String, HttpContentType> mapping = new HashMap<>();
+        mapping.put("htm", HttpContentType.text_html_utf8);
+        mapping.put("html", HttpContentType.text_html_utf8);
+        mapping.put("js", HttpContentType.application_js_utf8);
+        mapping.put("css", HttpContentType.text_css_utf8);
+        mapping.put("png", HttpContentType.image_png);
+        mapping.put("jpg", HttpContentType.image_jpeg);
+        mapping.put("jpeg", HttpContentType.image_jpeg);
+        mapping.put("gif", HttpContentType.image_gif);
+        mapping.put("txt", HttpContentType.text_plain_utf8);
+        mapping.put("ico", HttpContentType.image_png);
         if (rootFile.exists()) {
             scanFolder(scanFileFilter, rootFile, mapping, "");
         }
@@ -193,7 +185,7 @@ public class HttpFrameHandle extends IoEventHandle {
         byte[] data = builder.toString().getBytes(ch.getCharset());
         f.setContent(data);
         f.setStatus(status);
-        f.setResponseHeader(HttpHeader.Content_Type, text_html_utf8_bytes);
+        f.setContentType(HttpContentType.text_html_utf8);
         ch.writeAndFlush(f);
     }
 
@@ -204,13 +196,13 @@ public class HttpFrameHandle extends IoEventHandle {
         entity.setLastModify(file.lastModified());
     }
 
-    private void scanFolder(ScanFileFilter filter, File file, Map<String, String> mapping,
+    private void scanFolder(ScanFileFilter filter, File file, Map<String, HttpContentType> mapping,
             String path) throws IOException {
         if (filter == null || !filter.filter(file)) {
             return;
         }
         if (file.isFile()) {
-            String contentType = getContentType(file.getName(), mapping);
+            HttpContentType contentType = getContentType(file.getName(), mapping);
             HttpEntity entity = new HttpEntity();
             entity.setContentType(contentType);
             entity.setFile(file);
@@ -271,7 +263,7 @@ public class HttpFrameHandle extends IoEventHandle {
             b.append("      <hr>\n");
             b.append(HttpUtil.HTML_BOTTOM);
             HttpEntity entity = new HttpEntity();
-            entity.setContentType(text_html_utf8);
+            entity.setContentType(HttpContentType.text_html_utf8);
             entity.setFile(file);
             entity.setLastModify(System.currentTimeMillis());
             entity.setBinary(b.toString().getBytes(charset));
@@ -285,13 +277,11 @@ public class HttpFrameHandle extends IoEventHandle {
 
     protected void setDefaultResponseHeaders(HttpFrame f) {
         if (getCharset() == Util.GBK) {
-            f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_plain_gbk_bytes);
+            f.setContentType(HttpContentType.text_plain_gbk);
         } else {
-            f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_plain_utf8_bytes);
+            f.setContentType(HttpContentType.text_plain_utf8);
         }
-        //        f.setResponseHeader(HttpHeader.Server, HttpStatic.server_baseio_bytes);
-        f.setResponseHeader(HttpHeader.Connection, HttpStatic.keep_alive_bytes); // or close
-
+        f.setResponseHeader(HttpHeader.Server, HttpStatic.server_baseio_bytes);
     }
 
     public void setScanFileFilter(ScanFileFilter scanFileFilter) {
@@ -299,33 +289,28 @@ public class HttpFrameHandle extends IoEventHandle {
     }
 
     private void writeAndFlush(Channel ch, HttpFrame frame, HttpEntity entity) throws Exception {
-        frame.setResponseHeader(HttpHeader.Content_Type, entity.getContentTypeBytes());
+        frame.setContentType(entity.getContentType());
         frame.setResponseHeader(HttpHeader.Last_Modified, entity.getLastModifyGTMBytes());
         frame.setContent(entity.content.duplicate());
         ch.writeAndFlush(frame);
     }
 
-    class HttpEntity {
+    static class HttpEntity {
 
-        private ByteBuf content;
-        private String  contentType;
-        private byte[]  contentTypeBytes;
-        private File    file;
-        private long    lastModify;
-        private String  lastModifyGTM;
-        private byte[]  lastModifyGTMBytes;
-        private long    lastModifyGTMTime;
+        private ByteBuf         content;
+        private HttpContentType contentType;
+        private File            file;
+        private long            lastModify;
+        private String          lastModifyGTM;
+        private byte[]          lastModifyGTMBytes;
+        private long            lastModifyGTMTime;
 
         public ByteBuf getContent() {
             return content;
         }
 
-        public String getContentType() {
+        public HttpContentType getContentType() {
             return contentType;
-        }
-
-        public byte[] getContentTypeBytes() {
-            return contentTypeBytes;
         }
 
         public File getFile() {
@@ -354,9 +339,8 @@ public class HttpFrameHandle extends IoEventHandle {
             this.content = content;
         }
 
-        public void setContentType(String contentType) {
+        public void setContentType(HttpContentType contentType) {
             this.contentType = contentType;
-            this.contentTypeBytes = contentType.getBytes();
         }
 
         public void setFile(File file) {

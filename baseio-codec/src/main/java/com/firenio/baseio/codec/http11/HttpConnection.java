@@ -15,37 +15,43 @@
  */
 package com.firenio.baseio.codec.http11;
 
+import com.firenio.baseio.common.Util;
+
 /**
  * @author wangkai
  *
  */
-public enum HttpVersion {
+public enum HttpConnection {
 
-    HTTP1_0(1, "HTTP/1.0"), HTTP1_1(2, "HTTP/1.1"), OTHER(0, "OTHER");
+    NONE(0, ""), CLOSE(1, "close"), KEEP_ALIVE(2, "keep-alive"), UPGRADE(3, "Upgrade");
 
-    private static final HttpVersion[] enums;
+    private static final HttpConnection[] enums;
 
     static {
-        enums = new HttpVersion[values().length];
-        for (HttpVersion m : values()) {
+        enums = new HttpConnection[values().length];
+        for (HttpConnection m : values()) {
             enums[m.id] = m;
         }
     }
-
-    private final byte[] bytes;
 
     private final int    id;
 
     private final String value;
 
-    private HttpVersion(int id, String value) {
+    private final byte[] line;
+
+    private HttpConnection(int id, String value) {
         this.id = id;
         this.value = value;
-        this.bytes = value.getBytes();
+        if (Util.isNullOrBlank(value)) {
+            this.line = null;
+        } else {
+            this.line = ("\r\nConnection: " + value).getBytes();
+        }
     }
 
-    public byte[] getBytes() {
-        return bytes;
+    public byte[] getLine() {
+        return line;
     }
 
     public int getId() {
@@ -56,18 +62,8 @@ public enum HttpVersion {
         return value;
     }
 
-    public static HttpVersion get(String version) {
-        if (HTTP1_1.value.equals(version)) {
-            return HTTP1_1;
-        } else if (HTTP1_0.value.equals(version)) {
-            return HTTP1_0;
-        } else {
-            return HttpVersion.OTHER;
-        }
-    }
-
-    public static HttpVersion getMethod(int id) {
-        return enums[id];
+    public static HttpConnection get(int index) {
+        return enums[index];
     }
 
 }

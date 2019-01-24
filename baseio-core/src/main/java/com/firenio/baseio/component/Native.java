@@ -66,18 +66,24 @@ public class Native {
     }
 
     private static boolean tryLoadEpoll() {
+        if (Develop.NATIVE_DEBUG) {
+            logger.info("enable_epoll:" + Options.isEnableEpoll());
+        }
         if (Options.isEnableEpoll()) {
             boolean epollLoaded = false;
-            if (Develop.NATIVE_DEBUG) {
-                try {
-                    System.load("/home/test/git-rep/jni_epoll/obj/Native.o");
-                    epollLoaded = true;
-                } catch (Throwable e) {}
-            } else {
+            try {
+                System.load("/home/test/git-rep/jni_epoll/obj/Native.o");
+                epollLoaded = true;
+            } catch (Throwable e) {}
+            if (!epollLoaded) {
                 try {
                     loadNative("Native.o");
                     epollLoaded = true;
-                } catch (Throwable e2) {}
+                } catch (Throwable e) {
+                    if (Develop.NATIVE_DEBUG) {
+                        logger.error("epoll load faild:" + e.getMessage(), e);
+                    }
+                }
             }
             if (epollLoaded) {
                 try {
@@ -86,14 +92,13 @@ public class Native {
                         close(fd);
                         return true;
                     }
+                    if (Develop.NATIVE_DEBUG) {
+                        logger.error("epoll creat faild:" + Native.errstr());
+                    }
                 } catch (Throwable e) {}
             }
         }
         return false;
-    }
-
-    public static int all_event() {
-        return EPOLLIN_OUT | EPOLLET;
     }
 
     public static int close_event() {
@@ -101,63 +106,45 @@ public class Native {
     }
 
     public static int accept(int epfd, int listenfd, long address) {
-        int res = accept0(epfd, listenfd, address);
-        printException(res);
-        return res;
+        return printException(accept0(epfd, listenfd, address));
     }
 
     public static int bind(String host, int port, int backlog) {
-        int res = bind0(host, port, backlog);
-        printException(res);
-        return res;
+        return bind0(host, port, backlog);
     }
 
     public static int close(int fd) {
         if (fd == -1) {
             return 0;
         }
-        int res = close0(fd);
-        printException(res);
-        return res;
+        return printException(close0(fd));
     }
 
     public static int connect(String host, int port) {
-        int res = connect0(host, port);
-        printException(res);
-        return res;
+        return printException(connect0(host, port));
     }
 
     public static int epoll_add(int epfd, int fd, int state) {
-        int res = epoll_add0(epfd, fd, state);
-        printException(res);
-        return res;
+        return epoll_add0(epfd, fd, state);
     }
 
     public static int epoll_create(int size) {
-        int res = epoll_create0(size);
-        printException(res);
-        return res;
+        return throwRuntimeException(epoll_create0(size));
     }
 
     public static int epoll_del(int epfd, int fd) {
         if (fd == -1) {
             return 0;
         }
-        int res = epoll_del0(epfd, fd);
-        printException(res);
-        return res;
+        return printException(epoll_del0(epfd, fd));
     }
 
     public static int epoll_mod(int epfd, int fd, int state) {
-        int res = epoll_mod0(epfd, fd, state);
-        printException(res);
-        return res;
+        return printException(epoll_mod0(epfd, fd, state));
     }
 
     public static int epoll_wait(int fd, long address, int maxEvents, long timeout) {
-        int res = epoll_wait0(fd, address, maxEvents, timeout);
-        printException(res);
-        return res;
+        return printException(epoll_wait0(fd, address, maxEvents, timeout));
     }
 
     public static native int errno();
@@ -175,15 +162,11 @@ public class Native {
     }
 
     public static int event_fd_read(int fd) {
-        int res = event_fd_read0(fd);
-        printException(res);
-        return res;
+        return printException(event_fd_read0(fd));
     }
 
     public static int event_fd_write(int fd, long value) {
-        int res = event_fd_write0(fd, value);
-        printException(res);
-        return res;
+        return printException(event_fd_write0(fd, value));
     }
 
     private static boolean isLinux() {
@@ -204,18 +187,14 @@ public class Native {
     }
 
     public static int new_event_fd() {
-        int res = new_event_fd0();
-        printException(res);
-        return res;
+        return throwRuntimeException(new_event_fd0());
     }
 
     public static int read(int fd, long address, int len) {
-        int res = read0(fd, address, len);
-        printException(res);
-        return res;
+        return printException(read0(fd, address, len));
     }
 
-    private static void printException(int res) {
+    private static int printException(int res) {
         if (Develop.NATIVE_DEBUG && res == -1) {
             int errno = errno();
             if (errno != 0) {
@@ -223,6 +202,7 @@ public class Native {
                 logger.error(e.getMessage(), e);
             }
         }
+        return res;
     }
 
     public static native int size_of_epoll_event();
@@ -231,32 +211,34 @@ public class Native {
 
     public static native int strerrno(int no, byte[] buf);
 
-    public static void throwException() throws IOException {
-        throw new IOException(errstr());
+    public static int throwException(int res) throws IOException {
+        if (res == -1) {
+            throw new IOException(errstr());
+        }
+        return res;
+    }
+
+    public static int throwRuntimeException(int res) {
+        if (res == -1) {
+            throw new RuntimeException(errstr());
+        }
+        return res;
     }
 
     public static int write(int fd, long address, int len) {
-        int res = write0(fd, address, len);
-        printException(res);
-        return res;
+        return printException(write0(fd, address, len));
     }
 
     public static int get_port(int fd) {
-        int res = get_port0(fd);
-        printException(res);
-        return Short.reverseBytes((short) res) & 0xffff;
+        return Short.reverseBytes((short) printException(get_port0(fd))) & 0xffff;
     }
 
     public static long writev(int fd, long iovec, int count) {
-        int res = writev0(fd, iovec, count);
-        printException(res);
-        return res;
+        return printException(writev0(fd, iovec, count));
     }
 
     public static int set_socket_opt(int fd, int type, int name, int value) {
-        int res = set_socket_opt0(fd, type, name, value);
-        printException(res);
-        return res;
+        return printException(set_socket_opt0(fd, type, name, value));
     }
 
     public static boolean finish_connect(int fd) {
@@ -275,9 +257,7 @@ public class Native {
     }
 
     public static int get_socket_opt(int fd, int type, int name) {
-        int res = get_socket_opt0(fd, type, name);
-        printException(res);
-        return res;
+        return printException(get_socket_opt0(fd, type, name));
     }
 
     //---------------------------------------------------------------------------------------------------------

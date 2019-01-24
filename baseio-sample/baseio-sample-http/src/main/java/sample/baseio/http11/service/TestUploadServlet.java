@@ -17,9 +17,8 @@ package sample.baseio.http11.service;
 
 import org.springframework.stereotype.Service;
 
+import com.firenio.baseio.codec.http11.HttpContentType;
 import com.firenio.baseio.codec.http11.HttpFrame;
-import com.firenio.baseio.codec.http11.HttpHeader;
-import com.firenio.baseio.codec.http11.HttpStatic;
 import com.firenio.baseio.component.Channel;
 
 import sample.baseio.http11.HttpFrameAcceptor;
@@ -37,7 +36,7 @@ public class TestUploadServlet extends HttpFrameAcceptor {
         } else {
             res = "yes server already accept your message :) " + frame.getRequestParams();
         }
-        frame.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_html_utf8_bytes);
+        frame.setContentType(HttpContentType.text_html_utf8);
         frame.setContent(res.getBytes(ch.getCharset()));
         ch.writeAndFlush(frame);
     }

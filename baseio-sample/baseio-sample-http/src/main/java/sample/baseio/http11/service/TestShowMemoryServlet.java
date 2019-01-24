@@ -22,17 +22,16 @@ import java.util.Date;
 import org.springframework.stereotype.Service;
 
 import com.firenio.baseio.buffer.ByteBufAllocatorGroup;
+import com.firenio.baseio.codec.http11.HttpContentType;
 import com.firenio.baseio.codec.http11.HttpFrame;
-import com.firenio.baseio.codec.http11.HttpHeader;
-import com.firenio.baseio.codec.http11.HttpStatic;
 import com.firenio.baseio.common.DateUtil;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ChannelContext;
 import com.firenio.baseio.component.NioEventLoopGroup;
-import com.firenio.baseio.component.Channel;
 
-import sample.baseio.http11.HttpUtil;
 import sample.baseio.http11.HttpFrameAcceptor;
+import sample.baseio.http11.HttpUtil;
 
 @Service("/test-show-memory")
 public class TestShowMemoryServlet extends HttpFrameAcceptor {
@@ -120,7 +119,7 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
 
         frame.setContent(ch.allocate());
         frame.write(builder.toString(), ch);
-        frame.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_html_utf8_bytes);
+        frame.setContentType(HttpContentType.text_html_utf8);
 
         ch.writeAndFlush(frame);
     }

@@ -20,14 +20,14 @@ import java.util.Arrays;
 
 import com.firenio.baseio.Options;
 import com.firenio.baseio.codec.http11.HttpCodec;
-import com.firenio.baseio.codec.http11.HttpCodecLite;
-import com.firenio.baseio.codec.http11.HttpFrameLite;
-import com.firenio.baseio.codec.http11.HttpStatic;
+import com.firenio.baseio.codec.http11.HttpConnection;
+import com.firenio.baseio.codec.http11.HttpContentType;
+import com.firenio.baseio.codec.http11.HttpDateUtil;
+import com.firenio.baseio.codec.http11.HttpFrame;
 import com.firenio.baseio.codec.http11.HttpStatus;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ChannelAcceptor;
-import com.firenio.baseio.component.ChannelAliveListener;
 import com.firenio.baseio.component.ChannelEventListenerAdapter;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.IoEventHandle;
@@ -87,50 +87,50 @@ public class TestHttpLoadServerTFB {
         DebugUtil.info("direct: {}", direct);
         DebugUtil.info("readBuf: {}", readBuf);
 
+        HttpDateUtil.start();
+
         IoEventHandle eventHandle = new IoEventHandle() {
 
             @Override
             public void accept(Channel ch, Frame frame) throws Exception {
-                HttpFrameLite f = (HttpFrameLite) frame;
+                HttpFrame f = (HttpFrame) frame;
                 String action = f.getRequestURL();
                 if ("/plaintext".equals(action)) {
                     f.setContent(STATIC_PLAINTEXT);
-                    f.setContentType(HttpStatic.text_plain_bytes);
+                    f.setContentType(HttpContentType.text_plain);
+                    f.setConnection(HttpConnection.NONE);
                 } else if ("/json".equals(action)) {
                     f.setContent(serializeMsg(new Message("Hello, World!")));
-                    f.setContentType(HttpStatic.application_json_bytes);
+                    f.setContentType(HttpContentType.application_json);
+                    f.setConnection(HttpConnection.NONE);
                 } else {
                     System.err.println("404");
                     f.setContent("404,page not found!".getBytes());
+                    f.setContentType(HttpContentType.text_plain);
                     f.setStatus(HttpStatus.C404);
                 }
+                f.setDate(HttpDateUtil.getDate());
                 ch.writeAndFlush(f);
                 ch.release(f);
-//                ch.close();
             }
 
         };
 
-        ProtocolCodec codec;
-        if (lite) {
-            HttpCodecLite c = new HttpCodecLite("baseio", 1024 * 16);
-            codec = c;
-        } else {
-            codec = new HttpCodec("baseio", 1024 * 16);
-        }
+        ProtocolCodec codec = new HttpCodec("baseio", 1024 * 16, lite);
         NioEventLoopGroup group = new NioEventLoopGroup();
         group.setMemoryPoolCapacity(1024 * 128);
+        group.setEnableMemoryPoolDirect(direct);
+        group.setEnableMemoryPool(pool);
         group.setMemoryPoolUnit(256);
         group.setWriteBuffers(32);
         group.setEventLoopSize(Util.availableProcessors() * core);
-//        group.setEventLoopSize(1);
         group.setConcurrentFrameStack(false);
         ChannelAcceptor context = new ChannelAcceptor(group, 8080);
         context.addProtocolCodec(codec);
-//        context.addChannelIdleEventListener(new ChannelAliveListener());
-//        context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addChannelEventListener(new ChannelEventListenerAdapter(){
-            
+        //        context.addChannelIdleEventListener(new ChannelAliveListener());
+        //        context.addChannelEventListener(new LoggerChannelOpenListener());
+        context.addChannelEventListener(new ChannelEventListenerAdapter() {
+
             @Override
             public void channelOpened(Channel ch) throws Exception {
                 ch.setOption(SocketOptions.TCP_NODELAY, 1);

@@ -26,7 +26,7 @@ public class WsUpgradeRequestFrame extends ClientHttpFrame {
     }
 
     private void setRequestHeaders() {
-        setRequestHeader(HttpHeader.Connection, "Upgrade");
+        setConnection(HttpConnection.UPGRADE);
         setRequestHeader(HttpHeader.Upgrade, "websocket");
         setRequestHeader(HttpHeader.Sec_WebSocket_Version, "13");
         setRequestHeader(HttpHeader.Sec_WebSocket_Key,

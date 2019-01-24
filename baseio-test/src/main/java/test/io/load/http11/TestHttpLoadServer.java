@@ -17,16 +17,16 @@ package test.io.load.http11;
 
 import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.codec.http11.HttpCodec;
+import com.firenio.baseio.codec.http11.HttpConnection;
+import com.firenio.baseio.codec.http11.HttpContentType;
 import com.firenio.baseio.codec.http11.HttpFrame;
-import com.firenio.baseio.codec.http11.HttpHeader;
-import com.firenio.baseio.codec.http11.HttpStatic;
 import com.firenio.baseio.codec.http11.WebSocketCodec;
+import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ChannelAcceptor;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.NioEventLoopGroup;
-import com.firenio.baseio.component.Channel;
 
 public class TestHttpLoadServer {
 
@@ -37,8 +37,8 @@ public class TestHttpLoadServer {
             @Override
             public void accept(Channel ch, Frame frame) throws Exception {
                 HttpFrame f = (HttpFrame) frame;
-                f.setResponseHeader(HttpHeader.Connection, HttpStatic.keep_alive_bytes);
-                f.setResponseHeader(HttpHeader.Content_Type, HttpStatic.text_plain_bytes);
+                f.setConnection(HttpConnection.KEEP_ALIVE);
+                f.setContentType(HttpContentType.text_plain);
                 f.setContent(ch.allocate());
                 f.write("Hello World", ch);
                 ByteBuf buf = ch.encode(f);

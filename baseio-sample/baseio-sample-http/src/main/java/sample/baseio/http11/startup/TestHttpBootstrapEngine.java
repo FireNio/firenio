@@ -20,6 +20,7 @@ import com.firenio.baseio.LifeCycle;
 import com.firenio.baseio.LifeCycleListener;
 import com.firenio.baseio.Options;
 import com.firenio.baseio.codec.http11.HttpCodec;
+import com.firenio.baseio.codec.http11.HttpDateUtil;
 import com.firenio.baseio.codec.http11.WebSocketChannelListener;
 import com.firenio.baseio.codec.http11.WebSocketCodec;
 import com.firenio.baseio.codec.http2.Http2Codec;
@@ -53,6 +54,8 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         DevelopConfig.BUF_DEBUG = true;
         Options.setEnableEpoll(true);
         Options.setEnableOpenssl(true);
+//        Options.setEnableUnsafeBuf(true);
+        HttpDateUtil.start();
         final SpringHttpFrameHandle handle = new SpringHttpFrameHandle();
         Properties properties = FileUtil.readPropertiesByCls("server.properties");
         NioEventLoopGroup group = new NioEventLoopGroup(true);

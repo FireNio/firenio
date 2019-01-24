@@ -15,7 +15,6 @@
  */
 package sample.baseio.http11.startup;
 
-import com.firenio.baseio.Options;
 import com.firenio.baseio.container.Bootstrap;
 
 /**

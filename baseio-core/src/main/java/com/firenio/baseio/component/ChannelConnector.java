@@ -222,17 +222,13 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
             InetAddress host = InetAddress.getByName(ctx.getHost());
             this.remoteAddr = host.getHostAddress();
             int fd = Native.connect(host.getHostAddress(), ctx.getPort());
-            if (fd == -1) {
-                Native.throwException();
-            }
+            Native.throwException(fd);
             this.needCancel = true;
             this.fd = fd;
             el.schedule(ctx.timeoutTask);
             un.ctxs.put(fd, ctx);
             int res = Native.epoll_add(un.epfd, fd, Native.EPOLLOUT);
-            if (res == -1) {
-                Native.throwException();
-            }
+            Native.throwException(res);
         }
 
         @Override
