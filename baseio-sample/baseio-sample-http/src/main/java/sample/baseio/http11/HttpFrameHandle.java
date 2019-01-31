@@ -43,6 +43,7 @@ import com.firenio.baseio.log.LoggerFactory;
 public class HttpFrameHandle extends IoEventHandle {
 
     private Charset                 charset        = Util.UTF8;
+    private String                  welcome        = "/";
     private Map<String, HttpEntity> htmlCache      = new HashMap<>();
     private Logger                  logger         = LoggerFactory.getLogger(getClass());
     private ScanFileFilter          scanFileFilter = new IgnoreDotStartFile();
@@ -54,7 +55,13 @@ public class HttpFrameHandle extends IoEventHandle {
 
     protected void acceptHtml(Channel ch, Frame frame) throws Exception {
         String frameName = HttpUtil.getFrameName(ch, frame);
-        HttpEntity entity = htmlCache.get(frameName);
+        HttpEntity entity = null;
+        if (frameName.equals("/")) {
+            entity = htmlCache.get(welcome);
+        }
+        if (entity == null) {
+            entity = htmlCache.get(frameName);
+        }
         HttpStatus status = HttpStatus.C200;
         HttpFrame f = (HttpFrame) frame;
         if (entity == null) {
@@ -154,7 +161,14 @@ public class HttpFrameHandle extends IoEventHandle {
     }
 
     public void initialize(ChannelContext context, String rootPath, String mode) throws Exception {
-        File rootFile = new File(rootPath + "/app/html");
+        String welcome = context.getProperties().getProperty("app.welcome");
+        String userPath = context.getProperties().getProperty("app.webRoot");
+        String path = Util.isNullOrBlank(userPath) ? rootPath + "/app/html" : userPath;
+        File rootFile = new File(path);
+        if (!Util.isNullOrBlank(welcome)) {
+            this.welcome = welcome;
+        }
+        logger.info("html path: {}", rootFile.getAbsolutePath());
         Map<String, HttpContentType> mapping = new HashMap<>();
         mapping.put("htm", HttpContentType.text_html_utf8);
         mapping.put("html", HttpContentType.text_html_utf8);

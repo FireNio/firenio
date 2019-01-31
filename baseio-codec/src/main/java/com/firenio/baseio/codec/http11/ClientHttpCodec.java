@@ -16,6 +16,7 @@
 package com.firenio.baseio.codec.http11;
 
 import static com.firenio.baseio.codec.http11.HttpHeader.Content_Length;
+import static com.firenio.baseio.common.ByteUtil.b;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,16 +37,11 @@ import com.firenio.baseio.component.Frame;
  */
 public class ClientHttpCodec extends HttpCodec {
 
-    private static final byte[] COOKIE   = b("Cookie:");
     private static final byte[] PROTOCOL = b(" HTTP/1.1\r\nContent-Length: ");
 
     @Override
-    ClientHttpFrame allocHttpFrame(Channel ch) {
-        ClientHttpFrame f = (ClientHttpFrame) ch.getAttribute(FRAME_DECODE_KEY);
-        if (f == null) {
-            return new ClientHttpFrame();
-        }
-        return f;
+    ClientHttpFrame newFrame() {
+        return new ClientHttpFrame();
     }
 
     @Override
@@ -55,15 +51,7 @@ public class ClientHttpCodec extends HttpCodec {
             //TODO chunked support
             return decode_state_complate;
         } else {
-            if (f.getContent() == null) {
-                f.setContent(new byte[f.getContentLength()]);
-                f.bodyBuf = ByteBuf.wrap(f.getArrayContent());
-            }
-            f.bodyBuf.put(src, f.bodyBuf.remaining());
-            if (f.bodyBuf.hasRemaining()) {
-                return decode_state_body;
-            }
-            return decode_state_complate;
+            return super.decodeRemainBody(ch, src, f);
         }
     }
 
@@ -90,12 +78,11 @@ public class ClientHttpCodec extends HttpCodec {
         int len_len = 32 - len_idx;
         int len = method_bytes.length + 1 + url_bytes.length + PROTOCOL.length + len_len + 2;
         int header_size = 0;
-        int cookie_size = 0;
         List<byte[]> encode_bytes_array = getEncodeBytesArray(FastThreadLocal.get());
         IntMap<String> headers = f.getRequestHeaders();
         if (headers != null) {
             headers.remove(HttpHeader.Content_Length.getId());
-            for (headers.scan();headers.hasNext();) {
+            for (headers.scan(); headers.hasNext();) {
                 byte[] k = HttpHeader.get(headers.nextKey()).getBytes();
                 byte[] v = headers.value().getBytes();
                 if (v == null) {
@@ -105,20 +92,6 @@ public class ClientHttpCodec extends HttpCodec {
                 encode_bytes_array.add(k);
                 encode_bytes_array.add(v);
                 len += 4;
-                len += k.length;
-                len += v.length;
-            }
-        }
-        List<Cookie> cookieList = f.getCookieList();
-        if (cookieList != null && !cookieList.isEmpty()) {
-            len += COOKIE.length;
-            for (Cookie c : cookieList) {
-                byte[] k = c.getName().getBytes();
-                byte[] v = c.getValue().getBytes();
-                cookie_size++;
-                encode_bytes_array.add(k);
-                encode_bytes_array.add(v);
-                len += 2;
                 len += k.length;
                 len += v.length;
             }
@@ -143,12 +116,6 @@ public class ClientHttpCodec extends HttpCodec {
             buf.put(encode_bytes_array.get(j++));
             buf.putByte(R);
             buf.putByte(N);
-        }
-        for (int i = 0; i < cookie_size; i++) {
-            buf.put(encode_bytes_array.get(j++));
-            buf.putByte((byte) ':');
-            buf.put(encode_bytes_array.get(j++));
-            buf.putByte((byte) ':');
         }
         buf.putByte(R);
         buf.putByte(N);

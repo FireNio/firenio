@@ -15,10 +15,16 @@
  */
 package sample.baseio.http11.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
 import com.firenio.baseio.codec.http11.Cookie;
+import com.firenio.baseio.codec.http11.CookieUtil;
+import com.firenio.baseio.codec.http11.HttpContentType;
 import com.firenio.baseio.codec.http11.HttpFrame;
+import com.firenio.baseio.codec.http11.HttpHeader;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.Channel;
 
@@ -37,11 +43,19 @@ public class TestCookieHeaderServlet extends HttpFrameAcceptor {
         if (Util.isNullOrBlank(value)) {
             value = Util.randomUUID();
         }
+        String cookieLine = frame.getRequestHeader(HttpHeader.Cookie);
+        Map<String, String> cookieMap = new HashMap<>();
+        if (cookieLine != null) {
+            CookieUtil.parseCookies(cookieMap, cookieLine);
+        }
         String res = "yes server already accept your message :) " + frame.getRequestParams();
+        res += "<BR/>";
+        res += cookieMap.toString();
         Cookie c = new Cookie(name, value);
         c.setComment("comment");
         c.setMaxAge(999999);
-        frame.addCookie(c);
+        frame.setContentType(HttpContentType.text_html_utf8);
+        frame.setResponseHeader(HttpHeader.Set_Cookie, c.toString().getBytes());
         frame.setContent(res.getBytes(ch.getCharset()));
         ch.writeAndFlush(frame);
     }

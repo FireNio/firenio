@@ -423,6 +423,10 @@ public class ByteUtil {
         }
         return -1;
     }
+    
+    public static byte[] b(String s) {
+        return s.getBytes();
+    }
 
 
 }

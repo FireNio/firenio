@@ -192,21 +192,21 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     }
 
     @SuppressWarnings("unchecked")
-    public Stack<Frame> getFrameBuffer(String key, int max) {
-        Stack<Frame> buffer = (Stack<Frame>) getAttribute(key);
-        if (buffer == null) {
+    public Stack<Frame> getFrameCache(String key, int max) {
+        Stack<Frame> cache = (Stack<Frame>) getAttribute(key);
+        if (cache == null) {
             if (group.isConcurrentFrameStack()) {
-                buffer = new LinkedBQStack<>(max);
+                cache = new LinkedBQStack<>(max);
             } else {
-                buffer = new ArrayListStack<>(max);
+                cache = new ArrayListStack<>(max);
             }
-            setAttribute(key, buffer);
+            setAttribute(key, cache);
         }
-        return buffer;
+        return cache;
     }
 
-    public Frame getFrameFromBuffer(Channel ch, String key, int max) {
-        return getFrameBuffer(key, max).pop();
+    public Frame getFrameFromCache(String key, int max) {
+        return getFrameCache(key, max).pop();
     }
 
     @Override
@@ -248,6 +248,41 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         channels.remove(id);
     }
 
+    private void shutdown() {
+        if (!events.isEmpty()) {
+            for (;;) {
+                Runnable event = events.poll();
+                if (event == null) {
+                    break;
+                }
+                try {
+                    event.run();
+                } catch (Throwable e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+        if (!delayedQueue.isEmpty()) {
+            for (;;) {
+                DelayTask t = delayedQueue.poll();
+                if (t == null) {
+                    break;
+                }
+                if (t.isCanceled()) {
+                    continue;
+                }
+                try {
+                    t.run();
+                } catch (Throwable e) {
+                    printException(logger, e, 1);
+                }
+            }
+        }
+        closeChannels();
+        Util.close(unsafe);
+        Util.release(buf);
+    }
+
     @Override
     public void run() {
         // does it useful to set variables locally ?
@@ -264,38 +299,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
             // the task will be closed, then free the other things and let it go, the group
             // restart will create a new event loop instead.
             if (!isRunning()) {
-                if (!events.isEmpty()) {
-                    for (;;) {
-                        Runnable event = events.poll();
-                        if (event == null) {
-                            break;
-                        }
-                        try {
-                            event.run();
-                        } catch (Throwable e) {
-                            logger.error(e.getMessage(), e);
-                        }
-                    }
-                }
-                if (!dq.isEmpty()) {
-                    for (;;) {
-                        DelayTask t = dq.poll();
-                        if (t == null) {
-                            break;
-                        }
-                        if (t.isCanceled()) {
-                            continue;
-                        }
-                        try {
-                            t.run();
-                        } catch (Throwable e) {
-                            printException(logger, e, 1);
-                        }
-                    }
-                }
-                closeChannels();
-                Util.close(unsafe);
-                Util.release(buf);
+                shutdown();
                 return;
             }
             try {
@@ -474,91 +478,103 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                     Native.event_fd_read(fd);
                     continue;
                 }
-                if (!el.acceptor) {
-                    Channel ch = el.getChannel(fd);
-                    if (ch != null) {
-                        if (ch.isClosed()) {
-                            continue;
-                        }
-                        if ((e & Native.close_event()) != 0) {
-                            ch.close();
-                            continue;
-                        }
-                        if (CHANNEL_READ_FIRST) {
-                            if ((e & Native.EPOLLIN) != 0) {
-                                try {
-                                    ch.read();
-                                } catch (Throwable ex) {
-                                    readExceptionCaught(ch, ex);
-                                    continue;
-                                }
-                            }
-                            if ((e & Native.EPOLLOUT) != 0) {
-                                int len = ch.write(this);
-                                if (len == -1) {
-                                    ch.close();
-                                    continue;
-                                }
-                            }
-                        } else {
-                            if ((e & Native.EPOLLOUT) != 0) {
-                                int len = ch.write(this);
-                                if (len == -1) {
-                                    ch.close();
-                                    continue;
-                                }
-                            }
-                            if ((e & Native.EPOLLIN) != 0) {
-                                try {
-                                    ch.read();
-                                } catch (Throwable ex) {
-                                    readExceptionCaught(ch, ex);
-                                }
-                            }
-                        }
-                    } else {
-                        ChannelConnector ctx = (ChannelConnector) ctxs.remove(fd);
-                        if ((e & Native.close_event()) != 0 || !Native.finish_connect(fd)) {
-                            ctx.channelEstablish(null, NOT_FINISH_CONNECT);
-                            continue;
-                        }
-                        String ra = ((EpollConnectorUnsafe) ctx.getUnsafe()).getRemoteAddr();
-                        registChannel(el, ctx, fd, ra, Native.get_port(fd), ctx.getPort(), false);
-                    }
+                if (el.acceptor) {
+                    accept(data, epfd, fd);
                 } else {
-                    final long cbuf = data;
-                    final ChannelAcceptor ctx = (ChannelAcceptor) ctxs.get(fd);
-                    final int listenfd = ((EpollAcceptorUnsafe) ctx.getUnsafe()).listenfd;
-                    final int cfd = Native.accept(epfd, listenfd, cbuf);
-                    if (cfd == -1) {
-                        continue;
-                    }
-                    final NioEventLoopGroup group = ctx.getProcessorGroup();
-                    final NioEventLoop targetEL = group.getNext();
-                    //10, 0, -7, -30, 0, 0, 0, 0, -2, -128, 0, 0, 0, 0, 0, 0, 80, 1, -107, 55, -55, 36, -124, -125, 2, 0, 0, 0,
-                    //10, 0, -4,  47, 0, 0, 0, 0,  0,       0, 0, 0, 0, 0, 0, 0,  0,  0,     -1, -1, -64, -88, -123,     1, 0, 0, 0, 0,
-                    int rp = (Unsafe.getByte(cbuf + 2) & 0xff) << 8;
-                    rp |= (Unsafe.getByte(cbuf + 3) & 0xff);
-                    String ra;
-                    if (Unsafe.getShort(cbuf + 18) == -1 && Unsafe.getByte(cbuf + 24) == 0) {
-                        //IPv4
-                        ra = decodeIPv4(cbuf + 20);
-                    } else {
-                        //IPv6
-                        ra = decodeIPv6(cbuf + 8);
-                    }
-                    final int _lp = ctx.getPort();
-                    final int _rp = rp;
-                    final String _ra = ra;
-                    targetEL.submit(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            registChannel(targetEL, ctx, cfd, _ra, _lp, _rp, true);
-                        }
-                    });
+                    accept(el, fd, e);
                 }
             }
+        }
+
+        private void accept(long data, int epfd, int fd) {
+            final long cbuf = data;
+            final ChannelAcceptor ctx = (ChannelAcceptor) ctxs.get(fd);
+            final int listenfd = ((EpollAcceptorUnsafe) ctx.getUnsafe()).listenfd;
+            final int cfd = Native.accept(epfd, listenfd, cbuf);
+            if (cfd == -1) {
+                return;
+            }
+            final NioEventLoopGroup group = ctx.getProcessorGroup();
+            final NioEventLoop targetEL = group.getNext();
+            //10, 0, -7, -30, 0, 0, 0, 0, -2, -128, 0, 0, 0, 0, 0, 0, 80, 1, -107, 55, -55, 36, -124, -125, 2, 0, 0, 0,
+            //10, 0, -4,  47, 0, 0, 0, 0,  0,       0, 0, 0, 0, 0, 0, 0,  0,  0,     -1, -1, -64, -88, -123,     1, 0, 0, 0, 0,
+            int rp = (Unsafe.getByte(cbuf + 2) & 0xff) << 8;
+            rp |= (Unsafe.getByte(cbuf + 3) & 0xff);
+            String ra;
+            if (Unsafe.getShort(cbuf + 18) == -1 && Unsafe.getByte(cbuf + 24) == 0) {
+                //IPv4
+                ra = decodeIPv4(cbuf + 20);
+            } else {
+                //IPv6
+                ra = decodeIPv6(cbuf + 8);
+            }
+            final int _lp = ctx.getPort();
+            final int _rp = rp;
+            final String _ra = ra;
+            targetEL.submit(new Runnable() {
+
+                @Override
+                public void run() {
+                    registChannel(targetEL, ctx, cfd, _ra, _lp, _rp, true);
+                }
+            });
+        }
+
+        private void accept(NioEventLoop el, int fd, int e) {
+            Channel ch = el.getChannel(fd);
+            if (ch != null) {
+                if (ch.isClosed()) {
+                    return;
+                }
+                if ((e & Native.close_event()) != 0) {
+                    ch.close();
+                    return;
+                }
+                if (CHANNEL_READ_FIRST) {
+                    if ((e & Native.EPOLLIN) != 0) {
+                        try {
+                            ch.read();
+                        } catch (Throwable ex) {
+                            readExceptionCaught(ch, ex);
+                            return;
+                        }
+                    }
+                    if ((e & Native.EPOLLOUT) != 0) {
+                        int len = ch.write(this);
+                        if (len == -1) {
+                            ch.close();
+                            return;
+                        }
+                    }
+                } else {
+                    if ((e & Native.EPOLLOUT) != 0) {
+                        int len = ch.write(this);
+                        if (len == -1) {
+                            ch.close();
+                            return;
+                        }
+                    }
+                    if ((e & Native.EPOLLIN) != 0) {
+                        try {
+                            ch.read();
+                        } catch (Throwable ex) {
+                            readExceptionCaught(ch, ex);
+                        }
+                    }
+                }
+            } else {
+                accept_connect(el, fd, e);
+            }
+        }
+        
+        private void accept_connect(NioEventLoop el, int fd, int e){
+            ChannelConnector ctx = (ChannelConnector) ctxs.remove(fd);
+            if ((e & Native.close_event()) != 0 || !Native.finish_connect(fd)) {
+                ctx.channelEstablish(null, NOT_FINISH_CONNECT);
+                return;
+            }
+            String ra = ((EpollConnectorUnsafe) ctx.getUnsafe()).getRemoteAddr();
+            registChannel(el, ctx, fd, ra, Native.get_port(fd), ctx.getPort(), false);
         }
 
         long getData() {
@@ -676,6 +692,95 @@ public final class NioEventLoop extends EventLoop implements Attributes {
             }
         }
 
+        private void accept(final Channel ch, final int readyOps) {
+            if (CHANNEL_READ_FIRST) {
+                if ((readyOps & SelectionKey.OP_READ) != 0) {
+                    try {
+                        ch.read();
+                    } catch (Throwable e) {
+                        readExceptionCaught(ch, e);
+                    }
+                } else if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+                    int len = ch.write(this);
+                    if (len == -1) {
+                        ch.close();
+                        return;
+                    }
+                }
+            } else {
+                if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+                    int len = ch.write(this);
+                    if (len == -1) {
+                        ch.close();
+                        return;
+                    }
+                }
+                if ((readyOps & SelectionKey.OP_READ) != 0) {
+                    try {
+                        ch.read();
+                    } catch (Throwable e) {
+                        readExceptionCaught(ch, e);
+                    }
+                }
+            }
+        }
+
+        private void accept(final ChannelAcceptor acceptor) {
+            final JavaAcceptorUnsafe au = (JavaAcceptorUnsafe) acceptor.getUnsafe();
+            ServerSocketChannel channel = au.getSelectableChannel();
+            try {
+                //有时候还未regist selector，但是却能selector到sk
+                //如果getLocalAddress为空则不处理该sk
+                if (channel.getLocalAddress() == null) {
+                    return;
+                }
+                final SocketChannel ch = channel.accept();
+                if (ch == null) {
+                    return;
+                }
+                final NioEventLoopGroup group = acceptor.getProcessorGroup();
+                final NioEventLoop targetEL = group.getNext();
+                ch.configureBlocking(false);
+                targetEL.submit(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            registChannel(ch, targetEL, acceptor, true);
+                        } catch (IOException e) {
+                            printException(logger, e, 1);
+                        }
+                    }
+                });
+            } catch (Throwable e) {
+                printException(logger, e, 1);
+            }
+        }
+
+        private void accept(ChannelConnector connector, SelectionKey key) {
+            final SocketChannel channel = getSocketChannel(connector);
+            try {
+                if (channel.finishConnect()) {
+                    int ops = key.interestOps();
+                    ops &= ~SelectionKey.OP_CONNECT;
+                    key.interestOps(ops);
+                    registChannel(channel, eventLoop, connector, false);
+                } else {
+                    connector.channelEstablish(null, NOT_FINISH_CONNECT);
+                }
+            } catch (Throwable e) {
+                connector.channelEstablish(null, e);
+            }
+        }
+
+        private void accept(Object attach, SelectionKey key) {
+            if (attach instanceof ChannelAcceptor) {
+                accept((ChannelAcceptor) attach);
+            } else {
+                accept((ChannelConnector) attach, key);
+            }
+        }
+
         private void accept(final SelectionKey key) {
             if (!key.isValid()) {
                 key.cancel();
@@ -683,86 +788,9 @@ public final class NioEventLoop extends EventLoop implements Attributes {
             }
             final Object attach = key.attachment();
             if (attach instanceof Channel) {
-                final Channel ch = (Channel) attach;
-                final int readyOps = key.readyOps();
-                if (CHANNEL_READ_FIRST) {
-                    if ((readyOps & SelectionKey.OP_READ) != 0) {
-                        try {
-                            ch.read();
-                        } catch (Throwable e) {
-                            readExceptionCaught(ch, e);
-                        }
-                    } else if ((readyOps & SelectionKey.OP_WRITE) != 0) {
-                        int len = ch.write(this);
-                        if (len == -1) {
-                            ch.close();
-                            return;
-                        }
-                    }
-                } else {
-                    if ((readyOps & SelectionKey.OP_WRITE) != 0) {
-                        int len = ch.write(this);
-                        if (len == -1) {
-                            ch.close();
-                            return;
-                        }
-                    }
-                    if ((readyOps & SelectionKey.OP_READ) != 0) {
-                        try {
-                            ch.read();
-                        } catch (Throwable e) {
-                            readExceptionCaught(ch, e);
-                        }
-                    }
-                }
+                accept((Channel) attach, key.readyOps());
             } else {
-                if (attach instanceof ChannelAcceptor) {
-                    final ChannelAcceptor acceptor = (ChannelAcceptor) attach;
-                    final JavaAcceptorUnsafe au = (JavaAcceptorUnsafe) acceptor.getUnsafe();
-                    ServerSocketChannel channel = au.getSelectableChannel();
-                    try {
-                        //有时候还未regist selector，但是却能selector到sk
-                        //如果getLocalAddress为空则不处理该sk
-                        if (channel.getLocalAddress() == null) {
-                            return;
-                        }
-                        final SocketChannel ch = channel.accept();
-                        if (ch == null) {
-                            return;
-                        }
-                        final NioEventLoopGroup group = acceptor.getProcessorGroup();
-                        final NioEventLoop targetEL = group.getNext();
-                        ch.configureBlocking(false);
-                        targetEL.submit(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                try {
-                                    registChannel(ch, targetEL, acceptor, true);
-                                } catch (IOException e) {
-                                    printException(logger, e, 1);
-                                }
-                            }
-                        });
-                    } catch (Throwable e) {
-                        printException(logger, e, 1);
-                    }
-                } else {
-                    final ChannelConnector connector = (ChannelConnector) attach;
-                    final SocketChannel channel = getSocketChannel(connector);
-                    try {
-                        if (channel.finishConnect()) {
-                            int ops = key.interestOps();
-                            ops &= ~SelectionKey.OP_CONNECT;
-                            key.interestOps(ops);
-                            registChannel(channel, eventLoop, connector, false);
-                        } else {
-                            connector.channelEstablish(null, NOT_FINISH_CONNECT);
-                        }
-                    } catch (Throwable e) {
-                        connector.channelEstablish(null, e);
-                    }
-                }
+                accept(attach, key);
             }
         }
 

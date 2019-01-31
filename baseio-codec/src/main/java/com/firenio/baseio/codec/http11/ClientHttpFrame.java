@@ -17,14 +17,12 @@ package com.firenio.baseio.codec.http11;
 
 import java.io.IOException;
 
-import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.collection.IntMap;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.Channel;
 
 public class ClientHttpFrame extends HttpFrame {
 
-    ByteBuf        bodyBuf;
     boolean        chunked;
     IntMap<String> client_response_headers = new IntMap<>();
 

@@ -16,6 +16,7 @@ rem java -cp ./lib/*;  com.generallycloud.baseio.container.startup.ApplicationBo
 java -XX:+PrintGCDetails -Xloggc:gc.log ^
      -cp ./lib/*; ^
      -Dboot.mode=prod ^
+     -Dboot.libPath=/app/lib ^
      -Dcom.generallycloud.baseio.develop.debug=true ^
      -Dboot.class=sample.baseio.http11.startup.TestHttpBootstrapEngine ^
      com.firenio.baseio.container.Bootstrap

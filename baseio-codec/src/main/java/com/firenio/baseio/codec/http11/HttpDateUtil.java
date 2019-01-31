@@ -40,8 +40,13 @@ public class HttpDateUtil {
 
     }
 
-    private long   time;
-    private byte[] value;
+    private long         time;
+    private final byte[] value      = new byte[29];
+    private final byte[] line_value = new byte[8 + 29];
+
+    public HttpDateUtil() {
+        System.arraycopy("\r\nDate: ".getBytes(), 0, line_value, 0, 8);
+    }
 
     private static class HttpDateTimeClock implements Runnable {
 
@@ -66,13 +71,22 @@ public class HttpDateUtil {
     }
 
     public static byte[] getDate() {
+        return getLocalHttpDateUtil().value;
+    }
+
+    private static HttpDateUtil getLocalHttpDateUtil() {
         HttpDateUtil u = LOCAL.get();
         long now = CLOCK.time;
         if (now > u.time) {
             u.time = now + 1000;
-            u.value = DateUtil.get().formatHttpBytes(now);
+            DateUtil.get().formatHttpBytes(u.value, 0, now);
+            DateUtil.get().formatHttpBytes(u.line_value, 8, now);
         }
-        return u.value;
+        return u;
+    }
+
+    public static byte[] getDateLine() {
+        return getLocalHttpDateUtil().line_value;
     }
 
     public static synchronized void start() {

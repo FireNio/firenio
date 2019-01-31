@@ -65,7 +65,7 @@ public class TestProtobase {
                     f.write(res, ch);
                     f.write(text, ch);
                     ch.writeAndFlush(f);
-                } else if (f.isBinary()) {
+                } else {
                     byte[] text = f.getArrayContent();
                     f.setContent(ch.allocate());
                     f.write(res, ch);
@@ -110,7 +110,7 @@ public class TestProtobase {
         context.addProtocolCodec(new ProtobaseCodec());
         Channel ch = context.connect();
         ProtobaseFrame f = new ProtobaseFrame();
-        f.setText(false);
+        f.setBinary();
         f.setContent(ch.allocate());
         f.write(hello.getBytes());
         ch.writeAndFlush(f);

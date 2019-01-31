@@ -122,10 +122,23 @@ public class DateUtil {
     }
 
     public byte[] formatHttpBytes() {
-        return formatHttpBytes(System.currentTimeMillis());
+        byte[] b = new byte[29];
+        formatHttpBytes(b, 0, Util.now());
+        return b;
     }
 
     public byte[] formatHttpBytes(long time) {
+        byte[] b = new byte[29];
+        formatHttpBytes(b, 0, time);
+        return b;
+    }
+
+    public void formatHttpBytes(byte[] b) {
+        formatHttpBytes(b, 0, Util.now());
+    }
+
+    //b.len = 29
+    public void formatHttpBytes(byte[] b, int off, long time) {
         calendar.setTimeInMillis(time);
 
         int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
@@ -136,39 +149,37 @@ public class DateUtil {
         int minute = calendar.get(Calendar.MINUTE);
         int second = calendar.get(Calendar.SECOND);
 
-        byte[] b = new byte[29];
         byte[] days = WEEK_DAYS_BYTES[weekDay];
         byte[] months = MONTHS_BYTES[month];
-        b[0] = days[0];
-        b[1] = days[1];
-        b[2] = days[2];
-        b[3] = ',';
-        b[4] = ' ';
-        b[5] = NS[day / 10];
-        b[6] = NS[day % 10];
-        b[7] = ' ';
-        b[8] = months[0];
-        b[9] = months[1];
-        b[10] = months[2];
-        b[11] = ' ';
-        b[12] = NS[year / 1000];
-        b[13] = NS[(year / 100) % 10];
-        b[14] = NS[(year / 10) % 10];
-        b[15] = NS[year % 10];
-        b[16] = ' ';
-        b[17] = NS[hour / 10];
-        b[18] = NS[hour % 10];
-        b[19] = ':';
-        b[20] = NS[minute / 10];
-        b[21] = NS[minute % 10];
-        b[22] = ':';
-        b[23] = NS[second / 10];
-        b[24] = NS[second % 10];
-        b[25] = ' ';
-        b[26] = TZ_0;
-        b[27] = TZ_1;
-        b[28] = TZ_2;
-        return b;
+        b[off + 0] = days[0];
+        b[off + 1] = days[1];
+        b[off + 2] = days[2];
+        b[off + 3] = ',';
+        b[off + 4] = ' ';
+        b[off + 5] = NS[day / 10];
+        b[off + 6] = NS[day % 10];
+        b[off + 7] = ' ';
+        b[off + 8] = months[0];
+        b[off + 9] = months[1];
+        b[off + 10] = months[2];
+        b[off + 11] = ' ';
+        b[off + 12] = NS[year / 1000];
+        b[off + 13] = NS[(year / 100) % 10];
+        b[off + 14] = NS[(year / 10) % 10];
+        b[off + 15] = NS[year % 10];
+        b[off + 16] = ' ';
+        b[off + 17] = NS[hour / 10];
+        b[off + 18] = NS[hour % 10];
+        b[off + 19] = ':';
+        b[off + 20] = NS[minute / 10];
+        b[off + 21] = NS[minute % 10];
+        b[off + 22] = ':';
+        b[off + 23] = NS[second / 10];
+        b[off + 24] = NS[second % 10];
+        b[off + 25] = ' ';
+        b[off + 26] = TZ_0;
+        b[off + 27] = TZ_1;
+        b[off + 28] = TZ_2;
     }
 
     public String formatYyMMdd() {

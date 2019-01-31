@@ -46,12 +46,15 @@ public class Bootstrap {
         @Override
         public void scanClassPaths(URLDynamicClassLoader classLoader, String mode, String rootPath)
                 throws IOException {
+            String path = null;
             if (isRuntimeDevMode(mode)) {
                 classLoader.addExcludePath("/app");
-                classLoader.scan(rootPath);
+                path = rootPath;
             } else {
-                classLoader.scan(rootPath + "/conf");
+                path = rootPath + "/conf";
             }
+            DebugUtil.getLogger().info("CLS_PATH: {}", path);
+            classLoader.scan(path);
         }
     }
 
@@ -113,7 +116,9 @@ public class Bootstrap {
             public void scanClassPaths(URLDynamicClassLoader classLoader, String mode,
                     String rootLocalAddress) throws IOException {
                 if (!isRuntimeDevMode(mode)) {
-                    classLoader.scan(rootLocalAddress + libPath);
+                    String path = rootLocalAddress + libPath;
+                    DebugUtil.getLogger().info("CLS_PATH: {}", path);
+                    classLoader.scan(path);
                 }
             }
         }));

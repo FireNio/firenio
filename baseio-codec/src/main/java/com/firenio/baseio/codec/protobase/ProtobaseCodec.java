@@ -24,9 +24,9 @@ import com.firenio.baseio.component.ProtocolCodec;
 
 /**
  * <pre>
- *  B0    : 0-1 : 0:PING, 1:PONG,    2:P2P, 3:BRODCAST
- *  B0    : 2   : 0:text, 1:binary
- *  B0    : 3   : 0:last, 1:continue
+ *  B0    : 0-1 : 0:tunnel,   1:broadcast, 2:ping, 3:pong
+ *  B0    : 2   : 0:text,     1:binary
+ *  B0    : 3   : 0:continue, 1:last
  *  B0    : 4-7 : ExtType 
  *  B1-B3 : FrameLen
  *  B4-B7 : FrameId
@@ -36,19 +36,20 @@ import com.firenio.baseio.component.ProtocolCodec;
  */
 public class ProtobaseCodec extends ProtocolCodec {
 
-    public static final IOException ILLEGAL_PROTOCOL = EXCEPTION("illegal protocol");
-    public static final IOException OVER_LIMIT       = EXCEPTION("over limit");
-    private static final ByteBuf    PING;
-    private static final ByteBuf    PONG;
-    public static final int         PROTOCOL_HEADER  = 12;
-    public static final int         PROTOCOL_PING    = 0;
-    public static final int         PROTOCOL_PONG    = 1;
+    public static final IOException ILLEGAL_PROTOCOL   = EXCEPTION("illegal protocol");
+    public static final IOException OVER_LIMIT         = EXCEPTION("over limit");
+    static final ByteBuf            PING;
+    static final ByteBuf            PONG;
+    static final int                PROTOCOL_HEADER    = 12;
+    static final int                PROTOCOL_PING      = 0b1000_0000;
+    static final int                PROTOCOL_PONG      = 0b1100_0000;
+    static final int                PROTOCOL_PONG_MASK = 0b1100_0000;
 
     static {
         PING = ByteBuf.heap(4);
         PONG = ByteBuf.heap(4);
-        PING.putInt(0 << 31);
-        PONG.putInt(1 << 30);
+        PING.putInt(PROTOCOL_PING << 24);
+        PONG.putInt(PROTOCOL_PONG << 24);
         PING.flip();
         PONG.flip();
     }
@@ -68,11 +69,10 @@ public class ProtobaseCodec extends ProtocolCodec {
         if (src.remaining() < 4) {
             return null;
         }
-        int h1 = src.getByte(0) & 0xff;
-        int type = h1 >> 6;
+        byte flags = src.getByte(0);
         int len = src.getInt() & 0xffffff;
-        if (type < 2) {
-            return decodePing(type);
+        if (flags < 0) {
+            return decodePing(flags);
         }
         if (len > limit) {
             throw OVER_LIMIT;
@@ -81,23 +81,15 @@ public class ProtobaseCodec extends ProtocolCodec {
             src.skip(-4);
             return null;
         }
-        boolean broadcast = type == 3;
-        boolean text = ((h1 >> 5) & 1) == 0;
-        boolean last = ((h1 >> 4) & 1) == 0;
-        byte extType = (byte) (h1 & 0xf);
         int frameId = src.getInt();
         int channelId = src.getInt();
-        ProtobaseFrame f = newProtobaseFrame();
-        f.setBroadcast(broadcast);
+        byte[] data = new byte[len - 8];
+        src.get(data);
+        ProtobaseFrame f = newFrame();
+        f.setFlags(flags);
         f.setChannelId(channelId);
         f.setFrameId(frameId);
-        f.setExtType(extType);
-        f.setText(text);
-        f.setBroadcast(broadcast);
-        f.setLast(last);
-        byte[] data = new byte[len];
-        src.get(data);
-        if (text) {
+        if (f.isText()) {
             f.setContent(new String(data, ch.getCharset()));
         } else {
             f.setContent(data);
@@ -106,10 +98,11 @@ public class ProtobaseCodec extends ProtocolCodec {
     }
 
     private Frame decodePing(int type) throws IOException {
+        type &= PROTOCOL_PONG_MASK;
         if (type == PROTOCOL_PING) {
-            return newProtobaseFrame().setPing();
+            return newFrame().setPing();
         } else if (type == PROTOCOL_PONG) {
-            return newProtobaseFrame().setPong();
+            return newFrame().setPong();
         } else {
             throw ILLEGAL_PROTOCOL;
         }
@@ -121,23 +114,8 @@ public class ProtobaseCodec extends ProtocolCodec {
             return frame.isPing() ? PING.duplicate() : PONG.duplicate();
         }
         ProtobaseFrame f = (ProtobaseFrame) frame;
-        byte h1 = (byte) (f.getExtType() & 0xf);
-        if (f.isBroadcast()) {
-            h1 |= 0b11000000;
-        } else {
-            h1 |= 0b10000000;
-        }
-        if (f.isBinary()) {
-            h1 |= 0b00100000;
-        }
-        if (f.isContinue()) {
-            h1 |= 0b00010000;
-        }
-        ByteBuf buf = (ByteBuf) f.getContent();
-        buf.flip();
-        int len = buf.limit() - PROTOCOL_HEADER;
-        len |= h1 << 24;
-        buf.putInt(0, len);
+        ByteBuf buf = f.getBufContent().flip();
+        buf.putInt(0, (buf.limit() - 4) | (f.getFlags() << 24));
         buf.putInt(4, f.getFrameId());
         buf.putInt(8, f.getChannelId());
         return buf;
@@ -157,7 +135,7 @@ public class ProtobaseCodec extends ProtocolCodec {
         return PROTOCOL_HEADER;
     }
 
-    ProtobaseFrame newProtobaseFrame() {
+    ProtobaseFrame newFrame() {
         return new ProtobaseFrame();
     }
 

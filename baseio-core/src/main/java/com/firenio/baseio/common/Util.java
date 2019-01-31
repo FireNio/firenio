@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import com.firenio.baseio.LifeCycle;
 import com.firenio.baseio.Releasable;
+import com.firenio.baseio.collection.IntMap;
 import com.firenio.baseio.component.ChannelAcceptor;
 import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
@@ -71,6 +72,26 @@ public class Util {
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
         }
+    }
+
+    public static void clear(Collection<?> coll) {
+        if (coll == null) {
+            return;
+        }
+        coll.clear();
+    }
+
+    public static void clear(IntMap<byte[]> map) {
+        if (map != null) {
+            map.clear();
+        }
+    }
+
+    public static void clear(Map<?, ?> map) {
+        if (map == null) {
+            return;
+        }
+        map.clear();
     }
 
     public static void close(Closeable closeable) {
@@ -400,11 +421,11 @@ public class Util {
         setObjectValue(last, value, fieldName);
     }
 
-    public static int skip(StringBuilder sb, char ch) {
+    public static int skip(CharSequence sb, char ch) {
         return skip(sb, ch, 0);
     }
 
-    public static int skip(StringBuilder sb, char ch, int index) {
+    public static int skip(CharSequence sb, char ch, int index) {
         int count = sb.length();
         for (int i = index; i < count; i++) {
             if (ch != sb.charAt(i)) {
@@ -544,5 +565,5 @@ public class Util {
             n <<= 1;
         return n;
     }
-    
+
 }

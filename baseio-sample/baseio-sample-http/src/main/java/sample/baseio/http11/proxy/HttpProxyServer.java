@@ -83,21 +83,22 @@ public class HttpProxyServer {
                         public void accept(Channel ch, Frame frame) throws Exception {
                             ClientHttpFrame res = (ClientHttpFrame) frame;
                             IntMap<String> hs = res.getResponse_headers();
-                            for(hs.scan();hs.hasNext();){
+                            for (hs.scan(); hs.hasNext();) {
                                 String v = hs.nextValue();
                                 if (v == null) {
                                     continue;
                                 }
+                                if (hs.key() == HttpHeader.Content_Length.getId()
+                                        || hs.key() == HttpHeader.Transfer_Encoding.getId()
+                                        || hs.key() == HttpHeader.Content_Encoding.getId()) {
+                                    continue;
+                                }
                                 f.setResponseHeader(hs.key(), v.getBytes());
                             }
-                            f.removeResponseHeader(HttpHeader.Content_Length);
                             if (res.getContent() != null) {
                                 f.setContent(res.getContent());
                             } else if (res.isChunked()) {
-                                f.removeResponseHeader(HttpHeader.Transfer_Encoding);
-                                f.removeResponseHeader(HttpHeader.Content_Encoding);
                                 f.setBytes("not support chunked now.".getBytes());
-
                             }
                             ch_src.writeAndFlush(f);
                             ch.close();

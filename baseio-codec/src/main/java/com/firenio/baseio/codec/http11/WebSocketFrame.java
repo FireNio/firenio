@@ -49,7 +49,6 @@ public class WebSocketFrame extends Frame {
         return WebSocketCodec.MAX_HEADER_LENGTH;
     }
 
-    @Override
     public boolean isBinary() {
         return type == WebSocketCodec.TYPE_BINARY;
     }
@@ -60,12 +59,6 @@ public class WebSocketFrame extends Frame {
 
     public boolean isContinuationFrame() {
         return type == WebSocketCodec.TYPE_CONTINUE;
-    }
-
-    @Override
-    public boolean isContinue() {
-        // ????????? is that mean ??????
-        return isContinuationFrame();
     }
 
     public boolean isEof() {

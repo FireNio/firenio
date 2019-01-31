@@ -20,21 +20,16 @@ import static com.firenio.baseio.codec.http11.HttpHeader.Sec_WebSocket_Accept;
 import static com.firenio.baseio.codec.http11.HttpHeader.Sec_WebSocket_Key;
 import static com.firenio.baseio.codec.http11.HttpHeader.Upgrade;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.collection.IntMap;
-import com.firenio.baseio.common.Assert;
 import com.firenio.baseio.common.Cryptos;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.Frame;
 
-//FIXME 改进header parser
 /**
  * 
  * Content-Type: application/x-www-form-urlencoded</BR> Content-Type:
@@ -43,11 +38,9 @@ import com.firenio.baseio.component.Frame;
  */
 public class HttpFrame extends Frame {
 
-    private int                 contentLength;
     private int                 connection      = HttpConnection.KEEP_ALIVE.getId();
+    private int                 contentLength;
     private int                 contentType     = HttpContentType.text_plain_utf8.getId();
-    private List<Cookie>        cookieList;
-    private Map<String, String> cookies;
     private byte[]              date;
     private int                 decodeState;
     private int                 headerLength;
@@ -59,33 +52,6 @@ public class HttpFrame extends Frame {
     private IntMap<byte[]>      response_headers;
     private int                 status          = HttpStatus.C200.getStatus();
 
-    public void addCookie(Cookie cookie) {
-        if (cookieList == null) {
-            cookieList = new ArrayList<>();
-        }
-        cookieList.add(cookie);
-    }
-
-    void clear(Collection<?> coll) {
-        if (coll == null) {
-            return;
-        }
-        coll.clear();
-    }
-
-    void clear(IntMap<byte[]> map) {
-        if (map != null) {
-            map.clear();
-        }
-    }
-
-    void clear(Map<?, ?> map) {
-        if (map == null) {
-            return;
-        }
-        map.clear();
-    }
-
     public String getBoundary() {
         if (isForm) {
             return HttpCodec.parseBoundary(getRequestHeader(Content_Type.getId()));
@@ -93,38 +59,31 @@ public class HttpFrame extends Frame {
         return null;
     }
 
-    public int getContentLength() {
-        return contentLength;
+    public HttpConnection getConnection() {
+        return HttpConnection.get(connection);
     }
 
-    public int getContentTypeId() {
-        return contentType;
+    public int getConnectionId() {
+        return connection;
+    }
+
+    public int getContentLength() {
+        return contentLength;
     }
 
     public HttpContentType getContentType() {
         return HttpContentType.get(contentType);
     }
 
-    public String getCookie(String name) {
-        if (cookies == null) {
-            return null;
-        }
-        return cookies.get(name);
-    }
-
-    public List<Cookie> getCookieList() {
-        return cookieList;
-    }
-
-    public Map<String, String> getCookies() {
-        return cookies;
+    public int getContentTypeId() {
+        return contentType;
     }
 
     public byte[] getDate() {
         return date;
     }
 
-    public int getDecodeState() {
+    protected int getDecodeState() {
         return decodeState;
     }
 
@@ -234,12 +193,6 @@ public class HttpFrame extends Frame {
         return method == HttpMethod.GET.getId();
     }
 
-    public void removeResponseHeader(HttpHeader header) {
-        if (response_headers != null) {
-            response_headers.remove(header.getId());
-        }
-    }
-
     public HttpFrame reset() {
         this.requestURL = null;
         this.method = 0;
@@ -252,11 +205,15 @@ public class HttpFrame extends Frame {
         this.decodeState = HttpCodec.decode_state_line_one;
         this.params.clear();
         this.request_headers.clear();
-        this.clear(response_headers);
-        this.clear(cookieList);
-        this.clear(cookies);
+        if (response_headers != null) {
+            response_headers.clear();
+        }
         super.reset();
         return this;
+    }
+
+    public void setConnection(HttpConnection connection) {
+        this.connection = connection.getId();
     }
 
     protected void setContentLength(int contentLength) {
@@ -265,10 +222,6 @@ public class HttpFrame extends Frame {
 
     public void setContentType(HttpContentType contentType) {
         this.contentType = contentType.getId();
-    }
-
-    public void setCookies(Map<String, String> cookies) {
-        this.cookies = cookies;
     }
 
     public void setDate(byte[] date) {
@@ -289,18 +242,6 @@ public class HttpFrame extends Frame {
 
     public void setMethod(HttpMethod method) {
         this.method = method.getId();
-    }
-
-    public HttpConnection getConnection() {
-        return HttpConnection.get(connection);
-    }
-
-    public void setConnection(HttpConnection connection) {
-        this.connection = connection.getId();
-    }
-
-    public int getConnectionId() {
-        return connection;
     }
 
     void setReadHeader(String name, String value) {
@@ -327,24 +268,26 @@ public class HttpFrame extends Frame {
     }
 
     public void setResponseHeader(HttpHeader name, byte[] value) {
-        Assert.notNull(name, "null name");
-        Assert.notNull(value, "null value");
-        if (response_headers == null) {
-            response_headers = new IntMap<>(8);
-        }
-        response_headers.put(name.getId(), value);
-    }
-
-    public void setResponseHeader(HttpHeader name, String value) {
-        setResponseHeader(name, value.getBytes());
+        setResponseHeader0(name.getId(), value, false);
     }
 
     public void setResponseHeader(int name, byte[] value) {
-        Assert.notNull(value, "null value");
+        setResponseHeader0(name, value, false);
+    }
+
+    private void setResponseHeader0(int name, byte[] value, boolean absent) {
         if (response_headers == null) {
             response_headers = new IntMap<>(8);
         }
         response_headers.put(name, value);
+    }
+
+    public void setResponseHeaderIfAbsent(HttpHeader name, byte[] value) {
+        setResponseHeader0(name.getId(), value, true);
+    }
+
+    public void setResponseHeaderIfAbsent(int name, byte[] value) {
+        setResponseHeader0(name, value, true);
     }
 
     public void setReuestParam(String key, String value) {

@@ -58,7 +58,7 @@ public final class IntMap<V> {
 
     public void scan() {
         this.scanSize = 0;
-        this.scanIndex = 0;
+        this.scanIndex = -1;
     }
 
     public boolean hasNext() {
@@ -108,8 +108,12 @@ public final class IntMap<V> {
 
     }
 
-    public V put(int key, V value) {
-        V res = put0(key, value, mask, keys, values);
+    public V putIfAbsent(int key, V value) {
+        return putVal(key, value, true);
+    }
+
+    private V putVal(int key, V value, boolean absent) {
+        V res = put0(key, value, mask, keys, values, absent);
         if (res == null) {
             grow();
             return null;
@@ -117,8 +121,12 @@ public final class IntMap<V> {
         return res;
     }
 
+    public V put(int key, V value) {
+        return putVal(key, value, false);
+    }
+
     private int scan(int[] keys, int index) {
-        for (int i = index, cnt = keys.length; i < cnt; i++) {
+        for (int i = index + 1, cnt = keys.length; i < cnt; i++) {
             if (keys[i] != -1) {
                 return i;
             }
@@ -127,7 +135,7 @@ public final class IntMap<V> {
     }
 
     public int next() {
-        int scanIndex = scan(keys, this.scanIndex + 1);
+        int scanIndex = scan(keys, this.scanIndex);
         if (scanIndex == cap) {
             return scanIndex;
         }
@@ -162,16 +170,21 @@ public final class IntMap<V> {
         return values[index];
     }
 
-    private V put0(int key, V value, int mask, int[] keys, V[] values) {
+    private V put0(int key, V value, int mask, int[] keys, V[] values, boolean absent) {
         int index = indexOfFreeKey(keys, key, mask);
         if (keys[index] == key) {
-            V old = values[index];
+            if (absent) {
+                return values[index];
+            } else {
+                V old = values[index];
+                values[index] = value;
+                return old;
+            }
+        } else {
+            keys[index] = key;
             values[index] = value;
-            return old;
+            return null;
         }
-        keys[index] = key;
-        values[index] = value;
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -188,7 +201,7 @@ public final class IntMap<V> {
             scan();
             for (; hasNext();) {
                 int index = next();
-                put0(indexKey(index), indexValue(index), mask, keys, values);
+                put0(indexKey(index), indexValue(index), mask, keys, values, false);
             }
             this.cap = cap;
             this.mask = mask;

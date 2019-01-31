@@ -109,7 +109,7 @@ public class TestHttpLoadServerTFB {
                     f.setContentType(HttpContentType.text_plain);
                     f.setStatus(HttpStatus.C404);
                 }
-                f.setDate(HttpDateUtil.getDate());
+                f.setDate(HttpDateUtil.getDateLine());
                 ch.writeAndFlush(f);
                 ch.release(f);
             }

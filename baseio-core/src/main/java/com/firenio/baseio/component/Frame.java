@@ -51,14 +51,7 @@ public abstract class Frame {
 
     public abstract int headerLength();
 
-    public boolean isBinary() {
-        return false;
-    }
-
-    public boolean isContinue() {
-        return false;
-    }
-
+    //is last or continue
     public boolean isLast() {
         return true;
     }
@@ -75,6 +68,7 @@ public abstract class Frame {
         return type == TYPE_SILENT;
     }
 
+    //is text or binary
     public boolean isText() {
         return true;
     }
@@ -159,6 +153,14 @@ public abstract class Frame {
 
     public void write(String text, Charset charset) {
         write(text.getBytes(charset));
+    }
+    
+    @Override
+    public String toString() {
+        if (isText()) {
+            return getStringContent();
+        }
+        return super.toString();
     }
 
 }

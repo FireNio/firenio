@@ -45,11 +45,11 @@ public class FixedLengthCodec extends ProtocolCodec {
 
     public static final IOException ILLEGAL_PROTOCOL = EXCEPTION("illegal protocol");
     public static final IOException OVER_LIMIT       = EXCEPTION("over limit");
-    private static final ByteBuf    PING;
-    private static final ByteBuf    PONG;
-    public static final int         PROTOCOL_HEADER  = 4;
-    public static final int         PROTOCOL_PING    = -1;
-    public static final int         PROTOCOL_PONG    = -2;
+    static final ByteBuf            PING;
+    static final ByteBuf            PONG;
+    static final int                PROTOCOL_HEADER  = 4;
+    static final int                PROTOCOL_PING    = -1;
+    static final int                PROTOCOL_PONG    = -2;
 
     static {
         PING = ByteBuf.heap(4);
@@ -105,11 +105,7 @@ public class FixedLengthCodec extends ProtocolCodec {
         if (frame.isTyped()) {
             return frame.isPing() ? PING.duplicate() : PONG.duplicate();
         }
-        FixedLengthFrame f = (FixedLengthFrame) frame;
-        ByteBuf buf = f.getBufContent().flip();
-        if (buf.limit() == PROTOCOL_HEADER) {
-            throw new IOException("null write buffer");
-        }
+        ByteBuf buf = frame.getBufContent().flip();
         buf.putInt(0, buf.limit() - PROTOCOL_HEADER);
         return buf;
     }

@@ -2,7 +2,7 @@
 # BaseIO Project
 
 [![Website](https://img.shields.io/badge/website-firenio-green.svg)](https://www.firenio.com)
-[![Maven central](https://img.shields.io/badge/maven-3.2.9.beta6-green.svg)](http://mvnrepository.com/artifact/com.firenio/baseio-all)
+[![Maven central](https://img.shields.io/badge/maven-3.2.9.beta7-green.svg)](http://mvnrepository.com/artifact/com.firenio/baseio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/firenio/baseio/blob/master/LICENSE.txt)
 
 BaseIO is an io framework which can build network project fast, it based on java nio, it is popular with Developers because of simple and easy of use APIs and high-performance.
@@ -28,7 +28,7 @@ BaseIO is an io framework which can build network project fast, it based on java
 	<dependency>
 		<groupId>com.firenio</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.2.9.beta6</version>
+		<version>3.2.9.beta7</version>
 	</dependency>  
   ```
   

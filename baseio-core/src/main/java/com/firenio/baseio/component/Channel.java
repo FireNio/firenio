@@ -67,11 +67,13 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     private ProtocolCodec                      codec;
     private final ChannelContext               context;
     private final long                         creationTime          = System.currentTimeMillis();
+    private final ByteBuf[]                    currentWriteBufs;
+    private int                                currentWriteBufsLen;
     private final String                       desc;
     private final boolean                      enableSsl;
     private final NioEventLoop                 eventLoop;
     private final EventLoop                    executorEventLoop;
-    private volatile boolean                   inEvent;
+    private boolean                            inEvent;
     private long                               lastAccess;
     private volatile boolean                   opened                = true;
     private ByteBuf                            plainRemainBuf;
@@ -81,9 +83,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     private byte                               sslWrapExt;
     private final ChannelUnsafe                unsafe;
     private final Queue<ByteBuf>               writeBufs;
-    private final ByteBuf[]                    currentWriteBufs;
-    private int                                currentWriteBufsLen;
-    private final int                          maxWriteBacklog;
 
     Channel(NioEventLoop el, ChannelContext ctx, ChannelUnsafe unsafe) {
         this.context = ctx;
@@ -91,7 +90,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         this.unsafe = unsafe;
         this.enableSsl = ctx.isEnableSsl();
         this.codec = ctx.getDefaultCodec();
-        this.maxWriteBacklog = ctx.getMaxWriteBacklog();
         this.executorEventLoop = ctx.getNextExecutorEventLoop();
         this.lastAccess = creationTime + el.getGroup().getIdleTime();
         this.writeBufs = new LinkedBlockingQueue<>();
@@ -106,62 +104,73 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         }
     }
 
-    protected void checkWriteOverflow() {
-        if (writeBufs.size() > maxWriteBacklog) {
-            close();
+    private void check_write_overflow() {
+        if (writeBufs.size() > context.getMaxWriteBacklog()) {
+            safeClose();
         }
     }
 
     private void accept(ByteBuf src) throws Exception {
         final ProtocolCodec codec = getCodec();
-        final IoEventHandle eventHandle = getIoEventHandle();
+        final IoEventHandle handle = getIoEventHandle();
         final boolean enableWorkEventLoop = getExecutorEventLoop() != null;
         for (;;) {
-            Frame frame = codec.decode(this, src);
-            if (frame == null) {
+            Frame f = codec.decode(this, src);
+            if (f == null) {
                 plainRemainBuf = sliceRemain(src);
                 break;
             }
-            if (frame.isTyped()) {
-                if (frame.isPing()) {
-                    context.getHeartBeatLogger().logPing(this);
-                    Frame f = codec.pong(this, frame);
-                    if (f != null) {
-                        writeAndFlush(f);
-                    }
-                } else if (frame.isPong()) {
-                    context.getHeartBeatLogger().logPong(this);
-                }
+            if (f.isTyped()) {
+                accept_typed(f);
             } else {
                 if (enableWorkEventLoop) {
-                    final Frame f = frame;
-                    final EventLoop executorEventLoop = getExecutorEventLoop();
-                    final Runnable job = new Runnable() {
-
-                        @Override
-                        public void run() {
-                            final Channel ch = Channel.this;
-                            try {
-                                ch.getIoEventHandle().accept(ch, f);
-                            } catch (Exception e) {
-                                ch.getIoEventHandle().exceptionCaught(ch, f, e);
-                            }
-                        }
-                    };
-                    if (!executorEventLoop.submit(job)) {
-                        exceptionCaught(frame, TAST_REJECT);
-                    }
+                    accept_async(f);
                 } else {
-                    try {
-                        eventHandle.accept(this, frame);
-                    } catch (Exception e) {
-                        exceptionCaught(frame, e);
-                    }
+                    accept_line(handle, f);
                 }
             }
             if (!src.hasRemaining()) {
                 break;
             }
+        }
+    }
+
+    private void accept_async(final Frame f) {
+        final EventLoop executorEventLoop = getExecutorEventLoop();
+        final Runnable job = new Runnable() {
+
+            @Override
+            public void run() {
+                final Channel ch = Channel.this;
+                try {
+                    ch.getIoEventHandle().accept(ch, f);
+                } catch (Exception e) {
+                    ch.getIoEventHandle().exceptionCaught(ch, f, e);
+                }
+            }
+        };
+        if (!executorEventLoop.submit(job)) {
+            exceptionCaught(f, TAST_REJECT);
+        }
+    }
+
+    private void accept_line(IoEventHandle handle, Frame frame) {
+        try {
+            handle.accept(this, frame);
+        } catch (Exception e) {
+            exceptionCaught(frame, e);
+        }
+    }
+
+    private void accept_typed(Frame f) throws Exception {
+        if (f.isPing()) {
+            context.getHeartBeatLogger().logPing(this);
+            Frame pong = codec.pong(this, f);
+            if (pong != null) {
+                writeAndFlush(pong);
+            }
+        } else if (f.isPong()) {
+            context.getHeartBeatLogger().logPong(this);
         }
     }
 
@@ -257,15 +266,12 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
 
     public void flush() {
         if (inEventLoop()) {
-            if (!inEvent && !unsafe.interestWrite()) {
+            if (!inEvent) {
                 inEvent = true;
                 eventLoop.getJobs().offer(this);
             }
         } else {
-            if (!inEvent) {
-                inEvent = true;
-                eventLoop.submit(this);
-            }
+            eventLoop.submit(this);
         }
     }
 
@@ -460,79 +466,90 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     }
 
     protected void read() throws Exception {
-        ByteBuf src = eventLoop.getReadBuf();
         lastAccess = System.currentTimeMillis();
         if (enableSsl) {
-            for (;;) {
-                src.clear();
-                readSslRemainingBuf(src);
-                int length = unsafe.read(eventLoop);
-                if (length < 1) {
-                    if (length == -1) {
-                        Util.close(this);
-                        return;
-                    }
-                    if (src.position() > 0) {
-                        src.flip();
-                        sslRemainBuf = sliceRemain(src);
-                    }
+            read_ssl();
+        } else {
+            read_plain();
+        }
+    }
+
+    private void read_plain() throws Exception {
+        ByteBuf src = eventLoop.getReadBuf();
+        for (;;) {
+            src.clear();
+            readPlainRemainingBuf(src);
+            int length = unsafe.read(eventLoop);
+            if (length < 1) {
+                if (length == -1) {
+                    Util.close(this);
                     return;
                 }
-                if (Native.EPOLL_AVAIABLE) {
-                    src.skip(length);
-                } else {
-                    src.reverse();
+                if (src.position() > 0) {
+                    src.flip();
+                    plainRemainBuf = sliceRemain(src);
                 }
+                return;
+            }
+            if (Native.EPOLL_AVAIABLE) {
+                src.absLimit(src.absPos() + length);
+                src.absPos(0);
+            } else {
+                src.reverse();
                 src.flip();
-                boolean b = src.absLimit() != src.capacity();
-                for (;;) {
-                    if (isEnoughSslUnwrap(src)) {
-                        ByteBuf res = unwrap(src);
-                        if (res != null) {
-                            accept(res);
-                        }
-                        src.resetL();
-                        if (!src.hasRemaining()) {
-                            break;
-                        }
-                    } else {
-                        if (src.hasRemaining()) {
-                            sslRemainBuf = sliceRemain(src);
-                        }
+            }
+            boolean b = src.absLimit() != src.capacity();
+            accept(src);
+            if (b) {
+                break;
+            }
+        }
+    }
+
+    private void read_ssl() throws Exception {
+        ByteBuf src = eventLoop.getReadBuf();
+        for (;;) {
+            src.clear();
+            readSslRemainingBuf(src);
+            int length = unsafe.read(eventLoop);
+            if (length < 1) {
+                if (length == -1) {
+                    Util.close(this);
+                    return;
+                }
+                if (src.position() > 0) {
+                    src.flip();
+                    sslRemainBuf = sliceRemain(src);
+                }
+                return;
+            }
+            if (Native.EPOLL_AVAIABLE) {
+                src.absLimit(src.absPos() + length);
+                src.absPos(0);
+            } else {
+                src.reverse();
+                src.flip();
+            }
+            boolean b = src.absLimit() != src.capacity();
+            for (;;) {
+                if (isEnoughSslUnwrap(src)) {
+                    ByteBuf res = unwrap(src);
+                    if (res != null) {
+                        accept(res);
+                    }
+                    src.resetL();
+                    if (!src.hasRemaining()) {
                         break;
                     }
-                }
-                if (b) {
+                } else {
+                    if (src.hasRemaining()) {
+                        sslRemainBuf = sliceRemain(src);
+                    }
                     break;
                 }
             }
-        } else {
-            for (;;) {
-                src.clear();
-                readPlainRemainingBuf(src);
-                int length = unsafe.read(eventLoop);
-                if (length < 1) {
-                    if (length == -1) {
-                        Util.close(this);
-                        return;
-                    }
-                    if (src.position() > 0) {
-                        src.flip();
-                        plainRemainBuf = sliceRemain(src);
-                    }
-                    return;
-                }
-                if (Native.EPOLL_AVAIABLE) {
-                    src.skip(length);
-                } else {
-                    src.reverse();
-                }
-                src.flip();
-                boolean b = src.absLimit() != src.capacity();
-                accept(src);
-                if (b) {
-                    break;
-                }
+            if (b) {
+                break;
             }
         }
     }
@@ -561,6 +578,21 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         codec.release(eventLoop, frame);
     }
 
+    private void releaseWriteBufArray() {
+        final ByteBuf[] cwbs = this.currentWriteBufs;
+        final int maxLen = cwbs.length;
+        // 这里有可能是因为异常关闭，currentWriteFrameLen不准确
+        // 对所有不为空的frame release
+        for (int i = 0; i < maxLen; i++) {
+            ByteBuf buf = cwbs[i];
+            if (buf == null) {
+                break;
+            }
+            buf.release();
+            cwbs[i] = null;
+        }
+    }
+
     private void releaseWriteBufQueue() {
         Queue<ByteBuf> wfs = this.writeBufs;
         if (!wfs.isEmpty()) {
@@ -572,11 +604,20 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         }
     }
 
+    private void removeChannel() {
+        Integer id = getChannelId();
+        context.getChannelManager().removeChannel(id);
+        eventLoop.removeChannel(id.intValue());
+    }
+
     @Override
     public void run() {
         if (isOpened()) {
             inEvent = false;
-            if (!unsafe.interestWrite()) {
+            if (unsafe.interestWrite()) {
+                // check write over flow
+                check_write_overflow();
+            } else {
                 if (write(eventLoop.getUnsafe()) == -1) {
                     safeClose();
                 }
@@ -607,12 +648,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
             fireClosed();
             stopContext();
         }
-    }
-
-    private void removeChannel() {
-        Integer id = getChannelId();
-        context.getChannelManager().removeChannel(id);
-        eventLoop.removeChannel(id.intValue());
     }
 
     public void setCodec(String codecId) throws IOException {
@@ -648,21 +683,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         ByteBuf out = allocator.allocate(buf.limit());
         out.put(buf);
         return out.flip();
-    }
-
-    private void releaseWriteBufArray() {
-        final ByteBuf[] cwbs = this.currentWriteBufs;
-        final int maxLen = cwbs.length;
-        // 这里有可能是因为异常关闭，currentWriteFrameLen不准确
-        // 对所有不为空的frame release
-        for (int i = 0; i < maxLen; i++) {
-            ByteBuf buf = cwbs[i];
-            if (buf == null) {
-                break;
-            }
-            buf.release();
-            cwbs[i] = null;
-        }
     }
 
     private void synchByteBuf(SSLEngineResult result, ByteBuf src, ByteBuf dst) {
@@ -813,10 +833,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         }
     }
 
-    protected int write(NioEventLoopUnsafe unsafe) {
-        return this.unsafe.write(unsafe, this);
-    }
-
     public void write(ByteBuf buf) {
         if (buf != null) {
             if (enableSsl) {
@@ -838,6 +854,10 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
 
     public void write(Frame frame) throws Exception {
         write(codec.encode(this, frame));
+    }
+
+    protected int write(NioEventLoopUnsafe unsafe) {
+        return this.unsafe.write(unsafe, this);
     }
 
     public void writeAndFlush(ByteBuf buf) {
@@ -866,14 +886,14 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
 
         abstract int getOption(int name) throws IOException;
 
+        abstract boolean interestWrite();
+
         abstract int read(NioEventLoop eventLoop);
 
         abstract void setOption(int name, int value) throws IOException;
 
         //1 complete, 0 keep write, -1 close
         abstract int write(NioEventLoopUnsafe unsafe, Channel ch);
-
-        abstract boolean interestWrite();
 
     }
 
@@ -916,19 +936,24 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         }
 
         @Override
+        int getOption(int name) throws IOException {
+            return Native.get_socket_opt(fd, (name >>> 16), name & 0xff);
+        }
+
+        @Override
+        boolean interestWrite() {
+            return interestWrite;
+        }
+
+        @Override
         int read(NioEventLoop eventLoop) {
             ByteBuf buf = eventLoop.getReadBuf();
             return Native.read(fd, eventLoop.getBufAddress() + buf.absPos(), buf.remaining());
         }
 
         @Override
-        int getOption(int name) throws IOException {
-            return Native.get_socket_opt(fd, (name >> 16), name & 0xff);
-        }
-
-        @Override
         void setOption(int name, int value) throws IOException {
-            Native.set_socket_opt(fd, (name >> 16), name & 0xff, value);
+            Native.set_socket_opt(fd, (name >>> 16), name & 0xff, value);
         }
 
         @Override
@@ -995,7 +1020,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
                             fillNull(cw_bufs, remain, cw_len);
                             interestWrite = true;
                             ch.currentWriteBufsLen = remain;
-                            ch.checkWriteOverflow();
                             return 0;
                         } else {
                             len -= r;
@@ -1010,11 +1034,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
                     }
                 }
             }
-        }
-
-        @Override
-        boolean interestWrite() {
-            return interestWrite;
         }
 
     }
@@ -1051,13 +1070,27 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         }
 
         private final SocketChannel channel;
-        private final SelectionKey  key;
         private boolean             interestWrite;
+        private final SelectionKey  key;
 
         JavaChannelUnsafe(SelectionKey key, String ra, int lp, int rp, Integer chid) {
             super(ra, lp, rp, chid);
             this.key = key;
             this.channel = (SocketChannel) key.channel();
+        }
+
+        private void _interestRead() {
+            if (interestWrite) {
+                interestWrite = false;
+                key.interestOps(SelectionKey.OP_READ);
+            }
+        }
+
+        private void _interestWrite() {
+            if (!interestWrite) {
+                interestWrite = true;
+                key.interestOps(INTEREST_WRITE);
+            }
         }
 
         @Override
@@ -1081,32 +1114,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
                 }
             }
             return -1;
-        }
-
-        @Override
-        void setOption(int name, int value) throws IOException {
-            SocketOption<Object> s = SocketOptions.getSocketOption(name);
-            if (s != null) {
-                if (SocketOptions.isParamBoolean(name)) {
-                    channel.setOption(s, value != 0);
-                } else {
-                    channel.setOption(s, value);
-                }
-            }
-        }
-
-        private void _interestRead() {
-            if (interestWrite) {
-                interestWrite = false;
-                key.interestOps(SelectionKey.OP_READ);
-            }
-        }
-
-        private void _interestWrite() {
-            if (!interestWrite) {
-                interestWrite = true;
-                key.interestOps(INTEREST_WRITE);
-            }
         }
 
         @Override
@@ -1136,6 +1143,18 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
                 return channel.read(eventLoop.getReadBuf().nioBuffer());
             } catch (IOException e) {
                 return -1;
+            }
+        }
+
+        @Override
+        void setOption(int name, int value) throws IOException {
+            SocketOption<Object> s = SocketOptions.getSocketOption(name);
+            if (s != null) {
+                if (SocketOptions.isParamBoolean(name)) {
+                    channel.setOption(s, value != 0);
+                } else {
+                    channel.setOption(s, value);
+                }
             }
         }
 
@@ -1199,7 +1218,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
                             fillNull(writeBuffers, i, cwLen);
                             _interestWrite();
                             ch.currentWriteBufsLen = remain;
-                            ch.checkWriteOverflow();
                             return 0;
                         } else {
                             writeBuffers[i] = null;
@@ -1232,13 +1250,13 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
 
     }
 
+    private static ClosedChannelException CLOSED_WHEN_FLUSH() {
+        return Util.unknownStackTrace(new ClosedChannelException(), Channel.class, "flush(...)");
+    }
+
     private static void fillNull(Object[] a, int fromIndex, int toIndex) {
         for (int i = fromIndex; i < toIndex; i++)
             a[i] = null;
-    }
-
-    private static ClosedChannelException CLOSED_WHEN_FLUSH() {
-        return Util.unknownStackTrace(new ClosedChannelException(), Channel.class, "flush(...)");
     }
 
     private static Logger newLogger() {

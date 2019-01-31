@@ -359,8 +359,7 @@ public class Cookie implements Cloneable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        CookieUtil.appendCookieValue(sb, getVersion(), getName(), getValue(), getPath(),
-                getDomain(), getComment(), getMaxAge(), getSecure());
+        CookieUtil.appendCookieValue(sb, this);
         return sb.toString();
     }
 }

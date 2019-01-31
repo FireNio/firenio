@@ -24,6 +24,7 @@ PRGDIR=`dirname "$PRG"`
 java -XX:+PrintGCDetails -Xloggc:gc.log -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=6666,suspend=n \
      -cp $CLASSPATH \
      -Dboot.mode=prod \
+     -Dboot.libPath=/app/lib \
      -Dcom.generallycloud.baseio.develop.debug=true \
      -Dboot.class=sample.baseio.http11.startup.TestHttpBootstrapEngine \
      com.firenio.baseio.container.Bootstrap

@@ -20,6 +20,7 @@ import java.text.FieldPosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class CookieUtil {
@@ -46,6 +47,11 @@ public class CookieUtil {
             return false;
         }
         return (value.charAt(0) == '\"' && value.charAt(value.length() - 1) == '\"');
+    }
+
+    public static void appendCookieValue(StringBuilder headerBuf, Cookie c) {
+        appendCookieValue(headerBuf, c.getVersion(), c.getName(), c.getValue(), c.getPath(),
+                c.getDomain(), c.getComment(), c.getMaxAge(), c.getSecure());
     }
 
     // TODO RFC2965 fields also need to be passed
@@ -236,4 +242,9 @@ public class CookieUtil {
         }
         return version;
     }
+    
+    public static void parseCookies(Map<String, String> cookies, String line) {
+        HttpCodec.parse_kv(cookies, line, 0, line.length(), '=', ';');
+    }
+    
 }
