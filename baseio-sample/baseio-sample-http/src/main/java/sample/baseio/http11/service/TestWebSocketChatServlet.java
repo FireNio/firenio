@@ -25,10 +25,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.firenio.baseio.codec.http11.HttpFrame;
 import com.firenio.baseio.codec.http11.WebSocketFrame;
 import com.firenio.baseio.common.Util;
-import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.Channel;
+import com.firenio.baseio.component.Frame;
 
 import sample.baseio.http11.HttpFrameAcceptor;
+import sample.baseio.http11.service.WebSocketMsgAdapter.Client;
 
 //FIXME ________根据当前是否正在redeploy来保存和恢复client
 @Service("/web-socket-chat")
@@ -45,29 +46,53 @@ public class TestWebSocketChatServlet extends HttpFrameAcceptor {
         WebSocketFrame f = (WebSocketFrame) frame;
         // CLOSE
         if (f.isCloseFrame()) {
-            if (msgAdapter.removeClient(ch)) {
+            Client client = msgAdapter.removeClient(ch); 
+            if (client != null) {
                 JSONObject obj = new JSONObject();
-                obj.put("username", ch.getAttribute("username"));
+                obj.put("username", client.getUsername());
                 obj.put("numUsers", msgAdapter.getClientSize());
                 obj.put("action", "user-left");
                 String msg1 = obj.toJSONString();
                 msgAdapter.sendMsg(msg1);
             }
-            if (ch.isOpened()) {
+            if (ch.isOpen()) {
                 ch.writeAndFlush(f);
             }
         } else {
             String msg = f.getStringContent();
             JSONObject obj = JSON.parseObject(msg);
             String action = obj.getString("action");
+            if ("add-user".equals(action)) {
+                String username = obj.getString("username");
+                if (Util.isNullOrBlank(username)) {
+                    return;
+                }
+                msgAdapter.addClient(username, ch);
+                obj.put("numUsers", msgAdapter.getClientSize());
+                obj.put("action", "login");
+                msgAdapter.sendMsg(ch, obj.toJSONString());
+                obj.put("username", username);
+                obj.put("action", "user-joined");
+                msgAdapter.sendMsg(obj.toJSONString());
+                obj.put("action", "new-message");
+                obj.put("username", "系统消息");
+                obj.put("message", "欢迎加入QQ群讨论java io相关技术：540637859，@某人可以单独向他发送消息。");
+                msgAdapter.sendMsg(ch, obj.toJSONString());
+                return;
+            }
+            Client client = msgAdapter.getClient(ch.getChannelId());
+            if (client == null) {
+                return;
+            }
+            String username = client.getUsername();
             if ("new-message".equals(action)) {
-                String owner = (String) ch.getAttribute("username");
+                String owner = username;
                 String message = obj.getString("message");
                 if (message.charAt(0) == '@') {
                     int nIndex = message.indexOf(' ');
                     if (nIndex > 1) {
-                        String username = message.substring(1, nIndex);
-                        Channel s = msgAdapter.getChannel(username);
+                        String to_username = message.substring(1, nIndex);
+                        Channel s = msgAdapter.getChannel(to_username);
                         if (s == null) {
                             obj.put("message", "用户不存在或者已离线");
                             obj.put("username", owner);
@@ -85,38 +110,17 @@ public class TestWebSocketChatServlet extends HttpFrameAcceptor {
                 obj.put("username", owner);
                 String msg1 = obj.toJSONString();
                 msgAdapter.sendMsg(msg1);
-            } else if ("add-user".equals(action)) {
-                String username = (String) ch.getAttribute("username");
-                if (username != null) {
-                    return;
-                }
-                username = obj.getString("username");
-                if (Util.isNullOrBlank(username)) {
-                    return;
-                }
-                msgAdapter.addClient(username, ch);
-                ch.setAttribute("username", username);
-                obj.put("numUsers", msgAdapter.getClientSize());
-                obj.put("action", "login");
-                msgAdapter.sendMsg(ch, obj.toJSONString());
+            }  else if ("typing".equals(action)) {
                 obj.put("username", username);
-                obj.put("action", "user-joined");
-                msgAdapter.sendMsg(obj.toJSONString());
-                obj.put("action", "new-message");
-                obj.put("username", "系统消息");
-                obj.put("message", "欢迎加入QQ群讨论java io相关技术：540637859，@某人可以单独向他发送消息。");
-                msgAdapter.sendMsg(ch, obj.toJSONString());
-            } else if ("typing".equals(action)) {
-                obj.put("username", ch.getAttribute("username"));
                 String msg1 = obj.toJSONString();
                 msgAdapter.sendMsg(msg1);
             } else if ("stop-typing".equals(action)) {
-                obj.put("username", ch.getAttribute("username"));
+                obj.put("username", username);
                 String msg1 = obj.toJSONString();
                 msgAdapter.sendMsg(msg1);
             } else if ("disconnect".equals(action)) {
                 msgAdapter.removeClient(ch);
-                obj.put("username", ch.getAttribute("username"));
+                obj.put("username", username);
                 obj.put("numUsers", msgAdapter.getClientSize());
                 obj.put("action", "user-left");
                 String msg1 = obj.toJSONString();

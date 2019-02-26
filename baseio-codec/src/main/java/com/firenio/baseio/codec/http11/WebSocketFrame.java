@@ -37,7 +37,7 @@ public class WebSocketFrame extends Frame {
     }
 
     public String getFrameName(Channel ch) {
-        return (String) ch.getAttribute(WebSocketCodec.CH_KEY_FRAME_NAME);
+        return ((HttpAttr)ch.getAttachment()).getWebsocketFrameName();
     }
 
     public int getType() {

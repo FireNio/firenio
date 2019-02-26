@@ -189,7 +189,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
     public boolean isConnected() {
         Channel ch = this.ch;
-        return ch != null && ch.isOpened();
+        return ch != null && ch.isOpen();
     }
 
     @Override

@@ -53,7 +53,6 @@ import com.firenio.baseio.component.ProtocolCodec;
 */
 public class WebSocketCodec extends ProtocolCodec {
 
-    public static final String      CH_KEY_FRAME_NAME  = "CH_KEY_FRAME_NAME";
     public static final String      FRAME_STACK_KEY    = "FRAME_WS_STACK_KEY";
     public static final int         HEADER_LENGTH      = 2;
     public static final int         MAX_HEADER_LENGTH  = 10;

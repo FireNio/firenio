@@ -100,7 +100,7 @@ public abstract class EventLoop extends LifeCycle implements Runnable {
         return !(!isRunning() && jobs.remove(job));
     }
 
-    class DefaultEventLoopGroup extends EventLoopGroup {
+    static class DefaultEventLoopGroup extends EventLoopGroup {
 
         private EventLoop eventLoop;
 

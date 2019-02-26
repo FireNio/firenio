@@ -19,8 +19,6 @@ import com.firenio.baseio.component.Channel;
 
 public class Http2Session {
 
-    private static final String http2SessionChannelKey = "Http2SessionChannelKey";
-
     private Channel             ch;
 
     private Http2Headers        http2Headers           = new Http2HeadersImpl();
@@ -63,18 +61,7 @@ public class Http2Session {
     }
 
     public static Http2Session getHttp2Session(Channel ch) {
-        Http2Session session = (Http2Session) ch.getAttribute(http2SessionChannelKey);
-        if (session == null) {
-            synchronized (ch.attributes()) {
-                session = (Http2Session) ch.getAttribute(http2SessionChannelKey);
-                if (session != null) {
-                    return session;
-                }
-                session = new Http2Session();
-                ch.setAttribute(http2SessionChannelKey, session);
-            }
-        }
-        return session;
+        return (Http2Session) ch.getAttachment();
     }
 
 }

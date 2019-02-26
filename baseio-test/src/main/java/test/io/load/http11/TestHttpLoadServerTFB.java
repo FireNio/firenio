@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import com.firenio.baseio.Options;
+import com.firenio.baseio.codec.http11.HttpAttrListener;
 import com.firenio.baseio.codec.http11.HttpCodec;
 import com.firenio.baseio.codec.http11.HttpConnection;
 import com.firenio.baseio.codec.http11.HttpContentType;
@@ -67,6 +68,7 @@ public class TestHttpLoadServerTFB {
         boolean read = Util.getBooleanProperty("read");
         boolean pool = true;
         boolean direct = true;
+        boolean inline = true;
         int core = Util.getIntProperty("core", 1);
         int frame = Util.getIntProperty("frame", 16);
         int level = Util.getIntProperty("level", 1);
@@ -115,20 +117,26 @@ public class TestHttpLoadServerTFB {
             }
 
         };
-
-        ProtocolCodec codec = new HttpCodec("baseio", 1024 * 16, lite);
+        
+        int fcache = 1024 * 16;
+        int pool_cap = 1024 * 128;
+        int pool_unit = 256;
+        if (inline) {
+            pool_cap = 1024 * 8;
+            pool_unit = 256 * 16;
+        }
+        ProtocolCodec codec = new HttpCodec("baseio", fcache, lite, inline);
         NioEventLoopGroup group = new NioEventLoopGroup();
-        group.setMemoryPoolCapacity(1024 * 128);
+        ChannelAcceptor context = new ChannelAcceptor(group, 8080);
+        group.setMemoryPoolCapacity(pool_cap);
         group.setEnableMemoryPoolDirect(direct);
         group.setEnableMemoryPool(pool);
-        group.setMemoryPoolUnit(256);
+        group.setMemoryPoolUnit(pool_unit);
         group.setWriteBuffers(32);
         group.setEventLoopSize(Util.availableProcessors() * core);
         group.setConcurrentFrameStack(false);
-        ChannelAcceptor context = new ChannelAcceptor(group, 8080);
         context.addProtocolCodec(codec);
-        //        context.addChannelIdleEventListener(new ChannelAliveListener());
-        //        context.addChannelEventListener(new LoggerChannelOpenListener());
+        context.addChannelEventListener(new HttpAttrListener());
         context.addChannelEventListener(new ChannelEventListenerAdapter() {
 
             @Override

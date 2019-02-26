@@ -38,7 +38,6 @@ public class RedisCodec extends ProtocolCodec {
     public static final String  CMD_PING               = "PING";
     public static final String  CMD_PONG               = "PONG";
     public static final byte[]  CRLF_BYTES             = "\r\n".getBytes();
-    private static final String REDIS_DECODE_FRAME_KEY = "_REDIS_DECODE_FRAME_KEY";
     public static final char    TYPE_ARRAYS            = '*';
     public static final char    TYPE_BULK_STRINGS      = '$';
     public static final char    TYPE_ERRORS            = '-';
@@ -49,7 +48,7 @@ public class RedisCodec extends ProtocolCodec {
 
     @Override
     public Frame decode(Channel ch, ByteBuf src) throws IOException {
-        RedisFrame f = (RedisFrame) ch.getAttribute(REDIS_DECODE_FRAME_KEY);
+        RedisFrame f = (RedisFrame) ch.getAttachment();
         if (f == null) {
             f = new RedisFrame();
         }
@@ -122,12 +121,12 @@ public class RedisCodec extends ProtocolCodec {
                 currentLine.append((char) b);
             }
         }
-        ch.setAttribute(REDIS_DECODE_FRAME_KEY, f);
+        ch.setAttachment(f);
         return null;
     }
 
     private void doComplete(Channel ch, RedisFrame f) {
-        ch.removeAttribute(REDIS_DECODE_FRAME_KEY);
+        ch.setAttachment(null);
         //FIXME redis的心跳有些特殊
         //      if (rootNode.getType() == TYPE_SIMPLE_STRINGS) {
         //          

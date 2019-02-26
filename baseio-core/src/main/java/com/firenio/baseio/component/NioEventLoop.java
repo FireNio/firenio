@@ -90,7 +90,6 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     private final AtomicInteger           selecting          = new AtomicInteger();
     private final boolean                 sharable;
     private final NioEventLoopUnsafe      unsafe;
-    private final AtomicInteger           wakener            = new AtomicInteger();
     private final long                    bufAddress;
     private final boolean                 acceptor;
 
@@ -145,15 +144,16 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                 if (ls.size() == 1) {
                     channelIdle(ls.get(0), ch, lastIdleTime, currentTime);
                 } else {
-                    for (ChannelIdleListener l : ls) {
-                        channelIdle(l, ch, lastIdleTime, currentTime);
+                    for (int i = 0; i < ls.size(); i++) {
+                        channelIdle(ls.get(i), ch, lastIdleTime, currentTime);
                     }
                 }
             }
         } else {
             ChannelContext context = group.getContext();
             List<ChannelIdleListener> ls = context.getChannelIdleEventListeners();
-            for (ChannelIdleListener l : ls) {
+            for (int i = 0; i < ls.size(); i++) {
+                ChannelIdleListener l = ls.get(i);
                 for (channels.scan(); channels.hasNext();) {
                     Channel ch = channels.nextValue();
                     channelIdle(l, ch, lastIdleTime, currentTime);
@@ -192,8 +192,8 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     }
 
     @SuppressWarnings("unchecked")
-    public Stack<Frame> getFrameCache(String key, int max) {
-        Stack<Frame> cache = (Stack<Frame>) getAttribute(key);
+    private Stack<Object> getCache0(String key, int max) {
+        Stack<Object> cache = (Stack<Object>) getAttribute(key);
         if (cache == null) {
             if (group.isConcurrentFrameStack()) {
                 cache = new LinkedBQStack<>(max);
@@ -205,8 +205,8 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         return cache;
     }
 
-    public Frame getFrameFromCache(String key, int max) {
-        return getFrameCache(key, max).pop();
+    public Object getCache(String key, int max) {
+        return getCache0(key, max).pop();
     }
 
     @Override
@@ -232,10 +232,10 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     }
 
     @SuppressWarnings("unchecked")
-    public void releaseFrame(String key, Frame frame) {
-        Stack<Frame> buffer = (Stack<Frame>) getAttribute(key);
+    public void release(String key, Object obj) {
+        Stack<Object> buffer = (Stack<Object>) getAttribute(key);
         if (buffer != null) {
-            buffer.push(frame);
+            buffer.push(obj);
         }
     }
 
@@ -282,6 +282,16 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         Util.close(unsafe);
         Util.release(buf);
     }
+    
+    private boolean has_task(){
+        return USE_HAS_TASK ? hasTask : !events.isEmpty();
+    }
+    
+    private void clear_has_task(){
+        if (USE_HAS_TASK) {
+            hasTask = false;
+        }
+    }
 
     @Override
     public void run() {
@@ -309,30 +319,17 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                 // example method selector.select(...) may throw an io exception 
                 // and if we need to try with the method to do something when exception caught?
                 int selected;
-                if (USE_HAS_TASK) {
-                    if (!hasTask && selecting.compareAndSet(0, 1)) {
-                        if (events.isEmpty()) {
-                            selected = unsafe.select(selectTime);
-                        } else {
-                            selected = unsafe.selectNow();
-                        }
-                        selecting.set(0);
-                    } else {
+                if (!has_task() && selecting.compareAndSet(0, 1)) {
+                    if (has_task()) {
                         selected = unsafe.selectNow();
+                    }else{
+                        selected = unsafe.select(selectTime);
                     }
-                    hasTask = false;
+                    selecting.set(0);
                 } else {
-                    if (events.isEmpty() && selecting.compareAndSet(0, 1)) {
-                        if (events.isEmpty()) {
-                            selected = unsafe.select(selectTime);
-                        } else {
-                            selected = unsafe.selectNow();
-                        }
-                        selecting.set(0);
-                    } else {
-                        selected = unsafe.selectNow();
-                    }
+                    selected = unsafe.selectNow();
                 }
+                clear_has_task();
                 if (selected > 0) {
                     unsafe.accept(selected);
                 }
@@ -392,8 +389,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
 
     public boolean schedule(final DelayTask task) {
         if (inEventLoop()) {
-            delayedQueue.offer(task);
-            return true;
+            return delayedQueue.offer(task);
         } else {
             return submit(new Runnable() {
 
@@ -426,7 +422,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     // 执行stop的时候如果确保不会再有数据进来
     @Override
     public void wakeup() {
-        if (!inEventLoop() && wakener.compareAndSet(0, 1)) {
+        if (!inEventLoop()) {
             if (USE_HAS_TASK) {
                 hasTask = true;
             }
@@ -435,7 +431,6 @@ public final class NioEventLoop extends EventLoop implements Attributes {
             } else {
                 unsafe.wakeup();
             }
-            wakener.set(0);
         }
     }
 
@@ -467,6 +462,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         @Override
         void accept(int size) {
             final int epfd = this.epfd;
+            final long data = this.data;
             final int eventfd = this.eventfd;
             final NioEventLoop el = this.eventLoop;
             final long ep_events = this.ep_events;
@@ -487,10 +483,9 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         }
 
         private void accept(long data, int epfd, int fd) {
-            final long cbuf = data;
             final ChannelAcceptor ctx = (ChannelAcceptor) ctxs.get(fd);
             final int listenfd = ((EpollAcceptorUnsafe) ctx.getUnsafe()).listenfd;
-            final int cfd = Native.accept(epfd, listenfd, cbuf);
+            final int cfd = Native.accept(epfd, listenfd, data);
             if (cfd == -1) {
                 return;
             }
@@ -498,15 +493,15 @@ public final class NioEventLoop extends EventLoop implements Attributes {
             final NioEventLoop targetEL = group.getNext();
             //10, 0, -7, -30, 0, 0, 0, 0, -2, -128, 0, 0, 0, 0, 0, 0, 80, 1, -107, 55, -55, 36, -124, -125, 2, 0, 0, 0,
             //10, 0, -4,  47, 0, 0, 0, 0,  0,       0, 0, 0, 0, 0, 0, 0,  0,  0,     -1, -1, -64, -88, -123,     1, 0, 0, 0, 0,
-            int rp = (Unsafe.getByte(cbuf + 2) & 0xff) << 8;
-            rp |= (Unsafe.getByte(cbuf + 3) & 0xff);
+            int rp = (Unsafe.getByte(data + 2) & 0xff) << 8;
+            rp |= (Unsafe.getByte(data + 3) & 0xff);
             String ra;
-            if (Unsafe.getShort(cbuf + 18) == -1 && Unsafe.getByte(cbuf + 24) == 0) {
+            if (Unsafe.getShort(data + 18) == -1 && Unsafe.getByte(data + 24) == 0) {
                 //IPv4
-                ra = decodeIPv4(cbuf + 20);
+                ra = decodeIPv4(data + 20);
             } else {
                 //IPv6
-                ra = decodeIPv6(cbuf + 8);
+                ra = decodeIPv6(data + 8);
             }
             final int _lp = ctx.getPort();
             final int _rp = rp;
@@ -523,7 +518,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         private void accept(NioEventLoop el, int fd, int e) {
             Channel ch = el.getChannel(fd);
             if (ch != null) {
-                if (ch.isClosed()) {
+                if (!ch.isOpen()) {
                     return;
                 }
                 if ((e & Native.close_event()) != 0) {
@@ -566,8 +561,8 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                 accept_connect(el, fd, e);
             }
         }
-        
-        private void accept_connect(NioEventLoop el, int fd, int e){
+
+        private void accept_connect(NioEventLoop el, int fd, int e) {
             ChannelConnector ctx = (ChannelConnector) ctxs.remove(fd);
             if ((e & Native.close_event()) != 0 || !Native.finish_connect(fd)) {
                 ctx.channelEstablish(null, NOT_FINISH_CONNECT);
@@ -634,12 +629,12 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         }
 
         @Override
-        int select(long timeout) throws IOException {
+        int select(long timeout) {
             return Native.epoll_wait(epfd, ep_events, ep_size, timeout);
         }
 
         @Override
-        int selectNow() throws IOException {
+        int selectNow() {
             return Native.epoll_wait(epfd, ep_events, ep_size, 0);
         }
 
@@ -855,13 +850,23 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         }
 
         @Override
-        int select(long timeout) throws IOException {
-            return selector.select(timeout);
+        int select(long timeout)  {
+            try {
+                return selector.select(timeout);
+            } catch (IOException e) {
+                printException(logger, e, 1);
+                return 0;
+            }
         }
 
         @Override
-        int selectNow() throws IOException {
-            return selector.selectNow();
+        int selectNow()  {
+            try {
+                return selector.selectNow();
+            } catch (IOException e) {
+                printException(logger, e, 1);
+                return 0;
+            }
         }
 
         @Override
@@ -935,9 +940,9 @@ public final class NioEventLoop extends EventLoop implements Attributes {
 
         abstract void accept(int size);
 
-        abstract int select(long timeout) throws IOException;
+        abstract int select(long timeout);
 
-        abstract int selectNow() throws IOException;
+        abstract int selectNow();
 
         abstract void wakeup();
 

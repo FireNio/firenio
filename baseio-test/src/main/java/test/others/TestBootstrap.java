@@ -34,12 +34,13 @@ public class TestBootstrap implements BootstrapEngine {
         logger.info("runtime mode {}............", mode);
         logger.info("this class loader: {}", getClass().getClassLoader());
         logger.info("logger class loader: {}", logger.getClass().getClassLoader());
+        logger.info("TestBootstrap class loader: {}", TestBootstrap.class.getClassLoader());
         logger.info("startup end ............");
     }
 
     public static void main(String[] args) throws Exception {
-
-        Bootstrap.startup(TestBootstrap.class.getName());
+        System.setProperty(Bootstrap.BOOT_MODE, "prod");
+        Bootstrap.startup("test.others.TestBootstrap", "/");
     }
 
 }

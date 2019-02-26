@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.firenio.baseio.buffer.ByteBuf;
-import com.firenio.baseio.collection.Attributes;
 import com.firenio.baseio.collection.AttributesImpl;
 import com.firenio.baseio.common.Util;
 
@@ -34,7 +33,7 @@ import com.firenio.baseio.common.Util;
  * @author wangkai
  *
  */
-public final class FastThreadLocal extends AttributesImpl implements Attributes {
+public final class FastThreadLocal extends AttributesImpl {
 
     private static final AtomicInteger                indexedVarsIndex   = new AtomicInteger(0);
     private static final int                          maxIndexedVarsSize = 32;

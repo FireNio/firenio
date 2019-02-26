@@ -49,18 +49,18 @@ public class HttpCodec extends ProtocolCodec {
     static final int         encode_bytes_arrays_index = nextIndexedVariablesIndex();
     static final int         content_len_index         = nextIndexedVariablesIndex();
     static final String      FRAME_CACHE_KEY           = "_HTTP_FRAME_CACHE_KEY";
-    static final String      FRAME_DECODE_KEY          = "_HTTP_FRAME_DECODE_KEY";
     static final KMPUtil     KMP_BOUNDARY              = new KMPUtil("boundary=");
     static final byte        N                         = '\n';
     static final IOException OVER_LIMIT                = EXCEPTION("over limit");
     static final byte        R                         = '\r';
     static final byte        SPACE                     = ' ';
 
-    private final int        bodyLimit;
+    private final int        blimit;
     private final byte[][]   CONTENT_LENGTHS           = new byte[1024][];
-    private final int        headerLimit;
-    private final int        frameCache;
+    private final int        hlimit;
+    private final int        fcache;
     private final boolean    lite;
+    private final boolean    inline;
     private final ByteBuffer contentLenBuf;
 
     public HttpCodec() {
@@ -76,18 +76,20 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     public HttpCodec(String server, int frameCache) {
-        this(server, frameCache, false);
+        this(server, frameCache, false, false);
     }
 
-    public HttpCodec(String server, int frameCache, boolean lite) {
-        this(server, frameCache, 1024 * 8, 1024 * 256, lite);
+    public HttpCodec(String server, int frameCache, boolean lite, boolean inline) {
+        this(server, frameCache, 1024 * 8, 1024 * 256, lite, inline);
     }
 
-    public HttpCodec(String server, int frameCache, int headerLimit, int bodyLimit, boolean lite) {
+    public HttpCodec(String server, int fcache, int hlimit, int blimit, boolean lite,
+            boolean inline) {
         this.lite = lite;
-        this.headerLimit = headerLimit;
-        this.bodyLimit = bodyLimit;
-        this.frameCache = frameCache;
+        this.inline = inline;
+        this.hlimit = hlimit;
+        this.blimit = blimit;
+        this.fcache = fcache;
         ByteBuffer temp = ByteBuffer.allocate(128);
         if (server == null) {
             temp.put(b("\r\nContent-Length: "));
@@ -111,8 +113,8 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     private HttpFrame allocFrame(NioEventLoop el) {
-        if (frameCache > 0) {
-            Frame res = el.getFrameFromCache(FRAME_CACHE_KEY, frameCache);
+        if (fcache > 0) {
+            Frame res = (Frame) el.getCache(FRAME_CACHE_KEY, fcache);
             if (res == null) {
                 return newFrame();
             } else {
@@ -157,7 +159,7 @@ public class HttpCodec extends ProtocolCodec {
         if (decode_state == decode_state_header) {
             for (;;) {
                 int ps = src.absPos();
-                int pe = read_line_range(src, f.getHeaderLength(), headerLimit);
+                int pe = read_line_range(src, f.getHeaderLength(), hlimit);
                 if (pe == -1) {
                     break;
                 }
@@ -167,7 +169,7 @@ public class HttpCodec extends ProtocolCodec {
                     if (f.getContentLength() < 1) {
                         decode_state = decode_state_complate;
                     } else {
-                        if (f.getContentLength() > bodyLimit) {
+                        if (f.getContentLength() > blimit) {
                             throw OVER_LIMIT;
                         }
                         decode_state = decode_state_body;
@@ -198,7 +200,7 @@ public class HttpCodec extends ProtocolCodec {
         int decode_state = f.getDecodeState();
         StringBuilder line = FastThreadLocal.get().getStringBuilder();
         if (decode_state == decode_state_line_one) {
-            if (read_line(line, src, 0, headerLimit)) {
+            if (read_line(line, src, 0, hlimit)) {
                 f.incrementHeaderLength(line.length());
                 decode_state = decode_state_header;
                 parse_line_one(f, line);
@@ -207,7 +209,7 @@ public class HttpCodec extends ProtocolCodec {
         if (decode_state == decode_state_header) {
             for (;;) {
                 line.setLength(0);
-                if (!read_line(line, src, f.getHeaderLength(), headerLimit)) {
+                if (!read_line(line, src, f.getHeaderLength(), hlimit)) {
                     break;
                 }
                 f.incrementHeaderLength(line.length());
@@ -232,7 +234,8 @@ public class HttpCodec extends ProtocolCodec {
     @Override
     public Frame decode(Channel ch, ByteBuf src) throws Exception {
         boolean remove = false;
-        HttpFrame f = (HttpFrame) ch.getAttribute(FRAME_DECODE_KEY);
+        HttpAttr attr = (HttpAttr) ch.getAttachment();
+        HttpFrame f = attr.getUncompleteFrame();
         if (f == null) {
             f = allocFrame(ch.getEventLoop());
         } else {
@@ -249,12 +252,12 @@ public class HttpCodec extends ProtocolCodec {
         }
         if (decode_state == decode_state_complate) {
             if (remove) {
-                ch.removeAttribute(FRAME_DECODE_KEY);
+                attr.setUncompleteFrame(null);
             }
             return f;
         } else {
             f.setDecodeState(decode_state);
-            ch.setAttribute(FRAME_DECODE_KEY, f);
+            attr.setUncompleteFrame(f);
             return null;
         }
     }
@@ -291,8 +294,10 @@ public class HttpCodec extends ProtocolCodec {
 
     @Override
     public ByteBuf encode(final Channel ch, Frame frame) throws IOException {
+        boolean inline = this.inline;
         HttpFrame f = (HttpFrame) frame;
         FastThreadLocal l = FastThreadLocal.get();
+        HttpAttr attr = (HttpAttr) ch.getAttachment();
         List<byte[]> encode_bytes_array = getEncodeBytesArray(l);
         Object content = f.getContent();
         ByteBuf contentBuf = null;
@@ -348,10 +353,23 @@ public class HttpCodec extends ProtocolCodec {
             len += write_size;
         }
         ByteBuf buf;
-        if (Develop.BUF_DEBUG) {
-            buf = ch.allocate();
+        boolean offer = true;
+        if (inline) {
+            buf = attr.getLastWriteBuf();
+            if (buf.isReleased() || buf.capacity() - buf.limit() < len) {
+                buf = ch.alloc().allocate(len);
+                attr.setLastWriteBuf(buf);
+            } else {
+                offer = false;
+                buf.absPos(buf.absLimit());
+                buf.limit(buf.capacity());
+            }
         } else {
-            buf = ch.alloc().allocate(len);
+            if (Develop.BUF_DEBUG) {
+                buf = ch.allocate();
+            } else {
+                buf = ch.alloc().allocate(len);
+            }
         }
         buf.put(head_bytes);
         buf.put(cl_len_bytes, 0, cl_len);
@@ -375,12 +393,16 @@ public class HttpCodec extends ProtocolCodec {
             if (isArray) {
                 buf.put(contentArray);
             } else {
+                if (inline) {
+                    attr.setLastWriteBuf(ByteBuf.empty());
+                }
                 ch.write(buf.flip());
                 ch.write(contentBuf);
                 return null;
             }
         }
-        return buf.flip();
+        buf.flip();
+        return offer ? buf : null;
     }
 
     private void putHeaders(ByteBuf buf, List<byte[]> encode_bytes_array, int header_size) {
@@ -396,15 +418,15 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     public int getBodyLimit() {
-        return bodyLimit;
+        return blimit;
     }
 
     public int getHeaderLimit() {
-        return headerLimit;
+        return hlimit;
     }
 
     public int getHttpFrameStackSize() {
-        return frameCache;
+        return fcache;
     }
 
     @Override
@@ -429,7 +451,7 @@ public class HttpCodec extends ProtocolCodec {
         if (contentLength < 1) {
             return decode_state_complate;
         } else {
-            if (contentLength > bodyLimit) {
+            if (contentLength > blimit) {
                 throw OVER_LIMIT;
             }
             return decode_state_body;
@@ -496,7 +518,7 @@ public class HttpCodec extends ProtocolCodec {
 
     @Override
     public void release(NioEventLoop eventLoop, Frame frame) {
-        eventLoop.releaseFrame(FRAME_CACHE_KEY, frame);
+        eventLoop.release(FRAME_CACHE_KEY, frame);
     }
 
     private static int findN(ByteBuf src, int p) {

@@ -20,6 +20,7 @@ import java.io.IOException;
 import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.codec.http11.ClientHttpCodec;
 import com.firenio.baseio.codec.http11.ClientHttpFrame;
+import com.firenio.baseio.codec.http11.HttpAttr;
 import com.firenio.baseio.codec.http11.HttpCodec;
 import com.firenio.baseio.codec.http11.HttpFrame;
 import com.firenio.baseio.codec.http11.HttpHeader;
@@ -29,6 +30,7 @@ import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ChannelAcceptor;
 import com.firenio.baseio.component.ChannelConnector;
+import com.firenio.baseio.component.ChannelEventListenerAdapter;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
@@ -59,7 +61,7 @@ public class HttpProxyServer {
                 final HttpFrame f = (HttpFrame) frame;
                 if (f.getMethod() == HttpMethod.CONNECT) {
                     ch_src.writeAndFlush(CONNECT_RES_BUF.duplicate());
-                    ProxySession s = ProxySession.get(ch_src);
+                    HttpProxyAttr s = HttpProxyAttr.get(ch_src);
                     String[] arr = f.getHost().split(":");
                     s.host = arr[0];
                     s.port = Integer.parseInt(arr[1]);
@@ -129,15 +131,24 @@ public class HttpProxyServer {
         context = new ChannelAcceptor(group, 8088);
         context.addProtocolCodec(new HttpProxyCodec());
         context.setIoEventHandle(eventHandle);
+        context.addChannelEventListener(new HttpProxyAttrListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.bind();
     }
+    
+    static class HttpProxyAttrListener extends ChannelEventListenerAdapter{
+        
+        @Override
+        public void channelOpened(Channel ch) throws Exception {
+            ch.setAttachment(new HttpProxyAttr());
+        }
+    }
 
-    class HttpProxyCodec extends HttpCodec {
+    static class HttpProxyCodec extends HttpCodec {
 
         @Override
         public Frame decode(final Channel ch_src, ByteBuf src) throws Exception {
-            ProxySession s = ProxySession.get(ch_src);
+            HttpProxyAttr s = HttpProxyAttr.get(ch_src);
             if (s.handshakeFinished) {
                 if (s.connector == null || !s.connector.isConnected()) {
                     NioEventLoop el = ch_src.getEventLoop();
@@ -177,7 +188,7 @@ public class HttpProxyServer {
                             ch_target.writeAndFlush(buf.flip());
                         } else {
                             buf.release();
-                            ProxySession.remove(ch_src);
+                            HttpProxyAttr.remove(ch_src);
                             Util.close(ch_src);
                         }
                     });
@@ -205,9 +216,8 @@ public class HttpProxyServer {
 
     }
 
-    static class ProxySession {
+    public static class HttpProxyAttr extends HttpAttr {
 
-        static final String     ProxySessionChAttr = "_ProxySessionChAttr";
         public ChannelConnector connector;
         public boolean          handshakeFinished;
         public String           host;
@@ -218,20 +228,12 @@ public class HttpProxyServer {
             return host + ":" + port;
         }
 
-        public static ProxySession get(Channel ch) {
-            ProxySession s = (ProxySession) ch.getAttribute(ProxySessionChAttr);
-            if (s == null) {
-                s = new ProxySession();
-                ch.setAttribute(ProxySessionChAttr, s);
-            }
-            return s;
+        public static HttpProxyAttr get(Channel ch) {
+            return (HttpProxyAttr) ch.getAttachment();
         }
 
         public static void remove(Channel ch) {
-            ProxySession s = (ProxySession) ch.removeAttribute(ProxySessionChAttr);
-            if (s != null) {
-                s.connector = null;
-            }
+            get(ch).connector = null;
         }
     }
 

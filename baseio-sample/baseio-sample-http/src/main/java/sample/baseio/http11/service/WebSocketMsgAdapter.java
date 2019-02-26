@@ -31,8 +31,8 @@ import com.firenio.baseio.log.LoggerFactory;
 
 public class WebSocketMsgAdapter extends EventLoop {
 
-    private Map<String, Channel>    clientsMap = new ConcurrentHashMap<>();
-
+    private Map<Integer, Client>    clientMap = new ConcurrentHashMap<>();
+    private Map<String, Channel>    channelMap = new ConcurrentHashMap<>();
     private Logger                  logger     = LoggerFactory.getLogger(getClass());
     private BlockingQueue<Runnable> msgs       = new ArrayBlockingQueue<>(1024 * 4);
 
@@ -41,9 +41,33 @@ public class WebSocketMsgAdapter extends EventLoop {
     }
 
     public void addClient(String username, Channel ch) {
-        ch.setAttribute("username", username);
-        clientsMap.put(username, ch);
-        logger.info("client joined {} ,clients size: {}", ch, clientsMap.size());
+        clientMap.put(ch.getChannelId(), new Client(ch, username));
+        channelMap.put(username, ch);
+        logger.info("client joined {} ,clients size: {}", ch, clientMap.size());
+    }
+
+    static class Client {
+
+        public Client(Channel ch, String username) {
+            this.channel = ch;
+            this.username = username;
+        }
+
+        private Channel channel;
+        private String  username;
+
+        public Channel getChannel() {
+            return channel;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
     }
 
     @Override
@@ -63,11 +87,11 @@ public class WebSocketMsgAdapter extends EventLoop {
                 logger.error(e.getMessage(), e);
             }
         } else {
-            if (!clientsMap.isEmpty()) {
+            if (!clientMap.isEmpty()) {
                 WebSocketFrame f = new WebSocketFrame();
                 f.setString(msg.msg, Util.UTF8);
                 try {
-                    ChannelManager.broadcast(f, clientsMap.values());
+                    ChannelManager.broadcast(f, channelMap.values());
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
@@ -75,12 +99,12 @@ public class WebSocketMsgAdapter extends EventLoop {
         }
     }
 
-    public Channel getChannel(String username) {
-        return clientsMap.get(username);
+    public Client getClient(Integer id) {
+        return clientMap.get(id);
     }
 
     public int getClientSize() {
-        return clientsMap.size();
+        return clientMap.size();
     }
 
     @Override
@@ -88,13 +112,13 @@ public class WebSocketMsgAdapter extends EventLoop {
         return msgs;
     }
 
-    public boolean removeClient(Channel ch) {
-        String username = (String) ch.getAttribute("username");
-        if ((!Util.isNullOrBlank(username)) && clientsMap.remove(username) != null) {
-            logger.info("client left {} ,clients size: {}", ch, clientsMap.size());
-            return true;
+    public Client removeClient(Channel ch) {
+        Client client = clientMap.remove(ch.getChannelId());
+        if (client != null) {
+            channelMap.remove(client.getUsername());
+            logger.info("client left {} ,clients size: {}", ch, clientMap.size());
         }
-        return false;
+        return client;
     }
 
     public void sendMsg(Channel ch, String msg) {
@@ -119,6 +143,10 @@ public class WebSocketMsgAdapter extends EventLoop {
         @Override
         public void run() {}
 
+    }
+
+    public Channel getChannel(String username) {
+        return channelMap.get(username);
     }
 
 }

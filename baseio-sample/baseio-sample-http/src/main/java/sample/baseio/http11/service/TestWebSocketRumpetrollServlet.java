@@ -57,14 +57,14 @@ public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptor {
         WebSocketFrame f = (WebSocketFrame) frame;
         // CLOSE
         if (f.isCloseFrame()) {
-            if (msgAdapter.removeClient(ch)) {
+            if (msgAdapter.removeClient(ch) != null) {
                 JSONObject o = new JSONObject();
                 o.put("type", "closed");
                 o.put("id", ch.getChannelId());
                 msgAdapter.sendMsg(o.toJSONString());
                 logger.info("客户端主动关闭连接：{}", ch);
             }
-            if (ch.isOpened()) {
+            if (ch.isOpen()) {
                 ch.writeAndFlush(f);
             }
         } else {

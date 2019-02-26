@@ -43,7 +43,7 @@ public class ReConnector implements Closeable {
     public synchronized void connect() {
         Channel ch = connector.getChannel();
         for (;;) {
-            if (ch != null && ch.isOpened()) {
+            if (ch != null && ch.isOpen()) {
                 break;
             }
             if (!reconnect) {

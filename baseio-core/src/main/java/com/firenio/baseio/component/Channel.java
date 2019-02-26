@@ -41,8 +41,6 @@ import javax.net.ssl.SSLException;
 import com.firenio.baseio.Develop;
 import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.buffer.ByteBufAllocator;
-import com.firenio.baseio.collection.Attributes;
-import com.firenio.baseio.collection.AttributesImpl;
 import com.firenio.baseio.common.Unsafe;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.NioEventLoop.EpollNioEventLoopUnsafe;
@@ -53,7 +51,7 @@ import com.firenio.baseio.log.Logger;
 import com.firenio.baseio.log.LoggerFactory;
 
 //请勿使用remote.getRemoteHost(),可能出现阻塞
-public final class Channel extends AttributesImpl implements Runnable, Attributes, Closeable {
+public final class Channel implements Runnable, Closeable {
 
     public static final ClosedChannelException CLOSED_WHEN_FLUSH     = CLOSED_WHEN_FLUSH();
     public static final InetSocketAddress      ERROR_SOCKET_ADDRESS  = new InetSocketAddress(0);
@@ -64,6 +62,7 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     public static final SSLException           SSL_UNWRAP_OVER_LIMIT = SSL_UNWRAP_OVER_LIMIT();
     public static final IOException            TAST_REJECT           = TASK_REJECT();
 
+    private Object                             attachment;
     private ProtocolCodec                      codec;
     private final ChannelContext               context;
     private final long                         creationTime          = System.currentTimeMillis();
@@ -75,7 +74,7 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     private final EventLoop                    executorEventLoop;
     private boolean                            inEvent;
     private long                               lastAccess;
-    private volatile boolean                   opened                = true;
+    private volatile boolean                   open                  = true;
     private ByteBuf                            plainRemainBuf;
     private final SSLEngine                    sslEngine;
     private boolean                            sslHandshakeFinished;
@@ -104,16 +103,10 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         }
     }
 
-    private void check_write_overflow() {
-        if (writeBufs.size() > context.getMaxWriteBacklog()) {
-            safeClose();
-        }
-    }
-
     private void accept(ByteBuf src) throws Exception {
         final ProtocolCodec codec = getCodec();
         final IoEventHandle handle = getIoEventHandle();
-        final boolean enableWorkEventLoop = getExecutorEventLoop() != null;
+        final boolean enable_wel = getExecutorEventLoop() != null;
         for (;;) {
             Frame f = codec.decode(this, src);
             if (f == null) {
@@ -123,7 +116,7 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
             if (f.isTyped()) {
                 accept_typed(f);
             } else {
-                if (enableWorkEventLoop) {
+                if (enable_wel) {
                     accept_async(f);
                 } else {
                     accept_line(handle, f);
@@ -187,15 +180,20 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         return alloc().allocate(h + limit).skip(h);
     }
 
+    private void check_write_overflow() {
+        if (writeBufs.size() > context.getMaxWriteBacklog()) {
+            safeClose();
+        }
+    }
+
     @Override
     public void close() {
         if (inEventLoop()) {
             safeClose();
         } else {
-            if (isClosed()) {
-                return;
+            if (isOpen()) {
+                eventLoop.submit(new CloseEvent(this));
             }
-            eventLoop.submit(new CloseEvent(this));
         }
     }
 
@@ -258,7 +256,7 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
                 Util.close(ch);
                 return;
             }
-            if (ch.isClosed()) {
+            if (!ch.isOpen()) {
                 return;
             }
         }
@@ -273,6 +271,10 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         } else {
             eventLoop.submit(this);
         }
+    }
+
+    public Object getAttachment() {
+        return attachment;
     }
 
     public Integer getChannelId() {
@@ -369,10 +371,6 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         return eventLoop.inEventLoop();
     }
 
-    public boolean isClosed() {
-        return !opened;
-    }
-
     public boolean isCodec(String codecId) {
         return codec.getProtocolId().equals(codecId);
     }
@@ -443,8 +441,8 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
         return true;
     }
 
-    public boolean isOpened() {
-        return opened;
+    public boolean isOpen() {
+        return open;
     }
 
     protected boolean isSslHandshakeFinished() {
@@ -475,11 +473,12 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     }
 
     private void read_plain() throws Exception {
-        ByteBuf src = eventLoop.getReadBuf();
+        NioEventLoop el = eventLoop;
+        ByteBuf src = el.getReadBuf();
         for (;;) {
             src.clear();
             readPlainRemainingBuf(src);
-            int length = unsafe.read(eventLoop);
+            int length = unsafe.read(el);
             if (length < 1) {
                 if (length == -1) {
                     Util.close(this);
@@ -507,11 +506,12 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     }
 
     private void read_ssl() throws Exception {
-        ByteBuf src = eventLoop.getReadBuf();
+        NioEventLoop el = eventLoop;
+        ByteBuf src = el.getReadBuf();
         for (;;) {
             src.clear();
             readSslRemainingBuf(src);
-            int length = unsafe.read(eventLoop);
+            int length = unsafe.read(el);
             if (length < 1) {
                 if (length == -1) {
                     Util.close(this);
@@ -612,7 +612,7 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
 
     @Override
     public void run() {
-        if (isOpened()) {
+        if (isOpen()) {
             inEvent = false;
             if (unsafe.interestWrite()) {
                 // check write over flow
@@ -636,8 +636,8 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
     }
 
     private void safeClose() {
-        if (isOpened()) {
-            opened = false;
+        if (isOpen()) {
+            open = false;
             closeSsl();
             releaseWriteBufArray();
             releaseWriteBufQueue();
@@ -648,6 +648,10 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
             fireClosed();
             stopContext();
         }
+    }
+
+    public void setAttachment(Object attachment) {
+        this.attachment = attachment;
     }
 
     public void setCodec(String codecId) throws IOException {
@@ -846,8 +850,9 @@ public final class Channel extends AttributesImpl implements Runnable, Attribute
                 }
             }
             writeBufs.offer(buf);
-            if (isClosed()) {
+            if (!isOpen()) {
                 buf.release();
+                writeBufs.poll();
             }
         }
     }

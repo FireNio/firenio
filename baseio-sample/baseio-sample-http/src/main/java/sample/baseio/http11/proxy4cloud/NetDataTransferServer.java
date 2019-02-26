@@ -17,10 +17,10 @@ package sample.baseio.http11.proxy4cloud;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ChannelAcceptor;
 import com.firenio.baseio.component.ChannelActiveListener;
 import com.firenio.baseio.component.ChannelAliveListener;
@@ -29,10 +29,10 @@ import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.NioEventLoop;
 import com.firenio.baseio.component.NioEventLoopGroup;
-import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ProtocolCodec;
 
-import sample.baseio.http11.proxy4cloud.HttpProxy4CloudServer.ProxySession4Cloud;
+import sample.baseio.http11.proxy4cloud.HttpProxy4CloudServer.HttpProxy4CloudAttr;
+import sample.baseio.http11.proxy4cloud.HttpProxy4CloudServer.HttpProxy4CloudAttrListener;
 import sample.baseio.http11.service.CountChannelListener;
 
 /**
@@ -42,19 +42,19 @@ import sample.baseio.http11.service.CountChannelListener;
 public class NetDataTransferServer {
 
     private static final NetDataTransferServer instance          = new NetDataTransferServer();
-    private AtomicInteger                      connectorCallback = new AtomicInteger();
 
     public synchronized void startup(NioEventLoopGroup group, int port) throws Exception {
 
         ChannelAcceptor context = new ChannelAcceptor(group, port);
         context.addProtocolCodec(new NetDataTransfer());
         context.addChannelIdleEventListener(new ChannelAliveListener());
+        context.addChannelEventListener(new HttpProxy4CloudAttrListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new CountChannelListener());
         context.bind();
     }
 
-    class HttpProxyConnect extends ProtocolCodec {
+    static class HttpProxyConnect extends ProtocolCodec {
 
         Channel ch_src;
         byte    mask;
@@ -91,11 +91,11 @@ public class NetDataTransferServer {
 
     }
 
-    class NetDataTransfer extends ProtocolCodec {
+    static class NetDataTransfer extends ProtocolCodec {
 
         @Override
         public Frame decode(Channel ch_src, ByteBuf src) throws Exception {
-            ProxySession4Cloud s = ProxySession4Cloud.get(ch_src);
+            HttpProxy4CloudAttr s = HttpProxy4CloudAttr.get(ch_src);
             if (s.handshakeFinished) {
                 if (s.connector == null || !s.connector.isConnected()) {
                     NioEventLoop el = ch_src.getEventLoop();
@@ -108,16 +108,14 @@ public class NetDataTransferServer {
                     ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                     buf.put(src);
                     buf.flip();
-                    connectorCallback.getAndIncrement();
                     s.connector = context;
                     s.connector.connect((ch, ex) -> {
-                        connectorCallback.getAndDecrement();
                         if (ex == null) {
                             mask(buf, s.mask);
                             ch.writeAndFlush(buf);
                         } else {
                             buf.release();
-                            ProxySession4Cloud.remove(ch_src);
+                            HttpProxy4CloudAttr.remove(ch_src);
                             Util.close(ch_src);
                         }
                     }, 10000);

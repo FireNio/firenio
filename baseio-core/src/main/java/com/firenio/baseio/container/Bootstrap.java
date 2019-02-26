@@ -71,7 +71,7 @@ public class Bootstrap {
         startup(System.getProperty(BOOT_CLASS), libPath);
     }
 
-    public static URLDynamicClassLoader newClassLoader(ClassLoader parent, String mode,
+    private static URLDynamicClassLoader newClassLoader(ClassLoader parent, String mode,
             boolean entrustFirst, String rootLocalAddress, List<ClassPathScaner> classPathScaners)
             throws IOException {
         //这里需要设置优先委托自己加载class，因为到后面对象需要用该classloader去加载resources
@@ -87,10 +87,6 @@ public class Bootstrap {
             scaner.scanClassPaths(classLoader, mode, rootLocalAddress);
         }
         return classLoader;
-    }
-
-    public static void startup(final String bootClass) throws Exception {
-        startup(bootClass, "/app");
     }
 
     public static void startup(String className, List<ClassPathScaner> cpScaners) throws Exception {

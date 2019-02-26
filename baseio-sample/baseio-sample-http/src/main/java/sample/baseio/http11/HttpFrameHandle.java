@@ -98,7 +98,7 @@ public class HttpFrameHandle extends IoEventHandle {
     public void exceptionCaught(Channel ch, Frame frame, Exception ex) {
         logger.error(ex.getMessage(), ex);
         frame.release();
-        if (ch.isClosed()) {
+        if (!ch.isOpen()) {
             return;
         }
         if (ch.getCodec() instanceof WebSocketCodec) {

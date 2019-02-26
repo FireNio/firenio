@@ -17,6 +17,7 @@ package test.io.http11;
 
 import com.firenio.baseio.codec.http11.ClientHttpCodec;
 import com.firenio.baseio.codec.http11.ClientHttpFrame;
+import com.firenio.baseio.codec.http11.HttpAttrListener;
 import com.firenio.baseio.codec.http11.HttpHeader;
 import com.firenio.baseio.codec.http11.HttpMethod;
 import com.firenio.baseio.codec.http11.WebSocketCodec;
@@ -38,14 +39,16 @@ public class TestSimpleHttpClient2 {
     public static void main(String[] args) throws Exception {
 
         String host = "www.baidu.com";
+        String url = "/plaintext";
         host = "firenio.com";
         host = "127.0.0.1";
-//        host = "fe80::a793:9577:4396:8ca6";
+        //        host = "fe80::a793:9577:4396:8ca6";
         //        host = "www.baidu.com";
-        host = "api.weixin.qq.com";
+//        host = "api.weixin.qq.com";
+//        host = "192.168.1.103";
         int port = 1443;
         port = 8080;
-        port = 443;
+        //        port = 443;
 
         ChannelConnector context = new ChannelConnector(host, port);
         context.addProtocolCodec(new ClientHttpCodec());
@@ -58,18 +61,19 @@ public class TestSimpleHttpClient2 {
                 System.out.println();
                 System.out.println(new String(res.getArrayContent()));
                 System.out.println();
-//                Util.close(context);
+                //                Util.close(context);
             }
         });
+        context.addChannelEventListener(new HttpAttrListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         if (port == 1443 || port == 443) {
             context.setSslContext(SslContextBuilder.forClient(true).build());
         }
         Channel ch = context.connect(999999);
-        ClientHttpFrame f = new ClientHttpFrame("/sns/jscode2session?appid=wx79aa0a72112c6d1c&secret=bac597074f9a93a68377c94cf24527f5&grant_type=authorization_code&js_code=123", HttpMethod.GET);
-//        f.setRequestHeader(HttpHeader.Host, host);
-//        f.setContent("abc123".getBytes());
-        ch.writeAndFlush(f);
+        ClientHttpFrame f = new ClientHttpFrame(url, HttpMethod.GET);
+        //        f.setRequestHeader(HttpHeader.Host, host);
+        //        f.setContent("abc123".getBytes());
+        ch.write(f);
         ch.writeAndFlush(f);
 
     }

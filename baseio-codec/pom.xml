@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>com.firenio</groupId>
 		<artifactId>baseio</artifactId>
-		<version>3.2.9.beta7</version>
+		<version>3.2.9.beta8</version>
 		<relativePath>../baseio/pom.xml</relativePath>
 	</parent>
 
@@ -20,13 +20,6 @@
 			<groupId>com.firenio</groupId>
 			<artifactId>baseio-core</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>3.1.0</version>
-            <scope>provided</scope>
 		</dependency>
 
 	</dependencies>
