@@ -261,8 +261,8 @@ abstract class HeapByteBuf extends ByteBuf {
     }
 
     @Override
-    public int indexOf(byte b, int absPos, int size) {
-        int p = absPos;
+    public int indexOf(byte b, int abs_pos, int size) {
+        int p = abs_pos;
         int l = p + size;
         byte[] m = memory;
         for (; p < l; p++) {
@@ -274,8 +274,8 @@ abstract class HeapByteBuf extends ByteBuf {
     }
 
     @Override
-    public int lastIndexOf(byte b, int absPos, int size) {
-        int p = absPos;
+    public int lastIndexOf(byte b, int abs_pos, int size) {
+        int p = abs_pos;
         int l = p - size - 1;
         byte[] m = memory;
         for (; p > l; p--) {

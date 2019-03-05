@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.io.load.fixedlength;
+package test.io.load.lenthvalue;
 
 import com.firenio.baseio.Options;
-import com.firenio.baseio.codec.fixedlength.FixedLengthCodec;
+import com.firenio.baseio.codec.lengthvalue.LengthValueCodec;
 import com.firenio.baseio.component.ChannelAcceptor;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.IoEventHandle;
@@ -66,7 +66,7 @@ public class TestLoadServer {
         group.setEnableMemoryPoolDirect(ENABLE_POOL_DIRECT);
         ChannelAcceptor context = new ChannelAcceptor(group, 8300);
         context.setMaxWriteBacklog(Integer.MAX_VALUE);
-        context.addProtocolCodec(new FixedLengthCodec());
+        context.addProtocolCodec(new LengthValueCodec());
         context.setIoEventHandle(eventHandle);
         if (ENABLE_SSL) {
             context.setEnableSsl(true);

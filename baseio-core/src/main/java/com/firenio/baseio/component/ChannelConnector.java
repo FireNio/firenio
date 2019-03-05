@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
+import com.firenio.baseio.Develop;
 import com.firenio.baseio.TimeoutException;
 import com.firenio.baseio.collection.DelayedQueue.DelayTask;
 import com.firenio.baseio.common.Assert;
@@ -29,6 +30,8 @@ import com.firenio.baseio.component.NioEventLoop.EpollNioEventLoopUnsafe;
 import com.firenio.baseio.component.NioEventLoop.JavaNioEventLoopUnsafe;
 import com.firenio.baseio.concurrent.Callback;
 import com.firenio.baseio.concurrent.Waiter;
+import com.firenio.baseio.log.Logger;
+import com.firenio.baseio.log.LoggerFactory;
 
 /**
  * @author wangkai
@@ -42,6 +45,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     private NioEventLoop               eventLoop;
     private volatile DelayTask         timeoutTask;
     private ConnectorUnsafe            unsafe;
+    private static final Logger        logger     = LoggerFactory.getLogger(ChannelConnector.class);
 
     public ChannelConnector(int port) {
         this("127.0.0.1", port);
@@ -75,9 +79,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     @Override
     protected void channelEstablish(Channel ch, Throwable ex) {
         if (!callbacked) {
-            if (ex != null) {
-                unsafe.cancel(this, eventLoop);
-            }
+            this.unsafe.channelEstablish(ch, eventLoop, ex);
             this.ch = ch;
             this.callbacked = true;
             this.timeoutTask.cancel();
@@ -94,9 +96,6 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     @Override
     public synchronized void close() throws IOException {
         Util.close(ch);
-        if (ch == null && eventLoop != null) {
-            unsafe.cancel(this, eventLoop);
-        }
         Util.stop(this);
         if (!getProcessorGroup().isSharable()) {
             this.eventLoop = null;
@@ -205,25 +204,22 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
         abstract void connect(ChannelConnector ctx, NioEventLoop el) throws IOException;
 
-        abstract void cancel(ChannelConnector ctx, NioEventLoop el);
+        abstract void channelEstablish(Channel ch, NioEventLoop el, Throwable ex);
 
     }
 
     static final class EpollConnectorUnsafe extends ConnectorUnsafe {
 
-        private int     fd = -1;
-        private volatile boolean needCancel;
+        private int    fd = -1;
         private String remoteAddr;
 
         @Override
         void connect(ChannelConnector ctx, NioEventLoop el) throws IOException {
-            this.cancel(ctx, el);
             EpollNioEventLoopUnsafe un = (EpollNioEventLoopUnsafe) el.getUnsafe();
             InetAddress host = InetAddress.getByName(ctx.getHost());
             this.remoteAddr = host.getHostAddress();
             int fd = Native.connect(host.getHostAddress(), ctx.getPort());
             Native.throwException(fd);
-            this.needCancel = true;
             this.fd = fd;
             el.schedule(ctx.timeoutTask);
             un.ctxs.put(fd, ctx);
@@ -232,17 +228,27 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         }
 
         @Override
-        void cancel(ChannelConnector ctx, NioEventLoop el) {
-            if (needCancel) {
+        void channelEstablish(Channel ch, NioEventLoop el, Throwable ex) {
+            if (ex != null && fd != -1) {
                 EpollNioEventLoopUnsafe un = (EpollNioEventLoopUnsafe) el.getUnsafe();
                 un.ctxs.remove(fd);
-                Native.epoll_del(un.epfd, fd);
-                Native.close(fd);
-                fd = -1;
-                needCancel = false;
+                if (Develop.NATIVE_DEBUG) {
+                    int res = Native.epoll_del(un.epfd, fd);
+                    if (res == -1) {
+                        logger.error("cancel...epfd:{},fd:{}", un.epfd, fd);
+                    }
+                    res = Native.close(fd);
+                    if (res == -1) {
+                        logger.error("cancel...fd:{}", fd);
+                    }
+                } else {
+                    Native.epoll_del(un.epfd, fd);
+                    Native.close(fd);
+                }
+                this.fd = -1;
             }
         }
-        
+
         String getRemoteAddr() {
             return remoteAddr;
         }
@@ -274,15 +280,16 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         }
 
         @Override
-        void cancel(ChannelConnector ctx, NioEventLoop el) {
+        void channelEstablish(Channel ch, NioEventLoop el, Throwable ex) {
             final SocketChannel channel = this.javaChannel;
-            final JavaNioEventLoopUnsafe un = (JavaNioEventLoopUnsafe) el.getUnsafe();
-            if (channel != null) {
+            if (ex != null && channel != null) {
+                final JavaNioEventLoopUnsafe un = (JavaNioEventLoopUnsafe) el.getUnsafe();
                 SelectionKey key = channel.keyFor(un.getSelector());
                 if (key != null) {
                     key.cancel();
                 }
                 Util.close(channel);
+                this.javaChannel = null;
             }
         }
 

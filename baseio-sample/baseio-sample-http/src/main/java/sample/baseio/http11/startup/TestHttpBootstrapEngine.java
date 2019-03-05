@@ -19,12 +19,10 @@ import com.firenio.baseio.DevelopConfig;
 import com.firenio.baseio.LifeCycle;
 import com.firenio.baseio.LifeCycleListener;
 import com.firenio.baseio.Options;
-import com.firenio.baseio.codec.http11.HttpAttrListener;
 import com.firenio.baseio.codec.http11.HttpCodec;
 import com.firenio.baseio.codec.http11.HttpDateUtil;
 import com.firenio.baseio.codec.http11.WebSocketChannelListener;
 import com.firenio.baseio.codec.http11.WebSocketCodec;
-import com.firenio.baseio.codec.http2.Http2AttrListener;
 import com.firenio.baseio.codec.http2.Http2Codec;
 import com.firenio.baseio.common.FileUtil;
 import com.firenio.baseio.common.Properties;
@@ -87,12 +85,10 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         });
         if (properties.getBooleanProperty("app.enableHttp2")) {
             context.addProtocolCodec(new Http2Codec());
-            context.addChannelEventListener(new Http2AttrListener());
             context.setApplicationProtocols(new String[] { "h2", "http/1.1" });
         } else {
             context.addProtocolCodec(new HttpCodec(4));
             context.addProtocolCodec(new WebSocketCodec());
-            context.addChannelEventListener(new HttpAttrListener());
         }
         if (context.getPort() == 0) {
             context.setPort(context.isEnableSsl() ? 443 : 80);

@@ -2,7 +2,7 @@
 # BaseIO Project
 
 [![Website](https://img.shields.io/badge/website-firenio-green.svg)](https://www.firenio.com)
-[![Maven central](https://img.shields.io/badge/maven-3.2.9.beta8-green.svg)](http://mvnrepository.com/artifact/com.firenio/baseio-all)
+[![Maven central](https://img.shields.io/badge/maven-3.2.9.beta9-green.svg)](http://mvnrepository.com/artifact/com.firenio/baseio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/firenio/baseio/blob/master/LICENSE.txt)
 
 BaseIO is an io framework which can build network project fast, it based on java nio, it is popular with Developers because of simple and easy of use APIs and high-performance.
@@ -10,15 +10,14 @@ BaseIO is an io framework which can build network project fast, it based on java
 ## Features
 
  * support protocol extend, known:
-   * Redis protocol(for test), for detail {baseio-test}
-   * FixedLength protocol, for detail {baseio-test}
+   * LengthValue protocol, for detail {baseio-test}
    * HTTP1.1 protocol(lite), for detail: https://www.firenio.com/
    * WebSocket protocol, for detail: https://www.firenio.com/web-socket/chat/index.html 
    * Protobase(custom) support text or binay, for detail {baseio-test}
  * easy to support reconnect (easy to support heart beat)
  * supported ssl (jdkssl, openssl)
  * load test
-   * [tfb benchmark](https://www.techempower.com/benchmarks/#section=test&runid=ee5b26dc-6606-4925-8b30-584584cb5931&hw=ph&test=plaintext)
+   * [tfb benchmark](https://www.techempower.com/benchmarks/#section=test&runid=50068a69-f68c-44fc-b8f7-2d44567e8c78&hw=ph&test=plaintext)
  
 ## Quick Start
 
@@ -28,7 +27,7 @@ BaseIO is an io framework which can build network project fast, it based on java
 	<dependency>
 		<groupId>com.firenio</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.2.9.beta8</version>
+		<version>3.2.9.beta9</version>
 	</dependency>  
   ```
   
@@ -37,7 +36,9 @@ BaseIO is an io framework which can build network project fast, it based on java
   ```Java
 
     public static void main(String[] args) throws Exception {
-        IoEventHandle eventHandle = new IoEventHandle() {
+
+        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
+
             @Override
             public void accept(Channel ch, Frame f) throws Exception {
                 String text = f.getStringContent();
@@ -49,8 +50,8 @@ BaseIO is an io framework which can build network project fast, it based on java
         };
         ChannelAcceptor context = new ChannelAcceptor(8300);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.setIoEventHandle(eventHandle);
-        context.addProtocolCodec(new FixedLengthCodec());
+        context.setIoEventHandle(eventHandleAdaptor);
+        context.addProtocolCodec(new LengthValueCodec());
         context.bind();
     }
 
@@ -61,7 +62,7 @@ BaseIO is an io framework which can build network project fast, it based on java
   ```Java
     
     public static void main(String[] args) throws Exception {
-        ChannelConnector context = new ChannelConnector(8300);
+        ChannelConnector context = new ChannelConnector("127.0.0.1", 8300);
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
             public void accept(Channel ch, Frame f) throws Exception {
@@ -74,11 +75,10 @@ BaseIO is an io framework which can build network project fast, it based on java
 
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addProtocolCodec(new FixedLengthCodec());
-        Channel ch = context.connect();
-        FixedLengthFrame frame = new FixedLengthFrame();
-        frame.setContent(ch.allocate());
-        frame.write("hello world!", ch);
+        context.addProtocolCodec(new LengthValueCodec());
+        Channel ch = context.connect(3000);
+        LengthValueFrame frame = new LengthValueFrame();
+        frame.setString("hello server!");
         ch.writeAndFlush(frame);
     }
 

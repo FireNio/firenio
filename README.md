@@ -2,7 +2,7 @@
 # BaseIO Project
 
 [![Website](https://img.shields.io/badge/website-firenio-green.svg)](https://www.firenio.com)
-[![Maven central](https://img.shields.io/badge/maven-3.2.9.beta8-green.svg)](http://mvnrepository.com/artifact/com.firenio/baseio-all)
+[![Maven central](https://img.shields.io/badge/maven-3.2.9.beta9-green.svg)](http://mvnrepository.com/artifact/com.firenio/baseio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/firenio/baseio/blob/master/LICENSE.txt)
 
 BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步IO框架，其以简单易用的API和优良的性能深受开发者喜爱。
@@ -10,15 +10,14 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
 ## 项目特色
 
  * 支持协议扩展，已知的扩展协议有：
-   * Redis协议(仅作测试)，示例：详见 {baseio-test}
-   * FixedLength协议(固定长度报文头)，支持传输文本和二进制数据
+   * LengthValue协议，支持传输文本数据
    * HTTP1.1协议(lite)，示例： https://www.firenio.com/
    * WebSocket协议，示例： https://www.firenio.com/web-socket/chat/index.html 
    * Protobase(自定义协议)，支持传输文本或二进制数据
  * 轻松实现断线重连(轻松实现心跳机制)
  * 支持SSL(jdkssl,openssl)
  * 压力测试
-   * [tfb benchmark](https://www.techempower.com/benchmarks/#section=test&runid=ee5b26dc-6606-4925-8b30-584584cb5931&hw=ph&test=plaintext)
+   * [tfb benchmark](https://www.techempower.com/benchmarks/#section=test&runid=50068a69-f68c-44fc-b8f7-2d44567e8c78&hw=ph&test=plaintext)
  
 ## 快速入门
 
@@ -28,7 +27,7 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
 	<dependency>
 		<groupId>com.firenio</groupId>
 		<artifactId>baseio-all</artifactId>
-		<version>3.2.9.beta8</version>
+		<version>3.2.9.beta9</version>
 	</dependency>  
   ```
   
@@ -37,7 +36,9 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
   ```Java
 
     public static void main(String[] args) throws Exception {
-        IoEventHandle eventHandle = new IoEventHandle() {
+
+        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
+
             @Override
             public void accept(Channel ch, Frame f) throws Exception {
                 String text = f.getStringContent();
@@ -49,8 +50,8 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
         };
         ChannelAcceptor context = new ChannelAcceptor(8300);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.setIoEventHandle(eventHandle);
-        context.addProtocolCodec(new FixedLengthCodec());
+        context.setIoEventHandle(eventHandleAdaptor);
+        context.addProtocolCodec(new LengthValueCodec());
         context.bind();
     }
 
@@ -61,7 +62,7 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
   ```Java
 
     public static void main(String[] args) throws Exception {
-        ChannelConnector context = new ChannelConnector(8300);
+        ChannelConnector context = new ChannelConnector("127.0.0.1", 8300);
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
             public void accept(Channel ch, Frame f) throws Exception {
@@ -74,11 +75,10 @@ BaseIO是基于java nio开发的一款可快速构建网络通讯项目的异步
 
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addProtocolCodec(new FixedLengthCodec());
-        Channel ch = context.connect();
-        FixedLengthFrame frame = new FixedLengthFrame();
-        frame.setContent(ch.allocate());
-        frame.write("hello world!", ch);
+        context.addProtocolCodec(new LengthValueCodec());
+        Channel ch = context.connect(3000);
+        LengthValueFrame frame = new LengthValueFrame();
+        frame.setString("hello server!");
         ch.writeAndFlush(frame);
     }
 

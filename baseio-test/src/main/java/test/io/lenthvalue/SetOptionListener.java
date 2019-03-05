@@ -13,25 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.baseio.codec.fixedlength;
+package test.io.lenthvalue;
 
-import com.firenio.baseio.component.Frame;
+import com.firenio.baseio.component.Channel;
+import com.firenio.baseio.component.ChannelEventListener;
+import com.firenio.baseio.component.SocketOptions;
 
-public class FixedLengthFrame extends Frame {
+/**
+ * @author wangkai
+ *
+ */
+public class SetOptionListener implements ChannelEventListener {
 
-    public FixedLengthFrame() {}
+    @Override
+    public void channelClosed(Channel ch) {
 
-    public FixedLengthFrame(String content) {
-        this.setContent(content);
     }
 
     @Override
-    public int headerLength() {
-        return FixedLengthCodec.PROTOCOL_HEADER;
-    }
-
-    public String toString() {
-        return getStringContent();
+    public void channelOpened(Channel ch) throws Exception {
+        ch.setOption(SocketOptions.SO_KEEPALIVE, 1);
+        ch.setOption(SocketOptions.TCP_NODELAY, 1);
     }
 
 }

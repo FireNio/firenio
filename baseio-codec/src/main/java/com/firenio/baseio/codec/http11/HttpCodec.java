@@ -126,13 +126,16 @@ public class HttpCodec extends ProtocolCodec {
 
     private int decode_lite(ByteBuf src, HttpFrame f) throws IOException {
         int decode_state = f.getDecodeState();
+        int abs_pos = src.absPos();
+        int h_len = f.getHeaderLength();
         if (decode_state == decode_state_line_one) {
             int ln = src.indexOf(N);
-            if (ln != -1) {
-                int p = src.absPos();
-                f.incrementHeaderLength(ln - p);
+            if (ln == -1) {
+                return decode_state_line_one;
+            } else {
+                int p = abs_pos;
+                h_len += (ln - p);
                 decode_state = decode_state_header;
-                ln = findN(src, ln);
                 int skip;
                 if (src.absByte(p) == 'G') {
                     f.setMethod(HttpMethod.GET);
@@ -142,29 +145,32 @@ public class HttpCodec extends ProtocolCodec {
                     skip = 5;
                 }
                 StringBuilder line = FastThreadLocal.get().getStringBuilder();
-                int count = ln - 9;
+                int count = ln - 10;
                 for (int i = p + skip; i < count; i++) {
                     line.append((char) (src.absByte(i) & 0xff));
                 }
-                int qmask = Util.indexOf(line, '?');
-                if (qmask > -1) {
-                    parse_kv(f.getRequestParams(), line, qmask + 1, line.length(), '=', '&');
-                    f.setRequestURL((String) line.subSequence(0, qmask));
+                int qmark = Util.indexOf(line, '?');
+                if (qmark > -1) {
+                    parse_kv(f.getRequestParams(), line, qmark + 1, line.length(), '=', '&');
+                    f.setRequestURL((String) line.subSequence(0, qmark));
                 } else {
                     f.setRequestURL(line.toString());
                 }
-                src.absPos(ln + 1);
+                abs_pos = ln + 1;
             }
         }
         if (decode_state == decode_state_header) {
             for (;;) {
-                int ps = src.absPos();
-                int pe = read_line_range(src, f.getHeaderLength(), hlimit);
+                int ps = abs_pos;
+                int pe = read_line_range(src, ps, h_len, hlimit);
                 if (pe == -1) {
+                    f.setHeaderLength(h_len);
+                    src.absPos(abs_pos);
                     break;
                 }
+                abs_pos = pe-- + 1;
                 int size = pe - ps;
-                f.incrementHeaderLength(size);
+                h_len += size;
                 if (size == 0) {
                     if (f.getContentLength() < 1) {
                         decode_state = decode_state_complate;
@@ -174,10 +180,11 @@ public class HttpCodec extends ProtocolCodec {
                         }
                         decode_state = decode_state_body;
                     }
+                    src.absPos(abs_pos);
                     break;
                 } else {
                     if (!f.isGet()) {
-                        if (startWith(src, ps, pe, CONTENT_LENGTH_MATCH)) {
+                        if (start_with(src, ps, pe, CONTENT_LENGTH_MATCH)) {
                             int cp = ps + CONTENT_LENGTH_MATCH.length;
                             int cps = ByteUtil.skip(src, cp, pe, SPACE);
                             if (cps == -1) {
@@ -195,13 +202,19 @@ public class HttpCodec extends ProtocolCodec {
         }
         return decode_state;
     }
-
+    
     private int decode_full(ByteBuf src, HttpFrame f) throws IOException {
         int decode_state = f.getDecodeState();
         StringBuilder line = FastThreadLocal.get().getStringBuilder();
+        int h_len = f.getHeaderLength();
+        int abs_pos = src.absPos();
         if (decode_state == decode_state_line_one) {
-            if (read_line(line, src, 0, hlimit)) {
-                f.incrementHeaderLength(line.length());
+            int pn = read_line(line, src, abs_pos, 0, hlimit);
+            if (pn == -1) {
+                return decode_state_line_one;
+            } else {
+                abs_pos = pn;
+                h_len += line.length();
                 decode_state = decode_state_header;
                 parse_line_one(f, line);
             }
@@ -209,11 +222,16 @@ public class HttpCodec extends ProtocolCodec {
         if (decode_state == decode_state_header) {
             for (;;) {
                 line.setLength(0);
-                if (!read_line(line, src, f.getHeaderLength(), hlimit)) {
+                int pn = read_line(line, src, abs_pos, h_len, hlimit);
+                if (pn == -1) {
+                    src.absPos(abs_pos);
+                    f.setHeaderLength(h_len);
                     break;
                 }
-                f.incrementHeaderLength(line.length());
+                abs_pos = pn; 
+                h_len += line.length();
                 if (line.length() == 0) {
+                    src.absPos(abs_pos);
                     decode_state = onHeaderReadComplete(f);
                     break;
                 } else {
@@ -234,8 +252,8 @@ public class HttpCodec extends ProtocolCodec {
     @Override
     public Frame decode(Channel ch, ByteBuf src) throws Exception {
         boolean remove = false;
-        HttpAttr attr = (HttpAttr) ch.getAttachment();
-        HttpFrame f = attr.getUncompleteFrame();
+        HttpAttachment att = (HttpAttachment) ch.getAttachment();
+        HttpFrame f = att.getUncompleteFrame();
         if (f == null) {
             f = allocFrame(ch.getEventLoop());
         } else {
@@ -252,12 +270,12 @@ public class HttpCodec extends ProtocolCodec {
         }
         if (decode_state == decode_state_complate) {
             if (remove) {
-                attr.setUncompleteFrame(null);
+                att.setUncompleteFrame(null);
             }
             return f;
         } else {
             f.setDecodeState(decode_state);
-            attr.setUncompleteFrame(f);
+            att.setUncompleteFrame(f);
             return null;
         }
     }
@@ -297,7 +315,7 @@ public class HttpCodec extends ProtocolCodec {
         boolean inline = this.inline;
         HttpFrame f = (HttpFrame) frame;
         FastThreadLocal l = FastThreadLocal.get();
-        HttpAttr attr = (HttpAttr) ch.getAttachment();
+        HttpAttachment att = (HttpAttachment) ch.getAttachment();
         List<byte[]> encode_bytes_array = getEncodeBytesArray(l);
         Object content = f.getContent();
         ByteBuf contentBuf = null;
@@ -355,10 +373,10 @@ public class HttpCodec extends ProtocolCodec {
         ByteBuf buf;
         boolean offer = true;
         if (inline) {
-            buf = attr.getLastWriteBuf();
+            buf = att.getLastWriteBuf();
             if (buf.isReleased() || buf.capacity() - buf.limit() < len) {
                 buf = ch.alloc().allocate(len);
-                attr.setLastWriteBuf(buf);
+                att.setLastWriteBuf(buf);
             } else {
                 offer = false;
                 buf.absPos(buf.absLimit());
@@ -394,7 +412,7 @@ public class HttpCodec extends ProtocolCodec {
                 buf.put(contentArray);
             } else {
                 if (inline) {
-                    attr.setLastWriteBuf(ByteBuf.empty());
+                    att.setLastWriteBuf(ByteBuf.empty());
                 }
                 ch.write(buf.flip());
                 ch.write(contentBuf);
@@ -521,16 +539,6 @@ public class HttpCodec extends ProtocolCodec {
         eventLoop.release(FRAME_CACHE_KEY, frame);
     }
 
-    private static int findN(ByteBuf src, int p) {
-        src.absPos(p + 1);
-        p--;
-        if (src.absByte(p) == R) {
-            return p;
-        } else {
-            return ++p;
-        }
-    }
-
     @SuppressWarnings("unchecked")
     static List<byte[]> getEncodeBytesArray(FastThreadLocal l) {
         return (List<byte[]>) l.getList(encode_bytes_arrays_index);
@@ -544,66 +552,56 @@ public class HttpCodec extends ProtocolCodec {
         return null;
     }
 
-    private static boolean read_line(StringBuilder line, ByteBuf src, int length, int limit)
-            throws IOException {
-        src.markP();
+    private static int read_line(StringBuilder line, ByteBuf src, int abs_pos, int length,
+            int limit) throws IOException {
         int maybeRead = limit - length;
         if (src.remaining() > maybeRead) {
-            int count = src.absPos() + maybeRead;
-            for (int i = src.absPos(); i < count; i++) {
+            int count = abs_pos + maybeRead;
+            for (int i = abs_pos; i < count; i++) {
                 byte b = src.absByte(i);
                 if (b == N) {
-                    int p = line.length() - 1;
-                    if (line.charAt(p) == R) {
-                        line.setLength(p);
-                    }
-                    src.absPos(i + 1);
-                    return true;
+                    line.setLength(line.length() - 1);
+                    return i + 1;
                 } else {
                     line.append((char) (b & 0xff));
                 }
             }
             throw OVER_LIMIT;
         } else {
-            int count = src.absPos() + src.remaining();
-            for (int i = src.absPos(); i < count; i++) {
+            int count = abs_pos + src.remaining();
+            for (int i = abs_pos; i < count; i++) {
                 byte b = src.absByte(i);
                 if (b == N) {
-                    int p = line.length() - 1;
-                    if (line.charAt(p) == R) {
-                        line.setLength(p);
-                    }
-                    src.absPos(i + 1);
-                    return true;
+                    line.setLength(line.length() - 1);
+                    return i + 1;
                 } else {
                     line.append((char) (b & 0xff));
                 }
             }
+            return -1;
         }
-        src.resetP();
-        return false;
     }
 
-    private static int read_line_range(ByteBuf src, int length, int limit) throws IOException {
-        src.markP();
-        int p;
+    @Override
+    protected Object newAttachment() {
+        return new HttpAttachment();
+    }
+
+    private static int read_line_range(ByteBuf src, int abs_pos, int length, int limit)
+            throws IOException {
         int maybeRead = limit - length;
         if (src.remaining() > maybeRead) {
-            p = src.indexOf(N, src.absPos(), maybeRead);
-            if (p == -1) {
+            int res_p = src.indexOf(N, abs_pos, maybeRead);
+            if (res_p == -1) {
                 throw OVER_LIMIT;
             }
+            return res_p;
         } else {
-            p = src.indexOf(N);
-            if (p == -1) {
-                src.resetP();
-                return -1;
-            }
+            return src.indexOf(N, abs_pos);
         }
-        return findN(src, p);
     }
 
-    private static boolean startWith(ByteBuf src, int ps, int pe, byte[] match) {
+    private static boolean start_with(ByteBuf src, int ps, int pe, byte[] match) {
         if (pe - ps < match.length) {
             return false;
         }

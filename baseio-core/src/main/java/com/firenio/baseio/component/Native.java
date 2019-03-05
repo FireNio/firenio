@@ -115,7 +115,7 @@ public class Native {
 
     public static int close(int fd) {
         if (fd == -1) {
-            return 0;
+            return -1;
         }
         return printException(close0(fd));
     }
@@ -134,7 +134,7 @@ public class Native {
 
     public static int epoll_del(int epfd, int fd) {
         if (fd == -1) {
-            return 0;
+            return -1;
         }
         return printException(epoll_del0(epfd, fd));
     }

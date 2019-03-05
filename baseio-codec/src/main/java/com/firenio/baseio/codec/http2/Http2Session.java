@@ -60,8 +60,4 @@ public class Http2Session {
         settings[key] = value;
     }
 
-    public static Http2Session getHttp2Session(Channel ch) {
-        return (Http2Session) ch.getAttachment();
-    }
-
 }

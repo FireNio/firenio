@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.io.fixedlength;
+package test.io.lenthvalue;
 
 import java.util.Scanner;
 
-import com.firenio.baseio.codec.fixedlength.FixedLengthCodec;
-import com.firenio.baseio.codec.fixedlength.FixedLengthFrame;
+import com.firenio.baseio.codec.lengthvalue.LengthValueCodec;
+import com.firenio.baseio.codec.lengthvalue.LengthValueFrame;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.ChannelConnector;
 import com.firenio.baseio.component.Frame;
@@ -26,7 +26,7 @@ import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.Channel;
 
-public class TestFixedLengthClientPush {
+public class TestLengthValueClientPush {
 
     @SuppressWarnings("resource")
     public static void main(String[] args) throws Exception {
@@ -39,7 +39,7 @@ public class TestFixedLengthClientPush {
         ChannelConnector context = new ChannelConnector(8300);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addProtocolCodec(new FixedLengthCodec());
+        context.addProtocolCodec(new LengthValueCodec());
         Channel ch = context.connect();
         Util.exec(new Runnable() {
 
@@ -62,7 +62,7 @@ public class TestFixedLengthClientPush {
                         Util.close(ch);
                         break;
                     }
-                    FixedLengthFrame frame = new FixedLengthFrame();
+                    LengthValueFrame frame = new LengthValueFrame();
                     frame.write(line, context);
                     try {
                         ch.writeAndFlush(frame);

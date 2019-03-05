@@ -107,7 +107,7 @@ public class Http2Codec extends ProtocolCodec {
 
     @Override
     public Frame decode(Channel ch, ByteBuf src) throws Exception {
-        Http2Session session = Http2Session.getHttp2Session(ch);
+        Http2Session session = (Http2Session) ch.getAttachment();
         if (session.isPrefaceRead()) {
             if (src.remaining() < PREFACE_BINARY.length) {
                 return null;
@@ -142,6 +142,11 @@ public class Http2Codec extends ProtocolCodec {
         }
         Http2FrameType hType = Http2FrameType.getValue(type & 0xff);
         return genFrame(session, src, hType, length, streamIdentifier, flags);
+    }
+    
+    @Override
+    protected Object newAttachment() {
+        return new Http2Session();
     }
 
     @Override

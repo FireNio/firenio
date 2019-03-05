@@ -20,7 +20,7 @@ import java.io.IOException;
 import com.firenio.baseio.buffer.ByteBuf;
 import com.firenio.baseio.codec.http11.ClientHttpCodec;
 import com.firenio.baseio.codec.http11.ClientHttpFrame;
-import com.firenio.baseio.codec.http11.HttpAttr;
+import com.firenio.baseio.codec.http11.HttpAttachment;
 import com.firenio.baseio.codec.http11.HttpCodec;
 import com.firenio.baseio.codec.http11.HttpFrame;
 import com.firenio.baseio.codec.http11.HttpHeader;
@@ -91,6 +91,7 @@ public class HttpProxyServer {
                                     continue;
                                 }
                                 if (hs.key() == HttpHeader.Content_Length.getId()
+                                        || hs.key() == HttpHeader.Connection.getId()
                                         || hs.key() == HttpHeader.Transfer_Encoding.getId()
                                         || hs.key() == HttpHeader.Content_Encoding.getId()) {
                                     continue;
@@ -106,12 +107,13 @@ public class HttpProxyServer {
                             ch.close();
                         }
                     });
+                    String url = parseRequestURL(f.getRequestURL());
                     context.setPrintConfig(false);
+                    context.addChannelEventListener(new HttpProxyAttrListener());
                     context.addChannelEventListener(new LoggerChannelOpenListener());
                     context.connect((ch, ex) -> {
                         if (ex == null) {
-                            ClientHttpFrame req = new ClientHttpFrame(f.getRequestURL(),
-                                    f.getMethod());
+                            ClientHttpFrame req = new ClientHttpFrame(url, f.getMethod());
                             req.setRequestHeaders(f.getRequestHeaders());
                             req.getRequestHeaders().remove(HttpHeader.Proxy_Connection.getId());
                             if (f.getMethod() == HttpMethod.POST) {
@@ -135,9 +137,21 @@ public class HttpProxyServer {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.bind();
     }
-    
-    static class HttpProxyAttrListener extends ChannelEventListenerAdapter{
-        
+
+    public static String parseRequestURL(String url) {
+        if (url.startsWith("http://")) {
+            int index = url.indexOf('/', 8);
+            if (index == -1) {
+                return "/";
+            } else {
+                return url.substring(index);
+            }
+        }
+        return url;
+    }
+
+    static class HttpProxyAttrListener extends ChannelEventListenerAdapter {
+
         @Override
         public void channelOpened(Channel ch) throws Exception {
             ch.setAttachment(new HttpProxyAttr());
@@ -216,7 +230,7 @@ public class HttpProxyServer {
 
     }
 
-    public static class HttpProxyAttr extends HttpAttr {
+    public static class HttpProxyAttr extends HttpAttachment {
 
         public ChannelConnector connector;
         public boolean          handshakeFinished;

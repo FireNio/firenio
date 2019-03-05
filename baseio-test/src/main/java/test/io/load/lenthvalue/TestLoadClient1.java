@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.io.load.fixedlength;
+package test.io.load.lenthvalue;
 
-import static test.io.load.fixedlength.TestLoadServer.CLIENT_CORE_SIZE;
+import static test.io.load.lenthvalue.TestLoadServer.CLIENT_CORE_SIZE;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.firenio.baseio.Options;
-import com.firenio.baseio.codec.fixedlength.FixedLengthCodec;
-import com.firenio.baseio.codec.fixedlength.FixedLengthFrame;
+import com.firenio.baseio.codec.lengthvalue.LengthValueCodec;
+import com.firenio.baseio.codec.lengthvalue.LengthValueFrame;
 import com.firenio.baseio.common.ByteUtil;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.ChannelConnector;
@@ -83,7 +83,7 @@ public class TestLoadClient1 extends ITestThread {
             context.setSslContext(SslContextBuilder.forClient(true).build());
         }
         context.setPrintConfig(false);
-        context.addProtocolCodec(new FixedLengthCodec());
+        context.addProtocolCodec(new LengthValueCodec());
         if (TestLoadServer.ENABLE_WORK_EVENT_LOOP) {
             context.setExecutorEventLoopGroup(new ThreadEventLoopGroup("ep", 1024 * 256));
         }
@@ -96,7 +96,7 @@ public class TestLoadClient1 extends ITestThread {
         Channel ch = context.getChannel();
         try {
             for (int i = 0; i < time1; i++) {
-                Frame frame = new FixedLengthFrame();
+                Frame frame = new LengthValueFrame();
                 frame.setContent(ch.allocate());
                 if (debug) {
                     byte[] bb = new byte[4];

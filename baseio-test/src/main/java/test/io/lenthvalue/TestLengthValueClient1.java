@@ -13,40 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.io.fixedlength;
+package test.io.lenthvalue;
 
-import com.firenio.baseio.codec.fixedlength.FixedLengthCodec;
-import com.firenio.baseio.codec.fixedlength.FixedLengthFrame;
+import com.firenio.baseio.codec.lengthvalue.LengthValueCodec;
+import com.firenio.baseio.codec.lengthvalue.LengthValueFrame;
+import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.ChannelConnector;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
 import com.firenio.baseio.component.Channel;
 
-public class TestFixedLengthClient {
+public class TestLengthValueClient1 {
 
     public static void main(String[] args) throws Exception {
-        ChannelConnector context = new ChannelConnector("192.168.133.134", 8300);
-        IoEventHandle eventHandle = new IoEventHandle() {
+        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
             @Override
             public void accept(Channel ch, Frame frame) throws Exception {
-                FixedLengthFrame f = (FixedLengthFrame) frame;
+                LengthValueFrame f = (LengthValueFrame) frame;
                 System.out.println();
                 System.out.println("____________________" + f.getStringContent());
                 System.out.println();
-                context.close();
             }
+
         };
-
-        context.setIoEventHandle(eventHandle);
+        ChannelConnector context = new ChannelConnector(8300);
+        context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addProtocolCodec(new FixedLengthCodec());
-        Channel ch = context.connect(999999);
-        FixedLengthFrame frame = new FixedLengthFrame();
-        frame.setContent(ch.allocate());
-        frame.write("hello server!", ch);
-        ch.writeAndFlush(frame);
+        context.addProtocolCodec(new LengthValueCodec());
 
+        Channel ch = context.connect();
+        StringBuilder sb = new StringBuilder(1024 * 6);
+        for (int i = 0; i < 1; i++) {
+            sb.append("hello!");
+        }
+
+        for (int i = 0; i < 20; i++) {
+            LengthValueFrame frame = new LengthValueFrame();
+            frame.write(sb.toString(), ch);
+            ch.writeAndFlush(frame);
+        }
+        Util.sleep(100);
+        Util.close(context);
     }
 
 }

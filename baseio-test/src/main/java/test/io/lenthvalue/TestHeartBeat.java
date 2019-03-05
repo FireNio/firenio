@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.io.fixedlength;
+package test.io.lenthvalue;
 
-import com.firenio.baseio.codec.fixedlength.FixedLengthCodec;
-import com.firenio.baseio.codec.fixedlength.FixedLengthFrame;
+import com.firenio.baseio.codec.lengthvalue.LengthValueCodec;
+import com.firenio.baseio.codec.lengthvalue.LengthValueFrame;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.ChannelActiveListener;
 import com.firenio.baseio.component.ChannelConnector;
@@ -44,13 +44,13 @@ public class TestHeartBeat {
         ChannelConnector context = new ChannelConnector(group, "127.0.0.1", 8300);
         context.addChannelIdleEventListener(new ChannelActiveListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addProtocolCodec(new FixedLengthCodec());
+        context.addProtocolCodec(new LengthValueCodec());
         context.setIoEventHandle(eventHandleAdaptor);
         Channel ch = context.connect();
         String param = "tttt";
         long old = System.currentTimeMillis();
         for (int i = 0; i < 5; i++) {
-            Frame frame = new FixedLengthFrame();
+            Frame frame = new LengthValueFrame();
             frame.setContent(ch.allocate());
             frame.write(param, context);
             ch.writeAndFlush(frame);

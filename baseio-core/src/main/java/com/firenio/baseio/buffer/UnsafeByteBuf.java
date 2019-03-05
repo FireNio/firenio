@@ -32,7 +32,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
     UnsafeByteBuf(long memory) {
         this.memory = memory;
     }
-    
+
     @Override
     public int capacity() {
         return capacity;
@@ -261,26 +261,26 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public int indexOf(byte b, int absPos, int size) {
-        int p = absPos;
-        int l = p + size;
+    public int indexOf(byte b, int abs_pos, int size) {
         long addr = address();
+        long p = addr + abs_pos;
+        long l = p + size;
         for (; p < l; p++) {
-            if (Unsafe.getByte(addr + ((long) p << 0)) == b) {
-                return p;
+            if (Unsafe.getByte(p) == b) {
+                return (int) (p - addr);
             }
         }
         return -1;
     }
 
     @Override
-    public int lastIndexOf(byte b, int absPos, int size) {
-        int p = absPos;
-        int l = p - size - 1;
+    public int lastIndexOf(byte b, int abs_pos, int size) {
         long addr = address();
+        long p = addr + abs_pos;
+        long l = p - size - 1;
         for (; p > l; p--) {
-            if (Unsafe.getByte(addr + ((long) p << 0)) == b) {
-                return p;
+            if (Unsafe.getByte(p) == b) {
+                return (int) (p - addr);
             }
         }
         return -1;
@@ -450,7 +450,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     protected void putUnsignedIntLE0(long value) {
-        ByteUtil.putIntLE(address() + absPos(), (int)value);
+        ByteUtil.putIntLE(address() + absPos(), (int) value);
         pos += 4;
     }
 
@@ -461,7 +461,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     protected void putUnsignedShort0(int value) {
-        ByteUtil.putShort(address() + absPos(), (short)value);
+        ByteUtil.putShort(address() + absPos(), (short) value);
         skip(2);
     }
 
@@ -472,7 +472,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     protected void putUnsignedShortLE0(int value) {
-        ByteUtil.putShortLE(address() + absPos(), (short)value);
+        ByteUtil.putShortLE(address() + absPos(), (short) value);
         pos += 2;
     }
 

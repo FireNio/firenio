@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.io.fixedlength;
+package test.io.lenthvalue;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.firenio.baseio.Options;
-import com.firenio.baseio.codec.fixedlength.FixedLengthCodec;
-import com.firenio.baseio.codec.fixedlength.FixedLengthFrame;
+import com.firenio.baseio.codec.lengthvalue.LengthValueCodec;
+import com.firenio.baseio.codec.lengthvalue.LengthValueFrame;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ChannelAcceptor;
@@ -35,7 +35,7 @@ import com.firenio.baseio.concurrent.Waiter;
 
 import junit.framework.Assert;
 
-public class TestFixedLengthServerJunit {
+public class TestLengthValueServerJunit {
 
     static final String hello = "hello server!";
     static final String res   = "yes server already accept your message:";
@@ -65,7 +65,7 @@ public class TestFixedLengthServerJunit {
         };
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandle);
-        context.addProtocolCodec(new FixedLengthCodec());
+        context.addProtocolCodec(new LengthValueCodec());
         context.addChannelEventListener(new ChannelEventListenerAdapter() {
 
             @Override
@@ -104,9 +104,9 @@ public class TestFixedLengthServerJunit {
 
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addProtocolCodec(new FixedLengthCodec());
+        context.addProtocolCodec(new LengthValueCodec());
         Channel ch = context.connect();
-        FixedLengthFrame frame = new FixedLengthFrame();
+        LengthValueFrame frame = new LengthValueFrame();
         frame.setContent(ch.allocate());
         frame.write(hello, ch);
         ch.writeAndFlush(frame);
@@ -130,9 +130,9 @@ public class TestFixedLengthServerJunit {
 
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addProtocolCodec(new FixedLengthCodec());
+        context.addProtocolCodec(new LengthValueCodec());
         context.connect((ch, ex) -> {
-            FixedLengthFrame frame = new FixedLengthFrame();
+            LengthValueFrame frame = new LengthValueFrame();
             frame.setContent(ch.allocate());
             frame.write(hello, ch);
             try {

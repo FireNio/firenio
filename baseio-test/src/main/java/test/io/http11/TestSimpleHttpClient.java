@@ -20,14 +20,13 @@ import org.junit.Test;
 import com.firenio.baseio.Options;
 import com.firenio.baseio.codec.http11.ClientHttpCodec;
 import com.firenio.baseio.codec.http11.ClientHttpFrame;
-import com.firenio.baseio.codec.http11.HttpAttrListener;
 import com.firenio.baseio.codec.http11.WebSocketCodec;
 import com.firenio.baseio.common.Util;
+import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.ChannelConnector;
 import com.firenio.baseio.component.Frame;
 import com.firenio.baseio.component.IoEventHandle;
 import com.firenio.baseio.component.LoggerChannelOpenListener;
-import com.firenio.baseio.component.Channel;
 import com.firenio.baseio.component.SslContext;
 import com.firenio.baseio.component.SslContextBuilder;
 import com.firenio.baseio.concurrent.Waiter;
@@ -56,7 +55,6 @@ public class TestSimpleHttpClient {
                 w.call(new String(res.getArrayContent()), null);
             }
         });
-        context.addChannelEventListener(new HttpAttrListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setSslContext(sslContext);
         long start = Util.now();

@@ -100,7 +100,7 @@ public class HttpFrame extends Frame {
         return header;
     }
 
-    public int getHeaderLength() {
+    protected int getHeaderLength() {
         return headerLength;
     }
 
@@ -179,10 +179,6 @@ public class HttpFrame extends Frame {
     @Override
     public int headerLength() {
         return 0;
-    }
-
-    public void incrementHeaderLength(int length) {
-        this.headerLength += length;
     }
 
     public boolean isForm() {
@@ -317,7 +313,7 @@ public class HttpFrame extends Frame {
             setConnection(HttpConnection.UPGRADE);
             setResponseHeader(Upgrade, HttpStatic.websocket_bytes);
             setResponseHeader(Sec_WebSocket_Accept, acceptKey.getBytes());
-            ((HttpAttr) ch.getAttachment()).setWebsocketFrameName(getFrameName());
+            ((HttpAttachment) ch.getAttachment()).setWebsocketFrameName(getFrameName());
             ByteBuf buf = ch.encode(this);
             ch.setCodec(WebSocketCodec.PROTOCOL_ID);
             ch.writeAndFlush(buf);

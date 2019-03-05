@@ -227,18 +227,20 @@ abstract class DirectByteBuf extends ByteBuf {
     }
 
     @Override
-    public int indexOf(byte b, int absPos, int size) {
+    public int indexOf(byte b, int abs_pos, int size) {
         ByteBuffer m = memory;
-        int p = absPos;
-        int l = p + size;
         if (Unsafe.ENABLE) {
-            long addr = Unsafe.address(m);
+            long addr = address();
+            long p = addr + abs_pos;
+            long l = p + size;
             for (; p < l; p++) {
-                if (Unsafe.getByte(addr + ((long) p << 0)) == b) {
-                    return p;
+                if (Unsafe.getByte(p) == b) {
+                    return (int) (p - addr);
                 }
             }
         } else {
+            int p = abs_pos;
+            int l = p + size;
             for (; p < l; p++) {
                 if (m.get(p) == b) {
                     return p;
@@ -249,18 +251,20 @@ abstract class DirectByteBuf extends ByteBuf {
     }
 
     @Override
-    public int lastIndexOf(byte b, int absPos, int size) {
+    public int lastIndexOf(byte b, int abs_pos, int size) {
         ByteBuffer m = memory;
-        int p = absPos;
-        int l = p - size - 1;
         if (Unsafe.ENABLE) {
-            long addr = Unsafe.address(m);
+            long addr = address();
+            long p = addr + abs_pos;
+            long l = p - size - 1;
             for (; p > l; p--) {
-                if (Unsafe.getByte(addr + ((long) p << 0)) == b) {
-                    return p;
+                if (Unsafe.getByte(p) == b) {
+                    return (int) (p - addr);
                 }
             }
         } else {
+            int p = abs_pos;
+            int l = p - size - 1;
             for (; p > l; p--) {
                 if (m.get(p) == b) {
                     return p;

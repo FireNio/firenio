@@ -52,6 +52,10 @@ public abstract class ProtocolCodec extends LifeCycle {
         return ping.setPong();
     }
 
+    protected Object newAttachment() {
+        return null;
+    }
+
     public void release(NioEventLoop eventLoop, Frame frame) {}
 
     protected static IOException EXCEPTION(Class<?> clazz, String method, String msg) {

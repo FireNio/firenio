@@ -1,157 +1,163 @@
 ﻿<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.firenio</groupId>
-	<artifactId>baseio-test</artifactId>
-	<name>${project.artifactId}</name>
-	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	<description>The test of baseio</description>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.firenio</groupId>
+    <artifactId>baseio-test</artifactId>
+    <name>${project.artifactId}</name>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <description>The test of baseio</description>
 
-	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<includes>
-					<include>**/**.*</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>src/test/resources</directory>
-				<excludes>
-					<exclude>**/**.*</exclude>
-				</excludes>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.6.1</version>
-				<configuration>
-					<source>${project.JdkVersion}</source>
-					<target>${project.JdkVersion}</target>
-					<encoding>${project.build.sourceEncoding}</encoding>
-					<attach>true</attach>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/**.*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/test/resources</directory>
+                <excludes>
+                    <exclude>**/**.*</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
+                <configuration>
+                    <source>${project.JdkVersion}</source>
+                    <target>${project.JdkVersion}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <attach>true</attach>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.JdkVersion>1.8</project.JdkVersion>
-	</properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.JdkVersion>1.8</project.JdkVersion>
+    </properties>
 
-	<repositories>
-		<repository>
-			<id>snapshots</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>aliyun</id>
-			<url>https://maven.aliyun.com/nexus/content/groups/public/</url>
-		</repository>
-	</repositories>
+    <repositories>
+        <repository>
+            <id>snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>aliyun</id>
+            <url>https://maven.aliyun.com/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>aliyun</id>
-			<url>https://maven.aliyun.com/nexus/content/groups/public/</url>
-		</pluginRepository>
-	</pluginRepositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>aliyun</id>
+            <url>https://maven.aliyun.com/nexus/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
-	<dependencies>
+    <dependencies>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.10</version>
-		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+        </dependency>
 
-		<dependency>
-			<groupId>com.firenio</groupId>
-			<artifactId>baseio-sample-http</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+        <dependency>
+            <groupId>com.firenio</groupId>
+            <artifactId>baseio-sample-http</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
-		<dependency>
-			<groupId>redis.clients</groupId>
-			<artifactId>jedis</artifactId>
-			<version>2.4.2</version>
-		</dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.4.2</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjweaver</artifactId>
-			<version>1.7.4</version>
-		</dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.7.4</version>
+        </dependency>
 
-		<dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty-all</artifactId>
-			<version>4.1.25.Final</version>
-		</dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.25.Final</version>
+        </dependency>
 
-		<dependency>
-			<groupId>io.undertow</groupId>
-			<artifactId>undertow-core</artifactId>
-			<version>2.0.16.Final</version>
-		</dependency>
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-core</artifactId>
+            <version>2.0.16.Final</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm</artifactId>
-			<version>6.0</version>
-		</dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>6.0</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.xerial</groupId>
-			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.21.0.1</version>
-		</dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.21.0.1</version>
+        </dependency>
 
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>1.2.49</version>
-		</dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.49</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.elasticsearch.client</groupId>
-			<artifactId>transport</artifactId>
-			<version>6.4.2</version>
-		</dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>transport</artifactId>
+            <version>6.4.2</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.rapidoid</groupId>
-			<artifactId>rapidoid-http-server</artifactId>
-			<version>5.5.5</version>
-		</dependency>
+        <dependency>
+            <groupId>org.rapidoid</groupId>
+            <artifactId>rapidoid-http-server</artifactId>
+            <version>5.5.5</version>
+        </dependency>
 
-		<dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>3.1.0</version>
-			<scope>provided</scope>
-		</dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>com.wizzardo</groupId>
-			<artifactId>http</artifactId>
-			<version>0.3</version>
-		</dependency>
+        <dependency>
+            <groupId>com.wizzardo</groupId>
+            <artifactId>http</artifactId>
+            <version>0.3</version>
+        </dependency>
 
-		<dependency>
-			<groupId>com.jsoniter</groupId>
-			<artifactId>jsoniter</artifactId>
-			<version>0.9.23</version>
-		</dependency>
-		
-	</dependencies>
+        <dependency>
+            <groupId>com.jsoniter</groupId>
+            <artifactId>jsoniter</artifactId>
+            <version>0.9.23</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.voovan</groupId>
+            <artifactId>voovan-framework</artifactId>
+            <version>4.0.13</version>
+        </dependency>
+
+    </dependencies>
 
 </project>

@@ -139,24 +139,24 @@ public class WebSocketCodec extends ProtocolCodec {
             src.get(array);
             int length = array.length;
             int len = (length / 4) * 4;
-            for (int i = 0; i < len;) {
-                array[i++] ^= m0;
-                array[i++] ^= m1;
-                array[i++] ^= m2;
-                array[i++] ^= m3;
+            for (int i = 0; i < len; i += 4) {
+                array[i + 0] ^= m0;
+                array[i + 1] ^= m1;
+                array[i + 2] ^= m2;
+                array[i + 3] ^= m3;
             }
             if (len < length) {
                 int i = len;
                 int remain = length - len;
                 if (remain == 1) {
-                    array[i++] ^= m0;
+                    array[i + 0] ^= m0;
                 } else if (remain == 2) {
-                    array[i++] ^= m0;
-                    array[i++] ^= m1;
+                    array[i + 0] ^= m0;
+                    array[i + 1] ^= m1;
                 } else {
-                    array[i++] ^= m0;
-                    array[i++] ^= m1;
-                    array[i++] ^= m2;
+                    array[i + 0] ^= m0;
+                    array[i + 1] ^= m1;
+                    array[i + 2] ^= m2;
                 }
             }
         } else {

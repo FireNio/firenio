@@ -13,12 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.baseio.codec.redis;
+package com.firenio.baseio.codec.lengthvalue;
 
-public class RedisCmdFrame extends AbstractRedisFrame {
+import com.firenio.baseio.component.Frame;
 
-    public RedisNode getRedisNode() {
-        return null;
+public class LengthValueFrame extends Frame {
+
+    public LengthValueFrame() {}
+
+    public LengthValueFrame(String content) {
+        this.setContent(content);
+    }
+
+    @Override
+    public int headerLength() {
+        return LengthValueCodec.PROTOCOL_HEADER;
+    }
+
+    public String toString() {
+        return getStringContent();
     }
 
 }

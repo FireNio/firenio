@@ -43,7 +43,7 @@ public class TestProxyServlet extends HttpFrameAcceptor {
                 }
             }
         }
-        frame.write("not found".getBytes());
+        frame.setString("not found");
         ch.writeAndFlush(frame);
     }
 

@@ -49,7 +49,7 @@ public final class ByteBufAllocatorGroup extends LifeCycle {
         this.direct = direct;
         this.allocators = new PooledByteBufAllocator[groupSize];
         for (int i = 0; i < allocators.length; i++) {
-            allocators[i] = new PooledByteBufAllocator(this, i);
+            allocators[i] = new PooledByteBufAllocator(this);
         }
     }
 

@@ -15,7 +15,7 @@
  */
 package test.io.reconnect;
 
-import com.firenio.baseio.codec.fixedlength.FixedLengthCodec;
+import com.firenio.baseio.codec.lengthvalue.LengthValueCodec;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.ChannelConnector;
 import com.firenio.baseio.component.Frame;
@@ -38,7 +38,7 @@ public class TestReconnectClient2 {
         ChannelConnector context = new ChannelConnector(8087);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addProtocolCodec(new FixedLengthCodec());
+        context.addProtocolCodec(new LengthValueCodec());
         context.connect();
         int count = 5;
         for (int i = 0; i < count; i++) {

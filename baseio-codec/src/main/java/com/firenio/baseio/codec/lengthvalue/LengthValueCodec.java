@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.baseio.codec.fixedlength;
+package com.firenio.baseio.codec.lengthvalue;
 
 import java.io.IOException;
 
@@ -41,7 +41,7 @@ import com.firenio.baseio.component.ProtocolCodec;
  * 
  * </pre>
  */
-public class FixedLengthCodec extends ProtocolCodec {
+public class LengthValueCodec extends ProtocolCodec {
 
     public static final IOException ILLEGAL_PROTOCOL = EXCEPTION("illegal protocol");
     public static final IOException OVER_LIMIT       = EXCEPTION("over limit");
@@ -61,11 +61,11 @@ public class FixedLengthCodec extends ProtocolCodec {
     }
     private int limit;
 
-    public FixedLengthCodec() {
+    public LengthValueCodec() {
         this(1024 * 8);
     }
 
-    public FixedLengthCodec(int limit) {
+    public LengthValueCodec(int limit) {
         this.limit = limit;
     }
 
@@ -87,14 +87,14 @@ public class FixedLengthCodec extends ProtocolCodec {
         }
         byte[] data = new byte[len];
         src.get(data);
-        return new FixedLengthFrame(new String(data, ch.getCharset()));
+        return new LengthValueFrame(new String(data, ch.getCharset()));
     }
 
     private Frame decodePing(int len) throws IOException {
-        if (len == FixedLengthCodec.PROTOCOL_PING) {
-            return new FixedLengthFrame().setPing();
-        } else if (len == FixedLengthCodec.PROTOCOL_PONG) {
-            return new FixedLengthFrame().setPong();
+        if (len == LengthValueCodec.PROTOCOL_PING) {
+            return new LengthValueFrame().setPing();
+        } else if (len == LengthValueCodec.PROTOCOL_PONG) {
+            return new LengthValueFrame().setPong();
         } else {
             throw ILLEGAL_PROTOCOL;
         }
@@ -112,7 +112,7 @@ public class FixedLengthCodec extends ProtocolCodec {
 
     @Override
     public String getProtocolId() {
-        return "FixedLength";
+        return "LengthValue";
     }
 
     @Override
@@ -122,7 +122,7 @@ public class FixedLengthCodec extends ProtocolCodec {
 
     @Override
     public Frame ping(Channel ch) {
-        return new FixedLengthFrame().setPing();
+        return new LengthValueFrame().setPing();
     }
 
 }

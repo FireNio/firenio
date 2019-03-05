@@ -110,6 +110,11 @@ public final class Channel implements Runnable, Closeable {
         for (;;) {
             Frame f = codec.decode(this, src);
             if (f == null) {
+                if (Develop.BUF_DEBUG) {
+                    if (plainRemainBuf != null) {
+                        throw new Exception("plainRemainBuf not null");
+                    }
+                }
                 plainRemainBuf = sliceRemain(src);
                 break;
             }
@@ -245,18 +250,18 @@ public final class Channel implements Runnable, Closeable {
     }
 
     protected void fireOpened() {
-        final Channel ch = this;
+        setAttachment(codec.newAttachment());
         List<ChannelEventListener> ls = context.getChannelEventListeners();
         for (int i = 0, count = ls.size(); i < count; i++) {
             ChannelEventListener l = ls.get(i);
             try {
-                l.channelOpened(ch);
+                l.channelOpened(this);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
-                Util.close(ch);
+                Util.close(this);
                 return;
             }
-            if (!ch.isOpen()) {
+            if (!this.isOpen()) {
                 return;
             }
         }
@@ -671,9 +676,13 @@ public final class Channel implements Runnable, Closeable {
 
     private ByteBuf sliceRemain(ByteBuf src) {
         int remain = src.remaining();
-        ByteBuf remaining = alloc().allocate(remain);
-        remaining.put(src);
-        return remaining.flip();
+        if (remain > 0) {
+            ByteBuf remaining = alloc().allocate(remain);
+            remaining.put(src);
+            return remaining.flip();
+        } else {
+            return null;
+        }
     }
 
     private void stopContext() {
@@ -936,8 +945,10 @@ public final class Channel implements Runnable, Closeable {
 
         @Override
         public void close() {
-            Native.epoll_del(this.epfd, this.fd);
-            Native.close(this.fd);
+            int res = Native.epoll_del(this.epfd, this.fd);
+            if (res != -1) {
+                Native.close(this.fd);
+            }
         }
 
         @Override

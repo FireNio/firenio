@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.io.load.fixedlength;
+package test.io.load.lenthvalue;
 
 import java.math.BigDecimal;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.firenio.baseio.codec.fixedlength.FixedLengthCodec;
-import com.firenio.baseio.codec.fixedlength.FixedLengthFrame;
+import com.firenio.baseio.codec.lengthvalue.LengthValueCodec;
+import com.firenio.baseio.codec.lengthvalue.LengthValueFrame;
 import com.firenio.baseio.common.Util;
 import com.firenio.baseio.component.ChannelConnector;
 import com.firenio.baseio.component.Frame;
@@ -59,13 +59,13 @@ public class TestLoadClient {
         ChannelConnector context = new ChannelConnector(8300);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
-        context.addProtocolCodec(new FixedLengthCodec());
+        context.addProtocolCodec(new LengthValueCodec());
         Channel ch = context.connect();
         System.out.println("################## Test start ####################");
         long old = System.currentTimeMillis();
 
         for (int i = 0; i < time; i++) {
-            FixedLengthFrame frame = new FixedLengthFrame();
+            LengthValueFrame frame = new LengthValueFrame();
             frame.write("hello server!", ch);
             ch.writeAndFlush(frame);
         }

@@ -119,7 +119,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         return attributes;
     }
 
-    private void channelIdle(ChannelIdleListener l, Channel ch, long lastIdleTime,
+    private static void channelIdle(ChannelIdleListener l, Channel ch, long lastIdleTime,
             long currentTime) {
         try {
             l.channelIdled(ch, lastIdleTime, currentTime);
@@ -137,26 +137,35 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         }
         //FIXME ..optimize sharable group
         if (sharable) {
+            channel_idle_share(channels, lastIdleTime, currentTime);
+        } else {
+            channel_idle(group.getContext(), channels, lastIdleTime, currentTime);
+        }
+    }
+
+    private static void channel_idle(ChannelContext context, IntMap<Channel> channels,
+            long lastIdleTime, long currentTime) {
+        List<ChannelIdleListener> ls = context.getChannelIdleEventListeners();
+        for (int i = 0; i < ls.size(); i++) {
+            ChannelIdleListener l = ls.get(i);
             for (channels.scan(); channels.hasNext();) {
                 Channel ch = channels.nextValue();
-                ChannelContext context = ch.getContext();
-                List<ChannelIdleListener> ls = context.getChannelIdleEventListeners();
-                if (ls.size() == 1) {
-                    channelIdle(ls.get(0), ch, lastIdleTime, currentTime);
-                } else {
-                    for (int i = 0; i < ls.size(); i++) {
-                        channelIdle(ls.get(i), ch, lastIdleTime, currentTime);
-                    }
-                }
+                channelIdle(l, ch, lastIdleTime, currentTime);
             }
-        } else {
-            ChannelContext context = group.getContext();
+        }
+    }
+
+    private static void channel_idle_share(IntMap<Channel> channels, long lastIdleTime,
+            long currentTime) {
+        for (channels.scan(); channels.hasNext();) {
+            Channel ch = channels.nextValue();
+            ChannelContext context = ch.getContext();
             List<ChannelIdleListener> ls = context.getChannelIdleEventListeners();
-            for (int i = 0; i < ls.size(); i++) {
-                ChannelIdleListener l = ls.get(i);
-                for (channels.scan(); channels.hasNext();) {
-                    Channel ch = channels.nextValue();
-                    channelIdle(l, ch, lastIdleTime, currentTime);
+            if (ls.size() == 1) {
+                channelIdle(ls.get(0), ch, lastIdleTime, currentTime);
+            } else {
+                for (int i = 0; i < ls.size(); i++) {
+                    channelIdle(ls.get(i), ch, lastIdleTime, currentTime);
                 }
             }
         }
@@ -282,12 +291,12 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         Util.close(unsafe);
         Util.release(buf);
     }
-    
-    private boolean has_task(){
+
+    private boolean has_task() {
         return USE_HAS_TASK ? hasTask : !events.isEmpty();
     }
-    
-    private void clear_has_task(){
+
+    private void clear_has_task() {
         if (USE_HAS_TASK) {
             hasTask = false;
         }
@@ -322,7 +331,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                 if (!has_task() && selecting.compareAndSet(0, 1)) {
                     if (has_task()) {
                         selected = unsafe.selectNow();
-                    }else{
+                    } else {
                         selected = unsafe.select(selectTime);
                     }
                     selecting.set(0);
@@ -467,9 +476,9 @@ public final class NioEventLoop extends EventLoop implements Attributes {
             final NioEventLoop el = this.eventLoop;
             final long ep_events = this.ep_events;
             for (int i = 0; i < size; i++) {
-                final int p = i * Native.SIZEOF_EPOLL_EVENT;
-                final int e = Unsafe.getInt(ep_events + p);
-                final int fd = Unsafe.getInt(ep_events + p + 4);
+                int p = i * Native.SIZEOF_EPOLL_EVENT;
+                int e = Unsafe.getInt(ep_events + p);
+                int fd = Unsafe.getInt(ep_events + p + 4);
                 if (fd == eventfd) {
                     Native.event_fd_read(fd);
                     continue;
@@ -612,6 +621,13 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                     ctx.channelEstablish(null, new IOException(Native.errstr()));
                 }
                 return;
+            }
+            Channel old = channels.get(fd);
+            if (old != null) {
+                if (Develop.NATIVE_DEBUG) {
+                    logger.error("old channel ....................,open:{}", old.isOpen());
+                }
+                old.close();
             }
             Channel ch = new Channel(el, ctx, new EpollChannelUnsafe(epfd, fd, ra, lp, rp));
             channels.put(fd, ch);
@@ -850,7 +866,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         }
 
         @Override
-        int select(long timeout)  {
+        int select(long timeout) {
             try {
                 return selector.select(timeout);
             } catch (IOException e) {
@@ -860,7 +876,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         }
 
         @Override
-        int selectNow()  {
+        int selectNow() {
             try {
                 return selector.selectNow();
             } catch (IOException e) {

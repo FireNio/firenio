@@ -50,7 +50,7 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
         String kill = frame.getRequestParam("kill");
         if (!Util.isNullOrBlank(kill)) {
             Integer id = Integer.valueOf(kill, 16);
-            Util.close(context.getChannelManager().getChannel(id));
+            Util.close(CountChannelListener.chs.get(id));
         }
 
         BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());

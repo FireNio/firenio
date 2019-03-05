@@ -21,7 +21,7 @@ import com.firenio.baseio.buffer.ByteBuf;
  * @author wangkai
  *
  */
-public class HttpAttr {
+public class HttpAttachment {
 
     private HttpFrame uncompleteFrame;
     
