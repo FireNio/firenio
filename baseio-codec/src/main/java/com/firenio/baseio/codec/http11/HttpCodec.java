@@ -202,7 +202,7 @@ public class HttpCodec extends ProtocolCodec {
         }
         return decode_state;
     }
-    
+
     private int decode_full(ByteBuf src, HttpFrame f) throws IOException {
         int decode_state = f.getDecodeState();
         StringBuilder line = FastThreadLocal.get().getStringBuilder();
@@ -228,7 +228,7 @@ public class HttpCodec extends ProtocolCodec {
                     f.setHeaderLength(h_len);
                     break;
                 }
-                abs_pos = pn; 
+                abs_pos = pn;
                 h_len += line.length();
                 if (line.length() == 0) {
                     src.absPos(abs_pos);
@@ -555,7 +555,9 @@ public class HttpCodec extends ProtocolCodec {
     private static int read_line(StringBuilder line, ByteBuf src, int abs_pos, int length,
             int limit) throws IOException {
         int maybeRead = limit - length;
-        if (src.remaining() > maybeRead) {
+        int s_limit = src.absLimit();
+        int remaining = s_limit - abs_pos;
+        if (remaining > maybeRead) {
             int count = abs_pos + maybeRead;
             for (int i = abs_pos; i < count; i++) {
                 byte b = src.absByte(i);
@@ -568,8 +570,7 @@ public class HttpCodec extends ProtocolCodec {
             }
             throw OVER_LIMIT;
         } else {
-            int count = abs_pos + src.remaining();
-            for (int i = abs_pos; i < count; i++) {
+            for (int i = abs_pos; i < s_limit; i++) {
                 byte b = src.absByte(i);
                 if (b == N) {
                     line.setLength(line.length() - 1);
@@ -590,14 +591,16 @@ public class HttpCodec extends ProtocolCodec {
     private static int read_line_range(ByteBuf src, int abs_pos, int length, int limit)
             throws IOException {
         int maybeRead = limit - length;
-        if (src.remaining() > maybeRead) {
+        int s_limit = src.absLimit();
+        int remaining = s_limit - abs_pos;
+        if (remaining > maybeRead) {
             int res_p = src.indexOf(N, abs_pos, maybeRead);
             if (res_p == -1) {
                 throw OVER_LIMIT;
             }
             return res_p;
         } else {
-            return src.indexOf(N, abs_pos);
+            return src.indexOf(N, abs_pos, remaining);
         }
     }
 

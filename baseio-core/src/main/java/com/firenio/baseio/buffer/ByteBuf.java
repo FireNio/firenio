@@ -187,11 +187,7 @@ public abstract class ByteBuf implements Releasable {
     public abstract boolean hasRemaining();
 
     public int indexOf(byte b) {
-        return indexOf(b, absPos());
-    }
-
-    public int indexOf(byte b, int absPos) {
-        return indexOf(b, absPos, remaining());
+        return indexOf(b, absPos(), remaining());
     }
 
     public abstract int indexOf(byte b, int absPos, int size);
@@ -206,11 +202,7 @@ public abstract class ByteBuf implements Releasable {
     }
 
     public int lastIndexOf(byte b) {
-        return lastIndexOf(b, absLimit());
-    }
-
-    public int lastIndexOf(byte b, int absPos) {
-        return lastIndexOf(b, absPos, remaining());
+        return lastIndexOf(b, absLimit(), remaining());
     }
 
     public abstract int lastIndexOf(byte b, int absPos, int size);
@@ -529,7 +521,7 @@ public abstract class ByteBuf implements Releasable {
     public static ByteBuf wrap(ByteBuffer buffer) {
         if (buffer.isDirect()) {
             return new UnpooledDirectByteBuf(buffer);
-        }else{
+        } else {
             return new UnpooledHeapByteBuf(buffer);
         }
     }
