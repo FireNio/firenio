@@ -95,8 +95,8 @@ final class DuplicatedUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
-    public void get(byte[] dst, int offset, int length) {
-        p.get(dst, offset, length);
+    public void getBytes(byte[] dst, int offset, int length) {
+        p.getBytes(dst, offset, length);
     }
 
     @Override
@@ -260,47 +260,47 @@ final class DuplicatedUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
-    public void put(byte[] src) {
+    public void putBytes(byte[] src) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void put(byte[] src, int offset, int length) {
+    public void putBytes(byte[] src, int offset, int length) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int put(ByteBuf src) {
+    public int putBytes(ByteBuf src) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int put(ByteBuf src, int length) {
+    public int putBytes(ByteBuf src, int length) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int put(ByteBuffer src) {
+    public int putBytes(ByteBuffer src) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int put(ByteBuffer src, int length) {
+    public int putBytes(ByteBuffer src, int length) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void put0(byte[] src, int offset, int length) {
+    protected void putBytes0(byte[] src, int offset, int length) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected int put00(ByteBuf src, int len) {
+    protected int putBytes00(ByteBuf src, int len) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected int put00(ByteBuffer src, int len) {
+    protected int putBytes00(ByteBuffer src, int len) {
         throw unsupportedOperationException();
     }
 

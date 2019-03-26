@@ -85,7 +85,7 @@ abstract class HeapByteBuf extends ByteBuf {
     }
 
     @Override
-    public void get(byte[] dst, int offset, int length) {
+    public void getBytes(byte[] dst, int offset, int length) {
         System.arraycopy(memory, pos, dst, offset, length);
         this.pos += length;
     }
@@ -327,13 +327,13 @@ abstract class HeapByteBuf extends ByteBuf {
     }
 
     @Override
-    protected void put0(byte[] src, int offset, int length) {
+    protected void putBytes0(byte[] src, int offset, int length) {
         System.arraycopy(src, offset, memory, pos, length);
         this.pos += length;
     }
 
     @Override
-    protected int put00(ByteBuf src, int len) {
+    protected int putBytes00(ByteBuf src, int len) {
         if (src.hasArray()) {
             copy(src.array(), src.absPos(), memory, absPos(), len);
         } else {
@@ -345,7 +345,7 @@ abstract class HeapByteBuf extends ByteBuf {
     }
 
     @Override
-    protected int put00(ByteBuffer src, int len) {
+    protected int putBytes00(ByteBuffer src, int len) {
         if (src.hasArray()) {
             copy(src.array(), src.position(), memory, absPos(), len);
         } else {

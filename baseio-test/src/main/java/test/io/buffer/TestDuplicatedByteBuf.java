@@ -34,7 +34,7 @@ public class TestDuplicatedByteBuf {
     public void testDirect() throws Exception {
         ByteBuf buf = ByteBuf.direct(16);
 
-        buf.put(data.getBytes());
+        buf.putBytes(data.getBytes());
         buf.flip();
         ByteBuf buf2 = buf.duplicate();
         v(buf2);
@@ -45,7 +45,7 @@ public class TestDuplicatedByteBuf {
         ByteBufAllocator a = TestAllocUtil.direct();
         ByteBuf buf = a.allocate(16);
 
-        buf.put(data.getBytes());
+        buf.putBytes(data.getBytes());
         buf.flip();
         ByteBuf buf2 = buf.duplicate();
         v(buf2);
@@ -55,7 +55,7 @@ public class TestDuplicatedByteBuf {
     public void testHeap() throws Exception {
         ByteBuf buf = ByteBuf.direct(16);
 
-        buf.put(data.getBytes());
+        buf.putBytes(data.getBytes());
         buf.flip();
         ByteBuf buf2 = buf.duplicate();
         v(buf2);
@@ -66,7 +66,7 @@ public class TestDuplicatedByteBuf {
         ByteBufAllocator a = TestAllocUtil.heap();
         ByteBuf buf = a.allocate(16);
 
-        buf.put(data.getBytes());
+        buf.putBytes(data.getBytes());
         buf.flip();
         ByteBuf buf2 = buf.duplicate();
         v(buf2);

@@ -86,7 +86,7 @@ public class LengthValueCodec extends ProtocolCodec {
             return null;
         }
         byte[] data = new byte[len];
-        src.get(data);
+        src.getBytes(data);
         return new LengthValueFrame(new String(data, ch.getCharset()));
     }
 

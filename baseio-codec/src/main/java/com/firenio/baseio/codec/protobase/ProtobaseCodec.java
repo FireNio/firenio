@@ -84,7 +84,7 @@ public class ProtobaseCodec extends ProtocolCodec {
         int frameId = src.getInt();
         int channelId = src.getInt();
         byte[] data = new byte[len - 8];
-        src.get(data);
+        src.getBytes(data);
         ProtobaseFrame f = newFrame();
         f.setFlags(flags);
         f.setChannelId(channelId);

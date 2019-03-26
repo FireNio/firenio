@@ -90,7 +90,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public void get(byte[] dst, int offset, int length) {
+    public void getBytes(byte[] dst, int offset, int length) {
         Unsafe.copyToArray(memory + absPos(), dst, offset, length);
         this.skip(length);
     }
@@ -327,13 +327,13 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    protected void put0(byte[] src, int offset, int length) {
+    protected void putBytes0(byte[] src, int offset, int length) {
         Unsafe.copyFromArray(src, offset, address() + absPos(), length);
         this.pos += length;
     }
 
     @Override
-    protected int put00(ByteBuf src, int len) {
+    protected int putBytes00(ByteBuf src, int len) {
         if (src.hasArray()) {
             copy(src.array(), src.absPos(), address() + absPos(), len);
         } else {
@@ -345,7 +345,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    protected int put00(ByteBuffer src, int len) {
+    protected int putBytes00(ByteBuffer src, int len) {
         if (src.hasArray()) {
             copy(src.array(), src.position(), address() + absPos(), len);
         } else {

@@ -564,7 +564,7 @@ public final class Channel implements Runnable, Closeable {
         if (remainingBuf == null) {
             return;
         }
-        dst.put(remainingBuf);
+        dst.putBytes(remainingBuf);
         remainingBuf.release();
         this.plainRemainBuf = null;
     }
@@ -574,7 +574,7 @@ public final class Channel implements Runnable, Closeable {
         if (remainingBuf == null) {
             return;
         }
-        dst.put(remainingBuf);
+        dst.putBytes(remainingBuf);
         remainingBuf.release();
         this.sslRemainBuf = null;
     }
@@ -678,7 +678,7 @@ public final class Channel implements Runnable, Closeable {
         int remain = src.remaining();
         if (remain > 0) {
             ByteBuf remaining = alloc().allocate(remain);
-            remaining.put(src);
+            remaining.putBytes(src);
             return remaining.flip();
         } else {
             return null;
@@ -694,7 +694,7 @@ public final class Channel implements Runnable, Closeable {
     //FIXME 部分buf不需要swap
     private ByteBuf swap(ByteBufAllocator allocator, ByteBuf buf) {
         ByteBuf out = allocator.allocate(buf.limit());
-        out.put(buf);
+        out.putBytes(buf);
         return out.flip();
     }
 
@@ -814,7 +814,7 @@ public final class Channel implements Runnable, Closeable {
                     }
                     if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
                         if (out != null) {
-                            out.put(dst.flip());
+                            out.putBytes(dst.flip());
                             return out.flip();
                         }
                         return swap(alloc, dst.flip());
@@ -822,12 +822,12 @@ public final class Channel implements Runnable, Closeable {
                         if (out == null) {
                             out = alloc.allocate(256);
                         }
-                        out.put(dst.flip());
+                        out.putBytes(dst.flip());
                         continue;
                     } else if (handshakeStatus == HandshakeStatus.FINISHED) {
                         finishHandshake();
                         if (out != null) {
-                            out.put(dst.flip());
+                            out.putBytes(dst.flip());
                             return out.flip();
                         }
                         return swap(alloc, dst.flip());

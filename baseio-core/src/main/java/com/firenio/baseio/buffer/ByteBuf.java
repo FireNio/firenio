@@ -89,21 +89,21 @@ public abstract class ByteBuf implements Releasable {
 
     public abstract ByteBuf flip();
 
-    public void get(byte[] dst) {
-        get(dst, 0, dst.length);
+    public void getBytes(byte[] dst) {
+        getBytes(dst, 0, dst.length);
     }
 
-    public abstract void get(byte[] dst, int offset, int length);
+    public abstract void getBytes(byte[] dst, int offset, int length);
 
-    public int get(ByteBuf dst) {
-        return dst.put(this, dst.remaining());
+    public int getBytes(ByteBuf dst) {
+        return dst.putBytes(this, dst.remaining());
     }
 
-    public int get(ByteBuf dst, int length) {
-        return dst.put(this, length);
+    public int getBytes(ByteBuf dst, int length) {
+        return dst.putBytes(this, length);
     }
 
-    public int get(ByteBuffer dst) {
+    public int getBytes(ByteBuffer dst) {
         int len = Math.min(remaining(), dst.remaining());
         if (len == 0) {
             return 0;
@@ -111,7 +111,7 @@ public abstract class ByteBuf implements Releasable {
         return get0(dst, len);
     }
 
-    public int get(ByteBuffer dst, int length) {
+    public int getBytes(ByteBuffer dst, int length) {
         int len = Math.min(remaining(), dst.remaining());
         len = Math.min(len, length);
         if (len == 0) {
@@ -132,7 +132,7 @@ public abstract class ByteBuf implements Releasable {
 
     public byte[] getBytes(int length) {
         byte[] bytes = new byte[length];
-        get(bytes);
+        getBytes(bytes);
         return bytes;
     }
 
@@ -239,76 +239,76 @@ public abstract class ByteBuf implements Releasable {
         return this;
     }
 
-    public void put(byte[] src) {
-        put(src, 0, src.length);
+    public void putBytes(byte[] src) {
+        putBytes(src, 0, src.length);
     }
 
-    public void put(byte[] src, int offset, int length) {
+    public void putBytes(byte[] src, int offset, int length) {
         ensureWritable(length);
-        put0(src, offset, length);
+        putBytes0(src, offset, length);
     }
 
-    public int put(ByteBuf src) {
+    public int putBytes(ByteBuf src) {
         int len = src.remaining();
         if (len == 0) {
             return 0;
         }
-        return put0(src, len);
+        return putBytes0(src, len);
     }
 
-    public int put(ByteBuf src, int length) {
+    public int putBytes(ByteBuf src, int length) {
         int len = Math.min(length, src.remaining());
         if (len == 0) {
             return 0;
         }
-        return put0(src, len);
+        return putBytes0(src, len);
     }
 
-    public int put(ByteBuffer src) {
+    public int putBytes(ByteBuffer src) {
         int len = src.remaining();
         if (len == 0) {
             return 0;
         }
-        return put0(src, len);
+        return putBytes0(src, len);
     }
 
-    public int put(ByteBuffer src, int length) {
+    public int putBytes(ByteBuffer src, int length) {
         int len = Math.min(length, src.remaining());
         if (len == 0) {
             return 0;
         }
-        return put0(src, len);
+        return putBytes0(src, len);
     }
 
-    protected abstract void put0(byte[] src, int offset, int length);
+    protected abstract void putBytes0(byte[] src, int offset, int length);
 
-    protected int put0(ByteBuf src, int len) {
+    protected int putBytes0(ByteBuf src, int len) {
         if (AUTO_EXPANSION) {
             ensureWritable(len);
-            return put00(src, len);
+            return putBytes00(src, len);
         } else {
             if (!hasRemaining()) {
                 return 0;
             }
-            return put00(src, Math.min(remaining(), len));
+            return putBytes00(src, Math.min(remaining(), len));
         }
     }
 
-    protected int put0(ByteBuffer src, int len) {
+    protected int putBytes0(ByteBuffer src, int len) {
         if (AUTO_EXPANSION) {
             ensureWritable(len);
-            return put00(src, len);
+            return putBytes00(src, len);
         } else {
             if (!hasRemaining()) {
                 return 0;
             }
-            return put00(src, Math.min(remaining(), len));
+            return putBytes00(src, Math.min(remaining(), len));
         }
     }
 
-    protected abstract int put00(ByteBuf src, int len);
+    protected abstract int putBytes00(ByteBuf src, int len);
 
-    protected abstract int put00(ByteBuffer src, int len);
+    protected abstract int putBytes00(ByteBuffer src, int len);
 
     public void putByte(byte b) {
         ensureWritable(1);

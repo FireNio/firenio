@@ -97,97 +97,97 @@ public class TestByteBufCopy {
 
     Object arrayGetArray() {
         ByteBuf buf = _array();
-        arrayData().get(buf);
+        arrayData().getBytes(buf);
         return buf;
     }
 
     Object arrayGetDirect() {
         ByteBuf buf = _direct();
-        arrayData().get(buf);
+        arrayData().getBytes(buf);
         return buf;
     }
 
     Object arrayGetJArray() {
         ByteBuffer buf = _jArray();
-        arrayData().get(buf);
+        arrayData().getBytes(buf);
         return buf;
     }
 
     Object arrayGetJDirect() {
         ByteBuffer buf = _jDirect();
-        arrayData().get(buf);
+        arrayData().getBytes(buf);
         return buf;
     }
 
     Object arrayPutArray() {
         ByteBuf buf = _array();
-        buf.put(arrayData());
+        buf.putBytes(arrayData());
         return buf;
     }
 
     Object arrayPutDirect() {
         ByteBuf buf = _array();
-        buf.put(directData());
+        buf.putBytes(directData());
         return buf;
     }
 
     Object arrayPutJArray() {
         ByteBuf buf = _array();
-        buf.put(jArrayData());
+        buf.putBytes(jArrayData());
         return buf;
     }
 
     Object arrayPutJDirect() {
         ByteBuf buf = _array();
-        buf.put(jDirectData());
+        buf.putBytes(jDirectData());
         return buf;
     }
 
     Object directGetArray() {
         ByteBuf buf = _array();
-        directData().get(buf);
+        directData().getBytes(buf);
         return buf;
     }
 
     Object directGetDirect() {
         ByteBuf buf = _direct();
-        directData().get(buf);
+        directData().getBytes(buf);
         return buf;
     }
 
     Object directGetJArray() {
         ByteBuffer buf = _jArray();
-        directData().get(buf);
+        directData().getBytes(buf);
         return buf;
     }
 
     Object directGetJDirect() {
         ByteBuffer buf = _jDirect();
-        directData().get(buf);
+        directData().getBytes(buf);
         return buf;
     }
 
     Object directPutArray() {
         ByteBuf buf = _direct();
-        buf.put(arrayData());
+        buf.putBytes(arrayData());
         return buf;
     }
 
     Object directPutDirect() {
         ByteBuf buf = _direct();
-        buf.put(directData());
+        buf.putBytes(directData());
         return buf;
     }
 
     Object directPutJArray() {
         ByteBuf buf = _direct();
-        buf.put(jArrayData());
+        buf.putBytes(jArrayData());
         return buf;
     }
 
     Object directPutJDirect() {
         ByteBuf buf = _direct();
-        buf.put(jDirectData());
+        buf.putBytes(jDirectData());
         return buf;
     }
 

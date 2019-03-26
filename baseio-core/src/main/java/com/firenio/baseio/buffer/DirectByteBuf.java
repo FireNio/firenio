@@ -74,7 +74,7 @@ abstract class DirectByteBuf extends ByteBuf {
     }
 
     @Override
-    public void get(byte[] dst, int offset, int length) {
+    public void getBytes(byte[] dst, int offset, int length) {
         memory.get(dst, offset, length);
     }
 
@@ -314,12 +314,12 @@ abstract class DirectByteBuf extends ByteBuf {
     }
 
     @Override
-    protected void put0(byte[] src, int offset, int length) {
+    protected void putBytes0(byte[] src, int offset, int length) {
         memory.put(src, offset, length);
     }
 
     @Override
-    protected int put00(ByteBuf src, int len) {
+    protected int putBytes00(ByteBuf src, int len) {
         if (src.hasArray()) {
             copy(src.array(), src.position(), address() + absPos(), len);
         } else {
@@ -331,7 +331,7 @@ abstract class DirectByteBuf extends ByteBuf {
     }
 
     @Override
-    protected int put00(ByteBuffer src, int len) {
+    protected int putBytes00(ByteBuffer src, int len) {
         if (src.hasArray()) {
             copy(src.array(), src.position(), address() + absPos(), len);
         } else {

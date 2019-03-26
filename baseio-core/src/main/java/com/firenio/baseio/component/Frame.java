@@ -140,7 +140,7 @@ public abstract class Frame {
 
     public void write(byte[] bytes, int off, int len) {
         ByteBuf c = getBufContent();
-        c.put(bytes, off, len);
+        c.putBytes(bytes, off, len);
     }
 
     public void write(String text, Channel ch) {

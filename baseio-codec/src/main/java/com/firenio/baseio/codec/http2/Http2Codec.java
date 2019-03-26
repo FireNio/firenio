@@ -200,7 +200,7 @@ public class Http2Codec extends ProtocolCodec {
         buf.putByte(b3);
         buf.putByte((byte) 0);
         buf.putInt(f.getStreamIdentifier());
-        buf.put(payload);
+        buf.putBytes(payload);
         return buf.flip();
     }
 

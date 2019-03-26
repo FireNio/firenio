@@ -136,7 +136,7 @@ public class WebSocketCodec extends ProtocolCodec {
             byte m1 = src.getByte();
             byte m2 = src.getByte();
             byte m3 = src.getByte();
-            src.get(array);
+            src.getBytes(array);
             int length = array.length;
             int len = (length / 4) * 4;
             for (int i = 0; i < len; i += 4) {
@@ -160,7 +160,7 @@ public class WebSocketCodec extends ProtocolCodec {
                 }
             }
         } else {
-            src.get(array);
+            src.getBytes(array);
         }
         WebSocketFrame f = newWebSocketFrame(ch);
         f.setEof(eof);

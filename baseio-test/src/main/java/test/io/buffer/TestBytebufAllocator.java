@@ -29,11 +29,11 @@ public class TestBytebufAllocator {
     @Test
     public void testput0() {
         ByteBuf src = ByteBuf.direct(1024);
-        src.put(data.getBytes());
+        src.putBytes(data.getBytes());
         src.flip();
 
         ByteBuf dst = ByteBuf.direct(1024);
-        dst.put(src);
+        dst.putBytes(src);
         dst.flip();
         v(dst);
     }
@@ -42,11 +42,11 @@ public class TestBytebufAllocator {
     public void testput1() {
 
         ByteBuf src = ByteBuf.direct(1024);
-        src.put(data.getBytes());
+        src.putBytes(data.getBytes());
         src.flip();
 
         ByteBuf dst = ByteBuf.direct(data1.length());
-        dst.put(src);
+        dst.putBytes(src);
         dst.flip();
         v(dst);
     }
@@ -54,11 +54,11 @@ public class TestBytebufAllocator {
     @Test
     public void testput2() {
         ByteBuf src = ByteBuf.heap(1024);
-        src.put(data.getBytes());
+        src.putBytes(data.getBytes());
         src.flip();
 
         ByteBuf dst = ByteBuf.direct(1024);
-        dst.put(src);
+        dst.putBytes(src);
         dst.flip();
         v(dst);
     }
@@ -66,11 +66,11 @@ public class TestBytebufAllocator {
     @Test
     public void testPut3() {
         ByteBuf src = ByteBuf.heap(1024);
-        src.put(data.getBytes());
+        src.putBytes(data.getBytes());
         src.flip();
 
         ByteBuf dst = ByteBuf.direct(data1.length());
-        dst.put(src);
+        dst.putBytes(src);
         dst.flip();
         v(dst);
     }
@@ -78,11 +78,11 @@ public class TestBytebufAllocator {
     @Test
     public void testPut4() {
         ByteBuf src = ByteBuf.heap(1024);
-        src.put("hello;hello;".getBytes());
+        src.putBytes("hello;hello;".getBytes());
         src.flip();
 
         ByteBuf dst = ByteBuf.heap(1024);
-        dst.put(src);
+        dst.putBytes(src);
         dst.flip();
         v(dst);
     }
@@ -90,11 +90,11 @@ public class TestBytebufAllocator {
     @Test
     public void testPut5() {
         ByteBuf src = ByteBuf.heap(1024);
-        src.put("hello;hello;".getBytes());
+        src.putBytes("hello;hello;".getBytes());
         src.flip();
 
         ByteBuf dst = ByteBuf.heap(data1.length());
-        dst.put(src);
+        dst.putBytes(src);
         dst.flip();
         v(dst);
     }
@@ -102,11 +102,11 @@ public class TestBytebufAllocator {
     @Test
     public void testPut6() {
         ByteBuf src = ByteBuf.direct(1024);
-        src.put("hello;hello;".getBytes());
+        src.putBytes("hello;hello;".getBytes());
         src.flip();
 
         ByteBuf dst = ByteBuf.heap(1024);
-        dst.put(src);
+        dst.putBytes(src);
         dst.flip();
         v(dst);
     }
@@ -114,11 +114,11 @@ public class TestBytebufAllocator {
     @Test
     public void testPut7() {
         ByteBuf src = ByteBuf.direct(1024);
-        src.put("hello;hello;".getBytes());
+        src.putBytes("hello;hello;".getBytes());
         src.flip();
 
         ByteBuf dst = ByteBuf.heap(data1.length());
-        dst.put(src);
+        dst.putBytes(src);
         dst.flip();
         v(dst);
     }

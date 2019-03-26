@@ -101,19 +101,19 @@ public class ClientHttpCodec extends HttpCodec {
             len += write_size;
         }
         ByteBuf buf = ch.alloc().allocate(len);
-        buf.put(method_bytes);
+        buf.putBytes(method_bytes);
         buf.putByte(SPACE);
-        buf.put(url_bytes);
-        buf.put(PROTOCOL);
-        buf.put(byte32, len_idx, len_len);
+        buf.putBytes(url_bytes);
+        buf.putBytes(PROTOCOL);
+        buf.putBytes(byte32, len_idx, len_len);
         buf.putByte(R);
         buf.putByte(N);
         int j = 0;
         for (int i = 0; i < header_size; i++) {
-            buf.put(encode_bytes_array.get(j++));
+            buf.putBytes(encode_bytes_array.get(j++));
             buf.putByte((byte) ':');
             buf.putByte(SPACE);
-            buf.put(encode_bytes_array.get(j++));
+            buf.putBytes(encode_bytes_array.get(j++));
             buf.putByte(R);
             buf.putByte(N);
         }
@@ -121,7 +121,7 @@ public class ClientHttpCodec extends HttpCodec {
         buf.putByte(N);
         if (write_size > 0) {
             if (isArray) {
-                buf.put(contentArray);
+                buf.putBytes(contentArray);
             } else {
                 ch.write(buf.flip());
                 ch.write(contentBuf);

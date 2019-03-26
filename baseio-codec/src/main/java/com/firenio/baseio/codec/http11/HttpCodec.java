@@ -287,7 +287,7 @@ public class HttpCodec extends ProtocolCodec {
             return decode_state_body;
         } else {
             byte[] content = new byte[contentLength];
-            src.get(content);
+            src.getBytes(content);
             if (f.isForm()) {
                 String param = new String(content, ch.getCharset());
                 parse_kv(f.getRequestParams(), param, 0, param.length(), '=', '&');
@@ -389,16 +389,16 @@ public class HttpCodec extends ProtocolCodec {
                 buf = ch.alloc().allocate(len);
             }
         }
-        buf.put(head_bytes);
-        buf.put(cl_len_bytes, 0, cl_len);
+        buf.putBytes(head_bytes);
+        buf.putBytes(cl_len_bytes, 0, cl_len);
         if (conn_bytes != null) {
-            buf.put(conn_bytes);
+            buf.putBytes(conn_bytes);
         }
         if (type_bytes != null) {
-            buf.put(type_bytes);
+            buf.putBytes(type_bytes);
         }
         if (date_bytes != null) {
-            buf.put(date_bytes);
+            buf.putBytes(date_bytes);
         }
         buf.putByte(R);
         buf.putByte(N);
@@ -409,7 +409,7 @@ public class HttpCodec extends ProtocolCodec {
         buf.putByte(N);
         if (write_size > 0) {
             if (isArray) {
-                buf.put(contentArray);
+                buf.putBytes(contentArray);
             } else {
                 if (inline) {
                     att.setLastWriteBuf(ByteBuf.empty());
@@ -426,10 +426,10 @@ public class HttpCodec extends ProtocolCodec {
     private void putHeaders(ByteBuf buf, List<byte[]> encode_bytes_array, int header_size) {
         int j = 0;
         for (int i = 0; i < header_size; i++) {
-            buf.put(encode_bytes_array.get(j++));
+            buf.putBytes(encode_bytes_array.get(j++));
             buf.putByte((byte) ':');
             buf.putByte(SPACE);
-            buf.put(encode_bytes_array.get(j++));
+            buf.putBytes(encode_bytes_array.get(j++));
             buf.putByte(R);
             buf.putByte(N);
         }

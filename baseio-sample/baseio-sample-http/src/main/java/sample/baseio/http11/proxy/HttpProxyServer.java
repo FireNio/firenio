@@ -172,7 +172,7 @@ public class HttpProxyServer {
                         @Override
                         public Frame decode(Channel ch, ByteBuf src) throws IOException {
                             ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-                            buf.put(src);
+                            buf.putBytes(src);
                             ch_src.writeAndFlush(buf.flip());
                             return null;
                         }
@@ -195,7 +195,7 @@ public class HttpProxyServer {
                     context.setPrintConfig(false);
                     context.addChannelEventListener(new LoggerChannelOpenListener());
                     ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-                    buf.put(src);
+                    buf.putBytes(src);
                     s.connector = context;
                     s.connector.connect((ch_target, ex) -> {
                         if (ex == null) {
@@ -208,7 +208,7 @@ public class HttpProxyServer {
                     });
                 } else {
                     ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-                    buf.put(src);
+                    buf.putBytes(src);
                     s.connector.getChannel().writeAndFlush(buf.flip());
                 }
                 return null;

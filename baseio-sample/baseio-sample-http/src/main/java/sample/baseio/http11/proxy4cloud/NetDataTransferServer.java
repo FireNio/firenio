@@ -62,7 +62,7 @@ public class NetDataTransferServer {
                     if (a.isConnected()) {
                         Channel ch_src = a.getChannel();
                         ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-                        buf.put(src);
+                        buf.putBytes(src);
                         buf.flip();
                         mask(buf);
                         ch_src.writeAndFlush(buf);
@@ -76,7 +76,7 @@ public class NetDataTransferServer {
                         context.addChannelEventListener(new LoggerChannelOpenListener());
                         context.addChannelEventListener(new CountChannelListener());
                         ByteBuf buf = ch.alloc().allocate(src.remaining());
-                        buf.put(src);
+                        buf.putBytes(src);
                         buf.flip();
                         a.connector = context;
                         a.connector.connect((raw_ch, ex) -> {
@@ -106,7 +106,7 @@ public class NetDataTransferServer {
                     byte[] hostBytes = new byte[hostLen];
                     int port = src.getUnsignedShort(3);
                     src.skip(5);
-                    src.get(hostBytes);
+                    src.getBytes(hostBytes);
                     String host = new String(hostBytes);
                     a.host = host;
                     a.port = port;
@@ -116,7 +116,7 @@ public class NetDataTransferServer {
             } else {
                 Channel ch_src = a.from;
                 ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-                buf.put(src);
+                buf.putBytes(src);
                 buf.flip();
                 mask(buf);
                 ch_src.writeAndFlush(buf);
