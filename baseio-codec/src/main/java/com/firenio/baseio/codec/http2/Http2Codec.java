@@ -273,7 +273,7 @@ public class Http2Codec extends ProtocolCodec {
     }
 
     @Override
-    public int headerLength() {
+    public int getHeaderLength() {
         return PROTOCOL_HEADER;
     }
 

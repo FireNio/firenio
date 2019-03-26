@@ -136,7 +136,7 @@ public class NetDataTransferServer {
         }
 
         @Override
-        public int headerLength() {
+        public int getHeaderLength() {
             return 0;
         }
         

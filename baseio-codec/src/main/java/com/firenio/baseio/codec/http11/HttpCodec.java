@@ -453,7 +453,7 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     @Override
-    public int headerLength() {
+    public int getHeaderLength() {
         return 0;
     }
 

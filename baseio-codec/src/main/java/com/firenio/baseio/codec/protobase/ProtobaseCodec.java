@@ -69,7 +69,7 @@ public class ProtobaseCodec extends ProtocolCodec {
         if (src.remaining() < 4) {
             return null;
         }
-        byte flags = src.getByte(0);
+        byte flags = src.absByte(src.absPos());
         int len = src.getInt() & 0xffffff;
         if (flags < 0) {
             return decodePing(flags);
@@ -131,7 +131,7 @@ public class ProtobaseCodec extends ProtocolCodec {
     }
 
     @Override
-    public int headerLength() {
+    public int getHeaderLength() {
         return PROTOCOL_HEADER;
     }
 

@@ -232,7 +232,7 @@ public class HttpProxy4CloudServer {
                         }
 
                         @Override
-                        public int headerLength() {
+                        public int getHeaderLength() {
                             return 0;
                         }
                     });

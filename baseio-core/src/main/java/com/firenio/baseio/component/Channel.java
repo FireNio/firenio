@@ -177,11 +177,11 @@ public final class Channel implements Runnable, Closeable {
     }
 
     public ByteBuf allocate() {
-        return alloc().allocate().skip(codec.headerLength());
+        return alloc().allocate().skip(codec.getHeaderLength());
     }
 
     public ByteBuf allocate(int limit) {
-        int h = codec.headerLength();
+        int h = codec.getHeaderLength();
         return alloc().allocate(h + limit).skip(h);
     }
 

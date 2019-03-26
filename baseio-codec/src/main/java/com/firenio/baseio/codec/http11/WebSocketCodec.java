@@ -211,7 +211,7 @@ public class WebSocketCodec extends ProtocolCodec {
     }
 
     @Override
-    public int headerLength() {
+    public int getHeaderLength() {
         return MAX_HEADER_LENGTH;
     }
 

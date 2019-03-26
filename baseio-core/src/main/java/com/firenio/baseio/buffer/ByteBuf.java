@@ -190,6 +190,10 @@ public abstract class ByteBuf implements Releasable {
         return indexOf(b, absPos(), remaining());
     }
 
+    public int indexOf(byte b, int size) {
+        return indexOf(b, absPos(), size);
+    }
+
     public abstract int indexOf(byte b, int absPos, int size);
 
     @Override
@@ -202,7 +206,11 @@ public abstract class ByteBuf implements Releasable {
     }
 
     public int lastIndexOf(byte b) {
-        return lastIndexOf(b, absLimit(), remaining());
+        return lastIndexOf(b, absLimit() - 1, remaining());
+    }
+
+    public int lastIndexOf(byte b, int size) {
+        return lastIndexOf(b, absLimit() - 1, size);
     }
 
     public abstract int lastIndexOf(byte b, int absPos, int size);

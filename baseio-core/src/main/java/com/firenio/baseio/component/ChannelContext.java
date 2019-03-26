@@ -123,7 +123,6 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         } else {
             this.serverAddress = new InetSocketAddress(host, port);
         }
-        this.startCodecs();
         Util.start(executorEventLoopGroup);
         Util.start(processorGroup);
         if (printConfig) {
@@ -177,7 +176,6 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         }
         stopEventLoopGroup(getProcessorGroup());
         Util.stop(executorEventLoopGroup);
-        this.stopCodecs();
         this.attributes.clear();
     }
 
@@ -464,18 +462,6 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
 
     private String sslType() {
         return enableSsl ? SslContext.OPENSSL_AVAILABLE ? "openssl" : "jdkssl" : "false";
-    }
-
-    private void startCodecs() throws Exception {
-        for (ProtocolCodec codec : codecs.values()) {
-            codec.start();
-        }
-    }
-
-    private void stopCodecs() {
-        for (ProtocolCodec codec : codecs.values()) {
-            Util.stop(codec);
-        }
     }
 
     protected void stopEventLoopGroup(NioEventLoopGroup group) {

@@ -277,7 +277,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
     public int lastIndexOf(byte b, int abs_pos, int size) {
         long addr = address();
         long p = addr + abs_pos;
-        long l = p - size - 1;
+        long l = p - size;
         for (; p > l; p--) {
             if (Unsafe.getByte(p) == b) {
                 return (int) (p - addr);

@@ -188,7 +188,7 @@ public class HttpProxyServer {
                         }
 
                         @Override
-                        public int headerLength() {
+                        public int getHeaderLength() {
                             return 0;
                         }
                     });
