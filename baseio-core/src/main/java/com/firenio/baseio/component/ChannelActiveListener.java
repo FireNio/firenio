@@ -27,7 +27,7 @@ public class ChannelActiveListener implements ChannelIdleListener {
     public void channelIdled(Channel ch, long lastIdleTime, long currentTime) {
         if (ch.isOpen()) {
             if (ch.getLastAccessTime() < lastIdleTime) {
-                logger.info("Did not detect hb in hb cycle, prepare to disconnect {}", ch);
+                logger.info("disconnect(hb) {}", ch);
                 Util.close(ch);
             } else {
                 ProtocolCodec codec = ch.getCodec();
