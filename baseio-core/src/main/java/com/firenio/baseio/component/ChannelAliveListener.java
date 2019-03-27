@@ -26,7 +26,7 @@ public class ChannelAliveListener implements ChannelIdleListener {
     @Override
     public void channelIdled(Channel ch, long lastIdleTime, long currentTime) {
         if (matched(ch) && ch.getLastAccessTime() < lastIdleTime) {
-            logger.info("Did not detect hb in hb cycle, prepare to disconnect {}", ch);
+            logger.info("disconnect(hb) {}", ch);
             Util.close(ch);
         }
     }
