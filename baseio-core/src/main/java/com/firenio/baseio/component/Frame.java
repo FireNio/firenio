@@ -140,6 +140,9 @@ public abstract class Frame {
 
     public void write(byte[] bytes, int off, int len) {
         ByteBuf c = getBufContent();
+        if (c == null) {
+            throw new NullPointerException("do setContent(buf) before write");
+        }
         c.putBytes(bytes, off, len);
     }
 
