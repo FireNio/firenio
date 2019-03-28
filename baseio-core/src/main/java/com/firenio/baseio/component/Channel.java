@@ -197,7 +197,13 @@ public final class Channel implements Runnable, Closeable {
             safeClose();
         } else {
             if (isOpen()) {
-                eventLoop.submit(new CloseEvent(this));
+                eventLoop.submit(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        Channel.this.close();
+                    }
+                });
             }
         }
     }
@@ -908,26 +914,6 @@ public final class Channel implements Runnable, Closeable {
 
         //1 complete, 0 keep write, -1 close
         abstract int write(NioEventLoopUnsafe unsafe, Channel ch);
-
-    }
-
-    class CloseEvent implements Runnable, Closeable {
-
-        final Channel ch;
-
-        public CloseEvent(Channel ch) {
-            this.ch = ch;
-        }
-
-        @Override
-        public void close() throws IOException {
-            ch.safeClose();
-        }
-
-        @Override
-        public void run() {
-            ch.safeClose();
-        }
 
     }
 
