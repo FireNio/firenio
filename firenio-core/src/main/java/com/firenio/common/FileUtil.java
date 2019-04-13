@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,11 +35,11 @@ import java.util.List;
 
 public class FileUtil {
 
-    private static final ClassLoader CLASS_LOADER     = FileUtil.class.getClassLoader();
+    private static final ClassLoader CLASS_LOADER = FileUtil.class.getClassLoader();
 
-    private static final Charset     ENCODING         = Util.UTF8;
+    private static final Charset ENCODING = Util.UTF8;
 
-    private static final byte[]      SKIP_BYTE_BUFFER = new byte[2048];
+    private static final byte[] SKIP_BYTE_BUFFER = new byte[2048];
 
     public static abstract class OnDirectoryScan {
 
@@ -68,8 +68,7 @@ public class FileUtil {
         }
     }
 
-    public static void cleanDirectoryByCls(String file, ClassLoader classLoader)
-            throws IOException {
+    public static void cleanDirectoryByCls(String file, ClassLoader classLoader) throws IOException {
         File realFile = readFileByCls(file, classLoader);
         cleanDirectory(realFile);
     }
@@ -78,10 +77,9 @@ public class FileUtil {
         return copyLarge(input, output, new byte[4096]);
     }
 
-    public static long copyLarge(InputStream input, OutputStream output, byte[] buffer)
-            throws IOException {
+    public static long copyLarge(InputStream input, OutputStream output, byte[] buffer) throws IOException {
         long count = 0L;
-        int n = 0;
+        int  n     = 0;
         while (-1 != (n = input.read(buffer))) {
             output.write(buffer, 0, n);
             count += n;
@@ -89,13 +87,11 @@ public class FileUtil {
         return count;
     }
 
-    public static long copyLarge(InputStream input, OutputStream output, long inputOffset,
-            long length) throws IOException {
+    public static long copyLarge(InputStream input, OutputStream output, long inputOffset, long length) throws IOException {
         return copyLarge(input, output, inputOffset, length, new byte[4096]);
     }
 
-    public static long copyLarge(InputStream input, OutputStream output, long inputOffset,
-            long length, byte[] buffer) throws IOException {
+    public static long copyLarge(InputStream input, OutputStream output, long inputOffset, long length, byte[] buffer) throws IOException {
         if (inputOffset > 0L) {
             skipFully(input, inputOffset);
         }
@@ -103,12 +99,12 @@ public class FileUtil {
             return 0L;
         }
         int bufferLength = buffer.length;
-        int bytesToRead = bufferLength;
+        int bytesToRead  = bufferLength;
         if ((length > 0L) && (length < bufferLength)) {
             bytesToRead = (int) length;
         }
         long totalRead = 0L;
-        int read;
+        int  read;
         while ((bytesToRead > 0) && (-1 != (read = input.read(buffer, 0, bytesToRead)))) {
             output.write(buffer, 0, read);
             totalRead += read;
@@ -141,12 +137,20 @@ public class FileUtil {
         }
     }
 
-    public static String getCurrentPath() {
-        return getCurrentPath(CLASS_LOADER);
+    public static boolean exists(String path) {
+        return new File(path).exists();
     }
 
-    public static String getCurrentPath(ClassLoader classLoader) {
-        URL url = classLoader.getResource(".");
+    public static String getCurrentPath() {
+        return new File("").getAbsolutePath();
+    }
+
+    public static String getCurrentClassPath() {
+        return getCurrentClassPath(CLASS_LOADER);
+    }
+
+    public static String getCurrentClassPath(ClassLoader classLoader) {
+        URL    url = classLoader.getResource(".");
         String path;
         if (url == null) {
             path = new File(".").getAbsoluteFile().getParent();
@@ -162,7 +166,7 @@ public class FileUtil {
 
     public static File getJarParentDirectory(File file) throws IOException {
         File parent = file;
-        for (; parent != null;) {
+        for (; parent != null; ) {
             if (parent.getName().endsWith(".jar!")) {
                 return parent.getParentFile();
             }
@@ -191,7 +195,7 @@ public class FileUtil {
 
     public static boolean inJarFile(File file) {
         File parent = file;
-        for (; parent != null;) {
+        for (; parent != null; ) {
             if (parent.getName().endsWith(".jar!")) {
                 return true;
             }
@@ -210,7 +214,7 @@ public class FileUtil {
             return null;
         }
         byte[] temp = null;
-        for (;;) {
+        for (; ; ) {
             temp = inputStream2ByteArray0(inputStream, inputStream.available());
             if (temp == null) {
                 break;
@@ -223,21 +227,18 @@ public class FileUtil {
         return data;
     }
 
-    private static byte[] inputStream2ByteArray0(InputStream inputStream, int size)
-            throws IOException {
+    private static byte[] inputStream2ByteArray0(InputStream inputStream, int size) throws IOException {
         if (size < 1) {
             return null;
         }
-        byte[] data = new byte[size];
-        int offset = 0;
-        int readed;
-        while ((offset < size)
-                && ((readed = inputStream.read(data, offset, size - offset)) != -1)) {
+        byte[] data   = new byte[size];
+        int    offset = 0;
+        int    readed;
+        while ((offset < size) && ((readed = inputStream.read(data, offset, size - offset)) != -1)) {
             offset += readed;
         }
         if (offset != size) {
-            throw new IOException(
-                    "Unexpected readed size. current: " + offset + ", excepted: " + size);
+            throw new IOException("Unexpected readed size. current: " + offset + ", excepted: " + size);
         }
         return data;
     }
@@ -307,7 +308,7 @@ public class FileUtil {
     public static File readFileByCls(String file, ClassLoader classLoader) throws IOException {
         URL url = classLoader.getResource(file);
         if (url == null) {
-            File root = new File(getCurrentPath(classLoader));
+            File root = new File(getCurrentClassPath(classLoader));
             return new File(root.getAbsolutePath() + "/" + file);
         }
         String path = url.getFile();
@@ -315,9 +316,9 @@ public class FileUtil {
     }
 
     public static int readInputStream(InputStream inputStream, byte[] cache) throws IOException {
-        int read = 0;
+        int read    = 0;
         int cLength = cache.length;
-        for (; read < cLength;) {
+        for (; read < cLength; ) {
             int r = inputStream.read(cache, read, cLength - read);
             if (r == -1) {
                 return read;
@@ -363,7 +364,7 @@ public class FileUtil {
         try {
             reader = toBufferedReader(input);
             List<String> list = new ArrayList<>();
-            String line = reader.readLine();
+            String       line = reader.readLine();
             while (line != null) {
                 list.add(line);
                 line = reader.readLine();
@@ -375,8 +376,7 @@ public class FileUtil {
         }
     }
 
-    public static Properties readProperties(InputStream inputStream, Charset charset)
-            throws IOException {
+    public static Properties readProperties(InputStream inputStream, Charset charset) throws IOException {
         if (inputStream == null) {
             throw new IOException("null inputstream!");
         }
@@ -397,8 +397,7 @@ public class FileUtil {
         return readPropertiesByCls(file, charset, CLASS_LOADER);
     }
 
-    public static Properties readPropertiesByCls(String file, Charset charset,
-            ClassLoader classLoader) throws IOException {
+    public static Properties readPropertiesByCls(String file, Charset charset, ClassLoader classLoader) throws IOException {
         InputStream inputStream = readInputStreamByCls(file, classLoader);
         if (inputStream == null) {
             throw new FileNotFoundException(file);
@@ -406,8 +405,7 @@ public class FileUtil {
         return readProperties(inputStream, charset);
     }
 
-    public static Properties readPropertiesByCls(String file, ClassLoader classLoader)
-            throws IOException {
+    public static Properties readPropertiesByCls(String file, ClassLoader classLoader) throws IOException {
         return readPropertiesByCls(file, ENCODING, classLoader);
     }
 
@@ -427,8 +425,7 @@ public class FileUtil {
         return readStringByCls(file, encoding, CLASS_LOADER);
     }
 
-    public static String readStringByCls(String file, Charset encoding, ClassLoader cl)
-            throws IOException {
+    public static String readStringByCls(String file, Charset encoding, ClassLoader cl) throws IOException {
         return createString(readBytesByCls(file, cl), encoding);
     }
 
@@ -468,8 +465,7 @@ public class FileUtil {
 
     public static long skip(InputStream input, long toSkip) throws IOException {
         if (toSkip < 0L) {
-            throw new IllegalArgumentException(
-                    "Skip count must be non-negative, actual: " + toSkip);
+            throw new IllegalArgumentException("Skip count must be non-negative, actual: " + toSkip);
         }
         long remain = toSkip;
         while (remain > 0L) {
@@ -493,8 +489,7 @@ public class FileUtil {
     }
 
     public static BufferedReader toBufferedReader(Reader reader) {
-        return (reader instanceof BufferedReader) ? (BufferedReader) reader
-                : new BufferedReader(reader);
+        return (reader instanceof BufferedReader) ? (BufferedReader) reader : new BufferedReader(reader);
     }
 
     public static void write(byte[] data, OutputStream output) throws IOException {
@@ -508,8 +503,7 @@ public class FileUtil {
         writeByCls(file, content, append, CLASS_LOADER);
     }
 
-    public static void writeByCls(String file, byte[] bytes, boolean append,
-            ClassLoader classLoader) throws IOException {
+    public static void writeByCls(String file, byte[] bytes, boolean append, ClassLoader classLoader) throws IOException {
         File realFile = readFileByCls(file, classLoader);
         writeByFile(realFile, bytes, append);
     }
@@ -522,24 +516,20 @@ public class FileUtil {
         writeByCls(file, content, append, CLASS_LOADER);
     }
 
-    public static void writeByCls(String file, String content, boolean append,
-            ClassLoader classLoader) throws IOException {
+    public static void writeByCls(String file, String content, boolean append, ClassLoader classLoader) throws IOException {
         writeByCls(file, content, ENCODING, append, classLoader);
     }
 
-    public static void writeByCls(String file, String content, Charset encoding, boolean append)
-            throws IOException {
+    public static void writeByCls(String file, String content, Charset encoding, boolean append) throws IOException {
         writeByCls(file, content.getBytes(encoding), append);
     }
 
-    public static void writeByCls(String file, String content, Charset encoding, boolean append,
-            ClassLoader classLoader) throws IOException {
+    public static void writeByCls(String file, String content, Charset encoding, boolean append, ClassLoader classLoader) throws IOException {
         File realFile = readFileByCls(file, classLoader);
         writeByFile(realFile, content, encoding, append);
     }
 
-    public static void writeByCls(String file, String content, ClassLoader classLoader)
-            throws IOException {
+    public static void writeByCls(String file, String content, ClassLoader classLoader) throws IOException {
         writeByCls(file, content, false, classLoader);
     }
 
@@ -570,20 +560,17 @@ public class FileUtil {
         writeByFile(file, content, encoding, false);
     }
 
-    public static void writeByFile(File file, String content, Charset encoding, boolean append)
-            throws IOException {
+    public static void writeByFile(File file, String content, Charset encoding, boolean append) throws IOException {
         write(content.getBytes(encoding), openOutputStream(file, append));
     }
 
-    public static void writePropertiesByCls(java.util.Properties properties, String file)
-            throws IOException {
+    public static void writePropertiesByCls(java.util.Properties properties, String file) throws IOException {
         writePropertiesByCls(properties, file, CLASS_LOADER);
     }
 
-    public static void writePropertiesByCls(java.util.Properties properties, String file,
-            ClassLoader classLoader) throws IOException {
-        File realFile = readFileByCls(file, classLoader);
-        FileOutputStream fos = new FileOutputStream(realFile);
+    public static void writePropertiesByCls(java.util.Properties properties, String file, ClassLoader classLoader) throws IOException {
+        File             realFile = readFileByCls(file, classLoader);
+        FileOutputStream fos      = new FileOutputStream(realFile);
         properties.store(fos, "");
         Util.close(fos);
     }

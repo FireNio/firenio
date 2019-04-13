@@ -72,8 +72,9 @@ public class Native {
         if (Options.isEnableEpoll()) {
             boolean epollLoaded = false;
             try {
-                System.load("/home/test/git-rep/jni_epoll/obj/Native.o");
+                System.load("/home/test/git-rep/firenio/firenio-epoll/obj/Native.o");
                 epollLoaded = true;
+                logger.info("load epoll from file system");
             } catch (Throwable e) {}
             if (!epollLoaded) {
                 try {

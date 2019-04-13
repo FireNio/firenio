@@ -93,7 +93,7 @@ public class Bootstrap {
         Assert.notNull(className, "className");
         Assert.notNull(cpScaners, "cpScaners");
         String mode = Util.getStringProperty(BOOT_MODE, "dev");
-        String rootPath = FileUtil.getCurrentPath();
+        String rootPath = FileUtil.getCurrentClassPath();
         DebugUtil.getLogger().info("RUNTIME_MODE: {}", mode);
         DebugUtil.getLogger().info("ROOT_PATH: {}", rootPath);
         boolean isDevMode = isRuntimeDevMode(mode);
