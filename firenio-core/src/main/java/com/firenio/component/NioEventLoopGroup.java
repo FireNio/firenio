@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,27 +31,27 @@ import com.firenio.concurrent.FixedAtomicInteger;
  */
 public class NioEventLoopGroup extends EventLoopGroup {
 
-    private ByteBufAllocatorGroup allocatorGroup;
-    private FixedAtomicInteger    channelIds;
-    private int                   channelReadBuffer      = 1024 * 512;
+    private       ByteBufAllocatorGroup allocatorGroup;
+    private       FixedAtomicInteger    channelIds;
+    private       int                   channelReadBuffer      = 1024 * 512;
     //允许的最大连接数(单核)
-    private int                   channelSizeLimit       = 1024 * 64;
-    private boolean               concurrentFrameStack   = true;
-    private ChannelContext        context;
-    private boolean               enableMemoryPool       = true;
+    private       int                   channelSizeLimit       = 1024 * 64;
+    private       boolean               concurrentFrameStack   = true;
+    private       ChannelContext        context;
+    private       boolean               enableMemoryPool       = true;
     //内存池是否使用启用堆外内存
-    private boolean               enableMemoryPoolDirect = true;
-    private NioEventLoop[]        eventLoops;
-    private long                  idleTime               = 30 * 1000;
+    private       boolean               enableMemoryPoolDirect = true;
+    private       NioEventLoop[]        eventLoops;
+    private       long                  idleTime               = 30 * 1000;
     //内存池内存单元数量(单核)
-    private int                   memoryPoolCapacity;
-    private int                   memoryPoolRate         = 32;
+    private       int                   memoryPoolCapacity;
+    private       int                   memoryPoolRate         = 32;
     //内存池单元大小
-    private int                   memoryPoolUnit         = 512;
-    private boolean               sharable;
+    private       int                   memoryPoolUnit         = 512;
+    private       boolean               sharable;
     //单条连接write(srcs)的数量
-    private int                   writeBuffers           = 32;
-    private boolean               acceptor;
+    private       int                   writeBuffers           = 32;
+    private final boolean               acceptor;
 
     public NioEventLoopGroup() {
         this(false);
@@ -66,7 +66,12 @@ public class NioEventLoopGroup extends EventLoopGroup {
     }
 
     public NioEventLoopGroup(boolean sharable, int eventLoopSize, int idleTime) {
+        this(sharable, eventLoopSize, idleTime, false);
+    }
+
+    public NioEventLoopGroup(boolean sharable, int eventLoopSize, int idleTime, boolean acceptor) {
         super("nio-processor", eventLoopSize);
+        this.acceptor = acceptor;
         this.idleTime = idleTime;
         this.sharable = sharable;
     }
@@ -80,7 +85,12 @@ public class NioEventLoopGroup extends EventLoopGroup {
     }
 
     public NioEventLoopGroup(String name) {
+        this(name, false);
+    }
+
+    public NioEventLoopGroup(String name, boolean acceptor) {
         super(name, 1);
+        this.acceptor = acceptor;
     }
 
     @Override
@@ -88,12 +98,10 @@ public class NioEventLoopGroup extends EventLoopGroup {
         this.channelIds = new FixedAtomicInteger(0x1000, Integer.MAX_VALUE);
         if (memoryPoolCapacity == 0) {
             long total = Runtime.getRuntime().maxMemory();
-            memoryPoolCapacity = (int) (total
-                    / (memoryPoolUnit * getEventLoopSize() * memoryPoolRate));
+            memoryPoolCapacity = (int) (total / (memoryPoolUnit * getEventLoopSize() * memoryPoolRate));
         }
         if (isEnableMemoryPool() && getAllocatorGroup() == null) {
-            this.allocatorGroup = new ByteBufAllocatorGroup(getEventLoopSize(), memoryPoolCapacity,
-                    memoryPoolUnit, enableMemoryPoolDirect);
+            this.allocatorGroup = new ByteBufAllocatorGroup(getEventLoopSize(), memoryPoolCapacity, memoryPoolUnit, enableMemoryPoolDirect);
         }
         Util.start(getAllocatorGroup());
         super.doStart();
@@ -247,11 +255,6 @@ public class NioEventLoopGroup extends EventLoopGroup {
 
     protected boolean isAcceptor() {
         return acceptor;
-    }
-
-    protected void setAcceptor(boolean acceptor) {
-        checkNotRunning();
-        this.acceptor = acceptor;
     }
 
 }

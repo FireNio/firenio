@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,6 @@ import com.firenio.log.LoggerFactory;
 
 /**
  * @author wangkai
- *
  */
 public final class ChannelAcceptor extends ChannelContext {
 
@@ -76,12 +75,11 @@ public final class ChannelAcceptor extends ChannelContext {
             return;
         }
         String name = "bind-" + getHost() + ":" + getPort();
-        this.bindGroup = new NioEventLoopGroup(name);
+        this.bindGroup = new NioEventLoopGroup(name, true);
         this.bindGroup.setEnableMemoryPool(false);
         this.bindGroup.setEnableMemoryPoolDirect(false);
         this.bindGroup.setChannelReadBuffer(0);
         this.bindGroup.setWriteBuffers(0);
-        this.bindGroup.setAcceptor(true);
         this.getProcessorGroup().setContext(this);
         Util.start(bindGroup);
         Util.start(this);
@@ -96,8 +94,7 @@ public final class ChannelAcceptor extends ChannelContext {
                     bindWaiter.call(null, null);
                 } catch (Throwable e) {
                     Throwable ex = e;
-                    if ("Already bound".equalsIgnoreCase(e.getMessage())
-                            || e instanceof BindException) {
+                    if ("Already bound".equalsIgnoreCase(e.getMessage()) || e instanceof BindException) {
                         ex = new BindException("Already bound at " + getPort());
                     }
                     bindWaiter.call(null, ex);
@@ -160,12 +157,11 @@ public final class ChannelAcceptor extends ChannelContext {
     static final class EpollAcceptorUnsafe extends AcceptorUnsafe {
 
         volatile boolean active;
-        NioEventLoop     eventLoop;
-        int              listenfd = -1;
+        NioEventLoop eventLoop;
+        int          listenfd = -1;
 
         @Override
-        void bind(NioEventLoop eventLoop, ChannelAcceptor acceptor, int backlog)
-                throws IOException {
+        void bind(NioEventLoop eventLoop, ChannelAcceptor acceptor, int backlog) throws IOException {
             eventLoop.assertInEventLoop("registSelector must in event loop");
             this.close();
             this.active = true;
@@ -200,7 +196,7 @@ public final class ChannelAcceptor extends ChannelContext {
     }
 
     static final class JavaAcceptorUnsafe extends AcceptorUnsafe {
-        
+
         private ServerSocketChannel selectableChannel;
         private ServerSocket        serverSocket;
 
@@ -208,7 +204,7 @@ public final class ChannelAcceptor extends ChannelContext {
         void bind(NioEventLoop eventLoop, ChannelAcceptor ctx, int backlog) throws IOException {
             eventLoop.assertInEventLoop("registSelector must in event loop");
             JavaNioEventLoopUnsafe elUnsafe = (JavaNioEventLoopUnsafe) eventLoop.getUnsafe();
-            Selector selector = elUnsafe.getSelector();
+            Selector               selector = elUnsafe.getSelector();
             this.close();
             this.selectableChannel = ServerSocketChannel.open();
             this.selectableChannel.configureBlocking(false);

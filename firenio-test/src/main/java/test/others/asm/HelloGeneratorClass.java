@@ -42,7 +42,7 @@ public class HelloGeneratorClass implements Opcodes {
      * @author SHANHY
      * @create 2016年2月3日
      */
-    public static byte[] generatorHelloClass() throws Exception {
+    public static byte[] generatorHelloClass() {
 
         ClassWriter cw = new ClassWriter(0);
         FieldVisitor fv;
@@ -276,11 +276,11 @@ public class HelloGeneratorClass implements Opcodes {
             MyClassLoader myClassLoader = new MyClassLoader();
             Class<?> helloClass = myClassLoader.defineClass("test.others.asm.Hello", data);
             Object obj = helloClass.newInstance();
-            Method method = helloClass.getMethod("🐳", null);
-            method.invoke(obj, null);
+            Method method = helloClass.getMethod("🐳", (Class<?>[]) null);
+            method.invoke(obj, (Object[]) null);
 
-            method = helloClass.getMethod("testList", null);
-            Object result = method.invoke(obj, null);
+            method = helloClass.getMethod("testList", (Class<?>[]) null);
+            Object result = method.invoke(obj, (Object[]) null);
             System.out.println(result);
         } catch (Exception e) {
             e.printStackTrace();
