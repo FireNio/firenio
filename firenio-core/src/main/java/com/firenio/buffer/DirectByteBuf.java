@@ -177,8 +177,7 @@ abstract class DirectByteBuf extends ByteBuf {
 
     @Override
     public long getUnsignedInt() {
-        long v = toUnsignedInt(memory.getInt());
-        return v;
+        return toUnsignedInt(memory.getInt());
     }
 
     @Override

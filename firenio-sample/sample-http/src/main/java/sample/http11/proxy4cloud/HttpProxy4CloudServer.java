@@ -52,7 +52,7 @@ public class HttpProxy4CloudServer {
     static final int                   netPort         = 18088;
     static final HttpProxy4CloudServer server          = new HttpProxy4CloudServer();
     static {
-        String host = null;
+        String host;
         try {
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress("127.0.0.1", netPort), 50);
@@ -125,7 +125,7 @@ public class HttpProxy4CloudServer {
                             HttpProxy4CloudAttr s = HttpProxy4CloudAttr.get(ch);
                             NetDataTransferServer.mask(src);
                             return super.decode(ch, src);
-                        };
+                        }
 
                     });
 
@@ -212,7 +212,7 @@ public class HttpProxy4CloudServer {
                     context.addProtocolCodec(new ProtocolCodec() {
 
                         @Override
-                        public Frame decode(Channel ch, ByteBuf src) throws IOException {
+                        public Frame decode(Channel ch, ByteBuf src) {
                             ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                             buf.putBytes(src);
                             buf.flip();
@@ -222,7 +222,7 @@ public class HttpProxy4CloudServer {
                         }
 
                         @Override
-                        public ByteBuf encode(Channel ch, Frame frame) throws IOException {
+                        public ByteBuf encode(Channel ch, Frame frame) {
                             return null;
                         }
 
@@ -290,7 +290,7 @@ public class HttpProxy4CloudServer {
     public static class HttpProxy4CloudAttrListener extends ChannelEventListenerAdapter {
 
         @Override
-        public void channelOpened(Channel ch) throws Exception {
+        public void channelOpened(Channel ch) {
             ch.setAttachment(new HttpProxy4CloudAttr());
         }
     }

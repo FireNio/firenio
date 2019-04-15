@@ -25,11 +25,9 @@ import com.firenio.common.Unsafe;
 public abstract class ByteBuf implements Releasable {
 
     static final boolean                            AUTO_EXPANSION;
-    static final ByteBuf                            EMPTY;
     static final AtomicIntegerFieldUpdater<ByteBuf> refCntUpdater;
 
     static {
-        EMPTY = new EmptyByteBuf();
         AUTO_EXPANSION = Options.isBufAutoExpansion();
         refCntUpdater = AtomicIntegerFieldUpdater.newUpdater(ByteBuf.class, "referenceCount");
     }
@@ -521,24 +519,6 @@ public abstract class ByteBuf implements Releasable {
 
     protected void unitOffset(int unitOffset) {}
 
-    static final class EmptyByteBuf extends UnpooledHeapByteBuf {
-
-        EmptyByteBuf() {
-            super(new byte[] {}, 0, 0);
-        }
-
-        @Override
-        public ByteBuf duplicate() {
-            return this;
-        }
-
-        @Override
-        public boolean isReleased() {
-            return true;
-        }
-
-    }
-
     static void copy(byte[] src, int srcPos, byte[] dst, int dstPos, int len) {
         System.arraycopy(src, srcPos, dst, dstPos, len);
     }
@@ -559,8 +539,8 @@ public abstract class ByteBuf implements Releasable {
         return wrap(ByteBuffer.allocateDirect(cap));
     }
 
-    public static final ByteBuf empty() {
-        return EMPTY;
+    public static ByteBuf empty() {
+        return UnpooledHeapByteBuf.EmptyByteBuf.EMPTY;
     }
 
     public static ByteBuf heap(int cap) {

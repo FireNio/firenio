@@ -141,7 +141,7 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
     }
 
     @Override
-    protected void doStart() throws Exception {
+    protected void doStart() {
         Arrays.fill(blockEnds, 0);
         this.frees.set(0, getCapacity(), true);
         int cap = capacity * unit;
@@ -299,12 +299,12 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
             if (frees.get(i)) {
                 free++;
             } else {
-                maxFree = Integer.max(maxFree, free);
+                maxFree = Math.max(maxFree, free);
                 i = blockEnds[i] - 1;
                 free = 0;
             }
         }
-        return Integer.max(maxFree, free);
+        return Math.max(maxFree, free);
     }
 
     private ByteBuf newByteBuf() {
@@ -330,16 +330,15 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
 
     @Override
     public void release(ByteBuf buf) {
-        ByteBuf b = (ByteBuf) buf;
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            frees.set(b.unitOffset());
+            frees.set(buf.unitOffset());
         } finally {
             lock.unlock();
         }
         if (BYTEBUF_RECYCLE) {
-            bufBuffer.push(b);
+            bufBuffer.push(buf);
         }
         if (Develop.BUF_DEBUG && buf.isPooled()) {
             BufDebug d = BUF_DEBUGS.remove(buf);

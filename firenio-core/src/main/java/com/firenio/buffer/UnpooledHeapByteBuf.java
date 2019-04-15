@@ -69,4 +69,24 @@ class UnpooledHeapByteBuf extends HeapByteBuf {
     @Override
     protected final void release0() {}
 
+    static final class EmptyByteBuf extends UnpooledHeapByteBuf {
+
+        static final EmptyByteBuf EMPTY = new UnpooledHeapByteBuf.EmptyByteBuf();
+
+        EmptyByteBuf() {
+            super(new byte[] {}, 0, 0);
+        }
+
+        @Override
+        public ByteBuf duplicate() {
+            return this;
+        }
+
+        @Override
+        public boolean isReleased() {
+            return true;
+        }
+
+    }
+
 }

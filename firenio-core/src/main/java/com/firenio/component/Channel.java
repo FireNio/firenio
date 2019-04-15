@@ -214,12 +214,12 @@ public final class Channel implements Runnable, Closeable {
                 try {
                     write_bufs.offer(wrap(ByteBuf.empty()));
                     write(eventLoop.getUnsafe());
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
             }
             try {
                 ssl_engine.closeInbound();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
     }
@@ -931,7 +931,7 @@ public final class Channel implements Runnable, Closeable {
         }
 
         @Override
-        int getOption(int name) throws IOException {
+        int getOption(int name) {
             return Native.get_socket_opt(fd, (name >>> 16), name & 0xff);
         }
 
@@ -947,7 +947,7 @@ public final class Channel implements Runnable, Closeable {
         }
 
         @Override
-        void setOption(int name, int value) throws IOException {
+        void setOption(int name, int value) {
             Native.set_socket_opt(fd, (name >>> 16), name & 0xff, value);
         }
 
@@ -1058,7 +1058,7 @@ public final class Channel implements Runnable, Closeable {
                     }
 
                 }
-            } catch (Throwable e) {
+            } catch (Throwable ignored) {
             }
             S_FD = sfd;
             S_FD_FD = sfdfd;

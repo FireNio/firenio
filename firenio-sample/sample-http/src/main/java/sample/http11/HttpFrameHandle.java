@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -54,8 +54,8 @@ public class HttpFrameHandle extends IoEventHandle {
     }
 
     protected void acceptHtml(Channel ch, Frame frame) throws Exception {
-        String frameName = HttpUtil.getFrameName(ch, frame);
-        HttpEntity entity = null;
+        String     frameName = HttpUtil.getFrameName(ch, frame);
+        HttpEntity entity    = null;
         if (frameName.equals("/")) {
             entity = htmlCache.get(welcome);
         }
@@ -63,7 +63,7 @@ public class HttpFrameHandle extends IoEventHandle {
             entity = htmlCache.get(frameName);
         }
         HttpStatus status = HttpStatus.C200;
-        HttpFrame f = (HttpFrame) frame;
+        HttpFrame  f      = (HttpFrame) frame;
         if (entity == null) {
             entity = htmlCache.get("/404.html");
             if (entity == null) {
@@ -74,13 +74,15 @@ public class HttpFrameHandle extends IoEventHandle {
         File file = entity.getFile();
         if (file != null && file.lastModified() > entity.getLastModify()) {
             synchronized (entity) {
-                reloadEntity(entity, ch.getContext(), status);
+                if (file.lastModified() > entity.getLastModify()) {
+                    reloadEntity(entity, ch.getContext(), status);
+                }
             }
             writeAndFlush(ch, f, entity);
             return;
         }
-        String ims = f.getRequestHeader(HttpHeader.If_Modified_Since);
-        long imsTime = -1;
+        String ims     = f.getRequestHeader(HttpHeader.If_Modified_Since);
+        long   imsTime = -1;
         if (!Util.isNullOrBlank(ims)) {
             imsTime = DateUtil.get().parseHttp(ims).getTime();
         }
@@ -110,14 +112,11 @@ public class HttpFrameHandle extends IoEventHandle {
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
-            return;
         } else {
             StringBuilder builder = new StringBuilder();
-            builder.append(
-                    "            <div>oops, server threw an inner exception, the stack trace is :</div>\n");
+            builder.append("            <div>oops, server threw an inner exception, the stack trace is :</div>\n");
             builder.append("            <div style=\"font-family:serif;color:#5c5c5c;\">\n");
-            builder.append(
-                    "            -------------------------------------------------------</BR>\n");
+            builder.append("            -------------------------------------------------------</BR>\n");
             builder.append("            ");
             builder.append(ex.toString());
             builder.append("</BR>\n");
@@ -144,8 +143,8 @@ public class HttpFrameHandle extends IoEventHandle {
         if (index == -1) {
             return HttpContentType.text_plain_utf8;
         }
-        String subfix = fileName.substring(index + 1);
-        HttpContentType contentType = mapping.get(subfix);
+        String          sub_fix     = fileName.substring(index + 1);
+        HttpContentType contentType = mapping.get(sub_fix);
         if (contentType == null) {
             contentType = HttpContentType.text_plain_utf8;
         }
@@ -161,10 +160,10 @@ public class HttpFrameHandle extends IoEventHandle {
     }
 
     public void initialize(ChannelContext context, String rootPath, String mode) throws Exception {
-        String welcome = context.getProperties().getProperty("app.welcome");
+        String welcome  = context.getProperties().getProperty("app.welcome");
         String userPath = context.getProperties().getProperty("app.webRoot");
-        String path = Util.isNullOrBlank(userPath) ? rootPath + "/app/html" : userPath;
-        File rootFile = new File(path);
+        String path     = Util.isNullOrBlank(userPath) ? rootPath + "/app/html" : userPath;
+        File   rootFile = new File(path);
         if (!Util.isNullOrBlank(welcome)) {
             this.welcome = welcome;
         }
@@ -185,9 +184,8 @@ public class HttpFrameHandle extends IoEventHandle {
         }
     }
 
-    protected void printHtml(Channel ch, Frame frame, HttpStatus status, String content)
-            throws Exception {
-        HttpFrame f = (HttpFrame) frame;
+    protected void printHtml(Channel ch, Frame frame, HttpStatus status, String content) throws Exception {
+        HttpFrame     f       = (HttpFrame) frame;
         StringBuilder builder = new StringBuilder(HttpUtil.HTML_HEADER);
         builder.append("        <div style=\"margin-left:20px;\">\n");
         builder.append("            ");
@@ -203,41 +201,39 @@ public class HttpFrameHandle extends IoEventHandle {
         ch.writeAndFlush(f);
     }
 
-    private void reloadEntity(HttpEntity entity, ChannelContext context, HttpStatus status)
-            throws IOException {
+    private void reloadEntity(HttpEntity entity, ChannelContext context, HttpStatus status) throws IOException {
         File file = entity.getFile();
         entity.setBinary(FileUtil.readBytesByFile(file));
         entity.setLastModify(file.lastModified());
     }
 
-    private void scanFolder(ScanFileFilter filter, File file, Map<String, HttpContentType> mapping,
-            String path) throws IOException {
-        if (filter == null || !filter.filter(file)) {
+    private void scanFolder(ScanFileFilter filter, File file, Map<String, HttpContentType> mapping, String path) {
+        if (filter.filter(file)) {
             return;
         }
         if (file.isFile()) {
             HttpContentType contentType = getContentType(file.getName(), mapping);
-            HttpEntity entity = new HttpEntity();
+            HttpEntity      entity      = new HttpEntity();
             entity.setContentType(contentType);
             entity.setFile(file);
             htmlCache.put(path, entity);
             logger.info("mapping static url:{}", path);
         } else if (file.isDirectory()) {
             String staticName = path;
-            if ("/lib".equals(staticName)) {
-                return;
-            }
             if ("".equals(staticName)) {
                 staticName = "/";
             }
             File[] fs = file.listFiles();
+            if (fs == null) {
+                return;
+            }
             StringBuilder b = new StringBuilder(HttpUtil.HTML_HEADER);
             b.append("      <div style=\"margin-left:20px;\">\n");
             b.append("          Index of " + staticName + "\n");
             b.append("      </div>\n");
             b.append("      <hr>\n");
             if (!"/".equals(staticName)) {
-                int index = staticName.lastIndexOf("/");
+                int    index = staticName.lastIndexOf("/");
                 String parentStaticName;
                 if (index == 0) {
                     parentStaticName = "..";
@@ -251,24 +247,22 @@ public class HttpFrameHandle extends IoEventHandle {
             StringBuilder db = new StringBuilder();
             StringBuilder fb = new StringBuilder();
             for (File f : fs) {
-                if (filter == null || !filter.filter(f)) {
+                if (filter.filter(f)) {
                     continue;
                 }
                 String staticName1 = path + "/" + f.getName();
                 scanFolder(filter, f, mapping, staticName1);
                 if (f.isDirectory()) {
-                    if ("/lib".equals(staticName1)) {
-                        continue;
-                    }
-                    String a = "<a href=\"" + staticName1 + "\">&lt;dir&gt;" + f.getName()
-                            + "</a>\n";
+                    String a = "<a href=\"" + staticName1 + "\">&lt;dir&gt;" + f.getName() + "</a>\n";
                     db.append("     <p>\n");
-                    db.append("         " + a);
+                    fb.append("         ");
+                    fb.append(a);
                     db.append("     </p>\n");
                 } else {
                     String a = "<a href=\"" + staticName1 + "\">" + f.getName() + "</a>\n";
                     fb.append("     <p>\n");
-                    fb.append("         " + a);
+                    fb.append("         ");
+                    fb.append(a);
                     fb.append("     <p>\n");
                 }
             }
@@ -289,7 +283,7 @@ public class HttpFrameHandle extends IoEventHandle {
         this.charset = charset;
     }
 
-    protected void setDefaultResponseHeaders(HttpFrame f) {
+    public void setDefaultResponseHeaders(HttpFrame f) {
         if (getCharset() == Util.GBK) {
             f.setContentType(HttpContentType.text_plain_gbk);
         } else {
@@ -299,7 +293,9 @@ public class HttpFrameHandle extends IoEventHandle {
     }
 
     public void setScanFileFilter(ScanFileFilter scanFileFilter) {
-        this.scanFileFilter = scanFileFilter;
+        if(scanFileFilter != null){
+            this.scanFileFilter = scanFileFilter;
+        }
     }
 
     private void writeAndFlush(Channel ch, HttpFrame frame, HttpEntity entity) throws Exception {
@@ -319,49 +315,49 @@ public class HttpFrameHandle extends IoEventHandle {
         private byte[]          lastModifyGTMBytes;
         private long            lastModifyGTMTime;
 
-        public ByteBuf getContent() {
+        ByteBuf getContent() {
             return content;
         }
 
-        public HttpContentType getContentType() {
+        HttpContentType getContentType() {
             return contentType;
         }
 
-        public File getFile() {
+        File getFile() {
             return file;
         }
 
-        public long getLastModify() {
+        long getLastModify() {
             return lastModify;
         }
 
-        public String getLastModifyGTM() {
+        String getLastModifyGTM() {
             return lastModifyGTM;
         }
 
-        public byte[] getLastModifyGTMBytes() {
+        byte[] getLastModifyGTMBytes() {
             return lastModifyGTMBytes;
         }
 
-        public long getLastModifyGTMTime() {
+        long getLastModifyGTMTime() {
             return lastModifyGTMTime;
         }
 
-        public void setBinary(byte[] readBytesByFile) {
+        void setBinary(byte[] readBytesByFile) {
             ByteBuf content = ByteBuf.wrap(readBytesByFile);
             content.position(content.limit());
             this.content = content;
         }
 
-        public void setContentType(HttpContentType contentType) {
+        void setContentType(HttpContentType contentType) {
             this.contentType = contentType;
         }
 
-        public void setFile(File file) {
+        void setFile(File file) {
             this.file = file;
         }
 
-        public void setLastModify(long lastModify) {
+        void setLastModify(long lastModify) {
             DateUtil format = DateUtil.get();
             this.lastModify = lastModify;
             this.lastModifyGTMBytes = format.formatHttpBytes(lastModify);
@@ -375,7 +371,7 @@ public class HttpFrameHandle extends IoEventHandle {
 
         @Override
         public boolean filter(File file) {
-            return !file.getName().startsWith(".");
+            return file.getName().startsWith(".");
         }
 
     }
