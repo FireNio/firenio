@@ -71,17 +71,16 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     private static final boolean     USE_HAS_TASK       = true;
 
     private final    ByteBufAllocator        alloc;
-    private final    Map<Object, Object>     attributes     = new HashMap<>();
+    private final    Map<Object, Object>     attributes    = new HashMap<>();
     private final    ByteBuf                 buf;
-    private final    IntMap<Channel>         channels       = new IntMap<>(4096);
+    private final    IntMap<Channel>         channels      = new IntMap<>(4096);
     private final    int                     ch_size_limit;
-    private final    DelayedQueue            delayed_queue  = new DelayedQueue();
-    private final    BlockingQueue<Runnable> events         = new LinkedBlockingQueue<>();
+    private final    DelayedQueue            delayed_queue = new DelayedQueue();
+    private final    BlockingQueue<Runnable> events        = new LinkedBlockingQueue<>();
     private final    NioEventLoopGroup       group;
-    private volatile boolean                 has_task       = false;
+    private volatile boolean                 has_task      = false;
     private final    int                     index;
-    private          long                    last_idle_time = 0;
-    private final    AtomicInteger           selecting      = new AtomicInteger();
+    private final    AtomicInteger           selecting     = new AtomicInteger();
     private final    boolean                 sharable;
     private final    NioEventLoopUnsafe      unsafe;
     private final    long                    buf_address;
@@ -121,42 +120,40 @@ public final class NioEventLoop extends EventLoop implements Attributes {
         }
     }
 
-    private void channel_idle(long currentTime) {
-        long lastIdleTime = this.last_idle_time;
-        this.last_idle_time = currentTime;
+    //FIXME ..optimize sharable group
+    private void channel_idle(long last_idle_time, long current_time) {
         IntMap<Channel> channels = this.channels;
         if (channels.isEmpty()) {
             return;
         }
-        //FIXME ..optimize sharable group
         if (sharable) {
-            channel_idle_share(channels, lastIdleTime, currentTime);
+            channel_idle_share(channels, last_idle_time, current_time);
         } else {
-            channel_idle(group.getContext(), channels, lastIdleTime, currentTime);
+            channel_idle(group.getContext(), channels, last_idle_time, current_time);
         }
     }
 
-    private static void channel_idle(ChannelContext context, IntMap<Channel> channels, long lastIdleTime, long currentTime) {
+    private static void channel_idle(ChannelContext context, IntMap<Channel> channels, long last_idle_time, long current_time) {
         List<ChannelIdleListener> ls = context.getChannelIdleEventListeners();
         for (int i = 0; i < ls.size(); i++) {
             ChannelIdleListener l = ls.get(i);
             for (channels.scan(); channels.hasNext(); ) {
                 Channel ch = channels.nextValue();
-                channel_idle(l, ch, lastIdleTime, currentTime);
+                channel_idle(l, ch, last_idle_time, current_time);
             }
         }
     }
 
-    private static void channel_idle_share(IntMap<Channel> channels, long lastIdleTime, long currentTime) {
+    private static void channel_idle_share(IntMap<Channel> channels, long last_idle_time, long current_time) {
         for (channels.scan(); channels.hasNext(); ) {
             Channel                   ch      = channels.nextValue();
             ChannelContext            context = ch.getContext();
             List<ChannelIdleListener> ls      = context.getChannelIdleEventListeners();
             if (ls.size() == 1) {
-                channel_idle(ls.get(0), ch, lastIdleTime, currentTime);
+                channel_idle(ls.get(0), ch, last_idle_time, current_time);
             } else {
                 for (int i = 0; i < ls.size(); i++) {
-                    channel_idle(ls.get(i), ch, lastIdleTime, currentTime);
+                    channel_idle(ls.get(i), ch, last_idle_time, current_time);
                 }
             }
         }
@@ -331,13 +328,14 @@ public final class NioEventLoop extends EventLoop implements Attributes {
     @Override
     public void run() {
         // does it useful to set variables locally ?
-        final long                    idle       = group.getIdleTime();
-        final NioEventLoopUnsafe      unsafe     = this.unsafe;
-        final AtomicInteger           selecting  = this.selecting;
-        final BlockingQueue<Runnable> events     = this.events;
-        final DelayedQueue            dq         = this.delayed_queue;
-        long                          nextIdle   = 0;
-        long                          selectTime = idle;
+        final long                    idle           = group.getIdleTime();
+        final NioEventLoopUnsafe      unsafe         = this.unsafe;
+        final AtomicInteger           selecting      = this.selecting;
+        final BlockingQueue<Runnable> events         = this.events;
+        final DelayedQueue            dq             = this.delayed_queue;
+        long                          next_idle_time = 0;
+        long                          last_idle_time = 0;
+        long                          select_time    = idle;
         for (; ; ) {
             // when this event loop is going to shutdown,we do not handle the last events 
             // because the method "submit" will return false, and if the task is closable,
@@ -358,7 +356,7 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                     if (has_task()) {
                         selected = unsafe.select_now();
                     } else {
-                        selected = unsafe.select(selectTime);
+                        selected = unsafe.select(select_time);
                     }
                     selecting.set(0);
                 } else {
@@ -369,16 +367,17 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                     unsafe.accept(selected);
                 }
                 long now = System.currentTimeMillis();
-                if (now >= nextIdle) {
-                    channel_idle(now);
-                    nextIdle = now + idle;
-                    selectTime = idle;
+                if (now >= next_idle_time) {
+                    channel_idle(last_idle_time, now);
+                    last_idle_time = now;
+                    next_idle_time = now + idle;
+                    select_time = idle;
                 } else {
-                    selectTime = nextIdle - now;
+                    select_time = next_idle_time - now;
                 }
                 run_events(events);
                 if (!dq.isEmpty()) {
-                    selectTime = run_delayed_events(dq, now, nextIdle, selectTime);
+                    select_time = run_delayed_events(dq, now, next_idle_time, select_time);
                 }
             } catch (Throwable e) {
                 printException(logger, e, 1);
@@ -483,8 +482,8 @@ public final class NioEventLoop extends EventLoop implements Attributes {
 
         private void accept(long data, int epfd, int fd) {
             final ChannelAcceptor ctx      = (ChannelAcceptor) ctxs.get(fd);
-            final int listenfd = ((ChannelAcceptor.EpollAcceptorUnsafe) ctx.getUnsafe()).listenfd;
-            final int cfd      = Native.accept(epfd, listenfd, data);
+            final int             listenfd = ((ChannelAcceptor.EpollAcceptorUnsafe) ctx.getUnsafe()).listenfd;
+            final int             cfd      = Native.accept(epfd, listenfd, data);
             if (cfd == -1) {
                 return;
             }
@@ -905,9 +904,9 @@ public final class NioEventLoop extends EventLoop implements Attributes {
                 @Override
                 public Object run() {
                     try {
-                        Field selectedKeysField = selectorImplClass.getDeclaredField("selectedKeys");
-                        Field publicSelectedKeysField = selectorImplClass.getDeclaredField("publicSelectedKeys");
-                        Throwable cause = Util.trySetAccessible(selectedKeysField);
+                        Field     selectedKeysField       = selectorImplClass.getDeclaredField("selectedKeys");
+                        Field     publicSelectedKeysField = selectorImplClass.getDeclaredField("publicSelectedKeys");
+                        Throwable cause                   = Util.trySetAccessible(selectedKeysField);
                         if (cause != null) {
                             return cause;
                         }
