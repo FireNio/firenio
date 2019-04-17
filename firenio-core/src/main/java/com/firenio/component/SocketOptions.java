@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,22 +20,21 @@ import java.net.StandardSocketOptions;
 
 /**
  * @author wangkai
- *
  */
 public final class SocketOptions {
 
-    public static final int       PARAM_BOOLEAN;
-    public static final int       IPPROTO_TCP;
-    public static final int       SOL_SOCKET;
-    public static final int       SO_BROADCAST;
-    public static final int       SO_ERROR;
-    public static final int       SO_KEEPALIVE;
-    public static final int       SO_SNDBUF;
-    public static final int       SO_RCVBUF;
-    public static final int       SO_REUSEADDR;
-    public static final int       SO_LINGER;
-    public static final int       TCP_NODELAY;
-    public static final int       TCP_QUICKACK;
+    public static final  int      PARAM_BOOLEAN;
+    public static final  int      IPPROTO_TCP;
+    public static final  int      SOL_SOCKET;
+    public static final  int      SO_BROADCAST;
+    public static final  int      SO_ERROR;
+    public static final  int      SO_KEEPALIVE;
+    public static final  int      SO_SNDBUF;
+    public static final  int      SO_RCVBUF;
+    public static final  int      SO_REUSEADDR;
+    public static final  int      SO_LINGER;
+    public static final  int      TCP_NODELAY;
+    public static final  int      TCP_QUICKACK;
     private static final Object[] TCP_SOCKET_OPTIONS = new Object[16];
     private static final Object[] SO_SOCKET_OPTIONS  = new Object[16];
 

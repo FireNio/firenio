@@ -95,7 +95,7 @@ public class Unsafe {
      * @param   srcBaseOffset
      *          offset of first element of storage in source array
      * @param   srcPos
-     *          offset within source array of the first element to read
+     *          offset within source array of the first element to native_read
      * @param   dstAddr
      *          destination address
      * @param   length

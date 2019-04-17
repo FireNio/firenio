@@ -23,11 +23,10 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
-import com.firenio.TimeoutException;
 import com.firenio.buffer.ByteBuf;
 import com.firenio.common.Util;
-import com.firenio.component.NioEventLoop.EpollNioEventLoopUnsafe;
-import com.firenio.component.NioEventLoop.JavaNioEventLoopUnsafe;
+import com.firenio.component.NioEventLoop.EpollEventLoop;
+import com.firenio.component.NioEventLoop.JavaEventLoop;
 import com.firenio.concurrent.Waiter;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
@@ -140,7 +139,7 @@ public final class ChannelAcceptor extends ChannelContext {
         return unsafe.isActive();
     }
 
-    public synchronized void unbind() throws TimeoutException {
+    public synchronized void unbind() {
         Util.close(unsafe);
         Util.stop(bindGroup);
         Util.stop(this);
@@ -167,21 +166,21 @@ public final class ChannelAcceptor extends ChannelContext {
             this.active = true;
             this.listenfd = Native.bind(acceptor.getHost(), acceptor.getPort(), backlog);
             Native.throwException(listenfd);
-            EpollNioEventLoopUnsafe elUnsafe = (EpollNioEventLoopUnsafe) eventLoop.getUnsafe();
-            elUnsafe.ctxs.put(listenfd, acceptor);
-            Native.throwException(Native.epoll_add(elUnsafe.epfd, listenfd, Native.EPOLLIN));
+            EpollEventLoop el = (EpollEventLoop) eventLoop;
+            el.ctxs.put(listenfd, acceptor);
+            Native.throwException(Native.epoll_add(el.epfd, listenfd, Native.EPOLLIN));
         }
 
         @Override
-        public void close() throws IOException {
+        public void close() {
             this.active = false;
             int listenfd = this.listenfd;
             if (listenfd != -1) {
-                NioEventLoop el = this.eventLoop;
-                if (el != null) {
-                    EpollNioEventLoopUnsafe elUnsafe = (EpollNioEventLoopUnsafe) el.getUnsafe();
-                    Native.epoll_del(elUnsafe.epfd, listenfd);
-                    elUnsafe.ctxs.remove(listenfd);
+                NioEventLoop eventLoop = this.eventLoop;
+                if (eventLoop != null) {
+                    EpollEventLoop el = (EpollEventLoop) eventLoop;
+                    Native.epoll_del(el.epfd, listenfd);
+                    el.ctxs.remove(listenfd);
                 }
                 Native.close(listenfd);
                 this.listenfd = -1;
@@ -203,8 +202,8 @@ public final class ChannelAcceptor extends ChannelContext {
         @Override
         void bind(NioEventLoop eventLoop, ChannelAcceptor ctx, int backlog) throws IOException {
             eventLoop.assertInEventLoop("registSelector must in event loop");
-            JavaNioEventLoopUnsafe elUnsafe = (JavaNioEventLoopUnsafe) eventLoop.getUnsafe();
-            Selector               selector = elUnsafe.getSelector();
+            JavaEventLoop el = (JavaEventLoop) eventLoop;
+            Selector               selector = el.getSelector();
             this.close();
             this.selectableChannel = ServerSocketChannel.open();
             this.selectableChannel.configureBlocking(false);

@@ -18,8 +18,6 @@ public class Native {
     //gcc -shared -g -fPIC -m64 -o obj/Native.o src/Native.cpp
     //gcc -shared -fPIC -m64 -o obj/Native.o src/Native.cpp
 
-    private static final Logger  logger = LoggerFactory.getLogger(Native.class);
-
     public static final boolean  EPOLL_AVAIABLE;
     public static final int      EPOLLERR;
     public static final int      EPOLLET;
@@ -35,6 +33,7 @@ public class Native {
     public static final boolean  IS_LINUX;
     public static final int      SIZEOF_EPOLL_EVENT;
     public static final int      SIZEOF_SOCKADDR_IN;
+    private static final Logger logger = LoggerFactory.getLogger(Native.class);
 
     static {
         EPOLLET = 1 << 31;
@@ -75,7 +74,8 @@ public class Native {
                 System.load("/home/test/git-rep/firenio/firenio-epoll/obj/Native.o");
                 epollLoaded = true;
                 logger.info("load epoll from file system");
-            } catch (Throwable e) {}
+            } catch (Throwable e) {
+            }
             if (!epollLoaded) {
                 try {
                     loadNative("Native.o");
@@ -96,7 +96,8 @@ public class Native {
                     if (Develop.NATIVE_DEBUG) {
                         logger.error("epoll creat faild:" + Native.errstr());
                     }
-                } catch (Throwable e) {}
+                } catch (Throwable e) {
+                }
             }
         }
         return false;
@@ -175,9 +176,9 @@ public class Native {
     }
 
     private static void loadNative(String name) throws IOException {
-        InputStream in = Native.class.getClassLoader().getResourceAsStream(name);
-        File tmpFile = File.createTempFile(name, ".o");
-        byte[] data = FileUtil.inputStream2ByteArray(in);
+        InputStream in      = Native.class.getClassLoader().getResourceAsStream(name);
+        File        tmpFile = File.createTempFile(name, ".o");
+        byte[]      data    = FileUtil.inputStream2ByteArray(in);
         FileUtil.writeByFile(tmpFile, data);
         System.load(tmpFile.getAbsolutePath());
         tmpFile.deleteOnExit();
@@ -244,7 +245,7 @@ public class Native {
 
     public static boolean finish_connect(int fd) {
         int type = SocketOptions.SOL_SOCKET >> 16;
-        int res = get_socket_opt0(fd, type, SocketOptions.SO_ERROR & 0xff);
+        int res  = get_socket_opt0(fd, type, SocketOptions.SO_ERROR & 0xff);
         if (res != 0) {
             if (res == -1) {
                 printException(res);

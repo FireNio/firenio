@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,8 +26,8 @@ public abstract class Frame {
     private static final byte TYPE_PONG   = -2;
     private static final byte TYPE_SILENT = -3;
 
-    private Object            content;
-    private byte              type;
+    private Object content;
+    private byte   type;
 
     public byte[] getArrayContent() {
         return (byte[]) content;
@@ -39,6 +39,11 @@ public abstract class Frame {
 
     public Object getContent() {
         return content;
+    }
+
+    public void setContent(Object content) {
+        Util.release(this.content);
+        this.content = content;
     }
 
     public String getFrameName() {
@@ -98,11 +103,6 @@ public abstract class Frame {
         write(bytes, off, len);
     }
 
-    public void setContent(Object content) {
-        Util.release(this.content);
-        this.content = content;
-    }
-
     public Frame setPing() {
         this.type = TYPE_PING;
         return this;
@@ -157,7 +157,7 @@ public abstract class Frame {
     public void write(String text, Charset charset) {
         write(text.getBytes(charset));
     }
-    
+
     @Override
     public String toString() {
         if (isText()) {

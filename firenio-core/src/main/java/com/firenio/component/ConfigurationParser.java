@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,16 +23,14 @@ import com.firenio.common.Util;
 
 /**
  * @author wangkai
- *
  */
 public class ConfigurationParser {
 
-    private static void parseConfiguration(String prefix, Object cfg, Class<?> clazz,
-            Properties properties) throws Exception {
+    private static void parseConfiguration(String prefix, Object cfg, Class<?> clazz, Properties properties) throws Exception {
         Field[] fs = clazz.getDeclaredFields();
         for (Field f : fs) {
             Class<?> type = f.getType();
-            String name = f.getName();
+            String   name = f.getName();
             if (type == String.class) {
                 String v = properties.getProperty(prefix + name);
                 if (Util.isNullOrBlank(v)) {
@@ -74,10 +72,9 @@ public class ConfigurationParser {
         }
     }
 
-    public static void parseConfiguration(String prefix, Object cfg, Properties properties)
-            throws Exception {
+    public static void parseConfiguration(String prefix, Object cfg, Properties properties) throws Exception {
         Class<?> clazz = cfg.getClass();
-        for (;;) {
+        for (; ; ) {
             if (clazz == Object.class) {
                 break;
             }
