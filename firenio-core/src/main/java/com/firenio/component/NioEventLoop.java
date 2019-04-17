@@ -986,7 +986,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         }
 
         private void register_channel(NioEventLoop el, ChannelContext ctx, int fd, String ra, int lp, int rp, boolean add) {
-            IntMap<Channel> channels = this.channels;
+            IntMap<Channel> channels = el.channels;
             if (channels.size() >= ch_size_limit) {
                 printException(logger, OVER_CH_SIZE_LIMIT, 2);
                 ctx.channelEstablish(null, OVER_CH_SIZE_LIMIT);
