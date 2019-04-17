@@ -55,7 +55,7 @@ public class ByteUtil {
     }
 
     public static int compare(long x, long y) {
-        return (x < y) ? -1 : (x > y) ? 1 : 0;
+        return Long.compare(x, y);
     }
 
     public static boolean equalsArray(byte[] bs1, byte[] bs2) {

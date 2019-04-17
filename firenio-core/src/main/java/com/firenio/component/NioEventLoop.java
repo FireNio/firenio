@@ -879,8 +879,8 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
 
         private void accept(long data, int epfd, int fd) {
             final ChannelAcceptor ctx      = (ChannelAcceptor) ctxs.get(fd);
-            final int             listenfd = ((ChannelAcceptor.EpollAcceptorUnsafe) ctx.getUnsafe()).listenfd;
-            final int             cfd      = Native.accept(epfd, listenfd, data);
+            final int             listen_fd = ((ChannelAcceptor.EpollAcceptorUnsafe) ctx.getUnsafe()).listenfd;
+            final int             cfd      = Native.accept(epfd, listen_fd, data);
             if (cfd == -1) {
                 return;
             }
@@ -1034,4 +1034,5 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         }
 
     }
+
 }
