@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,6 +45,10 @@ public class TestLengthValueServerJunit {
     }
 
     ChannelAcceptor context = new ChannelAcceptor(8300);
+
+    static void v(String r) {
+        Assert.assertTrue(r.equals(res + hello));
+    }
 
     @After
     public void clean() {
@@ -89,7 +93,7 @@ public class TestLengthValueServerJunit {
     }
 
     public void testClient() throws Exception {
-        Waiter<String> w = new Waiter<>();
+        Waiter<String>   w       = new Waiter<>();
         ChannelConnector context = new ChannelConnector(8300);
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
@@ -105,7 +109,7 @@ public class TestLengthValueServerJunit {
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addProtocolCodec(new LengthValueCodec());
-        Channel ch = context.connect();
+        Channel          ch    = context.connect();
         LengthValueFrame frame = new LengthValueFrame();
         frame.setContent(ch.allocate());
         frame.write(hello, ch);
@@ -115,7 +119,7 @@ public class TestLengthValueServerJunit {
     }
 
     public void testClientAsync() throws Exception {
-        Waiter<String> w = new Waiter<>();
+        Waiter<String>   w       = new Waiter<>();
         ChannelConnector context = new ChannelConnector(8300);
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
@@ -143,10 +147,6 @@ public class TestLengthValueServerJunit {
         });
         w.await(1000);
         v(w.getResponse());
-    }
-
-    static void v(String r) {
-        Assert.assertTrue(r.equals(res + hello));
     }
 
 }

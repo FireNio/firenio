@@ -467,12 +467,13 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
 
     abstract void wakeup0();
 
+
     static final class JavaEventLoop extends NioEventLoop {
 
-        private static final boolean                                             ENABLE_SELKEY_SET = check_enable_selection_key_set();
+        private static final boolean         ENABLE_SELKEY_SET = check_enable_selection_key_set();
         private final        SelectionKeySet selection_key_set;
-        private final        Selector                                            selector;
-        private final        ByteBuffer[]                                        write_buffers;
+        private final        Selector        selector;
+        private final        ByteBuffer[]    write_buffers;
 
         JavaEventLoop(NioEventLoopGroup group, int index, String threadName) throws IOException {
             super(group, index, threadName);
@@ -1033,5 +1034,4 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         }
 
     }
-
 }

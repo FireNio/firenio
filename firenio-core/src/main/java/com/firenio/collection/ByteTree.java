@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,14 +20,13 @@ import com.firenio.common.Unsafe;
 
 /**
  * @author wangkai
- *
  */
 public class ByteTree<T> {
 
     private Node root = new ByteNode();
 
     public void add(String s) {
-        add(s.getBytes(), (T)s);
+        add(s.getBytes(), (T) s);
     }
 
     private void add(byte[] bytes, T value) {
@@ -48,8 +47,8 @@ public class ByteTree<T> {
     }
 
     public T get(byte[] bytes, int offset, int length) {
-        Node<T> node = root;
-        int count = offset + length;
+        Node<T> node  = root;
+        int     count = offset + length;
         for (int i = offset; i < count; i++) {
             node = node.next(bytes[i]);
             if (node == null) {
@@ -68,8 +67,8 @@ public class ByteTree<T> {
     }
 
     public T get(long address, int length) {
-        Node<T> node = root;
-        long count = address + length;
+        Node<T> node  = root;
+        long    count = address + length;
         for (long i = address; i < count; i++) {
             node = node.next(Unsafe.getByte(i));
             if (node == null) {

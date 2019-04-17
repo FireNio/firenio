@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,14 +37,13 @@ import com.firenio.log.LoggerFactory;
 
 /**
  * @author wangkai
- *
  */
 public class Util {
 
-    public static final Charset ASCII  = Charset.forName("ASCII");
-    public static final Charset GBK    = Charset.forName("GBK");
-    public static final Charset UTF8   = Charset.forName("UTF-8");
-    private static final Logger logger = LoggerFactory.getLogger(Util.class);
+    public static final  Charset ASCII  = Charset.forName("ASCII");
+    public static final  Charset GBK    = Charset.forName("GBK");
+    public static final  Charset UTF8   = Charset.forName("UTF-8");
+    private static final Logger  logger = LoggerFactory.getLogger(Util.class);
 
     @SuppressWarnings("rawtypes")
     public static List array2List(Object[] array) {
@@ -156,7 +155,8 @@ public class Util {
         if (!isNullOrBlank(v)) {
             try {
                 return isTrueValue(v);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
         return defaultValue;
     }
@@ -176,7 +176,7 @@ public class Util {
 
     public static Field getDeclaredFieldFC(Class<?> clazz, String name) {
         Class<?> c = clazz;
-        for (;;) {
+        for (; ; ) {
             if (c == null) {
                 return null;
             }
@@ -195,7 +195,7 @@ public class Util {
         }
         Class<?>[] interfaces = clazz.getInterfaces();
         if (interfaces.length == 0) {
-            return new Class[] { clazz };
+            return new Class[]{clazz};
         }
         List<Class<?>> cs = new ArrayList<>(interfaces.length + 1);
         for (Class<?> c : interfaces) {
@@ -214,7 +214,8 @@ public class Util {
         if (!isNullOrBlank(v)) {
             try {
                 return Integer.parseInt(v);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
         return defaultValue;
     }
@@ -248,7 +249,7 @@ public class Util {
     public static Object getValueOfLast(Object target, String fieldName) {
         try {
             Object c = target;
-            for (;;) {
+            for (; ; ) {
                 Field fieldNext = getDeclaredFieldFC(c.getClass(), fieldName);
                 if (fieldNext == null) {
                     return c;
@@ -366,21 +367,21 @@ public class Util {
     }
 
     public static String randomLeastSignificantBits() {
-        UUID uuid = UUID.randomUUID();
+        UUID   uuid  = UUID.randomUUID();
         byte[] array = new byte[8];
         ByteUtil.putLong(array, uuid.getLeastSignificantBits(), 0);
         return ByteUtil.getHexString(array);
     }
 
     public static String randomMostSignificantBits() {
-        UUID uuid = UUID.randomUUID();
+        UUID   uuid  = UUID.randomUUID();
         byte[] array = new byte[8];
         ByteUtil.putLong(array, uuid.getMostSignificantBits(), 0);
         return ByteUtil.getHexString(array);
     }
 
     public static String randomUUID() {
-        UUID uuid = UUID.randomUUID();
+        UUID   uuid  = UUID.randomUUID();
         byte[] array = new byte[16];
         ByteUtil.putLong(array, uuid.getMostSignificantBits(), 0);
         ByteUtil.putLong(array, uuid.getLeastSignificantBits(), 8);
@@ -438,12 +439,13 @@ public class Util {
     public static void sleep(long millis) {
         try {
             Thread.sleep(millis);
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException e) {
+        }
     }
 
     public static String stackTraceToString(Throwable cause) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        PrintStream pout = new PrintStream(out);
+        ByteArrayOutputStream out  = new ByteArrayOutputStream();
+        PrintStream           pout = new PrintStream(out);
         cause.printStackTrace(pout);
         pout.flush();
         try {
@@ -471,9 +473,9 @@ public class Util {
 
     public static void testUuid() {
 
-        int count = 1024 * 1024;
-        long start = System.currentTimeMillis();
-        String str = null;
+        int    count = 1024 * 1024;
+        long   start = System.currentTimeMillis();
+        String str   = null;
         for (int i = 0; i < count; i++) {
             str = randomUUID();
             //            str = UUID.randomUUID().toString();
@@ -524,10 +526,8 @@ public class Util {
         }
     }
 
-    public static <T extends Throwable> T unknownStackTrace(T cause, Class<?> clazz,
-            String method) {
-        cause.setStackTrace(new StackTraceElement[] {
-                new StackTraceElement(clazz.getName(), method, null, -1) });
+    public static <T extends Throwable> T unknownStackTrace(T cause, Class<?> clazz, String method) {
+        cause.setStackTrace(new StackTraceElement[]{new StackTraceElement(clazz.getName(), method, null, -1)});
         return cause;
     }
 
@@ -547,7 +547,8 @@ public class Util {
         synchronized (o) {
             try {
                 o.wait();
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+            }
         }
     }
 
@@ -555,13 +556,14 @@ public class Util {
         synchronized (o) {
             try {
                 o.wait(timeout);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+            }
         }
     }
 
     public static int clothCover(int v) {
         int n = 2;
-        for (; n < v;)
+        for (; n < v; )
             n <<= 1;
         return n;
     }

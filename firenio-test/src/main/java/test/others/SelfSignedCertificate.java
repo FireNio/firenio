@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -53,26 +53,26 @@ import sun.security.x509.X509CertInfo;
 //ref from netty
 public final class SelfSignedCertificate {
 
-    /** The maximum possible value in X.509 specification: 9999-12-31 23:59:59 */
-    private static final Date   DEFAULT_NOT_AFTER  = new Date(253402300799000L);
+    /**
+     * The maximum possible value in X.509 specification: 9999-12-31 23:59:59
+     */
+    private static final Date DEFAULT_NOT_AFTER = new Date(253402300799000L);
 
     /**
      * Current time minus 1 year, just in case software clock goes back due to
      * time synchronization
      */
-    private static final Date   DEFAULT_NOT_BEFORE = new Date(
-            System.currentTimeMillis() - 86400000L * 365);
-    private static final Logger logger             = LoggerFactory
-            .getLogger(SelfSignedCertificate.class);
+    private static final Date   DEFAULT_NOT_BEFORE = new Date(System.currentTimeMillis() - 86400000L * 365);
+    private static final Logger logger             = LoggerFactory.getLogger(SelfSignedCertificate.class);
 
-    private X509Certificate     cert;
-    private File                certificate;
-    private String              fqdn;
-    private PrivateKey          key;
-    private Date                notAfter;
-    private Date                notBefore;
-    private File                privateKey;
-    private SecureRandom        random;
+    private X509Certificate cert;
+    private File            certificate;
+    private String          fqdn;
+    private PrivateKey      key;
+    private Date            notAfter;
+    private Date            notBefore;
+    private File            privateKey;
+    private SecureRandom    random;
 
     public SelfSignedCertificate() {
         this(DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
@@ -80,11 +80,9 @@ public final class SelfSignedCertificate {
 
     /**
      * Creates a new instance.
-     * 
-     * @param notBefore
-     *             Certificate is not valid before this time
-     * @param notAfter
-     *             Certificate is not valid after this time
+     *
+     * @param notBefore Certificate is not valid before this time
+     * @param notAfter  Certificate is not valid after this time
      */
     public SelfSignedCertificate(Date notBefore, Date notAfter) {
         this("example.com", notBefore, notAfter);
@@ -93,8 +91,7 @@ public final class SelfSignedCertificate {
     /**
      * Creates a new instance.
      *
-     * @param fqdn
-     *             a fully qualified domain name
+     * @param fqdn a fully qualified domain name
      */
     public SelfSignedCertificate(String fqdn) {
         this(fqdn, DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
@@ -103,12 +100,9 @@ public final class SelfSignedCertificate {
     /**
      * Creates a new instance.
      *
-     * @param fqdn
-     *             a fully qualified domain name
-     * @param notBefore
-     *             Certificate is not valid before this time
-     * @param notAfter
-     *             Certificate is not valid after this time
+     * @param fqdn      a fully qualified domain name
+     * @param notBefore Certificate is not valid before this time
+     * @param notAfter  Certificate is not valid after this time
      */
     public SelfSignedCertificate(String fqdn, Date notBefore, Date notAfter) {
         // Bypass entrophy collection by using insecure random generator.
@@ -120,12 +114,9 @@ public final class SelfSignedCertificate {
     /**
      * Creates a new instance.
      *
-     * @param fqdn
-     *             a fully qualified domain name
-     * @param random
-     *             the {@link java.security.SecureRandom} to use
-     * @param bits
-     *             the number of bits of the generated private key
+     * @param fqdn   a fully qualified domain name
+     * @param random the {@link java.security.SecureRandom} to use
+     * @param bits   the number of bits of the generated private key
      */
     public SelfSignedCertificate(String fqdn, SecureRandom random) {
         this(fqdn, random, DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
@@ -134,16 +125,11 @@ public final class SelfSignedCertificate {
     /**
      * Creates a new instance.
      *
-     * @param fqdn
-     *             a fully qualified domain name
-     * @param random
-     *             the {@link java.security.SecureRandom} to use
-     * @param bits
-     *             the number of bits of the generated private key
-     * @param notBefore
-     *             Certificate is not valid before this time
-     * @param notAfter
-     *             Certificate is not valid after this time
+     * @param fqdn      a fully qualified domain name
+     * @param random    the {@link java.security.SecureRandom} to use
+     * @param bits      the number of bits of the generated private key
+     * @param notBefore Certificate is not valid before this time
+     * @param notAfter  Certificate is not valid after this time
      */
     public SelfSignedCertificate(String fqdn, SecureRandom random, Date notBefore, Date notAfter) {
         // Generate an RSA key pair.
@@ -194,9 +180,7 @@ public final class SelfSignedCertificate {
             files = generate(fileRoot, fqdn, keypair, random, notBefore, notAfter);
         } catch (Exception t) {
 
-            logger.debug(
-                    "Failed to generate a self-signed X.509 certificate using sun.security.x509:",
-                    t);
+            logger.debug("Failed to generate a self-signed X.509 certificate using sun.security.x509:", t);
 
             throw new Error(t);
         }
@@ -207,8 +191,7 @@ public final class SelfSignedCertificate {
         FileInputStream certificateInput = null;
         try {
             certificateInput = new FileInputStream(certificate);
-            cert = (X509Certificate) CertificateFactory.getInstance("X509")
-                    .generateCertificate(certificateInput);
+            cert = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(certificateInput);
         } catch (Exception e) {
             throw new CertificateEncodingException(e);
         } finally {
@@ -222,17 +205,15 @@ public final class SelfSignedCertificate {
         }
     }
 
-    private File[] generate(String fileRoot, String fqdn, KeyPair keypair, SecureRandom random,
-            Date notBefore, Date notAfter) throws Exception {
+    private File[] generate(String fileRoot, String fqdn, KeyPair keypair, SecureRandom random, Date notBefore, Date notAfter) throws Exception {
         PrivateKey key = keypair.getPrivate();
 
         // Prepare the information required for generating an X.509
         // certificate.
-        X509CertInfo info = new X509CertInfo();
-        X500Name owner = new X500Name("CN=" + fqdn);
+        X509CertInfo info  = new X509CertInfo();
+        X500Name     owner = new X500Name("CN=" + fqdn);
         info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
-        info.set(X509CertInfo.SERIAL_NUMBER,
-                new CertificateSerialNumber(new BigInteger(64, random)));
+        info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(new BigInteger(64, random)));
         try {
             info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(owner));
         } catch (CertificateException ignore) {
@@ -245,16 +226,14 @@ public final class SelfSignedCertificate {
         }
         info.set(X509CertInfo.VALIDITY, new CertificateValidity(notBefore, notAfter));
         info.set(X509CertInfo.KEY, new CertificateX509Key(keypair.getPublic()));
-        info.set(X509CertInfo.ALGORITHM_ID,
-                new CertificateAlgorithmId(new AlgorithmId(AlgorithmId.sha1WithRSAEncryption_oid)));
+        info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(new AlgorithmId(AlgorithmId.sha1WithRSAEncryption_oid)));
 
         // Sign the cert to identify the algorithm that's used.
         X509CertImpl cert = new X509CertImpl(info);
         cert.sign(key, "SHA1withRSA");
 
         // Update the algorithm and sign again.
-        info.set(CertificateAlgorithmId.NAME + '.' + CertificateAlgorithmId.ALGORITHM,
-                cert.get(X509CertImpl.SIG_ALG));
+        info.set(CertificateAlgorithmId.NAME + '.' + CertificateAlgorithmId.ALGORITHM, cert.get(X509CertImpl.SIG_ALG));
         cert = new X509CertImpl(info);
         cert.sign(key, "SHA1withRSA");
         cert.verify(keypair.getPublic());
@@ -269,8 +248,7 @@ public final class SelfSignedCertificate {
         return key;
     }
 
-    protected File[] newSelfSignedCertificate(String fileRoot, String fqdn, PrivateKey key,
-            X509Certificate cert) throws IOException, CertificateEncodingException {
+    protected File[] newSelfSignedCertificate(String fileRoot, String fqdn, PrivateKey key, X509Certificate cert) throws IOException, CertificateEncodingException {
         // Encode the private key into a file.
         byte keyArray[] = key.getEncoded();
 
@@ -288,7 +266,7 @@ public final class SelfSignedCertificate {
 
         File certFile = write2file(fileRoot, "keyutil_" + fqdn, ".crt", certText, Util.UTF8);
 
-        return new File[] { certFile, keyFile };
+        return new File[]{certFile, keyFile};
     }
 
     /**
@@ -307,8 +285,7 @@ public final class SelfSignedCertificate {
         }
     }
 
-    private File write2file(String fileRoot, String name, String subfix, String text,
-            Charset charset) throws IOException {
+    private File write2file(String fileRoot, String name, String subfix, String text, Charset charset) throws IOException {
         File file;
         if (Util.isNullOrBlank(fileRoot)) {
             file = File.createTempFile(name + "_", subfix);

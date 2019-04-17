@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,7 +35,6 @@ import io.netty.handler.ssl.SslContextBuilder;
 
 /**
  * @author wangkai
- *
  */
 public class EchoServer {
 
@@ -46,7 +45,7 @@ public class EchoServer {
         // Configure SSL.
         final SslContext sslCtx;
         if (SSL) {
-            File key = FileUtil.readFileByCls("l.key");
+            File key  = FileUtil.readFileByCls("l.key");
             File cert = FileUtil.readFileByCls("l.crt");
             sslCtx = SslContextBuilder.forServer(cert, key).build();
         } else {
@@ -54,24 +53,21 @@ public class EchoServer {
         }
 
         // Configure the server.
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+        EventLoopGroup bossGroup   = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-                    .option(ChannelOption.SO_BACKLOG, 100)
-                    .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        public void initChannel(SocketChannel ch) throws Exception {
-                            ChannelPipeline p = ch.pipeline();
-                            if (sslCtx != null) {
-                                p.addLast(sslCtx.newHandler(ch.alloc()));
-                            }
-                            //p.addLast(new LoggingHandler(LogLevel.INFO));
-                            p.addLast(new TcpServerHandler());
-                        }
-                    });
+            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).option(ChannelOption.SO_BACKLOG, 100).handler(new LoggingHandler(LogLevel.INFO)).childHandler(new ChannelInitializer<SocketChannel>() {
+                @Override
+                public void initChannel(SocketChannel ch) throws Exception {
+                    ChannelPipeline p = ch.pipeline();
+                    if (sslCtx != null) {
+                        p.addLast(sslCtx.newHandler(ch.alloc()));
+                    }
+                    //p.addLast(new LoggingHandler(LogLevel.INFO));
+                    p.addLast(new TcpServerHandler());
+                }
+            });
 
             // Start the server.
             ChannelFuture f = b.bind(PORT).sync();

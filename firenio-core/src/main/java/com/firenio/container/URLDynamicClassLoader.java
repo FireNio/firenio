@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,7 +43,7 @@ import com.firenio.common.Util;
 
 public class URLDynamicClassLoader extends URLClassLoader implements DynamicClassLoader {
 
-    static final ClassLoader        PARENT_CL      = URLDynamicClassLoader.class.getClassLoader();
+    static final ClassLoader PARENT_CL = URLDynamicClassLoader.class.getClassLoader();
 
     private Map<String, ClassEntry> clazzEntries   = new HashMap<>();
     private boolean                 entrustFirst   = true;
@@ -65,7 +65,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     }
 
     public URLDynamicClassLoader(ClassLoader parent, boolean entrustFirst) {
-        super(new URL[] {}, parent == null ? PARENT_CL : parent);
+        super(new URL[]{}, parent == null ? PARENT_CL : parent);
         this.entrustFirst = entrustFirst;
         this.initialize();
     }
@@ -99,15 +99,14 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
             String name = entry.className;
-            int i = name.lastIndexOf('.');
+            int    i    = name.lastIndexOf('.');
             if (i != -1) {
                 sm.checkPackageAccess(name.substring(0, i));
             }
         }
         String name = entry.className;
-        byte[] cb = entry.classBinary;
-        Class<?> clazz = defineClass(name, cb, 0, cb.length,
-                new CodeSource(entry.codeBase, entry.certificates));
+        byte[] cb   = entry.classBinary;
+        Class<?> clazz = defineClass(name, cb, 0, cb.length, new CodeSource(entry.codeBase, entry.certificates));
         entry.loadedClass = clazz;
         entry.classBinary = null;
         return clazz;
@@ -148,8 +147,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
     @Override
     public Enumeration<URL> findResources(String name) throws IOException {
-        @SuppressWarnings("unchecked")
-        Enumeration<URL>[] temp = new Enumeration[2];
+        @SuppressWarnings("unchecked") Enumeration<URL>[] temp = new Enumeration[2];
         temp[0] = findResources0(name);
         temp[1] = super.findResources(name);
         return new CompoundEnumeration<>(temp);
@@ -335,7 +333,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     private void scanZip(File realFile, JarFile file) throws IOException {
         try {
             Enumeration<JarEntry> entries = file.entries();
-            for (; entries.hasMoreElements();) {
+            for (; entries.hasMoreElements(); ) {
                 JarEntry entry = entries.nextElement();
                 if (entry.isDirectory()) {
                     continue;
@@ -353,7 +351,9 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         } finally {
             Util.close(file);
         }
-    };
+    }
+
+    ;
 
     private ClassEntry storeClass(String filePathName, InputStream inputStream) throws IOException {
         String className = filePathName.replace('/', '.').substring(0, filePathName.length() - 6);
@@ -363,16 +363,15 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         if (clazzEntries.containsKey(className)) {
             //            throw new DuplicateClassException(className);
         }
-        byte[] binaryContent = FileUtil.inputStream2ByteArray(inputStream);
-        ClassEntry classEntry = new ClassEntry();
+        byte[]     binaryContent = FileUtil.inputStream2ByteArray(inputStream);
+        ClassEntry classEntry    = new ClassEntry();
         classEntry.classBinary = binaryContent;
         classEntry.className = className;
         clazzEntries.put(className, classEntry);
         return classEntry;
     }
 
-    private void storeResource(URL url, String pathName, String fileName)
-            throws DuplicateClassException {
+    private void storeResource(URL url, String pathName, String fileName) throws DuplicateClassException {
         resourceMap.put(pathName, url);
         List<URL> urls = resourcesMap.get(fileName);
         if (urls == null) {
@@ -401,7 +400,8 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
                     field.setAccessible(true);
                 }
                 field.set(null, null);
-            } catch (Throwable e) {}
+            } catch (Throwable e) {
+            }
 
             //            if (field.getType().isAssignableFrom(Object.class) 
             //                    || field.getType().isInterface()
@@ -443,32 +443,33 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
                     field.set(pd, null);
                 }
             }
-        } catch (Throwable e) {}
+        } catch (Throwable e) {
+        }
         try {
             Field field = Util.getDeclaredFieldFC(getClass(), "classes");
             if (field != null) {
                 field.setAccessible(true);
-                @SuppressWarnings("unchecked")
-                Vector<Class<?>> classes = (Vector<Class<?>>) field.get(this);
+                @SuppressWarnings("unchecked") Vector<Class<?>> classes = (Vector<Class<?>>) field.get(this);
                 if (classes != null) {
                     classes.clear();
                 }
                 field.set(this, null);
             }
-        } catch (Throwable e) {}
+        } catch (Throwable e) {
+        }
     }
 
     class ClassEntry {
 
         private Certificate[] certificates = null;
 
-        private byte[]        classBinary;
+        private byte[] classBinary;
 
-        private String        className;
+        private String className;
 
-        private URL           codeBase     = null;
+        private URL codeBase = null;
 
-        private Class<?>      loadedClass;
+        private Class<?> loadedClass;
 
     }
 
@@ -483,8 +484,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         @Override
         public boolean hasMoreElements() {
             while (this.index < this.enums.length) {
-                if ((this.enums[this.index] != null)
-                        && (this.enums[this.index].hasMoreElements())) {
+                if ((this.enums[this.index] != null) && (this.enums[this.index].hasMoreElements())) {
                     return true;
                 }
                 this.index += 1;
@@ -503,7 +503,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
 
     class ResourceEnumeration implements Enumeration<URL> {
 
-        private int       index = 0;
+        private int index = 0;
 
         private List<URL> urls;
 

@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,15 +23,13 @@ import test.test.ITestHandle;
 
 /**
  * @author wangkai
- *
  */
 public class ZeroOnePackage {
 
-    public static int getValue(int[] values, int[] weights, int pWeight, int[][] table,
-            boolean print) {
+    public static int getValue(int[] values, int[] weights, int pWeight, int[][] table, boolean print) {
         int valuesLen = values.length;
         for (int i = 1; i < pWeight; i++) {
-            int w = weights[0];
+            int   w    = weights[0];
             int[] rows = table[i];
             if (w <= i) {
                 rows[1] = values[0];
@@ -49,9 +47,9 @@ public class ZeroOnePackage {
             printTable(table, print);
         }
         if (print) {
-            List<Integer> res = new ArrayList<>();
-            int j = pWeight - 1;
-            int length = valuesLen - 1;
+            List<Integer> res    = new ArrayList<>();
+            int           j      = pWeight - 1;
+            int           length = valuesLen - 1;
             for (int i = length; i > 0; --i) {
                 if (table[j][i] > table[j][i - 1]) {
                     j = j - weights[i];
@@ -92,8 +90,7 @@ public class ZeroOnePackage {
                     // item + value of the item that we could afford
                     // with the remaining weight is greater than the value
                     // without the current item itself
-                    V[item][weight] = Math.max(val[item - 1] + V[item - 1][weight - wt[item - 1]],
-                            V[item - 1][weight]);
+                    V[item][weight] = Math.max(val[item - 1] + V[item - 1][weight - wt[item - 1]], V[item - 1][weight]);
                 } else {
                     // If the current item's weight is more than the
                     // running weight, just carry forward the value
@@ -106,8 +103,8 @@ public class ZeroOnePackage {
 
         // Printing choose
         if (print) {
-            int j = W;
-            int length = N;
+            int           j             = W;
+            int           length        = N;
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = length; i > 0; --i) {
                 //转态转移的时候记录
@@ -147,10 +144,10 @@ public class ZeroOnePackage {
     }
 
     static void test1() {
-        int[] values = new int[] { 0, 6, 4, 5, 3, 6 };
-        int[] weights = new int[] { 0, 4, 5, 6, 2, 2 };
-        int pWeight = 10;
-        int[][] table = new int[pWeight + 1][values.length];
+        int[]   values  = new int[]{0, 6, 4, 5, 3, 6};
+        int[]   weights = new int[]{0, 4, 5, 6, 2, 2};
+        int     pWeight = 10;
+        int[][] table   = new int[pWeight + 1][values.length];
 
         int max = getValue(values, weights, pWeight + 1, table, true);
 
@@ -159,12 +156,10 @@ public class ZeroOnePackage {
 
     static void test2(long time) {
 
-        int[] values = new int[] { 0, 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787,
-                701, 605, 644 };
-        int[] weights = new int[] { 0, 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787,
-                701, 605, 644 };
-        int pWeight = 5000;
-        int[][] table = new int[pWeight + 1][values.length];
+        int[] values = new int[]{0, 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787, 701, 605, 644};
+        int[] weights = new int[]{0, 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787, 701, 605, 644};
+        int     pWeight = 5000;
+        int[][] table   = new int[pWeight + 1][values.length];
 
         ITestHandle.doTest(new ITest() {
 
@@ -179,10 +174,8 @@ public class ZeroOnePackage {
 
     static void test3(long time) {
 
-        int[] values = new int[] { 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787, 701,
-                605, 644 };
-        int[] weights = new int[] { 509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787, 701,
-                605, 644 };
+        int[] values = new int[]{509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787, 701, 605, 644};
+        int[] weights = new int[]{509, 838, 924, 650, 604, 793, 564, 651, 697, 649, 747, 787, 701, 605, 644};
         int pWeight = 5000;
         // Items are in rows and weight at in columns +1 on each side
         int[][] V = new int[weights.length + 1][pWeight + 1];

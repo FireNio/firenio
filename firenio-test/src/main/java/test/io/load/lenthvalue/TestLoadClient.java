@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,10 +36,10 @@ public class TestLoadClient {
 
     public static void main(String[] args) throws Exception {
 
-        final Logger logger = LoggerFactory.getLogger(TestLoadClient.class);
-        final CountDownLatch latch = new CountDownLatch(time);
-        final AtomicInteger res = new AtomicInteger();
-        final AtomicInteger req = new AtomicInteger();
+        final Logger         logger = LoggerFactory.getLogger(TestLoadClient.class);
+        final CountDownLatch latch  = new CountDownLatch(time);
+        final AtomicInteger  res    = new AtomicInteger();
+        final AtomicInteger  req    = new AtomicInteger();
 
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
@@ -74,8 +74,7 @@ public class TestLoadClient {
 
         long spend = (System.currentTimeMillis() - old);
         System.out.println("## Execute Time:" + time);
-        System.out.println("## OP/S:" + new BigDecimal(time * 1000).divide(new BigDecimal(spend), 2,
-                BigDecimal.ROUND_HALF_UP));
+        System.out.println("## OP/S:" + new BigDecimal(time * 1000).divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP));
         System.out.println("## Expend Time:" + spend);
 
         Util.close(context);

@@ -33,9 +33,9 @@ import junit.framework.Assert;
  */
 public class TestByteBufCopy {
 
-    static final byte[] _data = "abc123abc123".getBytes();
-    static final ByteBuf arrayData;
-    static final ByteBuf directData;
+    static final byte[]     _data = "abc123abc123".getBytes();
+    static final ByteBuf    arrayData;
+    static final ByteBuf    directData;
     static final ByteBuffer jArrayData;
     static final ByteBuffer jDirectData;
 
@@ -46,6 +46,40 @@ public class TestByteBufCopy {
         jDirectData.put(_data).position(6);
         arrayData = ByteBuf.wrap(jArrayData).skip(6);
         directData = ByteBuf.wrap(jDirectData).skip(6);
+    }
+
+    static ByteBuf _array() {
+        return ByteBuf.heap(12).position(6);
+    }
+
+    static ByteBuf _direct() {
+        return ByteBuf.direct(12).position(6);
+    }
+
+    static ByteBuffer _jArray() {
+        return (ByteBuffer) ByteBuffer.allocate(12).position(6);
+    }
+
+    static ByteBuffer _jDirect() {
+        return (ByteBuffer) ByteBuffer.allocateDirect(12).position(6);
+    }
+
+    static ByteBuf arrayData() {
+        return arrayData.limit(12).position(6);
+    }
+
+    static ByteBuf directData() {
+        return directData.limit(12).position(6);
+    }
+
+    static ByteBuffer jArrayData() {
+        jArrayData.limit(12).position(6);
+        return jArrayData;
+    }
+
+    static ByteBuffer jDirectData() {
+        jDirectData.limit(12).position(6);
+        return jDirectData;
     }
 
     void _invoke(Method m) throws Exception {
@@ -74,7 +108,7 @@ public class TestByteBufCopy {
     @SuppressWarnings("unchecked")
     public void _testAll() throws Exception {
 
-        Method[] ms = TestByteBufCopy.class.getDeclaredMethods();
+        Method[]     ms   = TestByteBufCopy.class.getDeclaredMethods();
         List<Method> list = Util.array2List(ms);
         Collections.sort(list, new Comparator<Method>() {
             public int compare(Method o1, Method o2) {
@@ -85,7 +119,7 @@ public class TestByteBufCopy {
         });
 
         for (int i = 0; i < list.size(); i++) {
-            Method m = list.get(i);
+            Method m    = list.get(i);
             String name = m.getName();
             if ("main".equals(name) || name.startsWith("_")) {
                 continue;
@@ -190,40 +224,6 @@ public class TestByteBufCopy {
         ByteBuf buf = _direct();
         buf.putBytes(jDirectData());
         return buf;
-    }
-
-    static ByteBuf _array() {
-        return ByteBuf.heap(12).position(6);
-    }
-
-    static ByteBuf _direct() {
-        return ByteBuf.direct(12).position(6);
-    }
-
-    static ByteBuffer _jArray() {
-        return (ByteBuffer) ByteBuffer.allocate(12).position(6);
-    }
-
-    static ByteBuffer _jDirect() {
-        return (ByteBuffer) ByteBuffer.allocateDirect(12).position(6);
-    }
-
-    static ByteBuf arrayData() {
-        return arrayData.limit(12).position(6);
-    }
-
-    static ByteBuf directData() {
-        return directData.limit(12).position(6);
-    }
-
-    static ByteBuffer jArrayData() {
-        jArrayData.limit(12).position(6);
-        return jArrayData;
-    }
-
-    static ByteBuffer jDirectData() {
-        jDirectData.limit(12).position(6);
-        return jDirectData;
     }
 
 }

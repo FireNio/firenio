@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,21 +35,21 @@ import com.firenio.component.ProtocolCodec;
  *  |                                                                       |
  *  |                                                                       |
  *  +-----------------+-----------------+-----------------+-----------------+
- *  
+ *
  *  Data-length:-1表示心跳PING,-2表示心跳PONG,正数为报文长度
  *  注意: 无论是否是心跳报文，报文头长度固定为4个字节
- * 
+ *
  * </pre>
  */
 public class LengthValueCodec extends ProtocolCodec {
 
     public static final IOException ILLEGAL_PROTOCOL = EXCEPTION("illegal protocol");
     public static final IOException OVER_LIMIT       = EXCEPTION("over limit");
-    static final ByteBuf            PING;
-    static final ByteBuf            PONG;
-    static final int                PROTOCOL_HEADER  = 4;
-    static final int                PROTOCOL_PING    = -1;
-    static final int                PROTOCOL_PONG    = -2;
+    static final        ByteBuf     PING;
+    static final        ByteBuf     PONG;
+    static final        int         PROTOCOL_HEADER  = 4;
+    static final        int         PROTOCOL_PING    = -1;
+    static final        int         PROTOCOL_PONG    = -2;
 
     static {
         PING = ByteBuf.heap(4);
@@ -59,6 +59,7 @@ public class LengthValueCodec extends ProtocolCodec {
         PING.flip();
         PONG.flip();
     }
+
     private int limit;
 
     public LengthValueCodec() {

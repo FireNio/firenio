@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,14 +50,11 @@ public class CookieUtil {
     }
 
     public static void appendCookieValue(StringBuilder headerBuf, Cookie c) {
-        appendCookieValue(headerBuf, c.getVersion(), c.getName(), c.getValue(), c.getPath(),
-                c.getDomain(), c.getComment(), c.getMaxAge(), c.getSecure());
+        appendCookieValue(headerBuf, c.getVersion(), c.getName(), c.getValue(), c.getPath(), c.getDomain(), c.getComment(), c.getMaxAge(), c.getSecure());
     }
 
     // TODO RFC2965 fields also need to be passed
-    public static void appendCookieValue(StringBuilder headerBuf, int version, String name,
-            String value, String path, String domain, String comment, int maxAge,
-            boolean isSecure) {
+    public static void appendCookieValue(StringBuilder headerBuf, int version, String name, String value, String path, String domain, String comment, int maxAge, boolean isSecure) {
         StringBuffer buf = new StringBuffer();
         // Servlet implementation checks name
         buf.append(name);
@@ -100,9 +97,7 @@ public class CookieUtil {
                 if (maxAge == 0) {
                     buf.append(ancientDate);
                 } else {
-                    OLD_COOKIE_PATTERN_FORMAT.format(
-                            new Date(System.currentTimeMillis() + maxAge * 1000L), buf,
-                            new FieldPosition(0));
+                    OLD_COOKIE_PATTERN_FORMAT.format(new Date(System.currentTimeMillis() + maxAge * 1000L), buf, new FieldPosition(0));
                 }
             }
         }
@@ -207,24 +202,20 @@ public class CookieUtil {
         return maybeQuote2(version, buf, value, false);
     }
 
-    private static int maybeQuote2(int version, StringBuffer buf, String value,
-            boolean allowVersionSwitch) {
+    private static int maybeQuote2(int version, StringBuffer buf, String value, boolean allowVersionSwitch) {
         return maybeQuote2(version, buf, value, null, allowVersionSwitch);
     }
 
-    private static int maybeQuote2(int version, StringBuffer buf, String value, String literals,
-            boolean allowVersionSwitch) {
+    private static int maybeQuote2(int version, StringBuffer buf, String value, String literals, boolean allowVersionSwitch) {
         if (value == null || value.length() == 0) {
             buf.append("\"\"");
         } else if (containsCTL(value, version)) {
-            throw new IllegalArgumentException(
-                    "Control character in cookie value, consider BASE64 encoding your value");
+            throw new IllegalArgumentException("Control character in cookie value, consider BASE64 encoding your value");
         } else if (alreadyQuoted(value)) {
             buf.append('"');
             buf.append(escapeDoubleQuotes(value, 1, value.length() - 1));
             buf.append('"');
-        } else if (allowVersionSwitch && (!STRICT_SERVLET_COMPLIANCE) && version == 0
-                && !isToken2(value, literals)) {
+        } else if (allowVersionSwitch && (!STRICT_SERVLET_COMPLIANCE) && version == 0 && !isToken2(value, literals)) {
             buf.append('"');
             buf.append(escapeDoubleQuotes(value, 0, value.length()));
             buf.append('"');
@@ -242,9 +233,9 @@ public class CookieUtil {
         }
         return version;
     }
-    
+
     public static void parseCookies(Map<String, String> cookies, String line) {
         HttpCodec.parse_kv(cookies, line, 0, line.length(), '=', ';');
     }
-    
+
 }

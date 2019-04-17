@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,24 +17,23 @@ package com.firenio.codec.http11;
 
 public class Cookie implements Cloneable {
 
-    private static final String tspecials = ",; ";
-    private String              comment;
-    private String              domain;
-    private int                 maxAge    = -1;
-    private String              name;
-    private String              path;
-    private boolean             secure;
-    private String              value;
+    private static final String  tspecials = ",; ";
+    private              String  comment;
+    private              String  domain;
+    private              int     maxAge    = -1;
+    private              String  name;
+    private              String  path;
+    private              boolean secure;
+    private              String  value;
 
-    private int                 version   = 0;
+    private int version = 0;
 
     public Cookie(String name, String value) {
         if (!isToken(name) || name.equalsIgnoreCase("Comment") // rfc2019
                 || name.equalsIgnoreCase("Discard") // 2019++
                 || name.equalsIgnoreCase("Domain") || name.equalsIgnoreCase("Expires") // (old cookies)
                 || name.equalsIgnoreCase("Max-Age") // rfc2019
-                || name.equalsIgnoreCase("Path") || name.equalsIgnoreCase("Secure")
-                || name.equalsIgnoreCase("Version") || name.startsWith("$")) {
+                || name.equalsIgnoreCase("Path") || name.equalsIgnoreCase("Secure") || name.equalsIgnoreCase("Version") || name.startsWith("$")) {
             throw new IllegalArgumentException("undefined cookie name " + name);
         }
 
@@ -47,10 +46,8 @@ public class Cookie implements Cloneable {
      * <code>null</code> if the cookie has no comment.
      *
      * @return a <code>String</code> containing the comment, or
-     *         <code>null</code> if none
-     *
+     * <code>null</code> if none
      * @see #setComment
-     *
      */
 
     public String getComment() {
@@ -62,9 +59,7 @@ public class Cookie implements Cloneable {
      * is set by RFC 2109.
      *
      * @return a <code>String</code> containing the domain name
-     *
      * @see #setDomain
-     *
      */
 
     public String getDomain() {
@@ -76,13 +71,9 @@ public class Cookie implements Cloneable {
      * <code>-1</code> indicating the cookie will persist until browser
      * shutdown.
      *
-     *
      * @return an integer specifying the maximum age of the cookie in seconds;
-     *         if negative, means the cookie persists until browser shutdown
-     *
-     *
+     * if negative, means the cookie persists until browser shutdown
      * @see #setMaxAge
-     *
      */
 
     public int getMaxAge() {
@@ -94,7 +85,6 @@ public class Cookie implements Cloneable {
      * creation.
      *
      * @return a <code>String</code> specifying the cookie's name
-     *
      */
 
     public String getName() {
@@ -105,12 +95,9 @@ public class Cookie implements Cloneable {
      * Returns the path on the server to which the browser returns this cookie.
      * The cookie is visible to all subpaths on the server.
      *
-     *
      * @return a <code>String</code> specifying a path that contains a servlet
-     *         name, for example, <i>/catalog</i>
-     *
+     * name, for example, <i>/catalog</i>
      * @see #setPath
-     *
      */
 
     public String getPath() {
@@ -123,10 +110,8 @@ public class Cookie implements Cloneable {
      * using any protocol.
      *
      * @return <code>true</code> if the browser uses a secure protocol;
-     *         otherwise, <code>true</code>
-     *
+     * otherwise, <code>true</code>
      * @see #setSecure
-     *
      */
 
     public boolean getSecure() {
@@ -137,10 +122,8 @@ public class Cookie implements Cloneable {
      * Returns the value of the cookie.
      *
      * @return a <code>String</code> containing the cookie's present value
-     *
      * @see #setValue
      * @see Cookie
-     *
      */
 
     public String getValue() {
@@ -152,13 +135,10 @@ public class Cookie implements Cloneable {
      * complies with RFC 2109, and version 0 complies with the original cookie
      * specification drafted by Netscape. Cookies provided by a browser use and
      * identify the browser's cookie version.
-     * 
      *
      * @return 0 if the cookie complies with the original Netscape
-     *         specification; 1 if the cookie complies with RFC 2109
-     *
+     * specification; 1 if the cookie complies with RFC 2109
      * @see #setVersion
-     *
      */
 
     public int getVersion() {
@@ -179,17 +159,13 @@ public class Cookie implements Cloneable {
     }
 
     /**
-     *
      * Specifies a comment that describes a cookie's purpose. The comment is
      * useful if the browser presents the cookie to the user. Comments are not
      * supported by Netscape Version 0 cookies.
      *
-     * @param purpose
-     *             a <code>String</code> specifying the comment to display to
-     *             the user
-     *
+     * @param purpose a <code>String</code> specifying the comment to display to
+     *                the user
      * @see #getComment
-     *
      */
 
     public void setComment(String purpose) {
@@ -197,7 +173,6 @@ public class Cookie implements Cloneable {
     }
 
     /**
-     *
      * Specifies the domain within which this cookie should be presented.
      *
      * <p>
@@ -207,13 +182,9 @@ public class Cookie implements Cloneable {
      * example, <code>www.foo.com</code>, but not <code>a.b.foo.com</code>). By
      * default, cookies are only returned to the server that sent them.
      *
-     *
-     * @param pattern
-     *             a <code>String</code> containing the domain name within
-     *             which this cookie is visible; form is according to RFC 2109
-     *
+     * @param pattern a <code>String</code> containing the domain name within
+     *                which this cookie is visible; form is according to RFC 2109
      * @see #getDomain
-     *
      */
 
     public void setDomain(String pattern) {
@@ -233,14 +204,10 @@ public class Cookie implements Cloneable {
      * will be deleted when the Web browser exits. A zero value causes the
      * cookie to be deleted.
      *
-     * @param expiry
-     *             an integer specifying the maximum age of the cookie in
-     *             seconds; if negative, means the cookie is not stored; if
-     *             zero, deletes the cookie
-     *
-     *
+     * @param expiry an integer specifying the maximum age of the cookie in
+     *               seconds; if negative, means the cookie is not stored; if
+     *               zero, deletes the cookie
      * @see #getMaxAge
-     *
      */
 
     public void setMaxAge(int expiry) {
@@ -262,13 +229,8 @@ public class Cookie implements Cloneable {
      * Consult RFC 2109 (available on the Internet) for more information on
      * setting path names for cookies.
      *
-     *
-     * @param uri
-     *             a <code>String</code> specifying a path
-     *
-     *
+     * @param uri a <code>String</code> specifying a path
      * @see #getPath
-     *
      */
 
     public void setPath(String uri) {
@@ -282,13 +244,10 @@ public class Cookie implements Cloneable {
      * <p>
      * The default value is <code>false</code>.
      *
-     * @param flag
-     *             if <code>true</code>, sends the cookie from the browser to
+     * @param flag if <code>true</code>, sends the cookie from the browser to
      *             the server only when using a secure protocol; if
      *             <code>false</code>, sent on any protocol
-     *
      * @see #getSecure
-     *
      */
 
     public void setSecure(boolean flag) {
@@ -301,7 +260,6 @@ public class Cookie implements Cloneable {
     // private static final String tspecials = "()<>@,;:\\\"/[]?={} \t";
 
     /**
-     *
      * Assigns a new value to a cookie after the cookie is created. If you use
      * a binary value, you may want to use BASE64 encoding.
      *
@@ -311,13 +269,9 @@ public class Cookie implements Cloneable {
      * marks, at signs, colons, and semicolons. Empty values may not behave the
      * same way on all browsers.
      *
-     * @param newValue
-     *             a <code>String</code> specifying the new value
-     *
-     *
+     * @param newValue a <code>String</code> specifying the new value
      * @see #getValue
      * @see Cookie
-     *
      */
 
     public void setValue(String newValue) {
@@ -327,9 +281,9 @@ public class Cookie implements Cloneable {
     /*
      * Tests a string and returns true if the string counts as a reserved token
      * in the Java language.
-     * 
+     *
      * @param value the <code>String</code> to be tested
-     * 
+     *
      * @return <code>true</code> if the <code>String</code> is a reserved
      * token; <code>false</code> if it is not
      */
@@ -343,13 +297,9 @@ public class Cookie implements Cloneable {
      * Since RFC 2109 is still somewhat new, consider version 1 as
      * experimental; do not use it yet on production sites.
      *
-     *
-     * @param v
-     *             0 if the cookie should comply with the original Netscape
-     *             specification; 1 if the cookie should comply with RFC 2109
-     *
+     * @param v 0 if the cookie should comply with the original Netscape
+     *          specification; 1 if the cookie should comply with RFC 2109
      * @see #getVersion
-     *
      */
 
     public void setVersion(int v) {

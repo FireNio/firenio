@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,7 +46,7 @@ public class TestSimpleWebSocketClient {
                 if (frame instanceof ClientHttpFrame) {
                     ClientHttpFrame f = (ClientHttpFrame) frame;
                     if (f.updateWebSocketProtocol(ch)) {
-                        WebSocketFrame f2 = new WebSocketFrame();
+                        WebSocketFrame      f2  = new WebSocketFrame();
                         Map<String, String> map = new HashMap<>();
                         map.put("action", "add-user");
                         map.put("username", "火星人" + Util.randomUUID());
@@ -62,9 +62,9 @@ public class TestSimpleWebSocketClient {
             }
         };
 
-        String host = "www.firenio.com";
-        int port = 443;
-        NioEventLoopGroup g = new NioEventLoopGroup();
+        String            host = "www.firenio.com";
+        int               port = 443;
+        NioEventLoopGroup g    = new NioEventLoopGroup();
         g.setEnableMemoryPool(false);
         ChannelConnector context = new ChannelConnector(g, host, 443);
         //        context.setExecutorEventLoopGroup(new ExecutorEventLoopGroup());
@@ -73,14 +73,13 @@ public class TestSimpleWebSocketClient {
         context.addProtocolCodec(new WebSocketCodec());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setSslContext(SslContextBuilder.forClient(true).build());
-        Channel ch = context.connect();
-        String url = "/web-socket-chat";
+        Channel   ch    = context.connect();
+        String    url   = "/web-socket-chat";
         HttpFrame frame = new WsUpgradeRequestFrame(url);
         frame.setRequestHeader(HttpHeader.Host, host + port);
         frame.setRequestHeader(HttpHeader.Pragma, "no-cache");
         frame.setRequestHeader(HttpHeader.Cache_Control, "no-cache");
-        frame.setRequestHeader(HttpHeader.User_Agent,
-                "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36");
+        frame.setRequestHeader(HttpHeader.User_Agent, "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36");
         frame.setRequestHeader(HttpHeader.Accept_Encoding, "gzip, deflate, sdch");
         frame.setRequestHeader(HttpHeader.Accept_Language, "zh-CN,zh;q=0.8");
         ch.writeAndFlush(frame);

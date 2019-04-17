@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,27 +28,25 @@ public class TestWeather {
 
     public static void main(String[] args) {
 
-        String httpUrl = "http://apis.baidu.com/apistore/weatherservice/cityname";
-        String httpArg = "cityname=%E5%8C%97%E4%BA%AC";
+        String httpUrl    = "http://apis.baidu.com/apistore/weatherservice/cityname";
+        String httpArg    = "cityname=%E5%8C%97%E4%BA%AC";
         String jsonResult = request(httpUrl, httpArg);
         System.out.println(jsonResult);
     }
 
     /**
-     * @param urlAll
-     *             :请求接口
-     * @param httpArg
-     *             :参数
+     * @param urlAll  :请求接口
+     * @param httpArg :参数
      * @return 返回结果
      */
     public static String request(String httpUrl, String httpArg) {
         BufferedReader reader = null;
-        String result = null;
-        StringBuffer sbf = new StringBuffer();
+        String         result = null;
+        StringBuffer   sbf    = new StringBuffer();
         httpUrl = httpUrl + "?" + httpArg;
 
         try {
-            URL url = new URL(httpUrl);
+            URL               url        = new URL(httpUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             // 填入apikey到HTTP header

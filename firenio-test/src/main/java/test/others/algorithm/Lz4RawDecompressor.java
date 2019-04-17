@@ -19,51 +19,32 @@ import com.firenio.common.Unsafe;
 
 //FIXME read byte by array[i] instead of unsafe
 public final class Lz4RawDecompressor {
-    private static final int[] DEC_32_TABLE      = { 4, 1, 2, 1, 4, 4, 4, 4 };
-    private static final int[] DEC_64_TABLE      = { 0, 0, 0, -1, 0, 1, 2, 3 };
+    private static final int[] DEC_32_TABLE = {4, 1, 2, 1, 4, 4, 4, 4};
+    private static final int[] DEC_64_TABLE = {0, 0, 0, -1, 0, 1, 2, 3};
 
-    private static final int   LAST_LITERAL_SIZE = 5;
-    private static final int   MIN_MATCH         = 4;
-    private static final int   OFFSET_SIZE       = 2;
-    private static final int   SIZE_OF_INT       = 4;
-    private static final int   SIZE_OF_LONG      = 8;
-    private static final int   SIZE_OF_SHORT     = 2;
-    private static final int   TOKEN_SIZE        = 1;
+    private static final int LAST_LITERAL_SIZE = 5;
+    private static final int MIN_MATCH         = 4;
+    private static final int OFFSET_SIZE       = 2;
+    private static final int SIZE_OF_INT       = 4;
+    private static final int SIZE_OF_LONG      = 8;
+    private static final int SIZE_OF_SHORT     = 2;
+    private static final int TOKEN_SIZE        = 1;
 
     private Lz4RawDecompressor() {}
 
-    private static class MalformedInputException extends RuntimeException {
-        private final long offset;
-
-        public MalformedInputException(long offset) {
-            this(offset, "Malformed input");
-        }
-
-        public MalformedInputException(long offset, String reason) {
-            super(reason + ": offset=" + offset);
-            this.offset = offset;
-        }
-
-        public long getOffset() {
-            return offset;
-        }
-    }
-
-    public static int decompress(byte[] input, int inputOffset, int inputLength, byte[] output,
-            int outputOffset, int maxOutputLength) throws MalformedInputException {
-        long inputAddress = Unsafe.ARRAY_BASE_OFFSET + inputOffset;
-        long inputLimit = inputAddress + inputLength;
+    public static int decompress(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int maxOutputLength) throws MalformedInputException {
+        long inputAddress  = Unsafe.ARRAY_BASE_OFFSET + inputOffset;
+        long inputLimit    = inputAddress + inputLength;
         long outputAddress = Unsafe.ARRAY_BASE_OFFSET + outputOffset;
-        long outputLimit = outputAddress + maxOutputLength;
+        long outputLimit   = outputAddress + maxOutputLength;
 
         return decompress(input, inputAddress, inputLimit, output, outputAddress, outputLimit);
     }
 
-    public static void decompress(ByteBuffer input, ByteBuffer output)
-            throws MalformedInputException {
+    public static void decompress(ByteBuffer input, ByteBuffer output) throws MalformedInputException {
         Object inputBase;
-        long inputAddress;
-        long inputLimit;
+        long   inputAddress;
+        long   inputLimit;
         if (input.isDirect()) {
             inputBase = null;
             long address = Unsafe.address(input);
@@ -74,13 +55,12 @@ public final class Lz4RawDecompressor {
             inputAddress = Unsafe.ARRAY_BASE_OFFSET + input.arrayOffset() + input.position();
             inputLimit = Unsafe.ARRAY_BASE_OFFSET + input.arrayOffset() + input.limit();
         } else {
-            throw new IllegalArgumentException(
-                    "Unsupported input ByteBuffer implementation " + input.getClass().getName());
+            throw new IllegalArgumentException("Unsupported input ByteBuffer implementation " + input.getClass().getName());
         }
 
         Object outputBase;
-        long outputAddress;
-        long outputLimit;
+        long   outputAddress;
+        long   outputLimit;
         if (output.isDirect()) {
             outputBase = null;
             long address = Unsafe.address(output);
@@ -91,25 +71,21 @@ public final class Lz4RawDecompressor {
             outputAddress = Unsafe.ARRAY_BASE_OFFSET + output.arrayOffset() + output.position();
             outputLimit = Unsafe.ARRAY_BASE_OFFSET + output.arrayOffset() + output.limit();
         } else {
-            throw new IllegalArgumentException(
-                    "Unsupported output ByteBuffer implementation " + output.getClass().getName());
+            throw new IllegalArgumentException("Unsupported output ByteBuffer implementation " + output.getClass().getName());
         }
 
         // HACK: Assure JVM does not collect Slice wrappers while decompressing, since the
         // collection may trigger freeing of the underlying memory resulting in a segfault
         // There is no other known way to signal to the JVM that an object should not be
         // collected in a block, and technically, the JVM is allowed to eliminate these locks.
-        int written = Lz4RawDecompressor.decompress(inputBase, inputAddress, inputLimit, outputBase,
-                outputAddress, outputLimit);
+        int written = Lz4RawDecompressor.decompress(inputBase, inputAddress, inputLimit, outputBase, outputAddress, outputLimit);
         output.position(output.position() + written);
     }
 
-    public static int decompress(final Object inputBase, final long inputAddress,
-            final long inputLimit, final Object outputBase, final long outputAddress,
-            final long outputLimit) {
+    public static int decompress(final Object inputBase, final long inputAddress, final long inputLimit, final Object outputBase, final long outputAddress, final long outputLimit) {
         final long fastOutputLimit = outputLimit - SIZE_OF_LONG; // maximum offset in output buffer to which it's safe to write long-at-a-time
 
-        long input = inputAddress;
+        long input  = inputAddress;
         long output = outputAddress;
 
         if (inputAddress == inputLimit) {
@@ -138,17 +114,14 @@ public final class Lz4RawDecompressor {
 
             // copy literal
             long literalOutputLimit = output + literalLength;
-            if (literalOutputLimit > (fastOutputLimit - MIN_MATCH) || input
-                    + literalLength > inputLimit - (OFFSET_SIZE + TOKEN_SIZE + LAST_LITERAL_SIZE)) {
+            if (literalOutputLimit > (fastOutputLimit - MIN_MATCH) || input + literalLength > inputLimit - (OFFSET_SIZE + TOKEN_SIZE + LAST_LITERAL_SIZE)) {
                 // copy the last literal and finish
                 if (literalOutputLimit > outputLimit) {
-                    throw new MalformedInputException(input - inputAddress,
-                            "attempt to write last literal outside of destination buffer");
+                    throw new MalformedInputException(input - inputAddress, "attempt to write last literal outside of destination buffer");
                 }
 
                 if (input + literalLength != inputLimit) {
-                    throw new MalformedInputException(input - inputAddress,
-                            "all input must be consumed");
+                    throw new MalformedInputException(input - inputAddress, "all input must be consumed");
                 }
 
                 // slow, precise copy
@@ -174,8 +147,7 @@ public final class Lz4RawDecompressor {
 
             long matchAddress = output - offset;
             if (matchAddress < outputAddress) {
-                throw new MalformedInputException(input - inputAddress,
-                        "offset outside destination buffer");
+                throw new MalformedInputException(input - inputAddress, "offset outside destination buffer");
             }
 
             // compute match length
@@ -205,12 +177,9 @@ public final class Lz4RawDecompressor {
                 int decrement64 = DEC_64_TABLE[offset];
 
                 Unsafe.putByte(outputBase, output, Unsafe.getByte(outputBase, matchAddress));
-                Unsafe.putByte(outputBase, output + 1,
-                        Unsafe.getByte(outputBase, matchAddress + 1));
-                Unsafe.putByte(outputBase, output + 2,
-                        Unsafe.getByte(outputBase, matchAddress + 2));
-                Unsafe.putByte(outputBase, output + 3,
-                        Unsafe.getByte(outputBase, matchAddress + 3));
+                Unsafe.putByte(outputBase, output + 1, Unsafe.getByte(outputBase, matchAddress + 1));
+                Unsafe.putByte(outputBase, output + 2, Unsafe.getByte(outputBase, matchAddress + 2));
+                Unsafe.putByte(outputBase, output + 3, Unsafe.getByte(outputBase, matchAddress + 3));
                 output += SIZE_OF_INT;
                 matchAddress += increment32;
 
@@ -225,8 +194,7 @@ public final class Lz4RawDecompressor {
 
             if (matchOutputLimit > fastOutputLimit - MIN_MATCH) {
                 if (matchOutputLimit > outputLimit - LAST_LITERAL_SIZE) {
-                    throw new MalformedInputException(input - inputAddress,
-                            String.format("last %s bytes must be literals", LAST_LITERAL_SIZE));
+                    throw new MalformedInputException(input - inputAddress, String.format("last %s bytes must be literals", LAST_LITERAL_SIZE));
                 }
 
                 while (output < fastOutputLimit) {
@@ -236,8 +204,7 @@ public final class Lz4RawDecompressor {
                 }
 
                 while (output < matchOutputLimit) {
-                    Unsafe.putByte(outputBase, output++,
-                            Unsafe.getByte(outputBase, matchAddress++));
+                    Unsafe.putByte(outputBase, output++, Unsafe.getByte(outputBase, matchAddress++));
                 }
             } else {
                 do {
@@ -251,5 +218,22 @@ public final class Lz4RawDecompressor {
         }
 
         return (int) (output - outputAddress);
+    }
+
+    private static class MalformedInputException extends RuntimeException {
+        private final long offset;
+
+        public MalformedInputException(long offset) {
+            this(offset, "Malformed input");
+        }
+
+        public MalformedInputException(long offset, String reason) {
+            super(reason + ": offset=" + offset);
+            this.offset = offset;
+        }
+
+        public long getOffset() {
+            return offset;
+        }
     }
 }

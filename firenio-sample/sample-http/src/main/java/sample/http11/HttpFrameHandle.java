@@ -293,7 +293,7 @@ public class HttpFrameHandle extends IoEventHandle {
     }
 
     public void setScanFileFilter(ScanFileFilter scanFileFilter) {
-        if(scanFileFilter != null){
+        if (scanFileFilter != null) {
             this.scanFileFilter = scanFileFilter;
         }
     }
@@ -303,6 +303,10 @@ public class HttpFrameHandle extends IoEventHandle {
         frame.setResponseHeader(HttpHeader.Last_Modified, entity.getLastModifyGTMBytes());
         frame.setContent(entity.content.duplicate());
         ch.writeAndFlush(frame);
+    }
+
+    public interface ScanFileFilter {
+        boolean filter(File file);
     }
 
     static class HttpEntity {
@@ -374,10 +378,6 @@ public class HttpFrameHandle extends IoEventHandle {
             return file.getName().startsWith(".");
         }
 
-    }
-
-    public interface ScanFileFilter {
-        boolean filter(File file);
     }
 
 }

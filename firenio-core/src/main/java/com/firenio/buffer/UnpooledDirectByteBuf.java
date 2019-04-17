@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,6 @@ import com.firenio.common.Unsafe;
 
 /**
  * @author wangkai
- *
  */
 final class UnpooledDirectByteBuf extends DirectByteBuf {
 
@@ -56,12 +55,11 @@ final class UnpooledDirectByteBuf extends DirectByteBuf {
         ByteBuffer oldBuffer = memory;
         try {
             ByteBuffer newBuffer = ByteBuffer.allocateDirect(cap);
-            int pos = oldBuffer.position();
+            int        pos       = oldBuffer.position();
             oldBuffer.position(0);
             oldBuffer.limit(pos);
             if (pos > 0) {
-                copy(Unsafe.address(oldBuffer) + oldBuffer.position(),
-                        Unsafe.address(newBuffer) + newBuffer.position(), pos);
+                copy(Unsafe.address(oldBuffer) + oldBuffer.position(), Unsafe.address(newBuffer) + newBuffer.position(), pos);
             }
             newBuffer.position(pos);
             memory = newBuffer;

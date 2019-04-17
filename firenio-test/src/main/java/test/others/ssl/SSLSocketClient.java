@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,15 +38,13 @@ public class SSLSocketClient {
         X509TrustManager x509m = new X509TrustManager() {
 
             @Override
-            public void checkClientTrusted(X509Certificate[] chain, String authType)
-                    throws CertificateException {
+            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
                 System.out.println("checkClientTrusted......");
 
             }
 
             @Override
-            public void checkServerTrusted(X509Certificate[] chain, String authType)
-                    throws CertificateException {
+            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
                 System.out.println("checkServerTrusted......");
                 //When I use jdkssl the chain'value is all of my server configured.
                 //But when openssl the chain'value only one
@@ -59,17 +57,17 @@ public class SSLSocketClient {
                 return null;
             }
         };
-        context.init(null, new TrustManager[] { x509m }, new SecureRandom());
+        context.init(null, new TrustManager[]{x509m}, new SecureRandom());
 
         SSLSocketFactory factory = context.getSocketFactory();
-        SSLSocket s = (SSLSocket) factory.createSocket("192.168.133.134", 1443);
+        SSLSocket        s       = (SSLSocket) factory.createSocket("192.168.133.134", 1443);
         System.out.println("ok");
 
         OutputStream output = s.getOutputStream();
-        InputStream input = s.getInputStream();
+        InputStream  input  = s.getInputStream();
 
-        int length = 1;
-        StringBuilder b = new StringBuilder(length + 1);
+        int           length = 1;
+        StringBuilder b      = new StringBuilder(length + 1);
         for (int i = 0; i < length; i++) {
             b.append('a');
         }
@@ -80,7 +78,7 @@ public class SSLSocketClient {
         output.flush();
 
         byte[] buf = new byte[length + 200];
-        int len = input.read(buf);
+        int    len = input.read(buf);
 
         Util.close(output);
         Util.close(input);

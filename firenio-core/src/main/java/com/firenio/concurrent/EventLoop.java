@@ -27,8 +27,8 @@ public abstract class EventLoop extends LifeCycle implements Runnable {
 
     private static final Logger                logger       = LoggerFactory.getLogger(EventLoop.class);
     private final        EventLoopGroup        defaultGroup = new DefaultEventLoopGroup(this);
-    private              FastThreadLocalThread monitor      = null;
     private final        String                threadName;
+    private              FastThreadLocalThread monitor      = null;
 
     public EventLoop(String threadName) {
         this.threadName = threadName;

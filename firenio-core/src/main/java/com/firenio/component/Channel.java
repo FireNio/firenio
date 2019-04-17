@@ -15,9 +15,6 @@
  */
 package com.firenio.component;
 
-import static com.firenio.Develop.printException;
-import static com.firenio.common.Util.unknownStackTrace;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -43,11 +40,14 @@ import com.firenio.buffer.ByteBuf;
 import com.firenio.buffer.ByteBufAllocator;
 import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
-import com.firenio.concurrent.EventLoop;
 import com.firenio.component.NioEventLoop.EpollEventLoop;
 import com.firenio.component.NioEventLoop.JavaEventLoop;
+import com.firenio.concurrent.EventLoop;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
+
+import static com.firenio.Develop.printException;
+import static com.firenio.common.Util.unknownStackTrace;
 
 
 //请勿使用remote.getRemoteHost(),可能出现阻塞

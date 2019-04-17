@@ -23,15 +23,15 @@ import java.nio.channels.SocketChannel;
 
 import com.firenio.Develop;
 import com.firenio.TimeoutException;
+import com.firenio.collection.DelayedQueue;
 import com.firenio.common.Assert;
 import com.firenio.common.Util;
+import com.firenio.component.NioEventLoop.EpollEventLoop;
+import com.firenio.component.NioEventLoop.JavaEventLoop;
 import com.firenio.concurrent.Callback;
 import com.firenio.concurrent.Waiter;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
-import com.firenio.collection.DelayedQueue;
-import com.firenio.component.NioEventLoop.EpollEventLoop;
-import com.firenio.component.NioEventLoop.JavaEventLoop;
 
 /**
  * @author wangkai

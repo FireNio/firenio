@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,6 +51,7 @@ public class HttpProxy4CloudServer {
     static final String                netHost;
     static final int                   netPort         = 18088;
     static final HttpProxy4CloudServer server          = new HttpProxy4CloudServer();
+
     static {
         String host;
         try {
@@ -64,9 +65,20 @@ public class HttpProxy4CloudServer {
         netHost = host;
         DebugUtil.debug("remote host: " + netHost);
     }
-    private ChannelAcceptor  context;
+
+    private ChannelAcceptor context;
 
     private volatile boolean enable = true;
+
+    public static HttpProxy4CloudServer get() {
+        return server;
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        get().strtup(new NioEventLoopGroup(true), 8088);
+
+    }
 
     public void disable() {
         enable = false;
@@ -98,16 +110,16 @@ public class HttpProxy4CloudServer {
                 }
                 if (f.getMethod() == HttpMethod.CONNECT) {
                     ch_src.writeAndFlush(CONNECT_RES_BUF.duplicate());
-                    HttpProxy4CloudAttr s = HttpProxy4CloudAttr.get(ch_src);
-                    String[] arr = f.getHost().split(":");
+                    HttpProxy4CloudAttr s   = HttpProxy4CloudAttr.get(ch_src);
+                    String[]            arr = f.getHost().split(":");
                     s.host = arr[0];
                     if (arr.length == 2) {
                         s.port = Integer.parseInt(arr[1]);
                     }
                     s.handshakeFinished = true;
                 } else {
-                    String host = f.getHost();
-                    String[] arr = host.split(":");
+                    String    host = f.getHost();
+                    String[]  arr  = host.split(":");
                     final int port;
                     if (arr.length == 2) {
                         port = Integer.parseInt(arr[1]);
@@ -117,7 +129,7 @@ public class HttpProxy4CloudServer {
                     if (f.getRequestHeaders().remove(HttpHeader.Proxy_Connection.getId()) == null) {
                         return;
                     }
-                    NioEventLoop el = ch_src.getEventLoop();
+                    NioEventLoop     el      = ch_src.getEventLoop();
                     ChannelConnector context = new ChannelConnector(el, netHost, netPort);
                     context.addProtocolCodec(new ClientHttpCodec() {
 
@@ -134,16 +146,13 @@ public class HttpProxy4CloudServer {
                         @Override
                         public void accept(Channel ch, Frame frame) throws Exception {
                             ClientHttpFrame res = (ClientHttpFrame) frame;
-                            IntMap<String> hs = res.getResponse_headers();
-                            for (hs.scan(); hs.hasNext();) {
+                            IntMap<String>  hs  = res.getResponse_headers();
+                            for (hs.scan(); hs.hasNext(); ) {
                                 String v = hs.nextValue();
                                 if (v == null) {
                                     continue;
                                 }
-                                if (hs.key() == HttpHeader.Content_Length.getId()
-                                        || hs.key() == HttpHeader.Connection.getId()
-                                        || hs.key() == HttpHeader.Transfer_Encoding.getId()
-                                        || hs.key() == HttpHeader.Content_Encoding.getId()) {
+                                if (hs.key() == HttpHeader.Content_Length.getId() || hs.key() == HttpHeader.Connection.getId() || hs.key() == HttpHeader.Transfer_Encoding.getId() || hs.key() == HttpHeader.Content_Encoding.getId()) {
                                     continue;
                                 }
                                 f.setResponseHeader(hs.key(), v.getBytes());
@@ -163,8 +172,8 @@ public class HttpProxy4CloudServer {
                     context.addChannelEventListener(new LoggerChannelOpenListener());
                     context.connect((ch, ex) -> {
                         if (ex == null) {
-                            HttpProxy4CloudAttr s = HttpProxy4CloudAttr.get(ch);
-                            HttpFrame req = new ClientHttpFrame(url, f.getMethod());
+                            HttpProxy4CloudAttr s   = HttpProxy4CloudAttr.get(ch);
+                            HttpFrame           req = new ClientHttpFrame(url, f.getMethod());
                             req.setRequestParams(f.getRequestParams());
                             req.setRequestHeaders(f.getRequestHeaders());
                             ByteBuf body = null;
@@ -200,6 +209,35 @@ public class HttpProxy4CloudServer {
         context.bind();
     }
 
+    public static class HttpProxy4CloudAttrListener extends ChannelEventListenerAdapter {
+
+        @Override
+        public void channelOpened(Channel ch) {
+            ch.setAttachment(new HttpProxy4CloudAttr());
+        }
+    }
+
+    public static class HttpProxy4CloudAttr extends HttpAttachment {
+
+        public ChannelConnector connector;
+        public boolean          handshakeFinished;
+        public String           host;
+        public int              port = 80;
+
+        public static HttpProxy4CloudAttr get(Channel ch) {
+            return (HttpProxy4CloudAttr) ch.getAttachment();
+        }
+
+        public static void remove(Channel ch) {
+            get(ch).connector = null;
+        }
+
+        @Override
+        public String toString() {
+            return host + ":" + port;
+        }
+    }
+
     class HttpProxy4CloudCodec extends HttpCodec {
 
         @Override
@@ -207,7 +245,7 @@ public class HttpProxy4CloudServer {
             HttpProxy4CloudAttr s = HttpProxy4CloudAttr.get(ch_src);
             if (s.handshakeFinished) {
                 if (s.connector == null || !s.connector.isConnected()) {
-                    NioEventLoop el = ch_src.getEventLoop();
+                    NioEventLoop     el      = ch_src.getEventLoop();
                     ChannelConnector context = new ChannelConnector(el, netHost, netPort);
                     context.addProtocolCodec(new ProtocolCodec() {
 
@@ -243,9 +281,9 @@ public class HttpProxy4CloudServer {
                     s.connector = context;
                     s.connector.connect((ch_target, ex) -> {
                         if (ex == null) {
-                            byte[] host_bytes = s.host.getBytes();
-                            int len = 5 + host_bytes.length;
-                            ByteBuf head = ch_target.alloc().allocate(len);
+                            byte[]  host_bytes = s.host.getBytes();
+                            int     len        = 5 + host_bytes.length;
+                            ByteBuf head       = ch_target.alloc().allocate(len);
                             head.putByte((byte) host_bytes.length);
                             head.putByte((byte) 83);
                             head.putByte((byte) 38);
@@ -275,54 +313,13 @@ public class HttpProxy4CloudServer {
 
         @Override
         protected void parse_line_one(HttpFrame f, CharSequence line) {
-            if (line.charAt(0) == 'C' && line.charAt(1) == 'O' && line.charAt(2) == 'N'
-                    && line.charAt(3) == 'N' && line.charAt(4) == 'E' && line.charAt(5) == 'C'
-                    && line.charAt(6) == 'T' && line.charAt(7) == ' ') {
+            if (line.charAt(0) == 'C' && line.charAt(1) == 'O' && line.charAt(2) == 'N' && line.charAt(3) == 'N' && line.charAt(4) == 'E' && line.charAt(5) == 'C' && line.charAt(6) == 'T' && line.charAt(7) == ' ') {
                 f.setMethod(HttpMethod.CONNECT);
                 parse_url(f, 8, line);
             } else {
                 super.parse_line_one(f, line);
             }
         }
-
-    }
-
-    public static class HttpProxy4CloudAttrListener extends ChannelEventListenerAdapter {
-
-        @Override
-        public void channelOpened(Channel ch) {
-            ch.setAttachment(new HttpProxy4CloudAttr());
-        }
-    }
-
-    public static class HttpProxy4CloudAttr extends HttpAttachment {
-
-        public ChannelConnector connector;
-        public boolean          handshakeFinished;
-        public String           host;
-        public int              port = 80;
-
-        @Override
-        public String toString() {
-            return host + ":" + port;
-        }
-
-        public static HttpProxy4CloudAttr get(Channel ch) {
-            return (HttpProxy4CloudAttr) ch.getAttachment();
-        }
-
-        public static void remove(Channel ch) {
-            get(ch).connector = null;
-        }
-    }
-
-    public static HttpProxy4CloudServer get() {
-        return server;
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        get().strtup(new NioEventLoopGroup(true), 8088);
 
     }
 

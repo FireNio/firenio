@@ -41,15 +41,6 @@ public class FileUtil {
 
     private static final byte[] SKIP_BYTE_BUFFER = new byte[2048];
 
-    public static abstract class OnDirectoryScan {
-
-        public boolean onDirectory(File directory) throws Exception {
-            return true;
-        }
-
-        public abstract void onFile(File file) throws Exception;
-    }
-
     public static void cleanDirectory(File directory) throws IOException {
         if (!directory.exists()) {
             return;
@@ -573,6 +564,15 @@ public class FileUtil {
         FileOutputStream fos      = new FileOutputStream(realFile);
         properties.store(fos, "");
         Util.close(fos);
+    }
+
+    public static abstract class OnDirectoryScan {
+
+        public boolean onDirectory(File directory) throws Exception {
+            return true;
+        }
+
+        public abstract void onFile(File file) throws Exception;
     }
 
 }

@@ -202,8 +202,8 @@ public final class ChannelAcceptor extends ChannelContext {
         @Override
         void bind(NioEventLoop eventLoop, ChannelAcceptor ctx, int backlog) throws IOException {
             eventLoop.assertInEventLoop("registSelector must in event loop");
-            JavaEventLoop el = (JavaEventLoop) eventLoop;
-            Selector               selector = el.getSelector();
+            JavaEventLoop el       = (JavaEventLoop) eventLoop;
+            Selector      selector = el.getSelector();
             this.close();
             this.selectableChannel = ServerSocketChannel.open();
             this.selectableChannel.configureBlocking(false);

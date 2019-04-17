@@ -18,22 +18,22 @@ public class Native {
     //gcc -shared -g -fPIC -m64 -o obj/Native.o src/Native.cpp
     //gcc -shared -fPIC -m64 -o obj/Native.o src/Native.cpp
 
-    public static final boolean  EPOLL_AVAIABLE;
-    public static final int      EPOLLERR;
-    public static final int      EPOLLET;
-    public static final int      EPOLLIN;
-    public static final int      EPOLLIN_ET;
-    public static final int      EPOLLIN_OUT;
-    public static final int      EPOLLIN_OUT_ET;
-    public static final int      EPOLLOUT;
-    public static final int      EPOLLOUT_ET;
-    public static final int      EPOLLHUP;
-    public static final int      EPOLLRDHUP;
-    public static final String[] ERRORS;
-    public static final boolean  IS_LINUX;
-    public static final int      SIZEOF_EPOLL_EVENT;
-    public static final int      SIZEOF_SOCKADDR_IN;
-    private static final Logger logger = LoggerFactory.getLogger(Native.class);
+    public static final  boolean  EPOLL_AVAIABLE;
+    public static final  int      EPOLLERR;
+    public static final  int      EPOLLET;
+    public static final  int      EPOLLIN;
+    public static final  int      EPOLLIN_ET;
+    public static final  int      EPOLLIN_OUT;
+    public static final  int      EPOLLIN_OUT_ET;
+    public static final  int      EPOLLOUT;
+    public static final  int      EPOLLOUT_ET;
+    public static final  int      EPOLLHUP;
+    public static final  int      EPOLLRDHUP;
+    public static final  String[] ERRORS;
+    public static final  boolean  IS_LINUX;
+    public static final  int      SIZEOF_EPOLL_EVENT;
+    public static final  int      SIZEOF_SOCKADDR_IN;
+    private static final Logger   logger = LoggerFactory.getLogger(Native.class);
 
     static {
         EPOLLET = 1 << 31;

@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,17 +26,16 @@ import java.util.Set;
 
 public class NIOClientDemo {
 
-    /* 缓冲区大小 */
-    private static int                     BLOCK          = 4096;
-    /* 标识数字 */
-    private static int                     flag           = 0;
-    /* 发送数据缓冲区 */
-    private static ByteBuffer              receivebuffer  = ByteBuffer.allocate(BLOCK);
-    /* 接受数据缓冲区 */
-    private static ByteBuffer              sendbuffer     = ByteBuffer.allocate(BLOCK);
     /* 服务器端地址 */
-    private final static InetSocketAddress SERVER_ADDRESS = new InetSocketAddress("localhost",
-            8888);
+    private final static InetSocketAddress SERVER_ADDRESS = new InetSocketAddress("localhost", 8888);
+    /* 缓冲区大小 */
+    private static       int               BLOCK          = 4096;
+    /* 标识数字 */
+    private static       int               flag           = 0;
+    /* 发送数据缓冲区 */
+    private static       ByteBuffer        receivebuffer  = ByteBuffer.allocate(BLOCK);
+    /* 接受数据缓冲区 */
+    private static       ByteBuffer        sendbuffer     = ByteBuffer.allocate(BLOCK);
 
     public static void main(String[] args) throws IOException {
         // 打开socket通道
@@ -51,13 +50,13 @@ public class NIOClientDemo {
         socketChannel.connect(SERVER_ADDRESS);
         // 分配缓冲区大小内存
 
-        Set<SelectionKey> selectionKeys;
+        Set<SelectionKey>      selectionKeys;
         Iterator<SelectionKey> iterator;
-        SelectionKey selectionKey;
-        SocketChannel client;
-        String receiveText;
-        String sendText;
-        int count = 0;
+        SelectionKey           selectionKey;
+        SocketChannel          client;
+        String                 receiveText;
+        String                 sendText;
+        int                    count = 0;
 
         while (true) {
             //选择一组键，其相应的通道已为 I/O 操作准备就绪。

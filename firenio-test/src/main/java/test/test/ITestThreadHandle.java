@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,18 +23,17 @@ import com.firenio.log.LoggerFactory;
 
 public class ITestThreadHandle {
 
-    private static Logger       logger    = LoggerFactory.getLogger(ITestThreadHandle.class);
-    private static long         numOftime;
-    private static long         startTime = System.currentTimeMillis();
-    private static long         sum;
-    public static ITestThread[] ts;
+    public static  ITestThread[] ts;
+    private static Logger        logger    = LoggerFactory.getLogger(ITestThreadHandle.class);
+    private static long          numOftime;
+    private static long          startTime = System.currentTimeMillis();
+    private static long          sum;
 
     public static void doTest(Class<? extends ITestThread> clazz, int threads, int time) {
         doTest(clazz, threads, time, 1);
     }
 
-    public static void doTest(Class<? extends ITestThread> clazz, int threads, int time,
-            int execTime) {
+    public static void doTest(Class<? extends ITestThread> clazz, int threads, int time, int execTime) {
         for (int i = 0; i < execTime; i++) {
             doTest0(clazz, threads, time / threads);
             Util.sleep(2000);
@@ -74,8 +73,7 @@ public class ITestThreadHandle {
         for (int i = 0; i < ts.length; i++) {
             ts[i].stop();
         }
-        double ops = new BigDecimal(allTime * 1000L)
-                .divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        double ops = new BigDecimal(allTime * 1000L).divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
         double avg;
         if (numOftime > 4) {
             sum += ops;

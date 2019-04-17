@@ -21,10 +21,10 @@ import com.firenio.buffer.ByteBufAllocator;
 import com.firenio.buffer.ByteBufAllocatorGroup;
 import com.firenio.buffer.UnpooledByteBufAllocator;
 import com.firenio.common.Util;
-import com.firenio.concurrent.EventLoopGroup;
-import com.firenio.concurrent.FixedAtomicInteger;
 import com.firenio.component.NioEventLoop.EpollEventLoop;
 import com.firenio.component.NioEventLoop.JavaEventLoop;
+import com.firenio.concurrent.EventLoopGroup;
+import com.firenio.concurrent.FixedAtomicInteger;
 
 /**
  * @author wangkai

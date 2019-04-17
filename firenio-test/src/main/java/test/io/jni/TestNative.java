@@ -22,9 +22,9 @@ public class TestNative {
     }
 
     static void loadNative(String name) throws IOException {
-        InputStream in = TestNative.class.getClassLoader().getResourceAsStream(name);
-        File tmpFile = File.createTempFile(name, ".o");
-        byte[] data = FileUtil.inputStream2ByteArray(in);
+        InputStream in      = TestNative.class.getClassLoader().getResourceAsStream(name);
+        File        tmpFile = File.createTempFile(name, ".o");
+        byte[]      data    = FileUtil.inputStream2ByteArray(in);
         FileUtil.writeByFile(tmpFile, data);
         System.load(tmpFile.getAbsolutePath());
         tmpFile.deleteOnExit();

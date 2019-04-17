@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,9 +21,9 @@ public class FixedAtomicInteger {
 
     private AtomicInteger atomiticInteger;
 
-    private int           max_value;
+    private int max_value;
 
-    private int           min_value;
+    private int min_value;
 
     public FixedAtomicInteger() {
         this(0, Integer.MAX_VALUE);
@@ -44,7 +44,7 @@ public class FixedAtomicInteger {
     }
 
     public final int decrementAndGet() {
-        for (;;) {
+        for (; ; ) {
             int current = atomiticInteger.get();
             int next;
             if (current == min_value) {
@@ -59,7 +59,7 @@ public class FixedAtomicInteger {
     }
 
     public final int getAndDecrement() {
-        for (;;) {
+        for (; ; ) {
             int current = atomiticInteger.get();
             int next;
             if (current == min_value) {
@@ -74,7 +74,7 @@ public class FixedAtomicInteger {
     }
 
     public final int getAndIncrement() {
-        for (;;) {
+        for (; ; ) {
             int current = atomiticInteger.get();
             int next;
             if (current == max_value) {
@@ -97,7 +97,7 @@ public class FixedAtomicInteger {
     }
 
     public final int incrementAndGet() {
-        for (;;) {
+        for (; ; ) {
             int current = atomiticInteger.get();
             int next;
             if (current == max_value) {
