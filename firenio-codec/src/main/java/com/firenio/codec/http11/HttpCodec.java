@@ -50,14 +50,14 @@ public class HttpCodec extends ProtocolCodec {
     static final byte        R                         = '\r';
     static final byte        SPACE                     = ' ';
 
-    private final int              blimit;
-    private final byte[][]         cl_bytes = new byte[1024][];
-    private final int              hlimit;
-    private final int              fcache;
-    private final boolean          lite;
-    private final boolean          inline;
-    private final ByteBuffer       cl_buf;
-    private final ByteTree<String> cached_urls;
+    private final int        blimit;
+    private final byte[][]   cl_bytes = new byte[1024][];
+    private final int        hlimit;
+    private final int        fcache;
+    private final boolean    lite;
+    private final boolean    inline;
+    private final ByteBuffer cl_buf;
+    private final ByteTree   cached_urls;
 
     public HttpCodec() {
         this(0);
@@ -83,7 +83,7 @@ public class HttpCodec extends ProtocolCodec {
         this(server, frameCache, 1024 * 8, 1024 * 256, lite, inline, cachedUrls);
     }
 
-    public HttpCodec(String server, int fcache, int hlimit, int blimit, boolean lite, boolean inline, ByteTree<String> cachedUrls) {
+    public HttpCodec(String server, int fcache, int hlimit, int blimit, boolean lite, boolean inline, ByteTree cachedUrls) {
         this.lite = lite;
         this.inline = inline;
         this.hlimit = hlimit;
@@ -263,7 +263,7 @@ public class HttpCodec extends ProtocolCodec {
                 if (qmark == -1) {
                     String url;
                     if (cached_urls != null) {
-                        url = cached_urls.get(src, url_start, url_len);
+                        url = cached_urls.getString(src, url_start, url_len);
                         if (url == null) {
                             url = parse_url(src, url_start, url_end);
                         }
