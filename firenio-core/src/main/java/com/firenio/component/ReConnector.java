@@ -78,7 +78,7 @@ public class ReConnector implements Closeable {
         this.retryTime = retryTime;
     }
 
-    @SuppressWarnings("resource")
+    @SuppressWarnings(value = "resource")
     private void init() {
         final ReConnector reConnector = this;
         this.connector.addChannelEventListener(new ChannelEventListenerAdapter() {

@@ -604,7 +604,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
             ChannelAcceptor.JavaAcceptorUnsafe au      = (ChannelAcceptor.JavaAcceptorUnsafe) acceptor.getUnsafe();
             ServerSocketChannel                channel = au.getSelectableChannel();
             try {
-                //有时候还未regist selector，但是却能selector到sk
+                //有时候还未register selector，但是却能selector到sk
                 //如果getLocalAddress为空则不处理该sk
                 if (channel.getLocalAddress() == null) {
                     return;
@@ -802,7 +802,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         final IntMap<ChannelContext> ctxs    = new IntMap<>(256);
         final int                    ep_size = 1024;
         final int                    epfd;
-        final int                    eventfd;
+        final int                    event_fd;
         final long                   data;
         final long                   ep_events;
         final long                   iovec;
@@ -810,12 +810,12 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         public EpollEventLoop(NioEventLoopGroup group, int index, String threadName) {
             super(group, index, threadName);
             int iovec_len = group.getWriteBuffers();
-            this.eventfd = Native.new_event_fd();
+            this.event_fd = Native.new_event_fd();
             this.epfd = Native.epoll_create(ep_size);
             this.ep_events = Native.new_epoll_event_array(ep_size);
             this.data = Unsafe.allocate(256);
             this.iovec = Unsafe.allocate(iovec_len * 16);
-            int res = Native.epoll_add(epfd, eventfd, Native.EPOLLIN_ET);
+            int res = Native.epoll_add(epfd, event_fd, Native.EPOLL_IN_ET);
             if (res == -1) {
                 throw new RuntimeException(Native.errstr());
             }
@@ -859,13 +859,13 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         void accept(int size) {
             final int  epfd      = this.epfd;
             final long data      = this.data;
-            final int  eventfd   = this.eventfd;
+            final int  event_fd  = this.event_fd;
             final long ep_events = this.ep_events;
             for (int i = 0; i < size; i++) {
                 int p  = i * Native.SIZEOF_EPOLL_EVENT;
                 int e  = Unsafe.getInt(ep_events + p);
                 int fd = Unsafe.getInt(ep_events + p + 4);
-                if (fd == eventfd) {
+                if (fd == event_fd) {
                     Native.event_fd_read(fd);
                     continue;
                 }
@@ -878,9 +878,9 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         }
 
         private void accept(long data, int epfd, int fd) {
-            final ChannelAcceptor ctx      = (ChannelAcceptor) ctxs.get(fd);
-            final int             listen_fd = ((ChannelAcceptor.EpollAcceptorUnsafe) ctx.getUnsafe()).listenfd;
-            final int             cfd      = Native.accept(epfd, listen_fd, data);
+            final ChannelAcceptor ctx       = (ChannelAcceptor) ctxs.get(fd);
+            final int             listen_fd = ((ChannelAcceptor.EpollAcceptorUnsafe) ctx.getUnsafe()).listen_fd;
+            final int             cfd       = Native.accept(epfd, listen_fd, data);
             if (cfd == -1) {
                 return;
             }
@@ -921,7 +921,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                     return;
                 }
                 if (CHANNEL_READ_FIRST) {
-                    if ((e & Native.EPOLLIN) != 0) {
+                    if ((e & Native.EPOLL_IN) != 0) {
                         try {
                             ch.read();
                         } catch (Throwable ex) {
@@ -929,7 +929,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                             return;
                         }
                     }
-                    if ((e & Native.EPOLLOUT) != 0) {
+                    if ((e & Native.EPOLL_OUT) != 0) {
                         int len = ch.write();
                         if (len == -1) {
                             ch.close();
@@ -937,14 +937,14 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                         }
                     }
                 } else {
-                    if ((e & Native.EPOLLOUT) != 0) {
+                    if ((e & Native.EPOLL_OUT) != 0) {
                         int len = ch.write();
                         if (len == -1) {
                             ch.close();
                             return;
                         }
                     }
-                    if ((e & Native.EPOLLIN) != 0) {
+                    if ((e & Native.EPOLL_IN) != 0) {
                         try {
                             ch.read();
                         } catch (Throwable ex) {
@@ -980,8 +980,8 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
             Unsafe.free(iovec);
             Unsafe.free(data);
             Unsafe.free(ep_events);
-            Native.epoll_del(epfd, eventfd);
-            Native.close(eventfd);
+            Native.epoll_del(epfd, event_fd);
+            Native.close(event_fd);
             Native.close(epfd);
         }
 
@@ -995,9 +995,9 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
             int epfd = ((EpollEventLoop) el).epfd;
             int res;
             if (add) {
-                res = Native.epoll_add(epfd, fd, Native.EPOLLIN_OUT_ET);
+                res = Native.epoll_add(epfd, fd, Native.EPOLL_IN_OUT_ET);
             } else {
-                res = Native.epoll_mod(epfd, fd, Native.EPOLLIN_OUT_ET);
+                res = Native.epoll_mod(epfd, fd, Native.EPOLL_IN_OUT_ET);
             }
             if (res == -1) {
                 if (add) {
@@ -1030,7 +1030,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
 
         @Override
         void wakeup0() {
-            Native.event_fd_write(eventfd, 1L);
+            Native.event_fd_write(event_fd, 1L);
         }
 
     }

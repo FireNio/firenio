@@ -86,7 +86,6 @@ public class TestWebSocketChatServlet extends HttpFrameAcceptor {
             }
             String username = client.getUsername();
             if ("new-message".equals(action)) {
-                String owner   = username;
                 String message = obj.getString("message");
                 if (message.charAt(0) == '@') {
                     int nIndex = message.indexOf(' ');
@@ -95,19 +94,19 @@ public class TestWebSocketChatServlet extends HttpFrameAcceptor {
                         Channel s           = msgAdapter.getChannel(to_username);
                         if (s == null) {
                             obj.put("message", "用户不存在或者已离线");
-                            obj.put("username", owner);
+                            obj.put("username", username);
                             msgAdapter.sendMsg(ch, obj.toJSONString());
                             return;
                         }
-                        obj.put("username", owner);
+                        obj.put("username", username);
                         msgAdapter.sendMsg(ch, obj.toJSONString());
-                        obj.put("username", owner + "@你");
+                        obj.put("username", username + "@你");
                         obj.put("message", message.substring(nIndex));
                         msgAdapter.sendMsg(s, obj.toJSONString());
                         return;
                     }
                 }
-                obj.put("username", owner);
+                obj.put("username", username);
                 String msg1 = obj.toJSONString();
                 msgAdapter.sendMsg(msg1);
             } else if ("typing".equals(action)) {

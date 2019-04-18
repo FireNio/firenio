@@ -26,7 +26,7 @@ public class Develop {
     public static final boolean NATIVE_DEBUG      = DevelopConfig.NATIVE_DEBUG;
     public static final int     DEBUG_ERROR_LEVEL = Options.getDebugErrorLevel();
 
-    public static final void printException(Logger logger, Throwable e, int level) {
+    public static void printException(Logger logger, Throwable e, int level) {
         if (level > DEBUG_ERROR_LEVEL) {
             logger.error(e.getMessage(), e);
         } else {

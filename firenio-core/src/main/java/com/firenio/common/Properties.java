@@ -94,7 +94,7 @@ public class Properties extends java.util.Properties {
             return;
         }
         String key   = line.substring(0, index);
-        String value = line.substring(index + 1, line.length());
+        String value = line.substring(index + 1);
         key = trim(key);
         value = trim(value);
         put(key, value);

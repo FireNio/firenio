@@ -66,7 +66,7 @@ public class Options {
     }
 
     public static boolean isEnableUnsafeBuf() {
-        return Native.EPOLL_AVAIABLE && Util.getBooleanProperty(ENABLE_UNSAFE_BUF);
+        return Native.EPOLL_AVAILABLE && Util.getBooleanProperty(ENABLE_UNSAFE_BUF);
     }
 
     public static void setBufAutoExpansion(boolean auto) {

@@ -147,7 +147,7 @@ public class Http2Codec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(Channel ch, Frame frame) throws IOException {
+    public ByteBuf encode(Channel ch, Frame frame) {
         Http2Frame     f         = (Http2Frame) frame;
         Http2FrameType frameType = f.getHttp2FrameType();
         byte[]         payload   = null;

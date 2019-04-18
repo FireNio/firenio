@@ -55,7 +55,7 @@ public class ClientHttpCodec extends HttpCodec {
     }
 
     @Override
-    public ByteBuf encode(Channel ch, Frame frame) throws IOException {
+    public ByteBuf encode(Channel ch, Frame frame) {
         ClientHttpFrame f            = (ClientHttpFrame) frame;
         Object          content      = f.getContent();
         ByteBuf         contentBuf   = null;

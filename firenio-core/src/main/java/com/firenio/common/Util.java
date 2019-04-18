@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.nio.channels.Selector;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -50,12 +51,7 @@ public class Util {
         if (array == null || array.length == 0) {
             return null;
         }
-        List<Object> list = new ArrayList<>(array.length);
-        for (int i = 0; i < array.length; i++) {
-            list.add(array[i]);
-        }
-        return list;
-
+        return new ArrayList<>(Arrays.asList(array));
     }
 
     public static int availableProcessors() {
@@ -187,22 +183,6 @@ public class Util {
             }
             return f;
         }
-    }
-
-    public static Class<?>[] getInterfaces(Class<?> clazz) {
-        if (!clazz.isInterface()) {
-            return clazz.getInterfaces();
-        }
-        Class<?>[] interfaces = clazz.getInterfaces();
-        if (interfaces.length == 0) {
-            return new Class[]{clazz};
-        }
-        List<Class<?>> cs = new ArrayList<>(interfaces.length + 1);
-        for (Class<?> c : interfaces) {
-            cs.add(c);
-        }
-        cs.add(clazz);
-        return cs.toArray(new Class[cs.size()]);
     }
 
     public static int getIntProperty(String key) {

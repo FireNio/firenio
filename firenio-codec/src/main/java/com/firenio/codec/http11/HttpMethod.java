@@ -37,7 +37,7 @@ public enum HttpMethod {
 
     private final String value;
 
-    private HttpMethod(int id, String value) {
+    HttpMethod(int id, String value) {
         this.id = id;
         this.value = value;
         this.bytes = value.getBytes();

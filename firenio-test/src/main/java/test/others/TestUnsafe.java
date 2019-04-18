@@ -69,9 +69,8 @@ public class TestUnsafe {
         long address = Unsafe.address(buffer);
         long end     = address + buffer.capacity();
         for (int i = 0; i < time; i++) {
-            long address1 = address;
-            for (long j = address1; j < end; ) {
-                Unsafe.getInt(address1);
+            for (long j = address; j < end; ) {
+                Unsafe.getInt(address);
                 j += 4;
             }
         }
@@ -113,9 +112,8 @@ public class TestUnsafe {
         long address = Unsafe.address(buffer);
         long end     = address + buffer.capacity();
         for (int i = 0; i < time; i++) {
-            long address1 = address;
-            for (long j = address1; j < end; ) {
-                Unsafe.putInt(address1, 999809234);
+            for (long j = address; j < end; ) {
+                Unsafe.putInt(address, 999809234);
                 j += 4;
             }
         }

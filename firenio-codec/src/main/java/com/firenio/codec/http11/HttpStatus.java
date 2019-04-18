@@ -185,7 +185,7 @@ public enum HttpStatus {
 
     private String text;
 
-    private HttpStatus(int status, String description, String headerText) {
+    HttpStatus(int status, String description, String headerText) {
         this.status = status;
         this.description = description;
         this.text = headerText;

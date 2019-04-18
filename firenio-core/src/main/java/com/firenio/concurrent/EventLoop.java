@@ -102,7 +102,7 @@ public abstract class EventLoop extends LifeCycle implements Runnable {
 
     static class DefaultEventLoopGroup extends EventLoopGroup {
 
-        private EventLoop eventLoop;
+        private final EventLoop eventLoop;
 
         DefaultEventLoopGroup(EventLoop eventLoop) {
             super("");
@@ -110,7 +110,7 @@ public abstract class EventLoop extends LifeCycle implements Runnable {
         }
 
         @Override
-        protected void doStart() throws Exception {
+        protected void doStart() {
         }
 
         @Override

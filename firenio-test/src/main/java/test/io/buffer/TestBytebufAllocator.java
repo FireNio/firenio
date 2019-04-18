@@ -28,7 +28,7 @@ public class TestBytebufAllocator {
 
     static void v(ByteBuf buf) {
         byte[] res = buf.getBytes();
-        Assert.assertTrue(new String(res).equals(data));
+        Assert.assertEquals(new String(res), data);
     }
 
     @Test

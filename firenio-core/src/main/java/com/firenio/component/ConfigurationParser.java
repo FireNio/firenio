@@ -74,10 +74,7 @@ public class ConfigurationParser {
 
     public static void parseConfiguration(String prefix, Object cfg, Properties properties) throws Exception {
         Class<?> clazz = cfg.getClass();
-        for (; ; ) {
-            if (clazz == Object.class) {
-                break;
-            }
+        for (;clazz != Object.class ; ) {
             parseConfiguration(prefix, cfg, clazz, properties);
             clazz = clazz.getSuperclass();
         }

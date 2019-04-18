@@ -46,7 +46,7 @@ public final class ExecutorEventLoop extends EventLoop {
     }
 
     @Override
-    protected void doStart() throws Exception {
+    protected void doStart() {
         int eventLoopSize = group.getEventLoopSize();
         int maxQueueSize  = group.getMaxQueueSize() * eventLoopSize;
         this.jobs = new ArrayBlockingQueue<>(maxQueueSize);

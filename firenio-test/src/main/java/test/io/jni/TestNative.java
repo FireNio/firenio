@@ -3,11 +3,8 @@ package test.io.jni;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 
 import com.firenio.common.FileUtil;
-import com.firenio.common.Unsafe;
-import com.firenio.component.Native;
 
 public class TestNative {
 

@@ -15,26 +15,25 @@
  */
 package test.io.load.lenthvalue;
 
-import static test.io.load.lenthvalue.TestLoadServer.CLIENT_CORE_SIZE;
-
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import test.test.ITestThread;
+import test.test.ITestThreadHandle;
 
 import com.firenio.Options;
 import com.firenio.codec.lengthvalue.LengthValueCodec;
 import com.firenio.codec.lengthvalue.LengthValueFrame;
 import com.firenio.common.ByteUtil;
 import com.firenio.common.Util;
+import com.firenio.component.Channel;
 import com.firenio.component.ChannelConnector;
 import com.firenio.component.Frame;
 import com.firenio.component.IoEventHandle;
 import com.firenio.component.NioEventLoopGroup;
-import com.firenio.component.Channel;
 import com.firenio.component.SslContextBuilder;
 import com.firenio.concurrent.ThreadEventLoopGroup;
 
-import test.test.ITestThread;
-import test.test.ITestThreadHandle;
+import static test.io.load.lenthvalue.TestLoadServer.CLIENT_CORE_SIZE;
 
 public class TestLoadClient1 extends ITestThread {
 
@@ -44,18 +43,18 @@ public class TestLoadClient1 extends ITestThread {
     static               boolean running = true;
 
     static {
-        int    len = debug ? 10 : 1;
-        String s   = "";
+        int           len = debug ? 10 : 1;
+        StringBuilder s   = new StringBuilder();
         for (int i = 0; i < len; i++) {
-            s += "abcdefghij";
+            s.append("abcdefghij");
         }
-        req = s.getBytes();
+        req = s.toString().getBytes();
     }
 
     final AtomicInteger count = new AtomicInteger();
     private ChannelConnector context = null;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Options.setBufAutoExpansion(TestLoadServer.AUTO_EXPANSION);
         Options.setEnableEpoll(TestLoadServer.ENABLE_EPOLL);
         Options.setEnableUnsafeBuf(TestLoadServer.ENABLE_UNSAFE_BUF);
@@ -76,9 +75,8 @@ public class TestLoadClient1 extends ITestThread {
         }
 
         int time     = 1024 * 1024 * 4;
-        int threads  = CLIENT_CORE_SIZE;
         int execTime = 15;
-        ITestThreadHandle.doTest(TestLoadClient1.class, threads, time, execTime);
+        ITestThreadHandle.doTest(TestLoadClient1.class, CLIENT_CORE_SIZE, time, execTime);
     }
 
     @Override
@@ -87,7 +85,7 @@ public class TestLoadClient1 extends ITestThread {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(Channel ch, Frame frame) throws Exception {
+            public void accept(Channel ch, Frame frame) {
                 addCount(80000);
                 if (debug) {
                     count.decrementAndGet();

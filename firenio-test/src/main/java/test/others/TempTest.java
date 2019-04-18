@@ -28,8 +28,7 @@ public class TempTest {
 
     private static String getDefaultCharSet() {
         OutputStreamWriter writer = new OutputStreamWriter(new ByteArrayOutputStream());
-        String             enc    = writer.getEncoding();
-        return enc;
+        return writer.getEncoding();
     }
 
     public static void main(String[] args) {

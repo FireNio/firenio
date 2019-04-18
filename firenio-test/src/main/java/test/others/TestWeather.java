@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import com.firenio.common.Util;
 import com.firenio.log.DebugUtil;
@@ -35,14 +36,14 @@ public class TestWeather {
     }
 
     /**
-     * @param urlAll  :请求接口
+     * @param httpUrl  :请求接口
      * @param httpArg :参数
      * @return 返回结果
      */
     public static String request(String httpUrl, String httpArg) {
         BufferedReader reader = null;
         String         result = null;
-        StringBuffer   sbf    = new StringBuffer();
+        StringBuilder  sbf    = new StringBuilder();
         httpUrl = httpUrl + "?" + httpArg;
 
         try {
@@ -53,7 +54,7 @@ public class TestWeather {
             connection.setRequestProperty("apikey", "3bb0340120bc5b0c52c88a4317d96418");
             connection.connect();
             InputStream is = connection.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             String strRead = null;
             while ((strRead = reader.readLine()) != null) {
                 sbf.append(strRead);

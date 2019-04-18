@@ -31,12 +31,12 @@ public class TestDuplicatedByteBuf {
 
     static void v(ByteBuf buf) {
 
-        Assert.assertTrue(new String(buf.getBytes()).equals(data));
+        Assert.assertEquals(new String(buf.getBytes()), data);
 
     }
 
     @Test
-    public void testDirect() throws Exception {
+    public void testDirect() {
         ByteBuf buf = ByteBuf.direct(16);
 
         buf.putBytes(data.getBytes());
@@ -57,7 +57,7 @@ public class TestDuplicatedByteBuf {
     }
 
     @Test
-    public void testHeap() throws Exception {
+    public void testHeap() {
         ByteBuf buf = ByteBuf.direct(16);
 
         buf.putBytes(data.getBytes());

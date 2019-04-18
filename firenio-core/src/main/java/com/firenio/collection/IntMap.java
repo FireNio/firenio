@@ -190,12 +190,11 @@ public final class IntMap<V> {
     private void grow() {
         size++;
         if (size > limit) {
-            int   c      = Util.clothCover(cap + 1);
-            int   cap    = c;
-            int   mask   = c - 1;
-            int[] keys   = new int[c];
-            V[]   values = (V[]) new Object[c];
-            int   limit  = (int) (c * loadFactor);
+            int   cap      = Util.clothCover(this.cap + 1);
+            int   mask   = cap - 1;
+            int[] keys   = new int[cap];
+            V[]   values = (V[]) new Object[cap];
+            int   limit  = (int) (cap * loadFactor);
             Arrays.fill(keys, -1);
             scan();
             for (; hasNext(); ) {
@@ -242,7 +241,7 @@ public final class IntMap<V> {
             V value = values[i];
             if (value != null) {
                 sb.append(sb.length() == 0 ? "{" : ", ");
-                sb.append(Integer.toString(keys[i])).append('=').append(value == this ? "(this Map)" : value);
+                sb.append(keys[i]).append('=').append(value == this ? "(this Map)" : value);
             }
         }
         return sb.append('}').toString();

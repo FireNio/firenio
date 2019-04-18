@@ -65,9 +65,9 @@ public class TestPooledBytebuf {
         }
         c.await();
         PoolState s = a.getState();
-        Assert.assertTrue(s.buf == 0);
-        Assert.assertTrue(s.free == s.memory);
-        Assert.assertTrue(s.mfree == s.memory);
+        Assert.assertEquals(0, s.buf);
+        Assert.assertEquals(s.free, s.memory);
+        Assert.assertEquals(s.mfree, s.memory);
     }
 
 }

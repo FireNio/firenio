@@ -120,13 +120,12 @@ public class HttpCodec extends ProtocolCodec {
         int          state_findKey   = 0;
         int          state_findValue = 1;
         int          state           = state_findKey;
-        int          count           = end;
         int          i               = start;
         int          ks              = start;
         int          vs              = 0;
         CharSequence key             = null;
         CharSequence value           = null;
-        for (; i != count; ) {
+        for (; i != end; ) {
             char c = line.charAt(i++);
             if (state == state_findKey) {
                 if (c == kvSplitor) {
@@ -436,7 +435,7 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(final Channel ch, Frame frame) throws IOException {
+    public ByteBuf encode(final Channel ch, Frame frame) {
         boolean         inline             = this.inline;
         HttpFrame       f                  = (HttpFrame) frame;
         FastThreadLocal l                  = FastThreadLocal.get();

@@ -15,7 +15,6 @@
  */
 package test.others;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.channels.SocketChannel;
 

@@ -15,11 +15,6 @@
  */
 package test.others.undertow;
 
-import static io.undertow.Handlers.predicate;
-import static io.undertow.Handlers.resource;
-import static io.undertow.predicate.Predicates.secure;
-
-import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -27,15 +22,10 @@ import java.security.KeyStore;
 
 import javax.net.ssl.SSLContext;
 
-import com.firenio.common.FileUtil;
-import com.firenio.component.SslContextBuilder;
-
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.attribute.ExchangeAttributes;
-import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.LearningPushHandler;
 import io.undertow.server.handlers.resource.PathResourceManager;
 import io.undertow.server.session.InMemorySessionManager;
@@ -43,6 +33,13 @@ import io.undertow.server.session.SessionAttachmentHandler;
 import io.undertow.server.session.SessionCookieConfig;
 import io.undertow.util.Headers;
 import io.undertow.util.StatusCodes;
+
+import com.firenio.common.FileUtil;
+import com.firenio.component.SslContextBuilder;
+
+import static io.undertow.Handlers.predicate;
+import static io.undertow.Handlers.resource;
+import static io.undertow.predicate.Predicates.secure;
 
 /**
  * @author wangkai
@@ -87,12 +84,9 @@ public class Http2Server {
         }
         String     bindAddress = System.getProperty("bind.address", "localhost");
         SSLContext sslContext  = createSSLContext();
-        Undertow server = Undertow.builder().setServerOption(UndertowOptions.ENABLE_HTTP2, false).addHttpListener(8080, bindAddress).addHttpsListener(443, bindAddress, sslContext).setHandler(new SessionAttachmentHandler(new LearningPushHandler(100, -1, Handlers.header(predicate(secure(), resource(new PathResourceManager(Paths.get(System.getProperty("example.directory", System.getProperty("user.home"))), 100)).setDirectoryListingEnabled(true), new HttpHandler() {
-            @Override
-            public void handleRequest(HttpServerExchange exchange) throws Exception {
-                exchange.getResponseHeaders().add(Headers.LOCATION, "https://" + exchange.getHostName() + ":" + (exchange.getHostPort() + 363) + exchange.getRelativePath());
-                exchange.setStatusCode(StatusCodes.TEMPORARY_REDIRECT);
-            }
+        Undertow server = Undertow.builder().setServerOption(UndertowOptions.ENABLE_HTTP2, false).addHttpListener(8080, bindAddress).addHttpsListener(443, bindAddress, sslContext).setHandler(new SessionAttachmentHandler(new LearningPushHandler(100, -1, Handlers.header(predicate(secure(), resource(new PathResourceManager(Paths.get(System.getProperty("example.directory", System.getProperty("user.home"))), 100)).setDirectoryListingEnabled(true), exchange -> {
+            exchange.getResponseHeaders().add(Headers.LOCATION, "https://" + exchange.getHostName() + ":" + (exchange.getHostPort() + 363) + exchange.getRelativePath());
+            exchange.setStatusCode(StatusCodes.TEMPORARY_REDIRECT);
         }), "x-undertow-transport", ExchangeAttributes.transportProtocol())), new InMemorySessionManager("test"), new SessionCookieConfig())).build();
 
         server.start();

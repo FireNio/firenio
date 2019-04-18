@@ -18,7 +18,6 @@ package test.others.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
-import test.test.ITest;
 import test.test.ITestHandle;
 
 /**
@@ -61,7 +60,7 @@ public class ZeroOnePackage {
         return table[pWeight - 1][valuesLen - 1];
     }
 
-    public static int knapsack(int val[], int wt[], int W, int[][] V, boolean print) {
+    public static int knapsack(int[] val, int[] wt, int W, int[][] V, boolean print) {
         // Get the total number of items.
         // Could be wt.length or val.length. Doesn't matter
         int N = wt.length;
@@ -104,9 +103,8 @@ public class ZeroOnePackage {
         // Printing choose
         if (print) {
             int           j             = W;
-            int           length        = N;
             StringBuilder stringBuilder = new StringBuilder();
-            for (int i = length; i > 0; --i) {
+            for (int i = N; i > 0; --i) {
                 //转态转移的时候记录
                 if (V[i][j] > V[i - 1][j]) {
                     stringBuilder.append(i).append("-");
@@ -161,14 +159,7 @@ public class ZeroOnePackage {
         int     pWeight = 5000;
         int[][] table   = new int[pWeight + 1][values.length];
 
-        ITestHandle.doTest(new ITest() {
-
-            @Override
-            public void test(int i) throws Exception {
-                getValue(values, weights, pWeight + 1, table, false);
-
-            }
-        }, time, "My");
+        ITestHandle.doTest(i -> getValue(values, weights, pWeight + 1, table, false), time, "My");
 
     }
 
@@ -180,12 +171,7 @@ public class ZeroOnePackage {
         // Items are in rows and weight at in columns +1 on each side
         int[][] V = new int[weights.length + 1][pWeight + 1];
 
-        ITestHandle.doTest(new ITest() {
-            @Override
-            public void test(int i) throws Exception {
-                knapsack(values, weights, pWeight, V, false);
-            }
-        }, time, "knapsack");
+        ITestHandle.doTest(i -> knapsack(values, weights, pWeight, V, false), time, "knapsack");
     }
 
 }

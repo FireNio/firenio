@@ -109,7 +109,7 @@ public class ProtobaseCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(Channel ch, Frame frame) throws IOException {
+    public ByteBuf encode(Channel ch, Frame frame) {
         if (frame.isTyped()) {
             return frame.isPing() ? PING.duplicate() : PONG.duplicate();
         }

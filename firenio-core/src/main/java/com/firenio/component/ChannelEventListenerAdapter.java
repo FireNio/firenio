@@ -21,6 +21,6 @@ public class ChannelEventListenerAdapter implements ChannelEventListener {
     public void channelClosed(Channel ch) {}
 
     @Override
-    public void channelOpened(Channel ch) throws Exception {}
+    public void channelOpened(Channel ch) {}
 
 }

@@ -54,10 +54,10 @@ public class TestPut {
                 // .put("client.transport.sniff", false) //自动嗅探整个集群的状态，把集群中其他ES节点的ip添加到本地的客户端列表中
                 .build();
 
-        /**
-         * 这里的连接方式指的是没有安装x-pack插件,如果安装了x-pack则参考{@link ElasticsearchXPackClient}
-         * 1. java客户端的方式是以tcp协议在9300端口上进行通信
-         * 2. http客户端的方式是以http协议在9200端口上进行通信
+        /*
+          这里的连接方式指的是没有安装x-pack插件,如果安装了x-pack则参考{@link ElasticsearchXPackClient}
+          1. java客户端的方式是以tcp协议在9300端口上进行通信
+          2. http客户端的方式是以http协议在9200端口上进行通信
          */
         TransportClient client = new PreBuiltTransportClient(esSettings).addTransportAddress(new TransportAddress(InetAddress.getByName("localhost"), 9300));
 

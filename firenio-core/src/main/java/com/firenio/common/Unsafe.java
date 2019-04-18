@@ -32,11 +32,11 @@ public class Unsafe {
     public static final  long            BUFFER_ADDRESS_OFFSET;
     public static final  boolean         ENABLE;
     public static final  boolean         HAS_UNSAFE_ARRAY_OPERATIONS;
-    public static final  boolean         HAS_UNSAFE_BYTEBUFFER_OPERATIONS;
+    public static final  boolean         HAS_UNSAFE_BYTE_BUFFER_OPERATIONS;
     // This number limits the number of bytes to copy per call to Unsafe's
-    // copyMemory method. A limit is imposed to allow for safepoint polling
+    // copyMemory method. A limit is imposed to allow for safe point polling
     // during a large copy
-    static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
+    static final long                    UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
     private static final ByteOrder       nativeByteOrder;
     private static final sun.misc.Unsafe UNSAFE;
 
@@ -44,7 +44,7 @@ public class Unsafe {
         UNSAFE = getUnsafe();
         ENABLE = UNSAFE != null;
         BUFFER_ADDRESS_OFFSET = fieldOffset(field(Buffer.class, "address"));
-        HAS_UNSAFE_BYTEBUFFER_OPERATIONS = supportsUnsafeByteBufferOperations();
+        HAS_UNSAFE_BYTE_BUFFER_OPERATIONS = supportsUnsafeByteBufferOperations();
         HAS_UNSAFE_ARRAY_OPERATIONS = supportsUnsafeArrayOperations();
         ARRAY_BASE_OFFSET = byteArrayBaseOffset();
         nativeByteOrder = detectByteOrder();
@@ -72,15 +72,15 @@ public class Unsafe {
         return HAS_UNSAFE_ARRAY_OPERATIONS ? UNSAFE.arrayBaseOffset(byte[].class) : -1;
     }
 
-    public static final boolean compareAndSwapInt(Object o, long offset, int expected, int val) {
+    public static boolean compareAndSwapInt(Object o, long offset, int expected, int val) {
         return UNSAFE.compareAndSwapInt(o, offset, expected, val);
     }
 
-    public static final boolean compareAndSwapLong(Object o, long offset, int expected, long val) {
+    public static boolean compareAndSwapLong(Object o, long offset, int expected, long val) {
         return UNSAFE.compareAndSwapLong(o, offset, expected, val);
     }
 
-    public static final boolean compareAndSwapObject(Object o, long offset, Object expected, Object val) {
+    public static boolean compareAndSwapObject(Object o, long offset, Object expected, Object val) {
         return UNSAFE.compareAndSwapObject(o, offset, expected, val);
     }
 
@@ -88,7 +88,6 @@ public class Unsafe {
      * Copy from given source array to destination address.
      *
      * @param src           source array
-     * @param srcBaseOffset offset of first element of storage in source array
      * @param srcPos        offset within source array of the first element to native_read
      * @param dstAddr       destination address
      * @param length        number of bytes to copy
@@ -125,7 +124,6 @@ public class Unsafe {
      *
      * @param srcAddr       source address
      * @param dst           destination array
-     * @param dstBaseOffset offset of first element of storage in destination array
      * @param dstPos        offset within destination array of the first element to write
      * @param length        number of bytes to copy
      */
@@ -250,7 +248,7 @@ public class Unsafe {
                     return null;
                 }
             });
-        } catch (Throwable e) {
+        } catch (Throwable ignored) {
         }
         return unsafe;
     }

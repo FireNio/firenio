@@ -1,6 +1,4 @@
-package test.io;/**
- * Create by wangkai on 2019/4/4
- */
+package test.io;
 
 /**
  * @program: firenio

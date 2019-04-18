@@ -47,7 +47,7 @@ public class TestLengthValueServerJunit {
     ChannelAcceptor context = new ChannelAcceptor(8300);
 
     static void v(String r) {
-        Assert.assertTrue(r.equals(res + hello));
+        Assert.assertEquals(r, res + hello);
     }
 
     @After

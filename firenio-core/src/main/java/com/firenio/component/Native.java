@@ -18,37 +18,37 @@ public class Native {
     //gcc -shared -g -fPIC -m64 -o obj/Native.o src/Native.cpp
     //gcc -shared -fPIC -m64 -o obj/Native.o src/Native.cpp
 
-    public static final  boolean  EPOLL_AVAIABLE;
-    public static final  int      EPOLLERR;
-    public static final  int      EPOLLET;
-    public static final  int      EPOLLIN;
-    public static final  int      EPOLLIN_ET;
-    public static final  int      EPOLLIN_OUT;
-    public static final  int      EPOLLIN_OUT_ET;
-    public static final  int      EPOLLOUT;
-    public static final  int      EPOLLOUT_ET;
-    public static final  int      EPOLLHUP;
-    public static final  int      EPOLLRDHUP;
+    public static final  boolean  EPOLL_AVAILABLE;
+    public static final  int      EPOLL_ERR;
+    public static final  int      EPOLL_ET;
+    public static final  int      EPOLL_IN;
+    public static final  int      EPOLL_IN_ET;
+    public static final  int      EPOLL_IN_OUT;
+    public static final  int      EPOLL_IN_OUT_ET;
+    public static final  int      EPOLL_OUT;
+    public static final  int      EPOLL_OUT_ET;
+    public static final  int      EPOLL_HUP;
+    public static final  int      EPOLL_RD_HUP;
     public static final  String[] ERRORS;
     public static final  boolean  IS_LINUX;
     public static final  int      SIZEOF_EPOLL_EVENT;
-    public static final  int      SIZEOF_SOCKADDR_IN;
+    public static final  int      SIZEOF_SOCK_ADDR_IN;
     private static final Logger   logger = LoggerFactory.getLogger(Native.class);
 
     static {
-        EPOLLET = 1 << 31;
-        EPOLLIN = 1 << 0;
-        EPOLLOUT = 1 << 2;
-        EPOLLERR = 1 << 3;
-        EPOLLHUP = 1 << 4;
-        EPOLLRDHUP = 1 << 13;
-        EPOLLIN_OUT = EPOLLIN | EPOLLOUT;
-        EPOLLIN_ET = EPOLLIN | EPOLLET;
-        EPOLLOUT_ET = EPOLLOUT | EPOLLET;
-        EPOLLIN_OUT_ET = EPOLLIN_ET | EPOLLOUT_ET;
+        EPOLL_ET = 1 << 31;
+        EPOLL_IN = 1 << 0;
+        EPOLL_OUT = 1 << 2;
+        EPOLL_ERR = 1 << 3;
+        EPOLL_HUP = 1 << 4;
+        EPOLL_RD_HUP = 1 << 13;
+        EPOLL_IN_OUT = EPOLL_IN | EPOLL_OUT;
+        EPOLL_IN_ET = EPOLL_IN | EPOLL_ET;
+        EPOLL_OUT_ET = EPOLL_OUT | EPOLL_ET;
+        EPOLL_IN_OUT_ET = EPOLL_IN_ET | EPOLL_OUT_ET;
         IS_LINUX = isLinux();
-        EPOLL_AVAIABLE = IS_LINUX && tryLoadEpoll();
-        if (EPOLL_AVAIABLE) {
+        EPOLL_AVAILABLE = IS_LINUX && tryLoadEpoll();
+        if (EPOLL_AVAILABLE) {
             ERRORS = new String[256];
             byte[] temp = new byte[1024];
             for (int i = 0; i < ERRORS.length; i++) {
@@ -56,10 +56,10 @@ public class Native {
                 ERRORS[i] = new String(temp, 0, len);
             }
             SIZEOF_EPOLL_EVENT = size_of_epoll_event();
-            SIZEOF_SOCKADDR_IN = size_of_sockaddr_in();
+            SIZEOF_SOCK_ADDR_IN = size_of_sockaddr_in();
         } else {
             SIZEOF_EPOLL_EVENT = -1;
-            SIZEOF_SOCKADDR_IN = -1;
+            SIZEOF_SOCK_ADDR_IN = -1;
             ERRORS = null;
         }
     }
@@ -82,7 +82,7 @@ public class Native {
                     epollLoaded = true;
                 } catch (Throwable e) {
                     if (Develop.NATIVE_DEBUG) {
-                        logger.error("epoll load faild:" + e.getMessage(), e);
+                        logger.error("epoll load failed:" + e.getMessage(), e);
                     }
                 }
             }
@@ -94,7 +94,7 @@ public class Native {
                         return true;
                     }
                     if (Develop.NATIVE_DEBUG) {
-                        logger.error("epoll creat faild:" + Native.errstr());
+                        logger.error("epoll creat failed:" + Native.errstr());
                     }
                 } catch (Throwable e) {
                 }
@@ -104,11 +104,11 @@ public class Native {
     }
 
     public static int close_event() {
-        return EPOLLERR | EPOLLHUP | EPOLLRDHUP;
+        return EPOLL_ERR | EPOLL_HUP | EPOLL_RD_HUP;
     }
 
-    public static int accept(int epfd, int listenfd, long address) {
-        return printException(accept0(epfd, listenfd, address));
+    public static int accept(int epfd, int listen_fd, long address) {
+        return printException(accept0(epfd, listen_fd, address));
     }
 
     public static int bind(String host, int port, int backlog) {
@@ -184,7 +184,7 @@ public class Native {
         tmpFile.deleteOnExit();
     }
 
-    public static final long new_epoll_event_array(int size) {
+    public static long new_epoll_event_array(int size) {
         return Unsafe.allocate(size * SIZEOF_EPOLL_EVENT);
     }
 

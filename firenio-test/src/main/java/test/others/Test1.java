@@ -28,11 +28,9 @@ public class Test1 {
 
         for (int i = 0; i < remain; i++) {
 
-            int start = i;
-
             int end = length + i + 1;
 
-            String s = src.substring(start, end);
+            String s = src.substring(i, end);
 
             StringBuilder b2 = new StringBuilder(s);
 

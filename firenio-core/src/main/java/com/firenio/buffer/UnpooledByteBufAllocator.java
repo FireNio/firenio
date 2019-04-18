@@ -52,7 +52,7 @@ public final class UnpooledByteBufAllocator extends ByteBufAllocator {
     }
 
     @Override
-    protected void doStart() throws Exception {}
+    protected void doStart() {}
 
     @Override
     protected void doStop() {}

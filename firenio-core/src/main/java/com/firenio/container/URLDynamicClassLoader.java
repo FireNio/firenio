@@ -125,7 +125,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
     }
 
     @Override
-    protected Class<?> findClass(String name) throws ClassNotFoundException {
+    protected Class<?> findClass(String name) {
         ClassEntry entry = clazzEntries.get(name);
         if (entry == null) {
             return null;
@@ -153,7 +153,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         return new CompoundEnumeration<>(temp);
     }
 
-    private Enumeration<URL> findResources0(String name) throws IOException {
+    private Enumeration<URL> findResources0(String name) {
 
         final List<URL> urls = resourcesMap.get(name);
 
@@ -353,8 +353,6 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         }
     }
 
-    ;
-
     private ClassEntry storeClass(String filePathName, InputStream inputStream) throws IOException {
         String className = filePathName.replace('/', '.').substring(0, filePathName.length() - 6);
         if (matchSystem(className)) {
@@ -371,7 +369,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         return classEntry;
     }
 
-    private void storeResource(URL url, String pathName, String fileName) throws DuplicateClassException {
+    private void storeResource(URL url, String pathName, String fileName) {
         resourceMap.put(pathName, url);
         List<URL> urls = resourcesMap.get(fileName);
         if (urls == null) {

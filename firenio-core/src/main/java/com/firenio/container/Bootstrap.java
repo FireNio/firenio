@@ -48,14 +48,14 @@ public class Bootstrap {
         startup(System.getProperty(BOOT_CLASS), libPath);
     }
 
-    private static URLDynamicClassLoader newClassLoader(ClassLoader parent, String mode, boolean entrustFirst, String rootLocalAddress, List<ClassPathScaner> classPathScaners) throws IOException {
+    private static URLDynamicClassLoader newClassLoader(ClassLoader parent, String mode, boolean entrustFirst, String rootLocalAddress, List<ClassPathScanner> classPathScanners) throws IOException {
         //这里需要设置优先委托自己加载class，因为到后面对象需要用该classloader去加载resources
         URLDynamicClassLoader classLoader = new URLDynamicClassLoader(parent, entrustFirst);
         classLoader.addMatchExtend(BootstrapEngine.class.getName());
-        if (classPathScaners == null || classPathScaners.size() == 0) {
-            throw new IOException("null classPathScaners");
+        if (classPathScanners == null || classPathScanners.size() == 0) {
+            throw new IOException("null classPathScanners");
         }
-        for (ClassPathScaner scaner : classPathScaners) {
+        for (ClassPathScanner scaner : classPathScanners) {
             if (scaner == null) {
                 continue;
             }
@@ -64,7 +64,7 @@ public class Bootstrap {
         return classLoader;
     }
 
-    public static void startup(String className, List<ClassPathScaner> cpScaners) throws Exception {
+    public static void startup(String className, List<ClassPathScanner> cpScaners) throws Exception {
         Assert.notNull(className, "className");
         Assert.notNull(cpScaners, "cpScaners");
         String mode     = Util.getStringProperty(BOOT_MODE, "dev");
@@ -81,7 +81,7 @@ public class Bootstrap {
     }
 
     public static void startup(final String bootClass, final String libPath) throws Exception {
-        startup(bootClass, withDefault(new ClassPathScaner() {
+        startup(bootClass, withDefault(new ClassPathScanner() {
 
             @Override
             public void scanClassPaths(URLDynamicClassLoader classLoader, String mode, String rootLocalAddress) throws IOException {
@@ -94,29 +94,29 @@ public class Bootstrap {
         }));
     }
 
-    public static List<ClassPathScaner> withDefault() {
-        return withDefault(new ClassPathScaner[0]);
+    public static List<ClassPathScanner> withDefault() {
+        return withDefault(new ClassPathScanner[0]);
     }
 
-    public static List<ClassPathScaner> withDefault(ClassPathScaner... scaners) {
-        List<ClassPathScaner> classPathScaners = new ArrayList<>();
-        classPathScaners.add(new DefaultClassPathScaner());
-        if (scaners != null) {
-            for (ClassPathScaner scaner : scaners) {
-                if (scaner == null) {
+    public static List<ClassPathScanner> withDefault(ClassPathScanner... scanners) {
+        List<ClassPathScanner> classPathScanners = new ArrayList<>();
+        classPathScanners.add(new DefaultClassPathScanner());
+        if (scanners != null) {
+            for (ClassPathScanner scanner : scanners) {
+                if (scanner == null) {
                     continue;
                 }
-                classPathScaners.add(scaner);
+                classPathScanners.add(scanner);
             }
         }
-        return classPathScaners;
+        return classPathScanners;
     }
 
-    public interface ClassPathScaner {
+    public interface ClassPathScanner {
         void scanClassPaths(URLDynamicClassLoader classLoader, String mode, String rootPath) throws IOException;
     }
 
-    static class DefaultClassPathScaner implements ClassPathScaner {
+    static class DefaultClassPathScanner implements ClassPathScanner {
 
         @Override
         public void scanClassPaths(URLDynamicClassLoader classLoader, String mode, String rootPath) throws IOException {

@@ -594,7 +594,7 @@ public abstract class Channel implements Runnable, Closeable {
             }
             return false;
         }
-        if (Native.EPOLL_AVAIABLE) {
+        if (Native.EPOLL_AVAILABLE) {
             src.absLimit(src.absPos() + length);
             src.absPos(0);
         } else {

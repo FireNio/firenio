@@ -17,7 +17,6 @@ package test.io.buffer;
 
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -101,7 +100,7 @@ public class TestByteBufCopy {
         } else {
             bytes = "1".getBytes();
         }
-        Assert.assertTrue("abc123".equals(new String(bytes)));
+        Assert.assertEquals("abc123", new String(bytes));
     }
 
     @Test
@@ -110,13 +109,7 @@ public class TestByteBufCopy {
 
         Method[]     ms   = TestByteBufCopy.class.getDeclaredMethods();
         List<Method> list = Util.array2List(ms);
-        Collections.sort(list, new Comparator<Method>() {
-            public int compare(Method o1, Method o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-
-            ;
-        });
+        list.sort(Comparator.comparing(Method::getName));
 
         for (int i = 0; i < list.size(); i++) {
             Method m    = list.get(i);

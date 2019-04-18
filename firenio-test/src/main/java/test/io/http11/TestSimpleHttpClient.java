@@ -46,7 +46,7 @@ public class TestSimpleHttpClient {
         context.setIoEventHandle(new IoEventHandle() {
 
             @Override
-            public void accept(Channel ch, Frame frame) throws Exception {
+            public void accept(Channel ch, Frame frame) {
                 ClientHttpFrame res = (ClientHttpFrame) frame;
                 System.out.println();
                 System.out.println(new String(res.getArrayContent()));
@@ -62,7 +62,7 @@ public class TestSimpleHttpClient {
         ch.writeAndFlush(new ClientHttpFrame("/test?p=2222"));
         w.await(3000);
         System.out.println(Util.past(start));
-        Assert.assertTrue(w.getResponse().equals("yes server already accept your message :) {p=2222}"));
+        Assert.assertEquals("yes server already accept your message :) {p=2222}", w.getResponse());
     }
 
 }

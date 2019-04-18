@@ -137,7 +137,7 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
             logger.info("protocol              : [ {} ]", sb.toString());
             logger.info("event loop size       : [ {} ]", eventLoopSize);
             logger.info("enable ssl            : [ {} ]", sslType());
-            logger.info("enable epoll          : [ {} ]", Native.EPOLL_AVAIABLE);
+            logger.info("enable epoll          : [ {} ]", Native.EPOLL_AVAILABLE);
             logger.info("channel idle          : [ {} ]", g.getIdleTime());
             logger.info("host and port         : [ {}:{} ]", getHost(), port);
             if (g.isEnableMemoryPool()) {

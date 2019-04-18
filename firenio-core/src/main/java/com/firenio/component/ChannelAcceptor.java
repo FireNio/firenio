@@ -54,7 +54,7 @@ public final class ChannelAcceptor extends ChannelContext {
 
     public ChannelAcceptor(NioEventLoopGroup group, String host, int port) {
         super(group, host, port);
-        if (Native.EPOLL_AVAIABLE) {
+        if (Native.EPOLL_AVAILABLE) {
             unsafe = new EpollAcceptorUnsafe();
         } else {
             unsafe = new JavaAcceptorUnsafe();
@@ -157,33 +157,33 @@ public final class ChannelAcceptor extends ChannelContext {
 
         volatile boolean active;
         NioEventLoop eventLoop;
-        int          listenfd = -1;
+        int          listen_fd = -1;
 
         @Override
         void bind(NioEventLoop eventLoop, ChannelAcceptor acceptor, int backlog) throws IOException {
-            eventLoop.assertInEventLoop("registSelector must in event loop");
+            eventLoop.assertInEventLoop("registerSelector must in event loop");
             this.close();
             this.active = true;
-            this.listenfd = Native.bind(acceptor.getHost(), acceptor.getPort(), backlog);
-            Native.throwException(listenfd);
+            this.listen_fd = Native.bind(acceptor.getHost(), acceptor.getPort(), backlog);
+            Native.throwException(listen_fd);
             EpollEventLoop el = (EpollEventLoop) eventLoop;
-            el.ctxs.put(listenfd, acceptor);
-            Native.throwException(Native.epoll_add(el.epfd, listenfd, Native.EPOLLIN));
+            el.ctxs.put(listen_fd, acceptor);
+            Native.throwException(Native.epoll_add(el.epfd, listen_fd, Native.EPOLL_IN));
         }
 
         @Override
         public void close() {
             this.active = false;
-            int listenfd = this.listenfd;
-            if (listenfd != -1) {
+            int listen_fd = this.listen_fd;
+            if (listen_fd != -1) {
                 NioEventLoop eventLoop = this.eventLoop;
                 if (eventLoop != null) {
                     EpollEventLoop el = (EpollEventLoop) eventLoop;
-                    Native.epoll_del(el.epfd, listenfd);
-                    el.ctxs.remove(listenfd);
+                    Native.epoll_del(el.epfd, listen_fd);
+                    el.ctxs.remove(listen_fd);
                 }
-                Native.close(listenfd);
-                this.listenfd = -1;
+                Native.close(listen_fd);
+                this.listen_fd = -1;
             }
         }
 
@@ -201,7 +201,7 @@ public final class ChannelAcceptor extends ChannelContext {
 
         @Override
         void bind(NioEventLoop eventLoop, ChannelAcceptor ctx, int backlog) throws IOException {
-            eventLoop.assertInEventLoop("registSelector must in event loop");
+            eventLoop.assertInEventLoop("registerSelector must in event loop");
             JavaEventLoop el       = (JavaEventLoop) eventLoop;
             Selector      selector = el.getSelector();
             this.close();

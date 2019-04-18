@@ -94,7 +94,7 @@ public class TestProtobase {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(Channel ch, Frame f) throws Exception {
+            public void accept(Channel ch, Frame f) {
                 String text = new String(f.getArrayContent(), ch.getCharset());
                 System.out.println();
                 System.out.println("____________________" + text);
@@ -115,7 +115,7 @@ public class TestProtobase {
         f.write(hello.getBytes());
         ch.writeAndFlush(f);
         w.await(3000);
-        Assert.assertTrue(w.getResponse().equals(res + hello));
+        Assert.assertEquals(w.getResponse(), res + hello);
     }
 
     public void testText() throws Exception {
@@ -124,7 +124,7 @@ public class TestProtobase {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(Channel ch, Frame frame) throws Exception {
+            public void accept(Channel ch, Frame frame) {
                 String text = frame.getStringContent();
                 System.out.println();
                 System.out.println("____________________" + text);
@@ -144,7 +144,7 @@ public class TestProtobase {
         f.write(hello.getBytes());
         ch.writeAndFlush(f);
         w.await(3000);
-        Assert.assertTrue(w.getResponse().equals(res + hello));
+        Assert.assertEquals(w.getResponse(), res + hello);
     }
 
 }

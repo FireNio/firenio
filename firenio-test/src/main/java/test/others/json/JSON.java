@@ -86,7 +86,7 @@ public class JSON {
         return (ch > 47 && ch < 58);
     }
 
-    private static final boolean isWhitespace(char ch) {
+    private static boolean isWhitespace(char ch) {
         return ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\f' || ch == '\b';
     }
 
@@ -136,7 +136,7 @@ public class JSON {
     private static Map<?, ?> parseMap(StringLexer lexer) throws JSONSyntaxException {
         Map<String, Object> map     = new HashMap<>();
         String              key     = findMapKey(lexer);
-        Object              value   = null;
+        Object              value   ;
         boolean             findKey = false;
         while (lexer.next()) {
             char ch = lexer.current();
@@ -214,7 +214,7 @@ public class JSON {
         throw new JSONSyntaxException("EOF");
     }
 
-    private static String parseQuotesValue(StringLexer lexer, char startQuotes) throws JSONSyntaxException {
+    private static String parseQuotesValue(StringLexer lexer, char startQuotes) {
         StringBuilder builder = new StringBuilder();
         while (lexer.next()) {
             char ch = lexer.current();

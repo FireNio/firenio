@@ -161,8 +161,7 @@ public class NetDataTransferServer {
                     int    port      = src.getUnsignedShort(3);
                     src.skip(5);
                     src.getBytes(hostBytes);
-                    String host = new String(hostBytes);
-                    a.host = host;
+                    a.host = new String(hostBytes);
                     a.port = port;
                     a.is_handshakeFinished = true;
                     return decode(ch, src);

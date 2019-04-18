@@ -38,9 +38,9 @@ import com.firenio.log.LoggerFactory;
  */
 public final class ChannelConnector extends ChannelContext implements Closeable {
 
-    private static final Logger                 logger     = LoggerFactory.getLogger(ChannelConnector.class);
+    private static final Logger                 logger      = LoggerFactory.getLogger(ChannelConnector.class);
     private volatile     Callback<Channel>      callback;
-    private volatile     boolean                callbacked = true;
+    private volatile     boolean                callback_ed = true;
     private              Channel                ch;
     private              NioEventLoop           eventLoop;
     private volatile     DelayedQueue.DelayTask timeoutTask;
@@ -64,7 +64,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         if (!group.isSharable() && !group.isRunning()) {
             group.setEventLoopSize(1);
         }
-        if (Native.EPOLL_AVAIABLE) {
+        if (Native.EPOLL_AVAILABLE) {
             unsafe = new EpollConnectorUnsafe();
         } else {
             unsafe = new JavaConnectorUnsafe();
@@ -77,10 +77,10 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
 
     @Override
     protected void channelEstablish(Channel ch, Throwable ex) {
-        if (!callbacked) {
+        if (!callback_ed) {
             this.unsafe.channelEstablish(ch, eventLoop, ex);
             this.ch = ch;
-            this.callbacked = true;
+            this.callback_ed = true;
             this.timeoutTask.cancel();
             try {
                 this.callback.call(ch, ex);
@@ -93,7 +93,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     }
 
     @Override
-    public synchronized void close() throws IOException {
+    public synchronized void close() {
         Util.close(ch);
         Util.stop(this);
         if (!getProcessorGroup().isSharable()) {
@@ -116,10 +116,10 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
             callback.call(ch, null);
             return;
         }
-        if (!callbacked) {
+        if (!callback_ed) {
             throw new IOException("connect is pending");
         }
-        this.callbacked = false;
+        this.callback_ed = false;
         this.timeoutTask = new TimeoutTask(this, timeout);
         this.callback = callback;
         this.getProcessorGroup().setContext(this);
@@ -222,7 +222,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
             this.fd = fd;
             el.schedule(ctx.timeoutTask);
             un.ctxs.put(fd, ctx);
-            int res = Native.epoll_add(un.epfd, fd, Native.EPOLLOUT);
+            int res = Native.epoll_add(un.epfd, fd, Native.EPOLL_OUT);
             Native.throwException(res);
         }
 

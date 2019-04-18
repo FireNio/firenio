@@ -34,7 +34,7 @@ public class DefaultIoEventHandle extends IoEventHandle {
     }
 
     @Override
-    public void accept(Channel ch, Frame frame) throws Exception {
+    public void accept(Channel ch, Frame frame) {
         logger.info("you did not set IoEventHandleAdaptor and the msg is coming:{}", frame);
     }
 

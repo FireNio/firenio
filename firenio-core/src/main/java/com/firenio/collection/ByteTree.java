@@ -23,18 +23,18 @@ import com.firenio.common.Unsafe;
  */
 public class ByteTree<T> {
 
-    private Node root = new ByteNode();
+    private Node<T> root = new ByteNode<>();
 
     public void add(String s) {
         add(s.getBytes(), (T) s);
     }
 
     private void add(byte[] bytes, T value) {
-        byte curr_b = bytes[0];
-        Node next_n = root = root.append(curr_b);
-        Node temp_n = next_n.next(curr_b);
-        Node prev_n = next_n;
-        byte prev_b = curr_b;
+        byte    curr_b = bytes[0];
+        Node<T> next_n = root = root.append(curr_b);
+        Node<T> temp_n = next_n.next(curr_b);
+        Node<T> prev_n = next_n;
+        byte    prev_b = curr_b;
         for (int i = 1; i < bytes.length; i++) {
             curr_b = bytes[i];
             next_n = temp_n.append(curr_b);
@@ -82,20 +82,20 @@ public class ByteTree<T> {
 
         T value;
 
-        abstract Node next(byte b);
+        abstract Node<T> next(byte b);
 
-        abstract Node append(byte b);
+        abstract Node<T> append(byte b);
 
-        abstract Node set(byte b, Node node);
+        abstract Node<T> set(byte b, Node<T> node);
 
     }
 
     static final class ArrayNode<T> extends Node<T> {
 
-        private Node[] nodes;
-        private int    shift = -1;
+        private Node<T>[] nodes;
+        private int       shift = -1;
 
-        ArrayNode(byte old_b, Node old_n, byte new_b, Node new_n, T value) {
+        ArrayNode(byte old_b, Node<T> old_n, byte new_b, Node<T> new_n, T value) {
             int old_i = old_b & 0xff;
             int new_i = new_b & 0xff;
             this.value = value;
@@ -106,7 +106,7 @@ public class ByteTree<T> {
         }
 
         @Override
-        Node next(byte b) {
+        Node<T> next(byte b) {
             int i = (b & 0xff) - shift;
             if (i >= nodes.length || i < 0) {
                 return null;
@@ -115,22 +115,22 @@ public class ByteTree<T> {
         }
 
         @Override
-        Node append(byte b) {
-            set((b & 0xff), new ByteNode(), true);
+        Node<T> append(byte b) {
+            set((b & 0xff), new ByteNode<T>(), true);
             return this;
         }
 
         @Override
-        Node set(byte b, Node node) {
+        Node<T> set(byte b, Node<T> node) {
             set(b & 0xff, node);
             return this;
         }
 
-        Node set(int i, Node node) {
+        Node<T> set(int i, Node<T> node) {
             return set(i, node, false);
         }
 
-        Node set(int i, Node node, boolean ifNull) {
+        Node<T> set(int i, Node<T> node, boolean ifNull) {
             if (shift == -1) {
                 shift = i;
             }
@@ -156,12 +156,12 @@ public class ByteTree<T> {
             if (nodes == null) {
                 nodes = new Node[size];
             } else if (size < 0) {
-                Node[] temp = new Node[nodes.length - size];
+                Node<T>[] temp = new Node[nodes.length - size];
                 System.arraycopy(nodes, 0, temp, -size, nodes.length);
                 nodes = temp;
                 shift += size;
             } else if (nodes.length < size) {
-                Node[] temp = new Node[size];
+                Node<T>[] temp = new Node[size];
                 System.arraycopy(nodes, 0, temp, 0, nodes.length);
                 nodes = temp;
             }
@@ -170,31 +170,31 @@ public class ByteTree<T> {
 
     static final class ByteNode<T> extends Node<T> {
 
-        private byte b;
-        private Node next;
+        private byte    b;
+        private Node<T> next;
 
         @Override
-        Node next(byte b) {
+        Node<T> next(byte b) {
             return b == this.b ? next : null;
         }
 
         @Override
-        Node append(byte b) {
+        Node<T> append(byte b) {
             if (this.b == b) {
                 return this;
             } else {
                 if (next == null) {
                     this.b = b;
-                    this.next = new ByteNode();
+                    this.next = new ByteNode<T>();
                     return this;
                 } else {
-                    return new ArrayNode(this.b, this.next, b, new ByteNode(), value);
+                    return new ArrayNode(this.b, this.next, b, new ByteNode<T>(), value);
                 }
             }
         }
 
         @Override
-        Node set(byte b, Node n) {
+        Node<T> set(byte b, Node<T> n) {
             if (this.b == b) {
                 this.next = n;
                 return this;

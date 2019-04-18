@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -116,7 +115,6 @@ public final class SelfSignedCertificate {
      *
      * @param fqdn   a fully qualified domain name
      * @param random the {@link java.security.SecureRandom} to use
-     * @param bits   the number of bits of the generated private key
      */
     public SelfSignedCertificate(String fqdn, SecureRandom random) {
         this(fqdn, random, DEFAULT_NOT_BEFORE, DEFAULT_NOT_AFTER);
@@ -127,7 +125,6 @@ public final class SelfSignedCertificate {
      *
      * @param fqdn      a fully qualified domain name
      * @param random    the {@link java.security.SecureRandom} to use
-     * @param bits      the number of bits of the generated private key
      * @param notBefore Certificate is not valid before this time
      * @param notAfter  Certificate is not valid after this time
      */
@@ -250,21 +247,21 @@ public final class SelfSignedCertificate {
 
     protected File[] newSelfSignedCertificate(String fileRoot, String fqdn, PrivateKey key, X509Certificate cert) throws IOException, CertificateEncodingException {
         // Encode the private key into a file.
-        byte keyArray[] = key.getEncoded();
+        byte[] keyArray = key.getEncoded();
 
         String keyText = Cryptos.base64_en(keyArray);
 
         keyText = "-----BEGIN PRIVATE KEY-----\n" + keyText + "\n-----END PRIVATE KEY-----\n";
 
-        File keyFile = write2file(fileRoot, "keyutil_" + fqdn, ".key", keyText, Util.UTF8);
+        File keyFile = write2file(fileRoot, "keyutil_" + fqdn, ".key", keyText);
 
-        byte certArray[] = cert.getEncoded();
+        byte[] certArray = cert.getEncoded();
 
         String certText = Cryptos.base64_en(certArray);
 
         certText = "-----BEGIN CERTIFICATE-----\n" + certText + "\n-----END CERTIFICATE-----\n";
 
-        File certFile = write2file(fileRoot, "keyutil_" + fqdn, ".crt", certText, Util.UTF8);
+        File certFile = write2file(fileRoot, "keyutil_" + fqdn, ".crt", certText);
 
         return new File[]{certFile, keyFile};
     }
@@ -285,7 +282,7 @@ public final class SelfSignedCertificate {
         }
     }
 
-    private File write2file(String fileRoot, String name, String subfix, String text, Charset charset) throws IOException {
+    private File write2file(String fileRoot, String name, String subfix, String text) throws IOException {
         File file;
         if (Util.isNullOrBlank(fileRoot)) {
             file = File.createTempFile(name + "_", subfix);
@@ -295,7 +292,7 @@ public final class SelfSignedCertificate {
 
         safeDelete(file);
 
-        FileUtil.writeByFile(file, text.getBytes(charset));
+        FileUtil.writeByFile(file, text.getBytes(Util.UTF8));
 
         logger.info("file generated:{}", file.getCanonicalPath());
         return file;

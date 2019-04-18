@@ -33,7 +33,7 @@ public enum Http2FrameType {
 
     private int value;
 
-    private Http2FrameType(int value) {
+    Http2FrameType(int value) {
         this.value = value;
         this.byteValue = (byte) value;
     }

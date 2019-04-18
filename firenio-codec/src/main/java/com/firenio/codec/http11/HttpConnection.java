@@ -39,7 +39,7 @@ public enum HttpConnection {
 
     private final byte[] line;
 
-    private HttpConnection(int id, String value) {
+    HttpConnection(int id, String value) {
         this.id = id;
         this.value = value;
         if (Util.isNullOrBlank(value)) {

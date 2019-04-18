@@ -146,17 +146,16 @@ public class WebSocketCodec extends ProtocolCodec {
                 array[i + 3] ^= m3;
             }
             if (len < length) {
-                int i      = len;
                 int remain = length - len;
                 if (remain == 1) {
-                    array[i + 0] ^= m0;
+                    array[len + 0] ^= m0;
                 } else if (remain == 2) {
-                    array[i + 0] ^= m0;
-                    array[i + 1] ^= m1;
+                    array[len + 0] ^= m0;
+                    array[len + 1] ^= m1;
                 } else {
-                    array[i + 0] ^= m0;
-                    array[i + 1] ^= m1;
-                    array[i + 2] ^= m2;
+                    array[len + 0] ^= m0;
+                    array[len + 1] ^= m1;
+                    array[len + 2] ^= m2;
                 }
             }
         } else {
@@ -174,7 +173,7 @@ public class WebSocketCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(Channel ch, Frame frame) throws IOException {
+    public ByteBuf encode(Channel ch, Frame frame) {
         WebSocketFrame f   = (WebSocketFrame) frame;
         ByteBuf        buf = f.getBufContent();
         if (buf != null) {

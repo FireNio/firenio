@@ -30,7 +30,7 @@ public class ScmpLinkedQueue<V> extends ScspLinkedQueue<V> {
     }
 
     public void offer(V v) {
-        Node<V> n    = new Node<V>();
+        Node<V> n    = new Node<>();
         Node<V> tail = getTail();
         if (Unsafe.compareAndSwapObject(this, tailOffset, tail, n)) {
             tail.v = v;

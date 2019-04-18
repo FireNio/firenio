@@ -42,7 +42,7 @@ import com.firenio.log.DebugUtil;
 public class LuceneDemo {
 
     public static List<Item> searchIndexer(Analyzer analyzer, IndexSearcher searcher, String keyword) {
-        List<Item> result = new ArrayList<Item>();
+        List<Item> result = new ArrayList<>();
         try {
             // 对多field进行搜索
             String[]              multiFields = new String[]{"id", "title", "content"};
@@ -66,7 +66,7 @@ public class LuceneDemo {
 
     static void createIndex(IndexWriter writer) throws IOException {
         writer.deleteAll();
-        List<Item> items = new ArrayList<Item>();
+        List<Item> items = new ArrayList<>();
         items.add(new Item("1", "This is the text to be greatly indexed."));
         items.add(new Item("2", "This is great."));
         items.add(new Item("3", "I love apple and pear. "));

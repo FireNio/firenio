@@ -74,22 +74,18 @@ public final class SslContext {
         // Choose the sensible default list of protocols.
         final String[] supportedProtocols    = engine.getSupportedProtocols();
         Set<String>    supportedProtocolsSet = new HashSet<>(supportedProtocols.length);
-        for (int i = 0; i < supportedProtocols.length; ++i) {
-            supportedProtocolsSet.add(supportedProtocols[i]);
-        }
+        supportedProtocolsSet.addAll(Arrays.asList(supportedProtocols));
         List<String> protocols = new ArrayList<>();
         addIfSupported(supportedProtocolsSet, protocols, "TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1");
         if (!protocols.isEmpty()) {
-            ENABLED_PROTOCOLS = protocols.toArray(new String[protocols.size()]);
+            ENABLED_PROTOCOLS = protocols.toArray(new String[0]);
         } else {
             ENABLED_PROTOCOLS = engine.getEnabledProtocols();
         }
         // Choose the sensible default list of cipher suites.
         final String[] supportedCiphers = engine.getSupportedCipherSuites();
         SUPPORTED_CIPHERS = new HashSet<>(supportedCiphers.length);
-        for (int i = 0; i < supportedCiphers.length; ++i) {
-            SUPPORTED_CIPHERS.add(supportedCiphers[i]);
-        }
+        Collections.addAll(SUPPORTED_CIPHERS, supportedCiphers);
         List<String> enabledCiphers = new ArrayList<>();
         addIfSupported(SUPPORTED_CIPHERS, enabledCiphers,
                 // GCM (Galois/Counter Mode) requires JDK 8.
@@ -181,7 +177,7 @@ public final class SslContext {
 
     private String[] filterCipherSuites(List<String> ciphers, List<String> defaultCiphers, Set<String> supportedCiphers) {
         if (ciphers == null) {
-            return defaultCiphers.toArray(new String[defaultCiphers.size()]);
+            return defaultCiphers.toArray(new String[0]);
         } else {
             List<String> newCiphers = new ArrayList<>();
             for (String c : ciphers) {
@@ -192,7 +188,7 @@ public final class SslContext {
                     newCiphers.add(c);
                 }
             }
-            return newCiphers.toArray(new String[newCiphers.size()]);
+            return newCiphers.toArray(new String[0]);
         }
     }
 

@@ -66,12 +66,12 @@ public class AsciiString implements CharSequence, Comparable<AsciiString> {
 
     @Override
     public int compareTo(AsciiString o) {
-        int  len1 = length;
-        int  len2 = o.length();
-        int  off  = offset;
-        int  lim  = Math.min(len1, len2);
-        byte v1[] = value;
-        byte v2[] = o.value;
+        int    len1 = length;
+        int    len2 = o.length();
+        int    off  = offset;
+        int    lim  = Math.min(len1, len2);
+        byte[] v1   = value;
+        byte[] v2   = o.value;
 
         int k = 0;
         while (k < lim) {
@@ -101,7 +101,7 @@ public class AsciiString implements CharSequence, Comparable<AsciiString> {
     public int hashCode() {
         int h = hash;
         if (h == 0 && length > 0) {
-            byte val[] = value;
+            byte[] val = value;
             for (int i = offset, end = offset + length; i < end; i++) {
                 h = 31 * h + val[i];
             }

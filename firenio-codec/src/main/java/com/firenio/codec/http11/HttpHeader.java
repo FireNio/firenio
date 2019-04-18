@@ -90,7 +90,7 @@ public enum HttpHeader {
 
     private final String lowercase;
 
-    private HttpHeader(String key) {
+    HttpHeader(String key) {
         this.key = key;
         this.lowercase = key.toLowerCase();
         this.bytes = key.getBytes();
@@ -119,7 +119,7 @@ public enum HttpHeader {
 
     @Override
     public String toString() {
-        return key.toString();
+        return key;
     }
 
 }

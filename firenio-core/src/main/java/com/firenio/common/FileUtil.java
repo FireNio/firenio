@@ -41,7 +41,7 @@ public class FileUtil {
 
     private static final byte[] SKIP_BYTE_BUFFER = new byte[2048];
 
-    public static void cleanDirectory(File directory) throws IOException {
+    public static void cleanDirectory(File directory) {
         if (!directory.exists()) {
             return;
         }
@@ -106,7 +106,7 @@ public class FileUtil {
         return totalRead;
     }
 
-    public static boolean createDirectory(File file) throws IOException {
+    public static boolean createDirectory(File file) {
         if (file.exists()) {
             return true;
         }
@@ -438,7 +438,7 @@ public class FileUtil {
         return readStringByFile(new File(file), encoding);
     }
 
-    public static void scanDirectory(File file, OnDirectoryScan onDirectoryScan) throws Exception {
+    public static void scanDirectory(File file, OnDirectoryScan onDirectoryScan) {
         if (!file.exists()) {
             return;
         }
@@ -568,11 +568,11 @@ public class FileUtil {
 
     public static abstract class OnDirectoryScan {
 
-        public boolean onDirectory(File directory) throws Exception {
+        public boolean onDirectory(File directory) {
             return true;
         }
 
-        public abstract void onFile(File file) throws Exception;
+        public abstract void onFile(File file);
     }
 
 }
