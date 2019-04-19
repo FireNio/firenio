@@ -438,7 +438,7 @@ public class FileUtil {
         return readStringByFile(new File(file), encoding);
     }
 
-    public static void scanDirectory(File file, OnDirectoryScan onDirectoryScan) {
+    public static void scanDirectory(File file, OnDirectoryScan onDirectoryScan)throws Exception {
         if (!file.exists()) {
             return;
         }
@@ -568,11 +568,11 @@ public class FileUtil {
 
     public static abstract class OnDirectoryScan {
 
-        public boolean onDirectory(File directory) {
+        public boolean onDirectory(File directory) throws Exception {
             return true;
         }
 
-        public abstract void onFile(File file);
+        public abstract void onFile(File file) throws Exception;
     }
 
 }

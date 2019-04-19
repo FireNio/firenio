@@ -22,7 +22,7 @@ import com.firenio.common.Util;
 public class ProviderFactory {
 
     public static FontProvider getFontProvider() {
-        return (FontProvider) Proxy.newProxyInstance(FontProvider.class.getClassLoader(), Util.getInterfaces(FontProvider.class), new CachedProviderHandler(new FontProviderFromDisk()));
+        return (FontProvider) Proxy.newProxyInstance(FontProvider.class.getClassLoader(), FontProvider.class.getInterfaces(), new CachedProviderHandler(new FontProviderFromDisk()));
     }
 
     static class FontProviderFromDisk implements FontProvider {

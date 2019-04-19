@@ -112,7 +112,7 @@ public class TestHttpLoadServerTFB {
             pool_cap = 1024 * 8;
             pool_unit = 256 * 16;
         }
-        ByteTree<String> cachedUrls = new ByteTree<>();
+        ByteTree cachedUrls = new ByteTree();
         cachedUrls.add("/plaintext");
         cachedUrls.add("/json");
         ProtocolCodec     codec   = new HttpCodec("firenio", fcache, lite, inline, cachedUrls);

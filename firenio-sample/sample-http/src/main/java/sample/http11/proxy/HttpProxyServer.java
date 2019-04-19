@@ -158,7 +158,7 @@ public class HttpProxyServer {
     static class HttpProxyAttrListener extends ChannelEventListenerAdapter {
 
         @Override
-        public void channelOpened(Channel ch) throws Exception {
+        public void channelOpened(Channel ch) {
             ch.setAttachment(new HttpProxyAttr());
         }
     }
