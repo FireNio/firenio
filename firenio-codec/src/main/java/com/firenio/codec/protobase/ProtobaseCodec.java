@@ -18,8 +18,8 @@ package com.firenio.codec.protobase;
 import java.io.IOException;
 
 import com.firenio.buffer.ByteBuf;
-import com.firenio.component.Frame;
 import com.firenio.component.Channel;
+import com.firenio.component.Frame;
 import com.firenio.component.ProtocolCodec;
 
 /**
@@ -34,7 +34,7 @@ import com.firenio.component.ProtocolCodec;
  *
  * </pre>
  */
-public class ProtobaseCodec extends ProtocolCodec {
+public final class ProtobaseCodec extends ProtocolCodec {
 
     public static final IOException ILLEGAL_PROTOCOL   = EXCEPTION("illegal protocol");
     public static final IOException OVER_LIMIT         = EXCEPTION("over limit");
@@ -72,7 +72,7 @@ public class ProtobaseCodec extends ProtocolCodec {
         byte flags = src.absByte(src.absPos());
         int  len   = src.getInt() & 0xffffff;
         if (flags < 0) {
-            return decodePing(flags);
+            return decode_ping(ch, flags);
         }
         if (len > limit) {
             throw OVER_LIMIT;
@@ -85,7 +85,7 @@ public class ProtobaseCodec extends ProtocolCodec {
         int    channelId = src.getInt();
         byte[] data      = new byte[len - 8];
         src.getBytes(data);
-        ProtobaseFrame f = newFrame();
+        ProtobaseFrame f = new ProtobaseFrame();
         f.setFlags(flags);
         f.setChannelId(channelId);
         f.setFrameId(frameId);
@@ -97,22 +97,25 @@ public class ProtobaseCodec extends ProtocolCodec {
         return f;
     }
 
-    private Frame decodePing(int type) throws IOException {
+    private Frame decode_ping(Channel ch, int type) throws IOException {
         type &= PROTOCOL_PONG_MASK;
         if (type == PROTOCOL_PING) {
-            return newFrame().setPing();
+            flush_ping(ch, PING.duplicate());
         } else if (type == PROTOCOL_PONG) {
-            return newFrame().setPong();
+            flush_pong(ch, PONG.duplicate());
         } else {
             throw ILLEGAL_PROTOCOL;
         }
+        return null;
+    }
+
+    @Override
+    protected ByteBuf getPingBuf() {
+        return PING.duplicate();
     }
 
     @Override
     public ByteBuf encode(Channel ch, Frame frame) {
-        if (frame.isTyped()) {
-            return frame.isPing() ? PING.duplicate() : PONG.duplicate();
-        }
         ProtobaseFrame f   = (ProtobaseFrame) frame;
         ByteBuf        buf = f.getBufContent().flip();
         buf.putInt(0, (buf.limit() - 4) | (f.getFlags() << 24));
@@ -133,15 +136,6 @@ public class ProtobaseCodec extends ProtocolCodec {
     @Override
     public int getHeaderLength() {
         return PROTOCOL_HEADER;
-    }
-
-    ProtobaseFrame newFrame() {
-        return new ProtobaseFrame();
-    }
-
-    @Override
-    public Frame ping(Channel ch) {
-        return new ProtobaseFrame().setPing();
     }
 
 }

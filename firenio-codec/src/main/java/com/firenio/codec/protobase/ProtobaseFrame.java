@@ -73,11 +73,6 @@ public class ProtobaseFrame extends Frame {
     }
 
     @Override
-    public int headerLength() {
-        return ProtobaseCodec.PROTOCOL_HEADER;
-    }
-
-    @Override
     public boolean isLast() {
         return (flags & MASK_LAST) != 0;
     }

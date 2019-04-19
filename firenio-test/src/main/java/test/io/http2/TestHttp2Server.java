@@ -44,7 +44,6 @@ public class TestHttp2Server {
         group.setEnableMemoryPool(true);
         ChannelAcceptor context = new ChannelAcceptor(group, 443);
         context.setSslPem("localhost.crt;localhost.key");
-        context.setEnableSsl(true);
         context.addProtocolCodec(new Http2Codec());
         context.setIoEventHandle(eventHandleAdaptor);
         context.setApplicationProtocols(new String[]{"h2", "http/1.1"});

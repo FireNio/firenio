@@ -100,7 +100,7 @@ public abstract class Channel implements Runnable, Closeable {
         this.write_bufs = new LinkedBlockingQueue<>();
         this.current_wbs = new ByteBuf[el.getGroup().getWriteBuffers()];
         this.desc = new_desc(Integer.toHexString(channelId));
-        if (ctx.isEnableSsl()) {
+        if (this.enable_ssl) {
             this.ssl_engine = ctx.getSslContext().newEngine(getRemoteAddr(), getRemotePort());
         } else {
             this.ssl_handshake_finished = true;
@@ -112,7 +112,7 @@ public abstract class Channel implements Runnable, Closeable {
         return Util.unknownStackTrace(new ClosedChannelException(), Channel.class, "flush(...)");
     }
 
-    static void fill_null(Object[] a, int fromIndex, int toIndex) {
+    private static void fill_null(Object[] a, int fromIndex, int toIndex) {
         for (int i = fromIndex; i < toIndex; i++)
             a[i] = null;
     }
@@ -140,26 +140,18 @@ public abstract class Channel implements Runnable, Closeable {
     private void accept(ByteBuf src) throws Exception {
         final ProtocolCodec codec      = getCodec();
         final IoEventHandle handle     = getIoEventHandle();
-        final boolean       enable_wel = getExecutorEventLoop() != null;
+        final EventLoop     eel        = getExecutorEventLoop();
+        final boolean       enable_wel = eel != null;
         for (; ; ) {
             Frame f = codec.decode(this, src);
             if (f == null) {
-                if (Develop.BUF_DEBUG) {
-                    if (plain_remain_buf != null) {
-                        throw new Exception("plain_remain_buf not null");
-                    }
-                }
                 plain_remain_buf = slice_remain(src);
                 break;
             }
-            if (f.isTyped()) {
-                accept_typed(f);
+            if (enable_wel) {
+                accept_async(eel, f);
             } else {
-                if (enable_wel) {
-                    accept_async(f);
-                } else {
-                    accept_line(handle, f);
-                }
+                accept_line(handle, f);
             }
             if (!src.hasRemaining()) {
                 break;
@@ -167,8 +159,7 @@ public abstract class Channel implements Runnable, Closeable {
         }
     }
 
-    private void accept_async(final Frame f) {
-        final EventLoop executorEventLoop = getExecutorEventLoop();
+    private void accept_async(final EventLoop eel, final Frame f) {
         final Runnable job = new Runnable() {
 
             @Override
@@ -181,7 +172,7 @@ public abstract class Channel implements Runnable, Closeable {
                 }
             }
         };
-        if (!executorEventLoop.submit(job)) {
+        if (!eel.submit(job)) {
             exception_caught(f, TASK_REJECT);
         }
     }
@@ -191,18 +182,6 @@ public abstract class Channel implements Runnable, Closeable {
             handle.accept(this, frame);
         } catch (Exception e) {
             exception_caught(frame, e);
-        }
-    }
-
-    private void accept_typed(Frame f) throws Exception {
-        if (f.isPing()) {
-            context.getHeartBeatLogger().logPing(this);
-            Frame pong = codec.pong(this, f);
-            if (pong != null) {
-                writeAndFlush(pong);
-            }
-        } else if (f.isPong()) {
-            context.getHeartBeatLogger().logPong(this);
         }
     }
 

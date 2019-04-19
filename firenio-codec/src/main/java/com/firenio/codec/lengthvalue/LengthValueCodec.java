@@ -41,7 +41,7 @@ import com.firenio.component.ProtocolCodec;
  *
  * </pre>
  */
-public class LengthValueCodec extends ProtocolCodec {
+public final class LengthValueCodec extends ProtocolCodec {
 
     public static final IOException ILLEGAL_PROTOCOL = EXCEPTION("illegal protocol");
     public static final IOException OVER_LIMIT       = EXCEPTION("over limit");
@@ -77,7 +77,7 @@ public class LengthValueCodec extends ProtocolCodec {
         }
         int len = src.getInt();
         if (len < 0) {
-            return decodePing(len);
+            return decode_ping(ch, len);
         }
         if (len > limit) {
             throw OVER_LIMIT;
@@ -91,21 +91,24 @@ public class LengthValueCodec extends ProtocolCodec {
         return new LengthValueFrame(new String(data, ch.getCharset()));
     }
 
-    private Frame decodePing(int len) throws IOException {
-        if (len == LengthValueCodec.PROTOCOL_PING) {
-            return new LengthValueFrame().setPing();
-        } else if (len == LengthValueCodec.PROTOCOL_PONG) {
-            return new LengthValueFrame().setPong();
+    private Frame decode_ping(Channel ch, int len) throws IOException {
+        if (len == PROTOCOL_PING) {
+            flush_ping(ch, PING.duplicate());
+        } else if (len == PROTOCOL_PONG) {
+            flush_pong(ch, PONG.duplicate());
         } else {
             throw ILLEGAL_PROTOCOL;
         }
+        return null;
+    }
+
+    @Override
+    protected ByteBuf getPingBuf() {
+        return PING.duplicate();
     }
 
     @Override
     public ByteBuf encode(Channel ch, Frame frame) {
-        if (frame.isTyped()) {
-            return frame.isPing() ? PING.duplicate() : PONG.duplicate();
-        }
         ByteBuf buf = frame.getBufContent().flip();
         buf.putInt(0, buf.limit() - PROTOCOL_HEADER);
         return buf;
@@ -119,11 +122,6 @@ public class LengthValueCodec extends ProtocolCodec {
     @Override
     public int getHeaderLength() {
         return PROTOCOL_HEADER;
-    }
-
-    @Override
-    public Frame ping(Channel ch) {
-        return new LengthValueFrame().setPing();
     }
 
 }

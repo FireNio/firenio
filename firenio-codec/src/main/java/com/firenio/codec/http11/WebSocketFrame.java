@@ -44,11 +44,6 @@ public class WebSocketFrame extends Frame {
         return type;
     }
 
-    @Override
-    public int headerLength() {
-        return WebSocketCodec.MAX_HEADER_LENGTH;
-    }
-
     public boolean isBinary() {
         return type == WebSocketCodec.TYPE_BINARY;
     }
@@ -66,11 +61,6 @@ public class WebSocketFrame extends Frame {
     }
 
     @Override
-    public boolean isSilent() {
-        return false;
-    }
-
-    @Override
     public boolean isText() {
         return type == WebSocketCodec.TYPE_TEXT;
     }
@@ -85,23 +75,6 @@ public class WebSocketFrame extends Frame {
 
     public void setEof(boolean eof) {
         this.eof = eof;
-    }
-
-    @Override
-    public Frame setPing() {
-        this.type = WebSocketCodec.TYPE_PING;
-        return super.setPing();
-    }
-
-    @Override
-    public Frame setPong() {
-        this.type = WebSocketCodec.TYPE_PONG;
-        return super.setPong();
-    }
-
-    @Override
-    public WebSocketFrame setSilent() {
-        throw new UnsupportedOperationException();
     }
 
     public void setType(byte type) {

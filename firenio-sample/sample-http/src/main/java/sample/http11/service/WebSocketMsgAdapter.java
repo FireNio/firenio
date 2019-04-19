@@ -21,8 +21,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import com.firenio.codec.http11.WebSocketCodec;
 import com.firenio.codec.http11.WebSocketFrame;
-import com.firenio.common.Util;
 import com.firenio.component.Channel;
 import com.firenio.component.ChannelManager;
 import com.firenio.concurrent.EventLoop;
@@ -65,7 +65,7 @@ public class WebSocketMsgAdapter extends EventLoop {
         } else {
             if (!clientMap.isEmpty()) {
                 WebSocketFrame f = new WebSocketFrame();
-                f.setString(msg.msg, Util.UTF8);
+                f.setBytes(WebSocketCodec.MAX_HEADER_LENGTH,msg.msg.getBytes());
                 try {
                     ChannelManager.broadcast(f, channelMap.values());
                 } catch (Exception e) {

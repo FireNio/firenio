@@ -47,8 +47,11 @@ public class HttpCodec extends ProtocolCodec {
     static final String      FRAME_CACHE_KEY           = "_HTTP_FRAME_CACHE_KEY";
     static final byte        N                         = '\n';
     static final IOException OVER_LIMIT                = EXCEPTION("over limit");
+    static final IOException ILLEGAL_METHOD            = EXCEPTION("illegal http method");
     static final byte        R                         = '\r';
     static final byte        SPACE                     = ' ';
+    static final int         NUM_GET                   = ByteUtil.getInt("GET ".getBytes(), 0);
+    static final int         NUM_POST                  = ByteUtil.getInt("POST".getBytes(), 0);
 
     private final int        blimit;
     private final byte[][]   cl_bytes = new byte[1024][];
@@ -117,34 +120,32 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     static void parse_kv(Map<String, String> map, CharSequence line, int start, int end, char kvSplitor, char eSplitor) {
-        int          state_findKey   = 0;
-        int          state_findValue = 1;
-        int          state           = state_findKey;
-        int          i               = start;
-        int          ks              = start;
-        int          vs              = 0;
-        CharSequence key             = null;
-        CharSequence value           = null;
+        boolean      find_key = true;
+        int          i        = start;
+        int          ks       = start;
+        int          vs       = 0;
+        CharSequence key      = null;
+        CharSequence value    = null;
         for (; i != end; ) {
             char c = line.charAt(i++);
-            if (state == state_findKey) {
+            if (find_key) {
                 if (c == kvSplitor) {
                     ks = Util.skip(line, ' ', ks);
                     key = line.subSequence(ks, i - 1);
-                    state = state_findValue;
+                    find_key = false;
                     vs = i;
                 }
             } else {
                 if (c == eSplitor) {
                     vs = Util.skip(line, ' ', vs);
                     value = line.subSequence(vs, i - 1);
-                    state = state_findKey;
+                    find_key = true;
                     ks = i;
                     map.put((String) key, (String) value);
                 }
             }
         }
-        if (state == state_findValue && end > vs) {
+        if (!find_key && end > vs) {
             map.put((String) key, (String) line.subSequence(vs, end));
         }
     }
@@ -220,7 +221,7 @@ public class HttpCodec extends ProtocolCodec {
         return true;
     }
 
-    HttpFrame newFrame() {
+    HttpFrame new_frame() {
         return new HttpFrame();
     }
 
@@ -228,12 +229,12 @@ public class HttpCodec extends ProtocolCodec {
         if (fcache > 0) {
             Frame res = (Frame) el.getCache(FRAME_CACHE_KEY, fcache);
             if (res == null) {
-                return newFrame();
+                return new_frame();
             } else {
                 return (HttpFrame) res.reset();
             }
         }
-        return newFrame();
+        return new_frame();
     }
 
     private int decode_lite(ByteBuf src, HttpFrame f) throws IOException {
@@ -245,21 +246,22 @@ public class HttpCodec extends ProtocolCodec {
             if (l_end == -1) {
                 return decode_state_line_one;
             } else {
-                int p = abs_pos;
-                h_len += (l_end - p);
+                h_len += (l_end - abs_pos);
                 decode_state = decode_state_header;
-                int skip;
-                if (src.absByte(p) == 'G') {
+                int url_start = abs_pos;
+                int num       = src.getInt(abs_pos);
+                if (num == NUM_GET) {
                     f.setMethod(HttpMethod.GET);
-                    skip = 4;
-                } else {
+                    url_start += 4;
+                } else if (num == NUM_POST) {
                     f.setMethod(HttpMethod.POST);
-                    skip = 5;
+                    url_start += 5;
+                } else {
+                    throw ILLEGAL_METHOD;
                 }
-                int url_start = abs_pos + skip;
-                int url_end   = l_end - 10;
-                int url_len   = url_end - url_start;
-                int qmark     = src.indexOf((byte) '?', url_start, url_len);
+                int url_end = l_end - 10;
+                int url_len = url_end - url_start;
+                int qmark   = src.indexOf((byte) '?', url_start, url_len);
                 if (qmark == -1) {
                     String url;
                     if (cached_urls != null) {
@@ -314,11 +316,11 @@ public class HttpCodec extends ProtocolCodec {
                             if (cps == -1) {
                                 throw OVER_LIMIT;
                             }
-                            int ctLen = 0;
+                            int ct_len = 0;
                             for (int i = cps; i < pe; i++) {
-                                ctLen = (src.absByte(i) - '0') + ctLen * 10;
+                                ct_len = (src.absByte(i) - '0') + ct_len * 10;
                             }
-                            f.setContentLength(ctLen);
+                            f.setContentLength(ct_len);
                         }
                     }
                 }
@@ -328,8 +330,8 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     private int decode_full(ByteBuf src, HttpFrame f) throws IOException {
-        int           decode_state = f.getDecodeState();
         StringBuilder line         = FastThreadLocal.get().getStringBuilder();
+        int           decode_state = f.getDecodeState();
         int           h_len        = f.getHeaderLength();
         int           abs_pos      = src.absPos();
         if (decode_state == decode_state_line_one) {
@@ -356,7 +358,7 @@ public class HttpCodec extends ProtocolCodec {
                 h_len += line.length();
                 if (line.length() == 0) {
                     src.absPos(abs_pos);
-                    decode_state = onHeaderReadComplete(f);
+                    decode_state = header_complete(f);
                     break;
                 } else {
                     int p = Util.indexOf(line, ':');
@@ -390,7 +392,7 @@ public class HttpCodec extends ProtocolCodec {
             decode_state = decode_full(src, f);
         }
         if (decode_state == decode_state_body) {
-            decode_state = decodeRemainBody(ch, src, f);
+            decode_state = decode_remain_body(ch, src, f);
         }
         if (decode_state == decode_state_complete) {
             if (remove) {
@@ -404,7 +406,7 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    int decodeRemainBody(Channel ch, ByteBuf src, HttpFrame f) {
+    int decode_remain_body(Channel ch, ByteBuf src, HttpFrame f) {
         int contentLength = f.getContentLength();
         int remain        = src.remaining();
         if (remain < contentLength) {
@@ -436,27 +438,27 @@ public class HttpCodec extends ProtocolCodec {
 
     @Override
     public ByteBuf encode(final Channel ch, Frame frame) {
-        boolean         inline             = this.inline;
-        HttpFrame       f                  = (HttpFrame) frame;
-        FastThreadLocal l                  = FastThreadLocal.get();
-        HttpAttachment  att                = (HttpAttachment) ch.getAttachment();
-        List<byte[]>    encode_bytes_array = getEncodeBytesArray(l);
-        Object          content            = f.getContent();
-        ByteBuf         contentBuf         = null;
-        byte[]          contentArray       = null;
-        byte[]          head_bytes         = f.getStatus().getLine();
-        byte[]          conn_bytes         = f.getConnection().getLine();
-        byte[]          type_bytes         = f.getContentType().getLine();
-        byte[]          date_bytes         = f.getDate();
-        boolean         isArray            = false;
-        int             write_size         = 0;
+        boolean         inline        = this.inline;
+        HttpFrame       f             = (HttpFrame) frame;
+        FastThreadLocal l             = FastThreadLocal.get();
+        HttpAttachment  att           = (HttpAttachment) ch.getAttachment();
+        List<byte[]>    bytes_array   = getEncodeBytesArray(l);
+        Object          content       = f.getContent();
+        ByteBuf         content_buf   = null;
+        byte[]          content_array = null;
+        byte[]          head_bytes    = f.getStatus().getLine();
+        byte[]          conn_bytes    = f.getConnection().getLine();
+        byte[]          type_bytes    = f.getContentType().getLine();
+        byte[]          date_bytes    = f.getDate();
+        boolean         is_array      = false;
+        int             write_size    = 0;
         if (content instanceof ByteBuf) {
-            contentBuf = ((ByteBuf) content).flip();
-            write_size = contentBuf.limit();
+            content_buf = ((ByteBuf) content).flip();
+            write_size = content_buf.limit();
         } else if (content instanceof byte[]) {
-            isArray = true;
-            contentArray = (byte[]) content;
-            write_size = contentArray.length;
+            is_array = true;
+            content_array = (byte[]) content;
+            write_size = content_array.length;
         }
         byte[] cl_len_bytes;
         int    cl_len;
@@ -471,27 +473,27 @@ public class HttpCodec extends ProtocolCodec {
             System.arraycopy(cl_len_bytes, len_idx, cl_len_bytes, tmp_len, num_len);
             cl_len = tmp_len + num_len;
         }
-        int            hlen        = head_bytes.length;
-        int            tlen        = type_bytes == null ? 0 : type_bytes.length;
-        int            clen        = conn_bytes == null ? 0 : conn_bytes.length;
-        int            dlen        = date_bytes == null ? 0 : date_bytes.length;
-        int            len         = hlen + cl_len + dlen + 2 + clen + tlen;
-        int            header_size = 0;
-        IntMap<byte[]> headers     = f.getResponseHeaders();
+        int            hlen    = head_bytes.length;
+        int            tlen    = type_bytes == null ? 0 : type_bytes.length;
+        int            clen    = conn_bytes == null ? 0 : conn_bytes.length;
+        int            dlen    = date_bytes == null ? 0 : date_bytes.length;
+        int            len     = hlen + cl_len + dlen + 2 + clen + tlen;
+        int            h_size  = 0;
+        IntMap<byte[]> headers = f.getResponseHeaders();
         if (headers != null) {
             for (headers.scan(); headers.hasNext(); ) {
                 byte[] k = HttpHeader.get(headers.nextKey()).getBytes();
                 byte[] v = headers.value();
-                header_size++;
-                encode_bytes_array.add(k);
-                encode_bytes_array.add(v);
+                h_size++;
+                bytes_array.add(k);
+                bytes_array.add(v);
                 len += 4;
                 len += k.length;
                 len += v.length;
             }
         }
         len += 2;
-        if (isArray) {
+        if (is_array) {
             len += write_size;
         }
         ByteBuf buf;
@@ -526,20 +528,20 @@ public class HttpCodec extends ProtocolCodec {
         }
         buf.putByte(R);
         buf.putByte(N);
-        if (header_size > 0) {
-            put_headers(buf, encode_bytes_array, header_size);
+        if (h_size > 0) {
+            put_headers(buf, bytes_array, h_size);
         }
         buf.putByte(R);
         buf.putByte(N);
         if (write_size > 0) {
-            if (isArray) {
-                buf.putBytes(contentArray);
+            if (is_array) {
+                buf.putBytes(content_array);
             } else {
                 if (inline) {
                     att.setLastWriteBuf(ByteBuf.empty());
                 }
                 ch.write(buf.flip());
-                ch.write(contentBuf);
+                ch.write(content_buf);
                 return null;
             }
         }
@@ -581,7 +583,7 @@ public class HttpCodec extends ProtocolCodec {
         return 0;
     }
 
-    int onHeaderReadComplete(HttpFrame f) throws IOException {
+    int header_complete(HttpFrame f) throws IOException {
         int    contentLength = 0;
         String c_length      = f.getRequestHeader(HttpHeader.Content_Length);
         String c_type        = f.getRequestHeader(HttpHeader.Content_Type);
@@ -600,13 +602,15 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    protected void parse_line_one(HttpFrame f, CharSequence line) {
+    protected void parse_line_one(HttpFrame f, CharSequence line) throws IOException {
         if (line.charAt(0) == 'G' && line.charAt(1) == 'E' && line.charAt(2) == 'T') {
             f.setMethod(HttpMethod.GET);
             parse_url(f, 4, line);
-        } else {
+        } else if (line.charAt(0) == 'P' && line.charAt(1) == 'O' && line.charAt(2) == 'S' && line.charAt(3) == 'T') {
             f.setMethod(HttpMethod.POST);
             parse_url(f, 5, line);
+        } else {
+            throw ILLEGAL_METHOD;
         }
     }
 

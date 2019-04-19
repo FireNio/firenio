@@ -74,18 +74,24 @@ public abstract class ProtocolCodec {
 
     public abstract int getHeaderLength();
 
-    public Frame ping(Channel ch) {
-        return null;
-    }
-
-    public Frame pong(Channel ch, Frame ping) {
-        return ping.setPong();
-    }
-
     protected Object newAttachment() {
         return null;
     }
 
     public void release(NioEventLoop eventLoop, Frame frame) {}
+
+    protected void flush_ping(Channel ch, ByteBuf buf) {
+        ch.writeAndFlush(buf);
+        ch.getContext().getHeartBeatLogger().logPing(ch);
+    }
+
+    protected void flush_pong(Channel ch, ByteBuf buf) {
+        ch.writeAndFlush(buf);
+        ch.getContext().getHeartBeatLogger().logPong(ch);
+    }
+
+    protected ByteBuf getPingBuf(){
+        return null;
+    }
 
 }

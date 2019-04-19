@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import sample.http11.proxy.HttpProxyServer;
+
 import com.firenio.buffer.ByteBuf;
 import com.firenio.codec.http11.ClientHttpCodec;
 import com.firenio.codec.http11.ClientHttpFrame;
@@ -41,8 +43,6 @@ import com.firenio.component.NioEventLoop;
 import com.firenio.component.NioEventLoopGroup;
 import com.firenio.component.ProtocolCodec;
 import com.firenio.log.DebugUtil;
-
-import sample.http11.proxy.HttpProxyServer;
 
 public class HttpProxy4CloudServer {
 
@@ -160,7 +160,8 @@ public class HttpProxy4CloudServer {
                             if (res.getContent() != null) {
                                 f.setContent(res.getContent());
                             } else if (res.isChunked()) {
-                                f.setBytes("not support chunked now.".getBytes());
+                                f.setContent(ch.allocate());
+                                f.write("not support chunked now.", ch);
                             }
                             ch_src.writeAndFlush(f);
                             ch.close();
@@ -312,7 +313,7 @@ public class HttpProxy4CloudServer {
         }
 
         @Override
-        protected void parse_line_one(HttpFrame f, CharSequence line) {
+        protected void parse_line_one(HttpFrame f, CharSequence line) throws IOException {
             if (line.charAt(0) == 'C' && line.charAt(1) == 'O' && line.charAt(2) == 'N' && line.charAt(3) == 'N' && line.charAt(4) == 'E' && line.charAt(5) == 'C' && line.charAt(6) == 'T' && line.charAt(7) == ' ') {
                 f.setMethod(HttpMethod.CONNECT);
                 parse_url(f, 8, line);

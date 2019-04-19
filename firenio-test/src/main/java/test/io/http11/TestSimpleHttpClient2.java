@@ -15,12 +15,15 @@
  */
 package test.io.http11;
 
+import java.io.IOException;
+
 import com.firenio.codec.http11.ClientHttpCodec;
 import com.firenio.codec.http11.ClientHttpFrame;
 import com.firenio.codec.http11.HttpMethod;
 import com.firenio.codec.http11.WebSocketCodec;
 import com.firenio.component.Channel;
 import com.firenio.component.ChannelConnector;
+import com.firenio.component.ChannelEventListenerAdapter;
 import com.firenio.component.Frame;
 import com.firenio.component.IoEventHandle;
 import com.firenio.component.LoggerChannelOpenListener;
@@ -43,7 +46,7 @@ public class TestSimpleHttpClient2 {
         //        host = "api.weixin.qq.com";
         //        host = "192.168.1.103";
         int port = 1443;
-        port = 8080;
+        port = 8300;
         //        port = 443;
 
         ChannelConnector context = new ChannelConnector(host, port);
@@ -58,6 +61,13 @@ public class TestSimpleHttpClient2 {
                 System.out.println(new String(res.getArrayContent()));
                 System.out.println();
                 //                Util.close(context);
+            }
+        });
+        context.addChannelEventListener(new ChannelEventListenerAdapter(){
+
+            @Override
+            public void channelOpened(Channel ch) throws Exception {
+                throw new IOException();
             }
         });
         context.addChannelEventListener(new LoggerChannelOpenListener());

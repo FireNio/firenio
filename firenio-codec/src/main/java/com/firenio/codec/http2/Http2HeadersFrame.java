@@ -44,11 +44,6 @@ public class Http2HeadersFrame extends Http2Frame {
         return e;
     }
 
-    @Override
-    public boolean isSilent() {
-        return !endStream;
-    }
-
     public void setE(boolean e) {
         this.e = e;
     }

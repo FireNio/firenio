@@ -36,11 +36,6 @@ public class Http2SettingsFrame extends Http2Frame {
         return settings;
     }
 
-    @Override
-    public boolean isSilent() {
-        return true;
-    }
-
     public void setSettings(long[] settings) {
         this.settings = settings;
     }

@@ -94,6 +94,9 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
+            if (!isRunning()) {
+                return null;
+            }
             int mark = this.mark;
             blockStart = allocate(mark, capacity, size);
             if (blockStart == -1) {
@@ -235,6 +238,10 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
 
     @Override
     public void freeMemory() {
+        // check all memory(buf) are backed
+        for (; usedBuf() != 0; ) {
+            Util.sleep(8);
+        }
         if (ENABLE_UNSAFE_BUF) {
             Unsafe.free(address);
         } else {

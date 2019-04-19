@@ -180,11 +180,6 @@ public class HttpFrame extends Frame {
         return getContent() != null;
     }
 
-    @Override
-    public int headerLength() {
-        return 0;
-    }
-
     public boolean isForm() {
         return isForm;
     }

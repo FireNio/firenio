@@ -2,7 +2,7 @@
 # FireNio Project
 
 [![Website](https://img.shields.io/badge/website-firenio-green.svg)](https://www.firenio.com)
-[![Maven central](https://img.shields.io/badge/maven-1.1.0-green.svg)](http://mvnrepository.com/artifact/com.firenio/firenio-all)
+[![Maven central](https://img.shields.io/badge/maven-1.2.0-green.svg)](http://mvnrepository.com/artifact/com.firenio/firenio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/firenio/firenio/blob/master/LICENSE.txt)
 
 FireNio is an io framework which can build network project fast, it based on java nio, it is popular with Developers because of simple and easy of use APIs and high-performance.
@@ -17,7 +17,7 @@ FireNio is an io framework which can build network project fast, it based on jav
  * easy to support reconnect (easy to support heart beat)
  * supported ssl (jdkssl, openssl)
  * load test
-   * [tfb benchmark](https://www.techempower.com/benchmarks/#section=test&runid=50068a69-f68c-44fc-b8f7-2d44567e8c78&hw=ph&test=plaintext)
+   * [tfb benchmark](https://www.techempower.com/benchmarks/#section=test&runid=76a34044-54d6-4349-adfe-863c2d5ae756&hw=ph&test=plaintext)
  
 ## Quick Start
 
@@ -27,7 +27,7 @@ FireNio is an io framework which can build network project fast, it based on jav
 	<dependency>
 		<groupId>com.firenio</groupId>
 		<artifactId>firenio-all</artifactId>
-		<version>1.1.0</version>
+		<version>1.2.0</version>
 	</dependency>  
   ```
   

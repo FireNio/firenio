@@ -94,7 +94,7 @@ public class TestHttpLoadServerTFB {
                     f.setConnection(HttpConnection.NONE);
                 } else {
                     System.err.println("404");
-                    f.setString("404,page not found!");
+                    f.setString(ch,"404,page not found!");
                     f.setContentType(HttpContentType.text_plain);
                     f.setStatus(HttpStatus.C404);
                 }
