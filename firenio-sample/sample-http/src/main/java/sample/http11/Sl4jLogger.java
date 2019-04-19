@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,13 +21,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author wangkai
- *
  */
 public class Sl4jLogger implements Log {
 
     // ------------------------------------------------------------- Attributes
 
-    /** Log to this logger */
+    /**
+     * Log to this logger
+     */
     private transient Logger logger = null;
 
     // ------------------------------------------------------------
@@ -48,13 +49,12 @@ public class Sl4jLogger implements Log {
 
     public Sl4jLogger() {}
 
-    /** 
+    /**
      * For use with a log4j factory.
      */
     public Sl4jLogger(Logger logger) {
         if (logger == null) {
-            throw new IllegalArgumentException(
-                    "Warning - null logger in constructor; possible log4j misconfiguration.");
+            throw new IllegalArgumentException("Warning - null logger in constructor; possible log4j misconfiguration.");
         }
         this.logger = logger;
     }
@@ -98,7 +98,7 @@ public class Sl4jLogger implements Log {
      * Logs a message with <code>org.apache.log4j.Priority.DEBUG</code>.
      *
      * @param message to log
-     * @param t log this cause
+     * @param t       log this cause
      * @see org.apache.commons.logging.Log#debug(Object, Throwable)
      */
     @Override
@@ -121,7 +121,7 @@ public class Sl4jLogger implements Log {
      * Logs a message with <code>org.apache.log4j.Priority.ERROR</code>.
      *
      * @param message to log
-     * @param t log this cause
+     * @param t       log this cause
      * @see org.apache.commons.logging.Log#error(Object, Throwable)
      */
     @Override
@@ -144,7 +144,7 @@ public class Sl4jLogger implements Log {
      * Logs a message with <code>org.apache.log4j.Priority.FATAL</code>.
      *
      * @param message to log
-     * @param t log this cause
+     * @param t       log this cause
      * @see org.apache.commons.logging.Log#fatal(Object, Throwable)
      */
     @Override
@@ -188,7 +188,7 @@ public class Sl4jLogger implements Log {
      * Logs a message with <code>org.apache.log4j.Priority.INFO</code>.
      *
      * @param message to log
-     * @param t log this cause
+     * @param t       log this cause
      * @see org.apache.commons.logging.Log#info(Object, Throwable)
      */
     @Override
@@ -205,8 +205,8 @@ public class Sl4jLogger implements Log {
     }
 
     /**
-    * Check whether the Log4j Logger used is enabled for <code>ERROR</code> priority.
-    */
+     * Check whether the Log4j Logger used is enabled for <code>ERROR</code> priority.
+     */
     @Override
     public boolean isErrorEnabled() {
         return getLogger().isErrorEnabled();
@@ -265,7 +265,7 @@ public class Sl4jLogger implements Log {
      * level, the message will be logged at the <code>DEBUG</code> level.
      *
      * @param message to log
-     * @param t log this cause
+     * @param t       log this cause
      * @see org.apache.commons.logging.Log#trace(Object, Throwable)
      */
     @Override
@@ -288,7 +288,7 @@ public class Sl4jLogger implements Log {
      * Logs a message with <code>org.apache.log4j.Priority.WARN</code>.
      *
      * @param message to log
-     * @param t log this cause
+     * @param t       log this cause
      * @see org.apache.commons.logging.Log#warn(Object, Throwable)
      */
     @Override

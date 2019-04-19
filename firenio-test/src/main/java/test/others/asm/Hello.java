@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,6 @@ import java.util.Map;
 
 /**
  * @author wangkai
- *
  */
 public class Hello {
 
@@ -47,7 +46,8 @@ public class Hello {
 
     // 泛型返回值，包含List和Map
     // 两个参数，参数为Map动参
-    public List<Map<String, String>> testMapList(boolean val, Map<String, String>... map) {
+    @SafeVarargs
+    public final List<Map<String, String>> testMapList(boolean val, Map<String, String>... map) {
         List<Map<String, String>> list = new ArrayList<>();
         if (val) {
             for (Map<String, String> m : map) {

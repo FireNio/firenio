@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,12 +23,24 @@ public class KMPUtil {
 
     private char[] match_array;
 
-    private int[]  match_table;
+    private int[] match_table;
 
     private String match_value;
 
     public KMPUtil(String value) {
         this.initialize(value);
+    }
+
+    public static void main(String[] args) {
+
+        String s1 = "1111111111111111111211111111112111121111211111111";
+
+        String match = "1112";
+
+        KMPUtil kmp = new KMPUtil(match);
+
+        System.out.println(kmp.match_all(s1));
+
     }
 
     private void initialize(String value) {
@@ -51,7 +63,8 @@ public class KMPUtil {
 
     private int initialize_part_match_table0(char[] array, int length) {
         int e = 0;
-        WORD: for (int i = 1; i < length; i++) {
+        WORD:
+        for (int i = 1; i < length; i++) {
             int t = 0;
             int p = 0;
             int s = length - i;
@@ -77,12 +90,13 @@ public class KMPUtil {
         if (value.length() - begin < this.match_array.length) {
             return -1;
         }
-        int source_length = value.length();
-        int index = begin;
-        int match_length = this.match_array.length;
-        char[] match_array = this.match_array;
-        int[] match_table = this.match_table;
-        LOOP: for (; index < source_length;) {
+        int    source_length = value.length();
+        int    index         = begin;
+        int    match_length  = this.match_array.length;
+        char[] match_array   = this.match_array;
+        int[]  match_table   = this.match_table;
+        LOOP:
+        for (; index < source_length; ) {
             for (int i = 0; i < match_length; i++) {
                 if (value.charAt(index + i) != match_array[i]) {
                     if (i == 0) {
@@ -110,12 +124,13 @@ public class KMPUtil {
             matchs.add(0);
             return matchs;
         }
-        int source_length = value.length();
-        int index = 0;
-        int match_length = this.match_array.length;
-        char[] match_array = this.match_array;
-        int[] match_table = this.match_table;
-        LOOP: for (; index < source_length;) {
+        int    source_length = value.length();
+        int    index         = 0;
+        int    match_length  = this.match_array.length;
+        char[] match_array   = this.match_array;
+        int[]  match_table   = this.match_table;
+        LOOP:
+        for (; index < source_length; ) {
             if (source_length - index < match_length) {
                 break;
             }
@@ -133,17 +148,5 @@ public class KMPUtil {
             index += match_length;
         }
         return matchs;
-    }
-
-    public static void main(String[] args) {
-
-        String s1 = "1111111111111111111211111111112111121111211111111";
-
-        String match = "1112";
-
-        KMPUtil kmp = new KMPUtil(match);
-
-        System.out.println(kmp.match_all(s1));
-
     }
 }

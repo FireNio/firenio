@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -85,25 +85,22 @@ import com.firenio.component.ProtocolCodec;
  * </p>
  * </dd>
  * </dl>
- * 
  */
 //http://httpwg.org/specs/rfc7540.html
 //https://blog.csdn.net/u010129119/article/details/79361949
 public class Http2Codec extends ProtocolCodec {
 
-    public static final int          FLAG_END_HEADERS        = 0x4;
+    public static final int FLAG_END_HEADERS = 0x4;
 
-    public static final int          FLAG_END_STREAM         = 0x1;
-    public static final int          FLAG_PADDED             = 0x8;
-    public static final int          FLAG_PRIORITY           = 0x20;
-    private static final IOException NOT_HTTP2_PROTOCL       = Util
-            .unknownStackTrace(new IOException("preface not matched"), Http2Codec.class, "codec");
-    private static byte[]            PREFACE_BINARY          = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"
-            .getBytes();
-    public static final int          PROTOCOL_HEADER         = 9;
-    public static final int          PROTOCOL_PING           = -1;
-    public static final int          PROTOCOL_PONG           = -2;
-    public static final int          PROTOCOL_PREFACE_HEADER = 24;
+    public static final  int         FLAG_END_STREAM         = 0x1;
+    public static final  int         FLAG_PADDED             = 0x8;
+    public static final  int         FLAG_PRIORITY           = 0x20;
+    public static final  int         PROTOCOL_HEADER         = 9;
+    public static final  int         PROTOCOL_PING           = -1;
+    public static final  int         PROTOCOL_PONG           = -2;
+    public static final  int         PROTOCOL_PREFACE_HEADER = 24;
+    private static final IOException NOT_HTTP2_PROTOCL       = Util.unknownStackTrace(new IOException("preface not matched"), Http2Codec.class, "codec");
+    private static       byte[]      PREFACE_BINARY          = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n".getBytes();
 
     @Override
     public Frame decode(Channel ch, ByteBuf src) throws Exception {
@@ -128,14 +125,14 @@ public class Http2Codec extends ProtocolCodec {
         if (src.remaining() < PROTOCOL_HEADER) {
             return null;
         }
-        byte b0 = src.getByte();
-        byte b1 = src.getByte();
-        byte b2 = src.getByte();
-        byte type = src.getByte();
-        byte flags = src.getByte();
-        int v = src.getInt();
-        int length = ((b0 & 0xff) << 8 * 2) | ((b1 & 0xff) << 8 * 1) | ((b2 & 0xff) << 8 * 0);
-        int streamIdentifier = v & 0xFFFFFFFF;
+        byte b0               = src.getByte();
+        byte b1               = src.getByte();
+        byte b2               = src.getByte();
+        byte type             = src.getByte();
+        byte flags            = src.getByte();
+        int  v                = src.getInt();
+        int  length           = ((b0 & 0xff) << 8 * 2) | ((b1 & 0xff) << 8 * 1) | ((b2 & 0xff) << 8 * 0);
+        int  streamIdentifier = v & 0xFFFFFFFF;
         if (src.remaining() < length) {
             src.skip(-PROTOCOL_HEADER);
             return null;
@@ -143,17 +140,17 @@ public class Http2Codec extends ProtocolCodec {
         Http2FrameType hType = Http2FrameType.getValue(type & 0xff);
         return genFrame(session, src, hType, length, streamIdentifier, flags);
     }
-    
+
     @Override
     protected Object newAttachment() {
         return new Http2Session();
     }
 
     @Override
-    public ByteBuf encode(Channel ch, Frame frame) throws IOException {
-        Http2Frame f = (Http2Frame) frame;
+    public ByteBuf encode(Channel ch, Frame frame) {
+        Http2Frame     f         = (Http2Frame) frame;
         Http2FrameType frameType = f.getHttp2FrameType();
-        byte[] payload = null;
+        byte[]         payload   = null;
         switch (frameType) {
             case FRAME_TYPE_CONTINUATION:
                 break;
@@ -177,10 +174,10 @@ public class Http2Codec extends ProtocolCodec {
                 long[] settings = sf.getSettings();
                 payload = new byte[6 * 6];
                 for (int i = 0; i < 6; i++) {
-                    int realI = i + 1;
+                    int realI  = i + 1;
                     int offset = i * 6;
-                    ByteUtil.putShort(payload, (short)realI, offset);
-                    ByteUtil.putInt(payload, (int)settings[realI], offset + 2);
+                    ByteUtil.putShort(payload, (short) realI, offset);
+                    ByteUtil.putInt(payload, (int) settings[realI], offset + 2);
                 }
                 break;
             case FRAME_TYPE_WINDOW_UPDATE:
@@ -188,12 +185,12 @@ public class Http2Codec extends ProtocolCodec {
             default:
                 break;
         }
-        int length = payload.length;
-        ByteBuf buf = ch.alloc().allocate(length + PROTOCOL_HEADER);
-        byte b2 = (byte) ((length & 0xff));
-        byte b1 = (byte) ((length >> 8 * 1) & 0xff);
-        byte b0 = (byte) ((length >> 8 * 2) & 0xff);
-        byte b3 = frameType.getByteValue();
+        int     length = payload.length;
+        ByteBuf buf    = ch.alloc().allocate(length + PROTOCOL_HEADER);
+        byte    b2     = (byte) ((length & 0xff));
+        byte    b1     = (byte) ((length >> 8 * 1) & 0xff);
+        byte    b0     = (byte) ((length >> 8 * 2) & 0xff);
+        byte    b3     = frameType.getByteValue();
         buf.putByte(b0);
         buf.putByte(b1);
         buf.putByte(b2);
@@ -204,8 +201,7 @@ public class Http2Codec extends ProtocolCodec {
         return buf.flip();
     }
 
-    private Http2Frame genFrame(Http2Session session, ByteBuf src, Http2FrameType type, int length,
-            int streamIdentifier, byte flags) {
+    private Http2Frame genFrame(Http2Session session, ByteBuf src, Http2FrameType type, int length, int streamIdentifier, byte flags) {
         switch (type) {
             case FRAME_TYPE_CONTINUATION:
                 break;
@@ -249,7 +245,7 @@ public class Http2Codec extends ProtocolCodec {
                 fs.setStreamIdentifier(streamIdentifier);
                 int settings = length / 6;
                 for (int i = 0; i < settings; i++) {
-                    int key = src.getShort();
+                    int key   = src.getShort();
                     int value = src.getInt();
                     session.setSettings(key, value);
                 }

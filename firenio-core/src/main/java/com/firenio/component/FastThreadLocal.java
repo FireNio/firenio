@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,6 @@ import com.firenio.common.Util;
 
 /**
  * @author wangkai
- *
  */
 public final class FastThreadLocal extends AttributesImpl {
 
@@ -39,15 +38,53 @@ public final class FastThreadLocal extends AttributesImpl {
     private static final int                          maxIndexedVarsSize = 32;
     private static final ThreadLocal<FastThreadLocal> slowThreadLocal    = new ThreadLocal<>();
 
-    private byte[]                                    bytes32            = new byte[32];
-    private Map<Charset, CharsetDecoder>              charsetDecoders    = new IdentityHashMap<>();
-    private Map<Charset, CharsetEncoder>              charsetEncoders    = new IdentityHashMap<>();
-    private Object[]                                  indexedVariables   = new Object[maxIndexedVarsSize];
-    private ByteBuf                                   sslUnwrapBuf;
-    private ByteBuf                                   sslWrapBuf;
-    private StringBuilder                             stringBuilder      = new StringBuilder(512);
+    private byte[]                       bytes32          = new byte[32];
+    private Map<Charset, CharsetDecoder> charsetDecoders  = new IdentityHashMap<>();
+    private Map<Charset, CharsetEncoder> charsetEncoders  = new IdentityHashMap<>();
+    private Object[]                     indexedVariables = new Object[maxIndexedVarsSize];
+    private ByteBuf                      sslUnwrapBuf;
+    private ByteBuf                      sslWrapBuf;
+    private StringBuilder                stringBuilder    = new StringBuilder(512);
 
     FastThreadLocal() {}
+
+    public static void destroy() {
+        Thread          thread = Thread.currentThread();
+        FastThreadLocal l;
+        if (thread instanceof FastThreadLocalThread) {
+            l = ((FastThreadLocalThread) thread).getThreadLocal();
+        } else {
+            l = slowThreadLocal.get();
+        }
+        if (l != null) {
+            l.destroy0();
+        }
+    }
+
+    public static FastThreadLocal get() {
+        Thread thread = Thread.currentThread();
+        if (thread instanceof FastThreadLocalThread) {
+            return ((FastThreadLocalThread) thread).getThreadLocal();
+        } else {
+            FastThreadLocal l = slowThreadLocal.get();
+            if (l == null) {
+                l = new FastThreadLocal();
+                slowThreadLocal.set(l);
+            }
+            return l;
+        }
+    }
+
+    public static int nextIndexedVariablesIndex() {
+        if (indexedVarsIndex.get() >= maxIndexedVarsSize) {
+            return -1;
+        }
+        int index = indexedVarsIndex.getAndIncrement();
+        if (index >= maxIndexedVarsSize) {
+            return -1;
+        }
+        return index;
+    }
 
     private void destroy0() {
         Util.release(sslWrapBuf);
@@ -121,44 +158,6 @@ public final class FastThreadLocal extends AttributesImpl {
 
     public void setIndexedVariable(int index, Object value) {
         indexedVariables[index] = value;
-    }
-
-    public static void destroy() {
-        Thread thread = Thread.currentThread();
-        FastThreadLocal l;
-        if (thread instanceof FastThreadLocalThread) {
-            l = ((FastThreadLocalThread) thread).getThreadLocal();
-        } else {
-            l = slowThreadLocal.get();
-        }
-        if (l != null) {
-            l.destroy0();
-        }
-    }
-
-    public static FastThreadLocal get() {
-        Thread thread = Thread.currentThread();
-        if (thread instanceof FastThreadLocalThread) {
-            return ((FastThreadLocalThread) thread).getThreadLocal();
-        } else {
-            FastThreadLocal l = slowThreadLocal.get();
-            if (l == null) {
-                l = new FastThreadLocal();
-                slowThreadLocal.set(l);
-            }
-            return l;
-        }
-    }
-
-    public static int nextIndexedVariablesIndex() {
-        if (indexedVarsIndex.get() >= maxIndexedVarsSize) {
-            return -1;
-        }
-        int index = indexedVarsIndex.getAndIncrement();
-        if (index >= maxIndexedVarsSize) {
-            return -1;
-        }
-        return index;
     }
 
 }

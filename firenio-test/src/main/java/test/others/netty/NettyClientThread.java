@@ -30,8 +30,7 @@ public class NettyClientThread {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
                     ChannelPipeline pipeline = ch.pipeline();
-                    pipeline.addLast("frameDecoder",
-                            new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
+                    pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
                     pipeline.addLast("frameEncoder", new LengthFieldPrepender(4));
                     pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
                     pipeline.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
@@ -50,8 +49,8 @@ public class NettyClientThread {
 
             System.out.println("channel is active :" + channel.isActive() + ",channel:" + channel);
 
-            int len = 1024 * 64;
-            StringBuilder s = new StringBuilder(len);
+            int           len = 1024 * 64;
+            StringBuilder s   = new StringBuilder(len);
             for (int i = 0; i < len; i++) {
                 s.append(len % 10);
             }
@@ -61,7 +60,7 @@ public class NettyClientThread {
                 @Override
                 public void run() {
                     int i = 0;
-                    for (;;) {
+                    for (; ; ) {
                         //						String s = "hello Service! ---> :" + i;
                         ChannelFuture f = channel.writeAndFlush(msg);
                         Util.sleep(1);

@@ -40,8 +40,7 @@ public class NettyClient {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
                     ChannelPipeline pipeline = ch.pipeline();
-                    pipeline.addLast("frameDecoder",
-                            new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
+                    pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
                     pipeline.addLast("frameEncoder", new LengthFieldPrepender(4));
                     pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
                     pipeline.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
@@ -57,14 +56,14 @@ public class NettyClient {
 
             System.out.println(f.isSuccess());
 
-            AttributeKey<String> key = AttributeKey.valueOf("test");
-            Channel channel = f.channel();
+            AttributeKey<String> key     = AttributeKey.valueOf("test");
+            Channel              channel = f.channel();
             channel.attr(key).set("999999999999");
 
             System.out.println("channel is active :" + channel.isActive() + ",channel:" + channel);
 
             for (int i = 0; i < time; i++) {
-                String s = "hello Service! ---> :" + i;
+                String        s  = "hello Service! ---> :" + i;
                 ChannelFuture f1 = channel.writeAndFlush(s);
                 f1.isDone();
             }
@@ -77,8 +76,7 @@ public class NettyClient {
 
             long spend = (System.currentTimeMillis() - old);
             System.out.println("## Execute Time:" + time);
-            System.out.println("## OP/S:" + new BigDecimal(time * 1000)
-                    .divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP));
+            System.out.println("## OP/S:" + new BigDecimal(time * 1000).divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP));
             System.out.println("## Expend Time:" + spend);
 
             f.channel().closeFuture().sync();

@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,6 @@ import com.firenio.common.Assert;
 
 /**
  * @author wangkai
- *
  */
 public class TestIntMap {
 
@@ -38,7 +37,7 @@ public class TestIntMap {
     public void before() {
         Random r = new Random();
         for (int i = 0; i < 1000; i++) {
-            int k = r.nextInt(Integer.MAX_VALUE);
+            int    k = r.nextInt(Integer.MAX_VALUE);
             String v = String.valueOf(k);
             map.put(k, v);
             list.add(k);
@@ -58,24 +57,24 @@ public class TestIntMap {
     @Test
     public void testScan() {
         int i = 0;
-        for (map.scan(); map.hasNext();) {
+        for (map.scan(); map.hasNext(); ) {
             i++;
             Integer k = map.nextKey();
-            String v = map.value();
+            String  v = map.value();
             Assert.expectTrue(v.equals(String.valueOf(k)));
             Assert.expectTrue(list.contains(k));
         }
         Assert.expectTrue(i == list.size());
     }
-    
+
     @Test
     public void testRemove() {
-        int i = 0;
+        int i    = 0;
         int size = list.size();
-        for (map.scan(); map.hasNext();) {
+        for (map.scan(); map.hasNext(); ) {
             i++;
             Integer k = map.nextKey();
-            String v = map.value();
+            String  v = map.value();
             Assert.expectTrue(v.equals(String.valueOf(k)));
             Assert.expectTrue(list.contains(k));
             if (k % 2 == 0) {

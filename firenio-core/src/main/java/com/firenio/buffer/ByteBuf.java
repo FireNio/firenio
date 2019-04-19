@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,16 +25,58 @@ import com.firenio.common.Unsafe;
 public abstract class ByteBuf implements Releasable {
 
     static final boolean                            AUTO_EXPANSION;
-    static final ByteBuf                            EMPTY;
     static final AtomicIntegerFieldUpdater<ByteBuf> refCntUpdater;
 
     static {
-        EMPTY = new EmptyByteBuf();
         AUTO_EXPANSION = Options.isBufAutoExpansion();
         refCntUpdater = AtomicIntegerFieldUpdater.newUpdater(ByteBuf.class, "referenceCount");
     }
 
     protected volatile int referenceCount = 0;
+
+    static void copy(byte[] src, int srcPos, byte[] dst, int dstPos, int len) {
+        System.arraycopy(src, srcPos, dst, dstPos, len);
+    }
+
+    static void copy(byte[] src, int srcPos, long dst, int len) {
+        Unsafe.copyFromArray(src, srcPos, dst, len);
+    }
+
+    static void copy(long src, byte[] dst, int dstPos, int len) {
+        Unsafe.copyToArray(src, dst, dstPos, len);
+    }
+
+    static void copy(long src, long dst, int len) {
+        Unsafe.copyMemory(src, dst, len);
+    }
+
+    public static ByteBuf direct(int cap) {
+        return wrap(ByteBuffer.allocateDirect(cap));
+    }
+
+    public static ByteBuf empty() {
+        return UnpooledHeapByteBuf.EmptyByteBuf.EMPTY;
+    }
+
+    public static ByteBuf heap(int cap) {
+        return wrap(new byte[cap]);
+    }
+
+    public static ByteBuf wrap(byte[] data) {
+        return wrap(data, 0, data.length);
+    }
+
+    public static ByteBuf wrap(byte[] data, int offset, int length) {
+        return new UnpooledHeapByteBuf(data, offset, length);
+    }
+
+    public static ByteBuf wrap(ByteBuffer buffer) {
+        if (buffer.isDirect()) {
+            return new UnpooledDirectByteBuf(buffer);
+        } else {
+            return new UnpooledHeapByteBuf(buffer);
+        }
+    }
 
     public abstract byte absByte(int pos);
 
@@ -51,7 +93,7 @@ public abstract class ByteBuf implements Releasable {
         if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
             return;
         }
-        for (;;) {
+        for (; ; ) {
             referenceCount = this.referenceCount;
             if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
                 break;
@@ -73,10 +115,10 @@ public abstract class ByteBuf implements Releasable {
 
     final void ensureWritable(int len) {
         if (AUTO_EXPANSION && len > remaining()) {
-            int cap = capacity();
+            int cap     = capacity();
             int wantCap = capacity() + len;
-            int newCap = cap + (cap >> 1);
-            for (; newCap < wantCap;) {
+            int newCap  = cap + (cap >> 1);
+            for (; newCap < wantCap; ) {
                 newCap = newCap + (newCap >> 1);
             }
             expansion(newCap);
@@ -247,11 +289,15 @@ public abstract class ByteBuf implements Releasable {
 
     public abstract int lastIndexOf(byte b, int absPos, int size);
 
+    //---------------------------------put byte---------------------------------//
+
     public abstract int limit();
 
     public abstract ByteBuf limit(int limit);
 
     public abstract ByteBuf markL();
+
+    //---------------------------------put bytes---------------------------------//
 
     public abstract ByteBuf markP();
 
@@ -271,8 +317,6 @@ public abstract class ByteBuf implements Releasable {
         return this;
     }
 
-    //---------------------------------put byte---------------------------------//
-
     public void putByte(byte b) {
         ensureWritable(1);
         putByte0(b);
@@ -282,11 +326,11 @@ public abstract class ByteBuf implements Releasable {
 
     protected abstract void putByte0(byte b);
 
-    //---------------------------------put bytes---------------------------------//
-
     public void putBytes(byte[] src) {
         putBytes(src, 0, src.length);
     }
+
+    //---------------------------------put int---------------------------------//
 
     public int putBytes(byte[] src, int offset, int length) {
         if (AUTO_EXPANSION) {
@@ -334,6 +378,8 @@ public abstract class ByteBuf implements Releasable {
 
     protected abstract int putBytes0(byte[] src, int offset, int length);
 
+    //---------------------------------put long---------------------------------//
+
     protected int putBytes0(ByteBuf src, int len) {
         if (AUTO_EXPANSION) {
             ensureWritable(len);
@@ -362,14 +408,14 @@ public abstract class ByteBuf implements Releasable {
 
     protected abstract int putBytes00(ByteBuffer src, int len);
 
-    //---------------------------------put int---------------------------------//
-
     public void putInt(int value) {
         ensureWritable(4);
         putInt0(value);
     }
 
     public abstract void putInt(int index, int value);
+
+    //---------------------------------put double---------------------------------//
 
     protected abstract void putInt0(int value);
 
@@ -382,7 +428,7 @@ public abstract class ByteBuf implements Releasable {
 
     protected abstract void putIntLE0(int value);
 
-    //---------------------------------put long---------------------------------//
+    //---------------------------------put float---------------------------------//
 
     public abstract void putLong(int index, long value);
 
@@ -395,14 +441,14 @@ public abstract class ByteBuf implements Releasable {
 
     public abstract void putLongLE(int index, long value);
 
+    //---------------------------------put short---------------------------------//
+
     public void putLongLE(long value) {
         ensureWritable(8);
         putLongLE0(value);
     }
 
     protected abstract void putLongLE0(long value);
-
-    //---------------------------------put double---------------------------------//
 
     public void putDouble(int index, double value) {
         putLong(index, Double.doubleToRawLongBits(value));
@@ -420,8 +466,6 @@ public abstract class ByteBuf implements Releasable {
         putLongLE(Double.doubleToRawLongBits(value));
     }
 
-    //---------------------------------put float---------------------------------//
-
     public void putFloat(int index, float value) {
         putInt(index, Float.floatToRawIntBits(value));
     }
@@ -437,8 +481,6 @@ public abstract class ByteBuf implements Releasable {
     public void putFloatLE(float value) {
         putIntLE(Float.floatToRawIntBits(value));
     }
-
-    //---------------------------------put short---------------------------------//
 
     public void putShort(int value) {
         ensureWritable(2);
@@ -470,7 +512,7 @@ public abstract class ByteBuf implements Releasable {
             }
             return;
         }
-        for (;;) {
+        for (; ; ) {
             referenceCount = this.referenceCount;
             if (referenceCount < 1) {
                 return;
@@ -520,67 +562,5 @@ public abstract class ByteBuf implements Releasable {
     }
 
     protected void unitOffset(int unitOffset) {}
-
-    static final class EmptyByteBuf extends UnpooledHeapByteBuf {
-
-        EmptyByteBuf() {
-            super(new byte[] {}, 0, 0);
-        }
-
-        @Override
-        public ByteBuf duplicate() {
-            return this;
-        }
-
-        @Override
-        public boolean isReleased() {
-            return true;
-        }
-
-    }
-
-    static void copy(byte[] src, int srcPos, byte[] dst, int dstPos, int len) {
-        System.arraycopy(src, srcPos, dst, dstPos, len);
-    }
-
-    static void copy(byte[] src, int srcPos, long dst, int len) {
-        Unsafe.copyFromArray(src, srcPos, dst, len);
-    }
-
-    static void copy(long src, byte[] dst, int dstPos, int len) {
-        Unsafe.copyToArray(src, dst, dstPos, len);
-    }
-
-    static void copy(long src, long dst, int len) {
-        Unsafe.copyMemory(src, dst, len);
-    }
-
-    public static ByteBuf direct(int cap) {
-        return wrap(ByteBuffer.allocateDirect(cap));
-    }
-
-    public static final ByteBuf empty() {
-        return EMPTY;
-    }
-
-    public static ByteBuf heap(int cap) {
-        return wrap(new byte[cap]);
-    }
-
-    public static ByteBuf wrap(byte[] data) {
-        return wrap(data, 0, data.length);
-    }
-
-    public static ByteBuf wrap(byte[] data, int offset, int length) {
-        return new UnpooledHeapByteBuf(data, offset, length);
-    }
-
-    public static ByteBuf wrap(ByteBuffer buffer) {
-        if (buffer.isDirect()) {
-            return new UnpooledDirectByteBuf(buffer);
-        } else {
-            return new UnpooledHeapByteBuf(buffer);
-        }
-    }
 
 }

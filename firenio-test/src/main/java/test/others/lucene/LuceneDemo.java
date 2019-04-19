@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,19 +41,18 @@ import com.firenio.log.DebugUtil;
 
 public class LuceneDemo {
 
-    public static List<Item> searchIndexer(Analyzer analyzer, IndexSearcher searcher,
-            String keyword) {
-        List<Item> result = new ArrayList<Item>();
+    public static List<Item> searchIndexer(Analyzer analyzer, IndexSearcher searcher, String keyword) {
+        List<Item> result = new ArrayList<>();
         try {
             // 对多field进行搜索
-            String[] multiFields = new String[] { "id", "title", "content" };
-            MultiFieldQueryParser parser = new MultiFieldQueryParser(multiFields, analyzer);
+            String[]              multiFields = new String[]{"id", "title", "content"};
+            MultiFieldQueryParser parser      = new MultiFieldQueryParser(multiFields, analyzer);
             // 设定具体的搜索词
-            Query query = parser.parse(keyword);
-            ScoreDoc[] hits = searcher.search(query, 10).scoreDocs;
+            Query      query = parser.parse(keyword);
+            ScoreDoc[] hits  = searcher.search(query, 10).scoreDocs;
             for (int i = 0; i < hits.length; i++) {
                 Document hitDoc = searcher.doc(hits[i].doc);
-                Item item = new Item();
+                Item     item   = new Item();
                 item.setId(hitDoc.get("id"));
                 item.setContent(hitDoc.get("content"));
                 result.add(item);
@@ -67,7 +66,7 @@ public class LuceneDemo {
 
     static void createIndex(IndexWriter writer) throws IOException {
         writer.deleteAll();
-        List<Item> items = new ArrayList<Item>();
+        List<Item> items = new ArrayList<>();
         items.add(new Item("1", "This is the text to be greatly indexed."));
         items.add(new Item("2", "This is great."));
         items.add(new Item("3", "I love apple and pear. "));
@@ -77,8 +76,8 @@ public class LuceneDemo {
         try {
             // 将文档信息存入索引
             for (int i = 0; i < items.size(); i++) {
-                Item item = items.get(i);
-                Document doc = new Document();
+                Item     item = items.get(i);
+                Document doc  = new Document();
                 doc.add(new Field("id", item.getId(), TextField.TYPE_STORED));
                 doc.add(new Field("content", item.getContent(), TextField.TYPE_STORED));
                 writer.addDocument(doc);
@@ -90,16 +89,16 @@ public class LuceneDemo {
 
     public static void main(String[] args) throws Exception {
         // 索引存储到硬盘
-        File file = new File("c:/temp/lucene");
-        Analyzer analyzer = new StandardAnalyzer();
+        File      file      = new File("c:/temp/lucene");
+        Analyzer  analyzer  = new StandardAnalyzer();
         Directory directory = FSDirectory.open(file.toPath());
         // create index
         IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(analyzer));
         createIndex(writer);
         // search index
-        DirectoryReader reader = DirectoryReader.open(directory);
-        IndexSearcher searcher = new IndexSearcher(reader);
-        List<Item> result = searchIndexer(analyzer, searcher, "chinese");
+        DirectoryReader reader   = DirectoryReader.open(directory);
+        IndexSearcher   searcher = new IndexSearcher(reader);
+        List<Item>      result   = searchIndexer(analyzer, searcher, "chinese");
         for (Item item : result) {
             System.out.println(item.toString());
         }

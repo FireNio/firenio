@@ -12,7 +12,6 @@ import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
 
 /**
- * 
  * @author qianj
  * @version 1.0.0 @2011-4-21 下午09:34:15
  */
@@ -47,19 +46,14 @@ public class SqliteTest {
                 System.out.println("表存在");
             } else {
                 Statement stmt = conn.createStatement();
-                String createSql = "create table student (id int primary key," + "v01 varchar(32),"
-                        + "v02 varchar(32)," + "v03 varchar(32)," + "v04 varchar(32),"
-                        + "v05 varchar(32)," + "v06 varchar(32)," + "v07 varchar(32),"
-                        + "v08 varchar(32)," + "v09 varchar(32)," + "v10 varchar(32),"
-                        + "v11 varchar(32)," + "v12 varchar(32)," + "v13 varchar(32),"
-                        + "v14 varchar(32)," + "v15 varchar(32)," + "v16 varchar(32));";
+                String createSql = "create table student (id int primary key," + "v01 varchar(32)," + "v02 varchar(32)," + "v03 varchar(32)," + "v04 varchar(32)," + "v05 varchar(32)," + "v06 varchar(32)," + "v07 varchar(32)," + "v08 varchar(32)," + "v09 varchar(32)," + "v10 varchar(32)," + "v11 varchar(32)," + "v12 varchar(32)," + "v13 varchar(32)," + "v14 varchar(32)," + "v15 varchar(32)," + "v16 varchar(32));";
                 stmt.executeUpdate(createSql);
                 stmt.close();
             }
 
             {
-                String deleteSql = "delete from student where 1=1";
-                PreparedStatement stmt = conn.prepareStatement(deleteSql);
+                String            deleteSql = "delete from student where 1=1";
+                PreparedStatement stmt      = conn.prepareStatement(deleteSql);
                 stmt.executeUpdate();
                 stmt.close();
                 conn.commit();
@@ -69,17 +63,16 @@ public class SqliteTest {
                 Util.exec(() -> {
 
                     try {
-                        String sql = "select * from student order by id desc limit 0,20 ";
-                        PreparedStatement s = conn.prepareStatement(sql);
-                        for (;;) {
+                        String            sql = "select * from student order by id desc limit 0,20 ";
+                        PreparedStatement s   = conn.prepareStatement(sql);
+                        for (; ; ) {
                             ResultSet rs = s.executeQuery();
-                            int i = 0;
+                            int       i  = 0;
                             while (rs.next()) {
                                 if (i++ == 5) {
                                     break;
                                 }
-                                logger.info("query res , id : {},v1:{}", rs.getInt("id"),
-                                        rs.getString("v01"));
+                                logger.info("query res , id : {},v1:{}", rs.getInt("id"), rs.getString("v01"));
                             }
                             rs.close();
                             logger.info("selected :" + sql);
@@ -93,7 +86,7 @@ public class SqliteTest {
 
             {
                 Util.exec(() -> {
-                    for (;;) {
+                    for (; ; ) {
                         try {
                             conn.commit();
                             logger.info("commited");
@@ -107,13 +100,10 @@ public class SqliteTest {
             }
 
             {
-                String insertSql = "insert into student (" + "id," + "v01," + "v02," + "v03,"
-                        + "v04," + "v05," + "v06," + "v07," + "v08," + "v09," + "v10," + "v11,"
-                        + "v12," + "v13," + "v14," + "v15," + "v16)"
-                        + " values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                String insertSql = "insert into student (" + "id," + "v01," + "v02," + "v03," + "v04," + "v05," + "v06," + "v07," + "v08," + "v09," + "v10," + "v11," + "v12," + "v13," + "v14," + "v15," + "v16)" + " values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
                 PreparedStatement stmt = conn.prepareStatement(insertSql);
 
-                int count = 1024 * 1024 * 1;
+                int  count = 1024 * 1024 * 1;
                 long start = System.currentTimeMillis();
                 for (int i = 0; i < count; i++) {
                     String v = Integer.toString(i);

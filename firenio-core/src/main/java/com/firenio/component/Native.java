@@ -18,38 +18,37 @@ public class Native {
     //gcc -shared -g -fPIC -m64 -o obj/Native.o src/Native.cpp
     //gcc -shared -fPIC -m64 -o obj/Native.o src/Native.cpp
 
-    private static final Logger  logger = LoggerFactory.getLogger(Native.class);
-
-    public static final boolean  EPOLL_AVAIABLE;
-    public static final int      EPOLLERR;
-    public static final int      EPOLLET;
-    public static final int      EPOLLIN;
-    public static final int      EPOLLIN_ET;
-    public static final int      EPOLLIN_OUT;
-    public static final int      EPOLLIN_OUT_ET;
-    public static final int      EPOLLOUT;
-    public static final int      EPOLLOUT_ET;
-    public static final int      EPOLLHUP;
-    public static final int      EPOLLRDHUP;
-    public static final String[] ERRORS;
-    public static final boolean  IS_LINUX;
-    public static final int      SIZEOF_EPOLL_EVENT;
-    public static final int      SIZEOF_SOCKADDR_IN;
+    public static final  boolean  EPOLL_AVAILABLE;
+    public static final  int      EPOLL_ERR;
+    public static final  int      EPOLL_ET;
+    public static final  int      EPOLL_IN;
+    public static final  int      EPOLL_IN_ET;
+    public static final  int      EPOLL_IN_OUT;
+    public static final  int      EPOLL_IN_OUT_ET;
+    public static final  int      EPOLL_OUT;
+    public static final  int      EPOLL_OUT_ET;
+    public static final  int      EPOLL_HUP;
+    public static final  int      EPOLL_RD_HUP;
+    public static final  String[] ERRORS;
+    public static final  boolean  IS_LINUX;
+    public static final  int      SIZEOF_EPOLL_EVENT;
+    public static final  int      SIZEOF_SOCK_ADDR_IN;
+    private static final Logger   logger = LoggerFactory.getLogger(Native.class);
 
     static {
-        EPOLLET = 1 << 31;
-        EPOLLIN = 1 << 0;
-        EPOLLOUT = 1 << 2;
-        EPOLLERR = 1 << 3;
-        EPOLLHUP = 1 << 4;
-        EPOLLRDHUP = 1 << 13;
-        EPOLLIN_OUT = EPOLLIN | EPOLLOUT;
-        EPOLLIN_ET = EPOLLIN | EPOLLET;
-        EPOLLOUT_ET = EPOLLOUT | EPOLLET;
-        EPOLLIN_OUT_ET = EPOLLIN_ET | EPOLLOUT_ET;
+        EPOLL_ET = 1 << 31;
+        EPOLL_IN = 1 << 0;
+        EPOLL_OUT = 1 << 2;
+        EPOLL_ERR = 1 << 3;
+        EPOLL_HUP = 1 << 4;
+        EPOLL_RD_HUP = 1 << 13;
+        EPOLL_IN_OUT = EPOLL_IN | EPOLL_OUT;
+        EPOLL_IN_ET = EPOLL_IN | EPOLL_ET;
+        EPOLL_OUT_ET = EPOLL_OUT | EPOLL_ET;
+        EPOLL_IN_OUT_ET = EPOLL_IN_ET | EPOLL_OUT_ET;
         IS_LINUX = isLinux();
-        EPOLL_AVAIABLE = IS_LINUX && tryLoadEpoll();
-        if (EPOLL_AVAIABLE) {
+        EPOLL_AVAILABLE = IS_LINUX && tryLoadEpoll();
+        if (EPOLL_AVAILABLE) {
             ERRORS = new String[256];
             byte[] temp = new byte[1024];
             for (int i = 0; i < ERRORS.length; i++) {
@@ -57,31 +56,31 @@ public class Native {
                 ERRORS[i] = new String(temp, 0, len);
             }
             SIZEOF_EPOLL_EVENT = size_of_epoll_event();
-            SIZEOF_SOCKADDR_IN = size_of_sockaddr_in();
+            SIZEOF_SOCK_ADDR_IN = size_of_sockaddr_in();
         } else {
             SIZEOF_EPOLL_EVENT = -1;
-            SIZEOF_SOCKADDR_IN = -1;
+            SIZEOF_SOCK_ADDR_IN = -1;
             ERRORS = null;
         }
     }
 
     private static boolean tryLoadEpoll() {
-        if (Develop.NATIVE_DEBUG) {
-            logger.info("enable_epoll:" + Options.isEnableEpoll());
-        }
         if (Options.isEnableEpoll()) {
             boolean epollLoaded = false;
-            try {
-                System.load("/home/test/git-rep/jni_epoll/obj/Native.o");
-                epollLoaded = true;
-            } catch (Throwable e) {}
-            if (!epollLoaded) {
+            if (Develop.EPOLL_DEBUG) {
+                logger.info("load epoll from:{}", Develop.EPOLL_PATH);
+                try {
+                    System.load(Develop.EPOLL_PATH);
+                    epollLoaded = true;
+                } catch (Throwable ignore) {
+                }
+            } else {
                 try {
                     loadNative("Native.o");
                     epollLoaded = true;
                 } catch (Throwable e) {
                     if (Develop.NATIVE_DEBUG) {
-                        logger.error("epoll load faild:" + e.getMessage(), e);
+                        logger.error("epoll load failed:" + e.getMessage(), e);
                     }
                 }
             }
@@ -93,20 +92,21 @@ public class Native {
                         return true;
                     }
                     if (Develop.NATIVE_DEBUG) {
-                        logger.error("epoll creat faild:" + Native.errstr());
+                        logger.error("epoll creat failed:" + Native.err_str());
                     }
-                } catch (Throwable e) {}
+                } catch (Throwable e) {
+                }
             }
         }
         return false;
     }
 
     public static int close_event() {
-        return EPOLLERR | EPOLLHUP | EPOLLRDHUP;
+        return EPOLL_ERR | EPOLL_HUP | EPOLL_RD_HUP;
     }
 
-    public static int accept(int epfd, int listenfd, long address) {
-        return printException(accept0(epfd, listenfd, address));
+    public static int accept(int epfd, int listen_fd, long address) {
+        return printException(accept0(epfd, listen_fd, address));
     }
 
     public static int bind(String host, int port, int backlog) {
@@ -149,11 +149,11 @@ public class Native {
 
     public static native int errno();
 
-    public static String errstr() {
-        return errstr(errno());
+    public static String err_str() {
+        return err_str(errno());
     }
 
-    private static String errstr(int errno) {
+    private static String err_str(int errno) {
         if (errno < ERRORS.length) {
             return ERRORS[errno];
         } else {
@@ -174,15 +174,15 @@ public class Native {
     }
 
     private static void loadNative(String name) throws IOException {
-        InputStream in = Native.class.getClassLoader().getResourceAsStream(name);
-        File tmpFile = File.createTempFile(name, ".o");
-        byte[] data = FileUtil.inputStream2ByteArray(in);
+        InputStream in      = Native.class.getClassLoader().getResourceAsStream(name);
+        File        tmpFile = File.createTempFile(name, ".o");
+        byte[]      data    = FileUtil.inputStream2ByteArray(in);
         FileUtil.writeByFile(tmpFile, data);
         System.load(tmpFile.getAbsolutePath());
         tmpFile.deleteOnExit();
     }
 
-    public static final long new_epoll_event_array(int size) {
+    public static long new_epoll_event_array(int size) {
         return Unsafe.allocate(size * SIZEOF_EPOLL_EVENT);
     }
 
@@ -198,7 +198,7 @@ public class Native {
         if (Develop.NATIVE_DEBUG && res == -1) {
             int errno = errno();
             if (errno != 0) {
-                IOException e = new IOException(errstr(errno));
+                IOException e = new IOException(err_str(errno));
                 logger.error(e.getMessage(), e);
             }
         }
@@ -213,14 +213,14 @@ public class Native {
 
     public static int throwException(int res) throws IOException {
         if (res == -1) {
-            throw new IOException(errstr());
+            throw new IOException(err_str());
         }
         return res;
     }
 
     public static int throwRuntimeException(int res) {
         if (res == -1) {
-            throw new RuntimeException(errstr());
+            throw new RuntimeException(err_str());
         }
         return res;
     }
@@ -243,12 +243,12 @@ public class Native {
 
     public static boolean finish_connect(int fd) {
         int type = SocketOptions.SOL_SOCKET >> 16;
-        int res = get_socket_opt0(fd, type, SocketOptions.SO_ERROR & 0xff);
+        int res  = get_socket_opt0(fd, type, SocketOptions.SO_ERROR & 0xff);
         if (res != 0) {
             if (res == -1) {
                 printException(res);
             } else {
-                IOException e = new IOException(errstr(res & 0x7fffffff));
+                IOException e = new IOException(err_str(res & 0x7fffffff));
                 logger.error(e.getMessage(), e);
             }
             return false;
@@ -265,7 +265,7 @@ public class Native {
 
     private static native int set_socket_opt0(int fd, int type, int name, int value);
 
-    private static native int accept0(int epfd, int listenfd, long address);
+    private static native int accept0(int epfd, int listen_fd, long address);
 
     private static native int bind0(String host, int port, int backlog);
 

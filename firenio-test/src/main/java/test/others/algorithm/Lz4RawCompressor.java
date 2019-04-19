@@ -20,23 +20,23 @@ import com.firenio.common.Unsafe;
 
 public final class Lz4RawCompressor {
 
+    public static final  int LAST_LITERAL_SIZE = 5;
+    public static final  int MIN_MATCH;
+    public static final  int SIZE_OF_INT       = 4;
+    public static final  int SIZE_OF_LONG      = 8;
+    public static final  int SIZE_OF_SHORT     = 2;
     private static final int COPY_LENGTH       = 8;
     private static final int HASH_LOG          = 12;
-    public static final int  LAST_LITERAL_SIZE = 5;
     private static final int MATCH_FIND_LIMIT;
     private static final int MAX_DISTANCE      = ((1 << 16) - 1);
     private static final int MAX_INPUT_SIZE    = 0x7E000000;         // 2113929216 bytes
     private static final int MAX_TABLE_SIZE    = (1 << HASH_LOG);
     private static final int MIN_LENGTH;
-    public static final int  MIN_MATCH;
     private static final int MIN_TABLE_SIZE    = 16;
     private static final int ML_BITS           = 4;
     private static final int ML_MASK           = (1 << ML_BITS) - 1;
     private static final int RUN_BITS          = 8 - ML_BITS;
     private static final int RUN_MASK          = (1 << RUN_BITS) - 1;
-    public static final int  SIZE_OF_INT       = 4;
-    public static final int  SIZE_OF_LONG      = 8;
-    public static final int  SIZE_OF_SHORT     = 2;
     private static final int SKIP_TRIGGER      = 6;                  // Increase this value ==> compression run slower on incompressible data 
 
     static {
@@ -48,63 +48,7 @@ public final class Lz4RawCompressor {
 
     private final int[] table = new int[MAX_TABLE_SIZE];
 
-    public int compress(byte[] input, int inputOffset, int inputLength, byte[] output,
-            int outputOffset, int maxOutputLength) {
-        long inputAddress = Unsafe.ARRAY_BASE_OFFSET + inputOffset;
-        long outputAddress = Unsafe.ARRAY_BASE_OFFSET + outputOffset;
-
-        return compress(input, inputAddress, inputLength, output, outputAddress, maxOutputLength,
-                table);
-    }
-
-    public void compress(ByteBuffer input, ByteBuffer output) {
-        Object inputBase;
-        long inputAddress;
-        long inputLimit;
-        if (input.isDirect()) {
-            inputBase = null;
-            long address = Unsafe.address(input);
-            inputAddress = address + input.position();
-            inputLimit = address + input.limit();
-        } else if (input.hasArray()) {
-            inputBase = input.array();
-            inputAddress = Unsafe.ARRAY_BASE_OFFSET + input.arrayOffset() + input.position();
-            inputLimit = Unsafe.ARRAY_BASE_OFFSET + input.arrayOffset() + input.limit();
-        } else {
-            throw new IllegalArgumentException(
-                    "Unsupported input ByteBuffer implementation " + input.getClass().getName());
-        }
-
-        Object outputBase;
-        long outputAddress;
-        long outputLimit;
-        if (output.isDirect()) {
-            outputBase = null;
-            long address = Unsafe.address(output);
-            outputAddress = address + output.position();
-            outputLimit = address + output.limit();
-        } else if (output.hasArray()) {
-            outputBase = output.array();
-            outputAddress = Unsafe.ARRAY_BASE_OFFSET + output.arrayOffset() + output.position();
-            outputLimit = Unsafe.ARRAY_BASE_OFFSET + output.arrayOffset() + output.limit();
-        } else {
-            throw new IllegalArgumentException(
-                    "Unsupported output ByteBuffer implementation " + output.getClass().getName());
-        }
-
-        // HACK: Assure JVM does not collect Slice wrappers while compressing, since the
-        // collection may trigger freeing of the underlying memory resulting in a segfault
-        // There is no other known way to signal to the JVM that an object should not be
-        // collected in a block, and technically, the JVM is allowed to eliminate these locks.
-        int written = Lz4RawCompressor.compress(inputBase, inputAddress,
-                (int) (inputLimit - inputAddress), outputBase, outputAddress,
-                outputLimit - outputAddress, table);
-        output.position(output.position() + written);
-    }
-
-    public static int compress(final Object inputBase, final long inputAddress,
-            final int inputLength, final Object outputBase, final long outputAddress,
-            final long maxOutputLength, final int[] table) {
+    public static int compress(final Object inputBase, final long inputAddress, final int inputLength, final Object outputBase, final long outputAddress, final long maxOutputLength, final int[] table) {
         int tableSize = computeTableSize(inputLength);
         Arrays.fill(table, 0, tableSize, 0);
 
@@ -115,16 +59,15 @@ public final class Lz4RawCompressor {
         }
 
         if (maxOutputLength < maxCompressedLength(inputLength)) {
-            throw new IllegalArgumentException(
-                    "Max output length must be larger than " + maxCompressedLength(inputLength));
+            throw new IllegalArgumentException("Max output length must be larger than " + maxCompressedLength(inputLength));
         }
 
-        long input = inputAddress;
+        long input  = inputAddress;
         long output = outputAddress;
 
-        final long inputLimit = inputAddress + inputLength;
+        final long inputLimit     = inputAddress + inputLength;
         final long matchFindLimit = inputLimit - MATCH_FIND_LIMIT;
-        final long matchLimit = inputLimit - LAST_LITERAL_SIZE;
+        final long matchLimit     = inputLimit - LAST_LITERAL_SIZE;
 
         if (inputLength < MIN_LENGTH) {
             output = emitLastLiteral(outputBase, output, inputBase, input, inputLimit - input);
@@ -142,9 +85,9 @@ public final class Lz4RawCompressor {
 
         boolean done = false;
         do {
-            long nextInputIndex = input;
-            int findMatchAttempts = 1 << SKIP_TRIGGER;
-            int step = 1;
+            long nextInputIndex    = input;
+            int  findMatchAttempts = 1 << SKIP_TRIGGER;
+            int  step              = 1;
 
             // find 4-byte match
             long matchIndex;
@@ -156,8 +99,7 @@ public final class Lz4RawCompressor {
                 step = (findMatchAttempts++) >>> SKIP_TRIGGER;
 
                 if (nextInputIndex > matchFindLimit) {
-                    return (int) (emitLastLiteral(outputBase, output, inputBase, anchor,
-                            inputLimit - anchor) - outputAddress);
+                    return (int) (emitLastLiteral(outputBase, output, inputBase, anchor, inputLimit - anchor) - outputAddress);
                 }
 
                 // get position on hash
@@ -166,28 +108,24 @@ public final class Lz4RawCompressor {
 
                 // put position on hash
                 table[hash] = (int) (input - inputAddress);
-            } while (Unsafe.getInt(inputBase, matchIndex) != Unsafe.getInt(inputBase, input)
-                    || matchIndex + MAX_DISTANCE < input);
+            } while (Unsafe.getInt(inputBase, matchIndex) != Unsafe.getInt(inputBase, input) || matchIndex + MAX_DISTANCE < input);
 
             // catch up
-            while ((input > anchor) && (matchIndex > inputAddress) && (Unsafe.getByte(inputBase,
-                    input - 1) == Unsafe.getByte(inputBase, matchIndex - 1))) {
+            while ((input > anchor) && (matchIndex > inputAddress) && (Unsafe.getByte(inputBase, input - 1) == Unsafe.getByte(inputBase, matchIndex - 1))) {
                 --input;
                 --matchIndex;
             }
 
-            int literalLength = (int) (input - anchor);
-            long tokenAddress = output;
+            int  literalLength = (int) (input - anchor);
+            long tokenAddress  = output;
 
             output = emitLiteral(inputBase, outputBase, anchor, literalLength, tokenAddress);
 
             // next match
             while (true) {
                 // find match length
-                int matchLength = count(inputBase, input + MIN_MATCH, matchIndex + MIN_MATCH,
-                        matchLimit);
-                output = emitMatch(outputBase, output, tokenAddress, (short) (input - matchIndex),
-                        matchLength);
+                int matchLength = count(inputBase, input + MIN_MATCH, matchIndex + MIN_MATCH, matchLimit);
+                output = emitMatch(outputBase, output, tokenAddress, (short) (input - matchIndex), matchLength);
 
                 input += matchLength + MIN_MATCH;
 
@@ -200,16 +138,14 @@ public final class Lz4RawCompressor {
                 }
 
                 long position = input - 2;
-                table[hash(Unsafe.getLong(inputBase, position),
-                        mask)] = (int) (position - inputAddress);
+                table[hash(Unsafe.getLong(inputBase, position), mask)] = (int) (position - inputAddress);
 
                 // Test next position
                 int hash = hash(Unsafe.getLong(inputBase, input), mask);
                 matchIndex = inputAddress + table[hash];
                 table[hash] = (int) (input - inputAddress);
 
-                if (matchIndex + MAX_DISTANCE < input || Unsafe.getInt(inputBase,
-                        matchIndex) != Unsafe.getInt(inputBase, input)) {
+                if (matchIndex + MAX_DISTANCE < input || Unsafe.getInt(inputBase, matchIndex) != Unsafe.getInt(inputBase, input)) {
                     input++;
                     nextHash = hash(Unsafe.getLong(inputBase, input), mask);
                     break;
@@ -250,36 +186,31 @@ public final class Lz4RawCompressor {
             matchStart += SIZE_OF_LONG;
         }
 
-        if (current < matchLimit - (SIZE_OF_INT - 1)
-                && Unsafe.getInt(inputBase, matchStart) == Unsafe.getInt(inputBase, current)) {
+        if (current < matchLimit - (SIZE_OF_INT - 1) && Unsafe.getInt(inputBase, matchStart) == Unsafe.getInt(inputBase, current)) {
             current += SIZE_OF_INT;
             matchStart += SIZE_OF_INT;
         }
 
-        if (current < matchLimit - (SIZE_OF_SHORT - 1)
-                && Unsafe.getShort(inputBase, matchStart) == Unsafe.getShort(inputBase, current)) {
+        if (current < matchLimit - (SIZE_OF_SHORT - 1) && Unsafe.getShort(inputBase, matchStart) == Unsafe.getShort(inputBase, current)) {
             current += SIZE_OF_SHORT;
             matchStart += SIZE_OF_SHORT;
         }
 
-        if (current < matchLimit
-                && Unsafe.getByte(inputBase, matchStart) == Unsafe.getByte(inputBase, current)) {
+        if (current < matchLimit && Unsafe.getByte(inputBase, matchStart) == Unsafe.getByte(inputBase, current)) {
             ++current;
         }
 
         return (int) (current - start);
     }
 
-    private static long emitLastLiteral(final Object outputBase, final long outputAddress,
-            final Object inputBase, final long inputAddress, final long length) {
+    private static long emitLastLiteral(final Object outputBase, final long outputAddress, final Object inputBase, final long inputAddress, final long length) {
         long output = encodeRunLength(outputBase, outputAddress, length);
         Unsafe.copyMemory(inputBase, inputAddress, outputBase, output, length);
 
         return output + length;
     }
 
-    private static long emitLiteral(Object inputBase, Object outputBase, long input,
-            int literalLength, long output) {
+    private static long emitLiteral(Object inputBase, Object outputBase, long input, int literalLength, long output) {
         output = encodeRunLength(outputBase, output, literalLength);
 
         final long outputLimit = output + literalLength;
@@ -292,16 +223,14 @@ public final class Lz4RawCompressor {
         return outputLimit;
     }
 
-    private static long emitMatch(Object outputBase, long output, long tokenAddress, short offset,
-            long matchLength) {
+    private static long emitMatch(Object outputBase, long output, long tokenAddress, short offset, long matchLength) {
         // write offset
         Unsafe.putShort(outputBase, output, offset);
         output += SIZE_OF_SHORT;
 
         // write match length
         if (matchLength >= ML_MASK) {
-            Unsafe.putByte(outputBase, tokenAddress,
-                    (byte) (Unsafe.getByte(outputBase, tokenAddress) | ML_MASK));
+            Unsafe.putByte(outputBase, tokenAddress, (byte) (Unsafe.getByte(outputBase, tokenAddress) | ML_MASK));
             long remaining = matchLength - ML_MASK;
             while (remaining >= 510) {
                 Unsafe.putShort(outputBase, output, (short) 0xFFFF);
@@ -314,8 +243,7 @@ public final class Lz4RawCompressor {
             }
             Unsafe.putByte(outputBase, output++, (byte) remaining);
         } else {
-            Unsafe.putByte(outputBase, tokenAddress,
-                    (byte) (Unsafe.getByte(outputBase, tokenAddress) | matchLength));
+            Unsafe.putByte(outputBase, tokenAddress, (byte) (Unsafe.getByte(outputBase, tokenAddress) | matchLength));
         }
 
         return output;
@@ -353,5 +281,53 @@ public final class Lz4RawCompressor {
 
     public static int maxCompressedLength(int sourceLength) {
         return sourceLength + sourceLength / 255 + 16;
+    }
+
+    public int compress(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int maxOutputLength) {
+        long inputAddress  = Unsafe.ARRAY_BASE_OFFSET + inputOffset;
+        long outputAddress = Unsafe.ARRAY_BASE_OFFSET + outputOffset;
+
+        return compress(input, inputAddress, inputLength, output, outputAddress, maxOutputLength, table);
+    }
+
+    public void compress(ByteBuffer input, ByteBuffer output) {
+        Object inputBase;
+        long   inputAddress;
+        long   inputLimit;
+        if (input.isDirect()) {
+            inputBase = null;
+            long address = Unsafe.address(input);
+            inputAddress = address + input.position();
+            inputLimit = address + input.limit();
+        } else if (input.hasArray()) {
+            inputBase = input.array();
+            inputAddress = Unsafe.ARRAY_BASE_OFFSET + input.arrayOffset() + input.position();
+            inputLimit = Unsafe.ARRAY_BASE_OFFSET + input.arrayOffset() + input.limit();
+        } else {
+            throw new IllegalArgumentException("Unsupported input ByteBuffer implementation " + input.getClass().getName());
+        }
+
+        Object outputBase;
+        long   outputAddress;
+        long   outputLimit;
+        if (output.isDirect()) {
+            outputBase = null;
+            long address = Unsafe.address(output);
+            outputAddress = address + output.position();
+            outputLimit = address + output.limit();
+        } else if (output.hasArray()) {
+            outputBase = output.array();
+            outputAddress = Unsafe.ARRAY_BASE_OFFSET + output.arrayOffset() + output.position();
+            outputLimit = Unsafe.ARRAY_BASE_OFFSET + output.arrayOffset() + output.limit();
+        } else {
+            throw new IllegalArgumentException("Unsupported output ByteBuffer implementation " + output.getClass().getName());
+        }
+
+        // HACK: Assure JVM does not collect Slice wrappers while compressing, since the
+        // collection may trigger freeing of the underlying memory resulting in a segfault
+        // There is no other known way to signal to the JVM that an object should not be
+        // collected in a block, and technically, the JVM is allowed to eliminate these locks.
+        int written = Lz4RawCompressor.compress(inputBase, inputAddress, (int) (inputLimit - inputAddress), outputBase, outputAddress, outputLimit - outputAddress, table);
+        output.position(output.position() + written);
     }
 }

@@ -21,7 +21,7 @@ public class TcpServerHandler extends ChannelInboundHandlerAdapter {
         System.out.println("hi 发生异常了:" + cause.getMessage());
         super.exceptionCaught(ctx, cause);
     }
-    
+
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         System.out.println("channelActive>>>>>>>>");

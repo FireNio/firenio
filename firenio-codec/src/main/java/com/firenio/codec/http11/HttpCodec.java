@@ -50,14 +50,14 @@ public class HttpCodec extends ProtocolCodec {
     static final byte        R                         = '\r';
     static final byte        SPACE                     = ' ';
 
-    private final int              blimit;
-    private final byte[][]         cl_bytes = new byte[1024][];
-    private final int              hlimit;
-    private final int              fcache;
-    private final boolean          lite;
-    private final boolean          inline;
-    private final ByteBuffer       cl_buf;
-    private final ByteTree<String> cached_urls;
+    private final int        blimit;
+    private final byte[][]   cl_bytes = new byte[1024][];
+    private final int        hlimit;
+    private final int        fcache;
+    private final boolean    lite;
+    private final boolean    inline;
+    private final ByteBuffer cl_buf;
+    private final ByteTree   cached_urls;
 
     public HttpCodec() {
         this(0);
@@ -83,7 +83,7 @@ public class HttpCodec extends ProtocolCodec {
         this(server, frameCache, 1024 * 8, 1024 * 256, lite, inline, cachedUrls);
     }
 
-    public HttpCodec(String server, int fcache, int hlimit, int blimit, boolean lite, boolean inline, ByteTree<String> cachedUrls) {
+    public HttpCodec(String server, int fcache, int hlimit, int blimit, boolean lite, boolean inline, ByteTree cachedUrls) {
         this.lite = lite;
         this.inline = inline;
         this.hlimit = hlimit;
@@ -108,6 +108,118 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
+    private static String parse_url(ByteBuf src, int url_start, int url_end) {
+        StringBuilder line = FastThreadLocal.get().getStringBuilder();
+        for (int i = url_start; i < url_end; i++) {
+            line.append((char) (src.absByte(i) & 0xff));
+        }
+        return line.toString();
+    }
+
+    static void parse_kv(Map<String, String> map, CharSequence line, int start, int end, char kvSplitor, char eSplitor) {
+        int          state_findKey   = 0;
+        int          state_findValue = 1;
+        int          state           = state_findKey;
+        int          i               = start;
+        int          ks              = start;
+        int          vs              = 0;
+        CharSequence key             = null;
+        CharSequence value           = null;
+        for (; i != end; ) {
+            char c = line.charAt(i++);
+            if (state == state_findKey) {
+                if (c == kvSplitor) {
+                    ks = Util.skip(line, ' ', ks);
+                    key = line.subSequence(ks, i - 1);
+                    state = state_findValue;
+                    vs = i;
+                }
+            } else {
+                if (c == eSplitor) {
+                    vs = Util.skip(line, ' ', vs);
+                    value = line.subSequence(vs, i - 1);
+                    state = state_findKey;
+                    ks = i;
+                    map.put((String) key, (String) value);
+                }
+            }
+        }
+        if (state == state_findValue && end > vs) {
+            map.put((String) key, (String) line.subSequence(vs, end));
+        }
+    }
+
+    protected static void parse_url(HttpFrame f, int skip, CharSequence line) {
+        int index     = Util.indexOf(line, '?');
+        int lastSpace = Util.lastIndexOf(line, ' ');
+        if (index > -1) {
+            parse_kv(f.getRequestParams(), line, index + 1, lastSpace, '=', '&');
+            f.setRequestURL((String) line.subSequence(skip, index));
+        } else {
+            f.setRequestURL((String) line.subSequence(skip, lastSpace));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static List<byte[]> getEncodeBytesArray(FastThreadLocal l) {
+        return (List<byte[]>) l.getList(encode_bytes_arrays_index);
+    }
+
+    private static int read_line(StringBuilder line, ByteBuf src, int abs_pos, int length, int limit) throws IOException {
+        int maybeRead = limit - length;
+        int s_limit   = src.absLimit();
+        int remaining = s_limit - abs_pos;
+        if (remaining > maybeRead) {
+            int i = read_line(line, src, abs_pos, abs_pos + maybeRead);
+            if (i == -1) {
+                throw OVER_LIMIT;
+            }
+            return i;
+        } else {
+            return read_line(line, src, abs_pos, s_limit);
+        }
+    }
+
+    private static int read_line(StringBuilder line, ByteBuf src, int abs_pos, int abs_limit) {
+        for (int i = abs_pos; i < abs_limit; i++) {
+            byte b = src.absByte(i);
+            if (b == N) {
+                line.setLength(line.length() - 1);
+                return i + 1;
+            } else {
+                line.append((char) (b & 0xff));
+            }
+        }
+        return -1;
+    }
+
+    private static int read_line_range(ByteBuf src, int abs_pos, int length, int limit) throws IOException {
+        int maybeRead = limit - length;
+        int s_limit   = src.absLimit();
+        int remaining = s_limit - abs_pos;
+        if (remaining > maybeRead) {
+            int res_p = src.indexOf(N, abs_pos, maybeRead);
+            if (res_p == -1) {
+                throw OVER_LIMIT;
+            }
+            return res_p;
+        } else {
+            return src.indexOf(N, abs_pos, remaining);
+        }
+    }
+
+    private static boolean start_with(ByteBuf src, int ps, int pe, byte[] match) {
+        if (pe - ps < match.length) {
+            return false;
+        }
+        for (int i = 0; i < match.length; i++) {
+            if (src.absByte(ps + i) != match[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     HttpFrame newFrame() {
         return new HttpFrame();
     }
@@ -122,14 +234,6 @@ public class HttpCodec extends ProtocolCodec {
             }
         }
         return newFrame();
-    }
-
-    private static String parse_url(ByteBuf src, int url_start, int url_end) {
-        StringBuilder line = FastThreadLocal.get().getStringBuilder();
-        for (int i = url_start; i < url_end; i++) {
-            line.append((char) (src.absByte(i) & 0xff));
-        }
-        return line.toString();
     }
 
     private int decode_lite(ByteBuf src, HttpFrame f) throws IOException {
@@ -159,7 +263,7 @@ public class HttpCodec extends ProtocolCodec {
                 if (qmark == -1) {
                     String url;
                     if (cached_urls != null) {
-                        url = cached_urls.get(src, url_start, url_len);
+                        url = cached_urls.getString(src, url_start, url_len);
                         if (url == null) {
                             url = parse_url(src, url_start, url_end);
                         }
@@ -331,7 +435,7 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(final Channel ch, Frame frame) throws IOException {
+    public ByteBuf encode(final Channel ch, Frame frame) {
         boolean         inline             = this.inline;
         HttpFrame       f                  = (HttpFrame) frame;
         FastThreadLocal l                  = FastThreadLocal.get();
@@ -479,8 +583,8 @@ public class HttpCodec extends ProtocolCodec {
 
     int onHeaderReadComplete(HttpFrame f) throws IOException {
         int    contentLength = 0;
-        String c_length       = f.getRequestHeader(HttpHeader.Content_Length);
-        String c_type         = f.getRequestHeader(HttpHeader.Content_Type);
+        String c_length      = f.getRequestHeader(HttpHeader.Content_Length);
+        String c_type        = f.getRequestHeader(HttpHeader.Content_Type);
         f.setForm(c_type != null && c_type.startsWith("multipart/form-data;"));
         if (!Util.isNullOrBlank(c_length)) {
             contentLength = Integer.parseInt(c_length);
@@ -496,40 +600,6 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    static void parse_kv(Map<String, String> map, CharSequence line, int start, int end, char kvSplitor, char eSplitor) {
-        int          state_findKey   = 0;
-        int          state_findValue = 1;
-        int          state           = state_findKey;
-        int          count           = end;
-        int          i               = start;
-        int          ks              = start;
-        int          vs              = 0;
-        CharSequence key             = null;
-        CharSequence value           = null;
-        for (; i != count; ) {
-            char c = line.charAt(i++);
-            if (state == state_findKey) {
-                if (c == kvSplitor) {
-                    ks = Util.skip(line, ' ', ks);
-                    key = line.subSequence(ks, i - 1);
-                    state = state_findValue;
-                    vs = i;
-                }
-            } else {
-                if (c == eSplitor) {
-                    vs = Util.skip(line, ' ', vs);
-                    value = line.subSequence(vs, i - 1);
-                    state = state_findKey;
-                    ks = i;
-                    map.put((String) key, (String) value);
-                }
-            }
-        }
-        if (state == state_findValue && end > vs) {
-            map.put((String) key, (String) line.subSequence(vs, end));
-        }
-    }
-
     protected void parse_line_one(HttpFrame f, CharSequence line) {
         if (line.charAt(0) == 'G' && line.charAt(1) == 'E' && line.charAt(2) == 'T') {
             f.setMethod(HttpMethod.GET);
@@ -540,85 +610,14 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    protected static void parse_url(HttpFrame f, int skip, CharSequence line) {
-        int index     = Util.indexOf(line, '?');
-        int lastSpace = Util.lastIndexOf(line, ' ');
-        if (index > -1) {
-            parse_kv(f.getRequestParams(), line, index + 1, lastSpace, '=', '&');
-            f.setRequestURL((String) line.subSequence(skip, index));
-        } else {
-            f.setRequestURL((String) line.subSequence(skip, lastSpace));
-        }
-    }
-
     @Override
     public void release(NioEventLoop eventLoop, Frame frame) {
         eventLoop.release(FRAME_CACHE_KEY, frame);
     }
 
-    @SuppressWarnings("unchecked")
-    static List<byte[]> getEncodeBytesArray(FastThreadLocal l) {
-        return (List<byte[]>) l.getList(encode_bytes_arrays_index);
-    }
-
-    private static int read_line(StringBuilder line, ByteBuf src, int abs_pos, int length, int limit) throws IOException {
-        int maybeRead = limit - length;
-        int s_limit   = src.absLimit();
-        int remaining = s_limit - abs_pos;
-        if (remaining > maybeRead) {
-            int i = read_line(line, src, abs_pos, abs_pos + maybeRead);
-            if (i == -1) {
-                throw OVER_LIMIT;
-            }
-            return i;
-        } else {
-            return read_line(line, src, abs_pos, s_limit);
-        }
-    }
-
-    private static int read_line(StringBuilder line, ByteBuf src, int abs_pos, int abs_limit) {
-        for (int i = abs_pos; i < abs_limit; i++) {
-            byte b = src.absByte(i);
-            if (b == N) {
-                line.setLength(line.length() - 1);
-                return i + 1;
-            } else {
-                line.append((char) (b & 0xff));
-            }
-        }
-        return -1;
-    }
-
     @Override
     protected Object newAttachment() {
         return new HttpAttachment();
-    }
-
-    private static int read_line_range(ByteBuf src, int abs_pos, int length, int limit) throws IOException {
-        int maybeRead = limit - length;
-        int s_limit   = src.absLimit();
-        int remaining = s_limit - abs_pos;
-        if (remaining > maybeRead) {
-            int res_p = src.indexOf(N, abs_pos, maybeRead);
-            if (res_p == -1) {
-                throw OVER_LIMIT;
-            }
-            return res_p;
-        } else {
-            return src.indexOf(N, abs_pos, remaining);
-        }
-    }
-
-    private static boolean start_with(ByteBuf src, int ps, int pe, byte[] match) {
-        if (pe - ps < match.length) {
-            return false;
-        }
-        for (int i = 0; i < match.length; i++) {
-            if (src.absByte(ps + i) != match[i]) {
-                return false;
-            }
-        }
-        return true;
     }
 
 }

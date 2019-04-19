@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -54,14 +54,24 @@ public class NIOServerDemo {
         System.out.println("Server Start----8888:");
     }
 
+    /**
+     * @param args
+     * @throws IOException
+     */
+    public static void main(String[] args) throws IOException {
+        int           port   = 8888;
+        NIOServerDemo server = new NIOServerDemo(port);
+        server.listen();
+    }
+
     // 处理请求
     private void handleKey(SelectionKey selectionKey) throws IOException {
         // 接受请求
         ServerSocketChannel server = null;
-        SocketChannel client = null;
-        String receiveText;
-        String sendText;
-        int count = 0;
+        SocketChannel       client = null;
+        String              receiveText;
+        String              sendText;
+        int                 count  = 0;
         // 测试此键的通道是否已准备好接受新的套接字连接。
         if (selectionKey.isAcceptable()) {
             // 返回为之创建此键的通道。
@@ -108,23 +118,13 @@ public class NIOServerDemo {
             // 选择一组键，并且相应的通道已经打开
             selector.select();
             // 返回此选择器的已选择键集。
-            Set<SelectionKey> selectionKeys = selector.selectedKeys();
-            Iterator<SelectionKey> iterator = selectionKeys.iterator();
+            Set<SelectionKey>      selectionKeys = selector.selectedKeys();
+            Iterator<SelectionKey> iterator      = selectionKeys.iterator();
             while (iterator.hasNext()) {
                 SelectionKey selectionKey = iterator.next();
                 iterator.remove();
                 handleKey(selectionKey);
             }
         }
-    }
-
-    /**
-     * @param args
-     * @throws IOException
-     */
-    public static void main(String[] args) throws IOException {
-        int port = 8888;
-        NIOServerDemo server = new NIOServerDemo(port);
-        server.listen();
     }
 }

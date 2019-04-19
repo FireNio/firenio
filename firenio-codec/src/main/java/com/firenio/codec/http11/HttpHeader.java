@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"),
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,8 +66,9 @@ public enum HttpHeader {
     Warning("Warning"), // 
     WWW_Authenticate("WWW-Authenticate");
 
-    public static final Map<String, HttpHeader> ALL = new HashMap<>();
-    private static final HttpHeader[]           enums;
+    public static final  Map<String, HttpHeader> ALL = new HashMap<>();
+    private static final HttpHeader[]            enums;
+
     static {
         try {
             enums = new HttpHeader[values().length];
@@ -80,19 +81,24 @@ public enum HttpHeader {
             throw new RuntimeException(e);
         }
     }
+
     private final byte[] bytes;
 
-    private final int    id;
+    private final int id;
 
     private final String key;
 
     private final String lowercase;
 
-    private HttpHeader(String key) {
+    HttpHeader(String key) {
         this.key = key;
         this.lowercase = key.toLowerCase();
         this.bytes = key.getBytes();
         this.id = HttpHeaderHelper.HEADER_SEQ.getAndIncrement();
+    }
+
+    public static HttpHeader get(int index) {
+        return enums[index];
     }
 
     public byte[] getBytes() {
@@ -113,11 +119,7 @@ public enum HttpHeader {
 
     @Override
     public String toString() {
-        return key.toString();
-    }
-
-    public static HttpHeader get(int index) {
-        return enums[index];
+        return key;
     }
 
 }

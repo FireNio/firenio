@@ -7,17 +7,16 @@ import com.firenio.common.ByteUtil;
 
 /**
  * @author wangkai
- *
  */
 public class Lz4CompressedOutputStream extends OutputStream {
 
     private Lz4RawCompressor compressor = new Lz4RawCompressor();
 
-    private byte[]           outputBuffer;
+    private byte[] outputBuffer;
 
-    private int              outputBufferLen;
+    private int outputBufferLen;
 
-    private OutputStream     target;
+    private OutputStream target;
 
     public Lz4CompressedOutputStream(OutputStream target) {
         this(target, 1024 * 128);
@@ -42,10 +41,9 @@ public class Lz4CompressedOutputStream extends OutputStream {
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        Lz4RawCompressor compressor = this.compressor;
-        byte[] outputBuffer = this.outputBuffer;
-        int compressedDataLength = compressor.compress(b, off, len, outputBuffer, 4,
-                outputBufferLen);
+        Lz4RawCompressor compressor   = this.compressor;
+        byte[]           outputBuffer = this.outputBuffer;
+        int compressedDataLength = compressor.compress(b, off, len, outputBuffer, 4, outputBufferLen);
         ByteUtil.putInt(outputBuffer, compressedDataLength, 0);
         target.write(outputBuffer, 0, compressedDataLength + 4);
     }

@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -125,20 +125,17 @@ public interface Http2Headers extends Iterable<Entry<String, String>> {
         STATUS(":status");
 
         private static final Set<String> PSEUDO_HEADERS = new HashSet<>();
+
         static {
             for (PseudoHeaderName pseudoHeader : PseudoHeaderName.values()) {
                 PSEUDO_HEADERS.add(pseudoHeader.value());
             }
         }
+
         private final String value;
 
         PseudoHeaderName(String value) {
             this.value = value;
-        }
-
-        public String value() {
-            // Return a slice so that the buffer gets its own reader index.
-            return value;
         }
 
         /**
@@ -147,6 +144,11 @@ public interface Http2Headers extends Iterable<Entry<String, String>> {
          */
         public static boolean isPseudoHeader(String header) {
             return PSEUDO_HEADERS.contains(header);
+        }
+
+        public String value() {
+            // Return a slice so that the buffer gets its own reader index.
+            return value;
         }
     }
 }

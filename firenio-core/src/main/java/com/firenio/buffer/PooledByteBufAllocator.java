@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,15 +33,14 @@ import com.firenio.common.Util;
 
 /**
  * @author wangkai
- *
  */
 public final class PooledByteBufAllocator extends ByteBufAllocator {
 
     public static final Map<ByteBuf, BufDebug> BUF_DEBUGS;
-    static final int                           BYTEBUF_BUFFER    = 1024 * 8;
-    static final boolean                       BYTEBUF_RECYCLE   = Options.isBufRecycle();
-    static final boolean                       ENABLE_UNSAFE_BUF = Options.isEnableUnsafeBuf();
     public static final ByteBufException       EXPANSION_FAILED  = EXPANSION_FAILED();
+    static final        int                    BYTEBUF_BUFFER    = 1024 * 8;
+    static final        boolean                BYTEBUF_RECYCLE   = Options.isBufRecycle();
+    static final        boolean                ENABLE_UNSAFE_BUF = Options.isEnableUnsafeBuf();
 
     static {
         if (Develop.BUF_DEBUG) {
@@ -51,17 +50,17 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         }
     }
 
-    private       long           address = -1;
     private final int[]          blockEnds;
     private final Stack<ByteBuf> bufBuffer;
     private final int            capacity;
-    private       ByteBuffer     directMemory;
     private final BitSet         frees;
-    private       byte[]         heapMemory;
     private final boolean        isDirect;
     private final ReentrantLock  lock    = new ReentrantLock();
-    private       int            mark;
     private final int            unit;
+    private       long           address = -1;
+    private       ByteBuffer     directMemory;
+    private       byte[]         heapMemory;
+    private       int            mark;
 
     public PooledByteBufAllocator(ByteBufAllocatorGroup group) {
         this.unit = group.getUnit();
@@ -76,6 +75,10 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         }
     }
 
+    static ByteBufException EXPANSION_FAILED() {
+        return Util.unknownStackTrace(new ByteBufException(), PooledByteBufAllocator.class, "expansion");
+    }
+
     @Override
     public ByteBuf allocate() {
         return allocate(unit);
@@ -86,8 +89,8 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         if (limit < 1) {
             return null;
         }
-        int size = (limit + unit - 1) / unit;
-        int blockStart;
+        int           size = (limit + unit - 1) / unit;
+        int           blockStart;
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
@@ -117,10 +120,10 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
 
     // FIXME 判断余下的是否足够，否则退出循环
     private int allocate(int start, int end, int size) {
-        int freeSize = 0;
-        int[] blockEnds = this.blockEnds;
-        BitSet frees = this.frees;
-        for (; start < end;) {
+        int    freeSize  = 0;
+        int[]  blockEnds = this.blockEnds;
+        BitSet frees     = this.frees;
+        for (; start < end; ) {
             int pos = start;
             if (!frees.get(pos)) {
                 start = blockEnds[pos];
@@ -128,7 +131,7 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
                 continue;
             }
             if (++freeSize == size) {
-                int blockEnd = pos + 1;
+                int blockEnd   = pos + 1;
                 int blockStart = blockEnd - size;
                 frees.set(blockStart, false);
                 blockEnds[blockStart] = blockEnd;
@@ -141,7 +144,7 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
     }
 
     @Override
-    protected void doStart() throws Exception {
+    protected void doStart() {
         Arrays.fill(blockEnds, 0);
         this.frees.set(0, getCapacity(), true);
         int cap = capacity * unit;
@@ -179,12 +182,12 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
             ReentrantLock lock = this.lock;
             lock.lock();
             try {
-                int size = (cap + unit - 1) / unit;
+                int size       = (cap + unit - 1) / unit;
                 int blockStart = buf.unitOffset();
-                int blockEnd = blockEnds[blockStart];
-                int end = blockStart + size;
-                int i = blockEnd;
-                for (; i < end;) {
+                int blockEnd   = blockEnds[blockStart];
+                int end        = blockStart + size;
+                int i          = blockEnd;
+                for (; i < end; ) {
                     if (!frees.get(i)) {
                         break;
                     }
@@ -208,8 +211,8 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
                         }
                     }
                     int oldOffset = buf.offset();
-                    int oldPos = buf.absPos();
-                    int copy = oldPos - oldOffset;
+                    int oldPos    = buf.absPos();
+                    int copy      = oldPos - oldOffset;
                     buf.produce(pos, blockEnds[pos]);
                     if (ENABLE_UNSAFE_BUF) {
                         Unsafe.copyMemory(address + oldOffset, address + buf.offset(), copy);
@@ -293,18 +296,18 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
     }
 
     private int maxFree() {
-        int free = 0;
+        int free    = 0;
         int maxFree = 0;
         for (int i = 0; i < getCapacity(); i++) {
             if (frees.get(i)) {
                 free++;
             } else {
-                maxFree = Integer.max(maxFree, free);
+                maxFree = Math.max(maxFree, free);
                 i = blockEnds[i] - 1;
                 free = 0;
             }
         }
-        return Integer.max(maxFree, free);
+        return Math.max(maxFree, free);
     }
 
     private ByteBuf newByteBuf() {
@@ -323,23 +326,21 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         if (ENABLE_UNSAFE_BUF) {
             return new PooledUnsafeByteBuf(this, address);
         } else {
-            return isDirect() ? new PooledDirectByteBuf(this, directMemory.duplicate())
-                    : new PooledHeapByteBuf(this, heapMemory);
+            return isDirect() ? new PooledDirectByteBuf(this, directMemory.duplicate()) : new PooledHeapByteBuf(this, heapMemory);
         }
     }
 
     @Override
     public void release(ByteBuf buf) {
-        ByteBuf b = (ByteBuf) buf;
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            frees.set(b.unitOffset());
+            frees.set(buf.unitOffset());
         } finally {
             lock.unlock();
         }
         if (BYTEBUF_RECYCLE) {
-            bufBuffer.push(b);
+            bufBuffer.push(buf);
         }
         if (Develop.BUF_DEBUG && buf.isPooled()) {
             BufDebug d = BUF_DEBUGS.remove(buf);
@@ -353,7 +354,7 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
 
     @Override
     public synchronized String toString() {
-        PoolState s = getState();
+        PoolState     s = getState();
         StringBuilder b = new StringBuilder();
         b.append(getClass().getSimpleName());
         b.append("[memory=");
@@ -400,18 +401,13 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
     }
 
     /**
-     * for debug 
+     * for debug
      */
     public class PoolState {
         public int buf;
         public int free;
         public int memory;
         public int mfree;
-    }
-
-    static ByteBufException EXPANSION_FAILED() {
-        return Util.unknownStackTrace(new ByteBufException(), PooledByteBufAllocator.class,
-                "expansion");
     }
 
 }

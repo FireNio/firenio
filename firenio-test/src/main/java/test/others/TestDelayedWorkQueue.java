@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,22 +20,8 @@ import com.firenio.collection.DelayedQueue.DelayTask;
 
 /**
  * @author wangkai
- *
  */
 public class TestDelayedWorkQueue {
-
-    static class TestDelayTask extends DelayTask {
-
-        public TestDelayTask(long delay) {
-            super(delay - System.currentTimeMillis());
-        }
-
-        @Override
-        public void run() {
-            System.out.println(getDelay());
-        }
-
-    }
 
     public static void main(String[] args) {
         DelayedQueue q = new DelayedQueue();
@@ -48,12 +34,25 @@ public class TestDelayedWorkQueue {
         q.offer(new TestDelayTask(12));
         q.offer(new TestDelayTask(2));
 
-        for (;;) {
+        for (; ; ) {
             DelayTask t = q.poll();
             if (t == null) {
                 break;
             }
             t.run();
+        }
+
+    }
+
+    static class TestDelayTask extends DelayTask {
+
+        public TestDelayTask(long delay) {
+            super(delay - System.currentTimeMillis());
+        }
+
+        @Override
+        public void run() {
+            System.out.println(getDelay());
         }
 
     }

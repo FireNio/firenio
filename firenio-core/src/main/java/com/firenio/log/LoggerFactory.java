@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,14 +20,14 @@ import java.io.IOException;
 
 public class LoggerFactory {
 
-    private static boolean       enableSLF4JLogger = false;
-    private static File          internalLogFile;
-    public static final int      LEVEL_DEBUG       = 4;
-    public static final int      LEVEL_ERROR       = 1;
-    public static final int      LEVEL_INFO        = 3;
-    public static final int      LEVEL_WARN        = 2;
-    private static int           logLevel          = Integer.MAX_VALUE;
-    private static LoggerPrinter printer           = SysLoggerPrinter.get();
+    public static final int           LEVEL_DEBUG       = 4;
+    public static final int           LEVEL_ERROR       = 1;
+    public static final int           LEVEL_INFO        = 3;
+    public static final int           LEVEL_WARN        = 2;
+    private static      boolean       enableSLF4JLogger = false;
+    private static      File          internalLogFile;
+    private static      int           logLevel          = Integer.MAX_VALUE;
+    private static      LoggerPrinter printer           = SysLoggerPrinter.get();
 
     static {
         configure();
@@ -37,7 +37,8 @@ public class LoggerFactory {
         try {
             Class.forName("org.slf4j.LoggerFactory");
             enableSLF4JLogger = true;
-        } catch (ClassNotFoundException e) {}
+        } catch (ClassNotFoundException e) {
+        }
     }
 
     public static File getInternalLogFile() {

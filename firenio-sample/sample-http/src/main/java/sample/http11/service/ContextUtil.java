@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,24 +23,15 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author wangkai
- *
  */
 @Service
 public class ContextUtil implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext = null;
 
-    /***
-     * 当继承了ApplicationContextAware类之后，那么程序在调用
-     * getBean(String)的时候会自动调用该方法，不用自己操作
-     */
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        ContextUtil.applicationContext = applicationContext;
-    }
-
     /**
-     * 如果BeanFactory包含一个与所给名称匹配的bean定义，则返回true 
+     * 如果BeanFactory包含一个与所给名称匹配的bean定义，则返回true
+     *
      * @param name
      * @return boolean
      */
@@ -49,7 +40,8 @@ public class ContextUtil implements ApplicationContextAware {
     }
 
     /**
-     * 如果给定的bean名字在bean定义中有别名，则返回这些别名   
+     * 如果给定的bean名字在bean定义中有别名，则返回这些别名
+     *
      * @param name
      * @return
      * @throws NoSuchBeanDefinitionException
@@ -102,12 +94,22 @@ public class ContextUtil implements ApplicationContextAware {
 
     /**
      * 判断以给定名字注册的bean定义是一个singleton还是一个prototype。
-     * 如果与给定名字相应的bean定义没有被找到，将会抛出一个异常（NoSuchBeanDefinitionException）   
+     * 如果与给定名字相应的bean定义没有被找到，将会抛出一个异常（NoSuchBeanDefinitionException）
+     *
      * @param name
      * @return boolean
      * @throws NoSuchBeanDefinitionException
      */
     public static boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
         return applicationContext.isSingleton(name);
+    }
+
+    /***
+     * 当继承了ApplicationContextAware类之后，那么程序在调用
+     * getBean(String)的时候会自动调用该方法，不用自己操作
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        ContextUtil.applicationContext = applicationContext;
     }
 }

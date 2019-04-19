@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,6 @@ import java.math.BigInteger;
 
 /**
  * @author wangkai
- *
  */
 public class FibonacciSeq {
 
@@ -59,9 +58,9 @@ public class FibonacciSeq {
         for (int i = 0; i < c; i++) {
             System.out.println(fi1(i));
         }
-        long start = System.currentTimeMillis();
-        BigInteger res = fi1(1024 * 1024);
-        long end = System.currentTimeMillis();
+        long       start = System.currentTimeMillis();
+        BigInteger res   = fi1(1024 * 1024);
+        long       end   = System.currentTimeMillis();
         System.out.println("Time;" + (end - start));
         System.out.println(res.toByteArray().length);
     }

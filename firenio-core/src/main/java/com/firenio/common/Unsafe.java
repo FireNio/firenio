@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,29 +24,27 @@ import java.security.PrivilegedExceptionAction;
 
 /**
  * @author wangkai
- *
  */
 @SuppressWarnings("restriction")
 public class Unsafe {
 
-    public static final long             ARRAY_BASE_OFFSET;
-    public static final long             BUFFER_ADDRESS_OFFSET;
-    public static final boolean          ENABLE;
-    public static final boolean          HAS_UNSAFE_ARRAY_OPERATIONS;
-    public static final boolean          HAS_UNSAFE_BYTEBUFFER_OPERATIONS;
+    public static final  long            ARRAY_BASE_OFFSET;
+    public static final  long            BUFFER_ADDRESS_OFFSET;
+    public static final  boolean         ENABLE;
+    public static final  boolean         HAS_UNSAFE_ARRAY_OPERATIONS;
+    public static final  boolean         HAS_UNSAFE_BYTE_BUFFER_OPERATIONS;
+    // This number limits the number of bytes to copy per call to Unsafe's
+    // copyMemory method. A limit is imposed to allow for safe point polling
+    // during a large copy
+    static final long                    UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
     private static final ByteOrder       nativeByteOrder;
     private static final sun.misc.Unsafe UNSAFE;
-
-    // This number limits the number of bytes to copy per call to Unsafe's
-    // copyMemory method. A limit is imposed to allow for safepoint polling
-    // during a large copy
-    static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
 
     static {
         UNSAFE = getUnsafe();
         ENABLE = UNSAFE != null;
         BUFFER_ADDRESS_OFFSET = fieldOffset(field(Buffer.class, "address"));
-        HAS_UNSAFE_BYTEBUFFER_OPERATIONS = supportsUnsafeByteBufferOperations();
+        HAS_UNSAFE_BYTE_BUFFER_OPERATIONS = supportsUnsafeByteBufferOperations();
         HAS_UNSAFE_ARRAY_OPERATIONS = supportsUnsafeArrayOperations();
         ARRAY_BASE_OFFSET = byteArrayBaseOffset();
         nativeByteOrder = detectByteOrder();
@@ -74,32 +72,25 @@ public class Unsafe {
         return HAS_UNSAFE_ARRAY_OPERATIONS ? UNSAFE.arrayBaseOffset(byte[].class) : -1;
     }
 
-    public static final boolean compareAndSwapInt(Object o, long offset, int expected, int val) {
+    public static boolean compareAndSwapInt(Object o, long offset, int expected, int val) {
         return UNSAFE.compareAndSwapInt(o, offset, expected, val);
     }
 
-    public static final boolean compareAndSwapLong(Object o, long offset, int expected, long val) {
+    public static boolean compareAndSwapLong(Object o, long offset, int expected, long val) {
         return UNSAFE.compareAndSwapLong(o, offset, expected, val);
     }
 
-    public static final boolean compareAndSwapObject(Object o, long offset, Object expected,
-            Object val) {
+    public static boolean compareAndSwapObject(Object o, long offset, Object expected, Object val) {
         return UNSAFE.compareAndSwapObject(o, offset, expected, val);
     }
 
     /**
      * Copy from given source array to destination address.
      *
-     * @param   src
-     *          source array
-     * @param   srcBaseOffset
-     *          offset of first element of storage in source array
-     * @param   srcPos
-     *          offset within source array of the first element to read
-     * @param   dstAddr
-     *          destination address
-     * @param   length
-     *          number of bytes to copy
+     * @param src           source array
+     * @param srcPos        offset within source array of the first element to native_read
+     * @param dstAddr       destination address
+     * @param length        number of bytes to copy
      */
     public static void copyFromArray(byte[] src, long srcPos, long dstAddr, long length) {
         long offset = ARRAY_BASE_OFFSET + srcPos;
@@ -124,24 +115,17 @@ public class Unsafe {
         UNSAFE.copyMemory(srcAddress, targetAddress, length);
     }
 
-    public static void copyMemory(Object src, long srcOffset, Object target, long targetOffset,
-            long length) {
+    public static void copyMemory(Object src, long srcOffset, Object target, long targetOffset, long length) {
         UNSAFE.copyMemory(src, srcOffset, target, targetOffset, length);
     }
 
     /**
      * Copy from source address into given destination array.
      *
-     * @param   srcAddr
-     *          source address
-     * @param   dst
-     *          destination array
-     * @param   dstBaseOffset
-     *          offset of first element of storage in destination array
-     * @param   dstPos
-     *          offset within destination array of the first element to write
-     * @param   length
-     *          number of bytes to copy
+     * @param srcAddr       source address
+     * @param dst           destination array
+     * @param dstPos        offset within destination array of the first element to write
+     * @param length        number of bytes to copy
      */
     public static void copyToArray(long srcAddr, Object dst, long dstPos, long length) {
         long offset = ARRAY_BASE_OFFSET + dstPos;
@@ -248,24 +232,24 @@ public class Unsafe {
     private static sun.misc.Unsafe getUnsafe() {
         sun.misc.Unsafe unsafe = null;
         try {
-            unsafe = AccessController
-                    .doPrivileged(new PrivilegedExceptionAction<sun.misc.Unsafe>() {
-                        @Override
-                        public sun.misc.Unsafe run() throws Exception {
-                            Class<sun.misc.Unsafe> k = sun.misc.Unsafe.class;
+            unsafe = AccessController.doPrivileged(new PrivilegedExceptionAction<sun.misc.Unsafe>() {
+                @Override
+                public sun.misc.Unsafe run() throws Exception {
+                    Class<sun.misc.Unsafe> k = sun.misc.Unsafe.class;
 
-                            for (Field f : k.getDeclaredFields()) {
-                                f.setAccessible(true);
-                                Object x = f.get(null);
-                                if (k.isInstance(x)) {
-                                    return k.cast(x);
-                                }
-                            }
-                            // The sun.misc.Unsafe field does not exist.
-                            return null;
+                    for (Field f : k.getDeclaredFields()) {
+                        f.setAccessible(true);
+                        Object x = f.get(null);
+                        if (k.isInstance(x)) {
+                            return k.cast(x);
                         }
-                    });
-        } catch (Throwable e) {}
+                    }
+                    // The sun.misc.Unsafe field does not exist.
+                    return null;
+                }
+            });
+        } catch (Throwable ignored) {
+        }
         return unsafe;
     }
 
@@ -274,13 +258,13 @@ public class Unsafe {
             throw new Error("Unknown byte order");
         return nativeByteOrder;
     }
-    
+
     public static boolean bigOrder() {
         if (nativeByteOrder == null)
             throw new Error("Unknown byte order");
         return nativeByteOrder == ByteOrder.BIG_ENDIAN;
     }
-    
+
     public static boolean littleOrder() {
         if (nativeByteOrder == null)
             throw new Error("Unknown byte order");
@@ -369,8 +353,7 @@ public class Unsafe {
                 clazz.getMethod("putDouble", Object.class, long.class, double.class);
                 clazz.getMethod("getObject", Object.class, long.class);
                 clazz.getMethod("putObject", Object.class, long.class, Object.class);
-                clazz.getMethod("copyMemory", Object.class, long.class, Object.class, long.class,
-                        long.class);
+                clazz.getMethod("copyMemory", Object.class, long.class, Object.class, long.class, long.class);
                 supported = true;
             } catch (Throwable e) {
                 // Do nothing.

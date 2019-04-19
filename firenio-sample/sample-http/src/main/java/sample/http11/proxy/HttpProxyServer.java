@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,7 +43,27 @@ public class HttpProxyServer {
     static final String          CONNECT_RES     = "HTTP/1.1 200 Connection Established\r\n\r\n";
     static final ByteBuf         CONNECT_RES_BUF = ByteBuf.wrap(CONNECT_RES.getBytes());
     static final HttpProxyServer server          = new HttpProxyServer();
-    private ChannelAcceptor      context;
+    private      ChannelAcceptor context;
+
+    public static String parseRequestURL(String url) {
+        if (url.startsWith("http://")) {
+            int index = url.indexOf('/', 8);
+            if (index == -1) {
+                return "/";
+            } else {
+                return url.substring(index);
+            }
+        }
+        return url;
+    }
+
+    public static HttpProxyServer get() {
+        return server;
+    }
+
+    public static void main(String[] args) throws Exception {
+        get().strtup(new NioEventLoopGroup(true), 8088);
+    }
 
     public synchronized void stop() {
         Util.unbind(context);
@@ -61,22 +81,22 @@ public class HttpProxyServer {
                 final HttpFrame f = (HttpFrame) frame;
                 if (f.getMethod() == HttpMethod.CONNECT) {
                     ch_src.writeAndFlush(CONNECT_RES_BUF.duplicate());
-                    HttpProxyAttr s = HttpProxyAttr.get(ch_src);
-                    String[] arr = f.getHost().split(":");
+                    HttpProxyAttr s   = HttpProxyAttr.get(ch_src);
+                    String[]      arr = f.getHost().split(":");
                     s.host = arr[0];
                     s.port = Integer.parseInt(arr[1]);
                     s.handshakeFinished = true;
                 } else {
-                    String host = f.getHost();
-                    String[] arr = host.split(":");
-                    int port = 80;
+                    String   host = f.getHost();
+                    String[] arr  = host.split(":");
+                    int      port = 80;
                     if (arr.length == 2) {
                         port = Integer.parseInt(arr[1]);
                     }
                     if (f.getRequestHeaders().remove(HttpHeader.Proxy_Connection.getId()) == null) {
                         return;
                     }
-                    NioEventLoop el = ch_src.getEventLoop();
+                    NioEventLoop     el      = ch_src.getEventLoop();
                     ChannelConnector context = new ChannelConnector(el, arr[0], port);
                     context.addProtocolCodec(new ClientHttpCodec());
                     context.setIoEventHandle(new IoEventHandle() {
@@ -84,16 +104,13 @@ public class HttpProxyServer {
                         @Override
                         public void accept(Channel ch, Frame frame) throws Exception {
                             ClientHttpFrame res = (ClientHttpFrame) frame;
-                            IntMap<String> hs = res.getResponse_headers();
-                            for (hs.scan(); hs.hasNext();) {
+                            IntMap<String>  hs  = res.getResponse_headers();
+                            for (hs.scan(); hs.hasNext(); ) {
                                 String v = hs.nextValue();
                                 if (v == null) {
                                     continue;
                                 }
-                                if (hs.key() == HttpHeader.Content_Length.getId()
-                                        || hs.key() == HttpHeader.Connection.getId()
-                                        || hs.key() == HttpHeader.Transfer_Encoding.getId()
-                                        || hs.key() == HttpHeader.Content_Encoding.getId()) {
+                                if (hs.key() == HttpHeader.Content_Length.getId() || hs.key() == HttpHeader.Connection.getId() || hs.key() == HttpHeader.Transfer_Encoding.getId() || hs.key() == HttpHeader.Content_Encoding.getId()) {
                                     continue;
                                 }
                                 f.setResponseHeader(hs.key(), v.getBytes());
@@ -138,22 +155,10 @@ public class HttpProxyServer {
         context.bind();
     }
 
-    public static String parseRequestURL(String url) {
-        if (url.startsWith("http://")) {
-            int index = url.indexOf('/', 8);
-            if (index == -1) {
-                return "/";
-            } else {
-                return url.substring(index);
-            }
-        }
-        return url;
-    }
-
     static class HttpProxyAttrListener extends ChannelEventListenerAdapter {
 
         @Override
-        public void channelOpened(Channel ch) throws Exception {
+        public void channelOpened(Channel ch) {
             ch.setAttachment(new HttpProxyAttr());
         }
     }
@@ -165,7 +170,7 @@ public class HttpProxyServer {
             HttpProxyAttr s = HttpProxyAttr.get(ch_src);
             if (s.handshakeFinished) {
                 if (s.connector == null || !s.connector.isConnected()) {
-                    NioEventLoop el = ch_src.getEventLoop();
+                    NioEventLoop     el      = ch_src.getEventLoop();
                     ChannelConnector context = new ChannelConnector(el, s.host, s.port);
                     context.addProtocolCodec(new ProtocolCodec() {
 
@@ -218,9 +223,7 @@ public class HttpProxyServer {
 
         @Override
         protected void parse_line_one(HttpFrame f, CharSequence line) {
-            if (line.charAt(0) == 'C' && line.charAt(1) == 'O' && line.charAt(2) == 'N'
-                    && line.charAt(3) == 'N' && line.charAt(4) == 'E' && line.charAt(5) == 'C'
-                    && line.charAt(6) == 'T' && line.charAt(7) == ' ') {
+            if (line.charAt(0) == 'C' && line.charAt(1) == 'O' && line.charAt(2) == 'N' && line.charAt(3) == 'N' && line.charAt(4) == 'E' && line.charAt(5) == 'C' && line.charAt(6) == 'T' && line.charAt(7) == ' ') {
                 f.setMethod(HttpMethod.CONNECT);
                 parse_url(f, 8, line);
             } else {
@@ -237,11 +240,6 @@ public class HttpProxyServer {
         public String           host;
         public int              port;
 
-        @Override
-        public String toString() {
-            return host + ":" + port;
-        }
-
         public static HttpProxyAttr get(Channel ch) {
             return (HttpProxyAttr) ch.getAttachment();
         }
@@ -249,14 +247,11 @@ public class HttpProxyServer {
         public static void remove(Channel ch) {
             get(ch).connector = null;
         }
-    }
 
-    public static HttpProxyServer get() {
-        return server;
-    }
-
-    public static void main(String[] args) throws Exception {
-        get().strtup(new NioEventLoopGroup(true), 8088);
+        @Override
+        public String toString() {
+            return host + ":" + port;
+        }
     }
 
 }

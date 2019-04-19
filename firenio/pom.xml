@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.firenio</groupId>
 	<artifactId>firenio</artifactId>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 	<name>${project.artifactId}</name>
 	<description>An io framework project based on java nio</description>
 	<url>https://github.com/firenio/firenio</url>

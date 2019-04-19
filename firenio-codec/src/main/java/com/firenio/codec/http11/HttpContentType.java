@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,30 +19,29 @@ import com.firenio.common.Util;
 
 /**
  * @author wangkai
- *
  */
 public class HttpContentType {
 
-    public static final HttpContentType    none;
-    public static final HttpContentType    application_js_utf8;
-    public static final HttpContentType    application_json;
-    public static final HttpContentType    application_stream;
-    public static final HttpContentType    application_urlencoded;
-    public static final HttpContentType    image_gif;
-    public static final HttpContentType    image_icon;
-    public static final HttpContentType    image_jpeg;
-    public static final HttpContentType    image_png;
-    public static final HttpContentType    multipart;
-    public static final HttpContentType    server_firenio;
-    public static final HttpContentType    text_css_utf8;
-    public static final HttpContentType    text_html_utf8;
-    public static final HttpContentType    text_plain;
-    public static final HttpContentType    text_plain_gbk;
-    public static final HttpContentType    text_plain_utf8;
-    public static final HttpContentType    upgrade;
-    public static final HttpContentType    websocket;
-    private static int                     z_index;
+    public static final  HttpContentType   none;
+    public static final  HttpContentType   application_js_utf8;
+    public static final  HttpContentType   application_json;
+    public static final  HttpContentType   application_stream;
+    public static final  HttpContentType   application_urlencoded;
+    public static final  HttpContentType   image_gif;
+    public static final  HttpContentType   image_icon;
+    public static final  HttpContentType   image_jpeg;
+    public static final  HttpContentType   image_png;
+    public static final  HttpContentType   multipart;
+    public static final  HttpContentType   server_firenio;
+    public static final  HttpContentType   text_css_utf8;
+    public static final  HttpContentType   text_html_utf8;
+    public static final  HttpContentType   text_plain;
+    public static final  HttpContentType   text_plain_gbk;
+    public static final  HttpContentType   text_plain_utf8;
+    public static final  HttpContentType   upgrade;
+    public static final  HttpContentType   websocket;
     private static final HttpContentType[] z_enums;
+    private static       int               z_index;
 
     static {
         z_index = 0;
@@ -67,7 +66,7 @@ public class HttpContentType {
         websocket = add("WebSocket");
     }
 
-    private final int    id;
+    private final int id;
 
     private final String value;
 
@@ -89,6 +88,10 @@ public class HttpContentType {
         return z_enums[id];
     }
 
+    public static HttpContentType get(int index) {
+        return z_enums[index];
+    }
+
     public byte[] getLine() {
         return line;
     }
@@ -99,10 +102,6 @@ public class HttpContentType {
 
     public String getValue() {
         return value;
-    }
-
-    public static HttpContentType get(int index) {
-        return z_enums[index];
     }
 
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,20 +25,30 @@ import com.firenio.log.LoggerFactory;
 
 public final class ExecutorEventLoop extends EventLoop {
 
-    private static final Logger     logger = LoggerFactory.getLogger(ExecutorEventLoop.class);
-    private ExecutorEventLoopGroup  group;
-    private BlockingQueue<Runnable> jobs;
-    private WorkThread[]            workThreads;
+    private static final Logger                  logger = LoggerFactory.getLogger(ExecutorEventLoop.class);
+    private              ExecutorEventLoopGroup  group;
+    private              BlockingQueue<Runnable> jobs;
+    private              WorkThread[]            workThreads;
 
     public ExecutorEventLoop(ExecutorEventLoopGroup group) {
         super(group.getEventLoopName());
         this.group = group;
     }
 
+    private static void runJob(Runnable job) {
+        if (job != null) {
+            try {
+                job.run();
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
     @Override
-    protected void doStart() throws Exception {
+    protected void doStart() {
         int eventLoopSize = group.getEventLoopSize();
-        int maxQueueSize = group.getMaxQueueSize() * eventLoopSize;
+        int maxQueueSize  = group.getMaxQueueSize() * eventLoopSize;
         this.jobs = new ArrayBlockingQueue<>(maxQueueSize);
         this.workThreads = new WorkThread[eventLoopSize];
         for (int i = 0; i < eventLoopSize; i++) {
@@ -54,7 +64,7 @@ public final class ExecutorEventLoop extends EventLoop {
         for (int i = 0; i < group.getEventLoopSize(); i++) {
             workThreads[i].stop();
         }
-        for (;;) {
+        for (; ; ) {
             Runnable job = jobs.poll();
             if (job == null) {
                 break;
@@ -97,7 +107,7 @@ public final class ExecutorEventLoop extends EventLoop {
 
         final BlockingQueue<Runnable> jobs;
 
-        volatile boolean              running = true;
+        volatile boolean running = true;
 
         public WorkThread(BlockingQueue<Runnable> jobs) {
             this.jobs = jobs;
@@ -105,10 +115,11 @@ public final class ExecutorEventLoop extends EventLoop {
 
         @Override
         public void run() {
-            for (; running;) {
+            for (; running; ) {
                 try {
                     runJob(jobs.poll(1000, TimeUnit.MILLISECONDS));
-                } catch (InterruptedException e1) {}
+                } catch (InterruptedException e1) {
+                }
             }
         }
 
@@ -116,16 +127,6 @@ public final class ExecutorEventLoop extends EventLoop {
             running = false;
         }
 
-    }
-
-    private static void runJob(Runnable job) {
-        if (job != null) {
-            try {
-                job.run();
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
     }
 
 }

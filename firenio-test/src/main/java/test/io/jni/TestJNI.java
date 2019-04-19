@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,6 @@ import com.firenio.common.FileUtil;
 
 /**
  * @author wangkai
- *
  */
 public class TestJNI {
 
@@ -45,9 +44,9 @@ public class TestJNI {
     public static native int getDirect(ByteBuffer buf, int pos);
 
     static void loadNative(String name) throws IOException {
-        InputStream in = TestJNI.class.getClassLoader().getResourceAsStream(name);
-        File tmpFile = File.createTempFile(name, ".o");
-        byte[] data = FileUtil.inputStream2ByteArray(in);
+        InputStream in      = TestJNI.class.getClassLoader().getResourceAsStream(name);
+        File        tmpFile = File.createTempFile(name, ".o");
+        byte[]      data    = FileUtil.inputStream2ByteArray(in);
         FileUtil.writeByFile(tmpFile, data);
         System.load(tmpFile.getAbsolutePath());
         tmpFile.deleteOnExit();
@@ -70,8 +69,8 @@ public class TestJNI {
 
         System.out.println(add(100, 200));
 
-        byte[] a = new byte[16];
-        int res = put(a, 100, 8);
+        byte[] a   = new byte[16];
+        int    res = put(a, 100, 8);
         System.out.println(res);
         res = get(a, 8);
         System.out.println(res);

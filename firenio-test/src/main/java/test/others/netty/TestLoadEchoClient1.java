@@ -22,22 +22,33 @@ import test.test.ITestThreadHandle;
 
 public class TestLoadEchoClient1 extends ITestThread {
 
-    static final int            core_size = 16;
+    static final         int    core_size = 16;
     private static final byte[] req;
     private static final String reqS;
+
     static {
-        int len = 128;
-        String s = "hello server!";
+        int    len = 128;
+        String s   = "hello server!";
         for (int i = 0; i < len; i++) {
             s += "hello server!";
         }
         reqS = s;
         req = s.getBytes();
     }
+
     private ChannelInboundHandlerAdapter eventHandleAdaptor = null;
     private ChannelFuture                f;
 
-    private EventLoopGroup               group              = new NioEventLoopGroup();
+    private EventLoopGroup group = new NioEventLoopGroup();
+
+    public static void main(String[] args) throws IOException {
+
+        int time = 1024 * 256;
+
+        int core_size = 16;
+
+        ITestThreadHandle.doTest(TestLoadEchoClient1.class, core_size, time / core_size);
+    }
 
     @Override
     public void prepare() throws Exception {
@@ -57,8 +68,7 @@ public class TestLoadEchoClient1 extends ITestThread {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
-                pipeline.addLast("frameDecoder",
-                        new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
+                pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
                 pipeline.addLast("frameEncoder", new LengthFieldPrepender(4));
                 pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
                 pipeline.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
@@ -81,14 +91,5 @@ public class TestLoadEchoClient1 extends ITestThread {
     @Override
     public void stop() {
         group.shutdownGracefully();
-    }
-
-    public static void main(String[] args) throws IOException {
-
-        int time = 1024 * 256;
-
-        int core_size = 16;
-
-        ITestThreadHandle.doTest(TestLoadEchoClient1.class, core_size, time / core_size);
     }
 }
