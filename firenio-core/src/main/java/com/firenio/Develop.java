@@ -23,6 +23,8 @@ import com.firenio.log.Logger;
 public class Develop {
 
     public static final boolean BUF_DEBUG         = DevelopConfig.BUF_DEBUG;
+    public static final boolean EPOLL_DEBUG       = DevelopConfig.EPOLL_DEBUG;
+    public static final String  EPOLL_PATH        = DevelopConfig.EPOLL_PATH;
     public static final boolean NATIVE_DEBUG      = DevelopConfig.NATIVE_DEBUG;
     public static final int     DEBUG_ERROR_LEVEL = Options.getDebugErrorLevel();
 

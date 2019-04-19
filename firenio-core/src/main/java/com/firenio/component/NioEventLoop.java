@@ -470,14 +470,14 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
 
     static final class JavaEventLoop extends NioEventLoop {
 
-        private static final boolean         ENABLE_SELKEY_SET = check_enable_selection_key_set();
+        private static final boolean         ENABLE_SEL_KEY_SET = check_enable_selection_key_set();
         private final        SelectionKeySet selection_key_set;
         private final        Selector        selector;
         private final        ByteBuffer[]    write_buffers;
 
         JavaEventLoop(NioEventLoopGroup group, int index, String threadName) throws IOException {
             super(group, index, threadName);
-            if (ENABLE_SELKEY_SET) {
+            if (ENABLE_SEL_KEY_SET) {
                 this.selection_key_set = new SelectionKeySet(1024);
             } else {
                 this.selection_key_set = null;
@@ -550,7 +550,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
 
         @Override
         void accept(int size) {
-            if (ENABLE_SELKEY_SET) {
+            if (ENABLE_SEL_KEY_SET) {
                 final SelectionKeySet keySet = selection_key_set;
                 for (int i = 0; i < keySet.size; i++) {
                     SelectionKey k = keySet.keys[i];
@@ -817,7 +817,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
             this.iovec = Unsafe.allocate(iovec_len * 16);
             int res = Native.epoll_add(epfd, event_fd, Native.EPOLL_IN_ET);
             if (res == -1) {
-                throw new RuntimeException(Native.errstr());
+                throw new RuntimeException(Native.err_str());
             }
         }
 
@@ -1003,7 +1003,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                 if (add) {
                     Native.close(fd);
                 } else {
-                    ctx.channelEstablish(null, new IOException(Native.errstr()));
+                    ctx.channelEstablish(null, new IOException(Native.err_str()));
                 }
                 return;
             }

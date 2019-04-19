@@ -65,18 +65,16 @@ public class Native {
     }
 
     private static boolean tryLoadEpoll() {
-        if (Develop.NATIVE_DEBUG) {
-            logger.info("enable_epoll:" + Options.isEnableEpoll());
-        }
         if (Options.isEnableEpoll()) {
             boolean epollLoaded = false;
-            try {
-                System.load("/home/test/git-rep/firenio/firenio-epoll/obj/Native.o");
-                epollLoaded = true;
-                logger.info("load epoll from file system");
-            } catch (Throwable e) {
-            }
-            if (!epollLoaded) {
+            if (Develop.EPOLL_DEBUG) {
+                logger.info("load epoll from:{}", Develop.EPOLL_PATH);
+                try {
+                    System.load(Develop.EPOLL_PATH);
+                    epollLoaded = true;
+                } catch (Throwable ignore) {
+                }
+            } else {
                 try {
                     loadNative("Native.o");
                     epollLoaded = true;
@@ -94,7 +92,7 @@ public class Native {
                         return true;
                     }
                     if (Develop.NATIVE_DEBUG) {
-                        logger.error("epoll creat failed:" + Native.errstr());
+                        logger.error("epoll creat failed:" + Native.err_str());
                     }
                 } catch (Throwable e) {
                 }
@@ -151,11 +149,11 @@ public class Native {
 
     public static native int errno();
 
-    public static String errstr() {
-        return errstr(errno());
+    public static String err_str() {
+        return err_str(errno());
     }
 
-    private static String errstr(int errno) {
+    private static String err_str(int errno) {
         if (errno < ERRORS.length) {
             return ERRORS[errno];
         } else {
@@ -200,7 +198,7 @@ public class Native {
         if (Develop.NATIVE_DEBUG && res == -1) {
             int errno = errno();
             if (errno != 0) {
-                IOException e = new IOException(errstr(errno));
+                IOException e = new IOException(err_str(errno));
                 logger.error(e.getMessage(), e);
             }
         }
@@ -215,14 +213,14 @@ public class Native {
 
     public static int throwException(int res) throws IOException {
         if (res == -1) {
-            throw new IOException(errstr());
+            throw new IOException(err_str());
         }
         return res;
     }
 
     public static int throwRuntimeException(int res) {
         if (res == -1) {
-            throw new RuntimeException(errstr());
+            throw new RuntimeException(err_str());
         }
         return res;
     }
@@ -250,7 +248,7 @@ public class Native {
             if (res == -1) {
                 printException(res);
             } else {
-                IOException e = new IOException(errstr(res & 0x7fffffff));
+                IOException e = new IOException(err_str(res & 0x7fffffff));
                 logger.error(e.getMessage(), e);
             }
             return false;
@@ -267,7 +265,7 @@ public class Native {
 
     private static native int set_socket_opt0(int fd, int type, int name, int value);
 
-    private static native int accept0(int epfd, int listenfd, long address);
+    private static native int accept0(int epfd, int listen_fd, long address);
 
     private static native int bind0(String host, int port, int backlog);
 

@@ -21,6 +21,9 @@ package com.firenio;
 public class DevelopConfig {
 
     public static boolean BUF_DEBUG    = false;
+    public static boolean EPOLL_DEBUG  = false;
+    public static String  EPOLL_PATH   = "/home/test/git-rep/firenio/firenio-epoll/obj/Native.o";
     public static boolean NATIVE_DEBUG = false;
+
 
 }

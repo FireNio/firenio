@@ -60,7 +60,7 @@ public abstract class Channel implements Runnable, Closeable {
     public static final int                    SSL_PACKET_LIMIT      = 1024 * 64;
     public static final SSLException           SSL_PACKET_OVER_LIMIT = SSL_PACKET_OVER_LIMIT();
     public static final SSLException           SSL_UNWRAP_OVER_LIMIT = SSL_UNWRAP_OVER_LIMIT();
-    public static final IOException            TAST_REJECT           = TASK_REJECT();
+    public static final IOException            TASK_REJECT           = TASK_REJECT();
 
     protected final    ChannelContext context;
     protected final    long           creation_time = System.currentTimeMillis();
@@ -182,7 +182,7 @@ public abstract class Channel implements Runnable, Closeable {
             }
         };
         if (!executorEventLoop.submit(job)) {
-            exception_caught(f, TAST_REJECT);
+            exception_caught(f, TASK_REJECT);
         }
     }
 
@@ -629,17 +629,17 @@ public abstract class Channel implements Runnable, Closeable {
     }
 
     private void release_wb_array() {
-        final ByteBuf[] cwbs   = this.current_wbs;
-        final int       maxLen = cwbs.length;
+        final ByteBuf[] c_wbs  = this.current_wbs;
+        final int       maxLen = c_wbs.length;
         // 这里有可能是因为异常关闭，currentWriteFrameLen不准确
         // 对所有不为空的frame release
         for (int i = 0; i < maxLen; i++) {
-            ByteBuf buf = cwbs[i];
+            ByteBuf buf = c_wbs[i];
             if (buf == null) {
                 break;
             }
             buf.release();
-            cwbs[i] = null;
+            c_wbs[i] = null;
         }
     }
 
@@ -1044,31 +1044,31 @@ public abstract class Channel implements Runnable, Closeable {
 
         static final boolean ENABLE_FD;
         static final int     INTEREST_WRITE = INTEREST_WRITE();
-        static final Field   S_FD;
-        static final Field   S_FD_FD;
+        static final Field   F_FD;
+        static final Field   F_FD_FD;
 
         static {
-            Field   sfd      = null;
-            Field   sfdfd    = null;
+            Field   f_fd     = null;
+            Field   f_fd_fd  = null;
             boolean enableFd = false;
             try {
                 SocketChannel ch = SocketChannel.open();
-                sfd = ch.getClass().getDeclaredField("fd");
-                if (sfd != null) {
-                    Util.trySetAccessible(sfd);
-                    Object fo = sfd.get(ch);
-                    sfdfd = fo.getClass().getDeclaredField("fd");
-                    if (sfdfd != null) {
-                        Util.trySetAccessible(sfdfd);
-                        Object f2o = sfdfd.get(fo);
+                f_fd = ch.getClass().getDeclaredField("fd");
+                if (f_fd != null) {
+                    Util.trySetAccessible(f_fd);
+                    Object fo = f_fd.get(ch);
+                    f_fd_fd = fo.getClass().getDeclaredField("fd");
+                    if (f_fd_fd != null) {
+                        Util.trySetAccessible(f_fd_fd);
+                        Object f2o = f_fd_fd.get(fo);
                         enableFd = f2o != null;
                     }
 
                 }
             } catch (Throwable ignored) {
             }
-            S_FD = sfd;
-            S_FD_FD = sfdfd;
+            F_FD = f_fd;
+            F_FD_FD = f_fd_fd;
             ENABLE_FD = enableFd;
         }
 
@@ -1084,10 +1084,10 @@ public abstract class Channel implements Runnable, Closeable {
 
         static int getFd(SocketChannel javaChannel) {
             try {
-                Object  fd   = S_FD.get(javaChannel);
-                Integer fdfd = (Integer) S_FD_FD.get(fd);
-                if (fdfd != null) {
-                    return fdfd;
+                Object  fd    = F_FD.get(javaChannel);
+                Integer fd_fd = (Integer) F_FD_FD.get(fd);
+                if (fd_fd != null) {
+                    return fd_fd;
                 } else {
                     return -1;
                 }
