@@ -69,8 +69,7 @@ public class TestLoadServer {
         context.addProtocolCodec(new LengthValueCodec());
         context.setIoEventHandle(eventHandle);
         if (ENABLE_SSL) {
-            context.setEnableSsl(true);
-            context.setSslPem("localhost.crt;localhost.key");
+            context.setSslPem("localhost.key;localhost.crt");
         }
         context.addChannelEventListener(new LoggerChannelOpenListener());
         if (ENABLE_WORK_EVENT_LOOP) {

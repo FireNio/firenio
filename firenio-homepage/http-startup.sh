@@ -4,6 +4,9 @@ mvn clean install -DskipTests
 cd ../firenio-sample/sample-http
 mvn clean package -DskipTests
 
+rm -rf ../../firenio-homepage/app 
+rm -rf ../../firenio-homepage/lib/*.jar 
+
 cp -r -u -v target/classes/app ../../firenio-homepage
 cp -u -v target/sample-http-*-jar-with-dependencies.jar ../../firenio-homepage/app/lib/ 
 cp -u -v ../../firenio-all/target/firenio-all-*-SNAPSHOT.jar ../../firenio-homepage/lib/ 

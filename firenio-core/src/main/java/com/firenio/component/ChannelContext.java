@@ -350,12 +350,12 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
 
                 @Override
                 public void logPing(Channel ch) {
-                    logger.info("heart beat req from: {}", ch);
+                    logger.info("hb req from: {}", ch);
                 }
 
                 @Override
                 public void logPong(Channel ch) {
-                    logger.info("heart beat res from: {}", ch);
+                    logger.info("hb res from: {}", ch);
                 }
             };
         } else {
@@ -376,11 +376,11 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
     }
 
     private void initSslContext(ClassLoader classLoader) throws IOException {
-        if (isEnableSsl() && getSslContext() == null) {
-            SslContextBuilder builder = SslContextBuilder.forServer();
+        if (getSslContext() == null) {
             if (!Util.isNullOrBlank(getSslPem())) {
-                String[] params   = getSslPem().split(";");
-                String   password = null;
+                SslContextBuilder builder  = SslContextBuilder.forServer();
+                String[]          params   = getSslPem().split(";");
+                String            password = null;
                 if (params.length == 3) {
                     password = params[2].trim();
                     if (password.length() == 0) {
@@ -395,11 +395,10 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
                 builder.applicationProtocols(applicationProtocols);
                 SslContext sslContext = builder.build();
                 setSslContext(sslContext);
-                return;
-            }
-            if (!Util.isNullOrBlank(getSslKeystore())) {
-                String   keystoreInfo = getSslKeystore();
-                String[] params       = keystoreInfo.split(";");
+            } else if (!Util.isNullOrBlank(getSslKeystore())) {
+                SslContextBuilder builder      = SslContextBuilder.forServer();
+                String            keystoreInfo = getSslKeystore();
+                String[]          params       = keystoreInfo.split(";");
                 if (params.length != 4) {
                     throw new IllegalArgumentException("sslKeystore config error");
                 }
@@ -409,9 +408,10 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
                 builder.applicationProtocols(applicationProtocols);
                 SslContext sslContext = builder.build();
                 setSslContext(sslContext);
-                return;
             }
-            throw new IllegalArgumentException("ssl enabled,but there is no config for");
+        }
+        if (getPort() == 0) {
+            setPort(isEnableSsl() ? 443 : 80);
         }
     }
 
@@ -428,11 +428,6 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
 
     public boolean isEnableSsl() {
         return enableSsl;
-    }
-
-    public void setEnableSsl(boolean enableSsl) {
-        checkNotRunning();
-        this.enableSsl = enableSsl;
     }
 
     public boolean isPrintConfig() {

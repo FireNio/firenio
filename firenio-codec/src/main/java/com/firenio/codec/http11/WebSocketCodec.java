@@ -51,13 +51,14 @@ import com.firenio.component.ProtocolCodec;
  *   ref: https://tools.ietf.org/html/rfc6455
  * </pre>
  */
-public class WebSocketCodec extends ProtocolCodec {
+public final class WebSocketCodec extends ProtocolCodec {
 
     public static final String      FRAME_STACK_KEY    = "FRAME_WS_STACK_KEY";
     public static final int         HEADER_LENGTH      = 2;
     public static final int         MAX_HEADER_LENGTH  = 10;
     public static final int         MAX_UNSIGNED_SHORT = 0xffff;
     public static final IOException OVER_LIMIT         = EXCEPTION("over limit");
+    public static final IOException ILLEGAL_PROTOCOL   = EXCEPTION("illegal protocol");
     public static final String      PROTOCOL_ID        = "WebSocket";
     public static final byte        TYPE_BINARY        = 2;
     public static final byte        TYPE_CLOSE         = 8;
@@ -65,6 +66,23 @@ public class WebSocketCodec extends ProtocolCodec {
     public static final byte        TYPE_PING          = 9;
     public static final byte        TYPE_PONG          = 10;
     public static final byte        TYPE_TEXT          = 1;
+
+    static final ByteBuf PING;
+    static final ByteBuf PONG;
+
+    static {
+        byte o_h0 = (byte) (1 << 7);
+        byte o_h1 = (byte) (0 << 7);
+
+        PING = ByteBuf.heap(2);
+        PONG = ByteBuf.heap(2);
+        PING.putByte((byte) (o_h0 | TYPE_PING));
+        PING.putByte((byte) (o_h1 | 0));
+        PONG.putByte((byte) (o_h0 | TYPE_PONG));
+        PONG.putByte((byte) (o_h1 | 0));
+        PING.flip();
+        PONG.flip();
+    }
 
     private final int frameStackSize;
     private final int limit;
@@ -88,50 +106,52 @@ public class WebSocketCodec extends ProtocolCodec {
             return null;
         }
         src.markP();
-        byte    b0      = src.getByte();
-        byte    b1      = src.getByte();
-        int     dataLen = 0;
-        boolean hasMask = (b1 & 0b10000000) > 0;
-        if (hasMask) {
-            dataLen += 4;
+        byte    b0       = src.getByte();
+        byte    b1       = src.getByte();
+        int     data_len = 0;
+        boolean has_mask = (b1 & 0b10000000) != 0;
+        if (has_mask) {
+            data_len += 4;
         }
-        int payloadLen = (b1 & 0x7f);
-        if (payloadLen < 126) {
+        int payload_len = (b1 & 0x7f);
+        if (payload_len < 126) {
 
-        } else if (payloadLen == 126) {
-            dataLen += 2;
-            if (src.remaining() < dataLen) {
+        } else if (payload_len == 126) {
+            data_len += 2;
+            if (src.remaining() < data_len) {
                 src.resetP();
                 return null;
             }
-            payloadLen = src.getUnsignedShort();
+            payload_len = src.getUnsignedShort();
         } else {
-            dataLen += 8;
-            if (src.remaining() < dataLen) {
+            data_len += 8;
+            if (src.remaining() < data_len) {
                 src.resetP();
                 return null;
             }
-            payloadLen = (int) src.getLong();
-            if (payloadLen < 0) {
+            payload_len = (int) src.getLong();
+            if (payload_len < 0) {
                 throw OVER_LIMIT;
             }
         }
-        if (payloadLen > limit) {
+        if (payload_len > limit) {
             throw OVER_LIMIT;
         }
-        if (src.remaining() < payloadLen) {
+        if (src.remaining() < payload_len) {
             src.resetP();
             return null;
         }
-        boolean eof  = (b0 & 0b10000000) > 0;
         byte    type = (byte) (b0 & 0xF);
-        if (type == TYPE_PING) {
-            return newWebSocketFrame(ch).setPing();
-        } else if (type == TYPE_PONG) {
-            return newWebSocketFrame(ch).setPong();
+        if (((((1 << TYPE_PING) | (1 << TYPE_PONG)) >> type) & 1) == 1) {
+            if (type == TYPE_PING) {
+                flush_ping(ch, PING.duplicate());
+            } else {
+                flush_pong(ch, PONG.duplicate());
+            }
+            return null;
         }
-        byte[] array = new byte[payloadLen];
-        if (hasMask) {
+        byte[] array = new byte[payload_len];
+        if (has_mask) {
             byte m0 = src.getByte();
             byte m1 = src.getByte();
             byte m2 = src.getByte();
@@ -162,7 +182,7 @@ public class WebSocketCodec extends ProtocolCodec {
             src.getBytes(array);
         }
         WebSocketFrame f = newWebSocketFrame(ch);
-        f.setEof(eof);
+        f.setEof((b0 & 0b10000000) != 0);
         f.setType(type);
         if (type == TYPE_TEXT) {
             f.setContent(new String(array, ch.getCharset()));
@@ -233,13 +253,8 @@ public class WebSocketCodec extends ProtocolCodec {
     }
 
     @Override
-    public Frame ping(Channel ch) {
-        return new WebSocketFrame().setPing();
-    }
-
-    @Override
-    public Frame pong(Channel ch, Frame ping) {
-        return ping.setPong();
+    protected ByteBuf getPingBuf() {
+        return PING.duplicate();
     }
 
     @SuppressWarnings("unchecked")

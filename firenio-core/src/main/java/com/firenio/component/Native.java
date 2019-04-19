@@ -15,8 +15,8 @@ import com.firenio.log.LoggerFactory;
 //not complete
 public class Native {
 
-    //gcc -shared -g -fPIC -m64 -o obj/Native.o src/Native.cpp
-    //gcc -shared -fPIC -m64 -o obj/Native.o src/Native.cpp
+    //gcc -shared -g -fPIC -m64 -o obj/native.o src/Native.cpp
+    //gcc -shared -fPIC -m64 -o obj/native.o src/Native.cpp
 
     public static final  boolean  EPOLL_AVAILABLE;
     public static final  int      EPOLL_ERR;
@@ -76,7 +76,7 @@ public class Native {
                 }
             } else {
                 try {
-                    loadNative("Native.o");
+                    loadNative("native.o");
                     epollLoaded = true;
                 } catch (Throwable e) {
                     if (Develop.NATIVE_DEBUG) {

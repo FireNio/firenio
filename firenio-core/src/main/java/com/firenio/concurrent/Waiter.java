@@ -19,12 +19,24 @@ import java.io.Closeable;
 
 import com.firenio.common.Util;
 
-public class Waiter<T> implements Callback<T> {
+public final class Waiter<T> implements Callback<T> {
 
-    protected boolean   isDone;
-    protected T         response;
-    protected Throwable throwable;
-    protected boolean   timeouted;
+    private       boolean   isDone;
+    private       T         response;
+    private       Throwable throwable;
+    private       boolean   timeouted;
+    private final Object    lock;
+
+    public Waiter() {
+        this(null);
+    }
+
+    public Waiter(Object lock) {
+        if (lock == null) {
+            lock = this;
+        }
+        this.lock = lock;
+    }
 
     public boolean await() {
         return await(0);
@@ -37,12 +49,12 @@ public class Waiter<T> implements Callback<T> {
      * @return timeouted
      */
     public boolean await(long timeout) {
-        synchronized (this) {
+        synchronized (lock) {
             if (isDone) {
                 return false;
             }
             try {
-                this.wait(timeout);
+                lock.wait(timeout);
             } catch (InterruptedException e) {
             }
             timeouted = !isDone;
@@ -52,11 +64,11 @@ public class Waiter<T> implements Callback<T> {
 
     @Override
     public void call(T res, Throwable ex) {
-        synchronized (this) {
+        synchronized (lock) {
             this.isDone = true;
             this.response = res;
             this.throwable = ex;
-            this.notify();
+            lock.notify();
             if (timeouted && res instanceof Closeable) {
                 Util.close((Closeable) res);
             }

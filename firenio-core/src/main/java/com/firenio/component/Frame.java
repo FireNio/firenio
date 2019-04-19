@@ -22,12 +22,7 @@ import com.firenio.common.Util;
 
 public abstract class Frame {
 
-    private static final byte TYPE_PING   = -1;
-    private static final byte TYPE_PONG   = -2;
-    private static final byte TYPE_SILENT = -3;
-
     private Object content;
-    private byte   type;
 
     public byte[] getArrayContent() {
         return (byte[]) content;
@@ -42,7 +37,6 @@ public abstract class Frame {
     }
 
     public void setContent(Object content) {
-        Util.release(this.content);
         this.content = content;
     }
 
@@ -54,23 +48,9 @@ public abstract class Frame {
         return (String) content;
     }
 
-    public abstract int headerLength();
-
     //is last or continue
     public boolean isLast() {
         return true;
-    }
-
-    public boolean isPing() {
-        return type == TYPE_PING;
-    }
-
-    public boolean isPong() {
-        return type == TYPE_PONG;
-    }
-
-    public boolean isSilent() {
-        return type == TYPE_SILENT;
     }
 
     //is text or binary
@@ -78,60 +58,35 @@ public abstract class Frame {
         return true;
     }
 
-    public boolean isTyped() {
-        return type != 0;
-    }
-
     public void release() {
         Util.release(content);
     }
 
     public Frame reset() {
-        this.type = 0;
         this.content = null;
         return this;
     }
 
-    public void setBytes(byte[] bytes) {
-        setBytes(bytes, 0, bytes.length);
+    public void setBytes(Channel ch, byte[] bytes) {
+        setBytes(ch, bytes, 0, bytes.length);
     }
 
-    public void setBytes(byte[] bytes, int off, int len) {
-        Util.release(this.content);
-        int h = headerLength();
-        this.content = ByteBuf.heap(h + len).skip(h);
+    public void setBytes(int header, byte[] bytes) {
+        setBytes(header, bytes, 0, bytes.length);
+    }
+
+    public void setBytes(Channel ch, byte[] bytes, int off, int len) {
+        int h = ch.getCodec().getHeaderLength();
+        setBytes(h, bytes, off, len);
+    }
+
+    public void setBytes(int header, byte[] bytes, int off, int len) {
+        this.content = ByteBuf.heap(header + len).skip(header);
         write(bytes, off, len);
     }
 
-    public Frame setPing() {
-        this.type = TYPE_PING;
-        return this;
-    }
-
-    public Frame setPong() {
-        this.type = TYPE_PONG;
-        return this;
-    }
-
-    public Frame setSilent() {
-        this.type = TYPE_SILENT;
-        return this;
-    }
-
-    public void setString(String value) {
-        setBytes(value.getBytes());
-    }
-
-    public void setString(String text, Channel ch) {
-        setString(text, ch.getCharset());
-    }
-
-    public void setString(String text, ChannelContext context) {
-        setString(text, context.getCharset());
-    }
-
-    public void setString(String text, Charset charset) {
-        setBytes(text.getBytes(charset));
+    public void setString(Channel ch, String value) {
+        setBytes(ch, value.getBytes(ch.getCharset()));
     }
 
     public void write(byte[] bytes) {

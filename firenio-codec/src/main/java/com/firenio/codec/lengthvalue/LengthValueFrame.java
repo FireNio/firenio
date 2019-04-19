@@ -25,11 +25,6 @@ public class LengthValueFrame extends Frame {
         this.setContent(content);
     }
 
-    @Override
-    public int headerLength() {
-        return LengthValueCodec.PROTOCOL_HEADER;
-    }
-
     public String toString() {
         return getStringContent();
     }

@@ -118,7 +118,8 @@ public class HttpProxyServer {
                             if (res.getContent() != null) {
                                 f.setContent(res.getContent());
                             } else if (res.isChunked()) {
-                                f.setBytes("not support chunked now.".getBytes());
+                                f.setContent(ch.allocate());
+                                f.write("not support chunked now.", ch);
                             }
                             ch_src.writeAndFlush(f);
                             ch.close();
@@ -175,7 +176,7 @@ public class HttpProxyServer {
                     context.addProtocolCodec(new ProtocolCodec() {
 
                         @Override
-                        public Frame decode(Channel ch, ByteBuf src) throws IOException {
+                        public Frame decode(Channel ch, ByteBuf src) {
                             ByteBuf buf = ch_src.alloc().allocate(src.remaining());
                             buf.putBytes(src);
                             ch_src.writeAndFlush(buf.flip());
@@ -183,7 +184,7 @@ public class HttpProxyServer {
                         }
 
                         @Override
-                        public ByteBuf encode(Channel ch, Frame frame) throws IOException {
+                        public ByteBuf encode(Channel ch, Frame frame) {
                             return null;
                         }
 
@@ -222,7 +223,7 @@ public class HttpProxyServer {
         }
 
         @Override
-        protected void parse_line_one(HttpFrame f, CharSequence line) {
+        protected void parse_line_one(HttpFrame f, CharSequence line) throws IOException {
             if (line.charAt(0) == 'C' && line.charAt(1) == 'O' && line.charAt(2) == 'N' && line.charAt(3) == 'N' && line.charAt(4) == 'E' && line.charAt(5) == 'C' && line.charAt(6) == 'T' && line.charAt(7) == ' ') {
                 f.setMethod(HttpMethod.CONNECT);
                 parse_url(f, 8, line);

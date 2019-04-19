@@ -49,11 +49,6 @@ public abstract class Http2Frame extends Frame {
         return streamIdentifier;
     }
 
-    @Override
-    public int headerLength() {
-        return Http2Codec.PROTOCOL_HEADER;
-    }
-
     public void setFlags(byte flags) {
         this.flags = flags;
     }

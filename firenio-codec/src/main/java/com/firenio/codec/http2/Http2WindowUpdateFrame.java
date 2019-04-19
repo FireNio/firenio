@@ -29,11 +29,6 @@ public class Http2WindowUpdateFrame extends Http2Frame {
         return updateValue;
     }
 
-    @Override
-    public boolean isSilent() {
-        return true;
-    }
-
     public void setUpdateValue(int updateValue) {
         this.updateValue = updateValue;
     }

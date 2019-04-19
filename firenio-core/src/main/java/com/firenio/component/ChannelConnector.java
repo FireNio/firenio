@@ -146,7 +146,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     }
 
     public synchronized Channel connect(long timeout) throws Exception {
-        Waiter<Channel> callback = new Waiter<>();
+        Waiter<Channel> callback = new Waiter<>(this);
         this.connect(callback, timeout);
         if (eventLoop.inEventLoop()) {
             throw new IOException("can not blocking connect in its event loop");

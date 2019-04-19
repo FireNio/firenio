@@ -83,7 +83,7 @@ public final class ChannelAcceptor extends ChannelContext {
         Util.start(bindGroup);
         Util.start(this);
         final NioEventLoop   bindEventLoop = bindGroup.getNext();
-        final Waiter<Object> bindWaiter    = new Waiter<>();
+        final Waiter<Object> bindWaiter    = new Waiter<>(this);
         boolean submitted = bindEventLoop.submit(new Runnable() {
 
             @Override

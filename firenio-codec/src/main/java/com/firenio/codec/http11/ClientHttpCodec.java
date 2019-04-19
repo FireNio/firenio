@@ -39,18 +39,18 @@ public class ClientHttpCodec extends HttpCodec {
     private static final byte[] PROTOCOL = b(" HTTP/1.1\r\nContent-Length: ");
 
     @Override
-    ClientHttpFrame newFrame() {
+    ClientHttpFrame new_frame() {
         return new ClientHttpFrame();
     }
 
     @Override
-    int decodeRemainBody(Channel ch, ByteBuf src, HttpFrame frame) {
+    int decode_remain_body(Channel ch, ByteBuf src, HttpFrame frame) {
         ClientHttpFrame f = (ClientHttpFrame) frame;
         if (f.isChunked()) {
             //TODO chunked support
             return decode_state_complete;
         } else {
-            return super.decodeRemainBody(ch, src, f);
+            return super.decode_remain_body(ch, src, f);
         }
     }
 
@@ -70,15 +70,15 @@ public class ClientHttpCodec extends HttpCodec {
             contentArray = (byte[]) content;
             write_size = contentArray.length;
         }
-        byte[]         byte32             = FastThreadLocal.get().getBytes32();
-        byte[]         url_bytes          = getRequestURI(f).getBytes();
-        byte[]         method_bytes       = f.getMethod().getBytes();
-        int            len_idx            = Util.valueOf(write_size, byte32);
-        int            len_len            = 32 - len_idx;
-        int            len                = method_bytes.length + 1 + url_bytes.length + PROTOCOL.length + len_len + 2;
-        int            header_size        = 0;
-        List<byte[]>   encode_bytes_array = getEncodeBytesArray(FastThreadLocal.get());
-        IntMap<String> headers            = f.getRequestHeaders();
+        byte[]         byte32      = FastThreadLocal.get().getBytes32();
+        byte[]         url_bytes   = getRequestURI(f).getBytes();
+        byte[]         mtd_bytes   = f.getMethod().getBytes();
+        int            len_idx     = Util.valueOf(write_size, byte32);
+        int            len_len     = 32 - len_idx;
+        int            len         = mtd_bytes.length + 1 + url_bytes.length + PROTOCOL.length + len_len + 2;
+        int            header_size = 0;
+        List<byte[]>   bytes_array = getEncodeBytesArray(FastThreadLocal.get());
+        IntMap<String> headers     = f.getRequestHeaders();
         if (headers != null) {
             headers.remove(HttpHeader.Content_Length.getId());
             for (headers.scan(); headers.hasNext(); ) {
@@ -88,8 +88,8 @@ public class ClientHttpCodec extends HttpCodec {
                     continue;
                 }
                 header_size++;
-                encode_bytes_array.add(k);
-                encode_bytes_array.add(v);
+                bytes_array.add(k);
+                bytes_array.add(v);
                 len += 4;
                 len += k.length;
                 len += v.length;
@@ -100,7 +100,7 @@ public class ClientHttpCodec extends HttpCodec {
             len += write_size;
         }
         ByteBuf buf = ch.alloc().allocate(len);
-        buf.putBytes(method_bytes);
+        buf.putBytes(mtd_bytes);
         buf.putByte(SPACE);
         buf.putBytes(url_bytes);
         buf.putBytes(PROTOCOL);
@@ -109,10 +109,10 @@ public class ClientHttpCodec extends HttpCodec {
         buf.putByte(N);
         int j = 0;
         for (int i = 0; i < header_size; i++) {
-            buf.putBytes(encode_bytes_array.get(j++));
+            buf.putBytes(bytes_array.get(j++));
             buf.putByte((byte) ':');
             buf.putByte(SPACE);
-            buf.putBytes(encode_bytes_array.get(j++));
+            buf.putBytes(bytes_array.get(j++));
             buf.putByte(R);
             buf.putByte(N);
         }
@@ -148,22 +148,22 @@ public class ClientHttpCodec extends HttpCodec {
         return u.toString();
     }
 
-    int onHeaderReadComplete(HttpFrame frame) throws IOException {
-        ClientHttpFrame f             = (ClientHttpFrame) frame;
-        int             contentLength = 0;
-        String          clength       = f.getResponse(Content_Length);
-        if (!Util.isNullOrBlank(clength)) {
-            contentLength = Integer.parseInt(clength);
-            f.setContentLength(contentLength);
+    int header_complete(HttpFrame frame) throws IOException {
+        ClientHttpFrame f         = (ClientHttpFrame) frame;
+        int             c_len     = 0;
+        String          c_len_str = f.getResponse(Content_Length);
+        if (!Util.isNullOrBlank(c_len_str)) {
+            c_len = Integer.parseInt(c_len_str);
+            f.setContentLength(c_len);
         }
-        if (contentLength < 1) {
+        if (c_len < 1) {
             if (f.isChunked()) {
                 return decode_state_body;
             } else {
                 return decode_state_complete;
             }
         } else {
-            if (contentLength > getBodyLimit()) {
+            if (c_len > getBodyLimit()) {
                 throw OVER_LIMIT;
             }
             return decode_state_body;

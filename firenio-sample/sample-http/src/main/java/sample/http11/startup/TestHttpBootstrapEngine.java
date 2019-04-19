@@ -89,9 +89,6 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
             context.addProtocolCodec(new HttpCodec(4));
             context.addProtocolCodec(new WebSocketCodec());
         }
-        if (context.getPort() == 0) {
-            context.setPort(context.isEnableSsl() ? 443 : 80);
-        }
         context.bind();
         NetDataTransferServer.get().startup(group, 18088);
     }
