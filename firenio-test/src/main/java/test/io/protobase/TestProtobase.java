@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,14 +37,14 @@ import junit.framework.Assert;
 
 public class TestProtobase {
 
+    static final String hello = "hello server!";
+    static final String res = "yes server already accept your text message:";
+
     static {
         Options.setEnableEpoll(true);
     }
 
-    static final String hello   = "hello server!";
-
-    static final String res     = "yes server already accept your text message:";
-    ChannelAcceptor     context = new ChannelAcceptor(8300);
+    ChannelAcceptor context = new ChannelAcceptor(8300);
 
     @After
     public void clean() {
@@ -94,7 +94,7 @@ public class TestProtobase {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(Channel ch, Frame f) throws Exception {
+            public void accept(Channel ch, Frame f) {
                 String text = new String(f.getArrayContent(), ch.getCharset());
                 System.out.println();
                 System.out.println("____________________" + text);
@@ -108,14 +108,14 @@ public class TestProtobase {
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addProtocolCodec(new ProtobaseCodec());
-        Channel ch = context.connect();
-        ProtobaseFrame f = new ProtobaseFrame();
+        Channel        ch = context.connect();
+        ProtobaseFrame f  = new ProtobaseFrame();
         f.setBinary();
         f.setContent(ch.allocate());
         f.write(hello.getBytes());
         ch.writeAndFlush(f);
         w.await(3000);
-        Assert.assertTrue(w.getResponse().equals(res + hello));
+        Assert.assertEquals(w.getResponse(), res + hello);
     }
 
     public void testText() throws Exception {
@@ -124,7 +124,7 @@ public class TestProtobase {
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
-            public void accept(Channel ch, Frame frame) throws Exception {
+            public void accept(Channel ch, Frame frame) {
                 String text = frame.getStringContent();
                 System.out.println();
                 System.out.println("____________________" + text);
@@ -138,13 +138,13 @@ public class TestProtobase {
         context.setIoEventHandle(eventHandleAdaptor);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addProtocolCodec(new ProtobaseCodec());
-        Channel ch = context.connect();
-        ProtobaseFrame f = new ProtobaseFrame();
+        Channel        ch = context.connect();
+        ProtobaseFrame f  = new ProtobaseFrame();
         f.setContent(ch.allocate());
         f.write(hello.getBytes());
         ch.writeAndFlush(f);
         w.await(3000);
-        Assert.assertTrue(w.getResponse().equals(res + hello));
+        Assert.assertEquals(w.getResponse(), res + hello);
     }
 
 }

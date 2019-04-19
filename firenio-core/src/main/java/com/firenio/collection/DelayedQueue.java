@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,13 +21,14 @@ import com.firenio.common.Util;
 
 /**
  * NOT THREAD SAFE
+ *
  * @author wangkai
  */
 public class DelayedQueue {
 
-    private static final int INITIAL_CAPACITY = 16;
-    private DelayTask[]      queue            = new DelayTask[INITIAL_CAPACITY];
-    private int              size             = 0;
+    private static final int         INITIAL_CAPACITY = 16;
+    private              DelayTask[] queue            = new DelayTask[INITIAL_CAPACITY];
+    private              int         size             = 0;
 
     public void clear() {
         for (int i = 0; i < size; i++) {
@@ -45,7 +46,7 @@ public class DelayedQueue {
     }
 
     private DelayTask finishPoll(DelayTask f) {
-        int s = --size;
+        int       s = --size;
         DelayTask x = queue[s];
         queue[s] = null;
         if (s != 0)
@@ -117,7 +118,7 @@ public class DelayedQueue {
         if (i < 0)
             return false;
         setIndex(queue[i], -1);
-        int s = --size;
+        int       s           = --size;
         DelayTask replacement = queue[s];
         queue[s] = null;
         if (s != i) {
@@ -139,9 +140,9 @@ public class DelayedQueue {
     private void siftDown(int k, DelayTask key) {
         int half = size >>> 1;
         while (k < half) {
-            int child = (k << 1) + 1;
-            DelayTask c = queue[child];
-            int right = child + 1;
+            int       child = (k << 1) + 1;
+            DelayTask c     = queue[child];
+            int       right = child + 1;
             if (right < size && c.compareTo(queue[right]) > 0)
                 c = queue[child = right];
             if (key.compareTo(c) <= 0)
@@ -160,8 +161,8 @@ public class DelayedQueue {
      */
     private void siftUp(int k, DelayTask key) {
         while (k > 0) {
-            int parent = (k - 1) >>> 1;
-            DelayTask e = queue[parent];
+            int       parent = (k - 1) >>> 1;
+            DelayTask e      = queue[parent];
             if (key.compareTo(e) >= 0)
                 break;
             queue[k] = e;
@@ -186,7 +187,7 @@ public class DelayedQueue {
         static final long DONE_MASK   = 1L << 62;
         static final long DELAY_MASK  = ~(CANCEL_MASK | DONE_MASK);
 
-        private long      flags;
+        private long flags;
 
         public DelayTask(long delay) {
             this.flags = delay + Util.now();

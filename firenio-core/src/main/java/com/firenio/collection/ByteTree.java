@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,17 +20,16 @@ import com.firenio.common.Unsafe;
 
 /**
  * @author wangkai
- *
  */
-public class ByteTree<T> {
+public class ByteTree {
 
     private Node root = new ByteNode();
 
     public void add(String s) {
-        add(s.getBytes(), (T)s);
+        add(s.getBytes(), s);
     }
 
-    private void add(byte[] bytes, T value) {
+    private void add(byte[] bytes, Object value) {
         byte curr_b = bytes[0];
         Node next_n = root = root.append(curr_b);
         Node temp_n = next_n.next(curr_b);
@@ -47,9 +46,13 @@ public class ByteTree<T> {
         temp_n.value = value;
     }
 
-    public T get(byte[] bytes, int offset, int length) {
-        Node<T> node = root;
-        int count = offset + length;
+    public String getString(byte[] bytes, int offset, int length) {
+        return (String) get(bytes, offset, length);
+    }
+
+    public Object get(byte[] bytes, int offset, int length) {
+        Node node  = root;
+        int  count = offset + length;
         for (int i = offset; i < count; i++) {
             node = node.next(bytes[i]);
             if (node == null) {
@@ -59,7 +62,11 @@ public class ByteTree<T> {
         return node.value;
     }
 
-    public T get(ByteBuf buf, int absPos, int length) {
+    public String getString(ByteBuf buf, int absPos, int length) {
+        return (String) get(buf, absPos, length);
+    }
+
+    public Object get(ByteBuf buf, int absPos, int length) {
         if (buf.hasArray()) {
             return get(buf.array(), absPos, length);
         } else {
@@ -67,8 +74,12 @@ public class ByteTree<T> {
         }
     }
 
-    public T get(long address, int length) {
-        Node<T> node = root;
+    public String getString(long address, int length) {
+        return (String) get(address, length);
+    }
+
+    public Object get(long address, int length) {
+        Node node  = root;
         long count = address + length;
         for (long i = address; i < count; i++) {
             node = node.next(Unsafe.getByte(i));
@@ -79,9 +90,9 @@ public class ByteTree<T> {
         return node.value;
     }
 
-    static abstract class Node<T> {
+    static abstract class Node {
 
-        T value;
+        Object value;
 
         abstract Node next(byte b);
 
@@ -91,12 +102,12 @@ public class ByteTree<T> {
 
     }
 
-    static final class ArrayNode<T> extends Node<T> {
+    static final class ArrayNode extends Node {
 
         private Node[] nodes;
         private int    shift = -1;
 
-        ArrayNode(byte old_b, Node old_n, byte new_b, Node new_n, T value) {
+        ArrayNode(byte old_b, Node old_n, byte new_b, Node new_n, Object value) {
             int old_i = old_b & 0xff;
             int new_i = new_b & 0xff;
             this.value = value;
@@ -169,7 +180,7 @@ public class ByteTree<T> {
         }
     }
 
-    static final class ByteNode<T> extends Node<T> {
+    static final class ByteNode extends Node {
 
         private byte b;
         private Node next;

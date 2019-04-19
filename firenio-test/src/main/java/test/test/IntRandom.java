@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,13 +21,12 @@ import java.util.Random;
 
 /**
  * @author wangkai
- *
  */
 public class IntRandom {
 
     private List<Integer> list;
 
-    private Random        random = new Random();
+    private Random random = new Random();
 
     public IntRandom(int max) {
         list = new ArrayList<>(max);
@@ -36,15 +35,8 @@ public class IntRandom {
         }
     }
 
-    public int nextInt() {
-        if (list.size() == 0) {
-            return -1;
-        }
-        return list.remove(random.nextInt(list.size()));
-    }
-
     public static void main(String[] args) {
-        int max = 100;
+        int       max    = 100;
         IntRandom random = new IntRandom(max);
 
         for (int i = 0; i < max; i++) {
@@ -55,6 +47,13 @@ public class IntRandom {
             }
         }
 
+    }
+
+    public int nextInt() {
+        if (list.size() == 0) {
+            return -1;
+        }
+        return list.remove(random.nextInt(list.size()));
     }
 
 }

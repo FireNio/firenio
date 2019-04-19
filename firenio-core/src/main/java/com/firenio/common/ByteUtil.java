@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,7 +55,7 @@ public class ByteUtil {
     }
 
     public static int compare(long x, long y) {
-        return (x < y) ? -1 : (x > y) ? 1 : 0;
+        return Long.compare(x, y);
     }
 
     public static boolean equalsArray(byte[] bs1, byte[] bs2) {
@@ -89,7 +89,7 @@ public class ByteUtil {
 
     /**
      * 右起0 ~ 7
-     * 
+     *
      * @param b
      * @param pos
      * @return
@@ -109,8 +109,8 @@ public class ByteUtil {
         //58
         //98
         //103
-        for (int i = 0; i < data.length();) {
-            int t = i >> 1;
+        for (int i = 0; i < data.length(); ) {
+            int t   = i >> 1;
             int ch0 = hex2Digit(data.charAt(i), i++);
             int ch1 = hex2Digit(data.charAt(i), i++);
             out[t] = (byte) (ch0 << 4 | ch1);
@@ -293,7 +293,7 @@ public class ByteUtil {
 
     public static void main(String[] args) {
 
-        int v = new Random().nextInt(Integer.MAX_VALUE);
+        int    v     = new Random().nextInt(Integer.MAX_VALUE);
         byte[] bytes = new byte[4];
         putInt(bytes, v, 0);
 
@@ -402,10 +402,9 @@ public class ByteUtil {
     }
 
     public static int safeFindNextPositivePowerOfTwo(final int value) {
-        return value <= 0 ? 1
-                : value >= 0x40000000 ? 0x40000000 : findNextPositivePowerOfTwo(value);
+        return value <= 0 ? 1 : value >= 0x40000000 ? 0x40000000 : findNextPositivePowerOfTwo(value);
     }
-    
+
 
     @SuppressWarnings("restriction")
     public static void free(ByteBuffer buffer) {
@@ -423,7 +422,7 @@ public class ByteUtil {
         }
         return -1;
     }
-    
+
     public static byte[] b(String s) {
         return s.getBytes();
     }

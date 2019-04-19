@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,6 @@ import com.firenio.component.Frame;
 
 /**
  * @author wangkai
- *
  */
 public class ClientHttpCodec extends HttpCodec {
 
@@ -56,13 +55,13 @@ public class ClientHttpCodec extends HttpCodec {
     }
 
     @Override
-    public ByteBuf encode(Channel ch, Frame frame) throws IOException {
-        ClientHttpFrame f = (ClientHttpFrame) frame;
-        Object content = f.getContent();
-        ByteBuf contentBuf = null;
-        byte[] contentArray = null;
-        boolean isArray = false;
-        int write_size = 0;
+    public ByteBuf encode(Channel ch, Frame frame) {
+        ClientHttpFrame f            = (ClientHttpFrame) frame;
+        Object          content      = f.getContent();
+        ByteBuf         contentBuf   = null;
+        byte[]          contentArray = null;
+        boolean         isArray      = false;
+        int             write_size   = 0;
         if (content instanceof ByteBuf) {
             contentBuf = ((ByteBuf) content).flip();
             write_size = contentBuf.limit();
@@ -82,7 +81,7 @@ public class ClientHttpCodec extends HttpCodec {
         IntMap<String> headers            = f.getRequestHeaders();
         if (headers != null) {
             headers.remove(HttpHeader.Content_Length.getId());
-            for (headers.scan(); headers.hasNext();) {
+            for (headers.scan(); headers.hasNext(); ) {
                 byte[] k = HttpHeader.get(headers.nextKey()).getBytes();
                 byte[] v = headers.value().getBytes();
                 if (v == null) {
@@ -136,8 +135,8 @@ public class ClientHttpCodec extends HttpCodec {
         if (params == null || params.isEmpty()) {
             return frame.getRequestURL();
         }
-        String url = frame.getRequestURL();
-        StringBuilder u = new StringBuilder(url);
+        String        url = frame.getRequestURL();
+        StringBuilder u   = new StringBuilder(url);
         u.append("?");
         Set<Entry<String, String>> ps = params.entrySet();
         for (Entry<String, String> p : ps) {
@@ -150,9 +149,9 @@ public class ClientHttpCodec extends HttpCodec {
     }
 
     int onHeaderReadComplete(HttpFrame frame) throws IOException {
-        ClientHttpFrame f = (ClientHttpFrame) frame;
-        int contentLength = 0;
-        String clength = f.getResponse(Content_Length);
+        ClientHttpFrame f             = (ClientHttpFrame) frame;
+        int             contentLength = 0;
+        String          clength       = f.getResponse(Content_Length);
         if (!Util.isNullOrBlank(clength)) {
             contentLength = Integer.parseInt(clength);
             f.setContentLength(contentLength);
@@ -173,7 +172,7 @@ public class ClientHttpCodec extends HttpCodec {
 
     @Override
     protected void parse_line_one(HttpFrame f, CharSequence line) {
-        int index = Util.indexOf(line, ' ');
+        int index  = Util.indexOf(line, ' ');
         int status = Integer.parseInt((String) line.subSequence(index + 1, index + 4));
         f.setStatus(HttpStatus.get(status));
     }

@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,17 +35,14 @@ import com.firenio.common.Util;
 
 /**
  * @author wangkai
- *
  */
 public class AioServerDemo {
     private static Charset        charset = Charset.forName("UTF-8");
     private static CharsetEncoder encoder = charset.newEncoder();
 
     public static void main(String[] args) throws Exception {
-        AsynchronousChannelGroup group = AsynchronousChannelGroup
-                .withThreadPool(Executors.newFixedThreadPool(4));
-        AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open(group)
-                .bind(new InetSocketAddress("0.0.0.0", 8013));
+        AsynchronousChannelGroup group = AsynchronousChannelGroup.withThreadPool(Executors.newFixedThreadPool(4));
+        AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open(group).bind(new InetSocketAddress("0.0.0.0", 8013));
         server.accept(null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
             @Override
             public void completed(AsynchronousSocketChannel result, Void attachment) {
@@ -56,7 +53,7 @@ public class AioServerDemo {
 
                     result.read(readBuffer);
 
-                    String now = new Date().toString();
+                    String     now    = new Date().toString();
                     ByteBuffer buffer = encoder.encode(CharBuffer.wrap(now + "\r\n"));
                     // result.write(buffer, null, new
                     // CompletionHandler<Integer,Void>(){...}); //callback

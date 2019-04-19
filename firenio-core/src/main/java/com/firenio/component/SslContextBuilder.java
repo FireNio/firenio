@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -79,6 +79,56 @@ public final class SslContextBuilder {
         this.isServer = isServer;
     }
 
+    public static SslContextBuilder forClient(boolean trustAll) {
+        return new SslContextBuilder(false).trustManager(trustAll);
+    }
+
+    public static SslContextBuilder forServer() {
+        return new SslContextBuilder(true);
+    }
+
+    static List<byte[]> readCertificates(File file) throws CertificateException {
+        InputStream in = null;
+        try {
+            in = new FileInputStream(file);
+            return readCertificates(in);
+        } catch (FileNotFoundException e) {
+            throw new CertificateException("could not find certificate file: " + file);
+        } finally {
+            Util.close(in);
+        }
+    }
+
+    static List<byte[]> readCertificates(InputStream in) throws CertificateException {
+        List<String> ls;
+        try {
+            ls = FileUtil.readLines(in, Util.UTF8);
+        } catch (IOException e) {
+            throw new CertificateException("failed to native_read certificate input stream", e);
+        }
+        List<byte[]>  certs   = new ArrayList<>();
+        StringBuilder b       = new StringBuilder();
+        int           readEnd = 0;
+
+        for (String s : ls) {
+            if (s.startsWith("----")) {
+                readEnd++;
+                if (readEnd == 2) {
+                    byte[] data = Cryptos.base64_de(b.toString());
+                    certs.add(data);
+                    readEnd = 0;
+                    b.setLength(0);
+                }
+                continue;
+            }
+            b.append(s.trim().replace("\r", ""));
+        }
+        if (certs.isEmpty()) {
+            throw new CertificateException("found no certificates in input stream");
+        }
+        return certs;
+    }
+
     public SslContextBuilder applicationProtocols(String[] applicationProtocols) {
         this.applicationProtocols = applicationProtocols;
         return this;
@@ -89,8 +139,7 @@ public final class SslContextBuilder {
         return new SslContext(context, isServer, ciphers, clientAuth, applicationProtocols);
     }
 
-    private KeyManagerFactory buildKeyManagerFactory(KeyStore ks, char[] keyPasswordChars)
-            throws SSLException {
+    private KeyManagerFactory buildKeyManagerFactory(KeyStore ks, char[] keyPasswordChars) throws SSLException {
         String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
         if (algorithm == null) {
             algorithm = "SunX509";
@@ -105,18 +154,16 @@ public final class SslContextBuilder {
         }
     }
 
-    private KeyManagerFactory buildKeyManagerFactory(X509Certificate[] certChain, PrivateKey key,
-            String keyPassword) throws SSLException {
+    private KeyManagerFactory buildKeyManagerFactory(X509Certificate[] certChain, PrivateKey key, String keyPassword) throws SSLException {
         if (keyPassword == null) {
             keyPassword = "";
         }
-        char[] keyPasswordChars = keyPassword.toCharArray();
-        KeyStore ks = buildKeyStore(certChain, key, keyPasswordChars);
+        char[]   keyPasswordChars = keyPassword.toCharArray();
+        KeyStore ks               = buildKeyStore(certChain, key, keyPasswordChars);
         return buildKeyManagerFactory(ks, keyPasswordChars);
     }
 
-    private KeyStore buildKeyStore(X509Certificate[] certChain, PrivateKey key,
-            char[] keyPasswordChars) throws SSLException {
+    private KeyStore buildKeyStore(X509Certificate[] certChain, PrivateKey key, char[] keyPasswordChars) throws SSLException {
         try {
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             ks.load(null, null);
@@ -127,8 +174,7 @@ public final class SslContextBuilder {
         }
     }
 
-    private TrustManagerFactory buildTrustManagerFactory(X509Certificate[] certCollection)
-            throws SSLException {
+    private TrustManagerFactory buildTrustManagerFactory(X509Certificate[] certCollection) throws SSLException {
         try {
             KeyStore ks = KeyStore.getInstance("JKS");
             ks.load(null, null);
@@ -139,8 +185,7 @@ public final class SslContextBuilder {
                 i++;
             }
             // Set up trust manager factory to use our key store.
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory
-                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(ks);
             return trustManagerFactory;
         } catch (Exception e) {
@@ -160,17 +205,15 @@ public final class SslContextBuilder {
         return this;
     }
 
-    private PKCS8EncodedKeySpec generateKeySpec(String password, byte[] key)
-            throws IOException, NoSuchAlgorithmException, NoSuchPaddingException,
-            InvalidKeySpecException, InvalidKeyException, InvalidAlgorithmParameterException {
+    private PKCS8EncodedKeySpec generateKeySpec(String password, byte[] key) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidKeyException, InvalidAlgorithmParameterException {
         if (password == null) {
             return new PKCS8EncodedKeySpec(key);
         }
-        EncryptedPrivateKeyInfo epki = new EncryptedPrivateKeyInfo(key);
-        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(epki.getAlgName());
-        PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray());
-        SecretKey pbeKey = keyFactory.generateSecret(pbeKeySpec);
-        Cipher cipher = Cipher.getInstance(epki.getAlgName());
+        EncryptedPrivateKeyInfo epki       = new EncryptedPrivateKeyInfo(key);
+        SecretKeyFactory        keyFactory = SecretKeyFactory.getInstance(epki.getAlgName());
+        PBEKeySpec              pbeKeySpec = new PBEKeySpec(password.toCharArray());
+        SecretKey               pbeKey     = keyFactory.generateSecret(pbeKeySpec);
+        Cipher                  cipher     = Cipher.getInstance(epki.getAlgName());
         cipher.init(Cipher.DECRYPT_MODE, pbeKey, epki.getAlgParameters());
         return epki.getKeySpec(cipher);
     }
@@ -179,28 +222,26 @@ public final class SslContextBuilder {
         return applicationProtocols;
     }
 
-    private X509Certificate[] getCertificatesFromBuffers(List<byte[]> certs)
-            throws CertificateException {
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        X509Certificate[] x509Certs = new X509Certificate[certs.size()];
+    private X509Certificate[] getCertificatesFromBuffers(List<byte[]> certs) throws CertificateException {
+        CertificateFactory cf        = CertificateFactory.getInstance("X.509");
+        X509Certificate[]  x509Certs = new X509Certificate[certs.size()];
         for (int i = 0; i < certs.size(); i++) {
-            x509Certs[i] = (X509Certificate) cf
-                    .generateCertificate(new ByteArrayInputStream(certs.get(i)));
+            x509Certs[i] = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certs.get(i)));
         }
         return x509Certs;
     }
 
-    private PrivateKey getPrivateKeyFromByteBuffer(byte[] encodedKey, String keyPassword)
-            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException,
-            InvalidAlgorithmParameterException, KeyException, IOException {
+    private PrivateKey getPrivateKeyFromByteBuffer(byte[] encodedKey, String keyPassword) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException, KeyException, IOException {
 
         PKCS8EncodedKeySpec encodedKeySpec = generateKeySpec(keyPassword, encodedKey);
         try {
             return KeyFactory.getInstance("RSA").generatePrivate(encodedKeySpec);
-        } catch (InvalidKeySpecException ignore) {}
+        } catch (InvalidKeySpecException ignore) {
+        }
         try {
             return KeyFactory.getInstance("DSA").generatePrivate(encodedKeySpec);
-        } catch (InvalidKeySpecException ignore2) {}
+        } catch (InvalidKeySpecException ignore2) {
+        }
         try {
             return KeyFactory.getInstance("EC").generatePrivate(encodedKeySpec);
         } catch (InvalidKeySpecException e) {
@@ -208,16 +249,14 @@ public final class SslContextBuilder {
         }
     }
 
-    public SslContextBuilder keyManager(InputStream keyInput, InputStream certChainInput)
-            throws SSLException {
+    public SslContextBuilder keyManager(InputStream keyInput, InputStream certChainInput) throws SSLException {
         return keyManager(keyInput, certChainInput, null);
     }
 
-    public SslContextBuilder keyManager(InputStream keyInput, InputStream certChainInput,
-            String keyPassword) throws SSLException {
+    public SslContextBuilder keyManager(InputStream keyInput, InputStream certChainInput, String keyPassword) throws SSLException {
         needServer();
         X509Certificate[] keyCertChain;
-        PrivateKey key;
+        PrivateKey        key;
         try {
             keyCertChain = toX509Certificates(certChainInput);
         } catch (Exception e) {
@@ -228,8 +267,7 @@ public final class SslContextBuilder {
         try {
             key = toPrivateKey(keyInput, keyPassword);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Input stream does not contain valid private key.",
-                    e);
+            throw new IllegalArgumentException("Input stream does not contain valid private key.", e);
         } finally {
             Util.close(keyInput);
         }
@@ -237,15 +275,14 @@ public final class SslContextBuilder {
         return this;
     }
 
-    public SslContextBuilder keyManager(InputStream keystoreInput, String storePassword,
-            String alias, String keyPassword) throws SSLException {
+    public SslContextBuilder keyManager(InputStream keystoreInput, String storePassword, String alias, String keyPassword) throws SSLException {
         needServer();
         try {
             if (keyPassword == null) {
                 keyPassword = "";
             }
-            char[] keyPasswordChars = keyPassword.toCharArray();
-            KeyStore keystore = KeyStore.getInstance("JKS");
+            char[]   keyPasswordChars = keyPassword.toCharArray();
+            KeyStore keystore         = KeyStore.getInstance("JKS");
             keystore.load(keystoreInput, keyPasswordChars);
             this.keyManagerFactory = buildKeyManagerFactory(keystore, keyPasswordChars);
             return this;
@@ -279,21 +316,21 @@ public final class SslContextBuilder {
             throw new SSLException("null keyManagerFactory");
         }
         try {
-            SSLContext ctx = SslContext.newSSLContext();
+            SSLContext     ctx = SslContext.newSSLContext();
             TrustManager[] tms = null;
-            KeyManager[] kms = null;
+            KeyManager[]   kms = null;
             if (isServer) {
                 kms = keyManagerFactory.getKeyManagers();
             }
             switch (trustType) {
                 case ALL:
-                    tms = new X509TrustManager[] { new TrustAllX509TrustManager() };
+                    tms = new X509TrustManager[]{new TrustAllX509TrustManager()};
                     break;
                 case TrustManagerFactory:
                     tms = trustManagerFactory.getTrustManagers();
                     break;
                 case X509TrustManager:
-                    tms = new X509TrustManager[] { x509TrustManager };
+                    tms = new X509TrustManager[]{x509TrustManager};
                     break;
                 case NONE:
                 default:
@@ -331,9 +368,7 @@ public final class SslContextBuilder {
         return this;
     }
 
-    private PrivateKey toPrivateKey(InputStream keyInputStream, String keyPassword)
-            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException,
-            InvalidAlgorithmParameterException, KeyException, IOException, CertificateException {
+    private PrivateKey toPrivateKey(InputStream keyInputStream, String keyPassword) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException, KeyException, IOException, CertificateException {
         if (keyInputStream == null) {
             return null;
         }
@@ -356,8 +391,7 @@ public final class SslContextBuilder {
         try {
             return trustManager(toX509Certificates(trustCertCollectionInputStream));
         } catch (Exception e) {
-            throw new IllegalArgumentException("Input stream does not contain valid certificates.",
-                    e);
+            throw new IllegalArgumentException("Input stream does not contain valid certificates.", e);
         }
     }
 
@@ -369,8 +403,7 @@ public final class SslContextBuilder {
         return this;
     }
 
-    public SslContextBuilder trustManager(X509Certificate... trustCertCollection)
-            throws SSLException {
+    public SslContextBuilder trustManager(X509Certificate... trustCertCollection) throws SSLException {
         needClient();
         Assert.notEmpty(trustCertCollection, "empty trustCertCollection");
         trustManager(buildTrustManagerFactory(trustCertCollection));
@@ -385,77 +418,25 @@ public final class SslContextBuilder {
         return this;
     }
 
-    class TrustAllX509TrustManager implements X509TrustManager {
-
-        @Override
-        public void checkClientTrusted(X509Certificate[] arg0, String arg1)
-                throws CertificateException {}
-
-        @Override
-        public void checkServerTrusted(X509Certificate[] arg0, String arg1)
-                throws CertificateException {}
-
-        @Override
-        public X509Certificate[] getAcceptedIssuers() {
-            return null;
-        }
-
-    }
-
     enum TrustType {
 
         ALL, NONE, TrustManagerFactory, X509TrustManager
 
     }
 
-    public static SslContextBuilder forClient(boolean trustAll) {
-        return new SslContextBuilder(false).trustManager(trustAll);
-    }
+    class TrustAllX509TrustManager implements X509TrustManager {
 
-    public static SslContextBuilder forServer() {
-        return new SslContextBuilder(true);
-    }
+        @Override
+        public void checkClientTrusted(X509Certificate[] arg0, String arg1) {}
 
-    static List<byte[]> readCertificates(File file) throws CertificateException {
-        InputStream in = null;
-        try {
-            in = new FileInputStream(file);
-            return readCertificates(in);
-        } catch (FileNotFoundException e) {
-            throw new CertificateException("could not find certificate file: " + file);
-        } finally {
-            Util.close(in);
-        }
-    }
+        @Override
+        public void checkServerTrusted(X509Certificate[] arg0, String arg1) {}
 
-    static List<byte[]> readCertificates(InputStream in) throws CertificateException {
-        List<String> ls;
-        try {
-            ls = FileUtil.readLines(in, Util.UTF8);
-        } catch (IOException e) {
-            throw new CertificateException("failed to read certificate input stream", e);
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
         }
-        List<byte[]> certs = new ArrayList<>();
-        StringBuilder b = new StringBuilder();
-        int readEnd = 0;
 
-        for (String s : ls) {
-            if (s.startsWith("----")) {
-                readEnd++;
-                if (readEnd == 2) {
-                    byte[] data = Cryptos.base64_de(b.toString());
-                    certs.add(data);
-                    readEnd = 0;
-                    b.setLength(0);
-                }
-                continue;
-            }
-            b.append(s.trim().replace("\r", ""));
-        }
-        if (certs.isEmpty()) {
-            throw new CertificateException("found no certificates in input stream");
-        }
-        return certs;
     }
 
 }

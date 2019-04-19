@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,6 @@ import com.firenio.collection.IntMap;
 
 /**
  * @author wangkai
- *
  */
 public class TestConcurrentHashMap {
 
@@ -41,8 +40,8 @@ public class TestConcurrentHashMap {
         for (int i = 0; i < count; i++) {
             map.put(i, String.valueOf(i));
         }
-        boolean con = false;
-        long startTime = System.currentTimeMillis();
+        boolean con       = false;
+        long    startTime = System.currentTimeMillis();
         for (String v : map.values()) {
             //          if ("1".equals(v)) {
             //              con = true;
@@ -68,13 +67,13 @@ public class TestConcurrentHashMap {
         for (int i = 0; i < count; i++) {
             map.put(i, String.valueOf(i));
         }
-        boolean con = false;
-        long startTime = System.currentTimeMillis();
-//        for (String v : map.values()) {
-            //          if ("1".equals(v)) {
-            //              con = true;
-            //          }
-//        }
+        boolean con       = false;
+        long    startTime = System.currentTimeMillis();
+        //        for (String v : map.values()) {
+        //          if ("1".equals(v)) {
+        //              con = true;
+        //          }
+        //        }
         //      for(String v : map.values()){
         ////          if ("1".equals(v)) {
         ////              con = true;
@@ -96,8 +95,8 @@ public class TestConcurrentHashMap {
         for (int i = 0; i < count; i++) {
             list.add(String.valueOf(i));
         }
-        boolean con = false;
-        long startTime = System.currentTimeMillis();
+        boolean con       = false;
+        long    startTime = System.currentTimeMillis();
         for (String v : list) {
             //          if ("1".equals(v)) {
             //              con = true;

@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -60,15 +60,15 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
     private Logger                     logger             = LoggerFactory.getLogger(getClass());
     private int                        maxWriteBacklog    = Integer.MAX_VALUE;
     private String                     openSslPath;
-    private int                            port;
-    private boolean                        printConfig        = true;
-    private NioEventLoopGroup              processorGroup;
-    private Properties                     properties;
-    private InetSocketAddress              serverAddress;
-    private SslContext                     sslContext;
-    private String                         sslKeystore;
-    private String                         sslPem;
-    private long                           startupTime        = System.currentTimeMillis();
+    private int                        port;
+    private boolean                    printConfig        = true;
+    private NioEventLoopGroup          processorGroup;
+    private Properties                 properties;
+    private InetSocketAddress          serverAddress;
+    private SslContext                 sslContext;
+    private String                     sslKeystore;
+    private String                     sslPem;
+    private long                       startupTime        = System.currentTimeMillis();
 
     ChannelContext(NioEventLoopGroup group, String host, int port) {
         Assert.notNull(host, "null host");
@@ -116,8 +116,8 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         }
         initHeartBeatLogger();
         initSslContext(getClass().getClassLoader());
-        NioEventLoopGroup g = this.processorGroup;
-        int eventLoopSize = g.getEventLoopSize();
+        NioEventLoopGroup g             = this.processorGroup;
+        int               eventLoopSize = g.getEventLoopSize();
         if (Util.isNullOrBlank(host)) {
             this.serverAddress = new InetSocketAddress(port);
         } else {
@@ -137,17 +137,14 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
             logger.info("protocol              : [ {} ]", sb.toString());
             logger.info("event loop size       : [ {} ]", eventLoopSize);
             logger.info("enable ssl            : [ {} ]", sslType());
-            logger.info("enable epoll          : [ {} ]", Native.EPOLL_AVAIABLE);
+            logger.info("enable epoll          : [ {} ]", Native.EPOLL_AVAILABLE);
             logger.info("channel idle          : [ {} ]", g.getIdleTime());
             logger.info("host and port         : [ {}:{} ]", getHost(), port);
             if (g.isEnableMemoryPool()) {
-                long memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();
-                long memoryPoolByteSize = memoryPoolCapacity * g.getMemoryPoolUnit();
-                double memoryPoolSize = memoryPoolByteSize / (1024 * 1024);
-                logger.info("memory pool           : [ {}/{}/{}M ({}) ]", g.getMemoryPoolUnit(),
-                        memoryPoolCapacity,
-                        BigDecimal.valueOf(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP),
-                        getByteBufPoolType(g));
+                long   memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();
+                long   memoryPoolByteSize = memoryPoolCapacity * g.getMemoryPoolUnit();
+                double memoryPoolSize     = memoryPoolByteSize / (1024 * 1024);
+                logger.info("memory pool           : [ {}/{}/{}M ({}) ]", g.getMemoryPoolUnit(), memoryPoolCapacity, BigDecimal.valueOf(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP), getByteBufPoolType(g));
             }
             if (isEnableSsl()) {
                 sb.setLength(0);
@@ -161,8 +158,8 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
             }
         }
     }
-    
-    private String getByteBufPoolType(NioEventLoopGroup g){
+
+    private String getByteBufPoolType(NioEventLoopGroup g) {
         if (Options.isEnableUnsafeBuf()) {
             return "unsafe";
         }
@@ -181,6 +178,11 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
 
     public String[] getApplicationProtocols() {
         return applicationProtocols;
+    }
+
+    public void setApplicationProtocols(String[] applicationProtocols) {
+        checkNotRunning();
+        this.applicationProtocols = applicationProtocols;
     }
 
     public Object getAttribute(Object key) {
@@ -207,12 +209,22 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         return charset;
     }
 
+    public void setCharset(Charset charset) {
+        checkNotRunning();
+        this.charset = charset;
+    }
+
     public ProtocolCodec getDefaultCodec() {
         return defaultCodec;
     }
 
     public EventLoopGroup getExecutorEventLoopGroup() {
         return executorEventLoopGroup;
+    }
+
+    public void setExecutorEventLoopGroup(EventLoopGroup executorEventLoopGroup) {
+        checkNotRunning();
+        this.executorEventLoopGroup = executorEventLoopGroup;
     }
 
     public HeartBeatLogger getHeartBeatLogger() {
@@ -223,12 +235,27 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         return host;
     }
 
+    public void setHost(String host) {
+        checkNotRunning();
+        this.host = host;
+    }
+
     public IoEventHandle getIoEventHandle() {
         return ioEventHandle;
     }
 
+    public void setIoEventHandle(IoEventHandle ioEventHandle) {
+        checkNotRunning();
+        this.ioEventHandle = ioEventHandle;
+    }
+
     public int getMaxWriteBacklog() {
         return maxWriteBacklog;
+    }
+
+    public void setMaxWriteBacklog(int maxWriteBacklog) {
+        checkNotRunning();
+        this.maxWriteBacklog = maxWriteBacklog;
     }
 
     public EventLoop getNextExecutorEventLoop() {
@@ -242,8 +269,18 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         return openSslPath;
     }
 
+    public void setOpenSslPath(String openSslPath) {
+        checkNotRunning();
+        this.openSslPath = openSslPath;
+    }
+
     public int getPort() {
         return port;
+    }
+
+    public void setPort(int port) {
+        checkNotRunning();
+        this.port = port;
     }
 
     public NioEventLoopGroup getProcessorGroup() {
@@ -252,6 +289,11 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
 
     public Properties getProperties() {
         return properties;
+    }
+
+    public void setProperties(Properties properties) {
+        checkNotRunning();
+        this.properties = properties;
     }
 
     public ProtocolCodec getProtocolCodec(String id) throws IOException {
@@ -270,12 +312,31 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         return sslContext;
     }
 
+    public void setSslContext(SslContext sslContext) {
+        checkNotRunning();
+        if (sslContext == null) {
+            throw new IllegalArgumentException("null sslContext");
+        }
+        this.sslContext = sslContext;
+        this.enableSsl = true;
+    }
+
     public String getSslKeystore() {
         return sslKeystore;
     }
 
+    public void setSslKeystore(String sslKeystore) {
+        checkNotRunning();
+        this.sslKeystore = sslKeystore;
+    }
+
     public String getSslPem() {
         return sslPem;
+    }
+
+    public void setSslPem(String sslPem) {
+        checkNotRunning();
+        this.sslPem = sslPem;
     }
 
     public long getStartupTime() {
@@ -318,8 +379,8 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         if (isEnableSsl() && getSslContext() == null) {
             SslContextBuilder builder = SslContextBuilder.forServer();
             if (!Util.isNullOrBlank(getSslPem())) {
-                String[] params = getSslPem().split(";");
-                String password = null;
+                String[] params   = getSslPem().split(";");
+                String   password = null;
                 if (params.length == 3) {
                     password = params[2].trim();
                     if (password.length() == 0) {
@@ -328,7 +389,7 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
                 } else if (params.length != 2) {
                     throw new IllegalArgumentException("sslPem config error");
                 }
-                InputStream privateKey = FileUtil.readInputStreamByCls(params[0], classLoader);
+                InputStream privateKey  = FileUtil.readInputStreamByCls(params[0], classLoader);
                 InputStream certificate = FileUtil.readInputStreamByCls(params[1], classLoader);
                 builder.keyManager(privateKey, certificate, password);
                 builder.applicationProtocols(applicationProtocols);
@@ -337,13 +398,13 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
                 return;
             }
             if (!Util.isNullOrBlank(getSslKeystore())) {
-                String keystoreInfo = getSslKeystore();
-                String[] params = keystoreInfo.split(";");
+                String   keystoreInfo = getSslKeystore();
+                String[] params       = keystoreInfo.split(";");
                 if (params.length != 4) {
                     throw new IllegalArgumentException("sslKeystore config error");
                 }
-                File storeFile = FileUtil.readFileByCls(params[0], classLoader);
-                FileInputStream is = new FileInputStream(storeFile);
+                File            storeFile = FileUtil.readFileByCls(params[0], classLoader);
+                FileInputStream is        = new FileInputStream(storeFile);
                 builder.keyManager(is, params[1], params[2], params[3]);
                 builder.applicationProtocols(applicationProtocols);
                 SslContext sslContext = builder.build();
@@ -360,35 +421,13 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         return enableHeartbeatLog;
     }
 
-    public boolean isEnableSsl() {
-        return enableSsl;
-    }
-
-    public boolean isPrintConfig() {
-        return printConfig;
-    }
-
-    public Object removeAttribute(Object key) {
-        return this.attributes.remove(key);
-    }
-
-    public void setApplicationProtocols(String[] applicationProtocols) {
-        checkNotRunning();
-        this.applicationProtocols = applicationProtocols;
-    }
-
-    public void setAttribute(Object key, Object value) {
-        this.attributes.put(key, value);
-    }
-
-    public void setCharset(Charset charset) {
-        checkNotRunning();
-        this.charset = charset;
-    }
-
     public void setEnableHeartbeatLog(boolean enableHeartbeatLog) {
         checkNotRunning();
         this.enableHeartbeatLog = enableHeartbeatLog;
+    }
+
+    public boolean isEnableSsl() {
+        return enableSsl;
     }
 
     public void setEnableSsl(boolean enableSsl) {
@@ -396,39 +435,8 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         this.enableSsl = enableSsl;
     }
 
-    public void setExecutorEventLoopGroup(EventLoopGroup executorEventLoopGroup) {
-        checkNotRunning();
-        this.executorEventLoopGroup = executorEventLoopGroup;
-    }
-
-    public void setHost(String host) {
-        checkNotRunning();
-        this.host = host;
-    }
-
-    public void setIoEventHandle(IoEventHandle ioEventHandle) {
-        checkNotRunning();
-        this.ioEventHandle = ioEventHandle;
-    }
-
-    public void setMaxWriteBacklog(int maxWriteBacklog) {
-        checkNotRunning();
-        this.maxWriteBacklog = maxWriteBacklog;
-    }
-
-    public void setNioEventLoopGroup(NioEventLoopGroup nioEventLoopGroup) {
-        checkNotRunning();
-        this.processorGroup = nioEventLoopGroup;
-    }
-
-    public void setOpenSslPath(String openSslPath) {
-        checkNotRunning();
-        this.openSslPath = openSslPath;
-    }
-
-    public void setPort(int port) {
-        checkNotRunning();
-        this.port = port;
+    public boolean isPrintConfig() {
+        return printConfig;
     }
 
     public void setPrintConfig(boolean printConfig) {
@@ -436,28 +444,17 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         this.printConfig = printConfig;
     }
 
-    public void setProperties(Properties properties) {
-        checkNotRunning();
-        this.properties = properties;
+    public Object removeAttribute(Object key) {
+        return this.attributes.remove(key);
     }
 
-    public void setSslContext(SslContext sslContext) {
-        checkNotRunning();
-        if (sslContext == null) {
-            throw new IllegalArgumentException("null sslContext");
-        }
-        this.sslContext = sslContext;
-        this.enableSsl = true;
+    public void setAttribute(Object key, Object value) {
+        this.attributes.put(key, value);
     }
 
-    public void setSslKeystore(String sslKeystore) {
+    public void setNioEventLoopGroup(NioEventLoopGroup nioEventLoopGroup) {
         checkNotRunning();
-        this.sslKeystore = sslKeystore;
-    }
-
-    public void setSslPem(String sslPem) {
-        checkNotRunning();
-        this.sslPem = sslPem;
+        this.processorGroup = nioEventLoopGroup;
     }
 
     private String sslType() {

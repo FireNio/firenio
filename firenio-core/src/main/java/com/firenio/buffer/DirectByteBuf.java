@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,13 @@ abstract class DirectByteBuf extends ByteBuf {
 
     DirectByteBuf(ByteBuffer memory) {
         this.memory = memory;
+    }
+
+    private static long toUnsignedInt(int value) {
+        if (value < 0) {
+            return value & 0xffffffffffffffffL;
+        }
+        return value;
     }
 
     @Override
@@ -177,8 +184,7 @@ abstract class DirectByteBuf extends ByteBuf {
 
     @Override
     public long getUnsignedInt() {
-        long v = toUnsignedInt(memory.getInt());
-        return v;
+        return toUnsignedInt(memory.getInt());
     }
 
     @Override
@@ -231,8 +237,8 @@ abstract class DirectByteBuf extends ByteBuf {
         ByteBuffer m = memory;
         if (Unsafe.ENABLE) {
             long addr = address();
-            long p = addr + abs_pos;
-            long l = p + size;
+            long p    = addr + abs_pos;
+            long l    = p + size;
             for (; p < l; p++) {
                 if (Unsafe.getByte(p) == b) {
                     return (int) (p - addr);
@@ -255,8 +261,8 @@ abstract class DirectByteBuf extends ByteBuf {
         ByteBuffer m = memory;
         if (Unsafe.ENABLE) {
             long addr = address();
-            long p = addr + abs_pos;
-            long l = p - size - 1;
+            long p    = addr + abs_pos;
+            long l    = p - size - 1;
             for (; p > l; p--) {
                 if (Unsafe.getByte(p) == b) {
                     return (int) (p - addr);
@@ -439,13 +445,6 @@ abstract class DirectByteBuf extends ByteBuf {
     public ByteBuf skip(int length) {
         memory.position(memory.position() + length);
         return this;
-    }
-
-    private static long toUnsignedInt(int value) {
-        if (value < 0) {
-            return value & 0xffffffffffffffffL;
-        }
-        return value;
     }
 
 }

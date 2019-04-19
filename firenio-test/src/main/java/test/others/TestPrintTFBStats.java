@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,9 +27,10 @@ import com.firenio.common.FileUtil;
 
 /**
  * @author wangkai
- *
  */
 public class TestPrintTFBStats {
+
+    static final BigDecimal N1000 = new BigDecimal(1000);
 
     public static void main(String[] args) throws IOException {
 
@@ -38,8 +39,6 @@ public class TestPrintTFBStats {
         test(JSONArray.parseArray(s));
 
     }
-
-    static final BigDecimal N1000 = new BigDecimal(1000);
 
     static void test(JSONArray array) {
         List<JSONObject> l = new ArrayList<>(1024);
@@ -66,10 +65,10 @@ public class TestPrintTFBStats {
         System.out.print("idl\t");
         System.out.println();
         for (int i = 0; i < l.size(); i++) {
-            JSONObject o = l.get(i);
-            double usr = 0;
-            double sys = 0;
-            double idl = 0;
+            JSONObject o   = l.get(i);
+            double     usr = 0;
+            double     sys = 0;
+            double     idl = 0;
             for (int j = 0; j < 28; j++) {
                 JSONObject cc = o.getJSONObject("cpu" + j + " usage");
                 usr += Double.parseDouble(cc.getString("usr"));

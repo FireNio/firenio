@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,14 +23,21 @@ import test.test.ITestThreadHandle;
 
 /**
  * @author wangkai
- *
  */
 public class TestNettyIntMap extends ITestThread {
 
-    static final int            time  = 1024 * 1024 * 16;
-    static final int[]          array = new int[time];
+    static final int                      time  = 1024 * 1024 * 16;
+    static final int[]                    array = new int[time];
     static final IntObjectHashMap<String> map   = new IntObjectHashMap<>(1024, 0.75f);
-    static final String NULL = "";
+    static final String                   NULL  = "";
+
+    public static void main(String[] args) {
+
+        int threads  = 1;
+        int execTime = 2;
+        ITestThreadHandle.doTest(TestNettyIntMap.class, threads, time, execTime);
+
+    }
 
     @Override
     public void run() {
@@ -38,7 +45,7 @@ public class TestNettyIntMap extends ITestThread {
             map.put(array[i], NULL);
         }
         for (int i = 0; i < array.length; i++) {
-            map.get(array[i]); 
+            map.get(array[i]);
             addCount(1280000);
         }
     }
@@ -53,14 +60,6 @@ public class TestNettyIntMap extends ITestThread {
 
     @Override
     public void stop() {
-
-    }
-
-    public static void main(String[] args) {
-
-        int threads = 1;
-        int execTime = 2;
-        ITestThreadHandle.doTest(TestNettyIntMap.class, threads, time, execTime);
 
     }
 

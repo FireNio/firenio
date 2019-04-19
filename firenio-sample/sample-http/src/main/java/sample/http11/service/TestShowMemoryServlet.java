@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,10 +39,9 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
     @Override
     protected void doAccept(Channel ch, HttpFrame frame) throws Exception {
         TestWebSocketChatServlet chatServlet = ContextUtil.getBean(TestWebSocketChatServlet.class);
-        TestWebSocketRumpetrollServlet rumpetrollServlet = ContextUtil
-                .getBean(TestWebSocketRumpetrollServlet.class);
+        TestWebSocketRumpetrollServlet rumpetrollServlet = ContextUtil.getBean(TestWebSocketRumpetrollServlet.class);
 
-        WebSocketMsgAdapter chatMsgAdapter = chatServlet.getMsgAdapter();
+        WebSocketMsgAdapter chatMsgAdapter       = chatServlet.getMsgAdapter();
         WebSocketMsgAdapter rumpetrollMsgAdapter = rumpetrollServlet.getMsgAdapter();
 
         ChannelContext context = ch.getContext();
@@ -53,9 +52,9 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
             Util.close(CountChannelListener.chs.get(id));
         }
 
-        BigDecimal time = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
+        BigDecimal time   = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
         BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
-        BigDecimal hour = time.divide(anHour, 3, RoundingMode.HALF_UP);
+        BigDecimal hour   = time.divide(anHour, 3, RoundingMode.HALF_UP);
 
         NioEventLoopGroup group = ch.getEventLoop().getGroup();
 
@@ -65,7 +64,7 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
 
         if (allocator != null) {
             StringBuilder builder = new StringBuilder();
-            String[] res = allocator.toDebugString();
+            String[]      res     = allocator.toDebugString();
             for (int i = 0; i < res.length; i++) {
                 builder.append("<BR/>\n");
                 builder.append(res[i]);
@@ -73,17 +72,14 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
             allocatorDes = builder.toString();
         }
 
-        int eventLoopSize = group.getEventLoopSize();
+        int eventLoopSize               = group.getEventLoopSize();
         int SERVER_MEMORY_POOL_CAPACITY = group.getMemoryPoolCapacity() * eventLoopSize;
-        int SERVER_MEMORY_POOL_UNIT = group.getMemoryPoolUnit();
+        int SERVER_MEMORY_POOL_UNIT     = group.getMemoryPoolUnit();
 
-        double MEMORY_POOL_SIZE = new BigDecimal(
-                SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT)
-                        .divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP)
-                        .doubleValue();
+        double MEMORY_POOL_SIZE = new BigDecimal(SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT).divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
 
-        int M = 1024 * 1024;
-        Runtime runtime = Runtime.getRuntime();
+        int           M       = 1024 * 1024;
+        Runtime       runtime = Runtime.getRuntime();
         StringBuilder builder = new StringBuilder(HttpUtil.HTML_HEADER);
 
         builder.append("		<div style=\"margin-left:20px;\">\n");

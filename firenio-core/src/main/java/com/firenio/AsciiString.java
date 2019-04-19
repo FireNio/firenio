@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,6 @@ import com.firenio.common.ByteUtil;
 
 /**
  * @author wangkai
- *
  */
 public class AsciiString implements CharSequence, Comparable<AsciiString> {
 
@@ -41,6 +40,25 @@ public class AsciiString implements CharSequence, Comparable<AsciiString> {
         this.length = length;
     }
 
+    public static void main(String[] args) {
+        TreeMap<AsciiString, String> map = new TreeMap<>();
+        put(map, "123");
+        put(map, "122");
+        put(map, "121");
+        put(map, "221");
+        put(map, "212");
+        put(map, "222");
+        put(map, "211");
+        put(map, "/plaintext");
+        put(map, "/json");
+        String res = map.get(new AsciiString("abc/plaintext123".getBytes(), 3, 10));
+        System.out.println(res);
+    }
+
+    static void put(TreeMap<AsciiString, String> map, String v) {
+        map.put(new AsciiString(v.getBytes()), v);
+    }
+
     @Override
     public char charAt(int index) {
         return (char) (value[offset + index] & 0xff);
@@ -48,12 +66,12 @@ public class AsciiString implements CharSequence, Comparable<AsciiString> {
 
     @Override
     public int compareTo(AsciiString o) {
-        int len1 = length;
-        int len2 = o.length();
-        int off = offset;
-        int lim = Math.min(len1, len2);
-        byte v1[] = value;
-        byte v2[] = o.value;
+        int    len1 = length;
+        int    len2 = o.length();
+        int    off  = offset;
+        int    lim  = Math.min(len1, len2);
+        byte[] v1   = value;
+        byte[] v2   = o.value;
 
         int k = 0;
         while (k < lim) {
@@ -76,15 +94,14 @@ public class AsciiString implements CharSequence, Comparable<AsciiString> {
             return true;
         }
         AsciiString other = (AsciiString) obj;
-        return length() == other.length()
-                && ByteUtil.equalsArray(value, offset, other.value, other.offset, length);
+        return length() == other.length() && ByteUtil.equalsArray(value, offset, other.value, other.offset, length);
     }
 
     @Override
     public int hashCode() {
         int h = hash;
         if (h == 0 && length > 0) {
-            byte val[] = value;
+            byte[] val = value;
             for (int i = offset, end = offset + length; i < end; i++) {
                 h = 31 * h + val[i];
             }
@@ -118,25 +135,6 @@ public class AsciiString implements CharSequence, Comparable<AsciiString> {
             string = new String(value, 0, offset, length);
         }
         return string;
-    }
-
-    public static void main(String[] args) {
-        TreeMap<AsciiString, String> map = new TreeMap<>();
-        put(map, "123");
-        put(map, "122");
-        put(map, "121");
-        put(map, "221");
-        put(map, "212");
-        put(map, "222");
-        put(map, "211");
-        put(map, "/plaintext");
-        put(map, "/json");
-        String res = map.get(new AsciiString("abc/plaintext123".getBytes(), 3, 10));
-        System.out.println(res);
-    }
-
-    static void put(TreeMap<AsciiString, String> map, String v) {
-        map.put(new AsciiString(v.getBytes()), v);
     }
 
 }

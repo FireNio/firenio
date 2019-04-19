@@ -310,8 +310,8 @@ public class HttpFrame extends Frame {
         if (!Util.isNullOrBlank(Sec_WebSocket_Key_Value)) {
             //FIXME 258EAFA5-E914-47DA-95CA-C5AB0DC85B11 必须这个值？
             String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key_Value + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-            byte[] key_array = Cryptos.SHA1(Sec_WebSocket_Key_Magic);
-            String acceptKey = Cryptos.base64_en(key_array);
+            byte[] key_array               = Cryptos.SHA1(Sec_WebSocket_Key_Magic);
+            String acceptKey               = Cryptos.base64_en(key_array);
             setStatus(HttpStatus.C101);
             setConnection(HttpConnection.UPGRADE);
             setResponseHeader(Upgrade, HttpStatic.websocket_bytes);

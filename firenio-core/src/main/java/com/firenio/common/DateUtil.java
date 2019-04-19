@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,23 +26,17 @@ import java.util.TimeZone;
 public class DateUtil {
 
     private static final ThreadLocal<DateUtil> dateUtils       = new ThreadLocal<>();
-    private static final String[]              MONTHS          = new String[] { "Jan", "Feb", "Mar",
-            "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-    private static final byte[][]              MONTHS_BYTES    = new byte[][] { "Jan".getBytes(),
-            "Feb".getBytes(), "Mar".getBytes(), "Apr".getBytes(), "May".getBytes(),
-            "Jun".getBytes(), "Jul".getBytes(), "Aug".getBytes(), "Sep".getBytes(),
-            "Oct".getBytes(), "Nov".getBytes(), "Dec".getBytes() };
+    private static final String[]              MONTHS          = new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    private static final byte[][]              MONTHS_BYTES    = new byte[][]{"Jan".getBytes(), "Feb".getBytes(), "Mar".getBytes(), "Apr".getBytes(), "May".getBytes(), "Jun".getBytes(), "Jul".getBytes(), "Aug".getBytes(), "Sep".getBytes(), "Oct".getBytes(), "Nov".getBytes(), "Dec".getBytes()};
     private static final byte[]                NS              = new byte[10];
     private static final TimeZone              TZ              = TimeZone.getDefault();
     private static final byte                  TZ_0;
     private static final byte                  TZ_1;
     private static final byte                  TZ_2;
     private static final String                TZ_NAME;
-    private static final String[]              WEEK_DAYS       = new String[] { "", "Sun", "Mon",
-            "Tue", "Wed", "Thu", "Fri", "Sat" };
-    private static final byte[][]              WEEK_DAYS_BYTES = new byte[][] { "".getBytes(),
-            "Sun".getBytes(), "Mon".getBytes(), "Tue".getBytes(), "Wed".getBytes(),
-            "Thu".getBytes(), "Fri".getBytes(), "Sat".getBytes() };
+    private static final String[]              WEEK_DAYS       = new String[]{"", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    private static final byte[][]              WEEK_DAYS_BYTES = new byte[][]{"".getBytes(), "Sun".getBytes(), "Mon".getBytes(), "Tue".getBytes(), "Wed".getBytes(), "Thu".getBytes(), "Fri".getBytes(), "Sat".getBytes()};
+
     static {
         boolean daylight = (Calendar.getInstance().get(Calendar.DST_OFFSET) != 0);
         TZ_NAME = TZ.getDisplayName(daylight, TimeZone.SHORT, Locale.getDefault());
@@ -54,16 +48,36 @@ public class DateUtil {
         }
     }
 
-    private Calendar         calendar                = Calendar.getInstance(TZ);
     private final DateFormat HH_mm_ss                = new SimpleDateFormat("HH:mm:ss");
     private final DateFormat yyMMdd                  = new SimpleDateFormat("yyMMdd");
     private final DateFormat yyyy_MM_dd              = new SimpleDateFormat("yyyy-MM-dd");
     private final DateFormat yyyy_MM_dd_HH_mm_ss     = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private final DateFormat yyyy_MM_dd_HH_mm_ss_SSS = new SimpleDateFormat(
-            "yyyy-MM-dd HH:mm:ss.SSS");
+    private final DateFormat yyyy_MM_dd_HH_mm_ss_SSS = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private final DateFormat yyyyMMdd                = new SimpleDateFormat("yyyyMMdd");
     private final DateFormat yyyyMMdd_HH_mm_ss       = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
     private final DateFormat yyyyMMddHHmmss          = new SimpleDateFormat("yyyyMMddHHmmss");
+    private       Calendar   calendar                = Calendar.getInstance(TZ);
+
+    public static DateUtil get() {
+        DateUtil d = dateUtils.get();
+        if (d == null) {
+            d = new DateUtil();
+            dateUtils.set(d);
+        }
+        return d;
+    }
+
+    public static void main(String[] args) {
+        Date d = new Date();
+        System.out.println(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss(d));
+        String str = get().formatHttp(d.getTime());
+        System.out.println(str);
+        d = get().parseHttp(str);
+        System.out.println(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss(d));
+        System.out.println(new String(get().formatHttpBytes()));
+        System.out.println(get().formatYyyy_MM_dd_HH_mm_ss(d));
+        System.out.println(TZ);
+    }
 
     public String formatHH_mm_ss() {
         return formatHH_mm_ss(new Date());
@@ -81,12 +95,12 @@ public class DateUtil {
         calendar.setTimeInMillis(time);
         calendar.setTimeZone(TZ);
         int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int year = calendar.get(Calendar.YEAR);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        int second = calendar.get(Calendar.SECOND);
+        int month   = calendar.get(Calendar.MONTH);
+        int day     = calendar.get(Calendar.DAY_OF_MONTH);
+        int year    = calendar.get(Calendar.YEAR);
+        int hour    = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute  = calendar.get(Calendar.MINUTE);
+        int second  = calendar.get(Calendar.SECOND);
 
         StringBuilder b = new StringBuilder(26);
         b.append(WEEK_DAYS[weekDay]);
@@ -142,14 +156,14 @@ public class DateUtil {
         calendar.setTimeInMillis(time);
 
         int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int year = calendar.get(Calendar.YEAR);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        int second = calendar.get(Calendar.SECOND);
+        int month   = calendar.get(Calendar.MONTH);
+        int day     = calendar.get(Calendar.DAY_OF_MONTH);
+        int year    = calendar.get(Calendar.YEAR);
+        int hour    = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute  = calendar.get(Calendar.MINUTE);
+        int second  = calendar.get(Calendar.SECOND);
 
-        byte[] days = WEEK_DAYS_BYTES[weekDay];
+        byte[] days   = WEEK_DAYS_BYTES[weekDay];
         byte[] months = MONTHS_BYTES[month];
         b[off + 0] = days[0];
         b[off + 1] = days[1];
@@ -190,6 +204,8 @@ public class DateUtil {
         return yyMMdd.format(date);
     }
 
+    //  --------------------------------------------------------------------------------
+
     public String formatYyyy_MM_dd() {
         return formatYyyy_MM_dd(new Date());
     }
@@ -197,8 +213,6 @@ public class DateUtil {
     public String formatYyyy_MM_dd(Date date) {
         return yyyy_MM_dd.format(date);
     }
-
-    //  --------------------------------------------------------------------------------
 
     public String formatYyyy_MM_dd_HH_mm_ss() {
         return formatYyyy_MM_dd_HH_mm_ss(new Date());
@@ -224,6 +238,8 @@ public class DateUtil {
         return yyyyMMdd.format(date);
     }
 
+    //  --------------------------------------------------------------------------------
+
     public String formatYyyyMMdd_HH_mm_ss() {
         return formatYyyyMMdd_HH_mm_ss(new Date());
     }
@@ -231,8 +247,6 @@ public class DateUtil {
     public String formatYyyyMMdd_HH_mm_ss(Date date) {
         return yyyyMMdd_HH_mm_ss.format(date);
     }
-
-    //  --------------------------------------------------------------------------------
 
     public String formatYyyyMMddHHmmss() {
         return formatYyyyMMddHHmmss(new Date());
@@ -246,7 +260,7 @@ public class DateUtil {
         char c1 = month.charAt(begin);
         char c2 = month.charAt(begin + 1);
         char c3 = month.charAt(begin + 2);
-        int c = (c1 << 16) | (c2 << 8) | c3;
+        int  c  = (c1 << 16) | (c2 << 8) | c3;
         switch (c) {
             case ('J' << 16) | ('a' << 8) | ('n'):
                 return 0;
@@ -286,12 +300,12 @@ public class DateUtil {
     }
 
     public Date parseHttp(String source) {
-        int day = parseInt(source, 5, 7);
-        int year = parseInt(source, 12, 16);
-        int hour = parseInt(source, 17, 19);
+        int day    = parseInt(source, 5, 7);
+        int year   = parseInt(source, 12, 16);
+        int hour   = parseInt(source, 17, 19);
         int minute = parseInt(source, 20, 22);
         int second = parseInt(source, 23, 25);
-        int month = getMonth(source, 8, 11);
+        int month  = getMonth(source, 8, 11);
 
         Calendar calendar = Calendar.getInstance(TZ);
         calendar.set(Calendar.YEAR, year);
@@ -366,27 +380,6 @@ public class DateUtil {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static DateUtil get() {
-        DateUtil d = dateUtils.get();
-        if (d == null) {
-            d = new DateUtil();
-            dateUtils.set(d);
-        }
-        return d;
-    }
-
-    public static void main(String[] args) {
-        Date d = new Date();
-        System.out.println(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss(d));
-        String str = get().formatHttp(d.getTime());
-        System.out.println(str);
-        d = get().parseHttp(str);
-        System.out.println(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss(d));
-        System.out.println(new String(get().formatHttpBytes()));
-        System.out.println(get().formatYyyy_MM_dd_HH_mm_ss(d));
-        System.out.println(TZ);
     }
 
 }

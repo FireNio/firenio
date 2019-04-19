@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,8 +47,7 @@ public class JSONParse {
 
             @Override
             public void test(int i) {
-                com.alibaba.fastjson.JSON.parseArray(
-                        "[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
+                com.alibaba.fastjson.JSON.parseArray("[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
             }
 
         }, 1500000, "Fast Json");
@@ -59,8 +58,7 @@ public class JSONParse {
             @Override
             public void test(int i) {
                 try {
-                    JSON.stringToArray(
-                            "[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
+                    JSON.stringToArray("[\"a\",true,true,false,[true,true,{\"a\":\"sss\",\"b\":true,\"c\":false,\"d\":true,\"e\":{\"a\":true},\"f\":{\"a\":\"xx\",\"b\":[true,true,{\"a\":\"aa\"}]}}]]");
                 } catch (JSONSyntaxException e) {
                     logger.error(e);
                 }

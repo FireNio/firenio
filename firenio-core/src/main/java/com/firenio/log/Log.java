@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,25 +20,24 @@ import java.util.Map;
 
 /**
  * @author wangkai
- *
  */
 public class Log {
-    
+
     private static final char   DELIM_START = '{';
     private static final String DELIM_STR   = "{}";
     private static final char   ESCAPE_CHAR = '\\';
 
-    final public static String arrayFormat(final String messagePattern, final Object[] argArray) {
+    public static String arrayFormat(final String messagePattern, final Object[] argArray) {
         if (messagePattern == null) {
             return null;
         }
         if (argArray == null) {
             return messagePattern;
         }
-        int i = 0;
-        int j;
+        int           i       = 0;
+        int           j;
         StringBuilder builder = new StringBuilder(messagePattern.length() + 50);
-        int L;
+        int           L;
         for (L = 0; L < argArray.length; L++) {
             j = messagePattern.indexOf(DELIM_STR, i);
             if (j == -1) {
@@ -46,17 +45,17 @@ public class Log {
                 if (i == 0) { // this is a simple string
                     return messagePattern;
                 } else { // add the tail string which contains no variables
-                             // and return
-                         // the result.
-                    builder.append(messagePattern.substring(i, messagePattern.length()));
+                    // and return
+                    // the result.
+                    builder.append(messagePattern.substring(i));
                     return builder.toString();
                 }
             } else {
                 if (isEscapedDelimeter(messagePattern, j)) {
                     if (!isDoubleEscaped(messagePattern, j)) {
                         L--; // DELIM_START was escaped, thus should not
-                             // be incremented
-                        builder.append(messagePattern.substring(i, j - 1));
+                        // be incremented
+                        builder.append(messagePattern, i, j - 1);
                         builder.append(DELIM_START);
                         i = j + 1;
                     } else {
@@ -64,20 +63,20 @@ public class Log {
                         // start is
                         // itself escaped: "abc x:\\{}"
                         // we have to consume one backward slash
-                        builder.append(messagePattern.substring(i, j - 1));
+                        builder.append(messagePattern, i, j - 1);
                         deeplyAppendParameter(builder, argArray[L], new HashMap<>());
                         i = j + 2;
                     }
                 } else {
                     // normal case
-                    builder.append(messagePattern.substring(i, j));
+                    builder.append(messagePattern, i, j);
                     deeplyAppendParameter(builder, argArray[L], new HashMap<>());
                     i = j + 2;
                 }
             }
         }
         // append the characters following the last {} pair.
-        builder.append(messagePattern.substring(i, messagePattern.length()));
+        builder.append(messagePattern.substring(i));
         if (L < argArray.length - 1) {
             return builder.toString();
         } else {
@@ -178,12 +177,12 @@ public class Log {
         sbuf.append(']');
     }
 
-    final public static String format(String messagePattern, Object arg) {
-        return arrayFormat(messagePattern, new Object[] { arg });
+    public static String format(String messagePattern, Object arg) {
+        return arrayFormat(messagePattern, new Object[]{arg});
     }
 
-    final public static String format(final String messagePattern, Object arg1, Object arg2) {
-        return arrayFormat(messagePattern, new Object[] { arg1, arg2 });
+    public static String format(final String messagePattern, Object arg1, Object arg2) {
+        return arrayFormat(messagePattern, new Object[]{arg1, arg2});
     }
 
     private static void intArrayAppend(StringBuilder sbuf, int[] a) {
@@ -198,26 +197,16 @@ public class Log {
         sbuf.append(']');
     }
 
-    private final static boolean isDoubleEscaped(String messagePattern, int delimeterStartIndex) {
-        if (delimeterStartIndex >= 2
-                && messagePattern.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR) {
-            return true;
-        } else {
-            return false;
-        }
+    private static boolean isDoubleEscaped(String messagePattern, int delimeterStartIndex) {
+        return delimeterStartIndex >= 2 && messagePattern.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR;
     }
 
-    private final static boolean isEscapedDelimeter(String messagePattern,
-            int delimeterStartIndex) {
+    private static boolean isEscapedDelimeter(String messagePattern, int delimeterStartIndex) {
         if (delimeterStartIndex == 0) {
             return false;
         }
         char potentialEscape = messagePattern.charAt(delimeterStartIndex - 1);
-        if (potentialEscape == ESCAPE_CHAR) {
-            return true;
-        } else {
-            return false;
-        }
+        return potentialEscape == ESCAPE_CHAR;
     }
 
     private static void longArrayAppend(StringBuilder sbuf, long[] a) {
@@ -232,7 +221,7 @@ public class Log {
         sbuf.append(']');
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static void objectArrayAppend(StringBuilder sbuf, Object[] a, Map seenMap) {
         sbuf.append('[');
         if (!seenMap.containsKey(a)) {
@@ -257,8 +246,7 @@ public class Log {
             String oAsString = o.toString();
             sbuf.append(oAsString);
         } catch (Throwable t) {
-            System.err.println("SLF4J: Failed toString() invocation on an object of type ["
-                    + o.getClass().getName() + "]");
+            System.err.println("SLF4J: Failed toString() invocation on an object of type [" + o.getClass().getName() + "]");
             t.printStackTrace();
             sbuf.append("[FAILED toString()]");
         }

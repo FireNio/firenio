@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,7 +42,6 @@ import sample.http11.service.CountChannelListener;
 
 /**
  * @author wangkai
- *
  */
 public class TestHttpBootstrapEngine implements BootstrapEngine {
 
@@ -54,12 +53,12 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         DevelopConfig.BUF_DEBUG = true;
         Options.setEnableEpoll(true);
         Options.setEnableOpenssl(true);
-//        Options.setEnableUnsafeBuf(true);
+        //        Options.setEnableUnsafeBuf(true);
         HttpDateUtil.start();
-        final SpringHttpFrameHandle handle = new SpringHttpFrameHandle();
-        Properties properties = FileUtil.readPropertiesByCls("server.properties");
-        NioEventLoopGroup group = new NioEventLoopGroup(true);
-        ChannelAcceptor context = new ChannelAcceptor(group);
+        final SpringHttpFrameHandle handle     = new SpringHttpFrameHandle();
+        Properties                  properties = FileUtil.readPropertiesByCls("server.properties");
+        NioEventLoopGroup           group      = new NioEventLoopGroup(true);
+        ChannelAcceptor             context    = new ChannelAcceptor(group);
         ConfigurationParser.parseConfiguration("server.", context, properties);
         ConfigurationParser.parseConfiguration("server.", group, properties);
         context.setIoEventHandle(handle);
@@ -85,7 +84,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         });
         if (properties.getBooleanProperty("app.enableHttp2")) {
             context.addProtocolCodec(new Http2Codec());
-            context.setApplicationProtocols(new String[] { "h2", "http/1.1" });
+            context.setApplicationProtocols(new String[]{"h2", "http/1.1"});
         } else {
             context.addProtocolCodec(new HttpCodec(4));
             context.addProtocolCodec(new WebSocketCodec());

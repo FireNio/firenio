@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -263,8 +263,8 @@ abstract class UnsafeByteBuf extends ByteBuf {
     @Override
     public int indexOf(byte b, int abs_pos, int size) {
         long addr = address();
-        long p = addr + abs_pos;
-        long l = p + size;
+        long p    = addr + abs_pos;
+        long l    = p + size;
         for (; p < l; p++) {
             if (Unsafe.getByte(p) == b) {
                 return (int) (p - addr);
@@ -276,8 +276,8 @@ abstract class UnsafeByteBuf extends ByteBuf {
     @Override
     public int lastIndexOf(byte b, int abs_pos, int size) {
         long addr = address();
-        long p = addr + abs_pos;
-        long l = p - size;
+        long p    = addr + abs_pos;
+        long l    = p - size;
         for (; p > l; p--) {
             if (Unsafe.getByte(p) == b) {
                 return (int) (p - addr);

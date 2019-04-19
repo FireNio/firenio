@@ -11,14 +11,6 @@ public class TestWizzardoTFB {
 
     public static final byte[] HELLO_WORLD = "Hello, World!".getBytes();
 
-    public static class Message {
-        public String message;
-
-        public Message(String message) {
-            this.message = message;
-        }
-    }
-
     public static void main(String[] args) {
         WebApplication webApplication = new WebApplication(args) {
             @Override
@@ -39,15 +31,17 @@ public class TestWizzardoTFB {
         };
 
         webApplication.onSetup(app -> {
-            app.getUrlMapping()
-                    .append("/plaintext",
-                            (request, response) -> response.setBody(HELLO_WORLD)
-                                    .appendHeader(Header.KV_CONTENT_TYPE_TEXT_PLAIN))
-                    .append("/json", (request, response) -> response
-                            .setBody(JsonResponseHelper.renderJson(new Message("Hello, World!")))
-                            .appendHeader(Header.KV_CONTENT_TYPE_APPLICATION_JSON));
+            app.getUrlMapping().append("/plaintext", (request, response) -> response.setBody(HELLO_WORLD).appendHeader(Header.KV_CONTENT_TYPE_TEXT_PLAIN)).append("/json", (request, response) -> response.setBody(JsonResponseHelper.renderJson(new Message("Hello, World!"))).appendHeader(Header.KV_CONTENT_TYPE_APPLICATION_JSON));
         });
 
         webApplication.start();
+    }
+
+    public static class Message {
+        public String message;
+
+        public Message(String message) {
+            this.message = message;
+        }
     }
 }

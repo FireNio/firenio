@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,7 @@ import com.firenio.log.LoggerFactory;
 
 public class WebSocketMsgAdapter extends EventLoop {
 
-    private Map<Integer, Client>    clientMap = new ConcurrentHashMap<>();
+    private Map<Integer, Client>    clientMap  = new ConcurrentHashMap<>();
     private Map<String, Channel>    channelMap = new ConcurrentHashMap<>();
     private Logger                  logger     = LoggerFactory.getLogger(getClass());
     private BlockingQueue<Runnable> msgs       = new ArrayBlockingQueue<>(1024 * 4);
@@ -44,30 +44,6 @@ public class WebSocketMsgAdapter extends EventLoop {
         clientMap.put(ch.getChannelId(), new Client(ch, username));
         channelMap.put(username, ch);
         logger.info("client joined {} ,clients size: {}", ch, clientMap.size());
-    }
-
-    static class Client {
-
-        public Client(Channel ch, String username) {
-            this.channel = ch;
-            this.username = username;
-        }
-
-        private Channel channel;
-        private String  username;
-
-        public Channel getChannel() {
-            return channel;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
     }
 
     @Override
@@ -129,11 +105,38 @@ public class WebSocketMsgAdapter extends EventLoop {
         sendMsg(null, msg);
     }
 
+    public Channel getChannel(String username) {
+        return channelMap.get(username);
+    }
+
+    static class Client {
+
+        private Channel channel;
+        private String  username;
+        public Client(Channel ch, String username) {
+            this.channel = ch;
+            this.username = username;
+        }
+
+        public Channel getChannel() {
+            return channel;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+    }
+
     class Msg implements Runnable {
 
         Channel ch;
 
-        String  msg;
+        String msg;
 
         Msg(Channel ch, String msg) {
             this.msg = msg;
@@ -143,10 +146,6 @@ public class WebSocketMsgAdapter extends EventLoop {
         @Override
         public void run() {}
 
-    }
-
-    public Channel getChannel(String username) {
-        return channelMap.get(username);
     }
 
 }

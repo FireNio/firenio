@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,19 +21,18 @@ import com.firenio.common.Util;
 
 /**
  * @author wangkai
- *
  */
 public final class IntMap<V> {
 
-    private int         cap;
-    private int[]       keys;
-    private V[]         values;
-    private int         scanSize;
-    private int         size;
-    private int         mask;
-    private int         scanIndex;
-    private int         limit;
     private final float loadFactor;
+    private       int   cap;
+    private       int[] keys;
+    private       V[]   values;
+    private       int   scanSize;
+    private       int   size;
+    private       int   mask;
+    private       int   scanIndex;
+    private       int   limit;
 
     public IntMap() {
         this(16);
@@ -54,15 +53,6 @@ public final class IntMap<V> {
         this.values = (V[]) new Object[c];
         this.limit = (int) (c * loadFactor);
         Arrays.fill(keys, -1);
-    }
-
-    public void scan() {
-        this.scanSize = 0;
-        this.scanIndex = -1;
-    }
-
-    public boolean hasNext() {
-        return scanSize < size;
     }
 
     private static int indexOfKey(int[] keys, int key, int mask) {
@@ -87,7 +77,7 @@ public final class IntMap<V> {
 
     private static int indexOfFreeKey(int[] keys, int key, int mask) {
         int index = key & mask;
-        int _key = keys[index];
+        int _key  = keys[index];
         if (_key == -1 || _key == key) {
             return index;
         }
@@ -106,6 +96,15 @@ public final class IntMap<V> {
         //will not happen
         return -1;
 
+    }
+
+    public void scan() {
+        this.scanSize = 0;
+        this.scanIndex = -1;
+    }
+
+    public boolean hasNext() {
+        return scanSize < size;
     }
 
     public V putIfAbsent(int key, V value) {
@@ -191,15 +190,14 @@ public final class IntMap<V> {
     private void grow() {
         size++;
         if (size > limit) {
-            int c = Util.clothCover(cap + 1);
-            int cap = c;
-            int mask = c - 1;
-            int[] keys = new int[c];
-            V[] values = (V[]) new Object[c];
-            int limit = (int) (c * loadFactor);
+            int   cap      = Util.clothCover(this.cap + 1);
+            int   mask   = cap - 1;
+            int[] keys   = new int[cap];
+            V[]   values = (V[]) new Object[cap];
+            int   limit  = (int) (cap * loadFactor);
             Arrays.fill(keys, -1);
             scan();
-            for (; hasNext();) {
+            for (; hasNext(); ) {
                 int index = next();
                 put0(indexKey(index), indexValue(index), mask, keys, values, false);
             }
@@ -243,8 +241,7 @@ public final class IntMap<V> {
             V value = values[i];
             if (value != null) {
                 sb.append(sb.length() == 0 ? "{" : ", ");
-                sb.append(Integer.toString(keys[i])).append('=')
-                        .append(value == this ? "(this Map)" : value);
+                sb.append(keys[i]).append('=').append(value == this ? "(this Map)" : value);
             }
         }
         return sb.append('}').toString();
@@ -253,7 +250,7 @@ public final class IntMap<V> {
     public int conflict() {
         int s = 0;
         scan();
-        for (; hasNext();) {
+        for (; hasNext(); ) {
             int index = next();
             if ((keys[index] & mask) != index) {
                 s++;

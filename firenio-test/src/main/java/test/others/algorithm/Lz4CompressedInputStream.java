@@ -8,13 +8,12 @@ import com.firenio.common.ByteUtil;
 
 /**
  * @author wangkai
- *
  */
 public class Lz4CompressedInputStream extends InputStream {
 
-    private ByteBuf     buf;
+    private ByteBuf buf;
 
-    private boolean     hasRemaining = true;
+    private boolean hasRemaining = true;
 
     private InputStream inputStream;
 
@@ -22,6 +21,33 @@ public class Lz4CompressedInputStream extends InputStream {
         this.inputStream = inputStream;
         this.buf = ByteBuf.heap(bufSize);
         this.buf.limit(0);
+    }
+
+    public static int read(ByteBuf dst, InputStream src) throws IOException {
+        return read(dst, src, dst.capacity());
+    }
+
+    public static int read(ByteBuf dst, InputStream src, long limit) throws IOException {
+        byte[] array = dst.array();
+        if (!dst.hasRemaining()) {
+            int read = (int) Math.min(limit, dst.capacity());
+            int len  = src.read(array, 0, read);
+            if (len > 0) {
+                dst.position(0);
+                dst.limit(len);
+            }
+            return len;
+        }
+        int remaining = dst.remaining();
+        System.arraycopy(array, dst.position(), array, 0, remaining);
+        dst.position(0);
+        dst.limit(remaining);
+        int read = (int) Math.min(limit, dst.capacity() - remaining);
+        int len  = src.read(array, remaining, read);
+        if (len > 0) {
+            dst.limit(remaining + len);
+        }
+        return len;
     }
 
     @Override
@@ -41,10 +67,10 @@ public class Lz4CompressedInputStream extends InputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        ByteBuf buf = this.buf;
-        byte[] readBuffer = buf.array();
-        int limit = buf.limit();
-        int offset = buf.position();
+        ByteBuf buf        = this.buf;
+        byte[]  readBuffer = buf.array();
+        int     limit      = buf.limit();
+        int     offset     = buf.position();
         if (buf.remaining() <= 4) {
             if (!hasRemaining) {
                 return -1;
@@ -69,33 +95,6 @@ public class Lz4CompressedInputStream extends InputStream {
         int len = read(buf, inputStream);
         if (len == -1) {
             hasRemaining = false;
-        }
-        return len;
-    }
-    
-    public static int read(ByteBuf dst, InputStream src) throws IOException {
-        return read(dst, src, dst.capacity());
-    }
-
-    public static int read(ByteBuf dst, InputStream src, long limit) throws IOException {
-        byte[] array = dst.array();
-        if (!dst.hasRemaining()) {
-            int read = (int) Math.min(limit, dst.capacity());
-            int len = src.read(array, 0, read);
-            if (len > 0) {
-                dst.position(0);
-                dst.limit(len);
-            }
-            return len;
-        }
-        int remaining = dst.remaining();
-        System.arraycopy(array, dst.position(), array, 0, remaining);
-        dst.position(0);
-        dst.limit(remaining);
-        int read = (int) Math.min(limit, dst.capacity() - remaining);
-        int len = src.read(array, remaining, read);
-        if (len > 0) {
-            dst.limit(remaining + len);
         }
         return len;
     }

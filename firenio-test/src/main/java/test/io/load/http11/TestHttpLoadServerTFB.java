@@ -49,20 +49,6 @@ public class TestHttpLoadServerTFB {
 
     static final byte[] STATIC_PLAINTEXT = "Hello, World!".getBytes();
 
-    static class Message {
-
-        private final String message;
-
-        public Message(String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-    }
-
     public static void main(String[] args) throws Exception {
         boolean lite       = Util.getBooleanProperty("lite");
         boolean read       = Util.getBooleanProperty("read");
@@ -126,7 +112,7 @@ public class TestHttpLoadServerTFB {
             pool_cap = 1024 * 8;
             pool_unit = 256 * 16;
         }
-        ByteTree<String> cachedUrls = new ByteTree<>();
+        ByteTree cachedUrls = new ByteTree();
         cachedUrls.add("/plaintext");
         cachedUrls.add("/json");
         ProtocolCodec     codec   = new HttpCodec("firenio", fcache, lite, inline, cachedUrls);
@@ -178,6 +164,20 @@ public class TestHttpLoadServerTFB {
         } finally {
             JsonStreamPool.returnJsonStream(stream);
         }
+    }
+
+    static class Message {
+
+        private final String message;
+
+        public Message(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
     }
 
 }

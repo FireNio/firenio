@@ -1,12 +1,12 @@
 /*
  * Copyright 2015 The FireNio Project
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,32 +25,32 @@ import com.firenio.component.Channel;
 import com.firenio.component.ProtocolCodec;
 
 //FIXME 心跳貌似由服务端发起
+
 /**
-* <pre>
-* 
-*       0               1               2               3
-*       0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
-*      +-+-+-+-+-------+-+-------------+-------------------------------+
-*      |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
-*      |I|S|S|S|  (4)  |A|     (7)     |             (16/32)           |
-*      |N|V|V|V|       |S|             |   (if payload len==126/127)   |
-*      | |1|2|3|       |K|             |       (unsigned(2byte))       |
-*      +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
-*      |     Extended payload length continued, if payload len == 127  |
-*      + - - - - - - - - - - - - - - - +-------------------------------+
-*      |    payload len (4+2+2)        |Masking-key, if MASK set to 1  |
-*      +-------------------------------+-------------------------------+
-*      | Masking-key (continued)       |          Payload Data         |
-*      +-------------------------------- - - - - - - - - - - - - - - - +
-*      :                     Payload Data continued ...                :
-*      + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-*      |                     Payload Data continued ...                |
-*      +---------------------------------------------------------------+
-* 
-*   ref: https://tools.ietf.org/html/rfc6455
-* </pre>
-*
-*/
+ * <pre>
+ *
+ *       0               1               2               3
+ *       0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
+ *      +-+-+-+-+-------+-+-------------+-------------------------------+
+ *      |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
+ *      |I|S|S|S|  (4)  |A|     (7)     |             (16/32)           |
+ *      |N|V|V|V|       |S|             |   (if payload len==126/127)   |
+ *      | |1|2|3|       |K|             |       (unsigned(2byte))       |
+ *      +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+ *      |     Extended payload length continued, if payload len == 127  |
+ *      + - - - - - - - - - - - - - - - +-------------------------------+
+ *      |    payload len (4+2+2)        |Masking-key, if MASK set to 1  |
+ *      +-------------------------------+-------------------------------+
+ *      | Masking-key (continued)       |          Payload Data         |
+ *      +-------------------------------- - - - - - - - - - - - - - - - +
+ *      :                     Payload Data continued ...                :
+ *      + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ *      |                     Payload Data continued ...                |
+ *      +---------------------------------------------------------------+
+ *
+ *   ref: https://tools.ietf.org/html/rfc6455
+ * </pre>
+ */
 public class WebSocketCodec extends ProtocolCodec {
 
     public static final String      FRAME_STACK_KEY    = "FRAME_WS_STACK_KEY";
@@ -66,8 +66,8 @@ public class WebSocketCodec extends ProtocolCodec {
     public static final byte        TYPE_PONG          = 10;
     public static final byte        TYPE_TEXT          = 1;
 
-    private final int               frameStackSize;
-    private final int               limit;
+    private final int frameStackSize;
+    private final int limit;
 
     public WebSocketCodec() {
         this(1024 * 64);
@@ -88,9 +88,9 @@ public class WebSocketCodec extends ProtocolCodec {
             return null;
         }
         src.markP();
-        byte b0 = src.getByte();
-        byte b1 = src.getByte();
-        int dataLen = 0;
+        byte    b0      = src.getByte();
+        byte    b1      = src.getByte();
+        int     dataLen = 0;
         boolean hasMask = (b1 & 0b10000000) > 0;
         if (hasMask) {
             dataLen += 4;
@@ -123,8 +123,8 @@ public class WebSocketCodec extends ProtocolCodec {
             src.resetP();
             return null;
         }
-        boolean eof = (b0 & 0b10000000) > 0;
-        byte type = (byte) (b0 & 0xF);
+        boolean eof  = (b0 & 0b10000000) > 0;
+        byte    type = (byte) (b0 & 0xF);
         if (type == TYPE_PING) {
             return newWebSocketFrame(ch).setPing();
         } else if (type == TYPE_PONG) {
@@ -138,7 +138,7 @@ public class WebSocketCodec extends ProtocolCodec {
             byte m3 = src.getByte();
             src.getBytes(array);
             int length = array.length;
-            int len = (length / 4) * 4;
+            int len    = (length / 4) * 4;
             for (int i = 0; i < len; i += 4) {
                 array[i + 0] ^= m0;
                 array[i + 1] ^= m1;
@@ -146,17 +146,16 @@ public class WebSocketCodec extends ProtocolCodec {
                 array[i + 3] ^= m3;
             }
             if (len < length) {
-                int i = len;
                 int remain = length - len;
                 if (remain == 1) {
-                    array[i + 0] ^= m0;
+                    array[len + 0] ^= m0;
                 } else if (remain == 2) {
-                    array[i + 0] ^= m0;
-                    array[i + 1] ^= m1;
+                    array[len + 0] ^= m0;
+                    array[len + 1] ^= m1;
                 } else {
-                    array[i + 0] ^= m0;
-                    array[i + 1] ^= m1;
-                    array[i + 2] ^= m2;
+                    array[len + 0] ^= m0;
+                    array[len + 1] ^= m1;
+                    array[len + 2] ^= m2;
                 }
             }
         } else {
@@ -174,15 +173,15 @@ public class WebSocketCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(Channel ch, Frame frame) throws IOException {
-        WebSocketFrame f = (WebSocketFrame) frame;
-        ByteBuf buf = f.getBufContent();
+    public ByteBuf encode(Channel ch, Frame frame) {
+        WebSocketFrame f   = (WebSocketFrame) frame;
+        ByteBuf        buf = f.getBufContent();
         if (buf != null) {
             buf.flip();
         } else {
             buf = ch.allocate().limit(MAX_HEADER_LENGTH);
         }
-        int size = buf.limit() - 10;
+        int  size    = buf.limit() - 10;
         byte header0 = (byte) (0x8f & (f.getType() | 0xf0));
         if (size < 126) {
             buf.position(8);
