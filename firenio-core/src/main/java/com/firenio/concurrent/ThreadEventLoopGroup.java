@@ -54,8 +54,8 @@ public class ThreadEventLoopGroup extends EventLoopGroup {
     }
 
     @Override
-    protected ThreadEventLoop newEventLoop(int coreIndex, String threadName) {
-        return new ThreadEventLoop(this, threadName);
+    protected ThreadEventLoop newEventLoop(int coreIndex, String t_name) {
+        return new ThreadEventLoop(this, t_name);
     }
 
 }

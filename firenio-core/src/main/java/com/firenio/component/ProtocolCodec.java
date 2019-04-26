@@ -80,17 +80,30 @@ public abstract class ProtocolCodec {
 
     public void release(NioEventLoop eventLoop, Frame frame) {}
 
-    protected void flush_ping(Channel ch, ByteBuf buf) {
-        ch.writeAndFlush(buf);
-        ch.getContext().getHeartBeatLogger().logPing(ch);
+    protected void flush_ping(Channel ch) {
+        ByteBuf buf = getPingBuf();
+        if (buf != null) {
+            ch.writeAndFlush(buf);
+            ch.getContext().getHeartBeatLogger().logPingTo(ch);
+        } else {
+            // 该channel无需心跳,比如HTTP协议
+        }
+    }
+
+    protected void log_ping_from(Channel ch) {
+        ch.getContext().getHeartBeatLogger().logPingFrom(ch);
+    }
+
+    protected void log_pong_from(Channel ch) {
+        ch.getContext().getHeartBeatLogger().logPongFrom(ch);
     }
 
     protected void flush_pong(Channel ch, ByteBuf buf) {
         ch.writeAndFlush(buf);
-        ch.getContext().getHeartBeatLogger().logPong(ch);
+        ch.getContext().getHeartBeatLogger().logPongTo(ch);
     }
 
-    protected ByteBuf getPingBuf(){
+    protected ByteBuf getPingBuf() {
         return null;
     }
 

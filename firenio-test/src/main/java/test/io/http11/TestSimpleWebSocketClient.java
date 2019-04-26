@@ -67,7 +67,7 @@ public class TestSimpleWebSocketClient {
         NioEventLoopGroup g    = new NioEventLoopGroup();
         g.setEnableMemoryPool(false);
         ChannelConnector context = new ChannelConnector(g, host, 443);
-        //        context.setExecutorEventLoopGroup(new ExecutorEventLoopGroup());
+        //        context.setExecutorGroup(new ExecutorEventLoopGroup());
         context.setIoEventHandle(eventHandleAdaptor);
         context.addProtocolCodec(new ClientHttpCodec());
         context.addProtocolCodec(new WebSocketCodec());

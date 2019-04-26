@@ -108,7 +108,7 @@ public class TestLoadClient1 extends ITestThread {
         context.setPrintConfig(false);
         context.addProtocolCodec(new LengthValueCodec());
         if (TestLoadServer.ENABLE_WORK_EVENT_LOOP) {
-            context.setExecutorEventLoopGroup(new ThreadEventLoopGroup("ep", 1024 * 256));
+            context.setExecutorGroup(new ThreadEventLoopGroup("ep", 1024 * 256));
         }
         context.connect(6000);
     }

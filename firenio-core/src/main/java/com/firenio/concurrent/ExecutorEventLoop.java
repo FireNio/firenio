@@ -54,8 +54,13 @@ public final class ExecutorEventLoop extends EventLoop {
         for (int i = 0; i < eventLoopSize; i++) {
             workThreads[i] = new WorkThread(jobs);
         }
-        for (int i = 0; i < eventLoopSize; i++) {
-            Util.exec(workThreads[i], group.getEventLoopName() + "-" + i);
+    }
+
+    @Override
+    protected void onStarted() {
+        for (int i = 0; i < workThreads.length; i++) {
+            String t_name = group.getEventLoopName() + "-" + i;
+            Util.exec(workThreads[i], t_name);
         }
     }
 

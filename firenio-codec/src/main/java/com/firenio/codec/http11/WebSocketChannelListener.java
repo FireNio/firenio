@@ -28,7 +28,7 @@ public class WebSocketChannelListener extends ChannelEventListenerAdapter {
     public void channelClosed(Channel ch) {
         if (ch.isCodec(WebSocketCodec.PROTOCOL_ID) && ((HttpAttachment) ch.getAttachment()).getWebsocketFrameName() != null) {
             WebSocketFrame frame = new WebSocketFrame();
-            frame.setType(WebSocketCodec.TYPE_CLOSE);
+            frame.setOpcode(WebSocketCodec.TYPE_CLOSE);
             try {
                 ch.getIoEventHandle().accept(ch, frame);
             } catch (Exception e) {

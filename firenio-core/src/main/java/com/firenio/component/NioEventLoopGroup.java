@@ -251,11 +251,11 @@ public class NioEventLoopGroup extends EventLoopGroup {
     }
 
     @Override
-    protected NioEventLoop newEventLoop(int index, String threadName) throws IOException {
+    protected NioEventLoop newEventLoop(int index, String t_name) throws IOException {
         if (Native.EPOLL_AVAILABLE) {
-            return new EpollEventLoop(this, index, threadName);
+            return new EpollEventLoop(this, index, t_name);
         } else {
-            return new JavaEventLoop(this, index, threadName);
+            return new JavaEventLoop(this, index, t_name);
         }
     }
 
