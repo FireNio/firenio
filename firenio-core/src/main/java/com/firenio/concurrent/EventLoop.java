@@ -27,8 +27,8 @@ public abstract class EventLoop extends LifeCycle implements Runnable {
 
     private static final Logger                logger       = LoggerFactory.getLogger(EventLoop.class);
     private final        EventLoopGroup        defaultGroup = new DefaultEventLoopGroup(this);
-    private final        String                threadName;
     private              FastThreadLocalThread monitor      = null;
+    private final        String                threadName;
 
     public EventLoop(String threadName) {
         this.threadName = threadName;
@@ -47,7 +47,10 @@ public abstract class EventLoop extends LifeCycle implements Runnable {
     protected void doLoop() throws Exception { }
 
     @Override
-    protected void doStart() throws Exception {
+    protected void doStart() throws Exception { }
+
+    @Override
+    protected void onStarted() {
         this.monitor = new FastThreadLocalThread(this, threadName);
         this.monitor.start();
     }
@@ -110,8 +113,7 @@ public abstract class EventLoop extends LifeCycle implements Runnable {
         }
 
         @Override
-        protected void doStart() {
-        }
+        protected void doStart() { }
 
         @Override
         protected void doStop() {

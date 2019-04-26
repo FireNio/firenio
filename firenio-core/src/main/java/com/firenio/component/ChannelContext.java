@@ -52,7 +52,7 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
     private boolean                    enableHeartbeatLog = true;
     private boolean                    enableSsl;
     //是否启用work event loop，如果启用，则frame在work event loop中处理
-    private EventLoopGroup             executorEventLoopGroup;
+    private EventLoopGroup             executorGroup;
     private HeartBeatLogger            heartBeatLogger;
     private String                     host;
     private boolean                    initialized;
@@ -123,7 +123,7 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         } else {
             this.serverAddress = new InetSocketAddress(host, port);
         }
-        Util.start(executorEventLoopGroup);
+        Util.start(executorGroup);
         Util.start(processorGroup);
         if (printConfig) {
             StringBuilder sb = new StringBuilder();
@@ -172,7 +172,7 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
             Util.close(ch);
         }
         stopEventLoopGroup(getProcessorGroup());
-        Util.stop(executorEventLoopGroup);
+        Util.stop(executorGroup);
         this.attributes.clear();
     }
 
@@ -218,13 +218,13 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         return defaultCodec;
     }
 
-    public EventLoopGroup getExecutorEventLoopGroup() {
-        return executorEventLoopGroup;
+    public EventLoopGroup getExecutorGroup() {
+        return executorGroup;
     }
 
-    public void setExecutorEventLoopGroup(EventLoopGroup executorEventLoopGroup) {
+    public void setExecutorGroup(EventLoopGroup executorGroup) {
         checkNotRunning();
-        this.executorEventLoopGroup = executorEventLoopGroup;
+        this.executorGroup = executorGroup;
     }
 
     public HeartBeatLogger getHeartBeatLogger() {
@@ -259,10 +259,10 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
     }
 
     public EventLoop getNextExecutorEventLoop() {
-        if (executorEventLoopGroup == null) {
+        if (executorGroup == null) {
             return null;
         }
-        return executorEventLoopGroup.getNext();
+        return executorGroup.getNext();
     }
 
     public String getOpenSslPath() {
@@ -349,28 +349,50 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
                 final Logger logger = LoggerFactory.getLogger("hb");
 
                 @Override
-                public void logPing(Channel ch) {
+                public void logPingFrom(Channel ch) {
                     logger.info("hb req from: {}", ch);
                 }
 
                 @Override
-                public void logPong(Channel ch) {
+                public void logPingTo(Channel ch) {
+                    logger.info("hb send req: {}", ch);
+                }
+
+                @Override
+                public void logPongFrom(Channel ch) {
                     logger.info("hb res from: {}", ch);
                 }
+
+                @Override
+                public void logPongTo(Channel ch) {
+                    logger.info("hb send res: {}", ch);
+                }
+
             };
         } else {
             heartBeatLogger = new HeartBeatLogger() {
                 final Logger logger = LoggerFactory.getLogger("hb");
 
                 @Override
-                public void logPing(Channel ch) {
+                public void logPingFrom(Channel ch) {
                     logger.debug("hb req from: {}", ch);
                 }
 
                 @Override
-                public void logPong(Channel ch) {
+                public void logPingTo(Channel ch) {
+                    logger.debug("hb send req: {}", ch);
+                }
+
+                @Override
+                public void logPongFrom(Channel ch) {
                     logger.debug("hb res from: {}", ch);
                 }
+
+                @Override
+                public void logPongTo(Channel ch) {
+                    logger.debug("hb send res: {}", ch);
+                }
+
             };
         }
     }
@@ -464,9 +486,13 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
 
     public interface HeartBeatLogger {
 
-        void logPing(Channel ch);
+        void logPingFrom(Channel ch);
 
-        void logPong(Channel ch);
+        void logPingTo(Channel ch);
+
+        void logPongFrom(Channel ch);
+
+        void logPongTo(Channel ch);
     }
 
 }

@@ -782,9 +782,9 @@ public abstract class Channel implements Runnable, Closeable {
             if (ssl_handshake_finished) {
                 byte sslWrapExt = this.ssl_wrap_ext;
                 if (sslWrapExt == 0) {
-                    out = alloc.allocate(guess_wrap_out(src.limit(), 0xff + 1));
+                    out = alloc.allocate(guess_wrap_out(src.remaining(), 0xff + 1));
                 } else {
-                    out = alloc.allocate(guess_wrap_out(src.limit(), sslWrapExt & 0xff));
+                    out = alloc.allocate(guess_wrap_out(src.remaining(), sslWrapExt & 0xff));
                 }
                 final int SSL_PACKET_BUFFER_SIZE = SslContext.SSL_PACKET_BUFFER_SIZE;
                 for (; ; ) {

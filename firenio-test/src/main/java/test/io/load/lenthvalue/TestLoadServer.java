@@ -73,7 +73,7 @@ public class TestLoadServer {
         }
         context.addChannelEventListener(new LoggerChannelOpenListener());
         if (ENABLE_WORK_EVENT_LOOP) {
-            context.setExecutorEventLoopGroup(new ThreadEventLoopGroup("ep", 1024 * 256 * CLIENT_CORE_SIZE));
+            context.setExecutorGroup(new ThreadEventLoopGroup("ep", 1024 * 256 * CLIENT_CORE_SIZE));
         }
         context.bind();
 

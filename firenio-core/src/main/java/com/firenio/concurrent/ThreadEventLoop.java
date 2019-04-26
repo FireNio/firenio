@@ -52,7 +52,6 @@ public final class ThreadEventLoop extends EventLoop {
     protected void doStart() throws Exception {
         int maxQueueSize = group.getMaxQueueSize();
         this.jobs = new ArrayBlockingQueue<>(maxQueueSize);
-        super.doStart();
     }
 
     @Override

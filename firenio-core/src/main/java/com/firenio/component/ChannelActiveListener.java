@@ -15,7 +15,6 @@
  */
 package com.firenio.component;
 
-import com.firenio.buffer.ByteBuf;
 import com.firenio.common.Util;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
@@ -26,23 +25,11 @@ public class ChannelActiveListener implements ChannelIdleListener {
 
     @Override
     public void channelIdled(Channel ch, long lastIdleTime, long currentTime) {
-        if (ch.isOpen()) {
-            if (ch.getLastAccessTime() < lastIdleTime) {
-                logger.info("disconnect(hb) {}", ch);
-                Util.close(ch);
-            } else {
-                ProtocolCodec codec = ch.getCodec();
-                ByteBuf ping = codec.getPingBuf();
-                if (ping != null) {
-                    try {
-                        ch.writeAndFlush(ping);
-                    } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
-                    }
-                } else {
-                    // 该channel无需心跳,比如HTTP协议
-                }
-            }
+        if (ch.getLastAccessTime() < lastIdleTime) {
+            logger.info("disconnect(hb) {}", ch);
+            Util.close(ch);
+        } else {
+            ch.getCodec().flush_ping(ch);
         }
     }
 

@@ -66,7 +66,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         context.addChannelIdleEventListener(new ChannelAliveListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new CountChannelListener());
-        context.setExecutorEventLoopGroup(new ThreadEventLoopGroup());
+        context.setExecutorGroup(new ThreadEventLoopGroup());
         context.addLifeCycleListener(new LifeCycleListener() {
             @Override
             public void lifeCycleStarting(LifeCycle lifeCycle) {

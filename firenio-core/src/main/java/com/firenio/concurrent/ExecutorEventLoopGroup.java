@@ -39,9 +39,11 @@ public class ExecutorEventLoopGroup extends EventLoopGroup {
 
     @Override
     protected void doStart() throws Exception {
-        if (eventLoop == null) {
-            this.eventLoop = new ExecutorEventLoop(this);
-        }
+        this.eventLoop = new ExecutorEventLoop(this);
+    }
+
+    @Override
+    protected void onStarted() throws Exception {
         Util.start(eventLoop);
     }
 
