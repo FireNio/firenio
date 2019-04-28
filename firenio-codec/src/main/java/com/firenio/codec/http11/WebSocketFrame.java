@@ -20,15 +20,14 @@ import com.firenio.component.Channel;
 
 public class WebSocketFrame extends Frame {
 
-    private boolean eof;
-    private byte    type;
+    private byte markCode = WebSocketCodec.FIN_EOF;
 
     public WebSocketFrame() {
         this(WebSocketCodec.TYPE_TEXT);
     }
 
-    public WebSocketFrame(byte type) {
-        this.type = type;
+    public WebSocketFrame(byte opcode) {
+        this.setOpcode(opcode);
     }
 
     @Override
@@ -40,45 +39,52 @@ public class WebSocketFrame extends Frame {
         return ((HttpAttachment) ch.getAttachment()).getWebsocketFrameName();
     }
 
-    public int getType() {
-        return type;
+    public int getOpcode() {
+        return markCode & 0xf;
     }
 
     public boolean isBinary() {
-        return type == WebSocketCodec.TYPE_BINARY;
+        return getOpcode() == WebSocketCodec.TYPE_BINARY;
     }
 
     public boolean isCloseFrame() {
-        return type == WebSocketCodec.TYPE_CLOSE;
+        return getOpcode() == WebSocketCodec.TYPE_CLOSE;
     }
 
     public boolean isContinuationFrame() {
-        return type == WebSocketCodec.TYPE_CONTINUE;
-    }
-
-    public boolean isEof() {
-        return eof;
+        return getOpcode() == WebSocketCodec.TYPE_CONTINUE;
     }
 
     @Override
     public boolean isText() {
-        return type == WebSocketCodec.TYPE_TEXT;
+        return getOpcode() == WebSocketCodec.TYPE_TEXT;
     }
 
     @Override
     public WebSocketFrame reset() {
-        this.eof = false;
-        this.type = 0;
+        this.setOpcode((byte) (WebSocketCodec.TYPE_TEXT | WebSocketCodec.FIN_EOF));
         super.reset();
         return this;
     }
 
-    public void setEof(boolean eof) {
-        this.eof = eof;
+    public void setFin(byte fin) {
+        this.markCode = (byte) ((fin << 4) | getOpcode());
     }
 
-    public void setType(byte type) {
-        this.type = type;
+    public void setOpcode(byte opcode) {
+        this.markCode = (byte) ((markCode & 0xf0) | (opcode & 0xf));
+    }
+
+    public void setMarkCode(byte markCode) {
+        this.markCode = markCode;
+    }
+
+    public byte getMarkCode() {
+        return markCode;
+    }
+    
+    public boolean isEof(){
+    	return (markCode & WebSocketCodec.FIN_EOF) != 0;
     }
 
     @Override

@@ -52,8 +52,8 @@ public final class LengthValueCodec extends ProtocolCodec {
     static final        int         PROTOCOL_PONG    = -2;
 
     static {
-        PING = ByteBuf.heap(4);
-        PONG = ByteBuf.heap(4);
+        PING = ByteBuf.direct(4);
+        PONG = ByteBuf.direct(4);
         PING.putInt(PROTOCOL_PING);
         PONG.putInt(PROTOCOL_PONG);
         PING.flip();
@@ -91,11 +91,12 @@ public final class LengthValueCodec extends ProtocolCodec {
         return new LengthValueFrame(new String(data, ch.getCharset()));
     }
 
-    private Frame decode_ping(Channel ch, int len) throws IOException {
-        if (len == PROTOCOL_PING) {
-            flush_ping(ch, PING.duplicate());
-        } else if (len == PROTOCOL_PONG) {
+    private Frame decode_ping(Channel ch, int type) throws IOException {
+        if (type == PROTOCOL_PING) {
+            log_ping_from(ch);
             flush_pong(ch, PONG.duplicate());
+        } else if (type == PROTOCOL_PONG) {
+            log_pong_from(ch);
         } else {
             throw ILLEGAL_PROTOCOL;
         }

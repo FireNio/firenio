@@ -349,28 +349,50 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
                 final Logger logger = LoggerFactory.getLogger("hb");
 
                 @Override
-                public void logPing(Channel ch) {
+                public void logPingFrom(Channel ch) {
                     logger.info("hb req from: {}", ch);
                 }
 
                 @Override
-                public void logPong(Channel ch) {
+                public void logPingTo(Channel ch) {
+                    logger.info("hb send req: {}", ch);
+                }
+
+                @Override
+                public void logPongFrom(Channel ch) {
                     logger.info("hb res from: {}", ch);
                 }
+
+                @Override
+                public void logPongTo(Channel ch) {
+                    logger.info("hb send res: {}", ch);
+                }
+
             };
         } else {
             heartBeatLogger = new HeartBeatLogger() {
                 final Logger logger = LoggerFactory.getLogger("hb");
 
                 @Override
-                public void logPing(Channel ch) {
+                public void logPingFrom(Channel ch) {
                     logger.debug("hb req from: {}", ch);
                 }
 
                 @Override
-                public void logPong(Channel ch) {
+                public void logPingTo(Channel ch) {
+                    logger.debug("hb send req: {}", ch);
+                }
+
+                @Override
+                public void logPongFrom(Channel ch) {
                     logger.debug("hb res from: {}", ch);
                 }
+
+                @Override
+                public void logPongTo(Channel ch) {
+                    logger.debug("hb send res: {}", ch);
+                }
+
             };
         }
     }
@@ -464,9 +486,13 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
 
     public interface HeartBeatLogger {
 
-        void logPing(Channel ch);
+        void logPingFrom(Channel ch);
 
-        void logPong(Channel ch);
+        void logPingTo(Channel ch);
+
+        void logPongFrom(Channel ch);
+
+        void logPongTo(Channel ch);
     }
 
 }

@@ -46,8 +46,8 @@ public final class ProtobaseCodec extends ProtocolCodec {
     static final        int         PROTOCOL_PONG_MASK = 0b1100_0000;
 
     static {
-        PING = ByteBuf.heap(4);
-        PONG = ByteBuf.heap(4);
+        PING = ByteBuf.direct(4);
+        PONG = ByteBuf.direct(4);
         PING.putInt(PROTOCOL_PING << 24);
         PONG.putInt(PROTOCOL_PONG << 24);
         PING.flip();
@@ -100,9 +100,10 @@ public final class ProtobaseCodec extends ProtocolCodec {
     private Frame decode_ping(Channel ch, int type) throws IOException {
         type &= PROTOCOL_PONG_MASK;
         if (type == PROTOCOL_PING) {
-            flush_ping(ch, PING.duplicate());
-        } else if (type == PROTOCOL_PONG) {
+            log_ping_from(ch);
             flush_pong(ch, PONG.duplicate());
+        } else if (type == PROTOCOL_PONG) {
+            log_pong_from(ch);
         } else {
             throw ILLEGAL_PROTOCOL;
         }

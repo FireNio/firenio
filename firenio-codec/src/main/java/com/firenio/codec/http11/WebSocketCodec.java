@@ -66,6 +66,7 @@ public final class WebSocketCodec extends ProtocolCodec {
     public static final byte        TYPE_PING          = 9;
     public static final byte        TYPE_PONG          = 10;
     public static final byte        TYPE_TEXT          = 1;
+    public static final byte        FIN_EOF            = (byte) (1 << 7);
 
     static final ByteBuf PING;
     static final ByteBuf PONG;
@@ -74,8 +75,8 @@ public final class WebSocketCodec extends ProtocolCodec {
         byte o_h0 = (byte) (1 << 7);
         byte o_h1 = (byte) (0 << 7);
 
-        PING = ByteBuf.heap(2);
-        PONG = ByteBuf.heap(2);
+        PING = ByteBuf.direct(2);
+        PONG = ByteBuf.direct(2);
         PING.putByte((byte) (o_h0 | TYPE_PING));
         PING.putByte((byte) (o_h1 | 0));
         PONG.putByte((byte) (o_h0 | TYPE_PONG));
@@ -141,12 +142,13 @@ public final class WebSocketCodec extends ProtocolCodec {
             src.resetP();
             return null;
         }
-        byte    type = (byte) (b0 & 0xF);
-        if (((((1 << TYPE_PING) | (1 << TYPE_PONG)) >> type) & 1) == 1) {
-            if (type == TYPE_PING) {
-                flush_ping(ch, PING.duplicate());
-            } else {
+        byte opcode = (byte) (b0 & 0xF);
+        if (((((1 << TYPE_PING) | (1 << TYPE_PONG)) >> opcode) & 1) == 1) {
+            if (opcode == TYPE_PING) {
+                log_ping_from(ch);
                 flush_pong(ch, PONG.duplicate());
+            } else {
+                log_pong_from(ch);
             }
             return null;
         }
@@ -182,11 +184,10 @@ public final class WebSocketCodec extends ProtocolCodec {
             src.getBytes(array);
         }
         WebSocketFrame f = newWebSocketFrame(ch);
-        f.setEof((b0 & 0b10000000) != 0);
-        f.setType(type);
-        if (type == TYPE_TEXT) {
+        f.setMarkCode(b0);
+        if (opcode == TYPE_TEXT) {
             f.setContent(new String(array, ch.getCharset()));
-        } else if (type == TYPE_BINARY) {
+        } else if (opcode == TYPE_BINARY) {
             f.setContent(array);
         }
         return f;
@@ -201,19 +202,19 @@ public final class WebSocketCodec extends ProtocolCodec {
         } else {
             buf = ch.allocate().limit(MAX_HEADER_LENGTH);
         }
-        int  size    = buf.limit() - 10;
-        byte header0 = (byte) (0x8f & (f.getType() | 0xf0));
+        int  size      = buf.limit() - MAX_HEADER_LENGTH;
+        byte mark_code = f.getMarkCode();
         if (size < 126) {
             buf.position(8);
-            buf.putByte(8, header0);
+            buf.putByte(8, mark_code);
             buf.putByte(9, (byte) size);
         } else if (size <= MAX_UNSIGNED_SHORT) {
             buf.position(6);
-            buf.putByte(6, header0);
+            buf.putByte(6, mark_code);
             buf.putByte(7, (byte) 126);
             buf.putShort(8, size);
         } else {
-            buf.putByte(header0);
+            buf.putByte(mark_code);
             buf.putByte((byte) 127);
             buf.putLong(size);
         }
