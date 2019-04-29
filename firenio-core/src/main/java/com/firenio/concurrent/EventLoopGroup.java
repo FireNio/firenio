@@ -48,17 +48,17 @@ public abstract class EventLoopGroup extends LifeCycle {
     @Override
     protected void doStart() throws Exception {
         this.eventLoopIndex = new FixedAtomicInteger(0, eventLoopSize - 1);
-        EventLoop[] eventLoopArray = initEventLoops();
-        if (eventLoopArray.length == 1) {
-            eventLoopArray[0] = newEventLoop(0, getEventLoopName());
-            Util.start(eventLoopArray[0]);
-        } else {
-            for (int i = 0; i < eventLoopArray.length; i++) {
-                eventLoopArray[i] = newEventLoop(i, eventLoopName + "-" + i);
-            }
-            for (int i = 0; i < eventLoopArray.length; i++) {
-                Util.start(eventLoopArray[i]);
-            }
+        EventLoop[] eventLoops = initEventLoops();
+        for (int i = 0; i < eventLoopSize; i++) {
+            String t_name = eventLoopName + "-" + i;
+            eventLoops[i] = newEventLoop(i, t_name);
+        }
+    }
+
+    @Override
+    protected void onStarted() throws Exception {
+        for (int i = 0; i < eventLoopSize; i++) {
+            Util.start(getEventLoop(i));
         }
     }
 
@@ -93,7 +93,7 @@ public abstract class EventLoopGroup extends LifeCycle {
         return null;
     }
 
-    protected EventLoop newEventLoop(int index, String threadName) throws Exception {
+    protected EventLoop newEventLoop(int index, String t_name) throws Exception {
         return null;
     }
 

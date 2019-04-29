@@ -128,16 +128,19 @@ public abstract class LifeCycle {
             this.fireEvent(state, null);
             try {
                 this.doStart();
+                this.state = RUNNING;
+                this.onStarted();
             } catch (Exception e) {
                 Util.stop(this);
                 this.state = FAILED;
                 this.fireEvent(state, e);
                 throw e;
             }
-            this.state = RUNNING;
             this.fireEvent(state, null);
         }
     }
+
+    protected void onStarted() throws Exception { }
 
     public synchronized void stop() {
         if (isRunning()) {

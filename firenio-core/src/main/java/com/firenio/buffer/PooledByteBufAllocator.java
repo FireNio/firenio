@@ -360,22 +360,28 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
     }
 
     @Override
-    public synchronized String toString() {
-        PoolState     s = getState();
-        StringBuilder b = new StringBuilder();
-        b.append(getClass().getSimpleName());
-        b.append("[memory=");
-        b.append(s.memory);
-        b.append(",free=");
-        b.append(s.free);
-        b.append(",mfree=");
-        b.append(s.mfree);
-        b.append(",buf=");
-        b.append(s.buf);
-        b.append(",isDirect=");
-        b.append(isDirect());
-        b.append("]");
-        return b.toString();
+    public String toString() {
+        ReentrantLock lock = this.lock;
+        lock.lock();
+        try {
+            PoolState     s = getState();
+            StringBuilder b = new StringBuilder();
+            b.append(getClass().getSimpleName());
+            b.append("[memory=");
+            b.append(s.memory);
+            b.append(",free=");
+            b.append(s.free);
+            b.append(",mfree=");
+            b.append(s.mfree);
+            b.append(",buf=");
+            b.append(s.buf);
+            b.append(",isDirect=");
+            b.append(isDirect());
+            b.append("]");
+            return b.toString();
+        } finally {
+            lock.unlock();
+        }
     }
 
     private int usedBuf() {
