@@ -55,8 +55,7 @@ public class WebSocketMsgAdapter extends EventLoop {
         Channel ch = msg.ch;
         if (ch != null) {
             WebSocketFrame f = new WebSocketFrame();
-            f.setContent(ch.allocate());
-            f.write(msg.msg, ch);
+            f.setString(msg.msg, ch);
             try {
                 ch.writeAndFlush(f);
             } catch (Exception e) {
@@ -65,7 +64,7 @@ public class WebSocketMsgAdapter extends EventLoop {
         } else {
             if (!clientMap.isEmpty()) {
                 WebSocketFrame f = new WebSocketFrame();
-                f.setBytes(WebSocketCodec.MAX_HEADER_LENGTH,msg.msg.getBytes());
+                f.setBytes(WebSocketCodec.MAX_HEADER_LENGTH, msg.msg.getBytes());
                 try {
                     ChannelManager.broadcast(f, channelMap.values());
                 } catch (Exception e) {
@@ -113,6 +112,7 @@ public class WebSocketMsgAdapter extends EventLoop {
 
         private Channel channel;
         private String  username;
+
         public Client(Channel ch, String username) {
             this.channel = ch;
             this.username = username;

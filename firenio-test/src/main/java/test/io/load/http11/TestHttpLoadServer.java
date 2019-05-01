@@ -15,7 +15,6 @@
  */
 package test.io.load.http11;
 
-import com.firenio.buffer.ByteBuf;
 import com.firenio.codec.http11.HttpCodec;
 import com.firenio.codec.http11.HttpConnection;
 import com.firenio.codec.http11.HttpContentType;
@@ -39,10 +38,8 @@ public class TestHttpLoadServer {
                 HttpFrame f = (HttpFrame) frame;
                 f.setConnection(HttpConnection.KEEP_ALIVE);
                 f.setContentType(HttpContentType.text_plain);
-                f.setContent(ch.allocate());
-                f.write("Hello World", ch);
-                ByteBuf buf = ch.encode(f);
-                ch.writeAndFlush(buf);
+                f.setString("Hello World", ch);
+                ch.writeAndFlush(f);
                 ch.release(f);
             }
 

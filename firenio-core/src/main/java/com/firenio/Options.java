@@ -24,17 +24,19 @@ import com.firenio.component.Native;
 public class Options {
 
     static final String BUF_AUTO_EXPANSION     = "com.firenio.bufAutoExpansion";
+    static final String BUF_THREAD_YIELD       = "com.firenio.bufThreadYield";
     static final String BUF_RECYCLE            = "com.firenio.bufRecycle";
     static final String CHANNEL_READ_FIRST     = "com.firenio.channelReadFirst";
-    static final String DEBUG_ERROR_LEVEL      = "com.firenio.debugErrorLevel";
+    static final String DEBUG_ERROR            = "com.firenio.debugError";
     static final String ENABLE_EPOLL           = "com.firenio.ssl.enableEpoll";
     static final String ENABLE_OPENSSL         = "com.firenio.ssl.enableOpenSsl";
     static final String ENABLE_UNSAFE_BUF      = "com.firenio.ssl.enableUnsafeBuf";
     static final String OPENSSL_PATH           = "org.wildfly.openssl.path";
     static final String SSL_UNWRAP_BUFFER_SIZE = "com.firenio.ssl.unwrapBufferSize";
+    static final String SYS_CLOCK_STEP         = "com.firenio.sysClockStep";
 
-    public static int getDebugErrorLevel() {
-        return Util.getIntProperty(DEBUG_ERROR_LEVEL);
+    public static boolean isDebugError() {
+        return Util.getBooleanProperty(DEBUG_ERROR);
     }
 
     public static String getOpensslPath() {
@@ -45,8 +47,16 @@ public class Options {
         return Util.getIntProperty(SSL_UNWRAP_BUFFER_SIZE, defaultValue);
     }
 
+    public static long getSysClockStep() {
+        return Util.getIntProperty(SYS_CLOCK_STEP);
+    }
+
     public static boolean isBufAutoExpansion() {
         return Util.getBooleanProperty(BUF_AUTO_EXPANSION, true);
+    }
+
+    public static boolean isBufThreadYield() {
+        return Util.getBooleanProperty(BUF_THREAD_YIELD, false);
     }
 
     public static boolean isBufRecycle() {
@@ -73,6 +83,10 @@ public class Options {
         System.setProperty(BUF_AUTO_EXPANSION, String.valueOf(auto));
     }
 
+    public static void setBufThreadYield(boolean yield) {
+        System.setProperty(BUF_THREAD_YIELD, String.valueOf(yield));
+    }
+
     public static void setBufRecycle(boolean recycle) {
         System.setProperty(BUF_RECYCLE, String.valueOf(recycle));
     }
@@ -81,8 +95,8 @@ public class Options {
         System.setProperty(CHANNEL_READ_FIRST, String.valueOf(channelReadFirst));
     }
 
-    public static void setDebugErrorLevel(int level) {
-        System.setProperty(DEBUG_ERROR_LEVEL, String.valueOf(level));
+    public static void setDebugError(boolean debugError) {
+        System.setProperty(DEBUG_ERROR, String.valueOf(debugError));
     }
 
     public static void setEnableEpoll(boolean enable) {
@@ -103,6 +117,10 @@ public class Options {
 
     public static void setSslUnwrapBufferSize(int size) {
         System.setProperty(SSL_UNWRAP_BUFFER_SIZE, String.valueOf(size));
+    }
+
+    public static void setSysClockStep(int step) {
+        System.setProperty(SYS_CLOCK_STEP, String.valueOf(step));
     }
 
 }

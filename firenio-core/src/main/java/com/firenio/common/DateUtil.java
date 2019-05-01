@@ -88,7 +88,7 @@ public class DateUtil {
     }
 
     public String formatHttp() {
-        return formatHttp(System.currentTimeMillis());
+        return formatHttp(Util.now());
     }
 
     public String formatHttp(long time) {

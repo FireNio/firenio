@@ -18,6 +18,7 @@ package test.others;
 import java.nio.ByteBuffer;
 
 import com.firenio.common.Unsafe;
+import com.firenio.common.Util;
 
 /**
  * @author wangkai
@@ -26,16 +27,16 @@ public class TestUnsafe2 {
 
     public static void main(String[] args) {
         int        capacity   = 1024 * 1024 * 1;
-        ByteBuffer buffer     = ByteBuffer.allocateDirect(capacity);
+        ByteBuffer buffer     = Unsafe.allocateDirectByteBuffer(capacity);
         ByteBuffer heapBuffer = ByteBuffer.allocate(capacity);
         byte[]     bb         = new byte[capacity];
-        long       startTime  = System.currentTimeMillis();
+        long       startTime  = Util.now_f();
         int        time       = 1024 * 16;
 
         //		testRadByteUnsafeDirectByteBuffer(time, buffer);
         testReadByteDirectByteBuffer(time, buffer);
 
-        System.out.println("Time:" + (System.currentTimeMillis() - startTime));
+        System.out.println("Time:" + Util.past(startTime));
     }
 
     static void testRadByteUnsafeDirectByteBuffer(int time, ByteBuffer array) {

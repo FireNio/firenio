@@ -327,6 +327,18 @@ public class FileUtil {
         return classLoader.getResourceAsStream(file);
     }
 
+    public static List<String> readLinesByCls(String file) throws IOException {
+        return readLinesByCls(file, CLASS_LOADER);
+    }
+
+    public static List<String> readLinesByCls(String file, ClassLoader cl) throws IOException {
+        return readLinesByCls(file, cl, ENCODING);
+    }
+
+    public static List<String> readLinesByCls(String file, ClassLoader cl, Charset encoding) throws IOException {
+        return readLines(cl.getResourceAsStream(file), encoding);
+    }
+
     public static List<String> readLines(File file) throws IOException {
         return readLines(file, ENCODING);
     }
@@ -438,7 +450,7 @@ public class FileUtil {
         return readStringByFile(new File(file), encoding);
     }
 
-    public static void scanDirectory(File file, OnDirectoryScan onDirectoryScan)throws Exception {
+    public static void scanDirectory(File file, OnDirectoryScan onDirectoryScan) throws Exception {
         if (!file.exists()) {
             return;
         }

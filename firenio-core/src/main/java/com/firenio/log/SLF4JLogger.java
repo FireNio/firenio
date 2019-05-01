@@ -17,6 +17,9 @@ package com.firenio.log;
 
 import org.slf4j.LoggerFactory;
 
+import com.firenio.common.Util;
+import com.firenio.component.FastThreadLocal;
+
 public class SLF4JLogger implements Logger {
 
     private org.slf4j.Logger logger = null;
@@ -53,13 +56,15 @@ public class SLF4JLogger implements Logger {
     }
 
     @Override
-    public void debug(String msg, Throwable throwable) {
-        logger.debug(msg, throwable);
+    public void debug(String msg, Throwable e) {
+        StringBuilder sb = FastThreadLocal.get().getStringBuilder();
+        sb.append(msg);
+        logger.debug(Util.stackTraceToString(e, true));
     }
 
     @Override
-    public void error(String object) {
-        logger.error(object);
+    public void error(String msg) {
+        logger.error(msg);
     }
 
     @Override
@@ -78,13 +83,15 @@ public class SLF4JLogger implements Logger {
     }
 
     @Override
-    public void error(String object, Throwable throwable) {
-        logger.error(object, throwable);
+    public void error(String msg, Throwable e) {
+        StringBuilder sb = FastThreadLocal.get().getStringBuilder();
+        sb.append(msg);
+        logger.error(Util.stackTraceToString(e, true));
     }
 
     @Override
     public void error(Throwable e) {
-        logger.error(e.getMessage(), e);
+        logger.error(Util.stackTraceToString(e, true));
     }
 
     @Override
@@ -153,8 +160,10 @@ public class SLF4JLogger implements Logger {
     }
 
     @Override
-    public void warn(String msg, Throwable throwable) {
-        logger.warn(msg, throwable);
+    public void warn(String msg, Throwable e) {
+        StringBuilder sb = FastThreadLocal.get().getStringBuilder();
+        sb.append(msg);
+        logger.warn(Util.stackTraceToString(e, true));
     }
 
 }

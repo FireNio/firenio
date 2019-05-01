@@ -53,6 +53,8 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         DevelopConfig.BUF_DEBUG = true;
         Options.setEnableEpoll(true);
         Options.setEnableOpenssl(true);
+        Options.setBufThreadYield(true);
+        Options.setDebugError(true);
         //        Options.setEnableUnsafeBuf(true);
         HttpDateUtil.start();
         final SpringHttpFrameHandle handle     = new SpringHttpFrameHandle();

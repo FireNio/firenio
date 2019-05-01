@@ -22,17 +22,15 @@ import com.firenio.log.Logger;
  */
 public class Develop {
 
-    public static final boolean BUF_DEBUG         = DevelopConfig.BUF_DEBUG;
-    public static final boolean EPOLL_DEBUG       = DevelopConfig.EPOLL_DEBUG;
-    public static final String  EPOLL_PATH        = DevelopConfig.EPOLL_PATH;
-    public static final boolean NATIVE_DEBUG      = DevelopConfig.NATIVE_DEBUG;
-    public static final int     DEBUG_ERROR_LEVEL = Options.getDebugErrorLevel();
+    public static final boolean BUF_DEBUG    = DevelopConfig.BUF_DEBUG;
+    public static final boolean EPOLL_DEBUG  = DevelopConfig.EPOLL_DEBUG;
+    public static final String  EPOLL_PATH   = DevelopConfig.EPOLL_PATH;
+    public static final boolean NATIVE_DEBUG = DevelopConfig.NATIVE_DEBUG;
+    public static final boolean DEBUG_ERROR  = Options.isDebugError();
 
-    public static void printException(Logger logger, Throwable e, int level) {
-        if (level > DEBUG_ERROR_LEVEL) {
-            logger.error(e.getMessage(), e);
-        } else {
-            logger.debug(e.getMessage(), e);
+    public static void debugException(Logger logger, Throwable e) {
+        if (DEBUG_ERROR) {
+            logger.error(e);
         }
     }
 

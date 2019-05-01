@@ -85,9 +85,7 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
             try {
                 this.callback.call(ch, ex);
             } catch (Throwable e) {
-                if (e instanceof Error) {
-                    e.printStackTrace(System.err);
-                }
+                logger.error(e);
             }
         }
     }
@@ -153,7 +151,8 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         }
         // If your application blocking here, check if you are blocking the io thread.
         // Notice that do not blocking io thread at any time.
-        if (callback.await()) {
+        callback.await();
+        if (callback.isTimeout()) {
             Util.close(this);
             throw new TimeoutException("connect to " + getServerAddress() + " time out");
         }

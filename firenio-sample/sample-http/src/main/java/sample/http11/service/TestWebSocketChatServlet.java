@@ -55,9 +55,7 @@ public class TestWebSocketChatServlet extends HttpFrameAcceptor {
                 String msg1 = obj.toJSONString();
                 msgAdapter.sendMsg(msg1);
             }
-            if (ch.isOpen()) {
-                ch.writeAndFlush(f);
-            }
+            ch.close();
         } else {
             String     msg    = f.getStringContent();
             JSONObject obj    = JSON.parseObject(msg);

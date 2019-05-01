@@ -20,6 +20,7 @@ import java.nio.ByteOrder;
 
 import com.firenio.common.ByteUtil;
 import com.firenio.common.Unsafe;
+import com.firenio.common.Util;
 import com.firenio.log.DebugUtil;
 
 /**
@@ -29,10 +30,10 @@ public class TestUnsafe {
 
     public static void main(String[] args) {
         int        capacity   = 1024 * 1024 * 1;
-        ByteBuffer buffer     = ByteBuffer.allocateDirect(capacity);
+        ByteBuffer buffer     = Unsafe.allocateDirectByteBuffer(capacity);
         ByteBuffer heapBuffer = ByteBuffer.allocate(capacity);
         byte[]     bb         = new byte[capacity];
-        long       startTime  = System.currentTimeMillis();
+        long       startTime  = Util.now_f();
         int        time       = 1024 * 16;
 
         //        		testPutIntDirectByteBuffer(time, buffer); //5600
@@ -51,7 +52,7 @@ public class TestUnsafe {
         //		testWriteByteByteArray(time, bb); //820
         //		testWriteByteUnsafe(time, bb); //11250
 
-        DebugUtil.info("Time:{}", System.currentTimeMillis() - startTime);
+        DebugUtil.info("Time:{}", Util.past(startTime));
     }
 
     static void testGetIntDirectByteBuffer(int time, ByteBuffer buffer) {

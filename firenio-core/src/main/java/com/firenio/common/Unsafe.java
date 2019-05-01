@@ -15,12 +15,15 @@
  */
 package com.firenio.common;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
+
 
 /**
  * @author wangkai
@@ -28,29 +31,79 @@ import java.security.PrivilegedExceptionAction;
 @SuppressWarnings("restriction")
 public class Unsafe {
 
-    public static final  long            ARRAY_BASE_OFFSET;
-    public static final  long            BUFFER_ADDRESS_OFFSET;
-    public static final  boolean         ENABLE;
-    public static final  boolean         HAS_UNSAFE_ARRAY_OPERATIONS;
-    public static final  boolean         HAS_UNSAFE_BYTE_BUFFER_OPERATIONS;
+    public static final  long           ARRAY_BASE_OFFSET;
+    public static final  long           BUFFER_ADDRESS_OFFSET;
     // This number limits the number of bytes to copy per call to Unsafe's
     // copyMemory method. A limit is imposed to allow for safe point polling
     // during a large copy
-    static final long                    UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
-    private static final ByteOrder       nativeByteOrder;
-    private static final sun.misc.Unsafe UNSAFE;
+    private static final long           UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
+    private static final ByteOrder      nativeByteOrder;
+    private static final InternalUnsafe UNSAFE;
+    private static final int            JAVA_VERSION          = majorJavaVersion();
+    private static final Constructor<?> DIRECT_BUFFER_CONSTRUCTOR;
+
+    //jdk.internal.misc.Unsafe
+    //jdk.internal.ref.Cleaner
 
     static {
         UNSAFE = getUnsafe();
-        ENABLE = UNSAFE != null;
-        BUFFER_ADDRESS_OFFSET = fieldOffset(field(Buffer.class, "address"));
-        HAS_UNSAFE_BYTE_BUFFER_OPERATIONS = supportsUnsafeByteBufferOperations();
-        HAS_UNSAFE_ARRAY_OPERATIONS = supportsUnsafeArrayOperations();
-        ARRAY_BASE_OFFSET = byteArrayBaseOffset();
+        BUFFER_ADDRESS_OFFSET = fieldOffset(Util.getDeclaredField(Buffer.class, "address"));
+        ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
         nativeByteOrder = detectByteOrder();
+        DIRECT_BUFFER_CONSTRUCTOR = getDirectBufferConstructor();
     }
 
     private Unsafe() {}
+
+    private static Constructor<?> getDirectBufferConstructor() {
+        Constructor<?> directBufferConstructor;
+        final ByteBuffer     direct  = ByteBuffer.allocateDirect(1);
+        long           address = -1;
+        try {
+            final Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                @Override
+                public Object run() {
+                    try {
+                        final Constructor<?> constructor = direct.getClass().getDeclaredConstructor(long.class, int.class);
+                        Throwable            cause       = Util.trySetAccessible(constructor);
+                        if (cause != null) {
+                            return cause;
+                        }
+                        return constructor;
+                    } catch (Exception e) {
+                        return e;
+                    }
+                }
+            });
+            if (res instanceof Constructor<?>) {
+                address = allocate(1);
+                try {
+                    ((Constructor<?>) res).newInstance(address, 1);
+                    directBufferConstructor = (Constructor<?>) res;
+                } catch (Exception e) {
+                    throw new Error("get DirectBuffer Constructor failed", e);
+                }
+            } else {
+                throw new Error("get DirectBuffer Constructor failed", (Throwable) res);
+            }
+        } finally {
+            if (address != -1) {
+                free(address);
+            }
+            free(address(direct));
+        }
+        return directBufferConstructor;
+    }
+
+
+    private static InternalUnsafe getUnsafe() {
+        //        if (javaVersion() > 8) {
+        //            return new Jdk8UpUnsafe();
+        //        } else {
+        //            return new Jdk8AndLowUnsafe();
+        //        }
+        return new Jdk8AndLowUnsafe();
+    }
 
     public static long address(ByteBuffer buffer) {
         return UNSAFE.getLong(buffer, BUFFER_ADDRESS_OFFSET);
@@ -68,10 +121,6 @@ public class Unsafe {
         }
     }
 
-    private static int byteArrayBaseOffset() {
-        return HAS_UNSAFE_ARRAY_OPERATIONS ? UNSAFE.arrayBaseOffset(byte[].class) : -1;
-    }
-
     public static boolean compareAndSwapInt(Object o, long offset, int expected, int val) {
         return UNSAFE.compareAndSwapInt(o, offset, expected, val);
     }
@@ -87,10 +136,10 @@ public class Unsafe {
     /**
      * Copy from given source array to destination address.
      *
-     * @param src           source array
-     * @param srcPos        offset within source array of the first element to native_read
-     * @param dstAddr       destination address
-     * @param length        number of bytes to copy
+     * @param src     source array
+     * @param srcPos  offset within source array of the first element to native_read
+     * @param dstAddr destination address
+     * @param length  number of bytes to copy
      */
     public static void copyFromArray(byte[] src, long srcPos, long dstAddr, long length) {
         long offset = ARRAY_BASE_OFFSET + srcPos;
@@ -122,10 +171,10 @@ public class Unsafe {
     /**
      * Copy from source address into given destination array.
      *
-     * @param srcAddr       source address
-     * @param dst           destination array
-     * @param dstPos        offset within destination array of the first element to write
-     * @param length        number of bytes to copy
+     * @param srcAddr source address
+     * @param dst     destination array
+     * @param dstPos  offset within destination array of the first element to write
+     * @param length  number of bytes to copy
      */
     public static void copyToArray(long srcAddr, Object dst, long dstPos, long length) {
         long offset = ARRAY_BASE_OFFSET + dstPos;
@@ -149,24 +198,11 @@ public class Unsafe {
                 case 0x08:
                     return ByteOrder.LITTLE_ENDIAN;
                 default:
-                    assert false;
-                    return null;
+                    throw new Error("detect byte order failed");
             }
         } finally {
             UNSAFE.freeMemory(a);
         }
-    }
-
-    private static Field field(Class<?> clazz, String fieldName) {
-        Field field;
-        try {
-            field = clazz.getDeclaredField(fieldName);
-            field.setAccessible(true);
-        } catch (Throwable t) {
-            // Failed to access the fields.
-            field = null;
-        }
-        return field;
     }
 
     private static long fieldOffset(Field field) {
@@ -229,46 +265,16 @@ public class Unsafe {
         return UNSAFE.getShort(target, offset);
     }
 
-    private static sun.misc.Unsafe getUnsafe() {
-        sun.misc.Unsafe unsafe = null;
-        try {
-            unsafe = AccessController.doPrivileged(new PrivilegedExceptionAction<sun.misc.Unsafe>() {
-                @Override
-                public sun.misc.Unsafe run() throws Exception {
-                    Class<sun.misc.Unsafe> k = sun.misc.Unsafe.class;
-
-                    for (Field f : k.getDeclaredFields()) {
-                        f.setAccessible(true);
-                        Object x = f.get(null);
-                        if (k.isInstance(x)) {
-                            return k.cast(x);
-                        }
-                    }
-                    // The sun.misc.Unsafe field does not exist.
-                    return null;
-                }
-            });
-        } catch (Throwable ignored) {
-        }
-        return unsafe;
-    }
-
     public static ByteOrder nativeByteOrder() {
-        if (nativeByteOrder == null)
-            throw new Error("Unknown byte order");
         return nativeByteOrder;
     }
 
-    public static boolean bigOrder() {
-        if (nativeByteOrder == null)
-            throw new Error("Unknown byte order");
-        return nativeByteOrder == ByteOrder.BIG_ENDIAN;
+    public static boolean isBigOrder() {
+        return nativeByteOrder() == ByteOrder.BIG_ENDIAN;
     }
 
-    public static boolean littleOrder() {
-        if (nativeByteOrder == null)
-            throw new Error("Unknown byte order");
-        return nativeByteOrder == ByteOrder.LITTLE_ENDIAN;
+    public static boolean isLittleOrder() {
+        return nativeByteOrder() == ByteOrder.LITTLE_ENDIAN;
     }
 
     public static long objectFieldOffset(Field field) {
@@ -323,68 +329,525 @@ public class Unsafe {
         UNSAFE.putShort(target, offset, value);
     }
 
-    // These methods do no bounds checking.  Verification that the copy will not
-    // result in memory corruption should be done prior to invocation.
-    // All positions and lengths are specified in bytes.
-
     public static void setMemory(long address, long numBytes, byte value) {
         UNSAFE.setMemory(address, numBytes, value);
     }
 
-    private static boolean supportsUnsafeArrayOperations() {
-        boolean supported = false;
-        if (UNSAFE != null) {
-            try {
-                Class<?> clazz = UNSAFE.getClass();
-                clazz.getMethod("objectFieldOffset", Field.class);
-                clazz.getMethod("allocateInstance", Class.class);
-                clazz.getMethod("arrayBaseOffset", Class.class);
-                clazz.getMethod("getByte", Object.class, long.class);
-                clazz.getMethod("putByte", Object.class, long.class, byte.class);
-                clazz.getMethod("getBoolean", Object.class, long.class);
-                clazz.getMethod("putBoolean", Object.class, long.class, boolean.class);
-                clazz.getMethod("getInt", Object.class, long.class);
-                clazz.getMethod("putInt", Object.class, long.class, int.class);
-                clazz.getMethod("getLong", Object.class, long.class);
-                clazz.getMethod("putLong", Object.class, long.class, long.class);
-                clazz.getMethod("getFloat", Object.class, long.class);
-                clazz.getMethod("putFloat", Object.class, long.class, float.class);
-                clazz.getMethod("getDouble", Object.class, long.class);
-                clazz.getMethod("putDouble", Object.class, long.class, double.class);
-                clazz.getMethod("getObject", Object.class, long.class);
-                clazz.getMethod("putObject", Object.class, long.class, Object.class);
-                clazz.getMethod("copyMemory", Object.class, long.class, Object.class, long.class, long.class);
-                supported = true;
-            } catch (Throwable e) {
-                // Do nothing.
-            }
-        }
-        return supported;
+    public static int javaVersion() {
+        return JAVA_VERSION;
     }
 
-    private static boolean supportsUnsafeByteBufferOperations() {
-        boolean supported = false;
-        if (UNSAFE != null) {
-            try {
-                Class<?> clazz = UNSAFE.getClass();
-                // Methods for getting direct buffer address.
-                clazz.getMethod("objectFieldOffset", Field.class);
-                clazz.getMethod("getLong", Object.class, long.class);
-
-                clazz.getMethod("getByte", long.class);
-                clazz.getMethod("putByte", long.class, byte.class);
-                clazz.getMethod("getInt", long.class);
-                clazz.getMethod("putInt", long.class, int.class);
-                clazz.getMethod("getLong", long.class);
-                clazz.getMethod("putLong", long.class, long.class);
-                clazz.getMethod("setMemory", long.class, long.class, byte.class);
-                clazz.getMethod("copyMemory", long.class, long.class, long.class);
-                supported = true;
-            } catch (Throwable e) {
-                // Do nothing.
-            }
+    public static ByteBuffer allocateDirectByteBuffer(int cap) {
+        long address = allocate(cap);
+        if (address == -1) {
+            throw new RuntimeException("no enough space(direct): " + cap);
         }
-        return supported;
+        try {
+            return (ByteBuffer) DIRECT_BUFFER_CONSTRUCTOR.newInstance(address, cap);
+        } catch (Throwable e) {
+            free(address);
+            throw new Error(e);
+        }
     }
+
+    public static void freeByteBuffer(ByteBuffer buffer) {
+        if (buffer.isDirect()) {
+            //            boolean free = false;
+            //            if (javaVersion() > 8) {
+            //                sun.nio.ch.DirectBuffer  b = (sun.nio.ch.DirectBuffer) buffer;
+            //                jdk.internal.ref.Cleaner c = b.cleaner();
+            //                if (c != null) {
+            //                    c.clean();
+            //                    free = true;
+            //                }
+            //            } else {
+            //                if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
+            //                    ((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
+            //                    free = true;
+            //                }
+            //            }
+            //            if (!free) {
+            //                free(address(buffer));
+            //            }
+            free(address(buffer));
+        }
+    }
+
+    private static int majorJavaVersion() {
+        final String   javaSpecVersion = Util.getStringProperty("java.specification.version", "1.6");
+        final String[] components      = javaSpecVersion.split("\\.");
+        final int[]    version         = new int[components.length];
+        for (int i = 0; i < components.length; i++) {
+            version[i] = Integer.parseInt(components[i]);
+        }
+        if (version[0] == 1) {
+            assert version[1] >= 6;
+            return version[1];
+        } else {
+            return version[0];
+        }
+    }
+
+    interface InternalUnsafe {
+
+        boolean compareAndSwapInt(Object o, long offset, int expected, int val);
+
+        boolean compareAndSwapLong(Object o, long offset, int expected, long val);
+
+        boolean compareAndSwapObject(Object o, long offset, Object expected, Object val);
+
+        void copyMemory(ByteBuffer buf, long targetAddress, long length);
+
+        void copyMemory(long srcAddress, long targetAddress, long length);
+
+        void copyMemory(Object src, long srcOffset, Object target, long targetOffset, long length);
+
+        long fieldOffset(Field field);
+
+        void free(long address);
+
+        boolean getBoolean(Object target, long offset);
+
+        byte getByte(long address);
+
+        byte getByte(Object target, long offset);
+
+        double getDouble(Object target, long offset);
+
+        float getFloat(Object target, long offset);
+
+        int getInt(long address);
+
+        int getInt(Object target, long offset);
+
+        long getLong(long address);
+
+        long getLong(Object target, long offset);
+
+        Object getObject(Object target, long offset);
+
+        short getShort(long address);
+
+        short getShort(Object target, long offset);
+
+        long objectFieldOffset(Field field);
+
+        void putBoolean(Object target, long offset, boolean value);
+
+        void putByte(long address, byte value);
+
+        void putByte(Object target, long offset, byte value);
+
+        void putDouble(Object target, long offset, double value);
+
+        void putFloat(Object target, long offset, float value);
+
+        void putInt(long address, int value);
+
+        void putInt(Object target, long offset, int value);
+
+        void putLong(long address, long value);
+
+        void putLong(Object target, long offset, long value);
+
+        void putObject(Object target, long offset, Object value);
+
+        void putShort(long address, short value);
+
+        void putShort(Object target, long offset, short value);
+
+        void setMemory(long address, long numBytes, byte value);
+
+        long arrayBaseOffset(Class<?> clazz);
+
+        long allocateMemory(long length);
+
+        Object allocateInstance(Class<?> clazz) throws InstantiationException;
+
+        void freeMemory(long address);
+    }
+
+    //    static class Jdk8UpUnsafe implements InternalUnsafe {
+    //
+    //        private jdk.internal.misc.Unsafe UNSAFE;
+    //
+    //        Jdk8UpUnsafe() {
+    //            UNSAFE = getUnsafe();
+    //        }
+    //
+    //        public boolean compareAndSwapInt(Object o, long offset, int expected, int val) {
+    //            return UNSAFE.compareAndSetInt(o, offset, expected, val);
+    //        }
+    //
+    //        public boolean compareAndSwapLong(Object o, long offset, int expected, long val) {
+    //            return UNSAFE.compareAndSetLong(o, offset, expected, val);
+    //        }
+    //
+    //        public boolean compareAndSwapObject(Object o, long offset, Object expected, Object val) {
+    //            return UNSAFE.compareAndSetObject(o, offset, expected, val);
+    //        }
+    //
+    //        public void copyMemory(ByteBuffer buf, long targetAddress, long length) {
+    //            UNSAFE.copyMemory(address(buf) + buf.position(), targetAddress, length);
+    //        }
+    //
+    //        public void copyMemory(long srcAddress, long targetAddress, long length) {
+    //            UNSAFE.copyMemory(srcAddress, targetAddress, length);
+    //        }
+    //
+    //        public void copyMemory(Object src, long srcOffset, Object target, long targetOffset, long length) {
+    //            UNSAFE.copyMemory(src, srcOffset, target, targetOffset, length);
+    //        }
+    //
+    //        public long fieldOffset(Field field) {
+    //            return UNSAFE.objectFieldOffset(field);
+    //        }
+    //
+    //        public void free(long address) {
+    //            UNSAFE.freeMemory(address);
+    //        }
+    //
+    //        public boolean getBoolean(Object target, long offset) {
+    //            return UNSAFE.getBoolean(target, offset);
+    //        }
+    //
+    //        public byte getByte(long address) {
+    //            return UNSAFE.getByte(address);
+    //        }
+    //
+    //        public byte getByte(Object target, long offset) {
+    //            return UNSAFE.getByte(target, offset);
+    //        }
+    //
+    //        public double getDouble(Object target, long offset) {
+    //            return UNSAFE.getDouble(target, offset);
+    //        }
+    //
+    //        public float getFloat(Object target, long offset) {
+    //            return UNSAFE.getFloat(target, offset);
+    //        }
+    //
+    //        public int getInt(long address) {
+    //            return UNSAFE.getInt(address);
+    //        }
+    //
+    //        public int getInt(Object target, long offset) {
+    //            return UNSAFE.getInt(target, offset);
+    //        }
+    //
+    //        public long getLong(long address) {
+    //            return UNSAFE.getLong(address);
+    //        }
+    //
+    //        public long getLong(Object target, long offset) {
+    //            return UNSAFE.getLong(target, offset);
+    //        }
+    //
+    //        public Object getObject(Object target, long offset) {
+    //            return UNSAFE.getObject(target, offset);
+    //        }
+    //
+    //        public short getShort(long address) {
+    //            return UNSAFE.getShort(address);
+    //        }
+    //
+    //        public short getShort(Object target, long offset) {
+    //            return UNSAFE.getShort(target, offset);
+    //        }
+    //
+    //        public long objectFieldOffset(Field field) {
+    //            return UNSAFE.objectFieldOffset(field);
+    //        }
+    //
+    //        public void putBoolean(Object target, long offset, boolean value) {
+    //            UNSAFE.putBoolean(target, offset, value);
+    //        }
+    //
+    //        public void putByte(long address, byte value) {
+    //            UNSAFE.putByte(address, value);
+    //        }
+    //
+    //        public void putByte(Object target, long offset, byte value) {
+    //            UNSAFE.putByte(target, offset, value);
+    //        }
+    //
+    //        public void putDouble(Object target, long offset, double value) {
+    //            UNSAFE.putDouble(target, offset, value);
+    //        }
+    //
+    //        public void putFloat(Object target, long offset, float value) {
+    //            UNSAFE.putFloat(target, offset, value);
+    //        }
+    //
+    //        public void putInt(long address, int value) {
+    //            UNSAFE.putInt(address, value);
+    //        }
+    //
+    //        public void putInt(Object target, long offset, int value) {
+    //            UNSAFE.putInt(target, offset, value);
+    //        }
+    //
+    //        public void putLong(long address, long value) {
+    //            UNSAFE.putLong(address, value);
+    //        }
+    //
+    //        public void putLong(Object target, long offset, long value) {
+    //            UNSAFE.putLong(target, offset, value);
+    //        }
+    //
+    //        public void putObject(Object target, long offset, Object value) {
+    //            UNSAFE.putObject(target, offset, value);
+    //        }
+    //
+    //        public void putShort(long address, short value) {
+    //            UNSAFE.putShort(address, value);
+    //        }
+    //
+    //        public void putShort(Object target, long offset, short value) {
+    //            UNSAFE.putShort(target, offset, value);
+    //        }
+    //
+    //        public void setMemory(long address, long numBytes, byte value) {
+    //            UNSAFE.setMemory(address, numBytes, value);
+    //        }
+    //
+    //        @Override
+    //        public long arrayBaseOffset(Class<?> clazz) {
+    //            return UNSAFE.arrayBaseOffset(clazz);
+    //        }
+    //
+    //        @Override
+    //        public long allocateMemory(long length) {
+    //            return UNSAFE.allocateMemory(length);
+    //        }
+    //
+    //        @Override
+    //        public Object allocateInstance(Class<?> clazz) throws InstantiationException {
+    //            return UNSAFE.allocateInstance(clazz);
+    //        }
+    //
+    //        @Override
+    //        public void freeMemory(long address) {
+    //            UNSAFE.freeMemory(address);
+    //        }
+    //
+    //        private jdk.internal.misc.Unsafe getUnsafe() {
+    //            jdk.internal.misc.Unsafe unsafe = null;
+    //            try {
+    //                unsafe = AccessController.doPrivileged(new PrivilegedExceptionAction<jdk.internal.misc.Unsafe>() {
+    //                    @Override
+    //                    public jdk.internal.misc.Unsafe run() throws Exception {
+    //                        Class<jdk.internal.misc.Unsafe> k = jdk.internal.misc.Unsafe.class;
+    //                        for (Field f : k.getDeclaredFields()) {
+    //                            f.setAccessible(true);
+    //                            Object x = f.get(null);
+    //                            if (k.isInstance(x)) {
+    //                                return k.cast(x);
+    //                            }
+    //                        }
+    //                        // The sun.misc.Unsafe field does not exist.
+    //                        return null;
+    //                    }
+    //                });
+    //            } catch (Throwable e) {
+    //                throw new Error("get unsafe failed", e);
+    //            }
+    //            return unsafe;
+    //        }
+    //
+    //    }
+
+
+    static class Jdk8AndLowUnsafe implements InternalUnsafe {
+
+        private sun.misc.Unsafe UNSAFE;
+
+        Jdk8AndLowUnsafe() {
+            UNSAFE = getUnsafe();
+        }
+
+        public boolean compareAndSwapInt(Object o, long offset, int expected, int val) {
+            return UNSAFE.compareAndSwapInt(o, offset, expected, val);
+        }
+
+        public boolean compareAndSwapLong(Object o, long offset, int expected, long val) {
+            return UNSAFE.compareAndSwapLong(o, offset, expected, val);
+        }
+
+        public boolean compareAndSwapObject(Object o, long offset, Object expected, Object val) {
+            return UNSAFE.compareAndSwapObject(o, offset, expected, val);
+        }
+
+        public void copyMemory(ByteBuffer buf, long targetAddress, long length) {
+            UNSAFE.copyMemory(address(buf) + buf.position(), targetAddress, length);
+        }
+
+        public void copyMemory(long srcAddress, long targetAddress, long length) {
+            UNSAFE.copyMemory(srcAddress, targetAddress, length);
+        }
+
+        public void copyMemory(Object src, long srcOffset, Object target, long targetOffset, long length) {
+            UNSAFE.copyMemory(src, srcOffset, target, targetOffset, length);
+        }
+
+        public long fieldOffset(Field field) {
+            return UNSAFE.objectFieldOffset(field);
+        }
+
+        public void free(long address) {
+            UNSAFE.freeMemory(address);
+        }
+
+        public boolean getBoolean(Object target, long offset) {
+            return UNSAFE.getBoolean(target, offset);
+        }
+
+        public byte getByte(long address) {
+            return UNSAFE.getByte(address);
+        }
+
+        public byte getByte(Object target, long offset) {
+            return UNSAFE.getByte(target, offset);
+        }
+
+        public double getDouble(Object target, long offset) {
+            return UNSAFE.getDouble(target, offset);
+        }
+
+        public float getFloat(Object target, long offset) {
+            return UNSAFE.getFloat(target, offset);
+        }
+
+        public int getInt(long address) {
+            return UNSAFE.getInt(address);
+        }
+
+        public int getInt(Object target, long offset) {
+            return UNSAFE.getInt(target, offset);
+        }
+
+        public long getLong(long address) {
+            return UNSAFE.getLong(address);
+        }
+
+        public long getLong(Object target, long offset) {
+            return UNSAFE.getLong(target, offset);
+        }
+
+        public Object getObject(Object target, long offset) {
+            return UNSAFE.getObject(target, offset);
+        }
+
+        public short getShort(long address) {
+            return UNSAFE.getShort(address);
+        }
+
+        public short getShort(Object target, long offset) {
+            return UNSAFE.getShort(target, offset);
+        }
+
+        public long objectFieldOffset(Field field) {
+            return UNSAFE.objectFieldOffset(field);
+        }
+
+        public void putBoolean(Object target, long offset, boolean value) {
+            UNSAFE.putBoolean(target, offset, value);
+        }
+
+        public void putByte(long address, byte value) {
+            UNSAFE.putByte(address, value);
+        }
+
+        public void putByte(Object target, long offset, byte value) {
+            UNSAFE.putByte(target, offset, value);
+        }
+
+        public void putDouble(Object target, long offset, double value) {
+            UNSAFE.putDouble(target, offset, value);
+        }
+
+        public void putFloat(Object target, long offset, float value) {
+            UNSAFE.putFloat(target, offset, value);
+        }
+
+        public void putInt(long address, int value) {
+            UNSAFE.putInt(address, value);
+        }
+
+        public void putInt(Object target, long offset, int value) {
+            UNSAFE.putInt(target, offset, value);
+        }
+
+        public void putLong(long address, long value) {
+            UNSAFE.putLong(address, value);
+        }
+
+        public void putLong(Object target, long offset, long value) {
+            UNSAFE.putLong(target, offset, value);
+        }
+
+        public void putObject(Object target, long offset, Object value) {
+            UNSAFE.putObject(target, offset, value);
+        }
+
+        public void putShort(long address, short value) {
+            UNSAFE.putShort(address, value);
+        }
+
+        public void putShort(Object target, long offset, short value) {
+            UNSAFE.putShort(target, offset, value);
+        }
+
+        public void setMemory(long address, long numBytes, byte value) {
+            UNSAFE.setMemory(address, numBytes, value);
+        }
+
+        @Override
+        public long arrayBaseOffset(Class<?> clazz) {
+            return UNSAFE.arrayBaseOffset(clazz);
+        }
+
+        @Override
+        public long allocateMemory(long length) {
+            return UNSAFE.allocateMemory(length);
+        }
+
+        @Override
+        public Object allocateInstance(Class<?> clazz) throws InstantiationException {
+            return UNSAFE.allocateInstance(clazz);
+        }
+
+        @Override
+        public void freeMemory(long address) {
+            UNSAFE.freeMemory(address);
+        }
+
+        private sun.misc.Unsafe getUnsafe() {
+            sun.misc.Unsafe unsafe = null;
+            try {
+                unsafe = AccessController.doPrivileged(new PrivilegedExceptionAction<sun.misc.Unsafe>() {
+                    @Override
+                    public sun.misc.Unsafe run() throws Exception {
+                        Class<sun.misc.Unsafe> k = sun.misc.Unsafe.class;
+
+                        for (Field f : k.getDeclaredFields()) {
+                            f.setAccessible(true);
+                            Object x = f.get(null);
+                            if (k.isInstance(x)) {
+                                return k.cast(x);
+                            }
+                        }
+                        // The sun.misc.Unsafe field does not exist.
+                        return null;
+                    }
+                });
+            } catch (Throwable e) {
+                throw new Error("get unsafe failed", e);
+            }
+            return unsafe;
+        }
+
+    }
+
 
 }

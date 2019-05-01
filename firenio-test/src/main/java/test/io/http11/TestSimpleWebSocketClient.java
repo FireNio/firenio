@@ -50,8 +50,7 @@ public class TestSimpleWebSocketClient {
                         Map<String, String> map = new HashMap<>();
                         map.put("action", "add-user");
                         map.put("username", "火星人" + Util.randomUUID());
-                        f2.setContent(ch.allocate());
-                        f2.write(JSON.toJSONString(map), ch);
+                        f2.setString(JSON.toJSONString(map), ch);
                         ch.writeAndFlush(f2);
                     }
                     System.out.println(f.getResponse_headers());

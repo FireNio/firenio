@@ -26,7 +26,6 @@ import com.firenio.Develop;
 import com.firenio.Options;
 import com.firenio.collection.LinkedBQStack;
 import com.firenio.collection.Stack;
-import com.firenio.common.ByteUtil;
 import com.firenio.common.DateUtil;
 import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
@@ -155,7 +154,7 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
             this.address = Unsafe.allocate(cap);
         } else {
             if (isDirect()) {
-                this.directMemory = ByteBuffer.allocateDirect(cap);
+                this.directMemory = Unsafe.allocateDirectByteBuffer(cap);
                 this.address = Unsafe.address(directMemory);
             } else {
                 byte[] memory = this.heapMemory;
@@ -246,7 +245,7 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
             Unsafe.free(address);
         } else {
             if (isDirect()) {
-                ByteUtil.free(directMemory);
+                Unsafe.freeByteBuffer(directMemory);
             } else {
                 // FIXME 这里不free了，如果在次申请的时候大小和这次一致，则不在重新申请
                 // this.memory = null;
@@ -375,6 +374,8 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
             b.append(s.mfree);
             b.append(",buf=");
             b.append(s.buf);
+            b.append(",unit=");
+            b.append(unit);
             b.append(",isDirect=");
             b.append(isDirect());
             b.append("]");

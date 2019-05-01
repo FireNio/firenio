@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.firenio</groupId>
         <artifactId>firenio</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
         <relativePath>../firenio/pom.xml</relativePath>
     </parent>
 
@@ -23,15 +23,8 @@
         <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.2</version>
                 <executions>
-                    <execution>
-                        <id>locate-dependencies</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>properties</goal>
-                        </goals>
-                    </execution>
-
                     <!-- Unpack all source files -->
                     <execution>
                         <id>unpack-sources</id>
@@ -93,7 +86,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
+            <version>1.7.26</version>
             <scope>provided</scope>
         </dependency>
 
@@ -121,4 +114,19 @@
         </dependency>
 
     </dependencies>
+    
+	<developers>
+		<developer>
+			<id>wangkai</id>
+			<name>Kai Wang</name>
+			<email>wangkaicloud (AT) 163.com</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+			<organization>The firenio team</organization>
+			<organizationUrl>https://github.com/firenio</organizationUrl>
+			<timezone>+8</timezone>
+		</developer>
+	</developers>
+
 </project>

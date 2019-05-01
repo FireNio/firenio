@@ -62,7 +62,7 @@ public class TestLoadClient {
         context.addProtocolCodec(new LengthValueCodec());
         Channel ch = context.connect();
         System.out.println("################## Test start ####################");
-        long old = System.currentTimeMillis();
+        long old = Util.now();
 
         for (int i = 0; i < time; i++) {
             LengthValueFrame frame = new LengthValueFrame();
@@ -72,7 +72,7 @@ public class TestLoadClient {
 
         latch.await();
 
-        long spend = (System.currentTimeMillis() - old);
+        long spend = (Util.past(old));
         System.out.println("## Execute Time:" + time);
         System.out.println("## OP/S:" + new BigDecimal(time * 1000).divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP));
         System.out.println("## Expend Time:" + spend);

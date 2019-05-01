@@ -19,25 +19,19 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import sample.http11.proxy.HttpProxyServer;
-
 import com.firenio.buffer.ByteBuf;
-import com.firenio.codec.http11.ClientHttpCodec;
-import com.firenio.codec.http11.ClientHttpFrame;
 import com.firenio.codec.http11.HttpAttachment;
 import com.firenio.codec.http11.HttpCodec;
 import com.firenio.codec.http11.HttpFrame;
-import com.firenio.codec.http11.HttpHeader;
 import com.firenio.codec.http11.HttpMethod;
 import com.firenio.codec.http11.HttpStatus;
-import com.firenio.collection.IntMap;
+import com.firenio.collection.DelayedQueue.DelayTask;
 import com.firenio.common.Util;
 import com.firenio.component.Channel;
 import com.firenio.component.ChannelAcceptor;
 import com.firenio.component.ChannelConnector;
 import com.firenio.component.ChannelEventListenerAdapter;
 import com.firenio.component.Frame;
-import com.firenio.component.IoEventHandle;
 import com.firenio.component.LoggerChannelOpenListener;
 import com.firenio.component.NioEventLoop;
 import com.firenio.component.NioEventLoopGroup;
@@ -96,220 +90,105 @@ public class HttpProxy4CloudServer {
         if (context != null && context.isActive()) {
             return;
         }
-
-        IoEventHandle eventHandle = new IoEventHandle() {
-
-            @Override
-            public void accept(Channel ch_src, Frame frame) throws Exception {
-                final HttpFrame f = (HttpFrame) frame;
-                if (!enable) {
-                    f.setStatus(HttpStatus.C503);
-                    f.write("503 service unavailable".getBytes());
-                    ch_src.writeAndFlush(f);
-                    return;
-                }
-                if (f.getMethod() == HttpMethod.CONNECT) {
-                    ch_src.writeAndFlush(CONNECT_RES_BUF.duplicate());
-                    HttpProxy4CloudAttr s   = HttpProxy4CloudAttr.get(ch_src);
-                    String[]            arr = f.getHost().split(":");
-                    s.host = arr[0];
-                    if (arr.length == 2) {
-                        s.port = Integer.parseInt(arr[1]);
-                    }
-                    s.handshakeFinished = true;
-                } else {
-                    String    host = f.getHost();
-                    String[]  arr  = host.split(":");
-                    final int port;
-                    if (arr.length == 2) {
-                        port = Integer.parseInt(arr[1]);
-                    } else {
-                        port = 80;
-                    }
-                    if (f.getRequestHeaders().remove(HttpHeader.Proxy_Connection.getId()) == null) {
-                        return;
-                    }
-                    NioEventLoop     el      = ch_src.getEventLoop();
-                    ChannelConnector context = new ChannelConnector(el, netHost, netPort);
-                    context.addProtocolCodec(new ClientHttpCodec() {
-
-                        public Frame decode(Channel ch, ByteBuf src) throws Exception {
-                            HttpProxy4CloudAttr s = HttpProxy4CloudAttr.get(ch);
-                            NetDataTransferServer.mask(src);
-                            return super.decode(ch, src);
-                        }
-
-                    });
-
-                    context.setIoEventHandle(new IoEventHandle() {
-
-                        @Override
-                        public void accept(Channel ch, Frame frame) throws Exception {
-                            ClientHttpFrame res = (ClientHttpFrame) frame;
-                            IntMap<String>  hs  = res.getResponse_headers();
-                            for (hs.scan(); hs.hasNext(); ) {
-                                String v = hs.nextValue();
-                                if (v == null) {
-                                    continue;
-                                }
-                                if (hs.key() == HttpHeader.Content_Length.getId() || hs.key() == HttpHeader.Connection.getId() || hs.key() == HttpHeader.Transfer_Encoding.getId() || hs.key() == HttpHeader.Content_Encoding.getId()) {
-                                    continue;
-                                }
-                                f.setResponseHeader(hs.key(), v.getBytes());
-                            }
-                            if (res.getContent() != null) {
-                                f.setContent(res.getContent());
-                            } else if (res.isChunked()) {
-                                f.setContent(ch.allocate());
-                                f.write("not support chunked now.", ch);
-                            }
-                            ch_src.writeAndFlush(f);
-                            ch.close();
-                        }
-                    });
-                    String url = HttpProxyServer.parseRequestURL(f.getRequestURL());
-                    context.setPrintConfig(false);
-                    context.addChannelEventListener(new HttpProxy4CloudAttrListener());
-                    context.addChannelEventListener(new LoggerChannelOpenListener());
-                    context.connect((ch, ex) -> {
-                        if (ex == null) {
-                            HttpProxy4CloudAttr s   = HttpProxy4CloudAttr.get(ch);
-                            HttpFrame           req = new ClientHttpFrame(url, f.getMethod());
-                            req.setRequestParams(f.getRequestParams());
-                            req.setRequestHeaders(f.getRequestHeaders());
-                            ByteBuf body = null;
-                            ByteBuf head = null;
-                            try {
-                                byte[] realHost = arr[0].getBytes();
-                                body = ch.encode(req);
-                                int len = 5 + realHost.length;
-                                head = ch.alloc().allocate(len);
-                                head.putByte((byte) realHost.length);
-                                head.putByte((byte) 83);
-                                head.putByte((byte) 38);
-                                head.putShort(port);
-                                head.putBytes(realHost);
-                                NetDataTransferServer.mask(body);
-                                ch.writeAndFlush(head.flip());
-                                ch.writeAndFlush(body);
-                            } catch (Exception e) {
-                                Util.release(head);
-                                Util.release(body);
-                            }
-                        }
-                    });
-                }
-            }
-        };
-
         context = new ChannelAcceptor(serverG, 8088);
         context.addProtocolCodec(new HttpProxy4CloudCodec());
-        context.setIoEventHandle(eventHandle);
-        context.addChannelEventListener(new HttpProxy4CloudAttrListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
+        context.addChannelEventListener(new ChannelEventListenerAdapter() {
+            @Override
+            public void channelClosed(Channel ch) {
+                Util.close(((HttpProxy4CloudAttr) ch.getAttachment()).target);
+            }
+        });
         context.bind();
-    }
-
-    public static class HttpProxy4CloudAttrListener extends ChannelEventListenerAdapter {
-
-        @Override
-        public void channelOpened(Channel ch) {
-            ch.setAttachment(new HttpProxy4CloudAttr());
-        }
-    }
-
-    public static class HttpProxy4CloudAttr extends HttpAttachment {
-
-        public ChannelConnector connector;
-        public boolean          handshakeFinished;
-        public String           host;
-        public int              port = 80;
-
-        public static HttpProxy4CloudAttr get(Channel ch) {
-            return (HttpProxy4CloudAttr) ch.getAttachment();
-        }
-
-        public static void remove(Channel ch) {
-            get(ch).connector = null;
-        }
-
-        @Override
-        public String toString() {
-            return host + ":" + port;
-        }
     }
 
     class HttpProxy4CloudCodec extends HttpCodec {
 
         @Override
         public Frame decode(final Channel ch_src, ByteBuf src) throws Exception {
-            HttpProxy4CloudAttr s = HttpProxy4CloudAttr.get(ch_src);
-            if (s.handshakeFinished) {
-                if (s.connector == null || !s.connector.isConnected()) {
-                    NioEventLoop     el      = ch_src.getEventLoop();
-                    ChannelConnector context = new ChannelConnector(el, netHost, netPort);
-                    context.addProtocolCodec(new ProtocolCodec() {
+            HttpProxy4CloudAttr attr = (HttpProxy4CloudAttr) ch_src.getAttachment();
+            Channel             t    = attr.target;
+            if (t == null) {
+                Frame frame = super.decode(ch_src, src);
+                if (frame != null) {
+                    final HttpFrame f = (HttpFrame) frame;
+                    if (!enable || f.getMethod() != HttpMethod.CONNECT) {
+                        f.setStatus(HttpStatus.C503);
+                        f.setString("503 service unavailable", ch_src);
+                        ch_src.writeAndFlush(f);
+                    } else {
+                        int      _port = 443;
+                        String[] arr   = f.getHost().split(":");
+                        String   host  = arr[0];
+                        if (arr.length == 2) {
+                            _port = Integer.parseInt(arr[1]);
+                        }
+                        final int        port    = _port;
+                        NioEventLoop     el      = ch_src.getEventLoop();
+                        ChannelConnector context = new ChannelConnector(el, netHost, netPort);
+                        context.addProtocolCodec(new ProtocolCodec() {
 
-                        @Override
-                        public Frame decode(Channel ch, ByteBuf src) {
-                            ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-                            buf.putBytes(src);
-                            buf.flip();
-                            NetDataTransferServer.mask(buf);
-                            ch_src.writeAndFlush(buf);
-                            return null;
-                        }
+                            @Override
+                            public Frame decode(Channel ch, ByteBuf src) {
+                                Channel t   = (Channel) ch.getAttachment();
+                                ByteBuf buf = t.alloc().allocate(src.remaining());
+                                buf.putBytes(src);
+                                buf.flip();
+                                t.writeAndFlush(buf);
+                                return null;
+                            }
 
-                        @Override
-                        public ByteBuf encode(Channel ch, Frame frame) {
-                            return null;
-                        }
+                            @Override
+                            public ByteBuf encode(Channel ch, Frame frame) {
+                                return null;
+                            }
 
-                        @Override
-                        public String getProtocolId() {
-                            return "http-proxy-connect";
-                        }
+                            @Override
+                            public String getProtocolId() {
+                                return "http-proxy-connect";
+                            }
 
-                        @Override
-                        public int getHeaderLength() {
-                            return 0;
-                        }
-                    });
-                    context.setPrintConfig(false);
-                    context.addChannelEventListener(new LoggerChannelOpenListener());
-                    ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-                    buf.putBytes(src);
-                    s.connector = context;
-                    s.connector.connect((ch_target, ex) -> {
-                        if (ex == null) {
-                            byte[]  host_bytes = s.host.getBytes();
-                            int     len        = 5 + host_bytes.length;
-                            ByteBuf head       = ch_target.alloc().allocate(len);
-                            head.putByte((byte) host_bytes.length);
-                            head.putByte((byte) 83);
-                            head.putByte((byte) 38);
-                            head.putShort(s.port);
-                            head.putBytes(host_bytes);
-                            ch_target.writeAndFlush(head.flip());
-                            buf.flip();
-                            NetDataTransferServer.mask(buf);
-                            ch_target.writeAndFlush(buf);
-                        } else {
-                            buf.release();
-                            HttpProxy4CloudAttr.remove(ch_src);
-                            Util.close(ch_src);
-                        }
-                    });
-                } else {
-                    ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-                    buf.putBytes(src);
-                    buf.flip();
-                    NetDataTransferServer.mask(buf);
-                    s.connector.getChannel().writeAndFlush(buf);
+                            @Override
+                            public int getHeaderLength() {
+                                return 0;
+                            }
+                        });
+                        context.setPrintConfig(false);
+                        context.addChannelEventListener(new LoggerChannelOpenListener());
+                        context.addChannelEventListener(NetDataTransferServer.CLOSE_TARGET);
+                        context.connect((ch_target, ex) -> {
+                            if (ex == null) {
+                                attr.target = ch_target;
+                                ch_target.setAttachment(ch_src);
+                                byte[]  host_bytes = host.getBytes();
+                                int     len        = 5 + host_bytes.length;
+                                ByteBuf head       = ch_target.alloc().allocate(len);
+                                head.putByte((byte) host_bytes.length);
+                                head.putByte((byte) 83);
+                                head.putByte((byte) 38);
+                                head.putShort(port);
+                                head.putBytes(host_bytes);
+                                ch_target.writeAndFlush(head.flip());
+                                el.schedule(new DelayTask(10) {
+                                    @Override
+                                    public void run() {
+                                        ch_src.writeAndFlush(CONNECT_RES_BUF.duplicate());
+                                    }
+                                });
+                            } else {
+                                Util.close(ch_src);
+                            }
+                        });
+                    }
                 }
                 return null;
+            } else {
+                ByteBuf buf = t.alloc().allocate(src.remaining());
+                buf.putBytes(src);
+                buf.flip();
+                t.writeAndFlush(buf);
             }
-            return super.decode(ch_src, src);
+            return null;
         }
 
         @Override
@@ -322,6 +201,14 @@ public class HttpProxy4CloudServer {
             }
         }
 
+        @Override
+        protected Object newAttachment() {
+            return new HttpProxy4CloudAttr();
+        }
+    }
+
+    static class HttpProxy4CloudAttr extends HttpAttachment {
+        Channel target;
     }
 
 }

@@ -15,7 +15,6 @@
  */
 package com.firenio.common;
 
-import java.nio.ByteBuffer;
 import java.util.Random;
 
 import com.firenio.buffer.ByteBuf;
@@ -89,10 +88,6 @@ public class ByteUtil {
 
     /**
      * 右起0 ~ 7
-     *
-     * @param b
-     * @param pos
-     * @return
      */
     public static boolean getBoolean(byte b, int pos) {
         return ((b >>> pos) & 1) != 0;
@@ -171,7 +166,7 @@ public class ByteUtil {
     }
 
     public static int getInt(long address) {
-        if (Unsafe.bigOrder()) {
+        if (Unsafe.isBigOrder()) {
             return Unsafe.getInt(address);
         } else {
             return Integer.reverseBytes(Unsafe.getInt(address));
@@ -194,7 +189,7 @@ public class ByteUtil {
     }
 
     public static int getIntLE(long address) {
-        if (Unsafe.littleOrder()) {
+        if (Unsafe.isLittleOrder()) {
             return Unsafe.getShort(address);
         } else {
             return Integer.reverseBytes(Unsafe.getShort(address));
@@ -215,7 +210,7 @@ public class ByteUtil {
     }
 
     public static long getLong(long address) {
-        if (Unsafe.bigOrder()) {
+        if (Unsafe.isBigOrder()) {
             return Unsafe.getLong(address);
         } else {
             return Long.reverseBytes(Unsafe.getLong(address));
@@ -227,7 +222,7 @@ public class ByteUtil {
     }
 
     public static long getLongLE(long address) {
-        if (Unsafe.littleOrder()) {
+        if (Unsafe.isLittleOrder()) {
             return Unsafe.getLong(address);
         } else {
             return Long.reverseBytes(Unsafe.getLong(address));
@@ -250,7 +245,7 @@ public class ByteUtil {
     }
 
     public static short getShort(long address) {
-        if (Unsafe.bigOrder()) {
+        if (Unsafe.isBigOrder()) {
             return Unsafe.getShort(address);
         } else {
             return Short.reverseBytes(Unsafe.getShort(address));
@@ -262,7 +257,7 @@ public class ByteUtil {
     }
 
     public static short getShortLE(long address) {
-        if (Unsafe.littleOrder()) {
+        if (Unsafe.isLittleOrder()) {
             return Unsafe.getShort(address);
         } else {
             return Short.reverseBytes(Unsafe.getShort(address));
@@ -324,7 +319,7 @@ public class ByteUtil {
     }
 
     public static void putInt(long address, int value) {
-        if (Unsafe.bigOrder()) {
+        if (Unsafe.isBigOrder()) {
             Unsafe.putInt(address, value);
         } else {
             Unsafe.putInt(address, Integer.reverseBytes(value));
@@ -336,7 +331,7 @@ public class ByteUtil {
     }
 
     public static void putIntLE(long address, int value) {
-        if (Unsafe.littleOrder()) {
+        if (Unsafe.isLittleOrder()) {
             Unsafe.putInt(address, value);
         } else {
             Unsafe.putInt(address, Integer.reverseBytes(value));
@@ -356,7 +351,7 @@ public class ByteUtil {
     }
 
     public static void putLong(long address, long value) {
-        if (Unsafe.bigOrder()) {
+        if (Unsafe.isBigOrder()) {
             Unsafe.putLong(address, value);
         } else {
             Unsafe.putLong(address, Long.reverseBytes(value));
@@ -368,7 +363,7 @@ public class ByteUtil {
     }
 
     public static void putLongLE(long address, long value) {
-        if (Unsafe.littleOrder()) {
+        if (Unsafe.isLittleOrder()) {
             Unsafe.putLong(address, value);
         } else {
             Unsafe.putLong(address, Long.reverseBytes(value));
@@ -382,7 +377,7 @@ public class ByteUtil {
     }
 
     public static void putShort(long address, short value) {
-        if (Unsafe.bigOrder()) {
+        if (Unsafe.isBigOrder()) {
             Unsafe.putShort(address, value);
         } else {
             Unsafe.putShort(address, Short.reverseBytes(value));
@@ -394,7 +389,7 @@ public class ByteUtil {
     }
 
     public static void putShortLE(long address, short value) {
-        if (Unsafe.littleOrder()) {
+        if (Unsafe.isLittleOrder()) {
             Unsafe.putShort(address, value);
         } else {
             Unsafe.putShort(address, Short.reverseBytes(value));
@@ -403,14 +398,6 @@ public class ByteUtil {
 
     public static int safeFindNextPositivePowerOfTwo(final int value) {
         return value <= 0 ? 1 : value >= 0x40000000 ? 0x40000000 : findNextPositivePowerOfTwo(value);
-    }
-
-
-    @SuppressWarnings("restriction")
-    public static void free(ByteBuffer buffer) {
-        if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
-            ((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
-        }
     }
 
     public static int skip(ByteBuf src, int p, int e, byte v) {

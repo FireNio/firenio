@@ -20,10 +20,10 @@ import com.firenio.common.Util;
 
 public abstract class EventLoopGroup extends LifeCycle {
 
-    private FixedAtomicInteger eventLoopIndex;
-    private String             eventLoopName;
-    private int                eventLoopSize;
-    private int                maxQueueSize;
+    private RingSequence eventLoopIndex;
+    private String       eventLoopName;
+    private int          eventLoopSize;
+    private int          maxQueueSize;
 
     protected EventLoopGroup(String eventLoopName) {
         this(eventLoopName, Util.availableProcessors());
@@ -47,7 +47,7 @@ public abstract class EventLoopGroup extends LifeCycle {
 
     @Override
     protected void doStart() throws Exception {
-        this.eventLoopIndex = new FixedAtomicInteger(0, eventLoopSize - 1);
+        this.eventLoopIndex = new RingSequence(0, eventLoopSize);
         EventLoop[] eventLoops = initEventLoops();
         for (int i = 0; i < eventLoopSize; i++) {
             String t_name = eventLoopName + "-" + i;
@@ -86,7 +86,7 @@ public abstract class EventLoopGroup extends LifeCycle {
     public abstract EventLoop getNext();
 
     protected int getNextEventLoopIndex() {
-        return eventLoopIndex.getAndIncrement();
+        return eventLoopIndex.next();
     }
 
     protected EventLoop[] initEventLoops() {

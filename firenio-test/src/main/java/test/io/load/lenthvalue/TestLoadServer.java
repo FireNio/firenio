@@ -52,8 +52,7 @@ public class TestLoadServer {
             @Override
             public void accept(Channel ch, Frame f) throws Exception {
                 String text = f.getStringContent();
-                f.setContent(ch.allocate());
-                f.write(text, ch);
+                f.setString(text, ch);
                 ch.writeAndFlush(f);
             }
         };

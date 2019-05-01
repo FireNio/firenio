@@ -17,6 +17,7 @@ package test.test;
 
 import java.util.concurrent.CountDownLatch;
 
+import com.firenio.common.Util;
 import com.firenio.log.DebugUtil;
 
 public abstract class ITestThread implements Runnable {
@@ -28,27 +29,19 @@ public abstract class ITestThread implements Runnable {
     private int time;
 
     public void addCount(int passage) {
-
         latch.countDown();
-
         long c = latch.getCount();
-
         if (c % passage == 0) {
-
-            long now = System.currentTimeMillis();
-
+            long now = Util.now_f();
             long passed = 0;
-
             if (last_time == 0) {
                 last_time = now;
             } else {
                 passed = now - last_time;
                 last_time = now;
             }
-
             DebugUtil.info("__________________________" + c + "\t" + "___" + passed);
         }
-
     }
 
     public void await() throws InterruptedException {

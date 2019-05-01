@@ -33,11 +33,4 @@ public class CompoundLoggerPrinter implements LoggerPrinter {
         }
     }
 
-    @Override
-    public void printThrowable(Throwable t) {
-        for (LoggerPrinter p : printers) {
-            p.printThrowable(t);
-        }
-    }
-
 }

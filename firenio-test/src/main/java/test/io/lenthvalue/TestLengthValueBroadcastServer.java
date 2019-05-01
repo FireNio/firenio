@@ -53,7 +53,7 @@ public class TestLengthValueBroadcastServer {
                 for (; ; ) {
                     Util.sleep(1000);
                     LengthValueFrame frame = new LengthValueFrame();
-                    frame.write("broadcast msg .........................", context);
+                    frame.setBytes(LengthValueCodec.PROTOCOL_HEADER, "broadcast msg ........".getBytes());
                     try {
                         context.broadcast(frame);
                     } catch (Exception e) {

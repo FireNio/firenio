@@ -17,6 +17,7 @@ package test.test;
 
 import java.math.BigDecimal;
 
+import com.firenio.common.Util;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
 
@@ -27,7 +28,7 @@ public class ITestHandle {
     public static void doTest(ITest test, long time, String testName) {
         logger.info("################## Test start ####################");
         logger.info("## Test Name:" + testName);
-        long old = System.currentTimeMillis();
+        long old = Util.now_f();
         for (int i = 0; i < time; i++) {
             try {
                 test.test(i);
@@ -35,8 +36,7 @@ public class ITestHandle {
                 throw new RuntimeException(e);
             }
         }
-        long now   = System.currentTimeMillis();
-        long spend = (now - old);
+        long spend = Util.past(old);
         logger.info("## Expend  Time:" + spend);
         logger.info("## Execute Time:" + time);
         logger.info("## OP(W)/S:" + new BigDecimal(time).divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP).doubleValue() / 10);

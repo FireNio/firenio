@@ -25,7 +25,7 @@ public interface Logger {
 
     void debug(String msg, Object param, Object param1);
 
-    void debug(String msg, Throwable t);
+    void debug(String msg, Throwable e);
 
     void error(String msg);
 
@@ -35,7 +35,7 @@ public interface Logger {
 
     void error(String msg, Object param, Object param1);
 
-    void error(String msg, Throwable t);
+    void error(String msg, Throwable e);
 
     void error(Throwable e);
 
@@ -65,6 +65,6 @@ public interface Logger {
 
     void warn(String msg, Object param, Object param1);
 
-    void warn(String msg, Throwable t);
+    void warn(String msg, Throwable e);
 
 }

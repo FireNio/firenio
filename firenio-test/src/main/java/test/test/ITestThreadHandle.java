@@ -17,6 +17,7 @@ package test.test;
 
 import java.math.BigDecimal;
 
+import com.firenio.common.FileUtil.OnDirectoryScan;
 import com.firenio.common.Util;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
@@ -25,8 +26,8 @@ public class ITestThreadHandle {
 
     public static  ITestThread[] ts;
     private static Logger        logger    = LoggerFactory.getLogger(ITestThreadHandle.class);
-    private static long          numOftime;
-    private static long          startTime = System.currentTimeMillis();
+    private static long          numOfTime;
+    private static long          startTime = Util.now_f();
     private static long          sum;
 
     public static void doTest(Class<? extends ITestThread> clazz, int threads, int time) {
@@ -38,12 +39,12 @@ public class ITestThreadHandle {
             doTest0(clazz, threads, time / threads);
             Util.sleep(2000);
         }
-        logger.info("cost time:{}", (System.currentTimeMillis() - startTime));
+        logger.info("cost time:{}", Util.past(startTime));
         logger.info("################## Test end ####################");
     }
 
     private static void doTest0(Class<? extends ITestThread> clazz, int threads, int time) {
-        numOftime++;
+        numOfTime++;
         logger.info("################## Test start ####################");
         int allTime = time * threads;
         ts = new ITestThread[threads];
@@ -58,7 +59,7 @@ public class ITestThreadHandle {
             }
         }
         logger.info("## prepare complete");
-        long old = System.currentTimeMillis();
+        long old = Util.now_f();
         for (int i = 0; i < ts.length; i++) {
             new Thread(ts[i]).start();
         }
@@ -69,20 +70,20 @@ public class ITestThreadHandle {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        long spend = (System.currentTimeMillis() - old);
+        long spend = Util.past(old);
         for (int i = 0; i < ts.length; i++) {
             ts[i].stop();
         }
         double ops = new BigDecimal(allTime * 1000L).divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
         double avg;
-        if (numOftime > 4) {
+        if (numOfTime > 4) {
             sum += ops;
-            avg = sum / (numOftime - 4);
+            avg = sum / (numOfTime - 4);
         } else {
             avg = ops;
         }
         logger.info("## Execute Time(all):" + allTime);
-        logger.info("## Execute Time:" + numOftime);
+        logger.info("## Execute Time:" + numOfTime);
         logger.info("## OP/S:" + ops);
         logger.info("## OP/S(avg):" + avg);
         logger.info("## Expend Time:" + spend);

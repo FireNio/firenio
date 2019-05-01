@@ -97,7 +97,7 @@ public final class ChannelAcceptor extends ChannelContext {
                         ex = new BindException("Already bound at " + getPort());
                     }
                     bindWaiter.call(null, ex);
-                    if (bindWaiter.isTimeouted()) {
+                    if (bindWaiter.isTimeout()) {
                         Util.unbind(ChannelAcceptor.this);
                     }
                 }
@@ -107,7 +107,8 @@ public final class ChannelAcceptor extends ChannelContext {
             Util.unbind(this);
             throw new IOException("failed to bind @ " + getPort());
         }
-        if (bindWaiter.await(6000)) {
+        bindWaiter.await(6000);
+        if (bindWaiter.isTimeout()) {
             Util.unbind(this);
             throw new IOException("time out to bind @ " + getPort());
         }

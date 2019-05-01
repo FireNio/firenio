@@ -24,10 +24,12 @@ import com.firenio.common.Unsafe;
 
 public abstract class ByteBuf implements Releasable {
 
+    static final boolean                            BUF_THREAD_YIELD;
     static final boolean                            AUTO_EXPANSION;
     static final AtomicIntegerFieldUpdater<ByteBuf> refCntUpdater;
 
     static {
+        BUF_THREAD_YIELD = Options.isBufThreadYield();
         AUTO_EXPANSION = Options.isBufAutoExpansion();
         refCntUpdater = AtomicIntegerFieldUpdater.newUpdater(ByteBuf.class, "referenceCount");
     }
@@ -51,7 +53,7 @@ public abstract class ByteBuf implements Releasable {
     }
 
     public static ByteBuf direct(int cap) {
-        return wrap(ByteBuffer.allocateDirect(cap));
+        return wrap(Unsafe.allocateDirectByteBuffer(cap));
     }
 
     public static ByteBuf empty() {
@@ -97,6 +99,10 @@ public abstract class ByteBuf implements Releasable {
             referenceCount = this.referenceCount;
             if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
                 break;
+            } else {
+                if (BUF_THREAD_YIELD) {
+                    Thread.yield();
+                }
             }
         }
     }
@@ -267,6 +273,10 @@ public abstract class ByteBuf implements Releasable {
     }
 
     public abstract int indexOf(byte b, int absPos, int size);
+
+    public boolean isFullLimit(){
+        return limit() == capacity();
+    }
 
     public abstract boolean isPooled();
 
@@ -522,6 +532,10 @@ public abstract class ByteBuf implements Releasable {
                     release0();
                 }
                 return;
+            } else {
+                if (BUF_THREAD_YIELD) {
+                    Thread.yield();
+                }
             }
         }
     }

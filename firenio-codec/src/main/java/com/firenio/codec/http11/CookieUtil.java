@@ -23,6 +23,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.firenio.common.Util;
+
 public class CookieUtil {
 
     private static final boolean    ALWAYS_ADD_EXPIRES;
@@ -97,7 +99,7 @@ public class CookieUtil {
                 if (maxAge == 0) {
                     buf.append(ancientDate);
                 } else {
-                    OLD_COOKIE_PATTERN_FORMAT.format(new Date(System.currentTimeMillis() + maxAge * 1000L), buf, new FieldPosition(0));
+                    OLD_COOKIE_PATTERN_FORMAT.format(new Date(Util.now_f() + maxAge * 1000L), buf, new FieldPosition(0));
                 }
             }
         }

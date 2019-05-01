@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.util.List;
 
 import com.firenio.buffer.ByteBuf;
+import com.firenio.component.Channel;
 import com.firenio.component.Frame;
 import com.firenio.component.NioEventLoop;
-import com.firenio.component.Channel;
 import com.firenio.component.ProtocolCodec;
 
 //FIXME 心跳貌似由服务端发起
@@ -108,26 +108,24 @@ public final class WebSocketCodec extends ProtocolCodec {
         }
         byte    b0       = src.getByte();
         byte    b1       = src.getByte();
-        int     data_len = 0;
         int     skip     = 2;
+        int     mask_len = 0;
         boolean has_mask = (b1 & 0b10000000) != 0;
         if (has_mask) {
-            data_len += 4;
+            mask_len = 4;
         }
         int payload_len = (b1 & 0x7f);
         if (payload_len < 126) {
 
         } else if (payload_len == 126) {
-            data_len += 2;
-            if (src.remaining() < data_len) {
+            if (src.remaining() < 2) {
                 src.skip(-skip);
                 return null;
             }
-            skip +=2;
+            skip += 2;
             payload_len = src.getUnsignedShort();
         } else {
-            data_len += 8;
-            if (src.remaining() < data_len) {
+            if (src.remaining() < 8) {
                 src.skip(-skip);
                 return null;
             }
@@ -140,7 +138,7 @@ public final class WebSocketCodec extends ProtocolCodec {
         if (payload_len > limit) {
             throw OVER_LIMIT;
         }
-        if (src.remaining() < payload_len) {
+        if (src.remaining() < payload_len + mask_len) {
             src.skip(-skip);
             return null;
         }
@@ -195,14 +193,13 @@ public final class WebSocketCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(Channel ch, Frame frame) {
+    public ByteBuf encode(Channel ch, Frame frame) throws IOException {
         WebSocketFrame f   = (WebSocketFrame) frame;
         ByteBuf        buf = f.getBufContent();
-        if (buf != null) {
-            buf.flip();
-        } else {
-            buf = ch.allocate().limit(MAX_HEADER_LENGTH);
+        if (buf == null) {
+            throw new IOException("null buf content");
         }
+        buf.flip();
         int  size      = buf.limit() - MAX_HEADER_LENGTH;
         byte mark_code = f.getMarkCode();
         if (size < 126) {

@@ -59,7 +59,7 @@ import com.firenio.concurrent.EventLoop;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
 
-import static com.firenio.Develop.printException;
+import static com.firenio.Develop.debugException;
 
 /**
  * @author wangkai
@@ -95,8 +95,14 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         this.acceptor = group.isAcceptor();
         this.alloc = group.getNextByteBufAllocator(index);
         this.ch_size_limit = group.getChannelSizeLimit();
-        this.buf = ByteBuf.direct(group.getChannelReadBuffer());
-        this.buf_address = Unsafe.address(buf.getNioBuffer());
+        int channelReadBuffer = group.getChannelReadBuffer();
+        if (channelReadBuffer > 0) {
+            this.buf = ByteBuf.direct(channelReadBuffer);
+            this.buf_address = Unsafe.address(buf.getNioBuffer());
+        } else {
+            this.buf = null;
+            this.buf_address = -1;
+        }
     }
 
     private static void channel_idle(ChannelIdleListener l, Channel ch, long lastIdleTime, long currentTime) {
@@ -162,10 +168,10 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
 
     static void read_exception_caught(Channel ch, Throwable ex) {
         ch.close();
-        Develop.printException(logger, ex, 2);
         if (!ch.isSslHandshakeFinished()) {
             ch.getContext().channelEstablish(ch, ex);
         }
+        logger.error(ex);
     }
 
     public ByteBufAllocator alloc() {
@@ -302,7 +308,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                 try {
                     t.run();
                 } catch (Throwable e) {
-                    printException(logger, e, 1);
+                    logger.error(e.getMessage(), e);
                 }
             }
         }
@@ -340,7 +346,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                     t.done();
                     t.run();
                 } catch (Throwable e) {
-                    printException(logger, e, 1);
+                    logger.error(e.getMessage(), e);
                 }
                 continue;
             }
@@ -393,7 +399,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                 if (selected > 0) {
                     accept(selected);
                 }
-                long now = System.currentTimeMillis();
+                long now = Util.now();
                 if (now >= next_idle_time) {
                     channel_idle(last_idle_time, now);
                     last_idle_time = now;
@@ -407,7 +413,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                     select_time = run_delayed_events(dq, now, next_idle_time, select_time);
                 }
             } catch (Throwable e) {
-                printException(logger, e, 1);
+                logger.error(e);
             }
         }
     }
@@ -576,16 +582,14 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                         read_exception_caught(ch, e);
                     }
                 } else if ((readyOps & SelectionKey.OP_WRITE) != 0) {
-                    int len = ch.write();
-                    if (len == -1) {
+                    if (ch.write() == -1) {
                         ch.close();
                         return;
                     }
                 }
             } else {
                 if ((readyOps & SelectionKey.OP_WRITE) != 0) {
-                    int len = ch.write();
-                    if (len == -1) {
+                    if (ch.write() == -1) {
                         ch.close();
                         return;
                     }
@@ -623,12 +627,12 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                         try {
                             register_channel(ch, targetEL, acceptor, true);
                         } catch (IOException e) {
-                            printException(logger, e, 1);
+                            logger.error(e.getMessage(), e);
                         }
                     }
                 });
             } catch (Throwable e) {
-                printException(logger, e, 1);
+                debugException(logger, e);
             }
         }
 
@@ -686,13 +690,13 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         private void register_channel(SocketChannel jch, NioEventLoop el, ChannelContext ctx, boolean acceptor) throws IOException {
             IntMap<Channel> channels = el.channels;
             if (channels.size() >= el.ch_size_limit) {
-                printException(logger, OVER_CH_SIZE_LIMIT, 2);
+                logger.error(OVER_CH_SIZE_LIMIT.getMessage(), OVER_CH_SIZE_LIMIT);
                 ctx.channelEstablish(null, OVER_CH_SIZE_LIMIT);
                 return;
             }
             JavaEventLoop     elUnsafe  = (JavaEventLoop) el;
             NioEventLoopGroup g         = el.getGroup();
-            int               channelId = g.getChannelIds().getAndIncrement();
+            int               channelId = g.getChannelIds().next();
             SelectionKey      sk        = jch.register(elUnsafe.selector, SelectionKey.OP_READ);
             Util.close(channels.get(channelId));
             Util.close((Channel) sk.attachment());
@@ -721,7 +725,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
             try {
                 return selector.select(timeout);
             } catch (IOException e) {
-                printException(logger, e, 1);
+                debugException(logger, e);
                 return 0;
             }
         }
@@ -731,7 +735,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
             try {
                 return selector.selectNow();
             } catch (IOException e) {
-                printException(logger, e, 1);
+                debugException(logger, e);
                 return 0;
             }
         }
@@ -930,16 +934,14 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                         }
                     }
                     if ((e & Native.EPOLL_OUT) != 0) {
-                        int len = ch.write();
-                        if (len == -1) {
+                        if (ch.write() == -1) {
                             ch.close();
                             return;
                         }
                     }
                 } else {
                     if ((e & Native.EPOLL_OUT) != 0) {
-                        int len = ch.write();
-                        if (len == -1) {
+                        if (ch.write() == -1) {
                             ch.close();
                             return;
                         }
@@ -988,7 +990,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         private void register_channel(NioEventLoop el, ChannelContext ctx, int fd, String ra, int lp, int rp, boolean add) {
             IntMap<Channel> channels = el.channels;
             if (channels.size() >= ch_size_limit) {
-                printException(logger, OVER_CH_SIZE_LIMIT, 2);
+                logger.error(OVER_CH_SIZE_LIMIT.getMessage(), OVER_CH_SIZE_LIMIT);
                 ctx.channelEstablish(null, OVER_CH_SIZE_LIMIT);
                 return;
             }

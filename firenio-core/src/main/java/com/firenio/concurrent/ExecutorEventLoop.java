@@ -112,6 +112,8 @@ public final class ExecutorEventLoop extends EventLoop {
 
         final BlockingQueue<Runnable> jobs;
 
+        volatile Thread thread;
+
         volatile boolean running = true;
 
         public WorkThread(BlockingQueue<Runnable> jobs) {
@@ -120,16 +122,20 @@ public final class ExecutorEventLoop extends EventLoop {
 
         @Override
         public void run() {
+            thread = Thread.currentThread();
             for (; running; ) {
                 try {
                     runJob(jobs.poll(1000, TimeUnit.MILLISECONDS));
-                } catch (InterruptedException e1) {
+                } catch (InterruptedException e) {
                 }
             }
         }
 
         void stop() {
             running = false;
+            if (thread != null) {
+                thread.interrupt();
+            }
         }
 
     }

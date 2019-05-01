@@ -24,7 +24,7 @@ public final class Waiter<T> implements Callback<T> {
     private       boolean   isDone;
     private       T         response;
     private       Throwable throwable;
-    private       boolean   timeouted;
+    private       boolean   timeout;
     private final Object    lock;
 
     public Waiter() {
@@ -38,8 +38,8 @@ public final class Waiter<T> implements Callback<T> {
         this.lock = lock;
     }
 
-    public boolean await() {
-        return await(0);
+    public void await() {
+        await(0);
     }
 
     /**
@@ -48,18 +48,13 @@ public final class Waiter<T> implements Callback<T> {
      * @param timeout
      * @return timeouted
      */
-    public boolean await(long timeout) {
+    public void await(long timeout) {
         synchronized (lock) {
-            if (isDone) {
-                return false;
+            if (!isDone) {
+                Util.wait(lock, timeout);
+                this.timeout = !isDone;
             }
-            try {
-                lock.wait(timeout);
-            } catch (InterruptedException e) {
-            }
-            timeouted = !isDone;
         }
-        return timeouted;
     }
 
     @Override
@@ -69,7 +64,7 @@ public final class Waiter<T> implements Callback<T> {
             this.response = res;
             this.throwable = ex;
             lock.notify();
-            if (timeouted && res instanceof Closeable) {
+            if (timeout && res instanceof Closeable) {
                 Util.close((Closeable) res);
             }
         }
@@ -92,8 +87,8 @@ public final class Waiter<T> implements Callback<T> {
         return throwable != null;
     }
 
-    public boolean isTimeouted() {
-        return timeouted;
+    public boolean isTimeout() {
+        return timeout;
     }
 
 }

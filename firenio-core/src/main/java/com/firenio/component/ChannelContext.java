@@ -68,7 +68,7 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
     private SslContext                 sslContext;
     private String                     sslKeystore;
     private String                     sslPem;
-    private long                       startupTime        = System.currentTimeMillis();
+    private long                       startupTime        = Util.now();
 
     ChannelContext(NioEventLoopGroup group, String host, int port) {
         Assert.notNull(host, "null host");

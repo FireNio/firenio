@@ -15,6 +15,8 @@
  */
 package test.others;
 
+import com.firenio.common.Util;
+
 /**
  * @author wangkai
  */
@@ -41,9 +43,9 @@ public final class FalseSharing implements Runnable {
         for (int i = 0; i < longs.length; i++) {
             longs[i] = new VolatileLong();
         }
-        final long start = System.currentTimeMillis();
+        final long start = Util.now_f();
         runTest();
-        System.out.println("duration = " + (System.currentTimeMillis() - start));
+        System.out.println("duration = " + (Util.past(start)));
     }
 
     public static long preventFromOptimization(VolatileLong v) {

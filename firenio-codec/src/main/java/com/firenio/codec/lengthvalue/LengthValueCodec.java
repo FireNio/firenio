@@ -45,9 +45,9 @@ public final class LengthValueCodec extends ProtocolCodec {
 
     public static final IOException ILLEGAL_PROTOCOL = EXCEPTION("illegal protocol");
     public static final IOException OVER_LIMIT       = EXCEPTION("over limit");
+    public static final int         PROTOCOL_HEADER  = 4;
     static final        ByteBuf     PING;
     static final        ByteBuf     PONG;
-    static final        int         PROTOCOL_HEADER  = 4;
     static final        int         PROTOCOL_PING    = -1;
     static final        int         PROTOCOL_PONG    = -2;
 

@@ -15,10 +15,6 @@
  */
 package test.others.netty;
 
-import java.io.File;
-
-import com.firenio.common.FileUtil;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -31,7 +27,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
+
+//import com.firenio.common.FileUtil;
 
 /**
  * @author wangkai
@@ -43,14 +40,14 @@ public class EchoServer {
 
     public static void main(String[] args) throws Exception {
         // Configure SSL.
-        final SslContext sslCtx;
-        if (SSL) {
-            File key  = FileUtil.readFileByCls("l.key");
-            File cert = FileUtil.readFileByCls("l.crt");
-            sslCtx = SslContextBuilder.forServer(cert, key).build();
-        } else {
-            sslCtx = null;
-        }
+        final SslContext sslCtx = null;
+//        if (SSL) {
+//            File key  = FileUtil.readFileByCls("l.key");
+//            File cert = FileUtil.readFileByCls("l.crt");
+//            sslCtx = SslContextBuilder.forServer(cert, key).build();
+//        } else {
+//            sslCtx = null;
+//        }
 
         // Configure the server.
         EventLoopGroup bossGroup   = new NioEventLoopGroup(1);

@@ -46,10 +46,4 @@ public class FileLoggerPrinter implements LoggerPrinter {
         }
     }
 
-    @Override
-    public void printThrowable(Throwable t) {
-        String msg = DebugUtil.exception2string(t);
-        println(msg);
-    }
-
 }

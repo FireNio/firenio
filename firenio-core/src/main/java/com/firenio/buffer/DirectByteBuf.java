@@ -235,48 +235,64 @@ abstract class DirectByteBuf extends ByteBuf {
     @Override
     public int indexOf(byte b, int abs_pos, int size) {
         ByteBuffer m = memory;
-        if (Unsafe.ENABLE) {
-            long addr = address();
-            long p    = addr + abs_pos;
-            long l    = p + size;
-            for (; p < l; p++) {
-                if (Unsafe.getByte(p) == b) {
-                    return (int) (p - addr);
-                }
-            }
-        } else {
-            int p = abs_pos;
-            int l = p + size;
-            for (; p < l; p++) {
-                if (m.get(p) == b) {
-                    return p;
-                }
+        long addr = address();
+        long p    = addr + abs_pos;
+        long l    = p + size;
+        for (; p < l; p++) {
+            if (Unsafe.getByte(p) == b) {
+                return (int) (p - addr);
             }
         }
+//        if (Unsafe.ENABLE) {
+//            long addr = address();
+//            long p    = addr + abs_pos;
+//            long l    = p + size;
+//            for (; p < l; p++) {
+//                if (Unsafe.getByte(p) == b) {
+//                    return (int) (p - addr);
+//                }
+//            }
+//        } else {
+//            int p = abs_pos;
+//            int l = p + size;
+//            for (; p < l; p++) {
+//                if (m.get(p) == b) {
+//                    return p;
+//                }
+//            }
+//        }
         return -1;
     }
 
     @Override
     public int lastIndexOf(byte b, int abs_pos, int size) {
         ByteBuffer m = memory;
-        if (Unsafe.ENABLE) {
-            long addr = address();
-            long p    = addr + abs_pos;
-            long l    = p - size - 1;
-            for (; p > l; p--) {
-                if (Unsafe.getByte(p) == b) {
-                    return (int) (p - addr);
-                }
-            }
-        } else {
-            int p = abs_pos;
-            int l = p - size - 1;
-            for (; p > l; p--) {
-                if (m.get(p) == b) {
-                    return p;
-                }
+        long addr = address();
+        long p    = addr + abs_pos;
+        long l    = p - size - 1;
+        for (; p > l; p--) {
+            if (Unsafe.getByte(p) == b) {
+                return (int) (p - addr);
             }
         }
+//        if (Unsafe.ENABLE) {
+//            long addr = address();
+//            long p    = addr + abs_pos;
+//            long l    = p - size - 1;
+//            for (; p > l; p--) {
+//                if (Unsafe.getByte(p) == b) {
+//                    return (int) (p - addr);
+//                }
+//            }
+//        } else {
+//            int p = abs_pos;
+//            int l = p - size - 1;
+//            for (; p > l; p--) {
+//                if (m.get(p) == b) {
+//                    return p;
+//                }
+//            }
+//        }
         return -1;
     }
 

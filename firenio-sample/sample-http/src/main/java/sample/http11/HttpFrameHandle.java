@@ -105,10 +105,9 @@ public class HttpFrameHandle extends IoEventHandle {
         }
         if (ch.getCodec() instanceof WebSocketCodec) {
             WebSocketFrame f = new WebSocketFrame();
-            f.setContent(ch.allocate());
-            f.write((ex.getClass() + ex.getMessage()), ch);
+            f.setString((ex.getClass() + ex.getMessage()), ch);
             try {
-                ch.writeAndFlush(frame);
+                ch.writeAndFlush(f);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -273,7 +272,7 @@ public class HttpFrameHandle extends IoEventHandle {
             HttpEntity entity = new HttpEntity();
             entity.setContentType(HttpContentType.text_html_utf8);
             entity.setFile(file);
-            entity.setLastModify(System.currentTimeMillis());
+            entity.setLastModify(Util.now_f());
             entity.setBinary(b.toString().getBytes(charset));
             htmlCache.put(staticName, entity);
         }

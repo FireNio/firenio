@@ -17,18 +17,20 @@ package test.others;
 
 import java.math.BigInteger;
 
+import com.firenio.common.Util;
+
 /**
  * @author wangkai
  */
 public class FibonacciSeq {
 
-    static int fi(int n) {
+    static long fi(long n) {
         if (n == 0) {
             return 1;
         }
-        int n_2 = 0;
-        int n_1 = 1;
-        int sum = n_2 + n_1;
+        long n_2 = 0;
+        long n_1 = 1;
+        long sum = n_2 + n_1;
         for (int i = 1; i < n; i++) {
             n_2 = n_1;
             n_1 = sum;
@@ -58,11 +60,10 @@ public class FibonacciSeq {
         for (int i = 0; i < c; i++) {
             System.out.println(fi1(i));
         }
-        long       start = System.currentTimeMillis();
-        BigInteger res   = fi1(1024 * 1024);
-        long       end   = System.currentTimeMillis();
-        System.out.println("Time;" + (end - start));
-        System.out.println(res.toByteArray().length);
+        long start = Util.now_f();
+        long res   = fi(1L << 30);
+        System.out.println("Time;" + (Util.past(start)));
+        System.out.println(res);
     }
 
 }
