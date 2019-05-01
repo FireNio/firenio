@@ -510,7 +510,7 @@ public class HttpCodec extends ProtocolCodec {
             }
         } else {
             if (Develop.BUF_DEBUG) {
-                buf = ch.allocate();
+                buf = ch.alloc().allocate(1);
             } else {
                 buf = ch.alloc().allocate(len);
             }

@@ -15,6 +15,7 @@
  */
 package test.others;
 
+import com.firenio.common.Util;
 import com.firenio.log.DebugUtil;
 
 /**
@@ -24,14 +25,14 @@ public class TestFor {
 
     public static void main(String[] args) {
 
-        long startTime = System.currentTimeMillis();
+        long startTime = Util.now_f();
         int  time      = 2000000000;
 
         //		testWhile1(time);
         //		testWhile2(time);
         testWhile3(time);
 
-        DebugUtil.info("Time:{}", System.currentTimeMillis() - startTime);
+        DebugUtil.info("Time:{}", Util.past(startTime));
 
     }
 

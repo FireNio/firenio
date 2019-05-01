@@ -13,22 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.log;
+package test.others;
+
+import org.junit.Test;
+
+import com.firenio.common.Assert;
+import com.firenio.concurrent.RingSequence;
 
 /**
- * @author wangkai
- */
-public class SysLoggerPrinter implements LoggerPrinter {
+ * @author: wangkai
+ **/
+public class TestRingSequence {
 
-    private static SysLoggerPrinter printer = new SysLoggerPrinter();
 
-    public static SysLoggerPrinter get() {
-        return printer;
+    @Test
+    public void test(){
+        RingSequence s = new RingSequence(2,5);
+        for (int i = 0; i < 4; i++) {
+            s.next();
+        }
+        Assert.expectTrue(s.next() == 3);
     }
 
-    @Override
-    public void println(String msg) {
-        System.out.println(msg);
-    }
 
 }

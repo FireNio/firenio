@@ -18,6 +18,7 @@ package com.firenio.log;
 import java.util.Date;
 
 import com.firenio.common.DateUtil;
+import com.firenio.common.Util;
 
 /**
  * @author wangkai
@@ -74,10 +75,10 @@ public class InternalLogger implements Logger {
     }
 
     @Override
-    public void debug(String msg, Throwable t) {
+    public void debug(String msg, Throwable e) {
         if (isDebugEnabled()) {
             print(debugClassName, msg);
-            printer.printThrowable(t);
+            print(debugClassName, Util.stackTraceToString(e, true));
         }
     }
 
@@ -113,14 +114,14 @@ public class InternalLogger implements Logger {
     public void error(String msg, Throwable e) {
         if (isErrorEnabled()) {
             error(msg);
-            printer.printThrowable(e);
+            error(Util.stackTraceToString(e, true));
         }
     }
 
     @Override
     public void error(Throwable e) {
         if (isErrorEnabled()) {
-            printer.printThrowable(e);
+            error(Util.stackTraceToString(e, true));
         }
     }
 
@@ -237,10 +238,10 @@ public class InternalLogger implements Logger {
     }
 
     @Override
-    public void warn(String msg, Throwable throwable) {
+    public void warn(String msg, Throwable e) {
         if (isWarnEnabled()) {
             print(warnClassName, msg);
-            printer.printThrowable(throwable);
+            print(warnClassName, Util.stackTraceToString(e, true));
         }
     }
 

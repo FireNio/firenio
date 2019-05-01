@@ -26,10 +26,9 @@ import sample.http11.HttpFrameAcceptor;
 public class TestSimpleServlet extends HttpFrameAcceptor {
 
     @Override
-    protected void doAccept(Channel ch, HttpFrame frame) throws Exception {
-        String res = "yes server already accept your message :) " + frame.getRequestParams();
-        frame.setContent(ch.allocate());
-        frame.write(res, ch);
-        ch.writeAndFlush(frame);
+    protected void doAccept(Channel ch, HttpFrame f) throws Exception {
+        String res = "yes server already accept your message :) " + f.getRequestParams();
+        f.setString(res, ch);
+        ch.writeAndFlush(f);
     }
 }

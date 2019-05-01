@@ -110,10 +110,9 @@ public class TestLengthValueServerJunit {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addProtocolCodec(new LengthValueCodec());
         Channel          ch    = context.connect();
-        LengthValueFrame frame = new LengthValueFrame();
-        frame.setContent(ch.allocate());
-        frame.write(hello, ch);
-        ch.writeAndFlush(frame);
+        LengthValueFrame f = new LengthValueFrame();
+        f.setString(hello, ch);
+        ch.writeAndFlush(f);
         w.await(1000);
         v(w.getResponse());
     }
@@ -136,11 +135,10 @@ public class TestLengthValueServerJunit {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addProtocolCodec(new LengthValueCodec());
         context.connect((ch, ex) -> {
-            LengthValueFrame frame = new LengthValueFrame();
-            frame.setContent(ch.allocate());
-            frame.write(hello, ch);
+            LengthValueFrame f = new LengthValueFrame();
+            f.setString(hello, ch);
             try {
-                ch.writeAndFlush(frame);
+                ch.writeAndFlush(f);
             } catch (Exception e) {
                 e.printStackTrace();
             }

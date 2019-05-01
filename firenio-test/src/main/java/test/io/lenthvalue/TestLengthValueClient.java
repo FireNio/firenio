@@ -42,7 +42,7 @@ public class TestLengthValueClient {
         context.addProtocolCodec(new LengthValueCodec());
         Channel          ch    = context.connect(3000);
         LengthValueFrame frame = new LengthValueFrame();
-        frame.setString(ch, "hello server!");
+        frame.setString("hello server!", ch);
         ch.writeAndFlush(frame);
     }
 

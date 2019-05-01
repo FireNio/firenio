@@ -61,7 +61,7 @@ public final class SelfSignedCertificate {
      * Current time minus 1 year, just in case software clock goes back due to
      * time synchronization
      */
-    private static final Date   DEFAULT_NOT_BEFORE = new Date(System.currentTimeMillis() - 86400000L * 365);
+    private static final Date   DEFAULT_NOT_BEFORE = new Date(Util.now_f() - 86400000L * 365);
     private static final Logger logger             = LoggerFactory.getLogger(SelfSignedCertificate.class);
 
     private X509Certificate cert;

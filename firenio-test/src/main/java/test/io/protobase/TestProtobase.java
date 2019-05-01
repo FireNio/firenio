@@ -38,7 +38,7 @@ import junit.framework.Assert;
 public class TestProtobase {
 
     static final String hello = "hello server!";
-    static final String res = "yes server already accept your text message:";
+    static final String res   = "yes server already accept your text message:";
 
     static {
         Options.setEnableEpoll(true);
@@ -111,8 +111,7 @@ public class TestProtobase {
         Channel        ch = context.connect();
         ProtobaseFrame f  = new ProtobaseFrame();
         f.setBinary();
-        f.setContent(ch.allocate());
-        f.write(hello.getBytes());
+        f.setString(hello, ch);
         ch.writeAndFlush(f);
         w.await(3000);
         Assert.assertEquals(w.getResponse(), res + hello);
@@ -140,8 +139,7 @@ public class TestProtobase {
         context.addProtocolCodec(new ProtobaseCodec());
         Channel        ch = context.connect();
         ProtobaseFrame f  = new ProtobaseFrame();
-        f.setContent(ch.allocate());
-        f.write(hello.getBytes());
+        f.setString(hello, ch);
         ch.writeAndFlush(f);
         w.await(3000);
         Assert.assertEquals(w.getResponse(), res + hello);

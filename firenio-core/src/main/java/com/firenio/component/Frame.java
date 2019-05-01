@@ -59,7 +59,7 @@ public abstract class Frame {
     }
 
     public void release() {
-        Util.release(content);
+        Util.releaseObject(content);
     }
 
     public Frame reset() {
@@ -67,17 +67,17 @@ public abstract class Frame {
         return this;
     }
 
-    public void setBytes(Channel ch, byte[] bytes) {
-        setBytes(ch, bytes, 0, bytes.length);
+    public void setBytes(byte[] bytes, Channel ch) {
+        setBytes(bytes, 0, bytes.length, ch);
     }
 
     public void setBytes(int header, byte[] bytes) {
         setBytes(header, bytes, 0, bytes.length);
     }
 
-    public void setBytes(Channel ch, byte[] bytes, int off, int len) {
-        int h = ch.getCodec().getHeaderLength();
-        setBytes(h, bytes, off, len);
+    public void setBytes(byte[] bytes, int off, int len, Channel ch) {
+        this.content = ch.allocate(len);
+        write(bytes, off, len);
     }
 
     public void setBytes(int header, byte[] bytes, int off, int len) {
@@ -85,8 +85,8 @@ public abstract class Frame {
         write(bytes, off, len);
     }
 
-    public void setString(Channel ch, String value) {
-        setBytes(ch, value.getBytes(ch.getCharset()));
+    public void setString(String value, Channel ch) {
+        setBytes(value.getBytes(ch.getCharset()), ch);
     }
 
     public void write(byte[] bytes) {
@@ -103,10 +103,6 @@ public abstract class Frame {
 
     public void write(String text, Channel ch) {
         write(text, ch.getCharset());
-    }
-
-    public void write(String text, ChannelContext context) {
-        write(text, context.getCharset());
     }
 
     public void write(String text, Charset charset) {

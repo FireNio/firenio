@@ -118,8 +118,7 @@ public class HttpProxyServer {
                             if (res.getContent() != null) {
                                 f.setContent(res.getContent());
                             } else if (res.isChunked()) {
-                                f.setContent(ch.allocate());
-                                f.write("not support chunked now.", ch);
+                                f.setString("not support chunked now.", ch);
                             }
                             ch_src.writeAndFlush(f);
                             ch.close();

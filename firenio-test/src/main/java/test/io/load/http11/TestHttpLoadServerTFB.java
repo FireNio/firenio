@@ -62,11 +62,12 @@ public class TestHttpLoadServerTFB {
         int     readBuf    = Util.getIntProperty("readBuf", 16);
         LoggerFactory.setEnableSLF4JLogger(false);
         LoggerFactory.setLogLevel(LoggerFactory.LEVEL_INFO);
-        Options.setDebugErrorLevel(level);
+        Options.setDebugError(false);
         Options.setChannelReadFirst(read);
         Options.setBufAutoExpansion(false);
         Options.setEnableEpoll(true);
         Options.setEnableUnsafeBuf(true);
+        Options.setSysClockStep(0);
         DebugUtil.info("lite: {}", lite);
         DebugUtil.info("read: {}", read);
         DebugUtil.info("pool: {}", pool);
@@ -94,7 +95,7 @@ public class TestHttpLoadServerTFB {
                     f.setConnection(HttpConnection.NONE);
                 } else {
                     System.err.println("404");
-                    f.setString(ch,"404,page not found!");
+                    f.setString("404,page not found!", ch);
                     f.setContentType(HttpContentType.text_plain);
                     f.setStatus(HttpStatus.C404);
                 }
@@ -130,13 +131,13 @@ public class TestHttpLoadServerTFB {
             context.addChannelEventListener(new ChannelEventListener() {
 
                 @Override
-                public void channelOpened(Channel ch) throws Exception {
-                    System.out.println("open " + System.currentTimeMillis());
+                public void channelOpened(Channel ch) {
+                    System.out.println("open " + Util.now_f());
                 }
 
                 @Override
                 public void channelClosed(Channel ch) {
-                    System.out.println("close " + System.currentTimeMillis());
+                    System.out.println("close " + Util.now_f());
                 }
             });
         }

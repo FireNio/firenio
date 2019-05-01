@@ -20,6 +20,8 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 
+import com.firenio.common.Util;
+
 public class NettyClient {
 
     public static final CountDownLatch latch;
@@ -50,7 +52,7 @@ public class NettyClient {
             });
 
             System.out.println("################## Test start ####################");
-            long old = System.currentTimeMillis();
+            long old = Util.now_f();
 
             ChannelFuture f = b.connect("127.0.0.1", 8300).sync();
 
@@ -74,7 +76,7 @@ public class NettyClient {
                 e.printStackTrace();
             }
 
-            long spend = (System.currentTimeMillis() - old);
+            long spend = Util.past(old);
             System.out.println("## Execute Time:" + time);
             System.out.println("## OP/S:" + new BigDecimal(time * 1000).divide(new BigDecimal(spend), 2, BigDecimal.ROUND_HALF_UP));
             System.out.println("## Expend Time:" + spend);

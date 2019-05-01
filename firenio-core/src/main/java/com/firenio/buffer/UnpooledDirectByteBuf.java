@@ -17,7 +17,6 @@ package com.firenio.buffer;
 
 import java.nio.ByteBuffer;
 
-import com.firenio.common.ByteUtil;
 import com.firenio.common.Unsafe;
 
 /**
@@ -54,7 +53,7 @@ final class UnpooledDirectByteBuf extends DirectByteBuf {
     public void expansion(int cap) {
         ByteBuffer oldBuffer = memory;
         try {
-            ByteBuffer newBuffer = ByteBuffer.allocateDirect(cap);
+            ByteBuffer newBuffer = Unsafe.allocateDirectByteBuffer(cap);
             int        pos       = oldBuffer.position();
             oldBuffer.position(0);
             oldBuffer.limit(pos);
@@ -64,7 +63,7 @@ final class UnpooledDirectByteBuf extends DirectByteBuf {
             newBuffer.position(pos);
             memory = newBuffer;
         } finally {
-            ByteUtil.free(oldBuffer);
+            Unsafe.freeByteBuffer(oldBuffer);
         }
     }
 
@@ -75,7 +74,7 @@ final class UnpooledDirectByteBuf extends DirectByteBuf {
 
     @Override
     protected void release0() {
-        ByteUtil.free(memory);
+        Unsafe.freeByteBuffer(memory);
     }
 
 }

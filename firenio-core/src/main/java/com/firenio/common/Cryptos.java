@@ -374,12 +374,12 @@ public class Cryptos {
     public static void testSHA1() {
 
         String ss        = "test2";
-        long   startTime = System.currentTimeMillis();
+        long   startTime = Util.now();
         int    count     = 1000000;
         for (int i = 0; i < count; i++) {
             ByteUtil.getHexString(SHA1(ss));
         }
-        System.out.println("Time:" + (System.currentTimeMillis() - startTime));
+        System.out.println("Time:" + (Util.past(startTime)));
         System.out.println(ByteUtil.getHexString(SHA1(ss)));
 
         System.out.println(ByteUtil.getHexString(SHA256(ss)));

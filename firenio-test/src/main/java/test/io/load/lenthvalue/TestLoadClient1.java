@@ -63,7 +63,9 @@ public class TestLoadClient1 extends ITestThread {
             Util.exec(() -> {
                 Util.sleep(7000);
                 for (; running; ) {
-                    Util.wait(lock, 3000);
+                    synchronized (lock){
+                        Util.wait(lock, 3000);
+                    }
                     for (ITestThread tt : ITestThreadHandle.ts) {
                         TestLoadClient1 t = (TestLoadClient1) tt;
                         if (t.count.get() > 0) {

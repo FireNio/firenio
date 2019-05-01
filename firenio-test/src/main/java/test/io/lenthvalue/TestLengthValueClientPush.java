@@ -63,7 +63,7 @@ public class TestLengthValueClientPush {
                         break;
                     }
                     LengthValueFrame frame = new LengthValueFrame();
-                    frame.write(line, context);
+                    frame.write(line, ch);
                     try {
                         ch.writeAndFlush(frame);
                     } catch (Exception e) {

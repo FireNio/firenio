@@ -65,8 +65,8 @@ public interface DynamicClassLoader extends Closeable {
             super(msg);
         }
 
-        public DuplicateClassException(String msg, Throwable throwable) {
-            super(msg, throwable);
+        public DuplicateClassException(String msg, Throwable e) {
+            super(msg, e);
         }
     }
 

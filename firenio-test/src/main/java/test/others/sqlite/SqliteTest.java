@@ -104,7 +104,7 @@ public class SqliteTest {
                 PreparedStatement stmt = conn.prepareStatement(insertSql);
 
                 int  count = 1024 * 1024 * 1;
-                long start = System.currentTimeMillis();
+                long start = Util.now_f();
                 for (int i = 0; i < count; i++) {
                     String v = Integer.toString(i);
                     stmt.setInt(1, i);
@@ -119,7 +119,7 @@ public class SqliteTest {
                 stmt.close();
                 // 提交
                 conn.commit();
-                logger.info("inserted , cost:" + (System.currentTimeMillis() - start));
+                logger.info("inserted , cost:" + Util.past(start));
             }
 
             conn.close();

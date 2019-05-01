@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import com.firenio.common.FileUtil;
+import com.firenio.common.Unsafe;
 
 /**
  * @author wangkai
@@ -75,7 +76,7 @@ public class TestJNI {
         res = get(a, 8);
         System.out.println(res);
 
-        ByteBuffer d = ByteBuffer.allocateDirect(16);
+        ByteBuffer d = Unsafe.allocateDirectByteBuffer(16);
         res = putDirect(d, 100, 8);
         System.out.println(res);
         res = getDirect(d, 8);

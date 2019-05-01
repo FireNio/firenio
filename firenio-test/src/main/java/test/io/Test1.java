@@ -2,15 +2,29 @@ package test.io;
 
 import java.util.Random;
 
+import com.firenio.Options;
 import com.firenio.collection.IntMap;
+import com.firenio.common.Util;
 import com.firenio.log.DebugUtil;
 
 public class Test1 {
 
     public static void main(String[] args) {
 
-        testMyMap();
+        //        testMyMap();
         //                testNettyMap();
+        Options.setSysClockStep(1);
+        System.out.println("t1:" + Util.now());
+        Util.sleep(100);
+        System.out.println("t2:" + Util.now());
+        long old   = Util.now_f();
+        long count = 1024 * 1024 * 512;
+        for (long i = 0; i < count; i++) {
+            Util.now();
+        }
+        long past = Util.past(old);
+        System.out.println("Time:" + past);
+
     }
 
     static void testNettyMap() {

@@ -245,9 +245,9 @@ public class Log {
         try {
             String oAsString = o.toString();
             sbuf.append(oAsString);
-        } catch (Throwable t) {
+        } catch (Throwable e) {
             System.err.println("SLF4J: Failed toString() invocation on an object of type [" + o.getClass().getName() + "]");
-            t.printStackTrace();
+            e.printStackTrace();
             sbuf.append("[FAILED toString()]");
         }
     }

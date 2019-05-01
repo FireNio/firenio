@@ -32,7 +32,7 @@ public class WebSocketChannelListener extends ChannelEventListenerAdapter {
             try {
                 ch.getIoEventHandle().accept(ch, frame);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logger.error(e);
             }
         }
     }

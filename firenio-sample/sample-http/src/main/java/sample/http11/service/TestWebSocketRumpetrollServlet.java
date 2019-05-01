@@ -49,8 +49,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptor {
             o.put("type", "welcome");
             o.put("id", ch.getChannelId());
             WebSocketFrame wsf = new WebSocketFrame();
-            wsf.setContent(ch.allocate());
-            wsf.write(o.toJSONString(), ch.getCharset());
+            wsf.setString(o.toJSONString(), ch);
             ch.writeAndFlush(wsf);
             return;
         }
@@ -64,9 +63,7 @@ public class TestWebSocketRumpetrollServlet extends HttpFrameAcceptor {
                 msgAdapter.sendMsg(o.toJSONString());
                 logger.info("客户端主动关闭连接：{}", ch);
             }
-            if (ch.isOpen()) {
-                ch.writeAndFlush(f);
-            }
+            ch.close();
         } else {
             String     msg  = f.getStringContent();
             JSONObject o    = JSON.parseObject(msg);

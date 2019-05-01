@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>com.firenio</groupId>
 		<artifactId>firenio</artifactId>
-		<version>1.2.1</version>
+		<version>1.2.2</version>
 		<relativePath>../firenio/pom.xml</relativePath>
 	</parent>
 
@@ -23,5 +23,19 @@
 		</dependency>
 
 	</dependencies>
+
+	<developers>
+		<developer>
+			<id>wangkai</id>
+			<name>Kai Wang</name>
+			<email>wangkaicloud (AT) 163.com</email>
+			<roles>
+				<role>Developer</role>
+			</roles>
+			<organization>The firenio team</organization>
+			<organizationUrl>https://github.com/firenio</organizationUrl>
+			<timezone>+8</timezone>
+		</developer>
+	</developers>
 
 </project>

@@ -39,15 +39,14 @@ public class Test {
         int          max  = 8;
         List<String> list = getList(max);
         System.out.println();
-        long startTime = System.currentTimeMillis();
+        long startTime = Util.now();
 
         for (int i = 0; i < 1024 * 512; i++) {
             //          testForI(list,max);
             //          testForI2(list,max);
             testForeach(list, max);
         }
-        long endTime = System.currentTimeMillis();
-        System.out.println("Time:" + (endTime - startTime));
+        System.out.println("Time:" + (Util.past(startTime)));
 
     }
 

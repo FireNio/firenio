@@ -23,9 +23,9 @@ import com.firenio.common.Util;
  */
 public class HttpDateUtil {
 
-    private static final HttpDateTimeClock CLOCK = new HttpDateTimeClock();
+    private static final HttpDateTimeClock         CLOCK = new HttpDateTimeClock();
     private static final ThreadLocal<HttpDateUtil> LOCAL;
-    private static       boolean           inited;
+    private static       boolean                   inited;
 
     static {
 
@@ -67,36 +67,21 @@ public class HttpDateUtil {
 
     public static synchronized void start() {
         if (!inited) {
-            Util.exec(CLOCK, "http-date-clock");
-        }
-    }
-
-    public static synchronized void stop() {
-        if (inited) {
-            CLOCK.stop();
+            Util.exec(CLOCK, "http-date-clock", true);
         }
     }
 
     private static class HttpDateTimeClock implements Runnable {
 
-        volatile boolean running;
-
         volatile long time;
 
         @Override
         public void run() {
-            running = true;
-            for (; running; ) {
-                time = System.currentTimeMillis();
+            for (; ; ) {
+                time = Util.now();
                 Util.sleep(1000);
             }
         }
-
-        void stop() {
-            running = false;
-            Thread.currentThread().interrupt();
-        }
-
     }
 
 }

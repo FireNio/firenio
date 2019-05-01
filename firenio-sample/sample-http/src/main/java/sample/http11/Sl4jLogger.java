@@ -98,12 +98,12 @@ public class Sl4jLogger implements Log {
      * Logs a message with <code>org.apache.log4j.Priority.DEBUG</code>.
      *
      * @param message to log
-     * @param t       log this cause
+     * @param e       log this cause
      * @see org.apache.commons.logging.Log#debug(Object, Throwable)
      */
     @Override
-    public void debug(Object message, Throwable t) {
-        getLogger().debug(String.valueOf(message), t);
+    public void debug(Object message, Throwable e) {
+        getLogger().debug(String.valueOf(message), e);
     }
 
     /**
@@ -121,12 +121,12 @@ public class Sl4jLogger implements Log {
      * Logs a message with <code>org.apache.log4j.Priority.ERROR</code>.
      *
      * @param message to log
-     * @param t       log this cause
+     * @param e       log this cause
      * @see org.apache.commons.logging.Log#error(Object, Throwable)
      */
     @Override
-    public void error(Object message, Throwable t) {
-        getLogger().error(String.valueOf(message), t);
+    public void error(Object message, Throwable e) {
+        getLogger().error(String.valueOf(message), e);
     }
 
     /**
@@ -144,12 +144,12 @@ public class Sl4jLogger implements Log {
      * Logs a message with <code>org.apache.log4j.Priority.FATAL</code>.
      *
      * @param message to log
-     * @param t       log this cause
+     * @param e       log this cause
      * @see org.apache.commons.logging.Log#fatal(Object, Throwable)
      */
     @Override
-    public void fatal(Object message, Throwable t) {
-        getLogger().error(String.valueOf(message), t);
+    public void fatal(Object message, Throwable e) {
+        getLogger().error(String.valueOf(message), e);
     }
 
     private Logger getLogger() {
@@ -188,12 +188,12 @@ public class Sl4jLogger implements Log {
      * Logs a message with <code>org.apache.log4j.Priority.INFO</code>.
      *
      * @param message to log
-     * @param t       log this cause
+     * @param e       log this cause
      * @see org.apache.commons.logging.Log#info(Object, Throwable)
      */
     @Override
-    public void info(Object message, Throwable t) {
-        getLogger().info(String.valueOf(message), t);
+    public void info(Object message, Throwable e) {
+        getLogger().info(String.valueOf(message), e);
     }
 
     /**
@@ -265,12 +265,12 @@ public class Sl4jLogger implements Log {
      * level, the message will be logged at the <code>DEBUG</code> level.
      *
      * @param message to log
-     * @param t       log this cause
+     * @param e       log this cause
      * @see org.apache.commons.logging.Log#trace(Object, Throwable)
      */
     @Override
-    public void trace(Object message, Throwable t) {
-        getLogger().trace(String.valueOf(message), t);
+    public void trace(Object message, Throwable e) {
+        getLogger().trace(String.valueOf(message), e);
     }
 
     /**
@@ -288,11 +288,11 @@ public class Sl4jLogger implements Log {
      * Logs a message with <code>org.apache.log4j.Priority.WARN</code>.
      *
      * @param message to log
-     * @param t       log this cause
+     * @param e       log this cause
      * @see org.apache.commons.logging.Log#warn(Object, Throwable)
      */
     @Override
-    public void warn(Object message, Throwable t) {
-        getLogger().warn(String.valueOf(message), t);
+    public void warn(Object message, Throwable e) {
+        getLogger().warn(String.valueOf(message), e);
     }
 }

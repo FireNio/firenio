@@ -15,7 +15,11 @@
  */
 package test.io;
 
+import java.nio.ByteBuffer;
+
 import com.firenio.codec.http11.HttpMethod;
+import com.firenio.common.Unsafe;
+import com.firenio.log.LoggerFactory;
 
 /**
  * @author wangkai
@@ -32,11 +36,15 @@ public class Test3 {
     //    String s2 = "test";
 
     public static void main(String[] args) {
+        LoggerFactory.setEnableSLF4JLogger(false);
 
+        System.out.println(System.getProperty("java.specification.version"));
+        System.out.println(System.getProperty("java.version"));
 
-        Test3 t1 = new Test3();
-
-        t1.test();
+        ByteBuffer b = Unsafe.allocateDirectByteBuffer(100);
+        Unsafe.freeByteBuffer(b);
+        System.out.println(222);
+        
 
 
     }

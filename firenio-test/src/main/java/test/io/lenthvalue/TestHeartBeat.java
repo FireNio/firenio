@@ -48,15 +48,14 @@ public class TestHeartBeat {
         context.setIoEventHandle(eventHandleAdaptor);
         Channel ch    = context.connect();
         String  param = "tttt";
-        long    old   = System.currentTimeMillis();
+        long    old   = Util.now();
         for (int i = 0; i < 5; i++) {
             Frame frame = new LengthValueFrame();
-            frame.setContent(ch.allocate());
-            frame.write(param, context);
+            frame.setString(param, ch);
             ch.writeAndFlush(frame);
             Util.sleep(300);
         }
-        System.out.println("Time:" + (System.currentTimeMillis() - old));
+        System.out.println("Time:" + (Util.past(old)));
         Thread.sleep(2000);
         Util.close(context);
     }

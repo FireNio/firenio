@@ -15,9 +15,7 @@
  */
 package com.firenio.common;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.nio.channels.Selector;
@@ -33,6 +31,7 @@ import com.firenio.LifeCycle;
 import com.firenio.Releasable;
 import com.firenio.collection.IntMap;
 import com.firenio.component.ChannelAcceptor;
+import com.firenio.component.FastThreadLocal;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
 
@@ -41,10 +40,17 @@ import com.firenio.log.LoggerFactory;
  */
 public class Util {
 
-    public static final  Charset ASCII  = Charset.forName("ASCII");
-    public static final  Charset GBK    = Charset.forName("GBK");
-    public static final  Charset UTF8   = Charset.forName("UTF-8");
-    private static final Logger  logger = LoggerFactory.getLogger(Util.class);
+    public static final  Charset  ASCII       = Charset.forName("ASCII");
+    public static final  Charset  GBK         = Charset.forName("GBK");
+    public static final  Charset  UTF8        = Charset.forName("UTF-8");
+    private static final Logger   logger      = LoggerFactory.getLogger(Util.class);
+    private static final String[] int_strings = new String[2048];
+
+    static {
+        for (int i = 0; i < int_strings.length; i++) {
+            int_strings[i] = String.valueOf(i);
+        }
+    }
 
     @SuppressWarnings("rawtypes")
     public static List array2List(Object[] array) {
@@ -100,6 +106,13 @@ public class Util {
         }
     }
 
+    public static String int2String(int i) {
+        if ((((i >>> 1) & (1 << 30)) | (i & 0x7fffffff)) < int_strings.length) {
+            return int_strings[i];
+        }
+        return String.valueOf(i);
+    }
+
     public static void close(Selector selector) {
         if (selector == null) {
             return;
@@ -111,16 +124,22 @@ public class Util {
         }
     }
 
-    public static void exec(Runnable runnable) {
-        exec(runnable, null);
+    public static Thread exec(Runnable runnable, String name) {
+        return exec(runnable, name, false);
     }
 
-    public static void exec(Runnable runnable, String name) {
-        if (!isNullOrBlank(name)) {
-            new Thread(runnable, name).start();
-        } else {
-            new Thread(runnable).start();
+    public static Thread exec(Runnable runnable) {
+        return exec(runnable, null);
+    }
+
+    public static Thread exec(Runnable runnable, String name, boolean daemon) {
+        if (isNullOrBlank(name)) {
+            name = "exec-" + randomUUID();
         }
+        Thread t = new Thread(runnable, name);
+        t.setDaemon(daemon);
+        t.start();
+        return t;
     }
 
     public static Class<?> forName(String className) {
@@ -323,11 +342,15 @@ public class Util {
     }
 
     public static long now() {
-        return System.currentTimeMillis();
+        return SysClock.now();
+    }
+
+    public static long now_f() {
+        return SysClock.now_f();
     }
 
     public static long past(long start) {
-        return now() - start;
+        return now_f() - start;
     }
 
     public static void printArray(int[] array) {
@@ -368,10 +391,20 @@ public class Util {
         return ByteUtil.getHexString(array);
     }
 
-    public static void release(Object releasable) {
+    public static void releaseObject(Object releasable) {
         if (releasable instanceof Releasable) {
             try {
                 ((Releasable) releasable).release();
+            } catch (Throwable e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static void release(Releasable releasable) {
+        if (releasable != null) {
+            try {
+                releasable.release();
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
@@ -424,15 +457,52 @@ public class Util {
     }
 
     public static String stackTraceToString(Throwable cause) {
-        ByteArrayOutputStream out  = new ByteArrayOutputStream();
-        PrintStream           pout = new PrintStream(out);
-        cause.printStackTrace(pout);
-        pout.flush();
-        try {
-            return new String(out.toByteArray());
-        } finally {
-            Util.close(out);
+        return stackTraceToString(cause, false);
+    }
+
+    public static String stackTraceToString(Throwable cause, boolean lineFeed) {
+        return stackTraceToString(cause, lineFeed, FastThreadLocal.get().getStringBuilder());
+    }
+
+    public static String stackTraceToString(Throwable cause, boolean lineFeed, StringBuilder sb) {
+        if (lineFeed) {
+            sb.append('\n');
         }
+        sb.append(cause.getClass().getName());
+        sb.append(':');
+        sb.append(' ');
+        sb.append(cause.getMessage());
+        StackTraceElement[] sts = cause.getStackTrace();
+        for (StackTraceElement st : sts) {
+            sb.append("\n\tat ");
+            sb.append(st.getClassName());
+            sb.append('.');
+            sb.append(st.getMethodName());
+            sb.append('(');
+            {
+                if (st.isNativeMethod()) {
+                    sb.append("Native Method");
+                } else {
+                    if (st.getFileName() != null) {
+                        if (st.getLineNumber() > 0) {
+                            sb.append(st.getFileName());
+                            sb.append(':');
+                            sb.append(int2String(st.getLineNumber()));
+                        } else {
+                            sb.append(st.getFileName());
+                        }
+                    } else {
+                        sb.append("Unknown Source");
+                    }
+                }
+            }
+            sb.append(')');
+        }
+        if (cause.getCause() != null) {
+            sb.append("\nCause By: ");
+            return stackTraceToString(cause.getCause(), false, sb);
+        }
+        return sb.toString();
     }
 
     public static void start(LifeCycle lifeCycle) throws Exception {
@@ -454,14 +524,14 @@ public class Util {
     public static void testUuid() {
 
         int    count = 1024 * 1024;
-        long   start = System.currentTimeMillis();
+        long   start = now();
         String str   = null;
         for (int i = 0; i < count; i++) {
             str = randomUUID();
             //            str = UUID.randomUUID().toString();
         }
         System.out.println(str);
-        System.out.println(System.currentTimeMillis() - start);
+        System.out.println(past(start));
 
     }
 
@@ -524,20 +594,13 @@ public class Util {
     }
 
     public static void wait(Object o) {
-        synchronized (o) {
-            try {
-                o.wait();
-            } catch (InterruptedException e) {
-            }
-        }
+        wait(o, 0);
     }
 
     public static void wait(Object o, long timeout) {
-        synchronized (o) {
-            try {
-                o.wait(timeout);
-            } catch (InterruptedException e) {
-            }
+        try {
+            o.wait(timeout);
+        } catch (InterruptedException e) {
         }
     }
 

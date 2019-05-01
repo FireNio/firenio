@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.firenio.buffer.ByteBuf;
+import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
 
 import junit.framework.Assert;
@@ -40,7 +41,7 @@ public class TestByteBufCopy {
 
     static {
         jArrayData = ByteBuffer.wrap(_data);
-        jDirectData = ByteBuffer.allocateDirect(12);
+        jDirectData = Unsafe.allocateDirectByteBuffer(12);
         jArrayData.position(6);
         jDirectData.put(_data).position(6);
         arrayData = ByteBuf.wrap(jArrayData).skip(6);
@@ -60,7 +61,7 @@ public class TestByteBufCopy {
     }
 
     static ByteBuffer _jDirect() {
-        return (ByteBuffer) ByteBuffer.allocateDirect(12).position(6);
+        return (ByteBuffer) Unsafe.allocateDirectByteBuffer(12).position(6);
     }
 
     static ByteBuf arrayData() {

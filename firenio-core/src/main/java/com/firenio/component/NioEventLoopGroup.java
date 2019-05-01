@@ -24,18 +24,17 @@ import com.firenio.common.Util;
 import com.firenio.component.NioEventLoop.EpollEventLoop;
 import com.firenio.component.NioEventLoop.JavaEventLoop;
 import com.firenio.concurrent.EventLoopGroup;
-import com.firenio.concurrent.FixedAtomicInteger;
+import com.firenio.concurrent.RingSequence;
 
 /**
  * @author wangkai
- * 注意：如需共享group，且group担当acceptor和connector时，一定要先起acceptor，
- * 或者显示调用group.setAcceptor(true)
+ * 注意：如需共享group，且group担当acceptor和connector时，一定要先起acceptor
  */
 public class NioEventLoopGroup extends EventLoopGroup {
 
     private final boolean               acceptor;
     private       ByteBufAllocatorGroup allocatorGroup;
-    private       FixedAtomicInteger    channelIds;
+    private       RingSequence          channelIds;
     private       int                   channelReadBuffer      = 1024 * 512;
     //允许的最大连接数(单核)
     private       int                   channelSizeLimit       = 1024 * 64;
@@ -97,7 +96,7 @@ public class NioEventLoopGroup extends EventLoopGroup {
 
     @Override
     protected void doStart() throws Exception {
-        this.channelIds = new FixedAtomicInteger(0x1000, Integer.MAX_VALUE);
+        this.channelIds = new RingSequence(0x1000, Integer.MAX_VALUE);
         if (memoryPoolCapacity == 0) {
             long total = Runtime.getRuntime().maxMemory();
             memoryPoolCapacity = (int) (total / (memoryPoolUnit * getEventLoopSize() * memoryPoolRate));
@@ -119,7 +118,7 @@ public class NioEventLoopGroup extends EventLoopGroup {
         return allocatorGroup;
     }
 
-    public FixedAtomicInteger getChannelIds() {
+    public RingSequence getChannelIds() {
         return channelIds;
     }
 

@@ -37,7 +37,7 @@ import sample.http11.HttpUtil;
 public class TestShowMemoryServlet extends HttpFrameAcceptor {
 
     @Override
-    protected void doAccept(Channel ch, HttpFrame frame) throws Exception {
+    protected void doAccept(Channel ch, HttpFrame f) throws Exception {
         TestWebSocketChatServlet chatServlet = ContextUtil.getBean(TestWebSocketChatServlet.class);
         TestWebSocketRumpetrollServlet rumpetrollServlet = ContextUtil.getBean(TestWebSocketRumpetrollServlet.class);
 
@@ -46,13 +46,13 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
 
         ChannelContext context = ch.getContext();
 
-        String kill = frame.getRequestParam("kill");
+        String kill = f.getRequestParam("kill");
         if (!Util.isNullOrBlank(kill)) {
             Integer id = Integer.valueOf(kill, 16);
             Util.close(CountChannelListener.chs.get(id));
         }
 
-        BigDecimal time   = new BigDecimal(System.currentTimeMillis() - context.getStartupTime());
+        BigDecimal time   = new BigDecimal(Util.now_f() - context.getStartupTime());
         BigDecimal anHour = new BigDecimal(60 * 60 * 1000);
         BigDecimal hour   = time.divide(anHour, 3, RoundingMode.HALF_UP);
 
@@ -113,11 +113,10 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
         builder.append(HttpUtil.HTML_POWER_BY);
         builder.append(HttpUtil.HTML_BOTTOM);
 
-        frame.setContent(ch.allocate());
-        frame.write(builder.toString(), ch);
-        frame.setContentType(HttpContentType.text_html_utf8);
+        f.setString(builder.toString(), ch);
+        f.setContentType(HttpContentType.text_html_utf8);
 
-        ch.writeAndFlush(frame);
+        ch.writeAndFlush(f);
     }
 
 }

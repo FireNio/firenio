@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.firenio.collection.IntMap;
+import com.firenio.common.Util;
 
 /**
  * @author wangkai
@@ -41,7 +42,7 @@ public class TestConcurrentHashMap {
             map.put(i, String.valueOf(i));
         }
         boolean con       = false;
-        long    startTime = System.currentTimeMillis();
+        long    startTime = Util.now_f();
         for (String v : map.values()) {
             //          if ("1".equals(v)) {
             //              con = true;
@@ -57,7 +58,7 @@ public class TestConcurrentHashMap {
         ////              con = true;
         ////          }
         //      }
-        System.out.println("Time:" + (System.currentTimeMillis() - startTime));
+        System.out.println("Time:" + (Util.past(startTime)));
         System.out.println(con);
     }
 
@@ -68,7 +69,7 @@ public class TestConcurrentHashMap {
             map.put(i, String.valueOf(i));
         }
         boolean con       = false;
-        long    startTime = System.currentTimeMillis();
+        long    startTime = Util.now_f();
         //        for (String v : map.values()) {
         //          if ("1".equals(v)) {
         //              con = true;
@@ -84,7 +85,7 @@ public class TestConcurrentHashMap {
         ////              con = true;
         ////          }
         //      }
-        System.out.println("Time:" + (System.currentTimeMillis() - startTime));
+        System.out.println("Time:" + (Util.past(startTime)));
         System.out.println(con);
     }
 
@@ -96,7 +97,7 @@ public class TestConcurrentHashMap {
             list.add(String.valueOf(i));
         }
         boolean con       = false;
-        long    startTime = System.currentTimeMillis();
+        long    startTime = Util.now_f();
         for (String v : list) {
             //          if ("1".equals(v)) {
             //              con = true;
@@ -112,7 +113,7 @@ public class TestConcurrentHashMap {
         ////              con = true;
         ////          }
         //      }
-        System.out.println("Time:" + (System.currentTimeMillis() - startTime));
+        System.out.println("Time:" + (Util.past(startTime)));
         System.out.println(con);
     }
 

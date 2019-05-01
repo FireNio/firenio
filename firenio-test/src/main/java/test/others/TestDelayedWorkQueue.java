@@ -17,6 +17,7 @@ package test.others;
 
 import com.firenio.collection.DelayedQueue;
 import com.firenio.collection.DelayedQueue.DelayTask;
+import com.firenio.common.Util;
 
 /**
  * @author wangkai
@@ -47,7 +48,7 @@ public class TestDelayedWorkQueue {
     static class TestDelayTask extends DelayTask {
 
         public TestDelayTask(long delay) {
-            super(delay - System.currentTimeMillis());
+            super(delay - Util.now_f());
         }
 
         @Override
