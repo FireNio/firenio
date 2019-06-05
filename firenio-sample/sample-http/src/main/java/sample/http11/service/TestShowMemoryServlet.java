@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import com.firenio.buffer.ByteBufAllocatorGroup;
 import com.firenio.codec.http11.HttpContentType;
 import com.firenio.codec.http11.HttpFrame;
+import com.firenio.collection.DelayedQueue.DelayTask;
 import com.firenio.common.DateUtil;
 import com.firenio.common.Util;
 import com.firenio.component.Channel;
@@ -49,7 +50,15 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
         String kill = f.getRequestParam("kill");
         if (!Util.isNullOrBlank(kill)) {
             Integer id = Integer.valueOf(kill, 16);
-            Util.close(CountChannelListener.chs.get(id));
+            Channel close_ch = CountChannelListener.chs.get(id);
+            if (close_ch != null){
+                close_ch.getEventLoop().schedule(new DelayTask(10) {
+                    @Override
+                    public void run() {
+                        Util.close(close_ch);
+                    }
+                });
+            }
         }
 
         BigDecimal time   = new BigDecimal(Util.now_f() - context.getStartupTime());

@@ -56,6 +56,16 @@ public abstract class ByteBuf implements Releasable {
         return wrap(Unsafe.allocateDirectByteBuffer(cap));
     }
 
+    public static ByteBuf wrapDirect(byte[] data) {
+        return wrapDirect(data, 0, data.length);
+    }
+
+    public static ByteBuf wrapDirect(byte[] data, int off, int len) {
+        ByteBuf buf = direct(len);
+        buf.putBytes(data, off, len);
+        return buf.flip();
+    }
+
     public static ByteBuf empty() {
         return UnpooledHeapByteBuf.EmptyByteBuf.EMPTY;
     }
@@ -274,7 +284,7 @@ public abstract class ByteBuf implements Releasable {
 
     public abstract int indexOf(byte b, int absPos, int size);
 
-    public boolean isFullLimit(){
+    public boolean isFullLimit() {
         return limit() == capacity();
     }
 
@@ -576,5 +586,9 @@ public abstract class ByteBuf implements Releasable {
     }
 
     protected void unitOffset(int unitOffset) {}
+
+    UnsupportedOperationException unsupportedOperationException() {
+        return new UnsupportedOperationException();
+    }
 
 }

@@ -34,47 +34,7 @@ final class DuplicatedUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
-    public byte absByte(int pos) {
-        return p.absByte(pos);
-    }
-
-    @Override
-    public int absLimit() {
-        return p.absLimit();
-    }
-
-    @Override
     public ByteBuf absLimit(int limit) {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public int absPos() {
-        return p.absPos();
-    }
-
-    @Override
-    public ByteBuf absPos(int absPos) {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public long address() {
-        return p.address();
-    }
-
-    @Override
-    public byte[] array() {
-        return p.array();
-    }
-
-    @Override
-    public int capacity() {
-        return p.capacity();
-    }
-
-    @Override
-    public ByteBuf clear() {
         throw unsupportedOperationException();
     }
 
@@ -86,166 +46,6 @@ final class DuplicatedUnsafeByteBuf extends UnsafeByteBuf {
     @Override
     public void expansion(int cap) {
         throw unsupportedOperationException();
-    }
-
-    @Override
-    protected int get0(ByteBuffer dst, int len) {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public byte getByte() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public byte getByte(int index) {
-        return p.getByte(index);
-    }
-
-    @Override
-    public void getBytes(byte[] dst, int offset, int length) {
-        p.getBytes(dst, offset, length);
-    }
-
-    @Override
-    public int getInt() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public int getInt(int index) {
-        return p.getInt(index);
-    }
-
-    @Override
-    public int getIntLE() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public int getIntLE(int index) {
-        return p.getIntLE(index);
-    }
-
-    @Override
-    public long getLong() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public long getLong(int index) {
-        return p.getLong(index);
-    }
-
-    @Override
-    public long getLongLE() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public long getLongLE(int index) {
-        return p.getLongLE(index);
-    }
-
-    @Override
-    public short getShort() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public short getShort(int index) {
-        return p.getShort(index);
-    }
-
-    @Override
-    public short getShortLE() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public short getShortLE(int index) {
-        return p.getShortLE(index);
-    }
-
-    @Override
-    public short getUnsignedByte() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public short getUnsignedByte(int index) {
-        return p.getUnsignedByte(index);
-    }
-
-    @Override
-    public long getUnsignedInt() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public long getUnsignedInt(int index) {
-        return p.getUnsignedInt(index);
-    }
-
-    @Override
-    public long getUnsignedIntLE() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public long getUnsignedIntLE(int index) {
-        return p.getUnsignedIntLE(index);
-    }
-
-    @Override
-    public int getUnsignedShort() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public int getUnsignedShort(int index) {
-        return p.getUnsignedShort(index);
-    }
-
-    @Override
-    public float getFloat() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public float getFloat(int index) {
-        return p.getFloat(index);
-    }
-
-    @Override
-    public float getFloatLE() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public float getFloatLE(int index) {
-        return p.getFloatLE(index);
-    }
-
-    @Override
-    public double getDouble() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public double getDouble(int index) {
-        return p.getDouble(index);
-    }
-
-    @Override
-    public double getDoubleLE() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public double getDoubleLE(int index) {
-        return p.getDoubleLE(index);
     }
 
     @Override
@@ -269,53 +69,8 @@ final class DuplicatedUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
-    public int getUnsignedShortLE() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public int getUnsignedShortLE(int index) {
-        return p.getUnsignedShortLE(index);
-    }
-
-    @Override
-    public boolean hasArray() {
-        return p.hasArray();
-    }
-
-    @Override
-    public int indexOf(byte b, int absPos, int size) {
-        return p.indexOf(b, absPos, size);
-    }
-
-    @Override
     public boolean isPooled() {
         return p.isPooled();
-    }
-
-    @Override
-    public int lastIndexOf(byte b, int absPos, int size) {
-        return p.lastIndexOf(b, absPos, size);
-    }
-
-    @Override
-    public ByteBuf limit(int limit) {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public ByteBuf markL() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public ByteBuf markP() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public ByteBuf position(int position) {
-        throw unsupportedOperationException();
     }
 
     @Override
@@ -471,25 +226,6 @@ final class DuplicatedUnsafeByteBuf extends UnsafeByteBuf {
     @Override
     protected void release0() {
         p.release();
-    }
-
-    @Override
-    public ByteBuf resetL() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public ByteBuf resetP() {
-        throw unsupportedOperationException();
-    }
-
-    @Override
-    public ByteBuf reverse() {
-        return this;
-    }
-
-    private UnsupportedOperationException unsupportedOperationException() {
-        return new UnsupportedOperationException();
     }
 
 }

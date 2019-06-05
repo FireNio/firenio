@@ -18,6 +18,8 @@ package test.io.http11;
 import java.util.HashMap;
 import java.util.Map;
 
+import test.test.TestUtil;
+
 import com.alibaba.fastjson.JSON;
 import com.firenio.codec.http11.ClientHttpCodec;
 import com.firenio.codec.http11.ClientHttpFrame;
@@ -61,7 +63,7 @@ public class TestSimpleWebSocketClient {
             }
         };
 
-        String            host = "www.firenio.com";
+        String            host = "127.0.0.1";
         int               port = 443;
         NioEventLoopGroup g    = new NioEventLoopGroup();
         g.setEnableMemoryPool(false);
@@ -82,6 +84,13 @@ public class TestSimpleWebSocketClient {
         frame.setRequestHeader(HttpHeader.Accept_Encoding, "gzip, deflate, sdch");
         frame.setRequestHeader(HttpHeader.Accept_Language, "zh-CN,zh;q=0.8");
         ch.writeAndFlush(frame);
+        Util.sleep(100);
+        WebSocketFrame      f2  = new WebSocketFrame();
+        Map<String, String> map = new HashMap<>();
+        map.put("action", "new-message");
+        map.put("message", TestUtil.newString(1024 * 8));
+        f2.setString(JSON.toJSONString(map), ch);
+        ch.writeAndFlush(f2);
         Util.sleep(999999999);
         Util.close(context);
 
