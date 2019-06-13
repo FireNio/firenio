@@ -41,7 +41,7 @@ import com.firenio.log.DebugUtil;
 public class HttpProxy4CloudServer {
 
     static final String                CONNECT_RES     = "HTTP/1.1 200 Connection Established\r\n\r\n";
-    static final ByteBuf               CONNECT_RES_BUF = ByteBuf.wrap(CONNECT_RES.getBytes());
+    static final ByteBuf               CONNECT_RES_BUF = ByteBuf.wrapDirect(CONNECT_RES.getBytes());
     static final String                netHost;
     static final int                   netPort         = 18088;
     static final HttpProxy4CloudServer server          = new HttpProxy4CloudServer();

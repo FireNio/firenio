@@ -68,7 +68,7 @@ public class TestEmojiServlet extends HttpFrameAcceptor {
         builder.append(HttpUtil.HTML_POWER_BY);
         //        builder.append(getScript());
         builder.append(HttpUtil.HTML_BOTTOM);
-        ByteBuf buf = ByteBuf.wrap(builder.toString().getBytes(ch.getCharset()));
+        ByteBuf buf = ByteBuf.wrapDirect(builder.toString().getBytes(ch.getCharset()));
         buf.position(buf.limit());
         frame.setContent(buf);
         frame.setContentType(HttpContentType.text_html_utf8);

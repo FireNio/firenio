@@ -21,6 +21,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import com.firenio.buffer.ByteBuf;
 import com.firenio.codec.http11.WebSocketCodec;
 import com.firenio.codec.http11.WebSocketFrame;
 import com.firenio.component.Channel;
@@ -40,7 +41,7 @@ public class WebSocketMsgAdapter extends EventLoop {
         super(threadName);
     }
 
-    public void addClient(String username, Channel ch) {
+    public synchronized void addClient(String username, Channel ch) {
         clientMap.put(ch.getChannelId(), new Client(ch, username));
         channelMap.put(username, ch);
         logger.info("client joined {} ,clients size: {}", ch, clientMap.size());
@@ -63,12 +64,18 @@ public class WebSocketMsgAdapter extends EventLoop {
             }
         } else {
             if (!clientMap.isEmpty()) {
-                WebSocketFrame f = new WebSocketFrame();
-                f.setBytes(WebSocketCodec.MAX_HEADER_LENGTH, msg.msg.getBytes());
-                try {
-                    ChannelManager.broadcast(f, channelMap.values());
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                synchronized (this) {
+                    Client         client = clientMap.values().iterator().next();
+                    WebSocketFrame f      = new WebSocketFrame();
+                    byte[]         data   = msg.msg.getBytes();
+                    ByteBuf        buf    = client.channel.allocate(data.length);
+                    buf.putBytes(data);
+                    f.setContent(buf);
+                    try {
+                        ChannelManager.broadcast(f, channelMap.values());
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
                 }
             }
         }
@@ -87,7 +94,7 @@ public class WebSocketMsgAdapter extends EventLoop {
         return msgs;
     }
 
-    public Client removeClient(Channel ch) {
+    public synchronized Client removeClient(Channel ch) {
         Client client = clientMap.remove(ch.getChannelId());
         if (client != null) {
             channelMap.remove(client.getUsername());
