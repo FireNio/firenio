@@ -48,12 +48,13 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public int absPos() {
-        return p.absPos();
+        return m.position();
     }
 
     @Override
     public ByteBuf absPos(int absPos) {
-        throw unsupportedOperationException();
+        m.position(absPos);
+        return this;
     }
 
     @Override
@@ -73,7 +74,9 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public ByteBuf clear() {
-        throw unsupportedOperationException();
+        m.position(offset());
+        m.limit(ix(capacity()));
+        return this;
     }
 
     @Override
@@ -95,12 +98,13 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     protected int get0(ByteBuffer dst, int len) {
+        //TODO compete me
         throw unsupportedOperationException();
     }
 
     @Override
     public byte getByte() {
-        throw unsupportedOperationException();
+        return m.get();
     }
 
     @Override
@@ -110,12 +114,12 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public void getBytes(byte[] dst, int offset, int length) {
-        p.getBytes(dst, offset, length);
+        m.get(dst, offset, length);
     }
 
     @Override
     public int getInt() {
-        throw unsupportedOperationException();
+        return m.getInt();
     }
 
     @Override
@@ -125,7 +129,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public int getIntLE() {
-        throw unsupportedOperationException();
+        return Integer.reverseBytes(getInt());
     }
 
     @Override
@@ -135,7 +139,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public long getLong() {
-        throw unsupportedOperationException();
+        return m.getLong();
     }
 
     @Override
@@ -145,7 +149,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public long getLongLE() {
-        throw unsupportedOperationException();
+        return Long.reverseBytes(getLong());
     }
 
     @Override
@@ -160,7 +164,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public short getShort() {
-        throw unsupportedOperationException();
+        return m.getShort();
     }
 
     @Override
@@ -170,7 +174,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public short getShortLE() {
-        throw unsupportedOperationException();
+        return Short.reverseBytes(getShort());
     }
 
     @Override
@@ -180,7 +184,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public short getUnsignedByte() {
-        throw unsupportedOperationException();
+        return (short) (getByte() & 0xff);
     }
 
     @Override
@@ -190,7 +194,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public long getUnsignedInt() {
-        throw unsupportedOperationException();
+        return getInt() & 0xffff_ffff;
     }
 
     @Override
@@ -200,7 +204,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public long getUnsignedIntLE() {
-        throw unsupportedOperationException();
+        return Integer.reverseBytes(getInt()) & 0xffff_ffff;
     }
 
     @Override
@@ -210,7 +214,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public int getUnsignedShort() {
-        throw unsupportedOperationException();
+        return getShort() & 0xffff;
     }
 
     @Override
@@ -220,7 +224,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public int getUnsignedShortLE() {
-        throw unsupportedOperationException();
+        return Short.reverseBytes(getShort()) & 0xffff;
     }
 
     @Override
@@ -385,7 +389,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public float getFloat() {
-        throw unsupportedOperationException();
+        return m.getFloat();
     }
 
     @Override
@@ -395,7 +399,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public float getFloatLE() {
-        throw unsupportedOperationException();
+        return Float.intBitsToFloat(getIntLE());
     }
 
     @Override
@@ -405,7 +409,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public double getDouble() {
-        throw unsupportedOperationException();
+        return m.getDouble();
     }
 
     @Override
@@ -415,7 +419,7 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public double getDoubleLE() {
-        throw unsupportedOperationException();
+        return Double.longBitsToDouble(getLongLE());
     }
 
     @Override
@@ -527,10 +531,6 @@ final class DuplicatedByteBuf extends ByteBuf {
     public ByteBuf skip(int length) {
         m.position(m.position() + length);
         return this;
-    }
-
-    private UnsupportedOperationException unsupportedOperationException() {
-        return new UnsupportedOperationException();
     }
 
 }
