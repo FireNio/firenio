@@ -24,6 +24,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 
+import com.firenio.Options;
+
 
 /**
  * @author wangkai
@@ -38,6 +40,7 @@ public class Unsafe {
     // during a large copy
     private static final long           UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
     private static final ByteOrder      nativeByteOrder;
+    private static final boolean        ENABLE_RAW_DIRECT;
     private static final InternalUnsafe UNSAFE;
     private static final int            JAVA_VERSION          = majorJavaVersion();
     private static final Constructor<?> DIRECT_BUFFER_CONSTRUCTOR;
@@ -47,6 +50,7 @@ public class Unsafe {
 
     static {
         UNSAFE = getUnsafe();
+        ENABLE_RAW_DIRECT = Options.isEnableRawDirect();
         BUFFER_ADDRESS_OFFSET = fieldOffset(Util.getDeclaredField(Buffer.class, "address"));
         ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
         nativeByteOrder = detectByteOrder();
@@ -56,9 +60,9 @@ public class Unsafe {
     private Unsafe() {}
 
     private static Constructor<?> getDirectBufferConstructor() {
-        Constructor<?> directBufferConstructor;
-        final ByteBuffer     direct  = ByteBuffer.allocateDirect(1);
-        long           address = -1;
+        Constructor<?>   directBufferConstructor;
+        final ByteBuffer direct  = ByteBuffer.allocateDirect(1);
+        long             address = -1;
         try {
             final Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
                 @Override
@@ -338,38 +342,45 @@ public class Unsafe {
     }
 
     public static ByteBuffer allocateDirectByteBuffer(int cap) {
-        long address = allocate(cap);
-        if (address == -1) {
-            throw new RuntimeException("no enough space(direct): " + cap);
-        }
-        try {
-            return (ByteBuffer) DIRECT_BUFFER_CONSTRUCTOR.newInstance(address, cap);
-        } catch (Throwable e) {
-            free(address);
-            throw new Error(e);
+        if (ENABLE_RAW_DIRECT) {
+            long address = allocate(cap);
+            if (address == -1) {
+                throw new RuntimeException("no enough space(direct): " + cap);
+            }
+            try {
+                return (ByteBuffer) DIRECT_BUFFER_CONSTRUCTOR.newInstance(address, cap);
+            } catch (Throwable e) {
+                free(address);
+                throw new Error(e);
+            }
+        } else {
+            return ByteBuffer.allocateDirect(cap);
         }
     }
 
     public static void freeByteBuffer(ByteBuffer buffer) {
         if (buffer.isDirect()) {
-            //            boolean free = false;
-            //            if (javaVersion() > 8) {
-            //                sun.nio.ch.DirectBuffer  b = (sun.nio.ch.DirectBuffer) buffer;
-            //                jdk.internal.ref.Cleaner c = b.cleaner();
-            //                if (c != null) {
-            //                    c.clean();
-            //                    free = true;
-            //                }
-            //            } else {
-            //                if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
-            //                    ((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
-            //                    free = true;
-            //                }
-            //            }
-            //            if (!free) {
-            //                free(address(buffer));
-            //            }
-            free(address(buffer));
+            if (ENABLE_RAW_DIRECT) {
+                free(address(buffer));
+            } else {
+                boolean free = false;
+                //            if (javaVersion() > 8) {
+                //                sun.nio.ch.DirectBuffer  b = (sun.nio.ch.DirectBuffer) buffer;
+                //                jdk.internal.ref.Cleaner c = b.cleaner();
+                //                if (c != null) {
+                //                    c.clean();
+                //                    free = true;
+                //                }
+                //            } else {
+                if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
+                    ((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
+                    free = true;
+                }
+                //            }
+                if (!free) {
+                    free(address(buffer));
+                }
+            }
         }
     }
 

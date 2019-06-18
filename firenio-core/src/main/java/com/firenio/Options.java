@@ -29,6 +29,7 @@ public class Options {
     static final String CHANNEL_READ_FIRST     = "com.firenio.channelReadFirst";
     static final String DEBUG_ERROR            = "com.firenio.debugError";
     static final String ENABLE_EPOLL           = "com.firenio.ssl.enableEpoll";
+    static final String ENABLE_RAW_DIRECT      = "com.firenio.ssl.enableRawDirect";
     static final String ENABLE_OPENSSL         = "com.firenio.ssl.enableOpenSsl";
     static final String ENABLE_UNSAFE_BUF      = "com.firenio.ssl.enableUnsafeBuf";
     static final String OPENSSL_PATH           = "org.wildfly.openssl.path";
@@ -71,6 +72,10 @@ public class Options {
         return Util.getBooleanProperty(ENABLE_EPOLL);
     }
 
+    public static boolean isEnableRawDirect() {
+        return Util.getBooleanProperty(ENABLE_RAW_DIRECT);
+    }
+
     public static boolean isEnableOpenssl() {
         return Util.getBooleanProperty(ENABLE_OPENSSL);
     }
@@ -101,6 +106,10 @@ public class Options {
 
     public static void setEnableEpoll(boolean enable) {
         System.setProperty(ENABLE_EPOLL, String.valueOf(enable));
+    }
+
+    public static void setEnableRawDirect(boolean enable) {
+        System.setProperty(ENABLE_RAW_DIRECT, String.valueOf(enable));
     }
 
     public static void setEnableOpenssl(boolean enable) {
