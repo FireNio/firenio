@@ -41,6 +41,10 @@ public class ReConnector implements Closeable {
     }
 
     public synchronized void connect() {
+        connect(3000);
+    }
+
+    public synchronized void connect(long timeout) {
         Channel ch = connector.getChannel();
         for (; ; ) {
             if (ch != null && ch.isOpen()) {
@@ -52,7 +56,7 @@ public class ReConnector implements Closeable {
             }
             logger.info("begin try to connect");
             try {
-                connector.connect();
+                connector.connect(timeout);
                 break;
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);

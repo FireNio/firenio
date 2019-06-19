@@ -24,6 +24,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 
+import com.firenio.Options;
+
 
 /**
  * @author wangkai
@@ -38,6 +40,7 @@ public class Unsafe {
     // during a large copy
     private static final long           UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
     private static final ByteOrder      nativeByteOrder;
+    private static final boolean        ENABLE_RAW_DIRECT;
     private static final InternalUnsafe UNSAFE;
     private static final int            JAVA_VERSION          = majorJavaVersion();
     private static final Constructor<?> DIRECT_BUFFER_CONSTRUCTOR;
@@ -47,6 +50,7 @@ public class Unsafe {
 
     static {
         UNSAFE = getUnsafe();
+        ENABLE_RAW_DIRECT = Options.isEnableRawDirect();
         BUFFER_ADDRESS_OFFSET = fieldOffset(Util.getDeclaredField(Buffer.class, "address"));
         ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
         nativeByteOrder = detectByteOrder();
@@ -56,9 +60,9 @@ public class Unsafe {
     private Unsafe() {}
 
     private static Constructor<?> getDirectBufferConstructor() {
-        Constructor<?> directBufferConstructor;
-        final ByteBuffer     direct  = ByteBuffer.allocateDirect(1);
-        long           address = -1;
+        Constructor<?>   directBufferConstructor;
+        final ByteBuffer direct  = ByteBuffer.allocateDirect(1);
+        long             address = -1;
         try {
             final Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
                 @Override
@@ -90,11 +94,10 @@ public class Unsafe {
             if (address != -1) {
                 free(address);
             }
-            free(address(direct));
+            freeByteBuffer(direct);
         }
         return directBufferConstructor;
     }
-
 
     private static InternalUnsafe getUnsafe() {
         //        if (javaVersion() > 8) {
@@ -338,38 +341,45 @@ public class Unsafe {
     }
 
     public static ByteBuffer allocateDirectByteBuffer(int cap) {
-        long address = allocate(cap);
-        if (address == -1) {
-            throw new RuntimeException("no enough space(direct): " + cap);
-        }
-        try {
-            return (ByteBuffer) DIRECT_BUFFER_CONSTRUCTOR.newInstance(address, cap);
-        } catch (Throwable e) {
-            free(address);
-            throw new Error(e);
+        if (ENABLE_RAW_DIRECT) {
+            long address = allocate(cap);
+            if (address == -1) {
+                throw new RuntimeException("no enough space(direct): " + cap);
+            }
+            try {
+                return (ByteBuffer) DIRECT_BUFFER_CONSTRUCTOR.newInstance(address, cap);
+            } catch (Throwable e) {
+                free(address);
+                throw new Error(e);
+            }
+        } else {
+            return ByteBuffer.allocateDirect(cap);
         }
     }
 
     public static void freeByteBuffer(ByteBuffer buffer) {
         if (buffer.isDirect()) {
-            //            boolean free = false;
-            //            if (javaVersion() > 8) {
-            //                sun.nio.ch.DirectBuffer  b = (sun.nio.ch.DirectBuffer) buffer;
-            //                jdk.internal.ref.Cleaner c = b.cleaner();
-            //                if (c != null) {
-            //                    c.clean();
-            //                    free = true;
-            //                }
-            //            } else {
-            //                if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
-            //                    ((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
-            //                    free = true;
-            //                }
-            //            }
-            //            if (!free) {
-            //                free(address(buffer));
-            //            }
-            free(address(buffer));
+            if (ENABLE_RAW_DIRECT) {
+                free(address(buffer));
+            } else {
+                boolean free = false;
+                //            if (javaVersion() > 8) {
+                //                sun.nio.ch.DirectBuffer  b = (sun.nio.ch.DirectBuffer) buffer;
+                //                jdk.internal.ref.Cleaner c = b.cleaner();
+                //                if (c != null) {
+                //                    c.clean();
+                //                    free = true;
+                //                }
+                //            } else {
+                if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
+                    ((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
+                    free = true;
+                }
+                //            }
+                if (!free) {
+                    free(address(buffer));
+                }
+            }
         }
     }
 
@@ -403,8 +413,6 @@ public class Unsafe {
         void copyMemory(Object src, long srcOffset, Object target, long targetOffset, long length);
 
         long fieldOffset(Field field);
-
-        void free(long address);
 
         boolean getBoolean(Object target, long offset);
 
@@ -666,138 +674,167 @@ public class Unsafe {
             UNSAFE = getUnsafe();
         }
 
+        @Override
         public boolean compareAndSwapInt(Object o, long offset, int expected, int val) {
             return UNSAFE.compareAndSwapInt(o, offset, expected, val);
         }
 
+        @Override
         public boolean compareAndSwapLong(Object o, long offset, int expected, long val) {
             return UNSAFE.compareAndSwapLong(o, offset, expected, val);
         }
 
+        @Override
         public boolean compareAndSwapObject(Object o, long offset, Object expected, Object val) {
             return UNSAFE.compareAndSwapObject(o, offset, expected, val);
         }
 
+        @Override
         public void copyMemory(ByteBuffer buf, long targetAddress, long length) {
             UNSAFE.copyMemory(address(buf) + buf.position(), targetAddress, length);
         }
 
+        @Override
         public void copyMemory(long srcAddress, long targetAddress, long length) {
             UNSAFE.copyMemory(srcAddress, targetAddress, length);
         }
 
+        @Override
         public void copyMemory(Object src, long srcOffset, Object target, long targetOffset, long length) {
             UNSAFE.copyMemory(src, srcOffset, target, targetOffset, length);
         }
 
+        @Override
         public long fieldOffset(Field field) {
             return UNSAFE.objectFieldOffset(field);
         }
 
-        public void free(long address) {
-            UNSAFE.freeMemory(address);
-        }
-
+        @Override
         public boolean getBoolean(Object target, long offset) {
             return UNSAFE.getBoolean(target, offset);
         }
 
+        @Override
         public byte getByte(long address) {
             return UNSAFE.getByte(address);
         }
 
+        @Override
         public byte getByte(Object target, long offset) {
             return UNSAFE.getByte(target, offset);
         }
 
+        @Override
         public double getDouble(Object target, long offset) {
             return UNSAFE.getDouble(target, offset);
         }
 
+        @Override
         public float getFloat(Object target, long offset) {
             return UNSAFE.getFloat(target, offset);
         }
 
+        @Override
         public int getInt(long address) {
             return UNSAFE.getInt(address);
         }
 
+        @Override
         public int getInt(Object target, long offset) {
             return UNSAFE.getInt(target, offset);
         }
 
+        @Override
         public long getLong(long address) {
             return UNSAFE.getLong(address);
         }
 
+        @Override
         public long getLong(Object target, long offset) {
             return UNSAFE.getLong(target, offset);
         }
 
+        @Override
         public Object getObject(Object target, long offset) {
             return UNSAFE.getObject(target, offset);
         }
 
+        @Override
         public short getShort(long address) {
             return UNSAFE.getShort(address);
         }
 
+        @Override
         public short getShort(Object target, long offset) {
             return UNSAFE.getShort(target, offset);
         }
 
+        @Override
         public long objectFieldOffset(Field field) {
             return UNSAFE.objectFieldOffset(field);
         }
 
+        @Override
         public void putBoolean(Object target, long offset, boolean value) {
             UNSAFE.putBoolean(target, offset, value);
         }
 
+        @Override
         public void putByte(long address, byte value) {
             UNSAFE.putByte(address, value);
         }
 
+        @Override
         public void putByte(Object target, long offset, byte value) {
             UNSAFE.putByte(target, offset, value);
         }
 
+        @Override
         public void putDouble(Object target, long offset, double value) {
             UNSAFE.putDouble(target, offset, value);
         }
 
+        @Override
         public void putFloat(Object target, long offset, float value) {
             UNSAFE.putFloat(target, offset, value);
         }
 
+        @Override
         public void putInt(long address, int value) {
             UNSAFE.putInt(address, value);
         }
 
+        @Override
         public void putInt(Object target, long offset, int value) {
             UNSAFE.putInt(target, offset, value);
         }
 
+        @Override
         public void putLong(long address, long value) {
             UNSAFE.putLong(address, value);
         }
 
+        @Override
         public void putLong(Object target, long offset, long value) {
             UNSAFE.putLong(target, offset, value);
         }
 
+        @Override
         public void putObject(Object target, long offset, Object value) {
             UNSAFE.putObject(target, offset, value);
         }
 
+        @Override
         public void putShort(long address, short value) {
             UNSAFE.putShort(address, value);
         }
 
+        @Override
         public void putShort(Object target, long offset, short value) {
             UNSAFE.putShort(target, offset, value);
         }
 
+        @Override
         public void setMemory(long address, long numBytes, byte value) {
             UNSAFE.setMemory(address, numBytes, value);
         }
