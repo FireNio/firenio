@@ -15,26 +15,14 @@
  */
 package com.firenio.buffer;
 
+import com.firenio.common.Unsafe;
+
 public final class UnpooledByteBufAllocator extends ByteBufAllocator {
 
-    private static final UnpooledByteBufAllocator directAlloc = new UnpooledByteBufAllocator(true);
-    private static final UnpooledByteBufAllocator heapAlloc   = new UnpooledByteBufAllocator(false);
-    private final        boolean                  isDirect;
+    static final UnpooledByteBufAllocator ALLOC = new UnpooledByteBufAllocator();
 
-    private UnpooledByteBufAllocator(boolean isDirect) {
-        this.isDirect = isDirect;
-    }
-
-    public static UnpooledByteBufAllocator get(boolean direct) {
-        return direct ? directAlloc : heapAlloc;
-    }
-
-    public static UnpooledByteBufAllocator getDirect() {
-        return directAlloc;
-    }
-
-    public static UnpooledByteBufAllocator getHeap() {
-        return heapAlloc;
+    public static UnpooledByteBufAllocator get() {
+        return ALLOC;
     }
 
     @Override
@@ -44,11 +32,7 @@ public final class UnpooledByteBufAllocator extends ByteBufAllocator {
 
     @Override
     public ByteBuf allocate(int capacity) {
-        if (isDirect()) {
-            return ByteBuf.direct(capacity);
-        } else {
-            return ByteBuf.heap(capacity);
-        }
+        return ByteBuf.buffer(capacity);
     }
 
     @Override
@@ -76,7 +60,7 @@ public final class UnpooledByteBufAllocator extends ByteBufAllocator {
     }
 
     public boolean isDirect() {
-        return isDirect;
+        return Unsafe.DIRECT_BUFFER_AVAILABLE;
     }
 
     @Override

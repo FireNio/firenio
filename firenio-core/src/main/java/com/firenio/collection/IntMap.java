@@ -60,6 +60,9 @@ public final class IntMap<V> {
         if (keys[index] == key) {
             return index;
         }
+        if (keys[index] == -1) {
+            return -1;
+        }
         for (int i = index, cnt = keys.length; i < cnt; i++) {
             if (keys[i] == key) {
                 return i;
@@ -103,10 +106,6 @@ public final class IntMap<V> {
         this.scanIndex = -1;
     }
 
-    public boolean hasNext() {
-        return scanSize < size;
-    }
-
     public V putIfAbsent(int key, V value) {
         return putVal(key, value, true);
     }
@@ -133,24 +132,29 @@ public final class IntMap<V> {
         return keys.length;
     }
 
-    public int next() {
-        int scanIndex = scan(keys, this.scanIndex);
-        if (scanIndex == cap) {
-            return scanIndex;
-        }
-        this.scanIndex = scanIndex;
-        this.scanSize++;
+    public int scanIndex() {
         return scanIndex;
     }
 
-    public int nextKey() {
-        next();
-        return key();
+    public boolean hasNext() {
+        return next() != -1;
     }
 
-    public V nextValue() {
-        next();
-        return value();
+    public int next() {
+        if (scanSize < size) {
+            int[] keys  = this.keys;
+            int   index = this.scanIndex + 1;
+            int   cap   = this.cap;
+            for (; index < cap; index++) {
+                if (keys[index] != -1) {
+                    break;
+                }
+            }
+            this.scanSize++;
+            this.scanIndex = index;
+            return index;
+        }
+        return -1;
     }
 
     public int key() {
@@ -190,15 +194,18 @@ public final class IntMap<V> {
     private void grow() {
         size++;
         if (size > limit) {
-            int   cap      = Util.clothCover(this.cap + 1);
+            int   cap    = Util.clothCover(this.cap + 1);
             int   mask   = cap - 1;
             int[] keys   = new int[cap];
             V[]   values = (V[]) new Object[cap];
             int   limit  = (int) (cap * loadFactor);
             Arrays.fill(keys, -1);
             scan();
-            for (; hasNext(); ) {
+            for (; ; ) {
                 int index = next();
+                if (index == -1) {
+                    break;
+                }
                 put0(indexKey(index), indexValue(index), mask, keys, values, false);
             }
             this.cap = cap;
@@ -217,17 +224,44 @@ public final class IntMap<V> {
         return values[index];
     }
 
+    private void remove_at(int index) {
+        int[] keys        = this.keys;
+        V[]   values      = this.values;
+        int   cap         = this.cap;
+        int   mask        = this.mask;
+        int   write_index = index;
+        int   read_index  = index + 1;
+        for (; read_index < cap; read_index++) {
+            int key = keys[read_index];
+            if (key == -1) {
+                break;
+            }
+            if ((key & mask) == read_index) {
+                continue;
+            }
+            keys[write_index] = key;
+            values[write_index] = values[read_index];
+            write_index = read_index;
+        }
+        keys[write_index] = -1;
+        values[write_index] = null;
+    }
+
+    public void finishScan() {
+        scanIndex = -1;
+    }
+
     public V remove(int key) {
         int index = indexOfKey(keys, key, mask);
         if (index == -1) {
             return null;
         }
         V v = values[index];
-        values[index] = null;
-        keys[index] = -1;
+        remove_at(index);
         size--;
         if (index <= scanIndex) {
             scanSize--;
+            scanIndex--;
         }
         return v;
     }
@@ -250,9 +284,12 @@ public final class IntMap<V> {
     public int conflict() {
         int s = 0;
         scan();
-        for (; hasNext(); ) {
+        for (; ; ) {
             int index = next();
-            if ((keys[index] & mask) != index) {
+            if (index == -1) {
+                break;
+            }
+            if ((key() & mask) != index) {
                 s++;
             }
         }

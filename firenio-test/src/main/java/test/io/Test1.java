@@ -50,11 +50,10 @@ public class Test1 {
         int s = 0;
         for (map.scan(); map.hasNext(); ) {
             s++;
-            int    i = map.next();
-            int    k = map.indexKey(i);
-            String v = map.indexValue(i);
-            if (i % 2 == 0) {
-                int idx = map.indexKey(i + 1);
+            int    k = map.key();
+            String v = map.value();
+            if (map.scanIndex() % 2 == 0) {
+                int idx = map.indexKey(map.scanIndex() + 1);
                 if (idx != -1) {
                     String res = map.remove(idx);
                     if (res != null) {

@@ -94,10 +94,10 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
     public synchronized void close() {
         Util.close(ch);
         Util.stop(this);
+        this.ch = null;
         if (!getProcessorGroup().isSharable()) {
             this.eventLoop = null;
         }
-        this.ch = null;
     }
 
     public synchronized Channel connect() throws Exception {

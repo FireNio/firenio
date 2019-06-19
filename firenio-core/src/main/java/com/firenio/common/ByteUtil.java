@@ -21,17 +21,17 @@ import com.firenio.buffer.ByteBuf;
 
 public class ByteUtil {
 
-    private static final String[] HEXS      = new String[256];
+    private static final String[] HEXES     = new String[256];
     private static final String[] NUMS      = new String[256];
     private static final byte[]   CHAR_NUMS = new byte[10];
 
     static {
         for (int i = 0; i < 16; i++) {
-            HEXS[i] = "0" + Integer.toHexString(i);
+            HEXES[i] = "0" + Integer.toHexString(i);
             NUMS[i] = String.valueOf(i);
         }
-        for (int i = 16; i < HEXS.length; i++) {
-            HEXS[i] = Integer.toHexString(i);
+        for (int i = 16; i < HEXES.length; i++) {
+            HEXES[i] = Integer.toHexString(i);
             NUMS[i] = String.valueOf(i);
         }
         for (int i = 0; i < CHAR_NUMS.length; i++) {
@@ -114,7 +114,7 @@ public class ByteUtil {
     }
 
     public static String getHexString(byte b) {
-        return HEXS[b & 0xFF];
+        return HEXES[b & 0xFF];
     }
 
     public static String getHexString(byte[] array) {

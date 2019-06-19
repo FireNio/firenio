@@ -139,14 +139,14 @@ public final class FastThreadLocal extends AttributesImpl {
 
     public ByteBuf getSslUnwrapBuf() {
         if (sslUnwrapBuf == null) {
-            sslUnwrapBuf = ByteBuf.direct(SslContext.SSL_UNWRAP_BUFFER_SIZE);
+            sslUnwrapBuf = ByteBuf.buffer(SslContext.SSL_UNWRAP_BUFFER_SIZE);
         }
         return sslUnwrapBuf;
     }
 
     public ByteBuf getSslWrapBuf() {
         if (sslWrapBuf == null) {
-            sslWrapBuf = ByteBuf.direct(SslContext.SSL_PACKET_BUFFER_SIZE);
+            sslWrapBuf = ByteBuf.buffer(SslContext.SSL_PACKET_BUFFER_SIZE);
         }
         return sslWrapBuf;
     }

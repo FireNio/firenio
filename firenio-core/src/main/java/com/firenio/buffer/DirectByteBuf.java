@@ -354,7 +354,7 @@ abstract class DirectByteBuf extends ByteBuf {
     @Override
     protected int putBytes00(ByteBuf src, int len) {
         if (src.hasArray()) {
-            copy(src.array(), src.position(), address() + absPos(), len);
+            copy(src.array(), src.absPos(), address() + absPos(), len);
         } else {
             copy(src.address() + src.absPos(), address() + absPos(), len);
         }

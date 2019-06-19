@@ -56,12 +56,41 @@ public abstract class ByteBuf implements Releasable {
         return wrap(Unsafe.allocateDirectByteBuffer(cap));
     }
 
-    public static ByteBuf wrapDirect(byte[] data) {
-        return wrapDirect(data, 0, data.length);
+    public static ByteBuf buffer(int cap) {
+        if (Unsafe.UNSAFE_BUF_AVAILABLE) {
+            return unsafe(cap);
+        } else {
+            if (Unsafe.DIRECT_BUFFER_AVAILABLE) {
+                return direct(cap);
+            } else {
+                return heap(cap);
+            }
+        }
     }
 
-    public static ByteBuf wrapDirect(byte[] data, int off, int len) {
-        ByteBuf buf = direct(len);
+    public static ByteBuf unsafe(int cap) {
+        return new UnpooledUnsafeByteBuf(Unsafe.allocate(cap), cap);
+    }
+
+    public static ByteBuf wrapAuto(byte[] data) {
+        return wrapAuto(data, 0, data.length);
+    }
+
+    public static ByteBuf wrapAuto(byte[] data, int off, int len) {
+        if (preferHeap()) {
+            return wrap(data, off, len);
+        }
+        ByteBuf buf = buffer(len);
+        buf.putBytes(data, off, len);
+        return buf.flip();
+    }
+
+    public static ByteBuf wrapUnsafe(byte[] data) {
+        return wrapUnsafe(data, 0, data.length);
+    }
+
+    public static ByteBuf wrapUnsafe(byte[] data, int off, int len) {
+        ByteBuf buf = unsafe(len);
         buf.putBytes(data, off, len);
         return buf.flip();
     }
@@ -589,6 +618,18 @@ public abstract class ByteBuf implements Releasable {
 
     UnsupportedOperationException unsupportedOperationException() {
         return new UnsupportedOperationException();
+    }
+
+    public static boolean preferUnsafe() {
+        return Unsafe.UNSAFE_BUF_AVAILABLE;
+    }
+
+    public static boolean preferDirect() {
+        return !preferUnsafe() && Unsafe.DIRECT_BUFFER_AVAILABLE;
+    }
+
+    public static boolean preferHeap() {
+        return !preferUnsafe() && !Unsafe.DIRECT_BUFFER_AVAILABLE;
     }
 
 }

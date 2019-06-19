@@ -24,9 +24,4 @@ public class LengthValueFrame extends Frame {
     public LengthValueFrame(String content) {
         this.setContent(content);
     }
-
-    public String toString() {
-        return getStringContent();
-    }
-
 }

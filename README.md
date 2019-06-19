@@ -2,7 +2,7 @@
 # FireNio Project
 
 [![Website](https://img.shields.io/badge/website-firenio-green.svg)](https://www.firenio.com)
-[![Maven central](https://img.shields.io/badge/maven-1.2.3-green.svg)](http://mvnrepository.com/artifact/com.firenio/firenio-all)
+[![Maven central](https://img.shields.io/badge/maven-1.2.4-green.svg)](http://mvnrepository.com/artifact/com.firenio/firenio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/firenio/firenio/blob/master/LICENSE.txt)
 
 FireNio是基于java nio开发的一款可快速构建网络通讯项目的异步IO框架，其以简单易用的API和优良的性能深受开发者喜爱。
@@ -15,9 +15,11 @@ FireNio是基于java nio开发的一款可快速构建网络通讯项目的异�
    * WebSocket协议，示例： https://www.firenio.com/web-socket/chat/index.html 
    * Protobase(自定义协议)，支持传输文本或二进制数据
  * 轻松实现断线重连(轻松实现心跳机制)
- * 支持SSL(jdkssl,openssl)
- * 压力测试
-   * [tfb benchmark](https://www.techempower.com/benchmarks/#section=test&runid=76a34044-54d6-4349-adfe-863c2d5ae756&hw=ph&test=plaintext)
+ * 支持SSL(JdkSSL & OpenSSL)
+ * TFB压力测试
+   * [TFB Benchmark(Physical)](https://www.techempower.com/benchmarks/#section=data-r18&hw=ph&test=plaintext)
+   * [TFB Benchmark(Cloud)](https://www.techempower.com/benchmarks/#section=data-r18&hw=cl&test=plaintext)
+   
  
 ## 快速入门
 
@@ -27,7 +29,7 @@ FireNio是基于java nio开发的一款可快速构建网络通讯项目的异�
 	<dependency>
 		<groupId>com.firenio</groupId>
 		<artifactId>firenio-all</artifactId>
-		<version>1.2.3</version>
+		<version>1.2.4</version>
 	</dependency>  
   ```
   
