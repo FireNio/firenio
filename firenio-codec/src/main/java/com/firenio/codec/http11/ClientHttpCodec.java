@@ -82,7 +82,7 @@ public class ClientHttpCodec extends HttpCodec {
         if (headers != null) {
             headers.remove(HttpHeader.Content_Length.getId());
             for (headers.scan(); headers.hasNext(); ) {
-                byte[] k = HttpHeader.get(headers.nextKey()).getBytes();
+                byte[] k = HttpHeader.get(headers.key()).getBytes();
                 byte[] v = headers.value().getBytes();
                 if (v == null) {
                     continue;
@@ -94,6 +94,7 @@ public class ClientHttpCodec extends HttpCodec {
                 len += k.length;
                 len += v.length;
             }
+            headers.finishScan();
         }
         len += 2;
         if (isArray) {

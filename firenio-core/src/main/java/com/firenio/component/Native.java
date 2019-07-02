@@ -30,7 +30,6 @@ public class Native {
     public static final  int      EPOLL_HUP;
     public static final  int      EPOLL_RD_HUP;
     public static final  String[] ERRORS;
-    public static final  boolean  IS_LINUX;
     public static final  int      SIZEOF_EPOLL_EVENT;
     public static final  int      SIZEOF_SOCK_ADDR_IN;
     private static final Logger   logger = LoggerFactory.getLogger(Native.class);
@@ -46,8 +45,7 @@ public class Native {
         EPOLL_IN_ET = EPOLL_IN | EPOLL_ET;
         EPOLL_OUT_ET = EPOLL_OUT | EPOLL_ET;
         EPOLL_IN_OUT_ET = EPOLL_IN_ET | EPOLL_OUT_ET;
-        IS_LINUX = isLinux();
-        EPOLL_AVAILABLE = IS_LINUX && tryLoadEpoll();
+        EPOLL_AVAILABLE = Unsafe.IS_LINUX && Unsafe.DIRECT_BUFFER_AVAILABLE && tryLoadEpoll();
         if (EPOLL_AVAILABLE) {
             ERRORS = new String[256];
             byte[] temp = new byte[1024];
@@ -167,10 +165,6 @@ public class Native {
 
     public static int event_fd_write(int fd, long value) {
         return printException(event_fd_write0(fd, value));
-    }
-
-    private static boolean isLinux() {
-        return Util.getStringProperty("os.name", "").toLowerCase().startsWith("lin");
     }
 
     private static void loadNative(String name) throws IOException {

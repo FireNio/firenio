@@ -15,9 +15,11 @@ FireNio是基于java nio开发的一款可快速构建网络通讯项目的异�
    * WebSocket协议，示例： https://www.firenio.com/web-socket/chat/index.html 
    * Protobase(自定义协议)，支持传输文本或二进制数据
  * 轻松实现断线重连(轻松实现心跳机制)
- * 支持SSL(jdkssl,openssl)
- * 压力测试
-   * [tfb benchmark](https://www.techempower.com/benchmarks/#section=test&runid=76a34044-54d6-4349-adfe-863c2d5ae756&hw=ph&test=plaintext)
+ * 支持SSL(JdkSSL & OpenSSL)
+ * TFB压力测试
+   * [TFB Benchmark(Physical)](https://www.techempower.com/benchmarks/#section=data-r18&hw=ph&test=plaintext)
+   * [TFB Benchmark(Cloud)](https://www.techempower.com/benchmarks/#section=data-r18&hw=cl&test=plaintext)
+   
  
 ## 快速入门
 

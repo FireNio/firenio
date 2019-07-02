@@ -53,12 +53,11 @@ public class WebSocketMsgAdapter extends EventLoop {
         if (msg == null) {
             return;
         }
-        Channel ch = msg.ch;
-        if (ch != null) {
+        if (msg.ch != null) {
             WebSocketFrame f = new WebSocketFrame();
-            f.setString(msg.msg, ch);
+            f.setString(msg.msg, msg.ch);
             try {
-                ch.writeAndFlush(f);
+                msg.ch.writeAndFlush(f);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -66,14 +65,18 @@ public class WebSocketMsgAdapter extends EventLoop {
             if (!clientMap.isEmpty()) {
                 synchronized (this) {
                     Client         client = clientMap.values().iterator().next();
+                    Channel        ch     = client.channel;
                     WebSocketFrame f      = new WebSocketFrame();
                     byte[]         data   = msg.msg.getBytes();
-                    ByteBuf        buf    = client.channel.allocate(data.length);
+                    ByteBuf        buf    = ch.allocate(data.length);
                     buf.putBytes(data);
                     f.setContent(buf);
+                    ByteBuf buf2 = null;
                     try {
-                        ChannelManager.broadcast(f, channelMap.values());
+                        buf2 = ch.getCodec().encode(ch, f);
+                        ChannelManager.broadcast(buf2, channelMap.values());
                     } catch (Exception e) {
+                        buf.release();
                         logger.error(e.getMessage(), e);
                     }
                 }

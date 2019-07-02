@@ -57,6 +57,8 @@ public abstract class Channel implements Runnable, Closeable {
     public static final InetSocketAddress ERROR_SOCKET_ADDRESS  = new InetSocketAddress(0);
     public static final Logger            logger                = NEW_LOGGER();
     public static final SSLException      NOT_TLS               = NOT_TLS();
+    public static final IOException       CLOSED_CHANNEL        = CLOSED_CHANNEL();
+    public static final IOException       SSL_HANDSHAKE_FAILED  = SSL_HANDSHAKE_FAILED();
     public static final int               SSL_PACKET_LIMIT      = 1024 * 64;
     public static final SSLException      SSL_PACKET_OVER_LIMIT = SSL_PACKET_OVER_LIMIT();
     public static final SSLException      SSL_UNWRAP_OVER_LIMIT = SSL_UNWRAP_OVER_LIMIT();
@@ -109,6 +111,14 @@ public abstract class Channel implements Runnable, Closeable {
         }
     }
 
+    private static ClosedChannelException CLOSED_CHANNEL() {
+        return Util.unknownStackTrace(new ClosedChannelException(), Channel.class, "safe_close(...)");
+    }
+
+    private static SSLException SSL_HANDSHAKE_FAILED() {
+        return Util.unknownStackTrace(new SSLException("ssl handshake failed"), Channel.class, "ssl_handshake(...)");
+    }
+
     private static ClosedChannelException CLOSED_WHEN_FLUSH() {
         return Util.unknownStackTrace(new ClosedChannelException(), Channel.class, "flush(...)");
     }
@@ -123,7 +133,7 @@ public abstract class Channel implements Runnable, Closeable {
     }
 
     private static SSLException NOT_TLS() {
-        return Util.unknownStackTrace(new SSLException("NOT TLS"), Channel.class, "isEnoughSslUnwrap()");
+        return Util.unknownStackTrace(new SSLException("not tls"), Channel.class, "isEnoughSslUnwrap()");
     }
 
     private static SSLException SSL_PACKET_OVER_LIMIT() {
@@ -241,6 +251,10 @@ public abstract class Channel implements Runnable, Closeable {
 
     private void close_ssl() {
         if (enable_ssl) {
+            // fire channelEstablish to tell connector the reason of close
+            if (!ssl_handshake_finished) {
+                context.channelEstablish(this, SSL_HANDSHAKE_FAILED);
+            }
             //ref https://docs.oracle.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html
             // Indicate that application is done with engine
             if (SslContext.OPENSSL_AVAILABLE && OpenSslHelper.isOpensslEngineDestroyed(ssl_engine)) {
@@ -716,9 +730,14 @@ public abstract class Channel implements Runnable, Closeable {
             release(ssl_remain_buf);
             release(plain_remain_buf);
             close_channel();
+            channel_establish();
             fire_closed();
             stop_context();
         }
+    }
+
+    private void channel_establish() {
+        context.channelEstablish(this, CLOSED_CHANNEL);
     }
 
     abstract void close_channel();

@@ -482,7 +482,7 @@ public class HttpCodec extends ProtocolCodec {
         IntMap<byte[]> headers = f.getResponseHeaders();
         if (headers != null) {
             for (headers.scan(); headers.hasNext(); ) {
-                byte[] k = HttpHeader.get(headers.nextKey()).getBytes();
+                byte[] k = HttpHeader.get(headers.key()).getBytes();
                 byte[] v = headers.value();
                 h_size++;
                 bytes_array.add(k);

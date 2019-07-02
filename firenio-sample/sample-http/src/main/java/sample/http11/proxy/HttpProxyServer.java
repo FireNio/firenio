@@ -41,7 +41,7 @@ import com.firenio.component.ProtocolCodec;
 public class HttpProxyServer {
 
     static final String          CONNECT_RES     = "HTTP/1.1 200 Connection Established\r\n\r\n";
-    static final ByteBuf         CONNECT_RES_BUF = ByteBuf.wrapDirect(CONNECT_RES.getBytes());
+    static final ByteBuf         CONNECT_RES_BUF = ByteBuf.wrapAuto(CONNECT_RES.getBytes());
     static final HttpProxyServer server          = new HttpProxyServer();
     private      ChannelAcceptor context;
 
@@ -106,7 +106,7 @@ public class HttpProxyServer {
                             ClientHttpFrame res = (ClientHttpFrame) frame;
                             IntMap<String>  hs  = res.getResponse_headers();
                             for (hs.scan(); hs.hasNext(); ) {
-                                String v = hs.nextValue();
+                                String v = hs.value();
                                 if (v == null) {
                                     continue;
                                 }

@@ -75,8 +75,8 @@ public final class WebSocketCodec extends ProtocolCodec {
         byte o_h0 = (byte) (1 << 7);
         byte o_h1 = (byte) (0 << 7);
 
-        PING = ByteBuf.direct(2);
-        PONG = ByteBuf.direct(2);
+        PING = ByteBuf.buffer(2);
+        PONG = ByteBuf.buffer(2);
         PING.putByte((byte) (o_h0 | TYPE_PING));
         PING.putByte((byte) (o_h1 | 0));
         PONG.putByte((byte) (o_h0 | TYPE_PONG));

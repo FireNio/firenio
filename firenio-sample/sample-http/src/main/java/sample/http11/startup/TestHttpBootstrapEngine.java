@@ -52,6 +52,7 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         DevelopConfig.NATIVE_DEBUG = true;
         DevelopConfig.BUF_DEBUG = true;
         Options.setEnableEpoll(true);
+        Options.setEnableUnsafe(true);
         Options.setEnableOpenssl(true);
         Options.setBufThreadYield(true);
         Options.setDebugError(true);
@@ -92,7 +93,9 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
             context.addProtocolCodec(new WebSocketCodec());
         }
         context.bind();
-        NetDataTransferServer.get().startup(group, 18088);
+        if (properties.getBooleanProperty("app.proxy")) {
+            NetDataTransferServer.get().startup(group, 18088);
+        }
     }
 
 }

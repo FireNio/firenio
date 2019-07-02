@@ -33,6 +33,7 @@ import com.firenio.Options;
 import com.firenio.common.Assert;
 import com.firenio.common.FileUtil;
 import com.firenio.common.Properties;
+import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
 import com.firenio.concurrent.EventLoop;
 import com.firenio.concurrent.EventLoopGroup;
@@ -160,7 +161,7 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
     }
 
     private String getByteBufPoolType(NioEventLoopGroup g) {
-        if (Options.isEnableUnsafeBuf()) {
+        if (Unsafe.UNSAFE_BUF_AVAILABLE) {
             return "unsafe";
         }
         return g.isEnableMemoryPoolDirect() ? "direct" : "heap";
