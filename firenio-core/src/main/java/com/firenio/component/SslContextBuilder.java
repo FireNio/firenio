@@ -16,9 +16,6 @@
 package com.firenio.component;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
@@ -57,6 +54,7 @@ import com.firenio.common.Assert;
 import com.firenio.common.Cryptos;
 import com.firenio.common.FileUtil;
 import com.firenio.common.Util;
+import com.firenio.component.SslContext.ClientAuth;
 
 /**
  * Builder for configuring a new SslContext for creation.
@@ -66,13 +64,14 @@ public final class SslContextBuilder {
 
     private String[]              applicationProtocols;
     private List<String>          ciphers;
-    private SslContext.ClientAuth clientAuth = SslContext.ClientAuth.NONE;
+    private ClientAuth            clientAuth = ClientAuth.NONE;
+    private TrustType             trustType;
     private boolean               isServer;
     private KeyManagerFactory     keyManagerFactory;
     private long                  sessionCacheSize;
     private long                  sessionTimeout;
     private TrustManagerFactory   trustManagerFactory;
-    private TrustType             trustType  = TrustType.NONE;
+    private List<X509Certificate> rawX509Certificates;
     private X509TrustManager      x509TrustManager;
 
     private SslContextBuilder(boolean isServer) {
@@ -80,23 +79,11 @@ public final class SslContextBuilder {
     }
 
     public static SslContextBuilder forClient(boolean trustAll) {
-        return new SslContextBuilder(false).trustManager(trustAll);
+        return new SslContextBuilder(false).trust(trustAll);
     }
 
     public static SslContextBuilder forServer() {
         return new SslContextBuilder(true);
-    }
-
-    static List<byte[]> readCertificates(File file) throws CertificateException {
-        InputStream in = null;
-        try {
-            in = new FileInputStream(file);
-            return readCertificates(in);
-        } catch (FileNotFoundException e) {
-            throw new CertificateException("could not find certificate file: " + file);
-        } finally {
-            Util.close(in);
-        }
     }
 
     static List<byte[]> readCertificates(InputStream in) throws CertificateException {
@@ -106,10 +93,13 @@ public final class SslContextBuilder {
         } catch (IOException e) {
             throw new CertificateException("failed to native_read certificate input stream", e);
         }
+        return readCertificates(ls);
+    }
+
+    static List<byte[]> readCertificates(List<String> ls) throws CertificateException {
         List<byte[]>  certs   = new ArrayList<>();
         StringBuilder b       = new StringBuilder();
         int           readEnd = 0;
-
         for (String s : ls) {
             if (s.startsWith("----")) {
                 readEnd++;
@@ -124,7 +114,7 @@ public final class SslContextBuilder {
             b.append(s.trim().replace("\r", ""));
         }
         if (certs.isEmpty()) {
-            throw new CertificateException("found no certificates in input stream");
+            throw new CertificateException("found no certificate in input stream");
         }
         return certs;
     }
@@ -260,7 +250,7 @@ public final class SslContextBuilder {
         try {
             keyCertChain = toX509Certificates(certChainInput);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Input stream not contain valid certificates.", e);
+            throw new IllegalArgumentException("Input stream not contain valid certificate.", e);
         } finally {
             Util.close(certChainInput);
         }
@@ -321,20 +311,31 @@ public final class SslContextBuilder {
             KeyManager[]   kms = null;
             if (isServer) {
                 kms = keyManagerFactory.getKeyManagers();
-            }
-            switch (trustType) {
-                case ALL:
-                    tms = new X509TrustManager[]{new TrustAllX509TrustManager()};
-                    break;
-                case TrustManagerFactory:
-                    tms = trustManagerFactory.getTrustManagers();
-                    break;
-                case X509TrustManager:
-                    tms = new X509TrustManager[]{x509TrustManager};
-                    break;
-                case NONE:
-                default:
-                    break;
+            } else {
+                switch (trustType) {
+                    case ALL:
+                        tms = new X509TrustManager[]{new TrustAllX509TrustManager()};
+                        break;
+                    case TrustManagerFactory:
+                        tms = trustManagerFactory.getTrustManagers();
+                        break;
+                    case X509TrustManager:
+                        tms = new X509TrustManager[]{x509TrustManager};
+                        break;
+                    case RawX509Certificate:
+                        if (rawX509Certificates.size() == 1) {
+                            tms = new X509TrustManager[]{new TrustOneX509TrustManager(rawX509Certificates.get(0))};
+                        } else {
+                            X509Certificate[] cs = rawX509Certificates.toArray(new X509Certificate[rawX509Certificates.size()]);
+                            tms = new X509TrustManager[]{new TrustX509TrustManager(cs)};
+                        }
+                        break;
+                    default:
+                        if (!isServer) {
+                            throw new SSLException("did not trust anything");
+                        }
+                        break;
+                }
             }
             ctx.init(kms, tms, new SecureRandom());
             SSLSessionContext sessCtx;
@@ -375,27 +376,41 @@ public final class SslContextBuilder {
         return getPrivateKeyFromByteBuffer(readCertificates(keyInputStream).get(0), keyPassword);
     }
 
-    private X509Certificate[] toX509Certificates(InputStream in) throws CertificateException {
+    public X509Certificate[] toX509Certificates(InputStream in) throws CertificateException {
         Assert.notNull(in, "null inputstream");
         return getCertificatesFromBuffers(readCertificates(in));
     }
 
-    public SslContextBuilder trustManager(boolean trustAll) {
+    public X509Certificate[] toX509Certificates(List<String> ls) throws CertificateException {
+        Assert.notNull(ls, "null ls");
+        return getCertificatesFromBuffers(readCertificates(ls));
+    }
+
+    public SslContextBuilder trust(boolean trustAll) {
         needClient();
         trustType = trustAll ? TrustType.ALL : trustType;
         return this;
     }
 
-    public SslContextBuilder trustManager(InputStream trustCertCollectionInputStream) {
+    public SslContextBuilder trust(InputStream trustCertCollectionInputStream) {
         needClient();
         try {
-            return trustManager(toX509Certificates(trustCertCollectionInputStream));
+            return trust(toX509Certificates(trustCertCollectionInputStream));
         } catch (Exception e) {
-            throw new IllegalArgumentException("Input stream does not contain valid certificates.", e);
+            throw new IllegalArgumentException("Input stream does not contain valid certificate.", e);
         }
     }
 
-    public SslContextBuilder trustManager(TrustManagerFactory trustManagerFactory) {
+    public SslContextBuilder trust(List<String> trustCertCollectionLines) {
+        needClient();
+        try {
+            return trust(toX509Certificates(trustCertCollectionLines));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Input stream does not contain valid certificate.", e);
+        }
+    }
+
+    public SslContextBuilder trust(TrustManagerFactory trustManagerFactory) {
         needClient();
         Assert.notNull(trustManagerFactory, "null trustManagerFactory");
         this.trustManagerFactory = trustManagerFactory;
@@ -403,14 +418,37 @@ public final class SslContextBuilder {
         return this;
     }
 
-    public SslContextBuilder trustManager(X509Certificate... trustCertCollection) throws SSLException {
+    public SslContextBuilder trustRaw(InputStream trustCertCollection) throws CertificateException {
+        return trustRaw(toX509Certificates(trustCertCollection));
+    }
+
+    public SslContextBuilder trustRaw(List<String> trustCertCollection) throws CertificateException {
+        return trustRaw(toX509Certificates(trustCertCollection));
+    }
+
+    public SslContextBuilder trustRaw(X509Certificate... trustCertCollection) {
         needClient();
         Assert.notEmpty(trustCertCollection, "empty trustCertCollection");
-        trustManager(buildTrustManagerFactory(trustCertCollection));
+        if (rawX509Certificates == null) {
+            rawX509Certificates = new ArrayList<>(trustCertCollection.length);
+        }
+        for (X509Certificate certificate : trustCertCollection) {
+            if (certificate != null) {
+                rawX509Certificates.add(certificate);
+            }
+        }
+        trustType = TrustType.RawX509Certificate;
         return this;
     }
 
-    public SslContextBuilder trustManager(X509TrustManager x509TrustManager) {
+    public SslContextBuilder trust(X509Certificate... trustCertCollection) throws SSLException {
+        needClient();
+        Assert.notEmpty(trustCertCollection, "empty trustCertCollection");
+        trust(buildTrustManagerFactory(trustCertCollection));
+        return this;
+    }
+
+    public SslContextBuilder trust(X509TrustManager x509TrustManager) {
         needClient();
         Assert.notNull(x509TrustManager, "null x509TrustManager");
         this.x509TrustManager = x509TrustManager;
@@ -420,7 +458,7 @@ public final class SslContextBuilder {
 
     enum TrustType {
 
-        ALL, NONE, TrustManagerFactory, X509TrustManager
+        ALL, TrustManagerFactory, X509TrustManager, RawX509Certificate
 
     }
 
@@ -430,7 +468,68 @@ public final class SslContextBuilder {
         public void checkClientTrusted(X509Certificate[] arg0, String arg1) {}
 
         @Override
-        public void checkServerTrusted(X509Certificate[] arg0, String arg1) {}
+        public void checkServerTrusted(X509Certificate[] arg0, String arg1) { }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
+
+    }
+
+
+    class TrustX509TrustManager implements X509TrustManager {
+
+        final X509Certificate[] certificates;
+
+        TrustX509TrustManager(X509Certificate[] certificates) {
+            this.certificates = certificates;
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] arg0, String arg1) {}
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] server_certs, String arg1) throws CertificateException {
+            for (int i = 0; i < certificates.length; i++) {
+                X509Certificate client_cert = certificates[i];
+                for (int j = 0; j < server_certs.length; j++) {
+                    if (client_cert.equals(server_certs[j])) {
+                        return;
+                    }
+                }
+            }
+            throw new CertificateException();
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
+
+    }
+
+    class TrustOneX509TrustManager implements X509TrustManager {
+
+        X509Certificate certificate;
+
+        TrustOneX509TrustManager(X509Certificate certificate) {
+            this.certificate = certificate;
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] arg0, String arg1) {}
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] server_certs, String arg1) throws CertificateException {
+            X509Certificate client_cert = certificate;
+            for (int i = 0; i < server_certs.length; i++) {
+                if (client_cert.equals(server_certs[i])) {
+                    return;
+                }
+            }
+            throw new CertificateException();
+        }
 
         @Override
         public X509Certificate[] getAcceptedIssuers() {

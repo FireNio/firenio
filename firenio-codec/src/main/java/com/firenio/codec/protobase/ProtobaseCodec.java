@@ -46,8 +46,8 @@ public final class ProtobaseCodec extends ProtocolCodec {
     static final        int         PROTOCOL_PONG_MASK = 0b1100_0000;
 
     static {
-        PING = ByteBuf.direct(4);
-        PONG = ByteBuf.direct(4);
+        PING = ByteBuf.buffer(4);
+        PONG = ByteBuf.buffer(4);
         PING.putInt(PROTOCOL_PING << 24);
         PONG.putInt(PROTOCOL_PONG << 24);
         PING.flip();

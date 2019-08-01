@@ -35,34 +35,53 @@ public class Unsafe {
 
     public static final  long           ARRAY_BASE_OFFSET;
     public static final  long           BUFFER_ADDRESS_OFFSET;
+    public static final  boolean        IS_LINUX              = isLinux();
+    public static final  boolean        IS_ANDROID            = isAndroid();
+    public static final  boolean        UNSAFE_AVAILABLE      = isUnsafeAvailable();
+    public static final  boolean        UNSAFE_BUF_AVAILABLE;
+    public static final  boolean        DIRECT_BUFFER_AVAILABLE;
     // This number limits the number of bytes to copy per call to Unsafe's
     // copyMemory method. A limit is imposed to allow for safe point polling
     // during a large copy
     private static final long           UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
-    private static final ByteOrder      nativeByteOrder;
-    private static final boolean        ENABLE_RAW_DIRECT;
+    private static final ByteOrder      nativeByteOrder       = ByteOrder.nativeOrder();
+    private static final boolean        RAW_DIRECT_AVAILABLE;
     private static final InternalUnsafe UNSAFE;
     private static final int            JAVA_VERSION          = majorJavaVersion();
     private static final Constructor<?> DIRECT_BUFFER_CONSTRUCTOR;
+
 
     //jdk.internal.misc.Unsafe
     //jdk.internal.ref.Cleaner
 
     static {
         UNSAFE = getUnsafe();
-        ENABLE_RAW_DIRECT = Options.isEnableRawDirect();
-        BUFFER_ADDRESS_OFFSET = fieldOffset(Util.getDeclaredField(Buffer.class, "address"));
-        ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
-        nativeByteOrder = detectByteOrder();
-        DIRECT_BUFFER_CONSTRUCTOR = getDirectBufferConstructor();
+        if (UNSAFE_AVAILABLE) {
+            UNSAFE_BUF_AVAILABLE = Options.isEnableUnsafeBuf();
+            BUFFER_ADDRESS_OFFSET = fieldOffset(Util.getDeclaredField(Buffer.class, "address"));
+            DIRECT_BUFFER_AVAILABLE = BUFFER_ADDRESS_OFFSET != -1;
+            ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
+            DIRECT_BUFFER_CONSTRUCTOR = getDirectBufferConstructor();
+            RAW_DIRECT_AVAILABLE = DIRECT_BUFFER_CONSTRUCTOR != null;
+        } else {
+            if (Options.isEnableUnsafeBuf()) {
+                throw new Error("UnsafeBuf enabled but no unsafe available");
+            }
+            UNSAFE_BUF_AVAILABLE = false;
+            BUFFER_ADDRESS_OFFSET = -1;
+            DIRECT_BUFFER_AVAILABLE = false;
+            ARRAY_BASE_OFFSET = -1;
+            DIRECT_BUFFER_CONSTRUCTOR = null;
+            RAW_DIRECT_AVAILABLE = false;
+        }
     }
 
     private Unsafe() {}
 
     private static Constructor<?> getDirectBufferConstructor() {
-        Constructor<?>   directBufferConstructor;
-        final ByteBuffer direct  = ByteBuffer.allocateDirect(1);
-        long             address = -1;
+        Constructor<?>   directBufferConstructor = null;
+        final ByteBuffer direct                  = ByteBuffer.allocateDirect(1);
+        long             address                 = -1;
         try {
             final Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
                 @Override
@@ -85,27 +104,42 @@ public class Unsafe {
                     ((Constructor<?>) res).newInstance(address, 1);
                     directBufferConstructor = (Constructor<?>) res;
                 } catch (Exception e) {
-                    throw new Error("get DirectBuffer Constructor failed", e);
+                    return null;
                 }
             } else {
-                throw new Error("get DirectBuffer Constructor failed", (Throwable) res);
+                return null;
             }
         } finally {
             if (address != -1) {
                 free(address);
             }
-            freeByteBuffer(direct);
         }
         return directBufferConstructor;
     }
 
+    private static boolean isAndroid() {
+        return "Dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
+    }
+
+    private static boolean isLinux() {
+        return Util.getStringProperty("os.name", "").toLowerCase().startsWith("lin");
+    }
+
+    private static boolean isUnsafeAvailable() {
+        return !IS_ANDROID && Options.isEnableUnsafe();
+    }
+
     private static InternalUnsafe getUnsafe() {
-        //        if (javaVersion() > 8) {
-        //            return new Jdk8UpUnsafe();
-        //        } else {
-        //            return new Jdk8AndLowUnsafe();
-        //        }
-        return new Jdk8AndLowUnsafe();
+        if (UNSAFE_AVAILABLE) {
+            //        if (javaVersion() > 8) {
+            //            return new Jdk8UpUnsafe();
+            //        } else {
+            //            return new Jdk8AndLowUnsafe();
+            //        }
+            return new Jdk8AndLowUnsafe();
+        } else {
+            return new NoUnsafe();
+        }
     }
 
     public static long address(ByteBuffer buffer) {
@@ -187,24 +221,6 @@ public class Unsafe {
             length -= size;
             srcAddr += size;
             offset += size;
-        }
-    }
-
-    private static ByteOrder detectByteOrder() {
-        long a = UNSAFE.allocateMemory(8);
-        try {
-            UNSAFE.putLong(a, 0x0102030405060708L);
-            byte b = UNSAFE.getByte(a);
-            switch (b) {
-                case 0x01:
-                    return ByteOrder.BIG_ENDIAN;
-                case 0x08:
-                    return ByteOrder.LITTLE_ENDIAN;
-                default:
-                    throw new Error("detect byte order failed");
-            }
-        } finally {
-            UNSAFE.freeMemory(a);
         }
     }
 
@@ -341,7 +357,7 @@ public class Unsafe {
     }
 
     public static ByteBuffer allocateDirectByteBuffer(int cap) {
-        if (ENABLE_RAW_DIRECT) {
+        if (RAW_DIRECT_AVAILABLE) {
             long address = allocate(cap);
             if (address == -1) {
                 throw new RuntimeException("no enough space(direct): " + cap);
@@ -359,7 +375,7 @@ public class Unsafe {
 
     public static void freeByteBuffer(ByteBuffer buffer) {
         if (buffer.isDirect()) {
-            if (ENABLE_RAW_DIRECT) {
+            if (RAW_DIRECT_AVAILABLE) {
                 free(address(buffer));
             } else {
                 boolean free = false;
@@ -475,7 +491,7 @@ public class Unsafe {
         void freeMemory(long address);
     }
 
-    //    static class Jdk8UpUnsafe implements InternalUnsafe {
+    //    static final class Jdk8UpUnsafe implements InternalUnsafe {
     //
     //        private jdk.internal.misc.Unsafe UNSAFE;
     //
@@ -666,7 +682,7 @@ public class Unsafe {
     //    }
 
 
-    static class Jdk8AndLowUnsafe implements InternalUnsafe {
+    static final class Jdk8AndLowUnsafe implements InternalUnsafe {
 
         private sun.misc.Unsafe UNSAFE;
 
@@ -884,6 +900,157 @@ public class Unsafe {
             return unsafe;
         }
 
+    }
+
+    static final class NoUnsafe implements InternalUnsafe {
+
+        public boolean compareAndSwapInt(Object o, long offset, int expected, int val) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public boolean compareAndSwapLong(Object o, long offset, int expected, long val) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public boolean compareAndSwapObject(Object o, long offset, Object expected, Object val) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void copyMemory(ByteBuffer buf, long targetAddress, long length) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void copyMemory(long srcAddress, long targetAddress, long length) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void copyMemory(Object src, long srcOffset, Object target, long targetOffset, long length) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public long fieldOffset(Field field) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public boolean getBoolean(Object target, long offset) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public byte getByte(long address) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public byte getByte(Object target, long offset) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public double getDouble(Object target, long offset) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public float getFloat(Object target, long offset) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public int getInt(long address) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public int getInt(Object target, long offset) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public long getLong(long address) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public long getLong(Object target, long offset) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public Object getObject(Object target, long offset) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public short getShort(long address) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public short getShort(Object target, long offset) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public long objectFieldOffset(Field field) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void putBoolean(Object target, long offset, boolean value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void putByte(long address, byte value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void putByte(Object target, long offset, byte value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void putDouble(Object target, long offset, double value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void putFloat(Object target, long offset, float value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void putInt(long address, int value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void putInt(Object target, long offset, int value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void putLong(long address, long value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void putLong(Object target, long offset, long value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void putObject(Object target, long offset, Object value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void putShort(long address, short value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void putShort(Object target, long offset, short value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void setMemory(long address, long numBytes, byte value) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public long arrayBaseOffset(Class<?> clazz) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public long allocateMemory(long length) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public Object allocateInstance(Class<?> clazz) throws InstantiationException {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
+
+        public void freeMemory(long address) {
+            throw new UnsupportedOperationException("unsafe not available");
+        }
     }
 
 

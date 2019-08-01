@@ -44,18 +44,26 @@ public class ChannelManager {
         }
     }
 
+    public void broadcast(ByteBuf buf) {
+        broadcast(buf, channels.values());
+    }
+
     public static void broadcast(Frame frame, Collection<Channel> chs) throws Exception {
         if (chs.size() == 0) {
+            frame.release();
             return;
         }
         Channel ch = chs.iterator().next();
-        if (ch != null) {
-            broadcast(ch.encode(frame), chs);
+        if (ch == null) {
+            frame.release();
+            return;
         }
-    }
-
-    public void broadcast(ByteBuf buf) {
-        broadcast(buf, channels.values());
+        try {
+            ByteBuf buf = ch.getCodec().encode(ch, frame);
+            broadcast(buf, chs);
+        } finally {
+            frame.release();
+        }
     }
 
     public void broadcast(Frame frame) throws Exception {
