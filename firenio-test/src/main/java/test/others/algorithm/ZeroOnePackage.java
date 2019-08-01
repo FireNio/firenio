@@ -87,7 +87,7 @@ public class ZeroOnePackage {
                 if (wt[item - 1] <= weight) {
                     // Given a weight, check if the value of the current
                     // item + value of the item that we could afford
-                    // with the remaining weight is greater than the value
+                    // with the readableBytes weight is greater than the value
                     // without the current item itself
                     V[item][weight] = Math.max(val[item - 1] + V[item - 1][weight - wt[item - 1]], V[item - 1][weight]);
                 } else {

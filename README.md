@@ -2,7 +2,7 @@
 # FireNio Project
 
 [![Website](https://img.shields.io/badge/website-firenio-green.svg)](https://www.firenio.com)
-[![Maven central](https://img.shields.io/badge/maven-1.2.4-green.svg)](http://mvnrepository.com/artifact/com.firenio/firenio-all)
+[![Maven central](https://img.shields.io/badge/maven-1.3.0-green.svg)](http://mvnrepository.com/artifact/com.firenio/firenio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/firenio/firenio/blob/master/LICENSE.txt)
 
 FireNio是基于java nio开发的一款可快速构建网络通讯项目的异步IO框架，其以简单易用的API和优良的性能深受开发者喜爱。
@@ -29,7 +29,7 @@ FireNio是基于java nio开发的一款可快速构建网络通讯项目的异�
 	<dependency>
 		<groupId>com.firenio</groupId>
 		<artifactId>firenio-all</artifactId>
-		<version>1.2.4</version>
+		<version>1.3.0</version>
 	</dependency>  
   ```
   

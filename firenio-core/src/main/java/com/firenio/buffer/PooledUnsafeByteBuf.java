@@ -19,7 +19,6 @@ final class PooledUnsafeByteBuf extends UnsafeByteBuf {
 
     private PooledByteBufAllocator allocator;
     private int                    capacity;
-    private int                    offset;
     private int                    unitOffset;
 
     PooledUnsafeByteBuf(PooledByteBufAllocator allocator, long memory) {
@@ -43,15 +42,6 @@ final class PooledUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
-    public ByteBuf duplicate() {
-        if (isReleased()) {
-            throw new IllegalStateException("released");
-        }
-        addReferenceCount();
-        return new DuplicatedUnsafeByteBuf(this, 1);
-    }
-
-    @Override
     public final void expansion(int cap) {
         allocator.expansion(this, cap);
     }
@@ -62,22 +52,12 @@ final class PooledUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
-    protected int offset() {
-        return offset;
-    }
-
-    @Override
-    protected void offset(int offset) {
-        this.offset = offset;
-    }
-
-    @Override
     protected ByteBuf produce(int unitOffset, int unitEnd) {
         int unit = allocator.getUnit();
         this.offset = unitOffset * unit;
         this.capacity = (unitEnd - unitOffset) * unit;
-        this.limit(capacity);
-        this.position(0);
+        this.abs_read_index = offset;
+        this.abs_write_index = offset;
         this.unitOffset = unitOffset;
         this.referenceCount = 1;
         return this;

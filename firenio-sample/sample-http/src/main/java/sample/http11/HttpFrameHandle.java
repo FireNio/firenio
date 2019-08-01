@@ -39,7 +39,7 @@ import com.firenio.component.IoEventHandle;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
 
-//FIXME limit too large file
+//FIXME writeIndex too large file
 public class HttpFrameHandle extends IoEventHandle {
 
     private Charset                 charset        = Util.UTF8;
@@ -347,9 +347,7 @@ public class HttpFrameHandle extends IoEventHandle {
         }
 
         void setBinary(byte[] readBytesByFile) {
-            ByteBuf content = ByteBuf.wrapAuto(readBytesByFile);
-            content.position(content.limit());
-            this.content = content;
+            this.content = ByteBuf.wrapAuto(readBytesByFile);
         }
 
         void setContentType(HttpContentType contentType) {

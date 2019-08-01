@@ -55,9 +55,9 @@ public class TestLoadClient {
         byte[]  bytes = request.getBytes();
         ByteBuf buf   = ByteBuf.direct(bytes.length * pipe);
         for (int i = 0; i < pipe; i++) {
-            buf.putBytes(bytes);
+            buf.writeBytes(bytes);
         }
-        return buf.flip();
+        return buf;
     }
 
     public static void test(final String host, final int port, final ByteBuf req, final int rpc, final int ts, final int cpt, final int pipe) throws Exception {

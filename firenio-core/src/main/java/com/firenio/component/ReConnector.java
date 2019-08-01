@@ -38,6 +38,7 @@ public class ReConnector implements Closeable {
         this.reconnect = false;
         Util.close(connector);
         Util.stop(connector.getProcessorGroup());
+        this.notify();
     }
 
     public synchronized void connect() {
@@ -45,6 +46,7 @@ public class ReConnector implements Closeable {
     }
 
     public synchronized void connect(long timeout) {
+        this.reconnect = true;
         Channel ch = connector.getChannel();
         for (; ; ) {
             if (ch != null && ch.isOpen()) {
@@ -62,7 +64,11 @@ public class ReConnector implements Closeable {
                 logger.error(e.getMessage(), e);
             }
             logger.error("reconnect failed,try reconnect later on {} milliseconds", retryTime);
-            Util.sleep(retryTime);
+            try {
+                this.wait(retryTime);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
 

@@ -29,7 +29,7 @@ public class TestUDPServer {
         //
         //                DebugUtil.debug(req);
         //
-        //                byte[] resMsg = ("yes ," + req).getBytes(Encoding.UTF8);
+        //                byte[] resMsg = ("yes ," + req).readBytes(Encoding.UTF8);
         //
         //                DatagramPacket res = DatagramPacket.createSendPacket(resMsg);
         //

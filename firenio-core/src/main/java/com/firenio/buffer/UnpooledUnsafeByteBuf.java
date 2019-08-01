@@ -22,6 +22,8 @@ import com.firenio.common.Unsafe;
  */
 final class UnpooledUnsafeByteBuf extends UnsafeByteBuf {
 
+    private int capacity;
+
     UnpooledUnsafeByteBuf(long memory, int cap) {
         super(memory);
         this.capacity = cap;
@@ -29,28 +31,22 @@ final class UnpooledUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
-    public ByteBuf duplicate() {
-        if (isReleased()) {
-            throw new IllegalStateException("released");
-        }
-        //请勿移除此行，DirectByteBuffer需要手动回收，release要确保被执行
-        addReferenceCount();
-        return new DuplicatedUnsafeByteBuf(this, 1);
-    }
-
-    @Override
     public void expansion(int cap) {
         long oldBuffer = memory;
         try {
             long newBuffer = Unsafe.allocate(cap);
-            int  pos       = absPos();
-            if (pos > 0) {
-                copy(oldBuffer + pos, newBuffer, pos);
+            if (hasReadableBytes()) {
+                copy(oldBuffer + absReadIndex(), newBuffer, readableBytes());
             }
             memory = newBuffer;
         } finally {
             Unsafe.free(oldBuffer);
         }
+    }
+
+    @Override
+    public int capacity() {
+        return capacity;
     }
 
     @Override

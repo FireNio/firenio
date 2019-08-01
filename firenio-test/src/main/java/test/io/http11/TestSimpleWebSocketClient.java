@@ -63,7 +63,7 @@ public class TestSimpleWebSocketClient {
             }
         };
 
-        String            host = "127.0.0.1";
+        String            host = "firenio.com";
         int               port = 443;
         NioEventLoopGroup g    = new NioEventLoopGroup();
         g.setEnableMemoryPool(false);

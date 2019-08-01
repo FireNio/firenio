@@ -36,9 +36,9 @@ import com.firenio.common.Util;
 public final class PooledByteBufAllocator extends ByteBufAllocator {
 
     public static final Map<ByteBuf, BufDebug> BUF_DEBUGS;
-    public static final ByteBufException       EXPANSION_FAILED  = EXPANSION_FAILED();
-    static final        int                    BYTEBUF_BUFFER    = 1024 * 8;
-    static final        boolean                BYTEBUF_RECYCLE   = Options.isBufRecycle();
+    public static final ByteBufException       EXPANSION_FAILED = EXPANSION_FAILED();
+    static final        int                    BYTEBUF_BUFFER   = 1024 * 8;
+    static final        boolean                BYTEBUF_RECYCLE  = Options.isBufRecycle();
 
     static {
         if (Develop.BUF_DEBUG) {
@@ -203,7 +203,6 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
                     }
                     blockEnds[blockStart] = end;
                     buf.capacity((end - buf.unitOffset()) * unit);
-                    buf.limit(buf.capacity());
                 } else {
                     frees.set(blockStart);
                     int pos = allocate(mark, capacity, size);
@@ -213,26 +212,24 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
                             throw EXPANSION_FAILED;
                         }
                     }
-                    int oldOffset = buf.offset();
-                    int oldPos    = buf.absPos();
-                    int copy      = oldPos - oldOffset;
+                    int old_read_index  = buf.readIndex();
+                    int old_write_index = buf.writeIndex();
+                    int old_offset      = buf.offset();
                     buf.produce(pos, blockEnds[pos]);
                     if (Unsafe.UNSAFE_BUF_AVAILABLE) {
-                        Unsafe.copyMemory(address + oldOffset, address + buf.offset(), copy);
+                        Unsafe.copyMemory(address + old_offset, address + buf.offset(), old_write_index);
                     } else {
                         if (isDirect) {
-                            Unsafe.copyMemory(address + oldOffset, address + buf.offset(), copy);
+                            Unsafe.copyMemory(address + old_offset, address + buf.offset(), old_write_index);
                         } else {
-                            System.arraycopy(heapMemory, oldOffset, heapMemory, buf.offset(), copy);
+                            System.arraycopy(heapMemory, old_offset, heapMemory, buf.offset(), old_write_index);
                         }
                     }
-                    buf.position(copy);
+                    buf.readIndex(old_read_index).writeIndex(old_write_index);
                 }
             } finally {
                 lock.unlock();
             }
-        } else {
-            buf.limit(cap);
         }
     }
 

@@ -483,11 +483,11 @@ public class FileUtil {
 
     public static void skipFully(InputStream input, long toSkip) throws IOException {
         if (toSkip < 0L) {
-            throw new IllegalArgumentException("Bytes to skip must not be negative: " + toSkip);
+            throw new IllegalArgumentException("Bytes to skipRead must not be negative: " + toSkip);
         }
         long skipped = skip(input, toSkip);
         if (skipped != toSkip) {
-            throw new EOFException("Bytes to skip: " + toSkip + " actual: " + skipped);
+            throw new EOFException("Bytes to skipRead: " + toSkip + " actual: " + skipped);
         }
     }
 

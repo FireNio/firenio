@@ -20,7 +20,7 @@ public class Lz4CompressedInputStream extends InputStream {
     public Lz4CompressedInputStream(InputStream inputStream, int bufSize) {
         this.inputStream = inputStream;
         this.buf = ByteBuf.heap(bufSize);
-        this.buf.limit(0);
+        this.buf.writeIndex(0);
     }
 
     public static int read(ByteBuf dst, InputStream src) throws IOException {
@@ -29,23 +29,23 @@ public class Lz4CompressedInputStream extends InputStream {
 
     public static int read(ByteBuf dst, InputStream src, long limit) throws IOException {
         byte[] array = dst.array();
-        if (!dst.hasRemaining()) {
+        if (!dst.hasReadableBytes()) {
             int read = (int) Math.min(limit, dst.capacity());
             int len  = src.read(array, 0, read);
             if (len > 0) {
-                dst.position(0);
-                dst.limit(len);
+                dst.readIndex(0);
+                dst.writeIndex(len);
             }
             return len;
         }
-        int remaining = dst.remaining();
-        System.arraycopy(array, dst.position(), array, 0, remaining);
-        dst.position(0);
-        dst.limit(remaining);
+        int remaining = dst.readableBytes();
+        System.arraycopy(array, dst.readIndex(), array, 0, remaining);
+        dst.readIndex(0);
+        dst.writeIndex(remaining);
         int read = (int) Math.min(limit, dst.capacity() - remaining);
         int len  = src.read(array, remaining, read);
         if (len > 0) {
-            dst.limit(remaining + len);
+            dst.writeIndex(remaining + len);
         }
         return len;
     }
@@ -69,9 +69,9 @@ public class Lz4CompressedInputStream extends InputStream {
     public int read(byte[] b, int off, int len) throws IOException {
         ByteBuf buf        = this.buf;
         byte[]  readBuffer = buf.array();
-        int     limit      = buf.limit();
-        int     offset     = buf.position();
-        if (buf.remaining() <= 4) {
+        int     limit      = buf.writeIndex();
+        int     offset     = buf.readIndex();
+        if (buf.readableBytes() <= 4) {
             if (!hasRemaining) {
                 return -1;
             }
@@ -87,7 +87,7 @@ public class Lz4CompressedInputStream extends InputStream {
             read(buf);
             return read(b, off, len);
         }
-        buf.position(offset + _len);
+        buf.readIndex(offset + _len);
         return Lz4RawDecompressor.decompress(readBuffer, offset, _len, b, off, len);
     }
 

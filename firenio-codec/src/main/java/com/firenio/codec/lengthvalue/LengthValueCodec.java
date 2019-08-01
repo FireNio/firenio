@@ -54,10 +54,8 @@ public final class LengthValueCodec extends ProtocolCodec {
     static {
         PING = ByteBuf.buffer(4);
         PONG = ByteBuf.buffer(4);
-        PING.putInt(PROTOCOL_PING);
-        PONG.putInt(PROTOCOL_PONG);
-        PING.flip();
-        PONG.flip();
+        PING.writeInt(PROTOCOL_PING);
+        PONG.writeInt(PROTOCOL_PONG);
     }
 
     private int limit;
@@ -72,22 +70,22 @@ public final class LengthValueCodec extends ProtocolCodec {
 
     @Override
     public Frame decode(Channel ch, ByteBuf src) throws IOException {
-        if (src.remaining() < PROTOCOL_HEADER) {
+        if (src.readableBytes() < PROTOCOL_HEADER) {
             return null;
         }
-        int len = src.getInt();
+        int len = src.readInt();
         if (len < 0) {
             return decode_ping(ch, len);
         }
         if (len > limit) {
             throw OVER_LIMIT;
         }
-        if (len > src.remaining()) {
-            src.skip(-PROTOCOL_HEADER);
+        if (len > src.readableBytes()) {
+            src.skipRead(-PROTOCOL_HEADER);
             return null;
         }
         byte[] data = new byte[len];
-        src.getBytes(data);
+        src.readBytes(data);
         return new LengthValueFrame(new String(data, ch.getCharset()));
     }
 
@@ -110,8 +108,8 @@ public final class LengthValueCodec extends ProtocolCodec {
 
     @Override
     public ByteBuf encode(Channel ch, Frame frame) {
-        ByteBuf buf = frame.getBufContent().flip();
-        buf.putInt(0, buf.limit() - PROTOCOL_HEADER);
+        ByteBuf buf = frame.getBufContent();
+        buf.setInt(0, buf.writeIndex() - PROTOCOL_HEADER);
         return buf;
     }
 

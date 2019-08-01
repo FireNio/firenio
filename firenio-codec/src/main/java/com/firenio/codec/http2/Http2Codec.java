@@ -106,11 +106,11 @@ public class Http2Codec extends ProtocolCodec {
     public Frame decode(Channel ch, ByteBuf src) throws Exception {
         Http2Session session = (Http2Session) ch.getAttachment();
         if (session.isPrefaceRead()) {
-            if (src.remaining() < PREFACE_BINARY.length) {
+            if (src.readableBytes() < PREFACE_BINARY.length) {
                 return null;
             }
             for (int i = 0; i < PREFACE_BINARY.length; i++) {
-                if (src.getByte() != PREFACE_BINARY[i]) {
+                if (src.readByte() != PREFACE_BINARY[i]) {
                     throw NOT_HTTP2_PROTOCL;
                 }
             }
@@ -122,19 +122,19 @@ public class Http2Codec extends ProtocolCodec {
             ch.writeAndFlush(f);
             return decode(ch, src);
         }
-        if (src.remaining() < PROTOCOL_HEADER) {
+        if (src.readableBytes() < PROTOCOL_HEADER) {
             return null;
         }
-        byte b0               = src.getByte();
-        byte b1               = src.getByte();
-        byte b2               = src.getByte();
-        byte type             = src.getByte();
-        byte flags            = src.getByte();
-        int  v                = src.getInt();
+        byte b0               = src.readByte();
+        byte b1               = src.readByte();
+        byte b2               = src.readByte();
+        byte type             = src.readByte();
+        byte flags            = src.readByte();
+        int  v                = src.readInt();
         int  length           = ((b0 & 0xff) << 8 * 2) | ((b1 & 0xff) << 8 * 1) | ((b2 & 0xff) << 8 * 0);
         int  streamIdentifier = v & 0xFFFFFFFF;
-        if (src.remaining() < length) {
-            src.skip(-PROTOCOL_HEADER);
+        if (src.readableBytes() < length) {
+            src.skipRead(-PROTOCOL_HEADER);
             return null;
         }
         Http2FrameType hType = Http2FrameType.getValue(type & 0xff);
@@ -191,14 +191,14 @@ public class Http2Codec extends ProtocolCodec {
         byte    b1     = (byte) ((length >> 8 * 1) & 0xff);
         byte    b0     = (byte) ((length >> 8 * 2) & 0xff);
         byte    b3     = frameType.getByteValue();
-        buf.putByte(b0);
-        buf.putByte(b1);
-        buf.putByte(b2);
-        buf.putByte(b3);
-        buf.putByte((byte) 0);
-        buf.putInt(f.getStreamIdentifier());
-        buf.putBytes(payload);
-        return buf.flip();
+        buf.writeByte(b0);
+        buf.writeByte(b1);
+        buf.writeByte(b2);
+        buf.writeByte(b3);
+        buf.writeByte((byte) 0);
+        buf.writeInt(f.getStreamIdentifier());
+        buf.writeBytes(payload);
+        return buf;
     }
 
     private Http2Frame genFrame(Http2Session session, ByteBuf src, Http2FrameType type, int length, int streamIdentifier, byte flags) {
@@ -215,16 +215,16 @@ public class Http2Codec extends ProtocolCodec {
                 fh.setStreamIdentifier(streamIdentifier);
                 fh.setEndStream((flags & FLAG_END_STREAM) > 0);
                 if ((flags & FLAG_PADDED) > 0) {
-                    fh.setPadLength(src.getByte());
+                    fh.setPadLength(src.readByte());
                 }
                 int streamDependency = 0;
                 if ((flags & FLAG_PRIORITY) > 0) {
-                    streamDependency = src.getInt();
+                    streamDependency = src.readInt();
                     boolean e = streamDependency < 0;
                     if (e) {
                         streamDependency = streamDependency & 0x7FFFFFFF;
                     }
-                    short weight = src.getUnsignedByte();
+                    short weight = src.readUnsignedByte();
                     fh.setE(e);
                     fh.setStreamDependency(streamDependency);
                     fh.setWeight(weight);
@@ -245,8 +245,8 @@ public class Http2Codec extends ProtocolCodec {
                 fs.setStreamIdentifier(streamIdentifier);
                 int settings = length / 6;
                 for (int i = 0; i < settings; i++) {
-                    int key   = src.getShort();
-                    int value = src.getInt();
+                    int key   = src.readShort();
+                    int value = src.readInt();
                     session.setSettings(key, value);
                 }
                 fs.setSettings(session.getSettings());
@@ -255,7 +255,7 @@ public class Http2Codec extends ProtocolCodec {
                 Http2WindowUpdateFrame fw = new Http2WindowUpdateFrame();
                 fw.setFlags(flags);
                 fw.setStreamIdentifier(streamIdentifier);
-                fw.setUpdateValue(ByteUtil.getInt31(src.getInt()));
+                fw.setUpdateValue(ByteUtil.getInt31(src.readInt()));
                 return fw;
             default:
                 break;
