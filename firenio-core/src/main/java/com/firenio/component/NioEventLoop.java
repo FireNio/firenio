@@ -97,8 +97,8 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         this.ch_size_limit = group.getChannelSizeLimit();
         int channelReadBuffer = group.getChannelReadBuffer();
         if (channelReadBuffer > 0) {
-            this.buf = ByteBuf.direct(channelReadBuffer);
-            this.buf_address = Unsafe.address(buf.getNioBuffer());
+            this.buf = ByteBuf.buffer(channelReadBuffer);
+            this.buf_address = buf.address();
         } else {
             this.buf = null;
             this.buf_address = -1;
@@ -118,15 +118,16 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         for (int i = 0; i < ls.size(); i++) {
             ChannelIdleListener l = ls.get(i);
             for (channels.scan(); channels.hasNext(); ) {
-                Channel ch = channels.nextValue();
+                Channel ch = channels.value();
                 channel_idle(l, ch, last_idle_time, current_time);
             }
+            channels.finishScan();
         }
     }
 
     private static void channel_idle_share(IntMap<Channel> channels, long last_idle_time, long current_time) {
         for (channels.scan(); channels.hasNext(); ) {
-            Channel                   ch      = channels.nextValue();
+            Channel                   ch      = channels.value();
             ChannelContext            context = ch.getContext();
             List<ChannelIdleListener> ls      = context.getChannelIdleEventListeners();
             if (ls.size() == 1) {
@@ -137,6 +138,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                 }
             }
         }
+        channels.finishScan();
     }
 
     static void register_ch(ChannelContext ctx, int fd, IntMap<Channel> channels, Channel ch) {
@@ -202,9 +204,11 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
     }
 
     private void close_channels() {
+        IntMap<Channel> channels = this.channels;
         for (channels.scan(); channels.hasNext(); ) {
-            Util.close(channels.nextValue());
+            Util.close(channels.value());
         }
+        channels.finishScan();
     }
 
     protected long getBufAddress() {

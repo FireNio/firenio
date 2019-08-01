@@ -31,6 +31,7 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSessionContext;
 
 import com.firenio.Options;
+import com.firenio.common.Unsafe;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
 
@@ -54,6 +55,9 @@ public final class SslContext {
         boolean testOpenSsl = false;
         try {
             if (Options.isEnableOpenssl()) {
+                if (!Unsafe.UNSAFE_AVAILABLE) {
+                    throw new Error("openssl enabled but on unsafe available");
+                }
                 Class.forName("org.wildfly.openssl.OpenSSLProvider");
                 org.wildfly.openssl.OpenSSLProvider.register();
                 testOpenSsl = true;

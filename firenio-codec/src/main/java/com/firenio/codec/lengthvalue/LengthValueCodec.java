@@ -52,8 +52,8 @@ public final class LengthValueCodec extends ProtocolCodec {
     static final        int         PROTOCOL_PONG    = -2;
 
     static {
-        PING = ByteBuf.direct(4);
-        PONG = ByteBuf.direct(4);
+        PING = ByteBuf.buffer(4);
+        PONG = ByteBuf.buffer(4);
         PING.putInt(PROTOCOL_PING);
         PONG.putInt(PROTOCOL_PONG);
         PING.flip();

@@ -20,6 +20,7 @@ import java.io.IOException;
 import com.firenio.buffer.ByteBufAllocator;
 import com.firenio.buffer.ByteBufAllocatorGroup;
 import com.firenio.buffer.UnpooledByteBufAllocator;
+import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
 import com.firenio.component.NioEventLoop.EpollEventLoop;
 import com.firenio.component.NioEventLoop.JavaEventLoop;
@@ -42,7 +43,7 @@ public class NioEventLoopGroup extends EventLoopGroup {
     private       ChannelContext        context;
     private       boolean               enableMemoryPool       = true;
     //内存池是否使用启用堆外内存
-    private       boolean               enableMemoryPoolDirect = true;
+    private       boolean               enableMemoryPoolDirect = false;
     private       NioEventLoop[]        eventLoops;
     private       long                  idleTime               = 30 * 1000;
     //内存池内存单元数量(单核)
@@ -102,6 +103,9 @@ public class NioEventLoopGroup extends EventLoopGroup {
             memoryPoolCapacity = (int) (total / (memoryPoolUnit * getEventLoopSize() * memoryPoolRate));
         }
         if (isEnableMemoryPool() && getAllocatorGroup() == null) {
+            if (isEnableMemoryPoolDirect() && !Unsafe.DIRECT_BUFFER_AVAILABLE) {
+                throw new Exception("DirectByteBuffer pool enabled but no DirectByteBuffer available");
+            }
             this.allocatorGroup = new ByteBufAllocatorGroup(getEventLoopSize(), memoryPoolCapacity, memoryPoolUnit, enableMemoryPoolDirect);
         }
         Util.start(getAllocatorGroup());
@@ -197,7 +201,7 @@ public class NioEventLoopGroup extends EventLoopGroup {
     public ByteBufAllocator getNextByteBufAllocator(int index) {
         ByteBufAllocatorGroup group = allocatorGroup;
         if (group == null) {
-            return UnpooledByteBufAllocator.get(isEnableMemoryPoolDirect());
+            return UnpooledByteBufAllocator.get();
         } else {
             return group.getAllocator(index);
         }
