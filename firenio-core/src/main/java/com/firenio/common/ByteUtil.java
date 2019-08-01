@@ -403,7 +403,7 @@ public class ByteUtil {
     public static int skip(ByteBuf src, int p, int e, byte v) {
         int i = p;
         for (; i < e; i++) {
-            if (src.absByte(i) != v) {
+            if (src.getByteAbs(i) != v) {
                 return i;
             }
         }

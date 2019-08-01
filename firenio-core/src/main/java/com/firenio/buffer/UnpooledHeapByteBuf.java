@@ -24,14 +24,14 @@ class UnpooledHeapByteBuf extends HeapByteBuf {
 
     UnpooledHeapByteBuf(byte[] memory, int off, int len) {
         super(memory);
-        this.pos = off;
-        this.limit = off + len;
+        this.abs_read_index = off;
+        this.abs_write_index = off;
     }
 
     UnpooledHeapByteBuf(ByteBuffer memory) {
         super(memory);
-        this.pos = memory.position();
-        this.limit = memory.limit();
+        this.abs_read_index = memory.position();
+        this.abs_write_index = memory.position();
     }
 
     @Override
@@ -46,18 +46,17 @@ class UnpooledHeapByteBuf extends HeapByteBuf {
 
     @Override
     public ByteBuf duplicate() {
-        return new DuplicatedByteBuf(nioBuffer().duplicate(), this, 0);
+        return new DuplicatedByteBuf(nioReadBuffer().duplicate(), this, 0);
     }
 
     @Override
     public void expansion(int cap) {
         byte[] oldBuffer = memory;
         byte[] newBuffer = new byte[cap];
-        if (pos > 0) {
-            copy(oldBuffer, 0, newBuffer, 0, pos);
+        if (abs_write_index > 0) {
+            copy(oldBuffer, offset(), newBuffer, 0, writeIndex());
         }
         memory = newBuffer;
-        limit = capacity();
     }
 
     @Override

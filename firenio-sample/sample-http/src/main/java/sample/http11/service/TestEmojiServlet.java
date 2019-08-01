@@ -45,7 +45,7 @@ public class TestEmojiServlet extends HttpFrameAcceptor {
 
         List<String> emojiList = EmojiUtil.bytes2Emojis(emoji.getBytes(Util.UTF8));
 
-        String limitStr = frame.getRequestParam("limit");
+        String limitStr = frame.getRequestParam("writeIndex");
         int    limit;
         if (Util.isNullOrBlank(limitStr)) {
             limit = emojiList.size();
@@ -69,7 +69,7 @@ public class TestEmojiServlet extends HttpFrameAcceptor {
         //        builder.append(getScript());
         builder.append(HttpUtil.HTML_BOTTOM);
         ByteBuf buf = ByteBuf.wrapAuto(builder.toString().getBytes(ch.getCharset()));
-        buf.position(buf.limit());
+        buf.readIndex(buf.writeIndex());
         frame.setContent(buf);
         frame.setContentType(HttpContentType.text_html_utf8);
         ch.writeAndFlush(frame);

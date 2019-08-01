@@ -32,27 +32,27 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public byte absByte(int pos) {
-        return p.absByte(pos);
+    public byte getByteAbs(int pos) {
+        return p.getByteAbs(pos);
     }
 
     @Override
-    public int absLimit() {
-        return p.absLimit();
+    public int absWriteIndex() {
+        return p.absWriteIndex();
     }
 
     @Override
-    public ByteBuf absLimit(int limit) {
+    public ByteBuf absWriteIndex(int limit) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int absPos() {
+    public int absReadIndex() {
         return m.position();
     }
 
     @Override
-    public ByteBuf absPos(int absPos) {
+    public ByteBuf absReadIndex(int absPos) {
         m.position(absPos);
         return this;
     }
@@ -90,20 +90,13 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public ByteBuf flip() {
-        m.limit(m.position());
-        m.position(offset());
-        return this;
-    }
-
-    @Override
     protected int get0(ByteBuffer dst, int len) {
         //TODO compete me
         throw unsupportedOperationException();
     }
 
     @Override
-    public byte getByte() {
+    public byte readByte() {
         return m.get();
     }
 
@@ -113,12 +106,12 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public void getBytes(byte[] dst, int offset, int length) {
+    public void readBytes(byte[] dst, int offset, int length) {
         m.get(dst, offset, length);
     }
 
     @Override
-    public int getInt() {
+    public int readInt() {
         return m.getInt();
     }
 
@@ -128,8 +121,8 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public int getIntLE() {
-        return Integer.reverseBytes(getInt());
+    public int readIntLE() {
+        return Integer.reverseBytes(readInt());
     }
 
     @Override
@@ -138,7 +131,7 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public long getLong() {
+    public long readLong() {
         return m.getLong();
     }
 
@@ -148,8 +141,8 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public long getLongLE() {
-        return Long.reverseBytes(getLong());
+    public long readLongLE() {
+        return Long.reverseBytes(readLong());
     }
 
     @Override
@@ -163,7 +156,7 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public short getShort() {
+    public short readShort() {
         return m.getShort();
     }
 
@@ -173,8 +166,8 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public short getShortLE() {
-        return Short.reverseBytes(getShort());
+    public short readShortLE() {
+        return Short.reverseBytes(readShort());
     }
 
     @Override
@@ -183,8 +176,8 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public short getUnsignedByte() {
-        return (short) (getByte() & 0xff);
+    public short readUnsignedByte() {
+        return (short) (readByte() & 0xff);
     }
 
     @Override
@@ -193,8 +186,8 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public long getUnsignedInt() {
-        return getInt() & 0xffff_ffff;
+    public long readUnsignedInt() {
+        return readInt() & 0xffff_ffff;
     }
 
     @Override
@@ -203,8 +196,8 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public long getUnsignedIntLE() {
-        return Integer.reverseBytes(getInt()) & 0xffff_ffff;
+    public long readUnsignedIntLE() {
+        return Integer.reverseBytes(readInt()) & 0xffff_ffff;
     }
 
     @Override
@@ -213,8 +206,8 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public int getUnsignedShort() {
-        return getShort() & 0xffff;
+    public int readUnsignedShort() {
+        return readShort() & 0xffff;
     }
 
     @Override
@@ -223,8 +216,8 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public int getUnsignedShortLE() {
-        return Short.reverseBytes(getShort()) & 0xffff;
+    public int readUnsignedShortLE() {
+        return Short.reverseBytes(readShort()) & 0xffff;
     }
 
     @Override
@@ -238,7 +231,7 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public boolean hasRemaining() {
+    public boolean hasReadableBytes() {
         return m.hasRemaining();
     }
 
@@ -258,137 +251,142 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public int limit() {
+    public int writeIndex() {
         return m.limit() - offset();
     }
 
     @Override
-    public ByteBuf limit(int limit) {
+    public ByteBuf writeIndex(int writeIndex) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public ByteBuf markL() {
+    public ByteBuf markWriteIndex() {
         throw unsupportedOperationException();
     }
 
     @Override
-    public ByteBuf markP() {
+    public ByteBuf markReadIndex() {
         throw unsupportedOperationException();
     }
 
     @Override
-    public ByteBuffer nioBuffer() {
+    public ByteBuffer nioReadBuffer() {
         return m;
     }
 
     @Override
-    public int position() {
+    public ByteBuffer nioWriteBuffer() {
+        throw unsupportedOperationException();
+    }
+
+    @Override
+    public int readIndex() {
         return m.position() - offset();
     }
 
     @Override
-    public ByteBuf position(int position) {
+    public ByteBuf readIndex(int readIndex) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putByte(byte b) {
+    public void writeByte(byte b) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putByte(int index, byte b) {
+    public void setByte(int index, byte b) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putByte0(byte b) {
+    protected void writeByte0(byte b) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putBytes(byte[] src) {
+    public void writeBytes(byte[] src) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int putBytes(byte[] src, int offset, int length) {
+    public int writeBytes(byte[] src, int offset, int length) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int putBytes(ByteBuf src) {
+    public int writeBytes(ByteBuf src) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int putBytes(ByteBuf src, int length) {
+    public int writeBytes(ByteBuf src, int length) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int putBytes(ByteBuffer src) {
+    public int writeBytes(ByteBuffer src) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int putBytes(ByteBuffer src, int length) {
+    public int writeBytes(ByteBuffer src, int length) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected int putBytes0(byte[] src, int offset, int length) {
+    protected int writeBytes0(byte[] src, int offset, int length) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected int putBytes00(ByteBuf src, int len) {
+    protected int writeBytes00(ByteBuf src, int len) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected int putBytes00(ByteBuffer src, int len) {
+    protected int writeBytes00(ByteBuffer src, int len) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putInt(int value) {
+    public void writeInt(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putInt(int index, int value) {
+    public void setInt(int index, int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putInt0(int value) {
+    protected void writeInt0(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putIntLE(int value) {
+    public void writeIntLE(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putIntLE(int index, int value) {
+    public void setIntLE(int index, int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putIntLE0(int value) {
+    protected void writeIntLE0(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putLong(int index, long value) {
+    public void setLong(int index, long value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public float getFloat() {
+    public float readFloat() {
         return m.getFloat();
     }
 
@@ -398,8 +396,8 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public float getFloatLE() {
-        return Float.intBitsToFloat(getIntLE());
+    public float readFloatLE() {
+        return Float.intBitsToFloat(readIntLE());
     }
 
     @Override
@@ -408,7 +406,7 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public double getDouble() {
+    public double readDouble() {
         return m.getDouble();
     }
 
@@ -418,8 +416,8 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public double getDoubleLE() {
-        return Double.longBitsToDouble(getLongLE());
+    public double readDoubleLE() {
+        return Double.longBitsToDouble(readLongLE());
     }
 
     @Override
@@ -428,77 +426,87 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public void putDouble(int index, double value) {
+    public void setDouble(int index, double value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putDoubleLE(int index, double value) {
+    public void setDoubleLE(int index, double value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putFloat(int index, float value) {
+    public void setFloat(int index, float value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putFloatLE(int index, float value) {
+    public void setFloatLE(int index, float value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putLong(long value) {
+    public void writeLong(long value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putLong0(long value) {
+    protected void writeLong0(long value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putLongLE(int index, long value) {
+    public void setLongLE(int index, long value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putLongLE(long value) {
+    public void writeLongLE(long value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putLongLE0(long value) {
+    protected void writeLongLE0(long value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putShort(int value) {
+    public void writeShort(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putShort(int index, int value) {
+    public void setShort(int index, int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putShort0(int value) {
+    protected void writeShort0(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putShortLE(int value) {
+    public void writeShortLE(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putShortLE(int index, int value) {
+    public void setShortLE(int index, int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putShortLE0(int value) {
+    protected void writeShortLE0(int value) {
+        throw unsupportedOperationException();
+    }
+
+    @Override
+    public ByteBuf reverseRead() {
+        throw unsupportedOperationException();
+    }
+
+    @Override
+    public ByteBuf reverseWrite() {
         throw unsupportedOperationException();
     }
 
@@ -508,29 +516,25 @@ final class DuplicatedByteBuf extends ByteBuf {
     }
 
     @Override
-    public int remaining() {
+    public int readableBytes() {
         return m.remaining();
     }
 
     @Override
-    public ByteBuf resetL() {
+    public ByteBuf resetWriteIndex() {
         throw unsupportedOperationException();
     }
 
     @Override
-    public ByteBuf resetP() {
+    public ByteBuf resetReadIndex() {
         throw unsupportedOperationException();
     }
 
     @Override
-    public ByteBuf reverse() {
-        return this;
-    }
-
-    @Override
-    public ByteBuf skip(int length) {
+    public ByteBuf skipRead(int length) {
         m.position(m.position() + length);
         return this;
     }
+
 
 }

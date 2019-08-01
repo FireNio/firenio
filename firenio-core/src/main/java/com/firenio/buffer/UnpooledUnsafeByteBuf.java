@@ -43,7 +43,7 @@ final class UnpooledUnsafeByteBuf extends UnsafeByteBuf {
         long oldBuffer = memory;
         try {
             long newBuffer = Unsafe.allocate(cap);
-            int  pos       = absPos();
+            int  pos       = absReadIndex();
             if (pos > 0) {
                 copy(oldBuffer + pos, newBuffer, pos);
             }

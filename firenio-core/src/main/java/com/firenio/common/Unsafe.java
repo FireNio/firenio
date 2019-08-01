@@ -41,7 +41,7 @@ public class Unsafe {
     public static final  boolean        UNSAFE_BUF_AVAILABLE;
     public static final  boolean        DIRECT_BUFFER_AVAILABLE;
     // This number limits the number of bytes to copy per call to Unsafe's
-    // copyMemory method. A limit is imposed to allow for safe point polling
+    // copyMemory method. A writeIndex is imposed to allow for safe point polling
     // during a large copy
     private static final long           UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
     private static final ByteOrder      nativeByteOrder       = ByteOrder.nativeOrder();
@@ -512,7 +512,7 @@ public class Unsafe {
     //        }
     //
     //        public void copyMemory(ByteBuffer buf, long targetAddress, long length) {
-    //            UNSAFE.copyMemory(address(buf) + buf.position(), targetAddress, length);
+    //            UNSAFE.copyMemory(address(buf) + buf.readIndex(), targetAddress, length);
     //        }
     //
     //        public void copyMemory(long srcAddress, long targetAddress, long length) {
@@ -535,48 +535,48 @@ public class Unsafe {
     //            return UNSAFE.getBoolean(target, offset);
     //        }
     //
-    //        public byte getByte(long address) {
-    //            return UNSAFE.getByte(address);
+    //        public byte readByte(long address) {
+    //            return UNSAFE.readByte(address);
     //        }
     //
-    //        public byte getByte(Object target, long offset) {
-    //            return UNSAFE.getByte(target, offset);
+    //        public byte readByte(Object target, long offset) {
+    //            return UNSAFE.readByte(target, offset);
     //        }
     //
-    //        public double getDouble(Object target, long offset) {
-    //            return UNSAFE.getDouble(target, offset);
+    //        public double readDouble(Object target, long offset) {
+    //            return UNSAFE.readDouble(target, offset);
     //        }
     //
-    //        public float getFloat(Object target, long offset) {
-    //            return UNSAFE.getFloat(target, offset);
+    //        public float readFloat(Object target, long offset) {
+    //            return UNSAFE.readFloat(target, offset);
     //        }
     //
-    //        public int getInt(long address) {
-    //            return UNSAFE.getInt(address);
+    //        public int readInt(long address) {
+    //            return UNSAFE.readInt(address);
     //        }
     //
-    //        public int getInt(Object target, long offset) {
-    //            return UNSAFE.getInt(target, offset);
+    //        public int readInt(Object target, long offset) {
+    //            return UNSAFE.readInt(target, offset);
     //        }
     //
-    //        public long getLong(long address) {
-    //            return UNSAFE.getLong(address);
+    //        public long readLong(long address) {
+    //            return UNSAFE.readLong(address);
     //        }
     //
-    //        public long getLong(Object target, long offset) {
-    //            return UNSAFE.getLong(target, offset);
+    //        public long readLong(Object target, long offset) {
+    //            return UNSAFE.readLong(target, offset);
     //        }
     //
     //        public Object getObject(Object target, long offset) {
     //            return UNSAFE.getObject(target, offset);
     //        }
     //
-    //        public short getShort(long address) {
-    //            return UNSAFE.getShort(address);
+    //        public short readShort(long address) {
+    //            return UNSAFE.readShort(address);
     //        }
     //
-    //        public short getShort(Object target, long offset) {
-    //            return UNSAFE.getShort(target, offset);
+    //        public short readShort(Object target, long offset) {
+    //            return UNSAFE.readShort(target, offset);
     //        }
     //
     //        public long objectFieldOffset(Field field) {
@@ -587,48 +587,48 @@ public class Unsafe {
     //            UNSAFE.putBoolean(target, offset, value);
     //        }
     //
-    //        public void putByte(long address, byte value) {
-    //            UNSAFE.putByte(address, value);
+    //        public void writeByte(long address, byte value) {
+    //            UNSAFE.writeByte(address, value);
     //        }
     //
-    //        public void putByte(Object target, long offset, byte value) {
-    //            UNSAFE.putByte(target, offset, value);
+    //        public void writeByte(Object target, long offset, byte value) {
+    //            UNSAFE.writeByte(target, offset, value);
     //        }
     //
-    //        public void putDouble(Object target, long offset, double value) {
-    //            UNSAFE.putDouble(target, offset, value);
+    //        public void setDouble(Object target, long offset, double value) {
+    //            UNSAFE.setDouble(target, offset, value);
     //        }
     //
-    //        public void putFloat(Object target, long offset, float value) {
-    //            UNSAFE.putFloat(target, offset, value);
+    //        public void setFloat(Object target, long offset, float value) {
+    //            UNSAFE.setFloat(target, offset, value);
     //        }
     //
-    //        public void putInt(long address, int value) {
-    //            UNSAFE.putInt(address, value);
+    //        public void writeInt(long address, int value) {
+    //            UNSAFE.writeInt(address, value);
     //        }
     //
-    //        public void putInt(Object target, long offset, int value) {
-    //            UNSAFE.putInt(target, offset, value);
+    //        public void writeInt(Object target, long offset, int value) {
+    //            UNSAFE.writeInt(target, offset, value);
     //        }
     //
-    //        public void putLong(long address, long value) {
-    //            UNSAFE.putLong(address, value);
+    //        public void setLong(long address, long value) {
+    //            UNSAFE.setLong(address, value);
     //        }
     //
-    //        public void putLong(Object target, long offset, long value) {
-    //            UNSAFE.putLong(target, offset, value);
+    //        public void setLong(Object target, long offset, long value) {
+    //            UNSAFE.setLong(target, offset, value);
     //        }
     //
     //        public void putObject(Object target, long offset, Object value) {
     //            UNSAFE.putObject(target, offset, value);
     //        }
     //
-    //        public void putShort(long address, short value) {
-    //            UNSAFE.putShort(address, value);
+    //        public void writeShort(long address, short value) {
+    //            UNSAFE.writeShort(address, value);
     //        }
     //
-    //        public void putShort(Object target, long offset, short value) {
-    //            UNSAFE.putShort(target, offset, value);
+    //        public void writeShort(Object target, long offset, short value) {
+    //            UNSAFE.writeShort(target, offset, value);
     //        }
     //
     //        public void setMemory(long address, long numBytes, byte value) {

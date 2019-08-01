@@ -29,12 +29,12 @@ final class DuplicatedUnsafeByteBuf extends UnsafeByteBuf {
         this.p = proto;
         this.referenceCount = refCnt;
         this.capacity(proto.capacity());
-        this.absLimit(proto.absLimit());
-        this.absPos(proto.absPos());
+        this.absWriteIndex(proto.absWriteIndex());
+        this.absReadIndex(proto.absReadIndex());
     }
 
     @Override
-    public ByteBuf absLimit(int limit) {
+    public ByteBuf absWriteIndex(int limit) {
         throw unsupportedOperationException();
     }
 
@@ -49,22 +49,22 @@ final class DuplicatedUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
-    public void putDouble(int index, double value) {
+    public void setDouble(int index, double value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putDoubleLE(int index, double value) {
+    public void setDoubleLE(int index, double value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putFloat(int index, float value) {
+    public void setFloat(int index, float value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putFloatLE(int index, float value) {
+    public void setFloatLE(int index, float value) {
         throw unsupportedOperationException();
     }
 
@@ -74,152 +74,152 @@ final class DuplicatedUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
-    public void putByte(byte b) {
+    public void writeByte(byte b) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putByte(int index, byte b) {
+    public void setByte(int index, byte b) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putByte0(byte b) {
+    protected void writeByte0(byte b) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putBytes(byte[] src) {
+    public void writeBytes(byte[] src) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int putBytes(byte[] src, int offset, int length) {
+    public int writeBytes(byte[] src, int offset, int length) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int putBytes(ByteBuf src) {
+    public int writeBytes(ByteBuf src) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int putBytes(ByteBuf src, int length) {
+    public int writeBytes(ByteBuf src, int length) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int putBytes(ByteBuffer src) {
+    public int writeBytes(ByteBuffer src) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public int putBytes(ByteBuffer src, int length) {
+    public int writeBytes(ByteBuffer src, int length) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected int putBytes0(byte[] src, int offset, int length) {
+    protected int writeBytes0(byte[] src, int offset, int length) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected int putBytes00(ByteBuf src, int len) {
+    protected int writeBytes00(ByteBuf src, int len) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected int putBytes00(ByteBuffer src, int len) {
+    protected int writeBytes00(ByteBuffer src, int len) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putInt(int value) {
+    public void writeInt(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putInt(int index, int value) {
+    public void setInt(int index, int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putInt0(int value) {
+    protected void writeInt0(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putIntLE(int value) {
+    public void writeIntLE(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putIntLE(int index, int value) {
+    public void setIntLE(int index, int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putIntLE0(int value) {
+    protected void writeIntLE0(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putLong(int index, long value) {
+    public void setLong(int index, long value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putLong(long value) {
+    public void writeLong(long value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putLong0(long value) {
+    protected void writeLong0(long value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putLongLE(int index, long value) {
+    public void setLongLE(int index, long value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putLongLE(long value) {
+    public void writeLongLE(long value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putLongLE0(long value) {
+    protected void writeLongLE0(long value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putShort(int value) {
+    public void writeShort(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putShort(int index, int value) {
+    public void setShort(int index, int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putShort0(int value) {
+    protected void writeShort0(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putShortLE(int value) {
+    public void writeShortLE(int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    public void putShortLE(int index, int value) {
+    public void setShortLE(int index, int value) {
         throw unsupportedOperationException();
     }
 
     @Override
-    protected void putShortLE0(int value) {
+    protected void writeShortLE0(int value) {
         throw unsupportedOperationException();
     }
 

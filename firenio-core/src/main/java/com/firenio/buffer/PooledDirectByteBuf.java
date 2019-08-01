@@ -21,7 +21,6 @@ final class PooledDirectByteBuf extends DirectByteBuf {
 
     private PooledByteBufAllocator allocator;
     private int                    capacity;
-    private int                    offset;
     private int                    unitOffset;
 
     PooledDirectByteBuf(PooledByteBufAllocator allocator, ByteBuffer memory) {
@@ -50,7 +49,7 @@ final class PooledDirectByteBuf extends DirectByteBuf {
             throw new IllegalStateException("released");
         }
         addReferenceCount();
-        return new DuplicatedByteBuf(memory.duplicate(), this, 1);
+        return new DuplicatedByteBuf(nioReadBuffer().duplicate(), this, 1);
     }
 
     @Override
@@ -64,22 +63,12 @@ final class PooledDirectByteBuf extends DirectByteBuf {
     }
 
     @Override
-    protected int offset() {
-        return offset;
-    }
-
-    @Override
-    protected void offset(int offset) {
-        this.offset = offset;
-    }
-
-    @Override
     protected ByteBuf produce(int unitOffset, int unitEnd) {
         int unit = allocator.getUnit();
         this.offset = unitOffset * unit;
         this.capacity = (unitEnd - unitOffset) * unit;
-        this.limit(capacity);
-        this.position(0);
+        this.abs_read_index = offset;
+        this.abs_write_index = offset;
         this.unitOffset = unitOffset;
         this.referenceCount = 1;
         return this;

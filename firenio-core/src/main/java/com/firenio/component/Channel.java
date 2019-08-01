@@ -137,11 +137,11 @@ public abstract class Channel implements Runnable, Closeable {
     }
 
     private static SSLException SSL_PACKET_OVER_LIMIT() {
-        return Util.unknownStackTrace(new SSLException("over limit (" + SSL_PACKET_LIMIT + ")"), Channel.class, "isEnoughSslUnwrap()");
+        return Util.unknownStackTrace(new SSLException("over writeIndex (" + SSL_PACKET_LIMIT + ")"), Channel.class, "isEnoughSslUnwrap()");
     }
 
     private static SSLException SSL_UNWRAP_OVER_LIMIT() {
-        return unknownStackTrace(new SSLException("over limit (SSL_UNWRAP_BUFFER_SIZE)"), Channel.class, "unwrap()");
+        return unknownStackTrace(new SSLException("over writeIndex (SSL_UNWRAP_BUFFER_SIZE)"), Channel.class, "unwrap()");
     }
 
     private static SSLException SSL_UNWRAP_EXCEPTION() {
@@ -181,7 +181,7 @@ public abstract class Channel implements Runnable, Closeable {
             } else {
                 accept_line(handle, f);
             }
-            if (!src.hasRemaining()) {
+            if (!src.hasReadableBytes()) {
                 break;
             }
         }
@@ -223,7 +223,7 @@ public abstract class Channel implements Runnable, Closeable {
 
     public ByteBuf allocate(int limit) {
         int h = codec.getHeaderLength();
-        return alloc().allocate(h + limit).skip(h);
+        return alloc().allocate(h + limit).skipWrite(h);
     }
 
     private void check_write_overflow() {
@@ -497,10 +497,10 @@ public abstract class Channel implements Runnable, Closeable {
      * </pre>
      */
     private boolean isEnoughSslUnwrap(ByteBuf src) throws SSLException {
-        if (src.remaining() < 5) {
+        if (src.readableBytes() < 5) {
             return false;
         }
-        int pos = src.position();
+        int pos = src.readIndex();
         // TLS - Check ContentType
         int type = src.getUnsignedByte(pos);
         if (type < 20 || type > 23) {
@@ -515,14 +515,14 @@ public abstract class Channel implements Runnable, Closeable {
             throw NOT_TLS;
         }
         int len = packetLength + 5;
-        if (src.remaining() < len) {
+        if (src.readableBytes() < len) {
             return false;
         }
         if (len > SSL_PACKET_LIMIT) {
             throw SSL_PACKET_OVER_LIMIT;
         }
-        src.markL();
-        src.limit(pos + len);
+        src.markWriteIndex();
+        src.writeIndex(pos + len);
         return true;
     }
 
@@ -565,7 +565,7 @@ public abstract class Channel implements Runnable, Closeable {
             if (!read_data(src)) {
                 return;
             }
-            boolean full = src.isFullLimit();
+            boolean full = src.hasWritableBytes();
             accept(src);
             if (!full) {
                 break;
@@ -581,19 +581,19 @@ public abstract class Channel implements Runnable, Closeable {
             if (!read_data(src)) {
                 return;
             }
-            boolean full = src.isFullLimit();
+            boolean full = src.hasWritableBytes();
             for (; ; ) {
                 if (isEnoughSslUnwrap(src)) {
                     ByteBuf res = unwrap(src);
                     if (res != null) {
                         accept(res);
                     }
-                    src.resetL();
-                    if (!src.hasRemaining()) {
+                    src.resetWriteIndex();
+                    if (!src.hasReadableBytes()) {
                         break;
                     }
                 } else {
-                    if (src.hasRemaining()) {
+                    if (src.hasReadableBytes()) {
                         slice_remain_ssl(src);
                     }
                     break;
@@ -612,21 +612,15 @@ public abstract class Channel implements Runnable, Closeable {
                 Util.close(this);
                 return false;
             }
-            store_remain(src.flip());
+            store_remain(src);
             return false;
         }
-        if (Native.EPOLL_AVAILABLE) {
-            src.absLimit(src.absPos() + len);
-            src.absPos(0);
-        } else {
-            src.reverse();
-            src.flip();
-        }
+        src.skipWrite(len);
         return true;
     }
 
     private void store_remain(ByteBuf src) {
-        if (src.hasRemaining()) {
+        if (src.hasReadableBytes()) {
             if (enable_ssl) {
                 slice_remain_ssl(src);
             } else {
@@ -640,7 +634,7 @@ public abstract class Channel implements Runnable, Closeable {
         if (remaining_buf == null) {
             return;
         }
-        dst.putBytes(remaining_buf);
+        dst.writeBytes(remaining_buf);
         remaining_buf.release();
         this.plain_remain_buf = null;
     }
@@ -650,7 +644,7 @@ public abstract class Channel implements Runnable, Closeable {
         if (remaining_buf == null) {
             return;
         }
-        dst.putBytes(remaining_buf);
+        dst.writeBytes(remaining_buf);
         remaining_buf.release();
         this.ssl_remain_buf = null;
     }
@@ -745,11 +739,11 @@ public abstract class Channel implements Runnable, Closeable {
     public abstract void setOption(int name, int value) throws IOException;
 
     private ByteBuf slice_remain(ByteBuf src) {
-        int remain = src.remaining();
+        int remain = src.readableBytes();
         if (remain > 0) {
             ByteBuf remaining = alloc().allocate(remain);
-            remaining.putBytes(src);
-            return remaining.flip();
+            remaining.writeBytes(src);
+            return remaining;
         } else {
             return null;
         }
@@ -763,15 +757,15 @@ public abstract class Channel implements Runnable, Closeable {
 
     //FIXME 部分buf不需要swap
     private ByteBuf swap(ByteBufAllocator allocator, ByteBuf buf) {
-        ByteBuf out = allocator.allocate(buf.limit());
-        out.putBytes(buf);
-        return out.flip();
+        ByteBuf out = allocator.allocate(buf.writeIndex());
+        out.writeBytes(buf);
+        return out;
     }
 
     private void sync_buf(SSLEngineResult result, ByteBuf src, ByteBuf dst) {
         //FIXME 同步。。。。。
-        src.reverse();
-        dst.reverse();
+        src.reverseRead();
+        dst.reverseWrite();
         //      int bytesConsumed = result.bytesConsumed();
         //      int bytesProduced = result.bytesProduced();
         //      if (bytesConsumed > 0) {
@@ -793,7 +787,7 @@ public abstract class Channel implements Runnable, Closeable {
         if (ssl_handshake_finished) {
             dst.clear();
             read_plain_remain(dst);
-            SSLEngineResult result = ssl_engine.unwrap(src.nioBuffer(), dst.nioBuffer());
+            SSLEngineResult result = ssl_engine.unwrap(src.nioReadBuffer(), dst.nioWriteBuffer());
             if (result.getStatus() == Status.BUFFER_OVERFLOW) {
                 //why throw an exception here instead of handle it?
                 //the getSslUnwrapBuf will return an thread local buffer for unwrap,
@@ -802,12 +796,12 @@ public abstract class Channel implements Runnable, Closeable {
                 //one EventLoop only have one buffer,but before do unwrap, every channel maybe cached a large
                 //buffer under SSL_UNWRAP_BUFFER_SIZE,I do not think it is a good way to cached much memory in
                 //channel, it is not friendly for load much channels in one system, if you get exception here,
-                //you may need find a way to limit you frame size,or cache your incomplete frame's data to
+                //you may need find a way to writeIndex you frame size,or cache your incomplete frame's data to
                 //file system or others way.
                 throw SSL_UNWRAP_OVER_LIMIT;
             }
             sync_buf(result, src, dst);
-            return dst.flip();
+            return dst;
         } else {
             for (; ; ) {
                 dst.clear();
@@ -824,7 +818,7 @@ public abstract class Channel implements Runnable, Closeable {
                     finish_handshake();
                     return null;
                 } else if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
-                    if (src.hasRemaining()) {
+                    if (src.hasReadableBytes()) {
                         continue;
                     }
                     return null;
@@ -835,7 +829,7 @@ public abstract class Channel implements Runnable, Closeable {
 
     private static SSLEngineResult unwrap(SSLEngine ssl_engine, ByteBuf src, ByteBuf dst) throws SSLException {
         try {
-            return ssl_engine.unwrap(src.nioBuffer(), dst.nioBuffer());
+            return ssl_engine.unwrap(src.nioReadBuffer(), dst.nioWriteBuffer());
         } catch (SSLException e) {
             logger.error(e.getMessage());
             debugException(logger, e);
@@ -851,64 +845,64 @@ public abstract class Channel implements Runnable, Closeable {
             if (ssl_handshake_finished) {
                 byte sslWrapExt = this.ssl_wrap_ext;
                 if (sslWrapExt == 0) {
-                    out = alloc.allocate(guess_wrap_out(src.remaining(), 0xff + 1));
+                    out = alloc.allocate(guess_wrap_out(src.readableBytes(), 0xff + 1));
                 } else {
-                    out = alloc.allocate(guess_wrap_out(src.remaining(), sslWrapExt & 0xff));
+                    out = alloc.allocate(guess_wrap_out(src.readableBytes(), sslWrapExt & 0xff));
                 }
                 final int SSL_PACKET_BUFFER_SIZE = SslContext.SSL_PACKET_BUFFER_SIZE;
                 for (; ; ) {
-                    SSLEngineResult result = engine.wrap(src.nioBuffer(), out.nioBuffer());
+                    SSLEngineResult result = engine.wrap(src.nioReadBuffer(), out.nioWriteBuffer());
                     Status          status = result.getStatus();
                     sync_buf(result, src, out);
                     if (status == Status.CLOSED) {
-                        return out.flip();
+                        return out;
                     } else if (status == Status.BUFFER_OVERFLOW) {
                         out.expansion(out.capacity() + SSL_PACKET_BUFFER_SIZE);
                         continue;
                     } else {
-                        if (src.hasRemaining()) {
+                        if (src.hasReadableBytes()) {
                             continue;
                         }
                         if (sslWrapExt == 0) {
-                            int srcLen = src.limit();
-                            int outLen = out.position();
+                            int srcLen = src.writeIndex();
+                            int outLen = out.readIndex();
                             int y      = ((srcLen + 1) / SSL_PACKET_BUFFER_SIZE) + 1;
                             int u      = ((outLen - srcLen) / y) * 2;
                             this.ssl_wrap_ext = (byte) u;
                         }
-                        return out.flip();
+                        return out;
                     }
                 }
             } else {
                 ByteBuf dst = FastThreadLocal.get().getSslWrapBuf();
                 for (; ; ) {
                     dst.clear();
-                    SSLEngineResult result          = engine.wrap(src.nioBuffer(), dst.nioBuffer());
+                    SSLEngineResult result          = engine.wrap(src.nioReadBuffer(), dst.nioWriteBuffer());
                     Status          status          = result.getStatus();
                     HandshakeStatus handshakeStatus = result.getHandshakeStatus();
                     sync_buf(result, src, dst);
                     if (status == Status.CLOSED) {
-                        return swap(alloc, dst.flip());
+                        return swap(alloc, dst);
                     }
                     if (handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
                         if (out != null) {
-                            out.putBytes(dst.flip());
-                            return out.flip();
+                            out.writeBytes(dst);
+                            return out;
                         }
-                        return swap(alloc, dst.flip());
+                        return swap(alloc, dst);
                     } else if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
                         if (out == null) {
                             out = alloc.allocate(256);
                         }
-                        out.putBytes(dst.flip());
+                        out.writeBytes(dst);
                         continue;
                     } else if (handshakeStatus == HandshakeStatus.FINISHED) {
                         finish_handshake();
                         if (out != null) {
-                            out.putBytes(dst.flip());
-                            return out.flip();
+                            out.writeBytes(dst);
+                            return out;
                         }
-                        return swap(alloc, dst.flip());
+                        return swap(alloc, dst);
                     } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
                         run_delegated_tasks(engine);
                         continue;
@@ -998,7 +992,7 @@ public abstract class Channel implements Runnable, Closeable {
         @Override
         int native_read() {
             ByteBuf buf = eventLoop.getReadBuf();
-            return Native.read(fd, eventLoop.getBufAddress() + buf.absPos(), buf.remaining());
+            return Native.read(fd, eventLoop.getBufAddress() + buf.absReadIndex(), buf.readableBytes());
         }
 
         @Override
@@ -1029,13 +1023,13 @@ public abstract class Channel implements Runnable, Closeable {
                 }
                 if (cw_len == 1) {
                     ByteBuf buf     = cwb_array[0];
-                    long    address = buf.address() + buf.absPos();
-                    int     len     = Native.write(fd, address, buf.remaining());
+                    long    address = buf.address() + buf.absReadIndex();
+                    int     len     = Native.write(fd, address, buf.readableBytes());
                     if (len == -1) {
                         return -1;
                     }
-                    buf.skip(len);
-                    if (buf.hasRemaining()) {
+                    buf.skipRead(len);
+                    if (buf.hasReadableBytes()) {
                         this.current_wbs_len = 1;
                         this.interestWrite = true;
                         return 0;
@@ -1053,9 +1047,9 @@ public abstract class Channel implements Runnable, Closeable {
                     long iov_pos = iovec;
                     for (int i = 0; i < cw_len; i++) {
                         ByteBuf buf = cwb_array[i];
-                        Unsafe.putLong(iov_pos, buf.address() + buf.absPos());
+                        Unsafe.putLong(iov_pos, buf.address() + buf.absReadIndex());
                         iov_pos += 8;
-                        Unsafe.putLong(iov_pos, buf.remaining());
+                        Unsafe.putLong(iov_pos, buf.readableBytes());
                         iov_pos += 8;
                     }
                     long len = Native.writev(fd, iovec, cw_len);
@@ -1064,9 +1058,9 @@ public abstract class Channel implements Runnable, Closeable {
                     }
                     for (int i = 0; i < cw_len; i++) {
                         ByteBuf buf = cwb_array[i];
-                        int     r   = buf.remaining();
+                        int     r   = buf.readableBytes();
                         if (len < r) {
-                            buf.skip((int) len);
+                            buf.skipRead((int) len);
                             int remain = cw_len - i;
                             System.arraycopy(cwb_array, i, cwb_array, 0, remain);
                             fill_null(cwb_array, remain, cw_len);
@@ -1168,7 +1162,7 @@ public abstract class Channel implements Runnable, Closeable {
         @Override
         int native_read() {
             try {
-                return channel.read(eventLoop.getReadBuf().nioBuffer());
+                return channel.read(eventLoop.getReadBuf().nioWriteBuffer());
             } catch (IOException e) {
                 return -1;
             }
@@ -1208,14 +1202,14 @@ public abstract class Channel implements Runnable, Closeable {
                 }
                 if (cwb_len == 1) {
                     ByteBuf    buf    = cwb_array[0];
-                    ByteBuffer nioBuf = buf.nioBuffer();
+                    ByteBuffer nioBuf = buf.nioReadBuffer();
                     int        len    = native_write(nioBuf);
                     if (len == -1) {
                         return -1;
                     }
                     if (nioBuf.hasRemaining()) {
                         this.current_wbs_len = 1;
-                        buf.reverse();
+                        buf.reverseRead();
                         interestWrite();
                         return 0;
                     } else {
@@ -1229,7 +1223,7 @@ public abstract class Channel implements Runnable, Closeable {
                     }
                 } else {
                     for (int i = 0; i < cwb_len; i++) {
-                        wb_array[i] = cwb_array[i].nioBuffer();
+                        wb_array[i] = cwb_array[i].nioReadBuffer();
                     }
                     long len = native_write(wb_array, cwb_len);
                     if (len == -1) {
@@ -1238,7 +1232,7 @@ public abstract class Channel implements Runnable, Closeable {
                     for (int i = 0; i < cwb_len; i++) {
                         ByteBuf buf = cwb_array[i];
                         if (wb_array[i].hasRemaining()) {
-                            buf.reverse();
+                            buf.reverseRead();
                             int remain = cwb_len - i;
                             System.arraycopy(cwb_array, i, cwb_array, 0, remain);
                             fill_null(cwb_array, remain, cwb_len);

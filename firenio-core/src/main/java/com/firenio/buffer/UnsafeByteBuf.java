@@ -23,41 +23,15 @@ import com.firenio.common.Unsafe;
 abstract class UnsafeByteBuf extends ByteBuf {
 
     protected int  capacity;
-    protected int  limit;
-    protected int  markLimit;
-    protected int  markPos;
     protected long memory;
-    protected int  pos;
 
     UnsafeByteBuf(long memory) {
         this.memory = memory;
     }
 
     @Override
-    public byte absByte(int pos) {
+    public byte getByteAbs(int pos) {
         return Unsafe.getByte(memory + pos);
-    }
-
-    @Override
-    public int absLimit() {
-        return limit;
-    }
-
-    @Override
-    public ByteBuf absLimit(int limit) {
-        this.limit = limit;
-        return this;
-    }
-
-    @Override
-    public int absPos() {
-        return pos;
-    }
-
-    @Override
-    public ByteBuf absPos(int pos) {
-        this.pos = pos;
-        return this;
     }
 
     @Override
@@ -76,34 +50,24 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public ByteBuf clear() {
-        this.pos = offset();
-        this.limit = ix(capacity());
-        return this;
-    }
-
-    @Override
-    public ByteBuf flip() {
-        this.limit = pos;
-        this.pos = offset();
-        return this;
-    }
-
-    @Override
     protected int get0(ByteBuffer dst, int len) {
         if (dst.hasArray()) {
-            copy(address() + absPos(), dst.array(), dst.position(), len);
+            copy(address() + absReadIndex(), dst.array(), dst.position(), len);
         } else {
-            copy(address() + absPos(), Unsafe.address(dst) + dst.position(), len);
+            copy(address() + absReadIndex(), Unsafe.address(dst) + dst.position(), len);
         }
         dst.position(dst.position() + len);
-        skip(len);
+        skipRead(len);
         return len;
     }
 
+    protected void setMemory(long memory) {
+        this.memory = memory;
+    }
+
     @Override
-    public byte getByte() {
-        return Unsafe.getByte(address() + (pos++));
+    public byte readByte() {
+        return Unsafe.getByte(address() + (abs_read_index++));
     }
 
     @Override
@@ -112,15 +76,15 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public void getBytes(byte[] dst, int offset, int length) {
-        Unsafe.copyToArray(memory + absPos(), dst, offset, length);
-        this.skip(length);
+    public void readBytes(byte[] dst, int offset, int length) {
+        Unsafe.copyToArray(memory + absReadIndex(), dst, offset, length);
+        this.skipRead(length);
     }
 
     @Override
-    public int getInt() {
-        int v = ByteUtil.getInt(address() + absPos());
-        this.skip(4);
+    public int readInt() {
+        int v = ByteUtil.getInt(address() + absReadIndex());
+        this.skipRead(4);
         return v;
     }
 
@@ -130,9 +94,9 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public int getIntLE() {
-        int v = ByteUtil.getIntLE(address() + absPos());
-        this.skip(4);
+    public int readIntLE() {
+        int v = ByteUtil.getIntLE(address() + absReadIndex());
+        this.skipRead(4);
         return v;
     }
 
@@ -142,9 +106,9 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public long getLong() {
-        long v = ByteUtil.getLong(address() + absPos());
-        this.skip(8);
+    public long readLong() {
+        long v = ByteUtil.getLong(address() + absReadIndex());
+        this.skipRead(8);
         return v;
     }
 
@@ -154,9 +118,9 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public long getLongLE() {
-        long v = ByteUtil.getLongLE(address() + absPos());
-        this.skip(8);
+    public long readLongLE() {
+        long v = ByteUtil.getLongLE(address() + absReadIndex());
+        this.skipRead(8);
         return v;
     }
 
@@ -167,13 +131,13 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     public ByteBuffer getNioBuffer() {
-        return null;
+        throw unsupportedOperationException();
     }
 
     @Override
-    public short getShort() {
-        short v = ByteUtil.getShort(address() + absPos());
-        this.skip(2);
+    public short readShort() {
+        short v = ByteUtil.getShort(address() + absReadIndex());
+        this.skipRead(2);
         return v;
     }
 
@@ -183,9 +147,9 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public short getShortLE() {
-        short v = ByteUtil.getShortLE(address() + absPos());
-        this.skip(2);
+    public short readShortLE() {
+        short v = ByteUtil.getShortLE(address() + absReadIndex());
+        this.skipRead(2);
         return v;
     }
 
@@ -195,8 +159,8 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public short getUnsignedByte() {
-        return (short) (getByte() & 0xff);
+    public short readUnsignedByte() {
+        return (short) (readByte() & 0xff);
     }
 
     @Override
@@ -205,31 +169,31 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public long getUnsignedInt() {
-        return getInt() & 0xffffffffL;
+    public long readUnsignedInt() {
+        return toUnsignedInt(readInt());
     }
 
     @Override
     public long getUnsignedInt(int index) {
-        return getInt(index) & 0xffffffffL;
+        return toUnsignedInt(getInt(index));
     }
 
     @Override
-    public long getUnsignedIntLE() {
-        long v = ByteUtil.getIntLE(address() + absPos()) & 0xffffffffL;
-        this.skip(4);
+    public long readUnsignedIntLE() {
+        long v = toUnsignedInt(ByteUtil.getIntLE(address() + absReadIndex()));
+        this.skipRead(4);
         return v;
     }
 
     @Override
     public long getUnsignedIntLE(int index) {
-        return ByteUtil.getIntLE(address() + ix(index)) & 0xffffffffL;
+        return toUnsignedInt(ByteUtil.getIntLE(address() + ix(index)));
     }
 
     @Override
-    public int getUnsignedShort() {
-        int v = ByteUtil.getShort(address() + absPos()) & 0xffff;
-        this.skip(2);
+    public int readUnsignedShort() {
+        int v = ByteUtil.getShort(address() + absReadIndex()) & 0xffff;
+        this.skipRead(2);
         return v;
     }
 
@@ -239,9 +203,9 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public int getUnsignedShortLE() {
-        int v = ByteUtil.getShortLE(address() + absPos()) & 0xffff;
-        this.skip(2);
+    public int readUnsignedShortLE() {
+        int v = ByteUtil.getShortLE(address() + absReadIndex()) & 0xffff;
+        this.skipRead(2);
         return v;
     }
 
@@ -253,11 +217,6 @@ abstract class UnsafeByteBuf extends ByteBuf {
     @Override
     public boolean hasArray() {
         return false;
-    }
-
-    @Override
-    public boolean hasRemaining() {
-        return pos < limit;
     }
 
     @Override
@@ -287,177 +246,117 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public int limit() {
-        return limit - offset();
-    }
-
-    @Override
-    public ByteBuf limit(int limit) {
-        this.limit = ix(limit);
-        return this;
-    }
-
-    @Override
-    public ByteBuf markL() {
-        markLimit = limit;
-        return this;
-    }
-
-    @Override
-    public ByteBuf markP() {
-        markPos = pos;
-        return this;
-    }
-
-    @Override
-    public ByteBuffer nioBuffer() {
-        ByteBuffer buffer = getNioBuffer();
-        return (ByteBuffer) buffer.limit(limit).position(pos);
-    }
-
-    @Override
-    public int position() {
-        return pos - offset();
-    }
-
-    @Override
-    public ByteBuf position(int position) {
-        this.pos = ix(position);
-        return this;
-    }
-
-    @Override
-    public void putByte(int index, byte b) {
+    public void setByte(int index, byte b) {
         Unsafe.putByte(address() + ix(index), b);
     }
 
     @Override
-    protected void putByte0(byte b) {
-        Unsafe.putByte(address() + (pos++), b);
+    protected void writeByte0(byte b) {
+        Unsafe.putByte(address() + (abs_write_index++), b);
     }
 
     @Override
-    protected int putBytes0(byte[] src, int offset, int length) {
-        Unsafe.copyFromArray(src, offset, address() + absPos(), length);
-        this.pos += length;
+    protected int writeBytes0(byte[] src, int offset, int length) {
+        Unsafe.copyFromArray(src, offset, address() + absWriteIndex(), length);
+        skipWrite(length);
         return length;
     }
 
     @Override
-    protected int putBytes00(ByteBuf src, int len) {
+    protected int writeBytes00(ByteBuf src, int len) {
         if (src.hasArray()) {
-            copy(src.array(), src.absPos(), address() + absPos(), len);
+            copy(src.array(), src.absReadIndex(), address() + absWriteIndex(), len);
         } else {
-            copy(src.address() + src.absPos(), address() + absPos(), len);
+            copy(src.address() + src.absReadIndex(), address() + absWriteIndex(), len);
         }
-        src.skip(len);
-        skip(len);
+        src.skipRead(len);
+        skipWrite(len);
         return len;
     }
 
     @Override
-    protected int putBytes00(ByteBuffer src, int len) {
+    protected int writeBytes00(ByteBuffer src, int len) {
         if (src.hasArray()) {
-            copy(src.array(), src.position(), address() + absPos(), len);
+            copy(src.array(), src.position(), address() + absWriteIndex(), len);
         } else {
-            copy(Unsafe.address(src) + src.position(), address() + absPos(), len);
+            copy(Unsafe.address(src) + src.position(), address() + absWriteIndex(), len);
         }
         src.position(src.position() + len);
-        skip(len);
+        skipWrite(len);
         return len;
     }
 
     @Override
-    public void putInt(int index, int value) {
+    public void setInt(int index, int value) {
         ByteUtil.putInt(address() + ix(index), value);
     }
 
     @Override
-    protected void putInt0(int value) {
-        ByteUtil.putInt(address() + absPos(), value);
-        skip(4);
+    protected void writeInt0(int value) {
+        ByteUtil.putInt(address() + absReadIndex(), value);
+        skipWrite(4);
     }
 
     @Override
-    public void putIntLE(int index, int value) {
+    public void setIntLE(int index, int value) {
         ByteUtil.putIntLE(address() + ix(index), value);
     }
 
     @Override
-    protected void putIntLE0(int value) {
-        ByteUtil.putIntLE(address() + absPos(), value);
-        skip(4);
+    protected void writeIntLE0(int value) {
+        ByteUtil.putIntLE(address() + absReadIndex(), value);
+        skipWrite(4);
     }
 
     @Override
-    public void putLong(int index, long value) {
+    public void setLong(int index, long value) {
         ByteUtil.putLong(address() + ix(index), value);
     }
 
     @Override
-    protected void putLong0(long value) {
-        ByteUtil.putLong(address() + absPos(), value);
-        skip(8);
+    protected void writeLong0(long value) {
+        ByteUtil.putLong(address() + absReadIndex(), value);
+        skipWrite(8);
     }
 
     @Override
-    public void putLongLE(int index, long value) {
+    public void setLongLE(int index, long value) {
         ByteUtil.putLongLE(address() + ix(index), value);
     }
 
     @Override
-    protected void putLongLE0(long value) {
-        ByteUtil.putLongLE(address() + absPos(), value);
-        skip(8);
+    protected void writeLongLE0(long value) {
+        ByteUtil.putLongLE(address() + absReadIndex(), value);
+        skipWrite(8);
     }
 
     @Override
-    public void putShort(int index, int value) {
+    public void setShort(int index, int value) {
         ByteUtil.putShort(address() + ix(index), (short) value);
     }
 
     @Override
-    protected void putShort0(int value) {
-        ByteUtil.putShort(address() + absPos(), (short) value);
-        skip(2);
+    protected void writeShort0(int value) {
+        ByteUtil.putShort(address() + absReadIndex(), (short) value);
+        skipWrite(2);
     }
 
     @Override
-    public void putShortLE(int index, int value) {
+    public void setShortLE(int index, int value) {
         ByteUtil.putShortLE(address() + ix(index), (short) value);
     }
 
     @Override
-    protected void putShortLE0(int value) {
-        ByteUtil.putShortLE(address() + absPos(), (short) value);
-        skip(2);
+    protected void writeShortLE0(int value) {
+        ByteUtil.putShortLE(address() + absReadIndex(), (short) value);
+        skipWrite(2);
     }
 
-    @Override
-    public int remaining() {
-        return limit - pos;
-    }
-
-    @Override
-    public ByteBuf resetL() {
-        limit = markLimit;
+    public ByteBuf reverseRead() {
         return this;
     }
 
-    @Override
-    public ByteBuf resetP() {
-        pos = markPos;
-        return this;
-    }
-
-    @Override
-    public ByteBuf reverse() {
-        return this;
-    }
-
-    @Override
-    public ByteBuf skip(int length) {
-        pos += length;
+    public ByteBuf reverseWrite() {
         return this;
     }
 

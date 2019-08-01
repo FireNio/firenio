@@ -55,7 +55,7 @@ public class TestUndertow {
             private boolean hasBody(HttpServerExchange exchange) {
                 int length = (int) exchange.getRequestContentLength();
                 if (length == 0) {
-                    return false; // if body is empty, skip reading
+                    return false; // if body is empty, skipRead reading
                 }
 
                 HttpString method = exchange.getRequestMethod();

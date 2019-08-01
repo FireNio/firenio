@@ -131,9 +131,8 @@ public class HttpProxy4CloudServer {
                             @Override
                             public Frame decode(Channel ch, ByteBuf src) {
                                 Channel t   = (Channel) ch.getAttachment();
-                                ByteBuf buf = t.alloc().allocate(src.remaining());
-                                buf.putBytes(src);
-                                buf.flip();
+                                ByteBuf buf = t.alloc().allocate(src.readableBytes());
+                                buf.writeBytes(src);
                                 t.writeAndFlush(buf);
                                 return null;
                             }
@@ -163,12 +162,12 @@ public class HttpProxy4CloudServer {
                                 byte[]  host_bytes = host.getBytes();
                                 int     len        = 5 + host_bytes.length;
                                 ByteBuf head       = ch_target.alloc().allocate(len);
-                                head.putByte((byte) host_bytes.length);
-                                head.putByte((byte) 83);
-                                head.putByte((byte) 38);
-                                head.putShort(port);
-                                head.putBytes(host_bytes);
-                                ch_target.writeAndFlush(head.flip());
+                                head.writeByte((byte) host_bytes.length);
+                                head.writeByte((byte) 83);
+                                head.writeByte((byte) 38);
+                                head.writeShort(port);
+                                head.writeBytes(host_bytes);
+                                ch_target.writeAndFlush(head);
                                 el.schedule(new DelayTask(10) {
                                     @Override
                                     public void run() {
@@ -183,9 +182,8 @@ public class HttpProxy4CloudServer {
                 }
                 return null;
             } else {
-                ByteBuf buf = t.alloc().allocate(src.remaining());
-                buf.putBytes(src);
-                buf.flip();
+                ByteBuf buf = t.alloc().allocate(src.readableBytes());
+                buf.writeBytes(src);
                 t.writeAndFlush(buf);
             }
             return null;
