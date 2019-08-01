@@ -565,9 +565,9 @@ public abstract class Channel implements Runnable, Closeable {
             if (!read_data(src)) {
                 return;
             }
-            boolean full = src.hasWritableBytes();
             accept(src);
-            if (!full) {
+            // for epoll et mode
+            if (src.hasWritableBytes()) {
                 break;
             }
         }
@@ -581,7 +581,6 @@ public abstract class Channel implements Runnable, Closeable {
             if (!read_data(src)) {
                 return;
             }
-            boolean full = src.hasWritableBytes();
             for (; ; ) {
                 if (isEnoughSslUnwrap(src)) {
                     ByteBuf res = unwrap(src);
@@ -599,7 +598,8 @@ public abstract class Channel implements Runnable, Closeable {
                     break;
                 }
             }
-            if (!full) {
+            // for epoll et mode
+            if (src.hasWritableBytes()) {
                 break;
             }
         }
@@ -630,22 +630,19 @@ public abstract class Channel implements Runnable, Closeable {
     }
 
     private void read_plain_remain(ByteBuf dst) {
-        ByteBuf remaining_buf = this.plain_remain_buf;
-        if (remaining_buf == null) {
-            return;
-        }
-        dst.writeBytes(remaining_buf);
-        remaining_buf.release();
+        this.read_remain(plain_remain_buf, dst);
         this.plain_remain_buf = null;
     }
 
-    private void read_ssl_remain(ByteBuf dst) {
-        ByteBuf remaining_buf = this.ssl_remain_buf;
-        if (remaining_buf == null) {
-            return;
+    private void read_remain(ByteBuf src, ByteBuf dst) {
+        if (src != null) {
+            dst.writeBytes(src);
+            src.release();
         }
-        dst.writeBytes(remaining_buf);
-        remaining_buf.release();
+    }
+
+    private void read_ssl_remain(ByteBuf dst) {
+        this.read_remain(ssl_remain_buf, dst);
         this.ssl_remain_buf = null;
     }
 
@@ -757,6 +754,7 @@ public abstract class Channel implements Runnable, Closeable {
 
     //FIXME 部分buf不需要swap
     private ByteBuf swap(ByteBufAllocator allocator, ByteBuf buf) {
+        // use writeIndex instead of readableBytes because of whe buf readIndex always be zero.
         ByteBuf out = allocator.allocate(buf.writeIndex());
         out.writeBytes(buf);
         return out;
@@ -992,7 +990,7 @@ public abstract class Channel implements Runnable, Closeable {
         @Override
         int native_read() {
             ByteBuf buf = eventLoop.getReadBuf();
-            return Native.read(fd, eventLoop.getBufAddress() + buf.absReadIndex(), buf.readableBytes());
+            return Native.read(fd, eventLoop.getBufAddress() + buf.absWriteIndex(), buf.writableBytes());
         }
 
         @Override

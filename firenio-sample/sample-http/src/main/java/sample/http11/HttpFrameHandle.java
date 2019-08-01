@@ -347,9 +347,7 @@ public class HttpFrameHandle extends IoEventHandle {
         }
 
         void setBinary(byte[] readBytesByFile) {
-            ByteBuf content = ByteBuf.wrapAuto(readBytesByFile);
-            content.readIndex(content.writeIndex());
-            this.content = content;
+            this.content = ByteBuf.wrapAuto(readBytesByFile);
         }
 
         void setContentType(HttpContentType contentType) {

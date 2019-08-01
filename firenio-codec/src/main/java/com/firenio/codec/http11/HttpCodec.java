@@ -500,13 +500,11 @@ public class HttpCodec extends ProtocolCodec {
         boolean offer = true;
         if (inline) {
             buf = att.getLastWriteBuf();
-            if (buf.isReleased() || buf.capacity() - buf.writeIndex() < len) {
+            if (buf.isReleased()) {
                 buf = ch.alloc().allocate(len);
                 att.setLastWriteBuf(buf);
             } else {
                 offer = false;
-                buf.absReadIndex(buf.absWriteIndex());
-                buf.writeIndex(buf.capacity());
             }
         } else {
             if (Develop.BUF_DEBUG) {

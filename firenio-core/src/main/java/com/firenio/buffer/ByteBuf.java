@@ -193,7 +193,7 @@ public abstract class ByteBuf implements Releasable {
     public abstract void readBytes(byte[] dst, int offset, int length);
 
     public int readBytes(ByteBuf dst) {
-        return dst.writeBytes(this, dst.readableBytes());
+        return dst.writeBytes(this, dst.writableBytes());
     }
 
     public int readBytes(ByteBuf dst, int length) {
@@ -402,10 +402,10 @@ public abstract class ByteBuf implements Releasable {
             ensureWritable(length);
             return writeBytes0(src, offset, length);
         } else {
-            if (!hasReadableBytes()) {
+            if (!hasWritableBytes()) {
                 return 0;
             }
-            return writeBytes0(src, offset, Math.min(readableBytes(), length));
+            return writeBytes0(src, offset, Math.min(writableBytes(), length));
         }
     }
 
@@ -450,10 +450,10 @@ public abstract class ByteBuf implements Releasable {
             ensureWritable(len);
             return writeBytes00(src, len);
         } else {
-            if (!hasReadableBytes()) {
+            if (!hasWritableBytes()) {
                 return 0;
             }
-            return writeBytes00(src, Math.min(readableBytes(), len));
+            return writeBytes00(src, Math.min(writableBytes(), len));
         }
     }
 
@@ -462,10 +462,10 @@ public abstract class ByteBuf implements Releasable {
             ensureWritable(len);
             return writeBytes00(src, len);
         } else {
-            if (!hasReadableBytes()) {
+            if (!hasWritableBytes()) {
                 return 0;
             }
-            return writeBytes00(src, Math.min(readableBytes(), len));
+            return writeBytes00(src, Math.min(writableBytes(), len));
         }
     }
 

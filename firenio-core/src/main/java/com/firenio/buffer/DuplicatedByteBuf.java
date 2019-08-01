@@ -502,7 +502,8 @@ final class DuplicatedByteBuf extends ByteBuf {
 
     @Override
     public ByteBuf reverseRead() {
-        throw unsupportedOperationException();
+        abs_read_index = getNioBuffer().position();
+        return this;
     }
 
     @Override
