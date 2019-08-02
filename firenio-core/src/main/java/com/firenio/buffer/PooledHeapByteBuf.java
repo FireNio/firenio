@@ -42,15 +42,6 @@ final class PooledHeapByteBuf extends HeapByteBuf {
     }
 
     @Override
-    public ByteBuf duplicate() {
-        if (isReleased()) {
-            throw new IllegalStateException("released");
-        }
-        addReferenceCount();
-        return new DuplicatedByteBuf(nioReadBuffer().duplicate(), this, 1);
-    }
-
-    @Override
     public final void expansion(int cap) {
         allocator.expansion(this, cap);
     }

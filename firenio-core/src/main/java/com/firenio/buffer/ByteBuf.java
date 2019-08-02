@@ -176,14 +176,18 @@ public abstract class ByteBuf implements Releasable {
 
     public abstract void expansion(int cap);
 
-    protected abstract int get0(ByteBuffer dst, int len);
-
     public abstract byte readByte();
 
     public abstract byte getByte(int index);
 
     public byte[] readBytes() {
         return readBytes(readableBytes());
+    }
+
+    public byte[] readBytes(int length) {
+        byte[] bytes = new byte[length];
+        readBytes(bytes);
+        return bytes;
     }
 
     public void readBytes(byte[] dst) {
@@ -193,35 +197,32 @@ public abstract class ByteBuf implements Releasable {
     public abstract void readBytes(byte[] dst, int offset, int length);
 
     public int readBytes(ByteBuf dst) {
-        return dst.writeBytes(this, dst.writableBytes());
+        return readBytes(dst, dst.writableBytes());
     }
 
     public int readBytes(ByteBuf dst, int length) {
-        return dst.writeBytes(this, length);
+        int len = Math.min(readableBytes(), length);
+        if (len == 0) {
+            return 0;
+        }
+        return readBytes0(dst, len);
     }
 
     public int readBytes(ByteBuffer dst) {
-        int len = Math.min(readableBytes(), dst.remaining());
-        if (len == 0) {
-            return 0;
-        }
-        return get0(dst, len);
+        return readBytes(dst, dst.remaining());
     }
 
     public int readBytes(ByteBuffer dst, int length) {
-        int len = Math.min(readableBytes(), dst.remaining());
-        len = Math.min(len, length);
+        int len = Math.min(readableBytes(), length);
         if (len == 0) {
             return 0;
         }
-        return get0(dst, len);
+        return readBytes0(dst, len);
     }
 
-    public byte[] readBytes(int length) {
-        byte[] bytes = new byte[length];
-        readBytes(bytes);
-        return bytes;
-    }
+    protected abstract int readBytes0(ByteBuf dst, int len);
+
+    protected abstract int readBytes0(ByteBuffer dst, int len);
 
     public abstract int readInt();
 
@@ -395,103 +396,76 @@ public abstract class ByteBuf implements Releasable {
         writeBytes(src, 0, src.length);
     }
 
-    //---------------------------------put int---------------------------------//
-
     public int writeBytes(byte[] src, int offset, int length) {
         if (AUTO_EXPANSION) {
             ensureWritable(length);
             return writeBytes0(src, offset, length);
         } else {
-            if (!hasWritableBytes()) {
+            int len = Math.min(writableBytes(), length);
+            if (len == 0) {
                 return 0;
             }
-            return writeBytes0(src, offset, Math.min(writableBytes(), length));
+            return writeBytes0(src, offset, length);
         }
-    }
-
-    public int writeBytes(ByteBuf src) {
-        int len = src.readableBytes();
-        if (len == 0) {
-            return 0;
-        }
-        return writeBytes0(src, len);
-    }
-
-    public int writeBytes(ByteBuf src, int length) {
-        int len = Math.min(length, src.readableBytes());
-        if (len == 0) {
-            return 0;
-        }
-        return writeBytes0(src, len);
-    }
-
-    public int writeBytes(ByteBuffer src) {
-        int len = src.remaining();
-        if (len == 0) {
-            return 0;
-        }
-        return writeBytes0(src, len);
-    }
-
-    public int writeBytes(ByteBuffer src, int length) {
-        int len = Math.min(length, src.remaining());
-        if (len == 0) {
-            return 0;
-        }
-        return writeBytes0(src, len);
     }
 
     protected abstract int writeBytes0(byte[] src, int offset, int length);
 
-    //---------------------------------put long---------------------------------//
+    public int writeBytes(ByteBuf src) {
+        return writeBytes(src, src.readableBytes());
+    }
 
-    protected int writeBytes0(ByteBuf src, int len) {
+    public int writeBytes(ByteBuf src, int length) {
         if (AUTO_EXPANSION) {
-            ensureWritable(len);
-            return writeBytes00(src, len);
+            ensureWritable(length);
+            return writeBytes0(src, length);
         } else {
-            if (!hasWritableBytes()) {
+            int len = Math.min(writableBytes(), length);
+            if (len == 0) {
                 return 0;
             }
-            return writeBytes00(src, Math.min(writableBytes(), len));
+            return writeBytes0(src, len);
         }
     }
 
-    protected int writeBytes0(ByteBuffer src, int len) {
+    public int writeBytes(ByteBuffer src) {
+        return writeBytes(src, src.remaining());
+    }
+
+    public int writeBytes(ByteBuffer src, int length) {
         if (AUTO_EXPANSION) {
-            ensureWritable(len);
-            return writeBytes00(src, len);
+            ensureWritable(length);
+            return writeBytes0(src, length);
         } else {
-            if (!hasWritableBytes()) {
+            int len = Math.min(writableBytes(), length);
+            if (len == 0) {
                 return 0;
             }
-            return writeBytes00(src, Math.min(writableBytes(), len));
+            return writeBytes0(src, len);
         }
     }
 
-    protected abstract int writeBytes00(ByteBuf src, int len);
+    protected abstract int writeBytes0(ByteBuf src, int len);
 
-    protected abstract int writeBytes00(ByteBuffer src, int len);
+    protected abstract int writeBytes0(ByteBuffer src, int len);
 
     public void writeInt(int value) {
         ensureWritable(4);
         writeInt0(value);
     }
 
-    public abstract void setInt(int index, int value);
-
-    //---------------------------------put double---------------------------------//
-
     protected abstract void writeInt0(int value);
+
+    public abstract void setInt(int index, int value);
 
     public void writeIntLE(int value) {
         ensureWritable(4);
         writeIntLE0(value);
     }
 
-    public abstract void setIntLE(int index, int value);
-
     protected abstract void writeIntLE0(int value);
+
+    public abstract void setIntLE(int index, int value);
 
     public abstract void setLong(int index, long value);
 

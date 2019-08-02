@@ -440,9 +440,9 @@ public abstract class Channel implements Runnable, Closeable {
         } else {
             int base = src + SslContext.SSL_PACKET_BUFFER_SIZE - 1;
             if (SslContext.OPENSSL_AVAILABLE) {
-                return (base / SslContext.SSL_PACKET_BUFFER_SIZE + 1) * ext + src;
+                return (base / SslContext.SSL_PACKET_BUFFER_SIZE + 1) * ext + src + 1;
             } else {
-                return (base / SslContext.SSL_PACKET_BUFFER_SIZE) * (ext + SslContext.SSL_PACKET_BUFFER_SIZE);
+                return (base / SslContext.SSL_PACKET_BUFFER_SIZE) * (ext + SslContext.SSL_PACKET_BUFFER_SIZE) + 1;
             }
         }
     }
@@ -820,6 +820,8 @@ public abstract class Channel implements Runnable, Closeable {
                         continue;
                     }
                     return null;
+                } else if (result.getStatus() == Status.BUFFER_OVERFLOW) {
+                    throw SSL_UNWRAP_OVER_LIMIT;
                 }
             }
         }

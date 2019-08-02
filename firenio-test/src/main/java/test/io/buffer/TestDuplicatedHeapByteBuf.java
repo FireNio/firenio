@@ -24,7 +24,7 @@ import com.firenio.common.Assert;
 /**
  * @author wangkai
  */
-public class TestDuplicatedByteBuf {
+public class TestDuplicatedHeapByteBuf {
 
     static final String data = "abcdef";
 

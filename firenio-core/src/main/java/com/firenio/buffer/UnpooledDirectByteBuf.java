@@ -35,16 +35,6 @@ final class UnpooledDirectByteBuf extends DirectByteBuf {
     }
 
     @Override
-    public ByteBuf duplicate() {
-        if (isReleased()) {
-            throw new IllegalStateException("released");
-        }
-        //请勿移除此行，DirectByteBuffer需要手动回收，release要确保被执行
-        addReferenceCount();
-        return new DuplicatedByteBuf(nioReadBuffer().duplicate(), this, 1);
-    }
-
-    @Override
     public void expansion(int cap) {
         ByteBuffer oldBuffer = getNioBuffer();
         try {

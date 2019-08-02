@@ -45,11 +45,6 @@ class UnpooledHeapByteBuf extends HeapByteBuf {
     }
 
     @Override
-    public ByteBuf duplicate() {
-        return new DuplicatedByteBuf(nioReadBuffer().duplicate(), this, 0);
-    }
-
-    @Override
     public void expansion(int cap) {
         byte[] oldBuffer = memory;
         byte[] newBuffer = new byte[cap];
@@ -83,6 +78,31 @@ class UnpooledHeapByteBuf extends HeapByteBuf {
         @Override
         public boolean isReleased() {
             return true;
+        }
+
+        @Override
+        public void expansion(int cap) {
+            throw unsupportedOperationException();
+        }
+
+        @Override
+        public ByteBuf resetReadIndex() {
+            throw unsupportedOperationException();
+        }
+
+        @Override
+        public ByteBuf resetWriteIndex() {
+            throw unsupportedOperationException();
+        }
+
+        @Override
+        public ByteBuf readIndex(int index) {
+            throw unsupportedOperationException();
+        }
+
+        @Override
+        public ByteBuf writeIndex(int index) {
+            throw unsupportedOperationException();
         }
 
     }

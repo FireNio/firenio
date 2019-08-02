@@ -43,15 +43,6 @@ final class PooledUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
-    public ByteBuf duplicate() {
-        if (isReleased()) {
-            throw new IllegalStateException("released");
-        }
-        addReferenceCount();
-        return new DuplicatedUnsafeByteBuf(this, 1);
-    }
-
-    @Override
     public final void expansion(int cap) {
         allocator.expansion(this, cap);
     }

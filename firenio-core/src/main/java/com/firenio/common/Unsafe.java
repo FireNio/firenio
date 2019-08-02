@@ -189,12 +189,12 @@ public class Unsafe {
         }
     }
 
-    public static void copyFromArray(ByteBuffer buf, long dstAddr, long length) {
-        copyFromArray(buf.array(), buf.position(), dstAddr, length);
-    }
-
     public static void copyMemory(ByteBuffer buf, long targetAddress, long length) {
-        UNSAFE.copyMemory(address(buf) + buf.position(), targetAddress, length);
+        if (buf.isDirect()) {
+            UNSAFE.copyMemory(address(buf) + buf.position(), targetAddress, length);
+        } else {
+            copyFromArray(buf.array(), buf.position(), targetAddress, length);
+        }
     }
 
     public static void copyMemory(long srcAddress, long targetAddress, long length) {
@@ -213,7 +213,7 @@ public class Unsafe {
      * @param dstPos  offset within destination array of the first element to write
      * @param length  number of bytes to copy
      */
-    public static void copyToArray(long srcAddr, Object dst, long dstPos, long length) {
+    public static void copyToArray(long srcAddr, byte[] dst, long dstPos, long length) {
         long offset = ARRAY_BASE_OFFSET + dstPos;
         while (length > 0) {
             long size = (length > UNSAFE_COPY_THRESHOLD) ? UNSAFE_COPY_THRESHOLD : length;

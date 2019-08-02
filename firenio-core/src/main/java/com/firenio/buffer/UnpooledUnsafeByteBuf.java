@@ -29,16 +29,6 @@ final class UnpooledUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
-    public ByteBuf duplicate() {
-        if (isReleased()) {
-            throw new IllegalStateException("released");
-        }
-        //请勿移除此行，DirectByteBuffer需要手动回收，release要确保被执行
-        addReferenceCount();
-        return new DuplicatedUnsafeByteBuf(this, 1);
-    }
-
-    @Override
     public void expansion(int cap) {
         long oldBuffer = memory;
         try {

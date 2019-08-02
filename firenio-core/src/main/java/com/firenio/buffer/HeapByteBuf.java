@@ -35,17 +35,49 @@ abstract class HeapByteBuf extends ByteBuf {
     }
 
     @Override
-    public byte getByteAbs(int pos) {
-        return memory[pos];
-    }
-
-    @Override
     public byte[] array() {
         return memory;
     }
 
     @Override
-    protected int get0(ByteBuffer dst, int len) {
+    public long address() {
+        return -1;
+    }
+
+    @Override
+    public ByteBuf duplicate() {
+        if (isReleased()) {
+            throw new IllegalStateException("released");
+        }
+        addReferenceCount();
+        return new DuplicatedHeapByteBuf(this, 1);
+    }
+
+    @Override
+    public byte getByteAbs(int pos) {
+        return memory[pos];
+    }
+
+    @Override
+    public void readBytes(byte[] dst, int offset, int length) {
+        System.arraycopy(memory, abs_read_index, dst, offset, length);
+        skipRead(length);
+    }
+
+    @Override
+    protected int readBytes0(ByteBuf dst, int len) {
+        if (dst.hasArray()) {
+            copy(memory, absReadIndex(), dst.array(), dst.writeIndex(), len);
+        } else {
+            copy(memory, absReadIndex(), dst.address() + dst.absWriteIndex(), len);
+        }
+        dst.skipWrite(len);
+        skipRead(len);
+        return len;
+    }
+
+    @Override
+    protected int readBytes0(ByteBuffer dst, int len) {
         if (dst.hasArray()) {
             copy(memory, absReadIndex(), dst.array(), dst.position(), len);
         } else {
@@ -64,12 +96,6 @@ abstract class HeapByteBuf extends ByteBuf {
     @Override
     public byte getByte(int index) {
         return memory[ix(index)];
-    }
-
-    @Override
-    public void readBytes(byte[] dst, int offset, int length) {
-        System.arraycopy(memory, abs_read_index, dst, offset, length);
-        this.abs_read_index += length;
     }
 
     @Override
@@ -259,7 +285,7 @@ abstract class HeapByteBuf extends ByteBuf {
     }
 
     @Override
-    protected int writeBytes00(ByteBuf src, int len) {
+    protected int writeBytes0(ByteBuf src, int len) {
         if (src.hasArray()) {
             copy(src.array(), src.absReadIndex(), memory, absWriteIndex(), len);
         } else {
@@ -271,7 +297,7 @@ abstract class HeapByteBuf extends ByteBuf {
     }
 
     @Override
-    protected int writeBytes00(ByteBuffer src, int len) {
+    protected int writeBytes0(ByteBuffer src, int len) {
         if (src.hasArray()) {
             copy(src.array(), src.position(), memory, absWriteIndex(), len);
         } else {

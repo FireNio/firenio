@@ -47,4 +47,14 @@ abstract class DirectByteBuf extends UnsafeByteBuf {
         this.memory = memory;
         super.setMemory(Unsafe.address(memory));
     }
+
+    @Override
+    public ByteBuf duplicate() {
+        if (isReleased()) {
+            throw new IllegalStateException("released");
+        }
+        addReferenceCount();
+        return new DuplicatedDirectByteBuf(this, 1);
+    }
+
 }

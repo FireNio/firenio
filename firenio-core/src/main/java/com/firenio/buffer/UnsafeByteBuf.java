@@ -30,11 +30,6 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public byte getByteAbs(int pos) {
-        return Unsafe.getByte(memory + pos);
-    }
-
-    @Override
     public long address() {
         return memory;
     }
@@ -50,7 +45,39 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    protected int get0(ByteBuffer dst, int len) {
+    public ByteBuf duplicate() {
+        if (isReleased()) {
+            throw new IllegalStateException("released");
+        }
+        addReferenceCount();
+        return new DuplicatedUnsafeByteBuf(this, 1);
+    }
+
+    @Override
+    public byte getByteAbs(int pos) {
+        return Unsafe.getByte(memory + pos);
+    }
+
+    @Override
+    public void readBytes(byte[] dst, int offset, int length) {
+        Unsafe.copyToArray(memory + absReadIndex(), dst, offset, length);
+        this.skipRead(length);
+    }
+
+    @Override
+    protected int readBytes0(ByteBuf dst, int len) {
+        if (dst.hasArray()) {
+            copy(address() + absReadIndex(), dst.array(), dst.writeIndex(), len);
+        } else {
+            copy(address() + absReadIndex(), dst.address() + dst.absWriteIndex(), len);
+        }
+        dst.skipWrite(len);
+        skipRead(len);
+        return len;
+    }
+
+    @Override
+    protected int readBytes0(ByteBuffer dst, int len) {
         if (dst.hasArray()) {
             copy(address() + absReadIndex(), dst.array(), dst.position(), len);
         } else {
@@ -73,12 +100,6 @@ abstract class UnsafeByteBuf extends ByteBuf {
     @Override
     public byte getByte(int index) {
         return Unsafe.getByte(address() + ix(index));
-    }
-
-    @Override
-    public void readBytes(byte[] dst, int offset, int length) {
-        Unsafe.copyToArray(memory + absReadIndex(), dst, offset, length);
-        this.skipRead(length);
     }
 
     @Override
@@ -263,7 +284,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    protected int writeBytes00(ByteBuf src, int len) {
+    protected int writeBytes0(ByteBuf src, int len) {
         if (src.hasArray()) {
             copy(src.array(), src.absReadIndex(), address() + absWriteIndex(), len);
         } else {
@@ -275,7 +296,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    protected int writeBytes00(ByteBuffer src, int len) {
+    protected int writeBytes0(ByteBuffer src, int len) {
         if (src.hasArray()) {
             copy(src.array(), src.position(), address() + absWriteIndex(), len);
         } else {

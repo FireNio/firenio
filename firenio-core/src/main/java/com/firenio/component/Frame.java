@@ -81,7 +81,7 @@ public abstract class Frame {
     }
 
     public void setBytes(int header, byte[] bytes, int off, int len) {
-        this.content = ByteBuf.buffer(header + len).skipRead(header);
+        this.content = ByteBuf.buffer(header + len).skipWrite(header);
         write(bytes, off, len);
     }
 
