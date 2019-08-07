@@ -108,11 +108,6 @@ public class NetDataTransferServer {
         }
 
         @Override
-        public ByteBuf encode(Channel ch, Frame frame) {
-            return null;
-        }
-
-        @Override
         public String getProtocolId() {
             return "NetDataTransfer";
         }

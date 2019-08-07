@@ -138,11 +138,6 @@ public class HttpProxy4CloudServer {
                             }
 
                             @Override
-                            public ByteBuf encode(Channel ch, Frame frame) {
-                                return null;
-                            }
-
-                            @Override
                             public String getProtocolId() {
                                 return "http-proxy-connect";
                             }

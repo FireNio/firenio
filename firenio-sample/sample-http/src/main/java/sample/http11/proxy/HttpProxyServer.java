@@ -183,11 +183,6 @@ public class HttpProxyServer {
                         }
 
                         @Override
-                        public ByteBuf encode(Channel ch, Frame frame) {
-                            return null;
-                        }
-
-                        @Override
                         public String getProtocolId() {
                             return "http-proxy-connect";
                         }
