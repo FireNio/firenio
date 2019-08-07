@@ -754,7 +754,7 @@ public abstract class Channel implements Runnable, Closeable {
 
     //FIXME 部分buf不需要swap
     private ByteBuf swap(ByteBufAllocator allocator, ByteBuf buf) {
-        // use writeIndex instead of readableBytes because of whe buf readIndex always be zero.
+        // use writeIndex instead of readableBytes because of the buf readIndex always be zero.
         ByteBuf out = allocator.allocate(buf.writeIndex());
         out.writeBytes(buf);
         return out;

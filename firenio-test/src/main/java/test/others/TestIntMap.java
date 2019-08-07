@@ -17,7 +17,9 @@ package test.others;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.junit.Before;
@@ -25,11 +27,15 @@ import org.junit.Test;
 
 import com.firenio.collection.IntMap;
 import com.firenio.common.Assert;
+import com.firenio.log.Logger;
+import com.firenio.log.LoggerFactory;
 
 /**
  * @author wangkai
  */
 public class TestIntMap {
+
+    Logger logger = LoggerFactory.getLogger(TestIntMap.class);
 
     int             cap  = 1000;
     IntMap<Integer> map  = new IntMap<>(16);
@@ -41,8 +47,8 @@ public class TestIntMap {
         for (Integer i : list) {
             map.put(i, i);
         }
-        System.out.println("size: " + list.size());
-        System.out.println("list: " + list);
+        logger.info("size: " + list.size());
+        logger.info("list: " + list);
     }
 
     List<Integer> newDataList() {
@@ -115,5 +121,25 @@ public class TestIntMap {
         Object mv = map.remove(k);
         Assert.expectTrue(mv != null);
     }
+
+    @Test
+    public void testBigMap() {
+        int                   count   = 1024 * 1024;
+        IntMap<Integer>       map     = new IntMap<>(count);
+        Map<Integer, Integer> javaMap = new HashMap<>();
+        Random                random  = new Random();
+        for (int i = 0; i < count; i++) {
+            Integer v = random.nextInt(Integer.MAX_VALUE);
+            map.put(v, v);
+            javaMap.put(v, v);
+        }
+        int map_count = 0;
+        for (map.scan(); map.hasNext(); ) {
+            map_count++;
+        }
+        logger.info("map_count: {}, javaMap_count: {}", map_count, javaMap.size());
+        Assert.expectTrue(map_count == javaMap.size());
+    }
+
 
 }

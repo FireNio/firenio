@@ -53,7 +53,7 @@ abstract class DirectByteBuf extends UnsafeByteBuf {
         if (isReleased()) {
             throw new IllegalStateException("released");
         }
-        addReferenceCount();
+        this.retain();
         return new DuplicatedDirectByteBuf(this, 1);
     }
 

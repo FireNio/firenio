@@ -42,12 +42,6 @@ public final class Waiter<T> implements Callback<T> {
         await(0);
     }
 
-    /**
-     * return true is timeout
-     *
-     * @param timeout
-     * @return timeouted
-     */
     public void await(long timeout) {
         synchronized (lock) {
             if (!isDone) {

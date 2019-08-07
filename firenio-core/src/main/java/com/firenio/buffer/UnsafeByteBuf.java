@@ -22,7 +22,6 @@ import com.firenio.common.Unsafe;
 
 abstract class UnsafeByteBuf extends ByteBuf {
 
-    protected int  capacity;
     protected long memory;
 
     UnsafeByteBuf(long memory) {
@@ -40,8 +39,16 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public int capacity() {
-        return capacity;
+    public void collation() {
+        long address         = address();
+        int  remain          = readableBytes();
+        int  abs_read_index  = absReadIndex();
+        int  abs_write_index = absWriteIndex();
+        long src_addr        = address + abs_read_index;
+        long dst_addr        = address + offset();
+        Unsafe.copyMemory(src_addr, dst_addr, remain);
+        readIndex(0);
+        writeIndex(remain);
     }
 
     @Override
@@ -49,13 +56,40 @@ abstract class UnsafeByteBuf extends ByteBuf {
         if (isReleased()) {
             throw new IllegalStateException("released");
         }
-        addReferenceCount();
+        this.retain();
         return new DuplicatedUnsafeByteBuf(this, 1);
     }
 
     @Override
     public byte getByteAbs(int pos) {
         return Unsafe.getByte(memory + pos);
+    }
+
+    @Override
+    public void getBytes(int index, byte[] dst, int offset, int length) {
+        Unsafe.copyToArray(memory + ix(index), dst, offset, length);
+    }
+
+    @Override
+    protected int getBytes0(int index, ByteBuf dst, int len) {
+        if (dst.hasArray()) {
+            copy(address() + ix(index), dst.array(), dst.writeIndex(), len);
+        } else {
+            copy(address() + ix(index), dst.address() + dst.absWriteIndex(), len);
+        }
+        dst.skipWrite(len);
+        return len;
+    }
+
+    @Override
+    protected int getBytes0(int index, ByteBuffer dst, int len) {
+        if (dst.hasArray()) {
+            copy(address() + ix(index), dst.array(), dst.position(), len);
+        } else {
+            copy(address() + ix(index), Unsafe.address(dst) + dst.position(), len);
+        }
+        dst.position(dst.position() + len);
+        return len;
     }
 
     @Override
@@ -94,7 +128,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     public byte readByte() {
-        return Unsafe.getByte(address() + (abs_read_index++));
+        return Unsafe.getByte(address() + abs_read_index++);
     }
 
     @Override
@@ -273,7 +307,35 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     protected void writeByte0(byte b) {
-        Unsafe.putByte(address() + (abs_write_index++), b);
+        Unsafe.putByte(address() + abs_write_index++, b);
+    }
+
+    @Override
+    protected int setBytes0(int index, byte[] src, int offset, int length) {
+        Unsafe.copyFromArray(src, offset, address() + ix(index), length);
+        return length;
+    }
+
+    @Override
+    protected int setBytes0(int index, ByteBuf src, int len) {
+        if (src.hasArray()) {
+            copy(src.array(), src.absReadIndex(), address() + ix(index), len);
+        } else {
+            copy(src.address() + src.absReadIndex(), address() + ix(index), len);
+        }
+        src.skipRead(len);
+        return len;
+    }
+
+    @Override
+    protected int setBytes0(int index, ByteBuffer src, int len) {
+        if (src.hasArray()) {
+            copy(src.array(), src.position(), address() + ix(index), len);
+        } else {
+            copy(Unsafe.address(src) + src.position(), address() + ix(index), len);
+        }
+        src.position(src.position() + len);
+        return len;
     }
 
     @Override
@@ -314,7 +376,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     protected void writeInt0(int value) {
-        ByteUtil.putInt(address() + absReadIndex(), value);
+        ByteUtil.putInt(address() + absWriteIndex(), value);
         skipWrite(4);
     }
 
@@ -325,7 +387,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     protected void writeIntLE0(int value) {
-        ByteUtil.putIntLE(address() + absReadIndex(), value);
+        ByteUtil.putIntLE(address() + absWriteIndex(), value);
         skipWrite(4);
     }
 
@@ -336,7 +398,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     protected void writeLong0(long value) {
-        ByteUtil.putLong(address() + absReadIndex(), value);
+        ByteUtil.putLong(address() + absWriteIndex(), value);
         skipWrite(8);
     }
 
@@ -347,7 +409,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     protected void writeLongLE0(long value) {
-        ByteUtil.putLongLE(address() + absReadIndex(), value);
+        ByteUtil.putLongLE(address() + absWriteIndex(), value);
         skipWrite(8);
     }
 
@@ -358,7 +420,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     protected void writeShort0(int value) {
-        ByteUtil.putShort(address() + absReadIndex(), (short) value);
+        ByteUtil.putShort(address() + absWriteIndex(), (short) value);
         skipWrite(2);
     }
 
@@ -369,7 +431,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     protected void writeShortLE0(int value) {
-        ByteUtil.putShortLE(address() + absReadIndex(), (short) value);
+        ByteUtil.putShortLE(address() + absWriteIndex(), (short) value);
         skipWrite(2);
     }
 

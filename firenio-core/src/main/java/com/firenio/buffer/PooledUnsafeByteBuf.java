@@ -19,7 +19,6 @@ final class PooledUnsafeByteBuf extends UnsafeByteBuf {
 
     private PooledByteBufAllocator allocator;
     private int                    capacity;
-    private int                    offset;
     private int                    unitOffset;
 
     PooledUnsafeByteBuf(PooledByteBufAllocator allocator, long memory) {
@@ -50,16 +49,6 @@ final class PooledUnsafeByteBuf extends UnsafeByteBuf {
     @Override
     public boolean isPooled() {
         return true;
-    }
-
-    @Override
-    protected int offset() {
-        return offset;
-    }
-
-    @Override
-    protected void offset(int offset) {
-        this.offset = offset;
     }
 
     @Override

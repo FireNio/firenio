@@ -190,9 +190,9 @@ public class ByteUtil {
 
     public static int getIntLE(long address) {
         if (Unsafe.isLittleOrder()) {
-            return Unsafe.getShort(address);
+            return Unsafe.getInt(address);
         } else {
-            return Integer.reverseBytes(Unsafe.getShort(address));
+            return Integer.reverseBytes(Unsafe.getInt(address));
         }
     }
 

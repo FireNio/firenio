@@ -74,6 +74,51 @@ final class DuplicatedUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
+    public int setBytes(int index, ByteBuf src) {
+        throw unsupportedOperationException();
+    }
+
+    @Override
+    public int setBytes(int index, ByteBuffer src) {
+        throw unsupportedOperationException();
+    }
+
+    @Override
+    public int setBytes(int index, ByteBuf src, int length) {
+        throw unsupportedOperationException();
+    }
+
+    @Override
+    public int setBytes(int index, ByteBuffer src, int length) {
+        throw unsupportedOperationException();
+    }
+
+    @Override
+    public int setBytes(int index, byte[] src, int offset, int length) {
+        throw unsupportedOperationException();
+    }
+
+    @Override
+    public void setBytes(int index, byte[] src) {
+        throw unsupportedOperationException();
+    }
+
+    @Override
+    protected int setBytes0(int index, ByteBuf src, int len) {
+        throw unsupportedOperationException();
+    }
+
+    @Override
+    protected int setBytes0(int index, ByteBuffer src, int len) {
+        throw unsupportedOperationException();
+    }
+
+    @Override
+    protected int setBytes0(int index, byte[] src, int offset, int length) {
+        throw unsupportedOperationException();
+    }
+
+    @Override
     public void writeBytes(byte[] src) {
         throw unsupportedOperationException();
     }

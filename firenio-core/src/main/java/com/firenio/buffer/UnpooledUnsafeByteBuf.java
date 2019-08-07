@@ -22,6 +22,8 @@ import com.firenio.common.Unsafe;
  */
 final class UnpooledUnsafeByteBuf extends UnsafeByteBuf {
 
+    private int capacity;
+
     UnpooledUnsafeByteBuf(long memory, int cap) {
         super(memory);
         this.capacity = cap;
@@ -33,14 +35,18 @@ final class UnpooledUnsafeByteBuf extends UnsafeByteBuf {
         long oldBuffer = memory;
         try {
             long newBuffer = Unsafe.allocate(cap);
-            int  pos       = absReadIndex();
-            if (pos > 0) {
-                copy(oldBuffer + pos, newBuffer, pos);
+            if (hasReadableBytes()) {
+                copy(oldBuffer + absReadIndex(), newBuffer, readableBytes());
             }
             memory = newBuffer;
         } finally {
             Unsafe.free(oldBuffer);
         }
+    }
+
+    @Override
+    public int capacity() {
+        return capacity;
     }
 
     @Override

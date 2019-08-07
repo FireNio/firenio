@@ -48,8 +48,8 @@ class UnpooledHeapByteBuf extends HeapByteBuf {
     public void expansion(int cap) {
         byte[] oldBuffer = memory;
         byte[] newBuffer = new byte[cap];
-        if (abs_write_index > 0) {
-            copy(oldBuffer, offset(), newBuffer, 0, writeIndex());
+        if (hasReadableBytes()) {
+            copy(oldBuffer, absReadIndex(), newBuffer, 0, readableBytes());
         }
         memory = newBuffer;
     }

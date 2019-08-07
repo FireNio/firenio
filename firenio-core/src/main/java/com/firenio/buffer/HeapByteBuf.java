@@ -45,11 +45,23 @@ abstract class HeapByteBuf extends ByteBuf {
     }
 
     @Override
+    public void collation() {
+        int remain          = readableBytes();
+        int abs_read_index  = absReadIndex();
+        int abs_write_index = absWriteIndex();
+        int src_offset      = abs_read_index;
+        int dst_offset      = offset();
+        System.arraycopy(memory, src_offset, memory, dst_offset, remain);
+        readIndex(0);
+        writeIndex(remain);
+    }
+
+    @Override
     public ByteBuf duplicate() {
         if (isReleased()) {
             throw new IllegalStateException("released");
         }
-        addReferenceCount();
+        this.retain();
         return new DuplicatedHeapByteBuf(this, 1);
     }
 
@@ -58,9 +70,37 @@ abstract class HeapByteBuf extends ByteBuf {
         return memory[pos];
     }
 
+
+    @Override
+    public void getBytes(int index, byte[] dst, int offset, int length) {
+        System.arraycopy(memory, ix(index), dst, offset, length);
+    }
+
+    @Override
+    protected int getBytes0(int index, ByteBuf dst, int len) {
+        if (dst.hasArray()) {
+            copy(memory, ix(index), dst.array(), dst.writeIndex(), len);
+        } else {
+            copy(memory, ix(index), dst.address() + dst.absWriteIndex(), len);
+        }
+        dst.skipWrite(len);
+        return len;
+    }
+
+    @Override
+    protected int getBytes0(int index, ByteBuffer dst, int len) {
+        if (dst.hasArray()) {
+            copy(memory, ix(index), dst.array(), dst.position(), len);
+        } else {
+            copy(memory, ix(index), Unsafe.address(dst) + dst.position(), len);
+        }
+        dst.position(dst.position() + len);
+        return len;
+    }
+
     @Override
     public void readBytes(byte[] dst, int offset, int length) {
-        System.arraycopy(memory, abs_read_index, dst, offset, length);
+        System.arraycopy(memory, absReadIndex(), dst, offset, length);
         skipRead(length);
     }
 
@@ -100,7 +140,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public int readInt() {
-        int v = ByteUtil.getInt(memory, abs_read_index);
+        int v = ByteUtil.getInt(memory, absReadIndex());
         skipRead(4);
         return v;
     }
@@ -112,7 +152,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public int readIntLE() {
-        int v = ByteUtil.getIntLE(memory, abs_read_index);
+        int v = ByteUtil.getIntLE(memory, absReadIndex());
         skipRead(4);
         return v;
     }
@@ -124,7 +164,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public long readLong() {
-        long v = ByteUtil.getLong(memory, abs_read_index);
+        long v = ByteUtil.getLong(memory, absReadIndex());
         skipRead(8);
         return v;
     }
@@ -136,7 +176,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public long readLongLE() {
-        long v = ByteUtil.getLongLE(memory, abs_read_index);
+        long v = ByteUtil.getLongLE(memory, absReadIndex());
         skipRead(8);
         return v;
     }
@@ -156,7 +196,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public short readShort() {
-        short v = ByteUtil.getShort(memory, abs_read_index);
+        short v = ByteUtil.getShort(memory, absReadIndex());
         skipRead(2);
         return v;
     }
@@ -168,7 +208,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public short readShortLE() {
-        short v = ByteUtil.getShortLE(memory, abs_read_index);
+        short v = ByteUtil.getShortLE(memory, absReadIndex());
         skipRead(2);
         return v;
     }
@@ -190,7 +230,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public long readUnsignedInt() {
-        long v = toUnsignedInt(ByteUtil.getInt(memory, abs_read_index));
+        long v = toUnsignedInt(ByteUtil.getInt(memory, absReadIndex()));
         skipRead(4);
         return v;
     }
@@ -202,7 +242,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public long readUnsignedIntLE() {
-        long v = toUnsignedInt(ByteUtil.getIntLE(memory, abs_read_index));
+        long v = toUnsignedInt(ByteUtil.getIntLE(memory, absReadIndex()));
         skipRead(4);
         return v;
     }
@@ -214,7 +254,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public int readUnsignedShort() {
-        int v = ByteUtil.getShort(memory, abs_read_index) & 0xffff;
+        int v = ByteUtil.getShort(memory, absReadIndex()) & 0xffff;
         skipRead(2);
         return v;
     }
@@ -226,7 +266,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public int readUnsignedShortLE() {
-        int v = ByteUtil.getShortLE(memory, abs_read_index) & 0xffff;
+        int v = ByteUtil.getShortLE(memory, absReadIndex()) & 0xffff;
         skipRead(2);
         return v;
     }
@@ -278,6 +318,34 @@ abstract class HeapByteBuf extends ByteBuf {
     }
 
     @Override
+    protected int setBytes0(int index, byte[] src, int offset, int length) {
+        System.arraycopy(src, offset, memory, ix(index), length);
+        return length;
+    }
+
+    @Override
+    protected int setBytes0(int index, ByteBuf src, int len) {
+        if (src.hasArray()) {
+            copy(src.array(), src.absReadIndex(), memory, ix(index), len);
+        } else {
+            copy(src.address() + src.absReadIndex(), memory, ix(index), len);
+        }
+        src.skipRead(len);
+        return len;
+    }
+
+    @Override
+    protected int setBytes0(int index, ByteBuffer src, int len) {
+        if (src.hasArray()) {
+            copy(src.array(), src.position(), memory, ix(index), len);
+        } else {
+            copy(Unsafe.address(src) + src.position(), memory, ix(index), len);
+        }
+        src.position(src.position() + len);
+        return len;
+    }
+
+    @Override
     protected int writeBytes0(byte[] src, int offset, int length) {
         System.arraycopy(src, offset, memory, absWriteIndex(), length);
         skipWrite(length);
@@ -315,7 +383,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     protected void writeInt0(int value) {
-        ByteUtil.putInt(memory, value, abs_write_index);
+        ByteUtil.putInt(memory, value, absWriteIndex());
         skipWrite(4);
     }
 
@@ -326,7 +394,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     protected void writeIntLE0(int value) {
-        ByteUtil.putIntLE(memory, value, abs_write_index);
+        ByteUtil.putIntLE(memory, value, absWriteIndex());
         skipWrite(4);
     }
 
@@ -337,7 +405,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     protected void writeLong0(long value) {
-        ByteUtil.putLong(memory, value, abs_write_index);
+        ByteUtil.putLong(memory, value, absWriteIndex());
         skipWrite(8);
     }
 
@@ -348,7 +416,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     protected void writeLongLE0(long value) {
-        ByteUtil.putLongLE(memory, value, abs_write_index);
+        ByteUtil.putLongLE(memory, value, absWriteIndex());
         skipWrite(8);
     }
 
@@ -359,7 +427,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     protected void writeShort0(int value) {
-        ByteUtil.putShort(memory, (short) value, abs_write_index);
+        ByteUtil.putShort(memory, (short) value, absWriteIndex());
         skipWrite(2);
     }
 
@@ -370,7 +438,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     protected void writeShortLE0(int value) {
-        ByteUtil.putShortLE(memory, (short) value, abs_write_index);
+        ByteUtil.putShortLE(memory, (short) value, absWriteIndex());
         skipWrite(2);
     }
 

@@ -129,15 +129,21 @@ public abstract class ByteBuf implements Releasable {
         return this;
     }
 
-    protected void addReferenceCount() {
+    public boolean retain() {
         int referenceCount = this.referenceCount;
+        if (referenceCount == 0) {
+            return false;
+        }
         if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
-            return;
+            return true;
         }
         for (; ; ) {
             referenceCount = this.referenceCount;
+            if (referenceCount == 0) {
+                return false;
+            }
             if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
-                break;
+                return true;
             } else {
                 if (BUF_THREAD_YIELD) {
                     Thread.yield();
@@ -151,6 +157,8 @@ public abstract class ByteBuf implements Releasable {
     public abstract byte[] array();
 
     public abstract int capacity();
+
+    public abstract void collation();
 
     protected void capacity(int cap) {}
 
@@ -179,6 +187,52 @@ public abstract class ByteBuf implements Releasable {
     public abstract byte readByte();
 
     public abstract byte getByte(int index);
+
+
+    public byte[] getBytes(int index) {
+        return getBytes(index, readableBytes());
+    }
+
+    public byte[] getBytes(int index, int length) {
+        byte[] bytes = new byte[length];
+        getBytes(index, bytes);
+        return bytes;
+    }
+
+    public void getBytes(int index, byte[] dst) {
+        getBytes(index, dst, 0, dst.length);
+    }
+
+    public abstract void getBytes(int index, byte[] dst, int offset, int length);
+
+    public int getBytes(int index, ByteBuf dst) {
+        return getBytes(index, dst, dst.writableBytes());
+    }
+
+    public int getBytes(int index, ByteBuf dst, int length) {
+        int len = Math.min(readableBytes(), length);
+        if (len == 0) {
+            return 0;
+        }
+        return getBytes0(index, dst, len);
+    }
+
+    public int getBytes(int index, ByteBuffer dst) {
+        return getBytes(index, dst, dst.remaining());
+    }
+
+    public int getBytes(int index, ByteBuffer dst, int length) {
+        int len = Math.min(readableBytes(), length);
+        if (len == 0) {
+            return 0;
+        }
+        return getBytes0(index, dst, len);
+    }
+
+    protected abstract int getBytes0(int index, ByteBuf dst, int len);
+
+    protected abstract int getBytes0(int index, ByteBuffer dst, int len);
+
 
     public byte[] readBytes() {
         return readBytes(readableBytes());
@@ -305,7 +359,7 @@ public abstract class ByteBuf implements Releasable {
     public abstract boolean hasArray();
 
     public boolean hasReadableBytes() {
-        return abs_read_index < abs_write_index;
+        return absReadIndex() < absWriteIndex();
     }
 
     public int indexOf(byte b) {
@@ -344,7 +398,7 @@ public abstract class ByteBuf implements Releasable {
     public abstract int lastIndexOf(byte b, int absPos, int size);
 
     public int writeIndex() {
-        return abs_write_index - offset();
+        return absWriteIndex() - offset();
     }
 
     public ByteBuf writeIndex(int index) {
@@ -353,7 +407,7 @@ public abstract class ByteBuf implements Releasable {
     }
 
     public ByteBuf markWriteIndex() {
-        this.marked_abs_write_index = this.abs_write_index;
+        this.marked_abs_write_index = absWriteIndex();
         return this;
     }
 
@@ -362,7 +416,7 @@ public abstract class ByteBuf implements Releasable {
         return this;
     }
 
-    protected int offset() {
+    public int offset() {
         return offset;
     }
 
@@ -371,7 +425,7 @@ public abstract class ByteBuf implements Releasable {
     }
 
     public int readIndex() {
-        return abs_read_index - offset();
+        return absReadIndex() - offset();
     }
 
     public ByteBuf readIndex(int index) {
@@ -391,6 +445,64 @@ public abstract class ByteBuf implements Releasable {
     public abstract void setByte(int index, byte b);
 
     protected abstract void writeByte0(byte b);
+
+    public void setBytes(int index, byte[] src) {
+        setBytes(index, src, 0, src.length);
+    }
+
+    public int setBytes(int index, byte[] src, int offset, int length) {
+        if (AUTO_EXPANSION) {
+            ensureWritable(length);
+            return setBytes0(index, src, offset, length);
+        } else {
+            int len = Math.min(writableBytes(), length);
+            if (len == 0) {
+                return 0;
+            }
+            return setBytes0(index, src, offset, length);
+        }
+    }
+
+    protected abstract int setBytes0(int index, byte[] src, int offset, int length);
+
+    public int setBytes(int index, ByteBuf src) {
+        return setBytes(index, src, src.readableBytes());
+    }
+
+    public int setBytes(int index, ByteBuf src, int length) {
+        if (AUTO_EXPANSION) {
+            ensureWritable(length);
+            return setBytes0(index, src, length);
+        } else {
+            int len = Math.min(writableBytes(), length);
+            if (len == 0) {
+                return 0;
+            }
+            return setBytes0(index, src, len);
+        }
+    }
+
+    public int setBytes(int index, ByteBuffer src) {
+        return setBytes(index, src, src.remaining());
+    }
+
+    public int setBytes(int index, ByteBuffer src, int length) {
+        if (AUTO_EXPANSION) {
+            ensureWritable(length);
+            return setBytes0(index, src, length);
+        } else {
+            int len = Math.min(writableBytes(), length);
+            if (len == 0) {
+                return 0;
+            }
+            return setBytes0(index, src, len);
+        }
+    }
+
+    protected abstract int setBytes0(int index, ByteBuf src, int len);
+
+    protected abstract int setBytes0(int index, ByteBuffer src, int len);
+
 
     public void writeBytes(byte[] src) {
         writeBytes(src, 0, src.length);
@@ -571,18 +683,18 @@ public abstract class ByteBuf implements Releasable {
 
     public ByteBuffer nioReadBuffer() {
         ByteBuffer buffer = getNioBuffer();
-        return (ByteBuffer) buffer.limit(abs_write_index).position(abs_read_index);
+        return (ByteBuffer) buffer.limit(absWriteIndex()).position(absReadIndex());
     }
 
     public ByteBuffer nioWriteBuffer() {
         ByteBuffer buffer = getNioBuffer();
-        return (ByteBuffer) buffer.limit(capacity() + offset()).position(abs_write_index);
+        return (ByteBuffer) buffer.limit(capacity() + offset()).position(absWriteIndex());
     }
 
     protected abstract void release0();
 
     public int readableBytes() {
-        return abs_write_index - abs_read_index;
+        return absWriteIndex() - absReadIndex();
     }
 
     public int writableBytes() {
