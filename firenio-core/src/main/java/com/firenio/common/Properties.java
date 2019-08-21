@@ -38,7 +38,7 @@ public class Properties extends java.util.Properties {
         if (Util.isNullOrBlank(temp)) {
             return defaultValue;
         }
-        return Boolean.valueOf(temp);
+        return Boolean.parseBoolean(temp);
     }
 
     public double getDoubleProperty(String key) {
@@ -50,7 +50,7 @@ public class Properties extends java.util.Properties {
         if (Util.isNullOrBlank(temp)) {
             return defaultValue;
         }
-        return Double.valueOf(temp);
+        return Double.parseDouble(temp);
     }
 
     public int getIntegerProperty(String key) {
@@ -75,14 +75,6 @@ public class Properties extends java.util.Properties {
             return defaultValue;
         }
         return Long.parseLong(temp);
-    }
-
-    public String getPropertyNoBlank(String key) throws PropertiesException {
-        String value = getProperty(key);
-        if (Util.isNullOrBlank(value)) {
-            throw new PropertiesException("property " + key + " is empty");
-        }
-        return value;
     }
 
     private void insertOneRow(String line) {
@@ -113,21 +105,6 @@ public class Properties extends java.util.Properties {
 
     private String trim(String value) {
         return value.trim().replace("\r", "").replace("\t", "");
-    }
-
-    class PropertiesException extends Exception {
-
-        private static final long serialVersionUID = 1L;
-
-        public PropertiesException() {}
-
-        public PropertiesException(String message) {
-            super(message);
-        }
-
-        public PropertiesException(String message, Throwable cause) {
-            super(message, cause);
-        }
     }
 
 }

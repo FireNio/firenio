@@ -65,8 +65,8 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         ConfigurationParser.parseConfiguration("server.", context, properties);
         ConfigurationParser.parseConfiguration("server.", group, properties);
         context.setIoEventHandle(handle);
-        context.addChannelEventListener(new WebSocketChannelListener());
         context.addChannelIdleEventListener(new ChannelAliveListener());
+        context.addChannelEventListener(new WebSocketChannelListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new CountChannelListener());
         context.setExecutorGroup(new ThreadEventLoopGroup());

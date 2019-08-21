@@ -23,7 +23,6 @@ public class ByteUtil {
 
     private static final String[] HEXES     = new String[256];
     private static final String[] NUMS      = new String[256];
-    private static final byte[]   CHAR_NUMS = new byte[10];
 
     static {
         for (int i = 0; i < 16; i++) {
@@ -33,9 +32,6 @@ public class ByteUtil {
         for (int i = 16; i < HEXES.length; i++) {
             HEXES[i] = Integer.toHexString(i);
             NUMS[i] = String.valueOf(i);
-        }
-        for (int i = 0; i < CHAR_NUMS.length; i++) {
-            CHAR_NUMS[i] = (byte) NUMS[i].charAt(0);
         }
     }
 
@@ -231,10 +227,6 @@ public class ByteUtil {
 
     public static String getNumString(byte b) {
         return NUMS[b & 0xFF];
-    }
-
-    public static byte getNumCharByte(int value) {
-        return CHAR_NUMS[value];
     }
 
     public static short getShort(byte[] bytes, int offset) {

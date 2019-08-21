@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import com.firenio.buffer.ByteBuf;
 import com.firenio.common.Util;
+import com.firenio.concurrent.EventLoop;
 
 /**
  * @author wangkai
@@ -103,6 +104,19 @@ public abstract class ProtocolCodec {
     protected void flush_pong(Channel ch, ByteBuf buf) {
         ch.writeAndFlush(buf);
         ch.getContext().getHeartBeatLogger().logPongTo(ch);
+    }
+
+    protected ByteBuf getPlainReadBuf(NioEventLoop el, Channel ch) {
+        return el.getReadBuf();
+    }
+
+    protected void storePlainReadRemain(Channel ch, ByteBuf src) {
+        ch.slice_remain_plain(src);
+    }
+
+    protected void readPlainRemain(Channel ch, ByteBuf dst) {
+        dst.clear();
+        ch.read_plain_remain(dst);
     }
 
     protected ByteBuf getPingBuf() {

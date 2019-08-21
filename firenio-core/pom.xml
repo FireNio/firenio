@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>com.firenio</groupId>
 		<artifactId>firenio</artifactId>
-		<version>1.3.0</version>
+		<version>1.3.1</version>
 		<relativePath>../firenio/pom.xml</relativePath>
 	</parent>
 
@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>org.wildfly.openssl</groupId>
 			<artifactId>wildfly-openssl-java</artifactId>
-			<version>1.0.6.Final</version>
+			<version>1.0.8.Final</version>
 			<scope>provided</scope>
 		</dependency>
 

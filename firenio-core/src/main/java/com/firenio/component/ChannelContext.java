@@ -149,13 +149,23 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
             }
             if (isEnableSsl()) {
                 sb.setLength(0);
-                for (String p : SslContext.ENABLED_PROTOCOLS) {
+                for (String p : sslContext.getProtocols()) {
                     sb.append(p);
                     sb.append(',');
                     sb.append(' ');
                 }
                 sb.setLength(sb.length() - 2);
-                logger.info("ssl default protocols : [ {} ]", sb.toString());
+                logger.info("ssl protocols         : [ {} ]", sb.toString());
+            }
+            if (isEnableSsl()) {
+                sb.setLength(0);
+                for (String p : sslContext.getCipherSuites()) {
+                    sb.append(p);
+                    sb.append(',');
+                    sb.append(' ');
+                }
+                sb.setLength(sb.length() - 2);
+                logger.info("ssl cipher suites     : [ {} ]", sb.toString());
             }
         }
     }

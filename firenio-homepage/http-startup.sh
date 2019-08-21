@@ -1,3 +1,5 @@
+#!/bin/bash
+
 cd ../firenio
 mvn clean install -DskipTests
 
@@ -27,5 +29,6 @@ java -XX:+PrintGCDetails -Xloggc:gc.log -Xdebug -Xrunjdwp:server=y,transport=dt_
      -cp $CLASSPATH \
      -Dboot.mode=prod \
      -Dboot.libPath=/app/lib \
+     -Dorg.wildfly.openssl.path=$1 \
      -Dboot.class=sample.http11.startup.TestHttpBootstrapEngine \
      com.firenio.container.Bootstrap

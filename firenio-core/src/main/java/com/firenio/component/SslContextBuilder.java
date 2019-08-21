@@ -64,6 +64,7 @@ public final class SslContextBuilder {
 
     private String[]              applicationProtocols;
     private List<String>          ciphers;
+    private List<String>          protocols;
     private ClientAuth            clientAuth = ClientAuth.NONE;
     private TrustType             trustType;
     private boolean               isServer;
@@ -126,7 +127,7 @@ public final class SslContextBuilder {
 
     public SslContext build() throws SSLException {
         SSLContext context = newSSLContext();
-        return new SslContext(context, isServer, ciphers, clientAuth, applicationProtocols);
+        return new SslContext(context, isServer, protocols, ciphers, clientAuth, applicationProtocols);
     }
 
     private KeyManagerFactory buildKeyManagerFactory(KeyStore ks, char[] keyPasswordChars) throws SSLException {
@@ -186,6 +187,12 @@ public final class SslContextBuilder {
     public SslContextBuilder ciphers(List<String> ciphers) {
         needServer();
         this.ciphers = ciphers;
+        return this;
+    }
+
+    public SslContextBuilder protocols(List<String> protocols) {
+        needServer();
+        this.protocols = protocols;
         return this;
     }
 
@@ -326,7 +333,7 @@ public final class SslContextBuilder {
                         if (rawX509Certificates.size() == 1) {
                             tms = new X509TrustManager[]{new TrustOneX509TrustManager(rawX509Certificates.get(0))};
                         } else {
-                            X509Certificate[] cs = rawX509Certificates.toArray(new X509Certificate[rawX509Certificates.size()]);
+                            X509Certificate[] cs = rawX509Certificates.toArray(new X509Certificate[0]);
                             tms = new X509TrustManager[]{new TrustX509TrustManager(cs)};
                         }
                         break;
@@ -462,7 +469,7 @@ public final class SslContextBuilder {
 
     }
 
-    class TrustAllX509TrustManager implements X509TrustManager {
+    static class TrustAllX509TrustManager implements X509TrustManager {
 
         @Override
         public void checkClientTrusted(X509Certificate[] arg0, String arg1) {}
@@ -478,7 +485,7 @@ public final class SslContextBuilder {
     }
 
 
-    class TrustX509TrustManager implements X509TrustManager {
+    static class TrustX509TrustManager implements X509TrustManager {
 
         final X509Certificate[] certificates;
 
@@ -509,7 +516,7 @@ public final class SslContextBuilder {
 
     }
 
-    class TrustOneX509TrustManager implements X509TrustManager {
+    static class TrustOneX509TrustManager implements X509TrustManager {
 
         X509Certificate certificate;
 
