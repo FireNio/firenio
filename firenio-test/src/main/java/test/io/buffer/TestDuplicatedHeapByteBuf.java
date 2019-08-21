@@ -19,19 +19,18 @@ import org.junit.Test;
 
 import com.firenio.buffer.ByteBuf;
 import com.firenio.buffer.ByteBufAllocator;
-
-import junit.framework.Assert;
+import com.firenio.common.Assert;
 
 /**
  * @author wangkai
  */
-public class TestDuplicatedByteBuf {
+public class TestDuplicatedHeapByteBuf {
 
     static final String data = "abcdef";
 
     static void v(ByteBuf buf) {
 
-        Assert.assertEquals(new String(buf.getBytes()), data);
+        Assert.expectEquals(new String(buf.readBytes()), data);
 
     }
 
@@ -39,8 +38,7 @@ public class TestDuplicatedByteBuf {
     public void testDirect() {
         ByteBuf buf = ByteBuf.direct(16);
 
-        buf.putBytes(data.getBytes());
-        buf.flip();
+        buf.writeBytes(data.getBytes());
         ByteBuf buf2 = buf.duplicate();
         v(buf2);
     }
@@ -50,8 +48,7 @@ public class TestDuplicatedByteBuf {
         ByteBufAllocator a   = TestAllocUtil.direct();
         ByteBuf          buf = a.allocate(16);
 
-        buf.putBytes(data.getBytes());
-        buf.flip();
+        buf.writeBytes(data.getBytes());
         ByteBuf buf2 = buf.duplicate();
         v(buf2);
     }
@@ -60,8 +57,7 @@ public class TestDuplicatedByteBuf {
     public void testHeap() {
         ByteBuf buf = ByteBuf.direct(16);
 
-        buf.putBytes(data.getBytes());
-        buf.flip();
+        buf.writeBytes(data.getBytes());
         ByteBuf buf2 = buf.duplicate();
         v(buf2);
     }
@@ -71,8 +67,7 @@ public class TestDuplicatedByteBuf {
         ByteBufAllocator a   = TestAllocUtil.heap();
         ByteBuf          buf = a.allocate(16);
 
-        buf.putBytes(data.getBytes());
-        buf.flip();
+        buf.writeBytes(data.getBytes());
         ByteBuf buf2 = buf.duplicate();
         v(buf2);
     }

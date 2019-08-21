@@ -50,10 +50,10 @@ public class TestPooledBytebuf {
                     ByteBuf buf = a.allocate(pa);
                     a.toString();
                     bufs.add(buf);
-                    alloc += buf.limit();
-                    if (buf.limit() % 3 != 0) {
+                    alloc += buf.writeIndex();
+                    if (buf.writeIndex() % 3 != 0) {
                         buf.release();
-                        alloc -= buf.limit();
+                        alloc -= buf.writeIndex();
                         bufs.remove(buf);
                     }
                 }

@@ -68,7 +68,7 @@ public class NetDataTransferServer {
             Channel t = (Channel) ch.getAttachment();
             if (t == null) {
                 short hostLen = src.getUnsignedByte(0);
-                if (src.remaining() < hostLen + 5) {
+                if (src.readableBytes() < hostLen + 5) {
                     ch.close();
                     return null;
                 }
@@ -80,8 +80,8 @@ public class NetDataTransferServer {
                 }
                 byte[] hostBytes = new byte[hostLen];
                 int    port      = src.getUnsignedShort(3);
-                src.skip(5);
-                src.getBytes(hostBytes);
+                src.skipRead(5);
+                src.readBytes(hostBytes);
                 String           host    = new String(hostBytes);
                 NioEventLoop     el      = ch.getEventLoop();
                 ChannelConnector context = new ChannelConnector(el, host, port);
@@ -101,15 +101,9 @@ public class NetDataTransferServer {
                 }, 10000);
                 return null;
             }
-            ByteBuf buf = t.alloc().allocate(src.remaining());
-            buf.putBytes(src);
-            buf.flip();
+            ByteBuf buf = t.alloc().allocate(src.readableBytes());
+            buf.writeBytes(src);
             t.writeAndFlush(buf);
-            return null;
-        }
-
-        @Override
-        public ByteBuf encode(Channel ch, Frame frame) {
             return null;
         }
 

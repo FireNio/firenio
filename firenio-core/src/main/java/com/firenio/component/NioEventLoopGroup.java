@@ -103,8 +103,14 @@ public class NioEventLoopGroup extends EventLoopGroup {
             memoryPoolCapacity = (int) (total / (memoryPoolUnit * getEventLoopSize() * memoryPoolRate));
         }
         if (isEnableMemoryPool() && getAllocatorGroup() == null) {
-            if (isEnableMemoryPoolDirect() && !Unsafe.DIRECT_BUFFER_AVAILABLE) {
-                throw new Exception("DirectByteBuffer pool enabled but no DirectByteBuffer available");
+            if (isEnableMemoryPoolDirect()) {
+                if (!Unsafe.DIRECT_BUFFER_AVAILABLE) {
+                    throw new Exception("DirectByteBuffer pool enabled but no DirectByteBuffer available");
+                }
+            } else {
+                if (Native.EPOLL_AVAILABLE) {
+                    throw new Exception("EPoll mode only support unsafe(direct) memory");
+                }
             }
             this.allocatorGroup = new ByteBufAllocatorGroup(getEventLoopSize(), memoryPoolCapacity, memoryPoolUnit, enableMemoryPoolDirect);
         }

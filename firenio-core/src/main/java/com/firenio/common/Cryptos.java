@@ -100,7 +100,7 @@ public class Cryptos {
     public static byte[] aes_en(byte[] content, byte[] password) throws Exception {
         KeyGenerator kgen = KeyGenerator.getInstance("AES");// 创建AES的Key生产者
         // 利用用户密码作为随机数初始化出,128位的key生产者
-        //加密没关系，SecureRandom是生成安全随机数序列，password.getBytes()是种子，只要种子相同，序列就一样，所以解密只要有password就行
+        //加密没关系，SecureRandom是生成安全随机数序列，password.readBytes()是种子，只要种子相同，序列就一样，所以解密只要有password就行
         SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
         random.setSeed(password);
         kgen.init(128, random);

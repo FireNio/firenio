@@ -23,10 +23,9 @@ import java.util.List;
 import org.junit.Test;
 
 import com.firenio.buffer.ByteBuf;
+import com.firenio.common.Assert;
 import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
-
-import junit.framework.Assert;
 
 /**
  * @author wangkai
@@ -44,16 +43,16 @@ public class TestByteBufCopy {
         jDirectData = Unsafe.allocateDirectByteBuffer(12);
         jArrayData.position(6);
         jDirectData.put(_data).position(6);
-        arrayData = ByteBuf.wrap(jArrayData).skip(6);
-        directData = ByteBuf.wrap(jDirectData).skip(6);
+        arrayData = ByteBuf.wrap(jArrayData).skipWrite(6);
+        directData = ByteBuf.wrap(jDirectData).skipWrite(6);
     }
 
     static ByteBuf _array() {
-        return ByteBuf.heap(12).position(6);
+        return ByteBuf.heap(12).writeIndex(6);
     }
 
     static ByteBuf _direct() {
-        return ByteBuf.direct(12).position(6);
+        return ByteBuf.direct(12).writeIndex(6);
     }
 
     static ByteBuffer _jArray() {
@@ -65,11 +64,11 @@ public class TestByteBufCopy {
     }
 
     static ByteBuf arrayData() {
-        return arrayData.limit(12).position(6);
+        return arrayData.writeIndex(12).readIndex(6);
     }
 
     static ByteBuf directData() {
-        return directData.limit(12).position(6);
+        return directData.writeIndex(12).readIndex(6);
     }
 
     static ByteBuffer jArrayData() {
@@ -90,9 +89,8 @@ public class TestByteBufCopy {
         Object res = m.invoke(this, (Object[]) null);
         byte[] bytes;
         if (res instanceof ByteBuf) {
-            ((ByteBuf) res).flip();
-            ((ByteBuf) res).position(((ByteBuf) res).limit() - 6);
-            bytes = ((ByteBuf) res).getBytes();
+            ((ByteBuf) res).readIndex(((ByteBuf) res).writeIndex() - 6);
+            bytes = ((ByteBuf) res).readBytes();
         } else if (res instanceof ByteBuffer) {
             ((ByteBuffer) res).flip();
             ((ByteBuffer) res).position(((ByteBuffer) res).limit() - 6);
@@ -101,7 +99,7 @@ public class TestByteBufCopy {
         } else {
             bytes = "1".getBytes();
         }
-        Assert.assertEquals("abc123", new String(bytes));
+        Assert.expectEquals("abc123", new String(bytes));
     }
 
     @Test
@@ -126,97 +124,97 @@ public class TestByteBufCopy {
 
     Object arrayGetArray() {
         ByteBuf buf = _array();
-        arrayData().getBytes(buf);
+        arrayData().readBytes(buf);
         return buf;
     }
 
     Object arrayGetDirect() {
         ByteBuf buf = _direct();
-        arrayData().getBytes(buf);
+        arrayData().readBytes(buf);
         return buf;
     }
 
     Object arrayGetJArray() {
         ByteBuffer buf = _jArray();
-        arrayData().getBytes(buf);
+        arrayData().readBytes(buf);
         return buf;
     }
 
     Object arrayGetJDirect() {
         ByteBuffer buf = _jDirect();
-        arrayData().getBytes(buf);
+        arrayData().readBytes(buf);
         return buf;
     }
 
     Object arrayPutArray() {
         ByteBuf buf = _array();
-        buf.putBytes(arrayData());
+        buf.writeBytes(arrayData());
         return buf;
     }
 
     Object arrayPutDirect() {
         ByteBuf buf = _array();
-        buf.putBytes(directData());
+        buf.writeBytes(directData());
         return buf;
     }
 
     Object arrayPutJArray() {
         ByteBuf buf = _array();
-        buf.putBytes(jArrayData());
+        buf.writeBytes(jArrayData());
         return buf;
     }
 
     Object arrayPutJDirect() {
         ByteBuf buf = _array();
-        buf.putBytes(jDirectData());
+        buf.writeBytes(jDirectData());
         return buf;
     }
 
     Object directGetArray() {
         ByteBuf buf = _array();
-        directData().getBytes(buf);
+        directData().readBytes(buf);
         return buf;
     }
 
     Object directGetDirect() {
         ByteBuf buf = _direct();
-        directData().getBytes(buf);
+        directData().readBytes(buf);
         return buf;
     }
 
     Object directGetJArray() {
         ByteBuffer buf = _jArray();
-        directData().getBytes(buf);
+        directData().readBytes(buf);
         return buf;
     }
 
     Object directGetJDirect() {
         ByteBuffer buf = _jDirect();
-        directData().getBytes(buf);
+        directData().readBytes(buf);
         return buf;
     }
 
     Object directPutArray() {
         ByteBuf buf = _direct();
-        buf.putBytes(arrayData());
+        buf.writeBytes(arrayData());
         return buf;
     }
 
     Object directPutDirect() {
         ByteBuf buf = _direct();
-        buf.putBytes(directData());
+        buf.writeBytes(directData());
         return buf;
     }
 
     Object directPutJArray() {
         ByteBuf buf = _direct();
-        buf.putBytes(jArrayData());
+        buf.writeBytes(jArrayData());
         return buf;
     }
 
     Object directPutJDirect() {
         ByteBuf buf = _direct();
-        buf.putBytes(jDirectData());
+        buf.writeBytes(jDirectData());
         return buf;
     }
 

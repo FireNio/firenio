@@ -20,17 +20,17 @@ import java.nio.ByteBuffer;
 /**
  * @author wangkai
  */
-final class DuplicatedUnsafeByteBuf extends UnsafeByteBuf {
+final class DuplicatedHeapByteBuf extends HeapByteBuf {
 
     private ByteBuf p;
 
-    DuplicatedUnsafeByteBuf(ByteBuf proto, int refCnt) {
-        super(proto.address());
+    DuplicatedHeapByteBuf(ByteBuf proto, int refCnt) {
+        super(proto.getNioBuffer());
         this.p = proto;
-        this.referenceCount = refCnt;
-        this.capacity(proto.capacity());
+        this.offset(proto.offset());
         this.absWriteIndex(proto.absWriteIndex());
         this.absReadIndex(proto.absReadIndex());
+        this.referenceCount = refCnt;
     }
 
     @Override

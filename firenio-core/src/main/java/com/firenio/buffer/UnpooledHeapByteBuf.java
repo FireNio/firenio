@@ -24,14 +24,14 @@ class UnpooledHeapByteBuf extends HeapByteBuf {
 
     UnpooledHeapByteBuf(byte[] memory, int off, int len) {
         super(memory);
-        this.pos = off;
-        this.limit = off + len;
+        this.abs_read_index = off;
+        this.abs_write_index = off;
     }
 
     UnpooledHeapByteBuf(ByteBuffer memory) {
         super(memory);
-        this.pos = memory.position();
-        this.limit = memory.limit();
+        this.abs_read_index = memory.position();
+        this.abs_write_index = memory.position();
     }
 
     @Override
@@ -45,19 +45,13 @@ class UnpooledHeapByteBuf extends HeapByteBuf {
     }
 
     @Override
-    public ByteBuf duplicate() {
-        return new DuplicatedByteBuf(nioBuffer().duplicate(), this, 0);
-    }
-
-    @Override
     public void expansion(int cap) {
         byte[] oldBuffer = memory;
         byte[] newBuffer = new byte[cap];
-        if (pos > 0) {
-            copy(oldBuffer, 0, newBuffer, 0, pos);
+        if (hasReadableBytes()) {
+            copy(oldBuffer, absReadIndex(), newBuffer, 0, readableBytes());
         }
         memory = newBuffer;
-        limit = capacity();
     }
 
     @Override
@@ -84,6 +78,31 @@ class UnpooledHeapByteBuf extends HeapByteBuf {
         @Override
         public boolean isReleased() {
             return true;
+        }
+
+        @Override
+        public void expansion(int cap) {
+            throw unsupportedOperationException();
+        }
+
+        @Override
+        public ByteBuf resetReadIndex() {
+            throw unsupportedOperationException();
+        }
+
+        @Override
+        public ByteBuf resetWriteIndex() {
+            throw unsupportedOperationException();
+        }
+
+        @Override
+        public ByteBuf readIndex(int index) {
+            throw unsupportedOperationException();
+        }
+
+        @Override
+        public ByteBuf writeIndex(int index) {
+            throw unsupportedOperationException();
         }
 
     }

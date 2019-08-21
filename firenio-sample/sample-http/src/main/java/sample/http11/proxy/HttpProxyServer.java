@@ -176,14 +176,9 @@ public class HttpProxyServer {
 
                         @Override
                         public Frame decode(Channel ch, ByteBuf src) {
-                            ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-                            buf.putBytes(src);
-                            ch_src.writeAndFlush(buf.flip());
-                            return null;
-                        }
-
-                        @Override
-                        public ByteBuf encode(Channel ch, Frame frame) {
+                            ByteBuf buf = ch_src.alloc().allocate(src.readableBytes());
+                            buf.writeBytes(src);
+                            ch_src.writeAndFlush(buf);
                             return null;
                         }
 
@@ -199,12 +194,12 @@ public class HttpProxyServer {
                     });
                     context.setPrintConfig(false);
                     context.addChannelEventListener(new LoggerChannelOpenListener());
-                    ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-                    buf.putBytes(src);
+                    ByteBuf buf = ch_src.alloc().allocate(src.readableBytes());
+                    buf.writeBytes(src);
                     s.connector = context;
                     s.connector.connect((ch_target, ex) -> {
                         if (ex == null) {
-                            ch_target.writeAndFlush(buf.flip());
+                            ch_target.writeAndFlush(buf);
                         } else {
                             buf.release();
                             HttpProxyAttr.remove(ch_src);
@@ -212,9 +207,9 @@ public class HttpProxyServer {
                         }
                     });
                 } else {
-                    ByteBuf buf = ch_src.alloc().allocate(src.remaining());
-                    buf.putBytes(src);
-                    s.connector.getChannel().writeAndFlush(buf.flip());
+                    ByteBuf buf = ch_src.alloc().allocate(src.readableBytes());
+                    buf.writeBytes(src);
+                    s.connector.getChannel().writeAndFlush(buf);
                 }
                 return null;
             }

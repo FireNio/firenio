@@ -81,7 +81,7 @@ public abstract class Frame {
     }
 
     public void setBytes(int header, byte[] bytes, int off, int len) {
-        this.content = ByteBuf.buffer(header + len).skip(header);
+        this.content = ByteBuf.buffer(header + len).skipWrite(header);
         write(bytes, off, len);
     }
 
@@ -98,7 +98,7 @@ public abstract class Frame {
         if (c == null) {
             throw new NullPointerException("do setContent(buf) before write");
         }
-        c.putBytes(bytes, off, len);
+        c.writeBytes(bytes, off, len);
     }
 
     public void write(String text, Channel ch) {

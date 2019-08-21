@@ -63,8 +63,8 @@ public class ClientHttpCodec extends HttpCodec {
         boolean         isArray      = false;
         int             write_size   = 0;
         if (content instanceof ByteBuf) {
-            contentBuf = ((ByteBuf) content).flip();
-            write_size = contentBuf.limit();
+            contentBuf = ((ByteBuf) content);
+            write_size = contentBuf.writeIndex();
         } else if (content instanceof byte[]) {
             isArray = true;
             contentArray = (byte[]) content;
@@ -101,34 +101,34 @@ public class ClientHttpCodec extends HttpCodec {
             len += write_size;
         }
         ByteBuf buf = ch.alloc().allocate(len);
-        buf.putBytes(mtd_bytes);
-        buf.putByte(SPACE);
-        buf.putBytes(url_bytes);
-        buf.putBytes(PROTOCOL);
-        buf.putBytes(byte32, len_idx, len_len);
-        buf.putByte(R);
-        buf.putByte(N);
+        buf.writeBytes(mtd_bytes);
+        buf.writeByte(SPACE);
+        buf.writeBytes(url_bytes);
+        buf.writeBytes(PROTOCOL);
+        buf.writeBytes(byte32, len_idx, len_len);
+        buf.writeByte(R);
+        buf.writeByte(N);
         int j = 0;
         for (int i = 0; i < header_size; i++) {
-            buf.putBytes(bytes_array.get(j++));
-            buf.putByte((byte) ':');
-            buf.putByte(SPACE);
-            buf.putBytes(bytes_array.get(j++));
-            buf.putByte(R);
-            buf.putByte(N);
+            buf.writeBytes(bytes_array.get(j++));
+            buf.writeByte((byte) ':');
+            buf.writeByte(SPACE);
+            buf.writeBytes(bytes_array.get(j++));
+            buf.writeByte(R);
+            buf.writeByte(N);
         }
-        buf.putByte(R);
-        buf.putByte(N);
+        buf.writeByte(R);
+        buf.writeByte(N);
         if (write_size > 0) {
             if (isArray) {
-                buf.putBytes(contentArray);
+                buf.writeBytes(contentArray);
             } else {
-                ch.write(buf.flip());
+                ch.write(buf);
                 ch.write(contentBuf);
                 return null;
             }
         }
-        return buf.flip();
+        return buf;
     }
 
     private String getRequestURI(HttpFrame frame) {

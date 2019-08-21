@@ -34,7 +34,7 @@
 // */
 //public class TestSmartsocket {
 //
-//    static byte[] body = "Hello, World!".getBytes();
+//    static byte[] body = "Hello, World!".readBytes();
 //
 //    static class Message {
 //        private String message;

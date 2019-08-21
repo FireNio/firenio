@@ -190,9 +190,9 @@ public class ByteUtil {
 
     public static int getIntLE(long address) {
         if (Unsafe.isLittleOrder()) {
-            return Unsafe.getShort(address);
+            return Unsafe.getInt(address);
         } else {
-            return Integer.reverseBytes(Unsafe.getShort(address));
+            return Integer.reverseBytes(Unsafe.getInt(address));
         }
     }
 
@@ -403,7 +403,7 @@ public class ByteUtil {
     public static int skip(ByteBuf src, int p, int e, byte v) {
         int i = p;
         for (; i < e; i++) {
-            if (src.absByte(i) != v) {
+            if (src.getByteAbs(i) != v) {
                 return i;
             }
         }

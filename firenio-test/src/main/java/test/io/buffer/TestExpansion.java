@@ -31,8 +31,7 @@ public class TestExpansion {
     static final byte[] data = "aaaa".getBytes();
 
     private static boolean v(ByteBuf buf) {
-        buf.flip();
-        String s = new String(buf.getBytes());
+        String s = new String(buf.readBytes());
         if (s.length() != 50) {
             return false;
         }
@@ -49,8 +48,8 @@ public class TestExpansion {
         ByteBufAllocator alloc = TestAllocUtil.heap(1024 * 4);
         ByteBuf          buf   = alloc.allocate(2);
         for (int i = 0; i < 10; i++) {
-            buf.putBytes(data);
-            buf.putByte(a);
+            buf.writeBytes(data);
+            buf.writeByte(a);
             alloc.allocate(1);
         }
         Assert.assertTrue(v(buf));
@@ -60,8 +59,8 @@ public class TestExpansion {
     public void arrayUnPool() {
         ByteBuf buf = ByteBuf.heap(2);
         for (int i = 0; i < 10; i++) {
-            buf.putBytes(data);
-            buf.putByte(a);
+            buf.writeBytes(data);
+            buf.writeByte(a);
         }
         Assert.assertTrue(v(buf));
     }
@@ -71,8 +70,8 @@ public class TestExpansion {
         ByteBufAllocator alloc = TestAllocUtil.direct(1024 * 4);
         ByteBuf          buf   = alloc.allocate(2);
         for (int i = 0; i < 10; i++) {
-            buf.putBytes(data);
-            buf.putByte(a);
+            buf.writeBytes(data);
+            buf.writeByte(a);
             alloc.allocate(1);
         }
         Assert.assertTrue(v(buf));
@@ -82,8 +81,8 @@ public class TestExpansion {
     public void directUnPool() {
         ByteBuf buf = ByteBuf.direct(2);
         for (int i = 0; i < 10; i++) {
-            buf.putBytes(data);
-            buf.putByte(a);
+            buf.writeBytes(data);
+            buf.writeByte(a);
         }
         Assert.assertTrue(v(buf));
     }

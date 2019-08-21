@@ -25,13 +25,15 @@ public abstract class Assert {
     }
 
     public static void expectFalse(boolean expression, String message) {
-        if (expression) {
-            throw new IllegalArgumentException(message);
-        }
+        expectTrue(!expression, message);
     }
 
     public static void expectTrue(boolean expression) {
         expectTrue(expression, "expression must be true");
+    }
+
+    public static void expectEquals(Object a, Object b) {
+        expectFalse(a == null || !a.equals(b), "expression must be Equals");
     }
 
     public static void expectTrue(boolean expression, String message) {

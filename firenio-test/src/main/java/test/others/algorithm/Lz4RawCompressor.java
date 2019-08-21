@@ -77,7 +77,7 @@ public final class Lz4RawCompressor {
         long anchor = input;
 
         // First Byte
-        // put position in hash
+        // put readIndex in hash
         table[hash(Unsafe.getLong(inputBase, input), mask)] = (int) (input - inputAddress);
 
         input++;
@@ -102,11 +102,11 @@ public final class Lz4RawCompressor {
                     return (int) (emitLastLiteral(outputBase, output, inputBase, anchor, inputLimit - anchor) - outputAddress);
                 }
 
-                // get position on hash
+                // get readIndex on hash
                 matchIndex = inputAddress + table[hash];
                 nextHash = hash(Unsafe.getLong(inputBase, nextInputIndex), mask);
 
-                // put position on hash
+                // put readIndex on hash
                 table[hash] = (int) (input - inputAddress);
             } while (Unsafe.getInt(inputBase, matchIndex) != Unsafe.getInt(inputBase, input) || matchIndex + MAX_DISTANCE < input);
 
@@ -140,7 +140,7 @@ public final class Lz4RawCompressor {
                 long position = input - 2;
                 table[hash(Unsafe.getLong(inputBase, position), mask)] = (int) (position - inputAddress);
 
-                // Test next position
+                // Test next readIndex
                 int hash = hash(Unsafe.getLong(inputBase, input), mask);
                 matchIndex = inputAddress + table[hash];
                 table[hash] = (int) (input - inputAddress);

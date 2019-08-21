@@ -37,7 +37,7 @@ import com.firenio.component.ProtocolCodec;
 public final class ProtobaseCodec extends ProtocolCodec {
 
     public static final IOException ILLEGAL_PROTOCOL   = EXCEPTION("illegal protocol");
-    public static final IOException OVER_LIMIT         = EXCEPTION("over limit");
+    public static final IOException OVER_LIMIT         = EXCEPTION("over writeIndex");
     static final        ByteBuf     PING;
     static final        ByteBuf     PONG;
     static final        int         PROTOCOL_HEADER    = 12;
@@ -48,10 +48,8 @@ public final class ProtobaseCodec extends ProtocolCodec {
     static {
         PING = ByteBuf.buffer(4);
         PONG = ByteBuf.buffer(4);
-        PING.putInt(PROTOCOL_PING << 24);
-        PONG.putInt(PROTOCOL_PONG << 24);
-        PING.flip();
-        PONG.flip();
+        PING.writeInt(PROTOCOL_PING << 24);
+        PONG.writeInt(PROTOCOL_PONG << 24);
     }
 
     private final int limit;
@@ -66,25 +64,25 @@ public final class ProtobaseCodec extends ProtocolCodec {
 
     @Override
     public Frame decode(Channel ch, ByteBuf src) throws IOException {
-        if (src.remaining() < 4) {
+        if (src.readableBytes() < 4) {
             return null;
         }
-        byte flags = src.absByte(src.absPos());
-        int  len   = src.getInt() & 0xffffff;
+        byte flags = src.getByteAbs(src.absReadIndex());
+        int  len   = src.readInt() & 0xffffff;
         if (flags < 0) {
             return decode_ping(ch, flags);
         }
         if (len > limit) {
             throw OVER_LIMIT;
         }
-        if (len > src.remaining()) {
-            src.skip(-4);
+        if (len > src.readableBytes()) {
+            src.skipRead(-4);
             return null;
         }
-        int    frameId   = src.getInt();
-        int    channelId = src.getInt();
+        int    frameId   = src.readInt();
+        int    channelId = src.readInt();
         byte[] data      = new byte[len - 8];
-        src.getBytes(data);
+        src.readBytes(data);
         ProtobaseFrame f = new ProtobaseFrame();
         f.setFlags(flags);
         f.setChannelId(channelId);
@@ -118,10 +116,10 @@ public final class ProtobaseCodec extends ProtocolCodec {
     @Override
     public ByteBuf encode(Channel ch, Frame frame) {
         ProtobaseFrame f   = (ProtobaseFrame) frame;
-        ByteBuf        buf = f.getBufContent().flip();
-        buf.putInt(0, (buf.limit() - 4) | (f.getFlags() << 24));
-        buf.putInt(4, f.getFrameId());
-        buf.putInt(8, f.getChannelId());
+        ByteBuf        buf = f.getBufContent();
+        buf.setInt(0, (buf.writeIndex() - 4) | (f.getFlags() << 24));
+        buf.setInt(4, f.getFrameId());
+        buf.setInt(8, f.getChannelId());
         return buf;
     }
 

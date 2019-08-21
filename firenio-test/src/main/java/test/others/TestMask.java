@@ -26,16 +26,16 @@ public class TestMask {
 
     public static void main(String[] args) {
         ByteBuf buf  = ByteBuf.wrap("hello word!".getBytes());
-        byte    mask = (byte) buf.remaining();
+        byte    mask = (byte) buf.readableBytes();
         mask(buf, mask);
-        System.out.println(new String(buf.getBytes()));
-        buf.position(0);
+        System.out.println(new String(buf.readBytes()));
+        buf.readIndex(0);
         mask(buf, mask);
-        System.out.println(new String(buf.getBytes()));
+        System.out.println(new String(buf.readBytes()));
     }
 
     public static void mask(ByteBuf src, byte m) {
-        ByteBuffer buf = src.nioBuffer();
+        ByteBuffer buf = src.nioWriteBuffer();
         int        p   = buf.position();
         int        l   = buf.limit();
         for (; p < l; p++) {

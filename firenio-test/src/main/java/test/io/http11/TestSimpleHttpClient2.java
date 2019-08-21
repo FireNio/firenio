@@ -77,7 +77,7 @@ public class TestSimpleHttpClient2 {
         Channel         ch = context.connect(999999);
         ClientHttpFrame f  = new ClientHttpFrame(url, HttpMethod.GET);
         //        f.setRequestHeader(HttpHeader.Host, host);
-        //        f.setContent("abc123".getBytes());
+        //        f.setContent("abc123".readBytes());
         ch.write(f);
         ch.writeAndFlush(f);
 
