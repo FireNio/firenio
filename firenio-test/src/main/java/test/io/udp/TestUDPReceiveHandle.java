@@ -66,7 +66,7 @@ public class TestUDPReceiveHandle {
     //
     //        for (int i = 0; i < 10000000; i++) {
     //
-    //            byte[] data = (inviteUsername + i).getBytes();
+    //            byte[] data = (inviteUsername + i).readBytes();
     //
     //            DatagramPacket packet = factory.createDatagramPacket(data);
     //
@@ -103,7 +103,7 @@ public class TestUDPReceiveHandle {
     //
     //        for (int i = 0; i < 10000000; i++) {
     //
-    //            byte[] data = (client.getInviteUsername() + i).getBytes();
+    //            byte[] data = (client.getInviteUsername() + i).readBytes();
     //
     //            DatagramPacket packet = factory.createDatagramPacket(data);
     //

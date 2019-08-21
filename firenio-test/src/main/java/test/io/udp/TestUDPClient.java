@@ -37,7 +37,7 @@ public class TestUDPClient {
         //
         //        DatagramChannel ch = connector.connect();
         //
-        //        DatagramPacket packet = DatagramPacket.createSendPacket("hello world!".getBytes());
+        //        DatagramPacket packet = DatagramPacket.createSendPacket("hello world!".readBytes());
         //
         //        ch.sendPacket(packet);
         //

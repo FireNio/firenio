@@ -23,24 +23,26 @@ import java.net.StandardSocketOptions;
  */
 public final class SocketOptions {
 
-    public static final  int      PARAM_BOOLEAN;
-    public static final  int      IPPROTO_TCP;
-    public static final  int      SOL_SOCKET;
-    public static final  int      SO_BROADCAST;
-    public static final  int      SO_ERROR;
-    public static final  int      SO_KEEPALIVE;
-    public static final  int      SO_SNDBUF;
-    public static final  int      SO_RCVBUF;
-    public static final  int      SO_REUSEADDR;
-    public static final  int      SO_LINGER;
-    public static final  int      TCP_NODELAY;
-    public static final  int      TCP_QUICKACK;
-    private static final Object[] TCP_SOCKET_OPTIONS = new Object[16];
-    private static final Object[] SO_SOCKET_OPTIONS  = new Object[16];
+    public static final int      RAW_IP_PROTO_TCP   = 6;
+    public static final int      RAW_SOL_SOCKET     = 1;
+    public static final int      SOL_SOCKET;
+    public static final int      SO_BROADCAST;
+    public static final int      SO_ERROR;
+    public static final int      SO_KEEPALIVE;
+    public static final int      SO_SNDBUF;
+    public static final int      SO_RCVBUF;
+    public static final int      SO_REUSEADDR;
+    public static final int      SO_LINGER;
+    public static final int      TCP_NODELAY;
+    public static final int      TCP_QUICKACK;
+    static final        int      PARAM_BOOLEAN;
+    static final        int      IP_PROTO_TCP;
+    static final        Object[] TCP_SOCKET_OPTIONS = new Object[16];
+    static final        Object[] SO_SOCKET_OPTIONS  = new Object[16];
 
     static {
-        IPPROTO_TCP = 6 << 16;
-        SOL_SOCKET = 1 << 16;
+        IP_PROTO_TCP = RAW_IP_PROTO_TCP << 16;
+        SOL_SOCKET = RAW_SOL_SOCKET << 16;
         PARAM_BOOLEAN = 1 << 8;
         SO_ERROR = SOL_SOCKET | 4;
         SO_BROADCAST = SOL_SOCKET | PARAM_BOOLEAN | 6;
@@ -49,8 +51,8 @@ public final class SocketOptions {
         SO_RCVBUF = SOL_SOCKET | 8;
         SO_REUSEADDR = SOL_SOCKET | PARAM_BOOLEAN | 2;
         SO_LINGER = SOL_SOCKET | 13;
-        TCP_NODELAY = IPPROTO_TCP | PARAM_BOOLEAN | 1;
-        TCP_QUICKACK = IPPROTO_TCP | PARAM_BOOLEAN | 12;
+        TCP_NODELAY = IP_PROTO_TCP | PARAM_BOOLEAN | 1;
+        TCP_QUICKACK = IP_PROTO_TCP | PARAM_BOOLEAN | 12;
         TCP_SOCKET_OPTIONS[TCP_NODELAY & 0xff] = StandardSocketOptions.TCP_NODELAY;
         SO_SOCKET_OPTIONS[SO_BROADCAST & 0xff] = StandardSocketOptions.SO_BROADCAST;
         SO_SOCKET_OPTIONS[SO_KEEPALIVE & 0xff] = StandardSocketOptions.SO_KEEPALIVE;
@@ -62,7 +64,7 @@ public final class SocketOptions {
 
     @SuppressWarnings("unchecked")
     public static SocketOption<Object> getSocketOption(int name) {
-        if ((name & IPPROTO_TCP) != 0) {
+        if ((name & IP_PROTO_TCP) != 0) {
             return (SocketOption<Object>) TCP_SOCKET_OPTIONS[name & 0xff];
         } else if ((name & SOL_SOCKET) != 0) {
             return (SocketOption<Object>) SO_SOCKET_OPTIONS[name & 0xff];

@@ -19,7 +19,6 @@ final class PooledHeapByteBuf extends HeapByteBuf {
 
     private PooledByteBufAllocator allocator;
     private int                    capacity;
-    private int                    offset;
     private int                    unitOffset;
 
     PooledHeapByteBuf(PooledByteBufAllocator allocator, byte[] memory) {
@@ -43,15 +42,6 @@ final class PooledHeapByteBuf extends HeapByteBuf {
     }
 
     @Override
-    public ByteBuf duplicate() {
-        if (isReleased()) {
-            throw new IllegalStateException("released");
-        }
-        addReferenceCount();
-        return new DuplicatedByteBuf(nioBuffer().duplicate(), this, 1);
-    }
-
-    @Override
     public final void expansion(int cap) {
         allocator.expansion(this, cap);
     }
@@ -62,22 +52,12 @@ final class PooledHeapByteBuf extends HeapByteBuf {
     }
 
     @Override
-    protected int offset() {
-        return offset;
-    }
-
-    @Override
-    protected void offset(int offset) {
-        this.offset = offset;
-    }
-
-    @Override
     protected PooledHeapByteBuf produce(int unitOffset, int unitEnd) {
         int unit = allocator.getUnit();
         this.offset = unitOffset * unit;
         this.capacity = (unitEnd - unitOffset) * unit;
-        this.pos = offset;
-        this.limit = offset + capacity;
+        this.abs_read_index = offset;
+        this.abs_write_index = offset;
         this.unitOffset = unitOffset;
         this.referenceCount = 1;
         return this;

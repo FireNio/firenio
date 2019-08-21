@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.firenio.buffer.ByteBuf;
-import com.firenio.codec.http11.WebSocketCodec;
 import com.firenio.codec.http11.WebSocketFrame;
 import com.firenio.component.Channel;
 import com.firenio.component.ChannelManager;
@@ -69,7 +68,7 @@ public class WebSocketMsgAdapter extends EventLoop {
                     WebSocketFrame f      = new WebSocketFrame();
                     byte[]         data   = msg.msg.getBytes();
                     ByteBuf        buf    = ch.allocate(data.length);
-                    buf.putBytes(data);
+                    buf.writeBytes(data);
                     f.setContent(buf);
                     ByteBuf buf2 = null;
                     try {

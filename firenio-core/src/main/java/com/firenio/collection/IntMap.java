@@ -140,7 +140,7 @@ public final class IntMap<V> {
         return next() != -1;
     }
 
-    public int next() {
+    private int next() {
         if (scanSize < size) {
             int[] keys  = this.keys;
             int   index = this.scanIndex + 1;

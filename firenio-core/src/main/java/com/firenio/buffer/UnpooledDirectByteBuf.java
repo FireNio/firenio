@@ -30,38 +30,20 @@ final class UnpooledDirectByteBuf extends DirectByteBuf {
     }
 
     @Override
-    public long address() {
-        return Unsafe.address(memory);
-    }
-
-    @Override
     public int capacity() {
         return memory.capacity();
     }
 
     @Override
-    public ByteBuf duplicate() {
-        if (isReleased()) {
-            throw new IllegalStateException("released");
-        }
-        //请勿移除此行，DirectByteBuffer需要手动回收，release要确保被执行
-        addReferenceCount();
-        return new DuplicatedByteBuf(memory.duplicate(), this, 1);
-    }
-
-    @Override
     public void expansion(int cap) {
-        ByteBuffer oldBuffer = memory;
+        ByteBuffer oldBuffer = getNioBuffer();
         try {
-            ByteBuffer newBuffer = Unsafe.allocateDirectByteBuffer(cap);
-            int        pos       = oldBuffer.position();
-            oldBuffer.position(0);
-            oldBuffer.limit(pos);
-            if (pos > 0) {
-                copy(Unsafe.address(oldBuffer) + oldBuffer.position(), Unsafe.address(newBuffer) + newBuffer.position(), pos);
+            ByteBuffer newBuffer       = Unsafe.allocateDirectByteBuffer(cap);
+            int        old_write_index = writeIndex();
+            if (old_write_index > 0) {
+                copy(address(), Unsafe.address(newBuffer), old_write_index);
             }
-            newBuffer.position(pos);
-            memory = newBuffer;
+            setMemory(newBuffer);
         } finally {
             Unsafe.freeByteBuffer(oldBuffer);
         }

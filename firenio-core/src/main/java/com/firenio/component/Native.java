@@ -8,7 +8,6 @@ import com.firenio.Develop;
 import com.firenio.Options;
 import com.firenio.common.FileUtil;
 import com.firenio.common.Unsafe;
-import com.firenio.common.Util;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
 
@@ -236,7 +235,7 @@ public class Native {
     }
 
     public static boolean finish_connect(int fd) {
-        int type = SocketOptions.SOL_SOCKET >> 16;
+        int type = SocketOptions.RAW_SOL_SOCKET;
         int res  = get_socket_opt0(fd, type, SocketOptions.SO_ERROR & 0xff);
         if (res != 0) {
             if (res == -1) {

@@ -165,7 +165,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
     }
 
     static IOException OVER_CH_SIZE_LIMIT() {
-        return Util.unknownStackTrace(new IOException("over channel size limit"), NioEventLoop.class, "register_channel(...)");
+        return Util.unknownStackTrace(new IOException("over channel size writeIndex"), NioEventLoop.class, "register_channel(...)");
     }
 
     static void read_exception_caught(Channel ch, Throwable ex) {

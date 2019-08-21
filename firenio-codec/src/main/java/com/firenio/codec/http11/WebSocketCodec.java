@@ -57,7 +57,7 @@ public final class WebSocketCodec extends ProtocolCodec {
     public static final int         HEADER_LENGTH      = 2;
     public static final int         MAX_HEADER_LENGTH  = 10;
     public static final int         MAX_UNSIGNED_SHORT = 0xffff;
-    public static final IOException OVER_LIMIT         = EXCEPTION("over limit");
+    public static final IOException OVER_LIMIT         = EXCEPTION("over writeIndex");
     public static final IOException ILLEGAL_PROTOCOL   = EXCEPTION("illegal protocol");
     public static final String      PROTOCOL_ID        = "WebSocket";
     public static final byte        TYPE_BINARY        = 2;
@@ -77,12 +77,10 @@ public final class WebSocketCodec extends ProtocolCodec {
 
         PING = ByteBuf.buffer(2);
         PONG = ByteBuf.buffer(2);
-        PING.putByte((byte) (o_h0 | TYPE_PING));
-        PING.putByte((byte) (o_h1 | 0));
-        PONG.putByte((byte) (o_h0 | TYPE_PONG));
-        PONG.putByte((byte) (o_h1 | 0));
-        PING.flip();
-        PONG.flip();
+        PING.writeByte((byte) (o_h0 | TYPE_PING));
+        PING.writeByte((byte) (o_h1 | 0));
+        PONG.writeByte((byte) (o_h0 | TYPE_PONG));
+        PONG.writeByte((byte) (o_h1 | 0));
     }
 
     private final int frameStackSize;
@@ -103,11 +101,11 @@ public final class WebSocketCodec extends ProtocolCodec {
 
     @Override
     public Frame decode(Channel ch, ByteBuf src) throws IOException {
-        if (src.remaining() < HEADER_LENGTH) {
+        if (src.readableBytes() < HEADER_LENGTH) {
             return null;
         }
-        byte    b0       = src.getByte();
-        byte    b1       = src.getByte();
+        byte    b0       = src.readByte();
+        byte    b1       = src.readByte();
         int     skip     = 2;
         int     mask_len = 0;
         boolean has_mask = (b1 & 0b10000000) != 0;
@@ -118,19 +116,19 @@ public final class WebSocketCodec extends ProtocolCodec {
         if (payload_len < 126) {
 
         } else if (payload_len == 126) {
-            if (src.remaining() < 2) {
-                src.skip(-skip);
+            if (src.readableBytes() < 2) {
+                src.skipRead(-skip);
                 return null;
             }
             skip += 2;
-            payload_len = src.getUnsignedShort();
+            payload_len = src.readUnsignedShort();
         } else {
-            if (src.remaining() < 8) {
-                src.skip(-skip);
+            if (src.readableBytes() < 8) {
+                src.skipRead(-skip);
                 return null;
             }
             skip += 8;
-            payload_len = (int) src.getLong();
+            payload_len = (int) src.readLong();
             if (payload_len < 0) {
                 throw OVER_LIMIT;
             }
@@ -138,8 +136,8 @@ public final class WebSocketCodec extends ProtocolCodec {
         if (payload_len > limit) {
             throw OVER_LIMIT;
         }
-        if (src.remaining() < payload_len + mask_len) {
-            src.skip(-skip);
+        if (src.readableBytes() < payload_len + mask_len) {
+            src.skipRead(-skip);
             return null;
         }
         byte opcode = (byte) (b0 & 0xF);
@@ -154,11 +152,11 @@ public final class WebSocketCodec extends ProtocolCodec {
         }
         byte[] array = new byte[payload_len];
         if (has_mask) {
-            byte m0 = src.getByte();
-            byte m1 = src.getByte();
-            byte m2 = src.getByte();
-            byte m3 = src.getByte();
-            src.getBytes(array);
+            byte m0 = src.readByte();
+            byte m1 = src.readByte();
+            byte m2 = src.readByte();
+            byte m3 = src.readByte();
+            src.readBytes(array);
             int len      = array.length;
             int neat_len = (len >>> 2) << 2;
             for (int i = 0; i < neat_len; i += 4) {
@@ -181,7 +179,7 @@ public final class WebSocketCodec extends ProtocolCodec {
                 }
             }
         } else {
-            src.getBytes(array);
+            src.readBytes(array);
         }
         WebSocketFrame f = newWebSocketFrame(ch, opcode);
         if (opcode == TYPE_TEXT) {
@@ -199,22 +197,21 @@ public final class WebSocketCodec extends ProtocolCodec {
         if (buf == null) {
             throw new IOException("null buf content");
         }
-        buf.flip();
-        int  size      = buf.limit() - MAX_HEADER_LENGTH;
+        int  size      = buf.writeIndex() - MAX_HEADER_LENGTH;
         byte mark_code = f.getMarkCode();
         if (size < 126) {
-            buf.position(8);
-            buf.putByte(8, mark_code);
-            buf.putByte(9, (byte) size);
+            buf.readIndex(8);
+            buf.setByte(8, mark_code);
+            buf.setByte(9, (byte) size);
         } else if (size <= MAX_UNSIGNED_SHORT) {
-            buf.position(6);
-            buf.putByte(6, mark_code);
-            buf.putByte(7, (byte) 126);
-            buf.putShort(8, size);
+            buf.readIndex(6);
+            buf.setByte(6, mark_code);
+            buf.setByte(7, (byte) 126);
+            buf.setShort(8, size);
         } else {
-            buf.putByte(mark_code);
-            buf.putByte((byte) 127);
-            buf.putLong(size);
+            buf.writeByte(mark_code);
+            buf.writeByte((byte) 127);
+            buf.writeLong(size);
         }
         return buf;
     }
@@ -244,9 +241,9 @@ public final class WebSocketCodec extends ProtocolCodec {
             //            }
             //            WebSocketFrame frame = stack.pop();
             //            if (frame == null) {
-            //                return new WebSocketFrame(ch, limit);
+            //                return new WebSocketFrame(ch, writeIndex);
             //            }
-            //            return frame.reset(ch, limit);
+            //            return frame.reset(ch, writeIndex);
         }
         return new WebSocketFrame(opcode);
     }

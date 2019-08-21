@@ -68,7 +68,9 @@ public abstract class ProtocolCodec {
     public abstract Frame decode(Channel ch, ByteBuf src) throws Exception;
 
     // 注意：encode失败要release掉encode过程中申请的内存
-    public abstract ByteBuf encode(Channel ch, Frame frame) throws Exception;
+    public ByteBuf encode(Channel ch, Frame frame) throws Exception {
+        throw new UnsupportedOperationException();
+    }
 
     public abstract String getProtocolId();
 

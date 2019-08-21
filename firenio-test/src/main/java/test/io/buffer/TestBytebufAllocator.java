@@ -18,8 +18,8 @@ package test.io.buffer;
 import org.junit.Test;
 
 import com.firenio.buffer.ByteBuf;
+import com.firenio.common.Assert;
 
-import junit.framework.Assert;
 
 public class TestBytebufAllocator {
 
@@ -27,19 +27,17 @@ public class TestBytebufAllocator {
     static final String data1 = "hello;";
 
     static void v(ByteBuf buf) {
-        byte[] res = buf.getBytes();
-        Assert.assertEquals(new String(res), data);
+        byte[] res = buf.readBytes();
+        Assert.expectEquals(new String(res), data);
     }
 
     @Test
     public void testput0() {
         ByteBuf src = ByteBuf.direct(1024);
-        src.putBytes(data.getBytes());
-        src.flip();
+        src.writeBytes(data.getBytes());
 
         ByteBuf dst = ByteBuf.direct(1024);
-        dst.putBytes(src);
-        dst.flip();
+        dst.writeBytes(src);
         v(dst);
     }
 
@@ -47,84 +45,83 @@ public class TestBytebufAllocator {
     public void testput1() {
 
         ByteBuf src = ByteBuf.direct(1024);
-        src.putBytes(data.getBytes());
-        src.flip();
+        src.writeBytes(data.getBytes());
 
         ByteBuf dst = ByteBuf.direct(data1.length());
-        dst.putBytes(src);
-        dst.flip();
+        dst.writeBytes(src);
+
         v(dst);
     }
 
     @Test
     public void testput2() {
         ByteBuf src = ByteBuf.heap(1024);
-        src.putBytes(data.getBytes());
-        src.flip();
+        src.writeBytes(data.getBytes());
+
 
         ByteBuf dst = ByteBuf.direct(1024);
-        dst.putBytes(src);
-        dst.flip();
+        dst.writeBytes(src);
+
         v(dst);
     }
 
     @Test
     public void testPut3() {
         ByteBuf src = ByteBuf.heap(1024);
-        src.putBytes(data.getBytes());
-        src.flip();
+        src.writeBytes(data.getBytes());
+
 
         ByteBuf dst = ByteBuf.direct(data1.length());
-        dst.putBytes(src);
-        dst.flip();
+        dst.writeBytes(src);
+
         v(dst);
     }
 
     @Test
     public void testPut4() {
         ByteBuf src = ByteBuf.heap(1024);
-        src.putBytes("hello;hello;".getBytes());
-        src.flip();
+        src.writeBytes("hello;hello;".getBytes());
+
 
         ByteBuf dst = ByteBuf.heap(1024);
-        dst.putBytes(src);
-        dst.flip();
+        dst.writeBytes(src);
+
         v(dst);
     }
 
     @Test
     public void testPut5() {
         ByteBuf src = ByteBuf.heap(1024);
-        src.putBytes("hello;hello;".getBytes());
-        src.flip();
+        src.writeBytes("hello;hello;".getBytes());
+
 
         ByteBuf dst = ByteBuf.heap(data1.length());
-        dst.putBytes(src);
-        dst.flip();
+        dst.writeBytes(src);
+
         v(dst);
     }
 
     @Test
     public void testPut6() {
         ByteBuf src = ByteBuf.direct(1024);
-        src.putBytes("hello;hello;".getBytes());
-        src.flip();
+        src.writeBytes("hello;hello;".getBytes());
+
 
         ByteBuf dst = ByteBuf.heap(1024);
-        dst.putBytes(src);
-        dst.flip();
+        dst.writeBytes(src);
+
         v(dst);
     }
 
     @Test
     public void testPut7() {
         ByteBuf src = ByteBuf.direct(1024);
-        src.putBytes("hello;hello;".getBytes());
-        src.flip();
+        src.writeBytes("hello;hello;".getBytes());
+
 
         ByteBuf dst = ByteBuf.heap(data1.length());
-        dst.putBytes(src);
-        dst.flip();
+        dst.writeBytes(src);
+
         v(dst);
     }
 
