@@ -561,63 +561,63 @@ public abstract class Channel implements Runnable, Closeable {
     private void read_plain() throws Exception {
         final Channel       ch    = this;
         final ProtocolCodec codec = this.codec;
-        ByteBuf             src   = codec.getPlainReadBuf(eventLoop, ch);
+        ByteBuf             dst   = codec.getPlainReadBuf(eventLoop, ch);
         for (; ; ) {
-            codec.readPlainRemain(ch, src);
-            if (!read_data(src)) {
+            codec.readPlainRemain(ch, dst);
+            if (!read_data(dst)) {
                 return;
             }
-            accept(src);
+            accept(dst);
             // for epoll et mode
-            if (src.hasWritableBytes()) {
+            if (dst.hasWritableBytes()) {
                 break;
             }
         }
     }
 
     private void read_ssl() throws Exception {
-        ByteBuf src = eventLoop.getReadBuf();
+        ByteBuf dst = eventLoop.getReadBuf();
         for (; ; ) {
-            src.clear();
-            read_ssl_remain(src);
-            if (!read_data(src)) {
+            dst.clear();
+            read_ssl_remain(dst);
+            if (!read_data(dst)) {
                 return;
             }
             for (; ; ) {
-                if (isEnoughSslUnwrap(src)) {
-                    ByteBuf res = unwrap(src);
+                if (isEnoughSslUnwrap(dst)) {
+                    ByteBuf res = unwrap(dst);
                     if (res != null) {
                         accept(res);
                     }
-                    src.resetWriteIndex();
-                    if (!src.hasReadableBytes()) {
+                    dst.resetWriteIndex();
+                    if (!dst.hasReadableBytes()) {
                         break;
                     }
                 } else {
-                    if (src.hasReadableBytes()) {
-                        slice_remain_ssl(src);
+                    if (dst.hasReadableBytes()) {
+                        slice_remain_ssl(dst);
                     }
                     break;
                 }
             }
             // for epoll et mode
-            if (src.hasWritableBytes()) {
+            if (dst.hasWritableBytes()) {
                 break;
             }
         }
     }
 
-    private boolean read_data(ByteBuf src) {
-        int len = native_read();
+    private boolean read_data(ByteBuf dst) {
+        int len = native_read(dst);
         if (len < 1) {
             if (len == -1) {
                 Util.close(this);
                 return false;
             }
-            store_remain(src);
+            store_remain(dst);
             return false;
         }
-        src.skipWrite(len);
+        dst.skipWrite(len);
         return true;
     }
 
@@ -959,7 +959,7 @@ public abstract class Channel implements Runnable, Closeable {
 
     abstract boolean isInterestWrite();
 
-    abstract int native_read();
+    abstract int native_read(ByteBuf dst);
 
     static final class EpollChannel extends Channel {
 
@@ -992,9 +992,9 @@ public abstract class Channel implements Runnable, Closeable {
         }
 
         @Override
-        int native_read() {
-            ByteBuf buf = eventLoop.getReadBuf();
-            return Native.read(fd, eventLoop.getBufAddress() + buf.absWriteIndex(), buf.writableBytes());
+        int native_read(ByteBuf dst) {
+            long address = dst.address() + dst.absWriteIndex();
+            return Native.read(fd, address, dst.writableBytes());
         }
 
         @Override
@@ -1162,9 +1162,9 @@ public abstract class Channel implements Runnable, Closeable {
         }
 
         @Override
-        int native_read() {
+        int native_read(ByteBuf dst) {
             try {
-                return channel.read(eventLoop.getReadBuf().nioWriteBuffer());
+                return channel.read(dst.nioWriteBuffer());
             } catch (IOException e) {
                 return -1;
             }

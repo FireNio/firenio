@@ -17,6 +17,7 @@ package test.io.buffer;
 
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -108,7 +109,7 @@ public class TestByteBufCopy {
     public void _testAll() throws Exception {
 
         Method[]     ms   = TestByteBufCopy.class.getDeclaredMethods();
-        List<Method> list = Util.array2List(ms);
+        List<Method> list = Arrays.asList(ms);
         list.sort(Comparator.comparing(Method::getName));
 
         for (int i = 0; i < list.size(); i++) {
