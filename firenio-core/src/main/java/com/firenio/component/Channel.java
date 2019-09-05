@@ -152,7 +152,7 @@ public abstract class Channel implements Runnable, Closeable {
         return Util.unknownStackTrace(new IOException(), Channel.class, "accept_reject(...)");
     }
 
-    private void slice_remain_plain(ByteBuf src) {
+    protected void slice_remain_plain(ByteBuf src) {
         //ensure the channel is open, otherwise the buf will never be released if the channel closed
         if (isOpen()) {
             plain_remain_buf = slice_remain(src);
@@ -166,14 +166,15 @@ public abstract class Channel implements Runnable, Closeable {
     }
 
     private void accept(ByteBuf src) throws Exception {
+        final Channel       ch         = this;
         final ProtocolCodec codec      = getCodec();
         final IoEventHandle handle     = getIoEventHandle();
         final EventLoop     eel        = getExecutorEventLoop();
         final boolean       enable_wel = eel != null;
         for (; ; ) {
-            Frame f = codec.decode(this, src);
+            Frame f = codec.decode(ch, src);
             if (f == null) {
-                slice_remain_plain(src);
+                codec.storePlainReadRemain(ch, src);
                 break;
             }
             if (enable_wel) {
@@ -558,10 +559,11 @@ public abstract class Channel implements Runnable, Closeable {
     }
 
     private void read_plain() throws Exception {
-        ByteBuf src = eventLoop.getReadBuf();
+        final Channel       ch    = this;
+        final ProtocolCodec codec = this.codec;
+        ByteBuf             src   = codec.getPlainReadBuf(eventLoop, ch);
         for (; ; ) {
-            src.clear();
-            read_plain_remain(src);
+            codec.readPlainRemain(ch, src);
             if (!read_data(src)) {
                 return;
             }
@@ -624,26 +626,27 @@ public abstract class Channel implements Runnable, Closeable {
             if (enable_ssl) {
                 slice_remain_ssl(src);
             } else {
-                slice_remain_plain(src);
+                codec.storePlainReadRemain(this, src);
             }
         }
     }
 
-    private void read_plain_remain(ByteBuf dst) {
-        this.read_remain(plain_remain_buf, dst);
-        this.plain_remain_buf = null;
-    }
-
-    private void read_remain(ByteBuf src, ByteBuf dst) {
-        if (src != null) {
-            dst.writeBytes(src);
-            src.release();
+    protected void read_plain_remain(ByteBuf dst) {
+        ByteBuf remain = this.plain_remain_buf;
+        if (remain != null) {
+            dst.writeBytes(remain);
+            remain.release();
+            this.plain_remain_buf = null;
         }
     }
 
     private void read_ssl_remain(ByteBuf dst) {
-        this.read_remain(ssl_remain_buf, dst);
-        this.ssl_remain_buf = null;
+        ByteBuf remain = this.ssl_remain_buf;
+        if (remain != null) {
+            dst.writeBytes(remain);
+            remain.release();
+            this.ssl_remain_buf = null;
+        }
     }
 
     public void release(Frame frame) {
@@ -783,8 +786,7 @@ public abstract class Channel implements Runnable, Closeable {
         SSLEngine ssl_engine = getSSLEngine();
         ByteBuf   dst        = FastThreadLocal.get().getSslUnwrapBuf();
         if (ssl_handshake_finished) {
-            dst.clear();
-            read_plain_remain(dst);
+            codec.readPlainRemain(this, dst);
             SSLEngineResult result = ssl_engine.unwrap(src.nioReadBuffer(), dst.nioWriteBuffer());
             if (result.getStatus() == Status.BUFFER_OVERFLOW) {
                 //why throw an exception here instead of handle it?

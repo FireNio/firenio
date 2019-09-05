@@ -19,9 +19,14 @@ import org.junit.Test;
 
 import com.firenio.buffer.ByteBuf;
 import com.firenio.common.Assert;
+import com.firenio.log.LoggerFactory;
 
 
 public class TestBytebufAllocator {
+
+    static {
+        LoggerFactory.setEnableSLF4JLogger(false);
+    }
 
     static final String data  = "hello;hello;";
     static final String data1 = "hello;";
