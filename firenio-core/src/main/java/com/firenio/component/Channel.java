@@ -576,32 +576,32 @@ public abstract class Channel implements Runnable, Closeable {
     }
 
     private void read_ssl() throws Exception {
-        ByteBuf dst = eventLoop.getReadBuf();
+        ByteBuf src = eventLoop.getReadBuf();
         for (; ; ) {
-            dst.clear();
-            read_ssl_remain(dst);
-            if (!read_data(dst)) {
+            src.clear();
+            read_ssl_remain(src);
+            if (!read_data(src)) {
                 return;
             }
             for (; ; ) {
-                if (isEnoughSslUnwrap(dst)) {
-                    ByteBuf res = unwrap(dst);
+                if (isEnoughSslUnwrap(src)) {
+                    ByteBuf res = unwrap(src);
                     if (res != null) {
                         accept(res);
                     }
-                    dst.resetWriteIndex();
-                    if (!dst.hasReadableBytes()) {
+                    src.resetWriteIndex();
+                    if (!src.hasReadableBytes()) {
                         break;
                     }
                 } else {
-                    if (dst.hasReadableBytes()) {
-                        slice_remain_ssl(dst);
+                    if (src.hasReadableBytes()) {
+                        slice_remain_ssl(src);
                     }
                     break;
                 }
             }
             // for epoll et mode
-            if (dst.hasWritableBytes()) {
+            if (src.hasWritableBytes()) {
                 break;
             }
         }
