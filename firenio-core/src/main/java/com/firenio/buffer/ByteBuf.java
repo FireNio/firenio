@@ -109,6 +109,10 @@ public abstract class ByteBuf implements Releasable {
         }
     }
 
+    public static ByteBuf wrap(long address, int cap) {
+        return new UnpooledUnsafeByteBuf(address, cap);
+    }
+
     public abstract byte getByteAbs(int pos);
 
     public int absWriteIndex() {
