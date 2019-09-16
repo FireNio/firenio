@@ -17,6 +17,7 @@ package test.io.buffer;
 
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -26,11 +27,16 @@ import com.firenio.buffer.ByteBuf;
 import com.firenio.common.Assert;
 import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
+import com.firenio.log.LoggerFactory;
 
 /**
  * @author wangkai
  */
 public class TestByteBufCopy {
+
+    static {
+        LoggerFactory.setEnableSLF4JLogger(false);
+    }
 
     static final byte[]     _data = "abc123abc123".getBytes();
     static final ByteBuf    arrayData;
@@ -82,10 +88,6 @@ public class TestByteBufCopy {
     }
 
     void _invoke(Method m) throws Exception {
-        String name = m.getName();
-        if (name == null) {
-            System.out.println();
-        }
         Object res = m.invoke(this, (Object[]) null);
         byte[] bytes;
         if (res instanceof ByteBuf) {
@@ -107,7 +109,7 @@ public class TestByteBufCopy {
     public void _testAll() throws Exception {
 
         Method[]     ms   = TestByteBufCopy.class.getDeclaredMethods();
-        List<Method> list = Util.array2List(ms);
+        List<Method> list = Arrays.asList(ms);
         list.sort(Comparator.comparing(Method::getName));
 
         for (int i = 0; i < list.size(); i++) {

@@ -27,6 +27,7 @@ public class ReConnector implements Closeable {
     private          Logger           logger    = LoggerFactory.getLogger(getClass());
     private volatile boolean          reconnect = true;
     private          long             retryTime = 15000;
+    private          long             timeout   = 3000;
 
     public ReConnector(ChannelConnector connector) {
         this.connector = connector;
@@ -47,6 +48,11 @@ public class ReConnector implements Closeable {
 
     public synchronized void connect(long timeout) {
         this.reconnect = true;
+        this.timeout = timeout;
+        this.connect0();
+    }
+
+    public synchronized void connect0() {
         Channel ch = connector.getChannel();
         for (; ; ) {
             if (ch != null && ch.isOpen()) {
@@ -97,7 +103,7 @@ public class ReConnector implements Closeable {
                 Util.exec(new Runnable() {
                     @Override
                     public void run() {
-                        reConnector.connect();
+                        reConnector.connect0();
                     }
                 });
             }

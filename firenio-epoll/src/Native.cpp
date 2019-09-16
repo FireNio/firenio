@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <netdb.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -12,6 +13,7 @@
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 
 
@@ -293,6 +295,51 @@ static inline int make_socket_non_blocking(int fd){
     }
     return 0;
 }
+
+JNIEXPORT jint JNICALL Java_com_firenio_component_Native_open0
+  (JNIEnv * e, jclass c,jstring path,jint op, jint pem){
+    const char *file_path = e->GetStringUTFChars(path, NULL);
+    return open(file_path, op, pem);
+  }
+
+JNIEXPORT jlong JNICALL Java_com_firenio_component_Native_posix_1memalign_1allocate0
+  (JNIEnv * e, jclass c, jint len, jint align){
+    unsigned char *buf;
+    int ret = posix_memalign((void **) &buf, align, len);
+    if (ret < 0) {
+        return ret;
+    }
+    return (jlong) buf;
+  }
+
+JNIEXPORT jlong JNICALL Java_com_firenio_component_Native_file_1length0
+  (JNIEnv * e, jclass c, jint fd){
+    struct stat stbuf;  
+    int ret = fstat(fd, &stbuf);
+    if (( ret < 0) ) {
+      return ret;
+    }
+    if((!S_ISREG(stbuf.st_mode))){
+      return 0;
+    }
+    return (jlong)(stbuf.st_size);
+  }
+
+JNIEXPORT jlong JNICALL Java_com_firenio_component_Native_lseek0
+  (JNIEnv * e, jclass c, jint fd, jlong off, jint seek_mode){
+    return (jlong)(lseek(fd, off, seek_mode));
+  }
+
+JNIEXPORT jint JNICALL Java_com_firenio_component_Native_pread0
+  (JNIEnv * e, jclass c, jint fd, jlong address, jint len, jlong off){
+    return pread(fd, (void *)address, len, off);
+  }
+
+JNIEXPORT jint JNICALL Java_com_firenio_component_Native_pwrite0
+  (JNIEnv * e, jclass c, jint fd, jlong address, jint len, jlong off){
+    return pwrite(fd, (void *)address, len, off);
+  }
+
 
 int main(){ return 0;}
 

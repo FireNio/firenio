@@ -37,7 +37,7 @@ public class Options {
     static final String SYS_CLOCK_STEP         = "com.firenio.sysClockStep";
 
     public static boolean isDebugError() {
-        return Util.getBooleanProperty(DEBUG_ERROR);
+        return isTrue(DEBUG_ERROR);
     }
 
     public static String getOpensslPath() {
@@ -45,43 +45,43 @@ public class Options {
     }
 
     public static int getSslUnwrapBufferSize(int defaultValue) {
-        return Util.getIntProperty(SSL_UNWRAP_BUFFER_SIZE, defaultValue);
+        return getInt(SSL_UNWRAP_BUFFER_SIZE, defaultValue);
     }
 
-    public static long getSysClockStep() {
-        return Util.getIntProperty(SYS_CLOCK_STEP);
+    public static int getSysClockStep() {
+        return getInt(SYS_CLOCK_STEP);
     }
 
     public static boolean isBufAutoExpansion() {
-        return Util.getBooleanProperty(BUF_AUTO_EXPANSION, true);
+        return isTrue(BUF_AUTO_EXPANSION, true);
     }
 
     public static boolean isBufThreadYield() {
-        return Util.getBooleanProperty(BUF_THREAD_YIELD, false);
+        return isTrue(BUF_THREAD_YIELD, false);
     }
 
     public static boolean isBufRecycle() {
-        return Util.getBooleanProperty(BUF_RECYCLE);
+        return isTrue(BUF_RECYCLE);
     }
 
     public static boolean isChannelReadFirst() {
-        return Util.getBooleanProperty(CHANNEL_READ_FIRST);
+        return isTrue(CHANNEL_READ_FIRST);
     }
 
     public static boolean isEnableUnsafe() {
-        return Util.getBooleanProperty(ENABLE_UNSAFE, true);
+        return isTrue(ENABLE_UNSAFE, true);
     }
 
     public static boolean isEnableEpoll() {
-        return Util.getBooleanProperty(ENABLE_EPOLL, true);
+        return isTrue(ENABLE_EPOLL, true);
     }
 
     public static boolean isEnableOpenssl() {
-        return Util.getBooleanProperty(ENABLE_OPENSSL);
+        return isTrue(ENABLE_OPENSSL);
     }
 
     public static boolean isEnableUnsafeBuf() {
-        return Native.EPOLL_AVAILABLE && Util.getBooleanProperty(ENABLE_UNSAFE_BUF);
+        return Native.EPOLL_AVAILABLE && isTrue(ENABLE_UNSAFE_BUF);
     }
 
     public static void setBufAutoExpansion(boolean auto) {
@@ -89,35 +89,35 @@ public class Options {
     }
 
     public static void setBufThreadYield(boolean yield) {
-        System.setProperty(BUF_THREAD_YIELD, String.valueOf(yield));
+        setBool(BUF_THREAD_YIELD, yield);
     }
 
     public static void setBufRecycle(boolean recycle) {
-        System.setProperty(BUF_RECYCLE, String.valueOf(recycle));
+        setBool(BUF_RECYCLE, recycle);
     }
 
     public static void setChannelReadFirst(boolean channelReadFirst) {
-        System.setProperty(CHANNEL_READ_FIRST, String.valueOf(channelReadFirst));
+        setBool(CHANNEL_READ_FIRST, channelReadFirst);
     }
 
     public static void setDebugError(boolean debugError) {
-        System.setProperty(DEBUG_ERROR, String.valueOf(debugError));
+        setBool(DEBUG_ERROR, debugError);
     }
 
     public static void setEnableUnsafe(boolean enable) {
-        System.setProperty(ENABLE_UNSAFE, String.valueOf(enable));
+        setBool(ENABLE_UNSAFE, enable);
     }
 
     public static void setEnableEpoll(boolean enable) {
-        System.setProperty(ENABLE_EPOLL, String.valueOf(enable));
+        setBool(ENABLE_EPOLL, enable);
     }
 
     public static void setEnableOpenssl(boolean enable) {
-        System.setProperty(ENABLE_OPENSSL, String.valueOf(enable));
+        setBool(ENABLE_OPENSSL, enable);
     }
 
     public static void setEnableUnsafeBuf(boolean enable) {
-        System.setProperty(ENABLE_UNSAFE_BUF, String.valueOf(enable));
+        setBool(ENABLE_UNSAFE_BUF, enable);
     }
 
     public static void setOpensslPath(String path) {
@@ -125,11 +125,43 @@ public class Options {
     }
 
     public static void setSslUnwrapBufferSize(int size) {
-        System.setProperty(SSL_UNWRAP_BUFFER_SIZE, String.valueOf(size));
+        setInt(SSL_UNWRAP_BUFFER_SIZE, size);
     }
 
     public static void setSysClockStep(int step) {
-        System.setProperty(SYS_CLOCK_STEP, String.valueOf(step));
+        setInt(SYS_CLOCK_STEP, step);
+    }
+
+    private static boolean isTrue(String key) {
+        return isTrue(key, false);
+    }
+
+    private static boolean isTrue(String key, boolean def) {
+        String v = Util.getStringProperty(key);
+        if (Util.isNullOrBlank(v)) {
+            return def;
+        }
+        return "1".equals(v) || "true".equals(v);
+    }
+
+    private static void setBool(String key) {
+        setBool(key, false);
+    }
+
+    private static void setBool(String key, boolean value) {
+        setInt(key, value ? 1 : 0);
+    }
+
+    private static int getInt(String key) {
+        return Util.getIntProperty(key);
+    }
+
+    private static int getInt(String key, int def) {
+        return Util.getIntProperty(key, def);
+    }
+
+    private static void setInt(String key, int value) {
+        System.setProperty(key, String.valueOf(value));
     }
 
 }

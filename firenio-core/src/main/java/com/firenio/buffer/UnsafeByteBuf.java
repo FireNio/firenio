@@ -40,6 +40,10 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     public void collation() {
+        if (!hasReadableBytes()) {
+            clear();
+            return;
+        }
         long address         = address();
         int  remain          = readableBytes();
         int  abs_read_index  = absReadIndex();

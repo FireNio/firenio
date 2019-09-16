@@ -38,12 +38,13 @@ import com.firenio.log.LoggerFactory;
 //ref from netty && undertow
 public final class SslContext {
 
-    public static final List<String> ENABLED_CIPHERS;
-    public static final String[]     ENABLED_PROTOCOLS;
+    public static final List<String> DEFAULT_CIPHERS;
+    public static final List<String> DEFAULT_PROTOCOLS;
     public static final boolean      OPENSSL_AVAILABLE;
     public static final int          SSL_PACKET_BUFFER_SIZE;
     public static final int          SSL_UNWRAP_BUFFER_SIZE;
     public static final Set<String>  SUPPORTED_CIPHERS;
+    public static final Set<String>  SUPPORTED_PROTOCOLS;
     static final        Logger       logger = LoggerFactory.getLogger(SslContext.class);
 
     static {
@@ -72,64 +73,61 @@ public final class SslContext {
         } catch (Exception e) {
             throw new Error("failed to initialize the default SSL context", e);
         }
-        SSL_UNWRAP_BUFFER_SIZE = Options.getSslUnwrapBufferSize(1024 * 256);
         SSLEngine engine = context.createSSLEngine();
+        SSL_UNWRAP_BUFFER_SIZE = Options.getSslUnwrapBufferSize(1024 * 256);
         SSL_PACKET_BUFFER_SIZE = engine.getSession().getPacketBufferSize();
+
         // Choose the sensible default list of protocols.
-        final String[] supportedProtocols    = engine.getSupportedProtocols();
-        Set<String>    supportedProtocolsSet = new HashSet<>(supportedProtocols.length);
-        supportedProtocolsSet.addAll(Arrays.asList(supportedProtocols));
-        List<String> protocols = new ArrayList<>();
-        addIfSupported(supportedProtocolsSet, protocols, "TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1");
-        if (!protocols.isEmpty()) {
-            ENABLED_PROTOCOLS = protocols.toArray(new String[0]);
-        } else {
-            ENABLED_PROTOCOLS = engine.getEnabledProtocols();
-        }
+        final String[] supportedProtocols = engine.getSupportedProtocols();
+        SUPPORTED_PROTOCOLS = new HashSet<>(supportedProtocols.length);
+        Collections.addAll(SUPPORTED_PROTOCOLS, supportedProtocols);
+
         // Choose the sensible default list of cipher suites.
         final String[] supportedCiphers = engine.getSupportedCipherSuites();
         SUPPORTED_CIPHERS = new HashSet<>(supportedCiphers.length);
         Collections.addAll(SUPPORTED_CIPHERS, supportedCiphers);
-        List<String> enabledCiphers = new ArrayList<>();
-        addIfSupported(SUPPORTED_CIPHERS, enabledCiphers,
-                // GCM (Galois/Counter Mode) requires JDK 8.
-                "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-                // AES256 requires JCE unlimited strength jurisdiction
-                // policy files.
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-                // GCM (Galois/Counter Mode) requires JDK 8.
-                "TLS_RSA_WITH_AES_128_GCM_SHA256", "TLS_RSA_WITH_AES_128_CBC_SHA",
-                // AES256 requires JCE unlimited strength jurisdiction
-                // policy files.
-                "TLS_RSA_WITH_AES_256_CBC_SHA");
 
-        if (enabledCiphers.isEmpty()) {
-            // Use the default from JDK as fallback.
-            for (String cipher : engine.getEnabledCipherSuites()) {
-                if (cipher.contains("_RC4_")) {
-                    continue;
-                }
-                enabledCiphers.add(cipher);
-            }
-        }
-        ENABLED_CIPHERS = Collections.unmodifiableList(enabledCiphers);
+        // default protocols
+        List<String> defaultProtocols = new ArrayList<>();
+        defaultProtocols.add("TLSv1.3");
+        defaultProtocols.add("TLSv1.2");
+        defaultProtocols.add("TLSv1.1");
+
+        // ECDHE == PFS
+        List<String> defaultCiphers = new ArrayList<>();
+        // GCM (Galois/Counter Mode) requires JDK 8.
+        defaultCiphers.add("TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384");
+        defaultCiphers.add("TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256");
+        defaultCiphers.add("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
+        defaultCiphers.add("TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
+        // AES256 requires JCE unlimited strength jurisdiction policy files.
+        defaultCiphers.add("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
+        // GCM (Galois/Counter Mode) requires JDK 8.
+        defaultCiphers.add("TLS_RSA_WITH_AES_128_GCM_SHA256");
+        defaultCiphers.add("TLS_RSA_WITH_AES_128_CBC_SHA");
+        // AES256 requires JCE unlimited strength jurisdiction policy files.
+        defaultCiphers.add("TLS_RSA_WITH_AES_256_CBC_SHA");
+
+        DEFAULT_PROTOCOLS = Collections.unmodifiableList(defaultProtocols);
+        DEFAULT_CIPHERS = Collections.unmodifiableList(defaultCiphers);
     }
 
-    private final String[] applicationProtocols;
-
-    private final String[] cipherSuites;
-
-    private final ClientAuth clientAuth;
-
+    private final String[]     applicationProtocols;
+    private final String[]     cipherSuites;
+    private final String[]     protocols;
+    private final ClientAuth   clientAuth;
     private final boolean      isServer;
     private final SSLContext   sslContext;
     private final List<String> unmodifiableCipherSuites;
+    private final List<String> unmodifiableProtocols;
 
-    SslContext(SSLContext sslContext, boolean isServer, List<String> ciphers, ClientAuth clientAuth, String[] applicationProtocols) throws SSLException {
+    SslContext(SSLContext sslContext, boolean isServer, List<String> protocols, List<String> ciphers, ClientAuth clientAuth, String[] applicationProtocols) throws SSLException {
         this.applicationProtocols = applicationProtocols;
         this.clientAuth = clientAuth;
-        this.cipherSuites = filterCipherSuites(ciphers, ENABLED_CIPHERS, SUPPORTED_CIPHERS);
+        this.cipherSuites = filterCipherSuites(ciphers, DEFAULT_CIPHERS, SUPPORTED_CIPHERS);
+        this.protocols = filterCipherSuites(protocols, DEFAULT_PROTOCOLS, SUPPORTED_PROTOCOLS);
         this.unmodifiableCipherSuites = Collections.unmodifiableList(Arrays.asList(cipherSuites));
+        this.unmodifiableProtocols = Collections.unmodifiableList(Arrays.asList(this.protocols));
         this.sslContext = sslContext;
         this.isServer = isServer;
         if (applicationProtocols != null && !OPENSSL_AVAILABLE) {
@@ -157,14 +155,19 @@ public final class SslContext {
         }
     }
 
-    public final List<String> cipherSuites() {
+    public final List<String> getCipherSuites() {
         return unmodifiableCipherSuites;
+    }
+
+    public final List<String> getProtocols() {
+        return unmodifiableProtocols;
     }
 
     private SSLEngine configureEngine(SSLEngine engine) {
         engine.setEnabledCipherSuites(cipherSuites);
-        engine.setEnabledProtocols(ENABLED_PROTOCOLS);
+        engine.setEnabledProtocols(protocols);
         engine.setUseClientMode(isClient());
+
         if (isServer()) {
             if (clientAuth == ClientAuth.OPTIONAL) {
                 engine.setWantClientAuth(true);
@@ -180,20 +183,17 @@ public final class SslContext {
     }
 
     private String[] filterCipherSuites(List<String> ciphers, List<String> defaultCiphers, Set<String> supportedCiphers) {
-        if (ciphers == null) {
-            return defaultCiphers.toArray(new String[0]);
-        } else {
-            List<String> newCiphers = new ArrayList<>();
-            for (String c : ciphers) {
-                if (c == null) {
-                    break;
-                }
-                if (supportedCiphers.contains(c)) {
-                    newCiphers.add(c);
-                }
-            }
-            return newCiphers.toArray(new String[0]);
+        List<String> filter_ciphers = ciphers;
+        if (filter_ciphers == null) {
+            filter_ciphers = defaultCiphers;
         }
+        List<String> newCiphers = new ArrayList<>();
+        for (String c : filter_ciphers) {
+            if (supportedCiphers.contains(c)) {
+                newCiphers.add(c);
+            }
+        }
+        return newCiphers.toArray(new String[0]);
     }
 
     public SSLContext getSSLContext() {
