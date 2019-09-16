@@ -123,19 +123,19 @@
 		<dependency>
 			<groupId>org.wildfly.openssl</groupId>
 			<artifactId>wildfly-openssl-windows-x86_64</artifactId>
-			<version>1.0.6.Final</version>
+			<version>1.0.8.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.wildfly.openssl</groupId>
 			<artifactId>wildfly-openssl-linux-x86_64</artifactId>
-			<version>1.0.6.Final</version>
+			<version>1.0.8.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.wildfly.openssl</groupId>
 			<artifactId>wildfly-openssl-java</artifactId>
-			<version>1.0.6.Final</version>
+			<version>1.0.8.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.annotation</groupId>

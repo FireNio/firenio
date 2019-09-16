@@ -20,8 +20,8 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.nio.channels.Selector;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +40,9 @@ import com.firenio.log.LoggerFactory;
  */
 public class Util {
 
-    public static final  Charset  ASCII       = Charset.forName("ASCII");
+    public static final  Charset  ASCII       = StandardCharsets.US_ASCII;
     public static final  Charset  GBK         = Charset.forName("GBK");
-    public static final  Charset  UTF8        = Charset.forName("UTF-8");
+    public static final  Charset  UTF8        = StandardCharsets.UTF_8;
     private static final Logger   logger      = LoggerFactory.getLogger(Util.class);
     private static final String[] int_strings = new String[2048];
 
@@ -50,14 +50,6 @@ public class Util {
         for (int i = 0; i < int_strings.length; i++) {
             int_strings[i] = String.valueOf(i);
         }
-    }
-
-    @SuppressWarnings("rawtypes")
-    public static List array2List(Object[] array) {
-        if (array == null || array.length == 0) {
-            return null;
-        }
-        return new ArrayList<>(Arrays.asList(array));
     }
 
     public static int availableProcessors() {
@@ -75,11 +67,10 @@ public class Util {
         }
     }
 
-    public static void clear(Collection<?> coll) {
-        if (coll == null) {
-            return;
+    public static void clear(Collection<?> collection) {
+        if (collection != null) {
+            collection.clear();
         }
-        coll.clear();
     }
 
     public static void clear(IntMap<byte[]> map) {
@@ -89,20 +80,18 @@ public class Util {
     }
 
     public static void clear(Map<?, ?> map) {
-        if (map == null) {
-            return;
+        if (map != null) {
+            map.clear();
         }
-        map.clear();
     }
 
     public static void close(Closeable closeable) {
-        if (closeable == null) {
-            return;
-        }
-        try {
-            closeable.close();
-        } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (Exception e) {
+                logger.warn(e.getMessage(), e);
+            }
         }
     }
 
@@ -114,13 +103,12 @@ public class Util {
     }
 
     public static void close(Selector selector) {
-        if (selector == null) {
-            return;
-        }
-        try {
-            selector.close();
-        } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+        if (selector != null) {
+            try {
+                selector.close();
+            } catch (Exception e) {
+                logger.warn(e.getMessage(), e);
+            }
         }
     }
 
@@ -140,25 +128,6 @@ public class Util {
         t.setDaemon(daemon);
         t.start();
         return t;
-    }
-
-    public static Class<?> forName(String className) {
-        try {
-            return Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
-    }
-
-    public static Class<?> forName(String className, Class<?> defaultClass) {
-        if (isNullOrBlank(className)) {
-            return defaultClass;
-        }
-        try {
-            return Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            return defaultClass;
-        }
     }
 
     public static boolean getBooleanProperty(String key) {
@@ -521,20 +490,6 @@ public class Util {
         }
     }
 
-    public static void testUuid() {
-
-        int    count = 1024 * 1024;
-        long   start = now();
-        String str   = null;
-        for (int i = 0; i < count; i++) {
-            str = randomUUID();
-            //            str = UUID.randomUUID().toString();
-        }
-        System.out.println(str);
-        System.out.println(past(start));
-
-    }
-
     public static List<String> toList(int initialListSize, String... protocols) {
         if (protocols == null) {
             return null;
@@ -584,7 +539,7 @@ public class Util {
     public static int valueOf(int value, byte[] data) {
         int v = value;
         for (int i = data.length - 1; i > -1; i--) {
-            data[i] = ByteUtil.getNumCharByte(v % 10);
+            data[i] = (byte) ((v % 10) + ((byte) '0'));
             v = v / 10;
             if (v == 0) {
                 return i;

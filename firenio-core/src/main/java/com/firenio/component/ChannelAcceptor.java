@@ -146,6 +146,11 @@ public final class ChannelAcceptor extends ChannelContext {
         Util.stop(this);
     }
 
+    @Override
+    public String toString() {
+        return (unsafe instanceof EpollAcceptorUnsafe ? "Epoll" : "Jdk") + "Acceptor(" + getServerAddress() + ")";
+    }
+
     static abstract class AcceptorUnsafe implements Closeable {
 
         abstract void bind(NioEventLoop el, ChannelAcceptor a, int backlog) throws IOException;

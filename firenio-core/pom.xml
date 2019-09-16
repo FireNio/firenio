@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>org.wildfly.openssl</groupId>
 			<artifactId>wildfly-openssl-java</artifactId>
-			<version>1.0.6.Final</version>
+			<version>1.0.8.Final</version>
 			<scope>provided</scope>
 		</dependency>
 

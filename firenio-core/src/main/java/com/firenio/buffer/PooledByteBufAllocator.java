@@ -170,13 +170,21 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
 
     @Override
     protected void doStop() {
-        ReentrantLock lock = this.lock;
-        lock.lock();
-        try {
-            freeMemory();
-        } finally {
-            lock.unlock();
+        for (; ; ) {
+            ReentrantLock lock = this.lock;
+            lock.lock();
+            try {
+                // check all memory(buf) are backed
+                if (usedBuf() == 0) {
+                    freeMemory();
+                    return;
+                }
+            } finally {
+                lock.unlock();
+            }
+            Util.sleep(8);
         }
+
     }
 
     @Override
@@ -235,10 +243,6 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
 
     @Override
     public void freeMemory() {
-        // check all memory(buf) are backed
-        for (; usedBuf() != 0; ) {
-            Util.sleep(8);
-        }
         if (Unsafe.UNSAFE_BUF_AVAILABLE) {
             Unsafe.free(address);
         } else {

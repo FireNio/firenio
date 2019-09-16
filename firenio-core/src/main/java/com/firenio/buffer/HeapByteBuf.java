@@ -46,6 +46,10 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public void collation() {
+        if (!hasReadableBytes()) {
+            clear();
+            return;
+        }
         int remain          = readableBytes();
         int abs_read_index  = absReadIndex();
         int abs_write_index = absWriteIndex();
