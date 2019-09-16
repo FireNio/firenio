@@ -15,6 +15,8 @@
  */
 package com.firenio.buffer;
 
+import java.nio.ByteBuffer;
+
 import com.firenio.common.Unsafe;
 
 /**
@@ -57,6 +59,15 @@ final class UnpooledUnsafeByteBuf extends UnsafeByteBuf {
     @Override
     protected void release0() {
         Unsafe.free(address());
+    }
+
+    @Override
+    public void reset(long memory, int capacity, int off, int len) {
+        this.referenceCount = 1;
+        this.setMemory(memory);
+        this.capacity = capacity;
+        this.readIndex(off);
+        this.writeIndex(off + len);
     }
 
 }

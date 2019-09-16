@@ -15,14 +15,18 @@
  */
 package com.firenio.buffer;
 
+import com.firenio.collection.ObjectPool;
+
 final class PooledHeapByteBuf extends HeapByteBuf {
 
-    private PooledByteBufAllocator allocator;
-    private int                    capacity;
-    private int                    unitOffset;
+    private final PooledByteBufAllocator allocator;
+    private final ObjectPool<ByteBuf>    pool;
+    private       int                    capacity;
+    private       int                    unitOffset;
 
-    PooledHeapByteBuf(PooledByteBufAllocator allocator, byte[] memory) {
+    PooledHeapByteBuf(PooledByteBufAllocator allocator, ObjectPool<ByteBuf> pool, byte[] memory) {
         super(memory);
+        this.pool = pool;
         this.allocator = allocator;
     }
 
@@ -52,10 +56,10 @@ final class PooledHeapByteBuf extends HeapByteBuf {
     }
 
     @Override
-    protected PooledHeapByteBuf produce(int unitOffset, int unitEnd) {
+    protected PooledHeapByteBuf produce(int unitOffset, int unitSize) {
         int unit = allocator.getUnit();
         this.offset = unitOffset * unit;
-        this.capacity = (unitEnd - unitOffset) * unit;
+        this.capacity = unitSize * unit;
         this.abs_read_index = offset;
         this.abs_write_index = offset;
         this.unitOffset = unitOffset;
@@ -76,6 +80,11 @@ final class PooledHeapByteBuf extends HeapByteBuf {
     @Override
     protected void unitOffset(int unitOffset) {
         this.unitOffset = unitOffset;
+    }
+
+    @Override
+    protected void recycleObject() {
+        pool.push(this);
     }
 
 }

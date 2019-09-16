@@ -15,6 +15,10 @@
  */
 package sample.http11.startup;
 
+import sample.http11.SpringHttpFrameHandle;
+import sample.http11.proxy4cloud.NetDataTransferServer;
+import sample.http11.service.CountChannelListener;
+
 import com.firenio.DevelopConfig;
 import com.firenio.LifeCycle;
 import com.firenio.LifeCycleListener;
@@ -26,6 +30,7 @@ import com.firenio.codec.http11.WebSocketCodec;
 import com.firenio.codec.http2.Http2Codec;
 import com.firenio.common.FileUtil;
 import com.firenio.common.Properties;
+import com.firenio.common.Util;
 import com.firenio.component.ChannelAcceptor;
 import com.firenio.component.ChannelAliveListener;
 import com.firenio.component.ConfigurationParser;
@@ -35,10 +40,6 @@ import com.firenio.concurrent.ThreadEventLoopGroup;
 import com.firenio.container.BootstrapEngine;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
-
-import sample.http11.SpringHttpFrameHandle;
-import sample.http11.proxy4cloud.NetDataTransferServer;
-import sample.http11.service.CountChannelListener;
 
 /**
  * @author wangkai
@@ -51,6 +52,9 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
     public void bootstrap(final String rootPath, final String mode) throws Exception {
         DevelopConfig.NATIVE_DEBUG = true;
         DevelopConfig.BUF_DEBUG = true;
+        DevelopConfig.SSL_DEBUG = true;
+        DevelopConfig.CHANNEL_DEBUG = true;
+        Options.setBufRecycle(false);
         Options.setEnableEpoll(true);
         Options.setEnableUnsafe(true);
         Options.setEnableOpenssl(true);
@@ -96,6 +100,17 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
         if (properties.getBooleanProperty("app.proxy")) {
             NetDataTransferServer.get().startup(group, 18088);
         }
+        Util.exec(() -> {
+            Util.sleep(1000 * 60 * 30);
+            for (; ; ) {
+                Util.sleep(1000 * 60);
+                logger.info("server is running....:" + (Runtime.getRuntime().totalMemory() / 1024 / 1024));
+            }
+        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("server shutdown....");
+        }));
+
     }
 
 }

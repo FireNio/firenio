@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import com.firenio.buffer.ByteBuf;
 import com.firenio.common.Util;
-import com.firenio.concurrent.EventLoop;
 
 /**
  * @author wangkai
@@ -58,10 +57,6 @@ public abstract class ProtocolCodec {
             clazz = ProtocolCodec.class;
         }
         return EXCEPTION(clazz, method, msg);
-    }
-
-    protected static int nextIndexedVariablesIndex() {
-        return FastThreadLocal.nextIndexedVariablesIndex();
     }
 
     // 可能会遭受一种攻击，比如最大可接收数据为100，客户端传输到99后暂停，

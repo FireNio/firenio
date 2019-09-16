@@ -22,7 +22,7 @@ public abstract class LifeCycleListener implements Comparable<LifeCycleListener>
         return sortIndex() - o.sortIndex();
     }
 
-    public void lifeCycleFailure(LifeCycle lifeCycle, Exception exception) {}
+    public void lifeCycleFailure(LifeCycle lifeCycle, Throwable exception) {}
 
     public void lifeCycleStarted(LifeCycle lifeCycle) {}
 

@@ -70,15 +70,11 @@ public enum HttpHeader {
     private static final HttpHeader[]            enums;
 
     static {
-        try {
-            enums = new HttpHeader[values().length];
-            for (HttpHeader value : values()) {
-                enums[value.id] = value;
-                ALL.put(value.getKey(), value);
-                ALL.put(value.getLowercase(), value);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        enums = new HttpHeader[values().length];
+        for (HttpHeader value : values()) {
+            enums[value.id] = value;
+            ALL.put(value.getKey(), value);
+            ALL.put(value.getLowercase(), value);
         }
     }
 

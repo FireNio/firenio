@@ -43,7 +43,7 @@ public class NioEventLoopGroup extends EventLoopGroup {
     private       ChannelContext        context;
     private       boolean               enableMemoryPool       = true;
     //内存池是否使用启用堆外内存
-    private       boolean               enableMemoryPoolDirect = false;
+    private       boolean               enableMemoryPoolDirect = Unsafe.DIRECT_BUFFER_AVAILABLE;
     private       NioEventLoop[]        eventLoops;
     private       long                  idleTime               = 30 * 1000;
     //内存池内存单元数量(单核)
@@ -103,13 +103,13 @@ public class NioEventLoopGroup extends EventLoopGroup {
             memoryPoolCapacity = (int) (total / (memoryPoolUnit * getEventLoopSize() * memoryPoolRate));
         }
         if (isEnableMemoryPool() && getAllocatorGroup() == null) {
-            if (isEnableMemoryPoolDirect()) {
-                if (!Unsafe.DIRECT_BUFFER_AVAILABLE) {
-                    throw new Exception("DirectByteBuffer pool enabled but no DirectByteBuffer available");
+            if (Native.EPOLL_AVAILABLE) {
+                if (!isEnableMemoryPoolDirect()) {
+                    throw new Exception("EPoll mode only support unsafe(direct) memory");
                 }
             } else {
-                if (Native.EPOLL_AVAILABLE) {
-                    throw new Exception("EPoll mode only support unsafe(direct) memory");
+                if (Unsafe.UNSAFE_BUF_AVAILABLE) {
+                    throw new Exception("Java(Nio) mode can not use unsafe memory");
                 }
             }
             this.allocatorGroup = new ByteBufAllocatorGroup(getEventLoopSize(), memoryPoolCapacity, memoryPoolUnit, enableMemoryPoolDirect);
@@ -219,6 +219,9 @@ public class NioEventLoopGroup extends EventLoopGroup {
 
     public void setWriteBuffers(int writeBuffers) {
         checkNotRunning();
+        if (writeBuffers > Byte.MAX_VALUE) {
+            throw new RuntimeException("max write buffer size: " + Byte.MAX_VALUE);
+        }
         this.writeBuffers = writeBuffers;
     }
 

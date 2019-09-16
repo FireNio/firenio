@@ -39,7 +39,7 @@ public class TestLoadEchoClient1 extends ITestThread {
     private ChannelInboundHandlerAdapter eventHandleAdaptor = null;
     private ChannelFuture                f;
 
-    private EventLoopGroup group = new NioEventLoopGroup();
+    private EventLoopGroup group = NettyUtil.newEventLoopGroup();
 
     public static void main(String[] args) throws IOException {
 
@@ -63,7 +63,7 @@ public class TestLoadEchoClient1 extends ITestThread {
 
         Bootstrap b = new Bootstrap();
         b.group(group);
-        b.channel(NioSocketChannel.class);
+        b.channel(NettyUtil.newSocketChannel());
         b.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {

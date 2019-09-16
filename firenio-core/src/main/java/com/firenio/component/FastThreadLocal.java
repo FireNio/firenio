@@ -23,28 +23,27 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.firenio.buffer.ByteBuf;
-import com.firenio.collection.AttributesImpl;
+import com.firenio.collection.AttributeKey;
+import com.firenio.collection.AttributeMap;
 import com.firenio.common.Util;
 
 /**
  * @author wangkai
  */
-public final class FastThreadLocal extends AttributesImpl {
+public final class FastThreadLocal extends AttributeMap {
 
-    private static final AtomicInteger                indexedVarsIndex   = new AtomicInteger(0);
-    private static final int                          maxIndexedVarsSize = 32;
-    private static final ThreadLocal<FastThreadLocal> slowThreadLocal    = new ThreadLocal<>();
+    private static final ThreadLocal<FastThreadLocal> slowThreadLocal = new ThreadLocal<>();
 
-    private byte[]                       bytes32          = new byte[32];
-    private Map<Charset, CharsetDecoder> charsetDecoders  = new IdentityHashMap<>();
-    private Map<Charset, CharsetEncoder> charsetEncoders  = new IdentityHashMap<>();
-    private Object[]                     indexedVariables = new Object[maxIndexedVarsSize];
+    private byte[]                       bytes32         = new byte[32];
+    private Map<Charset, CharsetDecoder> charsetDecoders = new IdentityHashMap<>();
+    private Map<Charset, CharsetEncoder> charsetEncoders = new IdentityHashMap<>();
     private ByteBuf                      sslUnwrapBuf;
     private ByteBuf                      sslWrapBuf;
-    private StringBuilder                stringBuilder    = new StringBuilder(512);
+    private StringBuilder                stringBuilder   = new StringBuilder(512);
+    private List<?>                      list            = new ArrayList<>();
+    private Map<?, ?>                    map             = new HashMap<>();
 
     FastThreadLocal() {}
 
@@ -75,15 +74,12 @@ public final class FastThreadLocal extends AttributesImpl {
         }
     }
 
-    public static int nextIndexedVariablesIndex() {
-        if (indexedVarsIndex.get() >= maxIndexedVarsSize) {
-            return -1;
-        }
-        int index = indexedVarsIndex.getAndIncrement();
-        if (index >= maxIndexedVarsSize) {
-            return -1;
-        }
-        return index;
+    public static AttributeKey valueOfKey(String name) {
+        return AttributeMap.valueOfKey(FastThreadLocal.class, name);
+    }
+
+    public static AttributeKey valueOfKey(String name, AttributeInitFunction function) {
+        return AttributeMap.valueOfKey(FastThreadLocal.class, name, function);
     }
 
     private void destroy0() {
@@ -113,30 +109,6 @@ public final class FastThreadLocal extends AttributesImpl {
         return encoder;
     }
 
-    public Object getIndexedVariable(int index) {
-        return indexedVariables[index];
-    }
-
-    public List<?> getList(int index) {
-        List<?> list = (List<?>) getIndexedVariable(index);
-        if (list == null) {
-            list = new ArrayList<>();
-            setIndexedVariable(index, list);
-        }
-        list.clear();
-        return list;
-    }
-
-    public Map<?, ?> getMap(int index) {
-        Map<?, ?> map = (Map<?, ?>) getIndexedVariable(index);
-        if (map == null) {
-            map = new HashMap<>();
-            setIndexedVariable(index, map);
-        }
-        map.clear();
-        return map;
-    }
-
     public ByteBuf getSslUnwrapBuf() {
         if (sslUnwrapBuf == null) {
             sslUnwrapBuf = ByteBuf.buffer(SslContext.SSL_UNWRAP_BUFFER_SIZE);
@@ -156,8 +128,18 @@ public final class FastThreadLocal extends AttributesImpl {
         return stringBuilder;
     }
 
-    public void setIndexedVariable(int index, Object value) {
-        indexedVariables[index] = value;
+    public List<?> getList() {
+        list.clear();
+        return list;
     }
 
+    public Map<?, ?> getMap() {
+        map.clear();
+        return map;
+    }
+
+    @Override
+    protected AttributeKeys getKeys() {
+        return getKeys(FastThreadLocal.class);
+    }
 }

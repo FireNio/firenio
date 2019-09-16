@@ -55,15 +55,12 @@ public final class SslContext {
         }
         boolean testOpenSsl = false;
         try {
-            if (Options.isEnableOpenssl()) {
-                if (!Unsafe.UNSAFE_AVAILABLE) {
-                    throw new Error("openssl enabled but on unsafe available");
-                }
+            if (Options.isEnableOpenssl() && Unsafe.UNSAFE_AVAILABLE) {
                 Class.forName("org.wildfly.openssl.OpenSSLProvider");
                 org.wildfly.openssl.OpenSSLProvider.register();
                 testOpenSsl = true;
             }
-        } catch (Exception | Error e) {
+        } catch (Throwable e) {
         }
         OPENSSL_AVAILABLE = testOpenSsl;
         SSLContext context;

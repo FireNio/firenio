@@ -19,6 +19,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
+import io.netty.util.NetUtil;
 
 import com.firenio.common.Util;
 
@@ -33,11 +34,11 @@ public class NettyClient {
     }
 
     public static void main(String[] args) throws Exception {
-        EventLoopGroup group = new NioEventLoopGroup();
+        EventLoopGroup group = NettyUtil.newEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();
             b.group(group);
-            b.channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, true);
+            b.channel(NettyUtil.newSocketChannel()).option(ChannelOption.TCP_NODELAY, true);
             b.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {

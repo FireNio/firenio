@@ -20,6 +20,6 @@ package com.firenio.component;
  */
 public interface ExceptionCaughtHandle {
 
-    void exceptionCaught(Channel ch, Frame frame, Exception ex);
+    void exceptionCaught(Channel ch, Frame frame, Throwable ex);
 
 }

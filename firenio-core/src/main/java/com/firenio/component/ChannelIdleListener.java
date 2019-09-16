@@ -19,6 +19,6 @@ import java.util.EventListener;
 
 public interface ChannelIdleListener extends EventListener {
 
-    void channelIdled(Channel ch, long lastIdleTime, long currentTime);
+    void channelIdled(Channel ch, long lastIdleTime);
 
 }

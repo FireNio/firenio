@@ -29,10 +29,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.AbstractSet;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -43,8 +41,11 @@ import com.firenio.Options;
 import com.firenio.buffer.ByteBuf;
 import com.firenio.buffer.ByteBufAllocator;
 import com.firenio.collection.ArrayListStack;
-import com.firenio.collection.Attributes;
+import com.firenio.collection.AttributeKey;
+import com.firenio.collection.AttributeMap;
+import com.firenio.collection.AttributeMap.AttributeInitFunction;
 import com.firenio.collection.DelayedQueue;
+import com.firenio.collection.IntArray;
 import com.firenio.collection.IntMap;
 import com.firenio.collection.LinkedBQStack;
 import com.firenio.collection.Stack;
@@ -64,28 +65,33 @@ import static com.firenio.Develop.debugException;
 /**
  * @author wangkai
  */
-public abstract class NioEventLoop extends EventLoop implements Attributes {
+public abstract class NioEventLoop extends EventLoop {
 
     static final boolean     CHANNEL_READ_FIRST = Options.isChannelReadFirst();
     static final Logger      logger             = NEW_LOGGER();
     static final IOException NOT_FINISH_CONNECT = NOT_FINISH_CONNECT();
     static final IOException OVER_CH_SIZE_LIMIT = OVER_CH_SIZE_LIMIT();
+    // NOTICE USE_HAS_TASK can make a memory barrier for io thread,
+    // please do not change this value to false unless you are really need.
+    // I am not sure if the select()/select(n) has memory barrier,
+    // it can be set USE_HAS_TASK to false if there is a memory barrier.
     static final boolean     USE_HAS_TASK       = true;
 
     final    ByteBufAllocator        alloc;
-    final    Map<Object, Object>     attributes    = new HashMap<>();
     final    ByteBuf                 buf;
-    final    IntMap<Channel>         channels      = new IntMap<>(4096);
+    final    AttributeMap            attributeMap   = new NioEventLoopAttributeMap();
+    final    IntMap<Channel>         channels       = new IntMap<>(4096);
+    final    IntArray                close_channels = new IntArray();
     final    int                     ch_size_limit;
-    final    DelayedQueue            delayed_queue = new DelayedQueue();
-    final    BlockingQueue<Runnable> events        = new LinkedBlockingQueue<>();
+    final    DelayedQueue            delayed_queue  = new DelayedQueue();
+    final    BlockingQueue<Runnable> events         = new LinkedBlockingQueue<>();
     final    NioEventLoopGroup       group;
     final    int                     index;
-    final    AtomicInteger           selecting     = new AtomicInteger();
+    final    AtomicInteger           selecting      = new AtomicInteger();
     final    boolean                 sharable;
     final    long                    buf_address;
     final    boolean                 acceptor;
-    volatile boolean                 has_task      = false;
+    volatile boolean                 has_task       = false;
 
     NioEventLoop(NioEventLoopGroup group, int index, String threadName) {
         super(threadName);
@@ -105,40 +111,38 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         }
     }
 
-    private static void channel_idle(ChannelIdleListener l, Channel ch, long lastIdleTime, long currentTime) {
+    private static void channel_idle(ChannelIdleListener l, Channel ch, long lastIdleTime) {
         try {
-            l.channelIdled(ch, lastIdleTime, currentTime);
-        } catch (Exception e) {
+            l.channelIdled(ch, lastIdleTime);
+        } catch (Throwable e) {
             logger.error(e.getMessage(), e);
         }
     }
 
-    private static void channel_idle(ChannelContext context, IntMap<Channel> channels, long last_idle_time, long current_time) {
+    private static void channel_idle(ChannelContext context, IntMap<Channel> channels, long last_idle_time) {
         List<ChannelIdleListener> ls = context.getChannelIdleEventListeners();
         for (int i = 0; i < ls.size(); i++) {
             ChannelIdleListener l = ls.get(i);
             for (channels.scan(); channels.hasNext(); ) {
                 Channel ch = channels.value();
-                channel_idle(l, ch, last_idle_time, current_time);
+                channel_idle(l, ch, last_idle_time);
             }
-            channels.finishScan();
         }
     }
 
-    private static void channel_idle_share(IntMap<Channel> channels, long last_idle_time, long current_time) {
+    private static void channel_idle_share(IntMap<Channel> channels, long last_idle_time) {
         for (channels.scan(); channels.hasNext(); ) {
             Channel                   ch      = channels.value();
             ChannelContext            context = ch.getContext();
             List<ChannelIdleListener> ls      = context.getChannelIdleEventListeners();
             if (ls.size() == 1) {
-                channel_idle(ls.get(0), ch, last_idle_time, current_time);
+                channel_idle(ls.get(0), ch, last_idle_time);
             } else {
                 for (int i = 0; i < ls.size(); i++) {
-                    channel_idle(ls.get(i), ch, last_idle_time, current_time);
+                    channel_idle(ls.get(i), ch, last_idle_time);
                 }
             }
         }
-        channels.finishScan();
     }
 
     static void register_ch(ChannelContext ctx, int fd, IntMap<Channel> channels, Channel ch) {
@@ -180,27 +184,17 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         return alloc;
     }
 
-    @Override
-    public Map<Object, Object> attributes() {
-        return attributes;
-    }
-
     //FIXME ..optimize sharable group
-    private void channel_idle(long last_idle_time, long current_time) {
+    private void channel_idle(long last_idle_time) {
         IntMap<Channel> channels = this.channels;
         if (channels.isEmpty()) {
             return;
         }
         if (sharable) {
-            channel_idle_share(channels, last_idle_time, current_time);
+            channel_idle_share(channels, last_idle_time);
         } else {
-            channel_idle(group.getContext(), channels, last_idle_time, current_time);
+            channel_idle(group.getContext(), channels, last_idle_time);
         }
-    }
-
-    @Override
-    public void clearAttributes() {
-        this.attributes.clear();
     }
 
     private void close_channels() {
@@ -208,30 +202,22 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         for (channels.scan(); channels.hasNext(); ) {
             Util.close(channels.value());
         }
-        channels.finishScan();
     }
 
     protected long getBufAddress() {
         return buf_address;
     }
 
-    @Override
-    public Object getAttribute(Object key) {
-        return this.attributes.get(key);
-    }
-
-    @Override
-    public Set<Object> getAttributeNames() {
-        return this.attributes.keySet();
+    public <T> T getAttribute(AttributeKey<T> key) {
+        return attributeMap.getAttribute(key);
     }
 
     public Channel getChannel(int channelId) {
         return channels.get(channelId);
     }
 
-    @SuppressWarnings("unchecked")
-    private Stack<Object> get_cache0(String key, int max) {
-        Stack<Object> cache = (Stack<Object>) getAttribute(key);
+    private Stack<Object> get_cache0(AttributeKey<Stack<Object>> key, int max) {
+        Stack<Object> cache = getAttribute(key);
         if (cache == null) {
             if (group.isConcurrentFrameStack()) {
                 cache = new LinkedBQStack<>(max);
@@ -243,7 +229,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         return cache;
     }
 
-    public Object getCache(String key, int max) {
+    public Object getCache(AttributeKey<Stack<Object>> key, int max) {
         return get_cache0(key, max).pop();
     }
 
@@ -265,21 +251,19 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         return buf;
     }
 
-    @SuppressWarnings("unchecked")
-    public void release(String key, Object obj) {
-        Stack<Object> buffer = (Stack<Object>) getAttribute(key);
+    public void release(AttributeKey<Stack<Object>> key, Object obj) {
+        Stack<Object> buffer = getAttribute(key);
         if (buffer != null) {
             buffer.push(obj);
         }
     }
 
-    @Override
-    public Object removeAttribute(Object key) {
-        return this.attributes.remove(key);
+    public AttributeMap getAttributeMap() {
+        return attributeMap;
     }
 
     protected void removeChannel(int id) {
-        channels.remove(id);
+        close_channels.add(id);
     }
 
     private void run_events(BlockingQueue<Runnable> events) {
@@ -333,11 +317,12 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         }
     }
 
-    private long run_delayed_events(DelayedQueue dq, long now, long nextIdle, long selectTime) {
+    private long run_delayed_events(DelayedQueue dq, long nextIdle) {
+        long now = Util.now();
         for (; ; ) {
             DelayedQueue.DelayTask t = dq.peek();
             if (t == null) {
-                break;
+                return nextIdle - now;
             }
             if (t.isCanceled()) {
                 dq.poll();
@@ -352,15 +337,15 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                 } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
                 }
-                continue;
-            }
-            if (delay < nextIdle) {
-                return delay - now;
+                now = Util.now();
             } else {
-                return selectTime;
+                if (delay < nextIdle) {
+                    return delay - now;
+                } else {
+                    return nextIdle - now;
+                }
             }
         }
-        return selectTime;
     }
 
     @Override
@@ -370,8 +355,8 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         final AtomicInteger           selecting      = this.selecting;
         final BlockingQueue<Runnable> events         = this.events;
         final DelayedQueue            dq             = this.delayed_queue;
-        long                          next_idle_time = 0;
-        long                          last_idle_time = 0;
+        long                          last_idle_time = Util.now();
+        long                          next_idle_time = last_idle_time + idle;
         long                          select_time    = idle;
         for (; ; ) {
             // when this event loop is going to shutdown,we do not handle the last events
@@ -405,20 +390,34 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                 }
                 long now = Util.now();
                 if (now >= next_idle_time) {
-                    channel_idle(last_idle_time, now);
-                    last_idle_time = now;
-                    next_idle_time = now + idle;
-                    select_time = idle;
-                } else {
-                    select_time = next_idle_time - now;
+                    channel_idle(last_idle_time);
+                    last_idle_time = next_idle_time;
+                    next_idle_time = next_idle_time + idle;
                 }
                 run_events(events);
                 if (!dq.isEmpty()) {
-                    select_time = run_delayed_events(dq, now, next_idle_time, select_time);
+                    select_time = run_delayed_events(dq, next_idle_time);
+                } else {
+                    select_time = next_idle_time - Util.now();
                 }
+                remove_closed_channels();
             } catch (Throwable e) {
                 logger.error(e);
             }
+        }
+    }
+
+    private void remove_closed_channels() {
+        IntArray        c_list   = this.close_channels;
+        IntMap<Channel> channels = this.channels;
+        if (!c_list.isEmpty()) {
+            for (int i = 0; i < c_list.size(); i++) {
+                Channel ch = channels.remove(c_list.get(i));
+                if (ch.isOpen()) {
+                    channels.put(ch.getChannelId(), ch);
+                }
+            }
+            c_list.clear();
         }
     }
 
@@ -436,9 +435,8 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         }
     }
 
-    @Override
-    public void setAttribute(Object key, Object value) {
-        this.attributes.put(key, value);
+    public void setAttribute(AttributeKey key, Object value) {
+        this.attributeMap.setAttribute(key, value);
     }
 
     public boolean submit(Runnable event) {
@@ -477,6 +475,13 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
 
     abstract void wakeup0();
 
+    public static AttributeKey valueOfKey(String name) {
+        return AttributeMap.valueOfKey(NioEventLoop.class, name);
+    }
+
+    public static AttributeKey valueOfKey(String name, AttributeInitFunction function) {
+        return AttributeMap.valueOfKey(NioEventLoop.class, name, function);
+    }
 
     static final class JavaEventLoop extends NioEventLoop {
 
@@ -543,7 +548,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                         selectedKeysField.set(selector, keySet);
                         publicSelectedKeysField.set(selector, keySet);
                         return null;
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         return e;
                     }
                 }
@@ -630,7 +635,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
                     public void run() {
                         try {
                             register_channel(ch, targetEL, acceptor, true);
-                        } catch (IOException e) {
+                        } catch (Throwable e) {
                             logger.error(e.getMessage(), e);
                         }
                     }
@@ -728,7 +733,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         int select(long timeout) {
             try {
                 return selector.select(timeout);
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 debugException(logger, e);
                 return 0;
             }
@@ -738,7 +743,7 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         int select_now() {
             try {
                 return selector.selectNow();
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 debugException(logger, e);
                 return 0;
             }
@@ -921,8 +926,11 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         private void accept(int fd, int e) {
             Channel ch = getChannel(fd);
             if (ch != null) {
-                if (!ch.isOpen()) {
-                    return;
+                if (Develop.CHANNEL_DEBUG) {
+                    if (!ch.isOpen()) {
+                        logger.error("channel closed but goto accept block");
+                        return;
+                    }
                 }
                 if ((e & Native.close_event()) != 0) {
                     ch.close();
@@ -965,6 +973,12 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
 
         private void accept_connect(int fd, int e) {
             ChannelConnector ctx = (ChannelConnector) ctxs.remove(fd);
+            if (ctx == null) {
+                if (Develop.CHANNEL_DEBUG) {
+                    logger.error("server run in accept_connect........");
+                }
+                return;
+            }
             if ((e & Native.close_event()) != 0 || !Native.finish_connect(fd)) {
                 ctx.channelEstablish(null, NOT_FINISH_CONNECT);
                 return;
@@ -1015,8 +1029,8 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
             }
             Channel old = channels.get(fd);
             if (old != null) {
-                if (Develop.NATIVE_DEBUG) {
-                    logger.error("old channel ....................,open:{}", old.isOpen());
+                if (Develop.CHANNEL_DEBUG) {
+                    logger.error("old channel ....................,{},open:{}", old, old.isOpen());
                 }
                 old.close();
             }
@@ -1037,6 +1051,15 @@ public abstract class NioEventLoop extends EventLoop implements Attributes {
         @Override
         void wakeup0() {
             Native.event_fd_write(event_fd, 1L);
+        }
+
+    }
+
+    static class NioEventLoopAttributeMap extends AttributeMap {
+
+        @Override
+        protected AttributeKeys getKeys() {
+            return getKeys(NioEventLoop.class);
         }
 
     }

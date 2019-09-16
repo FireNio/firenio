@@ -16,10 +16,10 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.CharsetUtil;
 
 public class MyNettyServer {
-    private static final EventLoopGroup bossGroup   = new NioEventLoopGroup(1);
+    private static final EventLoopGroup bossGroup   = NettyUtil.newEventLoopGroup(1);
     private static final String         IP          = "127.0.0.1";
     private static final int            PORT        = 8300;
-    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(8);
+    private static final EventLoopGroup workerGroup = NettyUtil.newEventLoopGroup(8);
 
     public static void main(String[] args) throws Exception {
         System.out.println("开始启动TCP服务器...");
@@ -30,7 +30,7 @@ public class MyNettyServer {
     public static void service() throws Exception {
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workerGroup);
-        bootstrap.channel(NioServerSocketChannel.class);
+        bootstrap.channel(NettyUtil.newServerSocketChannel());
         bootstrap.childHandler(new ChannelInitializer<Channel>() {
 
             @Override

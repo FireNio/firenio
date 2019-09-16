@@ -39,7 +39,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public void collation() {
+    public void compact() {
         if (!hasReadableBytes()) {
             clear();
             return;

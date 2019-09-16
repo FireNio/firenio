@@ -35,6 +35,10 @@ import com.firenio.log.LoggerFactory;
  */
 public class TestIntMap {
 
+    static {
+        LoggerFactory.setEnableSLF4JLogger(false);
+    }
+
     Logger logger = LoggerFactory.getLogger(TestIntMap.class);
 
     int             cap  = 1000;
@@ -73,19 +77,15 @@ public class TestIntMap {
         }
     }
 
-
     @Test
-    public void testPut() {
+    public void test() {
         Assert.expectTrue(list.size() == 1000);
         Assert.expectTrue(map.size() == 1000);
         for (int i = 0; i < list.size(); i++) {
             Integer k = list.get(i);
             Assert.expectTrue(map.get(k).equals(k));
         }
-    }
 
-    @Test
-    public void testScan() {
         int i = 0;
         for (map.scan(); map.hasNext(); ) {
             i++;
@@ -95,26 +95,12 @@ public class TestIntMap {
             Assert.expectTrue(list.contains(k));
         }
         Assert.expectTrue(i == list.size());
-    }
 
-    @Test
-    public void testRemove() {
-        int i    = 0;
         int size = list.size();
-        for (map.scan(); map.hasNext(); ) {
-            i++;
-            Integer k = map.key();
-            Integer v = map.value();
-            Assert.expectTrue(k.equals(v));
-            Assert.expectTrue(list.contains(k));
-            if (k % 2 == 0) {
-                for (; list.remove(k); ) {
-                }
-                _test_remove(k);
-            }
+        for (int j = 0; j < list.size(); j++) {
+            _test_remove(list.get(j));
         }
-        Assert.expectTrue(i == size);
-        testScan();
+        Assert.expectTrue(map.size() == 0);
     }
 
     void _test_remove(Integer k) {
