@@ -39,7 +39,7 @@ public final class ExecutorEventLoop extends EventLoop {
         if (job != null) {
             try {
                 job.run();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
         }

@@ -97,7 +97,7 @@ public class HttpFrameHandle extends IoEventHandle {
     public void destroy(ChannelContext context) {}
 
     @Override
-    public void exceptionCaught(Channel ch, Frame frame, Exception ex) {
+    public void exceptionCaught(Channel ch, Frame frame, Throwable ex) {
         logger.error(ex.getMessage(), ex);
         frame.release();
         if (!ch.isOpen()) {

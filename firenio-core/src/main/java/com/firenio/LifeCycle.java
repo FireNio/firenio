@@ -49,7 +49,7 @@ public abstract class LifeCycle {
 
     protected abstract void doStop();
 
-    private void fireEvent(int event, Exception exception) {
+    private void fireEvent(int event, Throwable exception) {
         if (lifeCycleListeners.size() == 0) {
             return;
         }
@@ -57,7 +57,7 @@ public abstract class LifeCycle {
             for (LifeCycleListener listener : lifeCycleListeners) {
                 try {
                     listener.lifeCycleStarting(this);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -65,7 +65,7 @@ public abstract class LifeCycle {
             for (LifeCycleListener listener : lifeCycleListeners) {
                 try {
                     listener.lifeCycleStarted(this);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -73,7 +73,7 @@ public abstract class LifeCycle {
             for (LifeCycleListener listener : lifeCycleListeners) {
                 try {
                     listener.lifeCycleStopping(this);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -81,7 +81,7 @@ public abstract class LifeCycle {
             for (LifeCycleListener listener : lifeCycleListeners) {
                 try {
                     listener.lifeCycleStopped(this);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -89,7 +89,7 @@ public abstract class LifeCycle {
             for (LifeCycleListener listener : lifeCycleListeners) {
                 try {
                     listener.lifeCycleFailure(this, exception);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -130,7 +130,7 @@ public abstract class LifeCycle {
                 this.doStart();
                 this.state = RUNNING;
                 this.onStarted();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Util.stop(this);
                 this.state = FAILED;
                 this.fireEvent(state, e);
@@ -153,7 +153,7 @@ public abstract class LifeCycle {
             }
             try {
                 this.doStop();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
             this.state = STOPPED;

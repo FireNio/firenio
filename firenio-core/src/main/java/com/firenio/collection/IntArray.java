@@ -17,6 +17,9 @@ package com.firenio.collection;
 
 import java.util.Arrays;
 
+import com.firenio.common.ByteUtil;
+import com.firenio.common.Util;
+
 /**
  * @author wangkai
  */
@@ -62,5 +65,10 @@ public class IntArray {
 
     public int size() {
         return size;
+    }
+
+    @Override
+    public String toString() {
+        return Util.arrayToString(array, 0, size);
     }
 }

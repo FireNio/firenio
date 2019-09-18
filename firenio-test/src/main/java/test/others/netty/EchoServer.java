@@ -35,39 +35,27 @@ import io.netty.handler.ssl.SslContext;
  */
 public class EchoServer {
 
-    static final int     PORT = Integer.parseInt(System.getProperty("port", "443"));
-    static final boolean SSL  = System.getProperty("ssl") == null;
 
     public static void main(String[] args) throws Exception {
-        // Configure SSL.
-        final SslContext sslCtx = null;
-//        if (SSL) {
-//            File key  = FileUtil.readFileByCls("l.key");
-//            File cert = FileUtil.readFileByCls("l.crt");
-//            sslCtx = SslContextBuilder.forServer(cert, key).build();
-//        } else {
-//            sslCtx = null;
-//        }
 
         // Configure the server.
-        EventLoopGroup bossGroup   = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup   = NettyUtil.newEventLoopGroup(1);
+        EventLoopGroup workerGroup = NettyUtil.newEventLoopGroup(1);
         try {
             ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).option(ChannelOption.SO_BACKLOG, 100).handler(new LoggingHandler(LogLevel.INFO)).childHandler(new ChannelInitializer<SocketChannel>() {
+            b.group(bossGroup, workerGroup);
+            b.channel(NettyUtil.newServerSocketChannel());
+            b.option(ChannelOption.SO_BACKLOG, 50);
+            b.childHandler(new ChannelInitializer<SocketChannel>() {
                 @Override
-                public void initChannel(SocketChannel ch) throws Exception {
+                public void initChannel(SocketChannel ch) {
                     ChannelPipeline p = ch.pipeline();
-                    if (sslCtx != null) {
-                        p.addLast(sslCtx.newHandler(ch.alloc()));
-                    }
-                    //p.addLast(new LoggingHandler(LogLevel.INFO));
                     p.addLast(new TcpServerHandler());
                 }
             });
 
             // Start the server.
-            ChannelFuture f = b.bind(PORT).sync();
+            ChannelFuture f = b.bind(8080).sync();
 
             // Wait until the server socket is closed.
             f.channel().closeFuture().sync();

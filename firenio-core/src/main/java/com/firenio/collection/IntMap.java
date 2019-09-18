@@ -24,14 +24,16 @@ import com.firenio.common.Util;
  */
 public final class IntMap<V> {
 
+    static final float DEFAULT_LOAD_FACTOR = 0.5f;
+
     private final float loadFactor;
     private       int   cap;
     private       int[] keys;
     private       V[]   values;
-    private       int   scanSize;
+    private       int   scan_size;
     private       int   size;
     private       int   mask;
-    private       int   scanIndex;
+    private       int   scan_index;
     private       int   limit;
 
     public IntMap() {
@@ -39,7 +41,7 @@ public final class IntMap<V> {
     }
 
     public IntMap(int cap) {
-        this(cap, 0.75f);
+        this(cap, DEFAULT_LOAD_FACTOR);
     }
 
     @SuppressWarnings("unchecked")
@@ -48,92 +50,74 @@ public final class IntMap<V> {
         int c = Util.clothCover(cap);
         this.cap = c;
         this.mask = c - 1;
-        this.loadFactor = Math.min(loadFactor, 0.75f);
+        this.loadFactor = loadFactor;
         this.keys = new int[c];
         this.values = (V[]) new Object[c];
         this.limit = (int) (c * loadFactor);
         Arrays.fill(keys, -1);
     }
 
-    private static int indexOfKey(int[] keys, int key, int mask) {
-        int index = key & mask;
-        if (keys[index] == key) {
-            return index;
-        }
-        if (keys[index] == -1) {
-            return -1;
-        }
-        for (int i = index, cnt = keys.length; i < cnt; i++) {
-            if (keys[i] == key) {
-                return i;
-            }
-        }
-        for (int i = 1; i < index; i++) {
-            if (keys[i] == key) {
-                return i;
-            }
-        }
-        //will not happen
-        return -1;
-
-    }
-
-    private static int indexOfFreeKey(int[] keys, int key, int mask) {
-        int index = key & mask;
-        int _key  = keys[index];
-        if (_key == -1 || _key == key) {
-            return index;
-        }
-        for (int i = index, cnt = keys.length; i < cnt; i++) {
-            _key = keys[i];
-            if (_key == -1 || _key == key) {
-                return i;
-            }
-        }
-        for (int i = 1; i < index; i++) {
-            _key = keys[i];
-            if (_key == -1 || _key == key) {
-                return i;
-            }
-        }
-        //will not happen
-        return -1;
-
-    }
-
+    /**
+     * DO NOT REMOVE while scan
+     */
     public void scan() {
-        this.scanSize = 0;
-        this.scanIndex = -1;
+        this.scan_size = 0;
+        this.scan_index = -1;
     }
 
     public V putIfAbsent(int key, V value) {
-        return putVal(key, value, true);
-    }
-
-    private V putVal(int key, V value, boolean absent) {
-        V res = put0(key, value, mask, keys, values, absent);
-        if (res == null) {
-            grow();
-            return null;
+        V v = get(key);
+        if (v == null) {
+            v = put(key, value);
         }
-        return res;
+        return v;
     }
 
     public V put(int key, V value) {
-        return putVal(key, value, false);
-    }
-
-    private int scan(int[] keys, int index) {
-        for (int i = index + 1, cnt = keys.length; i < cnt; i++) {
-            if (keys[i] != -1) {
-                return i;
+        V[]   values      = this.values;
+        int[] keys        = this.keys;
+        int   mask        = this.mask;
+        int   start_index = key & mask;
+        int   index       = start_index;
+        for (; ; ) {
+            int _key = keys[index & mask];
+            if (_key == -1) {
+                keys[index] = key;
+                values[index] = value;
+                grow();
+                return null;
+            } else if (_key == key) {
+                V old = values[index];
+                values[index] = value;
+                return old;
+            }
+            if ((index = next_key(index, mask)) == start_index) {
+                throw new IllegalStateException("failed to put");
             }
         }
-        return keys.length;
     }
 
-    public int scanIndex() {
-        return scanIndex;
+    private static int next_key(int key, int mask) {
+        return (key + 1) & mask;
+    }
+
+    private void put(int[] keys, V[] values, int key, V value, int mask) {
+        int start_index = key & mask;
+        int index       = start_index;
+        for (; ; ) {
+            int _key = keys[index & mask];
+            if (_key == -1) {
+                keys[index] = key;
+                values[index] = value;
+                break;
+            } else if (_key == key) {
+                values[index] = value;
+                break;
+            }
+            if ((index = next_key(index, mask)) == start_index) {
+                throw new IllegalStateException("failed to put");
+            }
+        }
     }
 
     public boolean hasNext() {
@@ -141,28 +125,28 @@ public final class IntMap<V> {
     }
 
     private int next() {
-        if (scanSize < size) {
+        if (scan_size < size) {
             int[] keys  = this.keys;
-            int   index = this.scanIndex + 1;
+            int   index = this.scan_index + 1;
             int   cap   = this.cap;
             for (; index < cap; index++) {
                 if (keys[index] != -1) {
                     break;
                 }
             }
-            this.scanSize++;
-            this.scanIndex = index;
+            this.scan_size++;
+            this.scan_index = index;
             return index;
         }
         return -1;
     }
 
     public int key() {
-        return keys[scanIndex];
+        return keys[scan_index];
     }
 
     public V value() {
-        return values[scanIndex];
+        return values[scan_index];
     }
 
     public int indexKey(int index) {
@@ -171,23 +155,6 @@ public final class IntMap<V> {
 
     public V indexValue(int index) {
         return values[index];
-    }
-
-    private V put0(int key, V value, int mask, int[] keys, V[] values, boolean absent) {
-        int index = indexOfFreeKey(keys, key, mask);
-        if (keys[index] == key) {
-            if (absent) {
-                return values[index];
-            } else {
-                V old = values[index];
-                values[index] = value;
-                return old;
-            }
-        } else {
-            keys[index] = key;
-            values[index] = value;
-            return null;
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -201,13 +168,16 @@ public final class IntMap<V> {
             int   limit  = (int) (cap * loadFactor);
             Arrays.fill(keys, -1);
             scan();
+            int size = 0;
             for (; ; ) {
                 int index = next();
                 if (index == -1) {
                     break;
                 }
-                put0(indexKey(index), indexValue(index), mask, keys, values, false);
+                size++;
+                put(keys, values, indexKey(index), indexValue(index), mask);
             }
+            assert size == this.size;
             this.cap = cap;
             this.mask = mask;
             this.keys = keys;
@@ -217,53 +187,69 @@ public final class IntMap<V> {
     }
 
     public V get(int key) {
-        int index = indexOfKey(keys, key, mask);
-        if (index == -1) {
-            return null;
-        }
-        return values[index];
-    }
-
-    private void remove_at(int index) {
         int[] keys        = this.keys;
-        V[]   values      = this.values;
-        int   cap         = this.cap;
         int   mask        = this.mask;
-        int   write_index = index;
-        int   read_index  = index + 1;
-        for (; read_index < cap; read_index++) {
-            int key = keys[read_index];
-            if (key == -1) {
-                break;
+        int   start_index = key & mask;
+        int   index       = start_index;
+        for (; ; ) {
+            int _key = keys[index & mask];
+            if (_key == -1) {
+                return null;
+            } else if (_key == key) {
+                return values[index];
             }
-            if ((key & mask) == read_index) {
-                continue;
+            if ((index = next_key(index, mask)) == start_index) {
+                return null;
             }
-            keys[write_index] = key;
-            values[write_index] = values[read_index];
-            write_index = read_index;
         }
-        keys[write_index] = -1;
-        values[write_index] = null;
     }
 
-    public void finishScan() {
-        scanIndex = -1;
+    // ref from IdentityHashMap
+    private void remove_at(int[] keys, V[] values, final int index, int mask) {
+        // Adapted from Knuth Section 6.4 Algorithm R
+        // Look for items to swap into newly vacated slot
+        // starting at index immediately following deletion,
+        // and continuing until a null slot is seen, indicating
+        // the end of a run of possibly-colliding keys.
+        for (int i = next_key(index, mask), key, next = index; (key = keys[i]) != -1; i = next_key(i, mask)) {
+            // The following test triggers if the item at slot i (which
+            // hashes to be at slot r) should take the spot vacated by d.
+            // If so, we swap it in, and then continue with d now at the
+            // newly vacated i.  This process will terminate when we hit
+            // the null slot at the end of this run.
+            // The test is messy because we are using a circular table.
+            int r = key & mask;
+            if ((i < r && (r <= next || next <= i)) || (r <= next && next <= i)) {
+                keys[next] = key;
+                values[next] = values[i];
+                keys[i] = -1;
+                values[i] = null;
+                next = i;
+            }
+        }
     }
 
     public V remove(int key) {
-        int index = indexOfKey(keys, key, mask);
-        if (index == -1) {
-            return null;
+        int[] keys        = this.keys;
+        int   mask        = this.mask;
+        int   start_index = key & mask;
+        int   index       = start_index;
+        for (; ; ) {
+            int _key = keys[index & mask];
+            if (_key == -1) {
+                return null;
+            } else if (_key == key) {
+                size--;
+                V value = values[index];
+                keys[index] = -1;
+                values[index] = null;
+                remove_at(keys, values, index, mask);
+                return value;
+            }
+            if ((index = next_key(index, mask)) == start_index) {
+                return null;
+            }
         }
-        V v = values[index];
-        remove_at(index);
-        size--;
-        if (index <= scanIndex) {
-            scanSize--;
-            scanIndex--;
-        }
-        return v;
     }
 
     public String toString() {

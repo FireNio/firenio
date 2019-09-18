@@ -77,7 +77,7 @@ public class ClientHttpCodec extends HttpCodec {
         int            len_len     = 32 - len_idx;
         int            len         = mtd_bytes.length + 1 + url_bytes.length + PROTOCOL.length + len_len + 2;
         int            header_size = 0;
-        List<byte[]>   bytes_array = getEncodeBytesArray(FastThreadLocal.get());
+        List<byte[]>   bytes_array = (List<byte[]>) FastThreadLocal.get().getList();
         IntMap<String> headers     = f.getRequestHeaders();
         if (headers != null) {
             headers.remove(HttpHeader.Content_Length.getId());
@@ -94,7 +94,6 @@ public class ClientHttpCodec extends HttpCodec {
                 len += k.length;
                 len += v.length;
             }
-            headers.finishScan();
         }
         len += 2;
         if (isArray) {

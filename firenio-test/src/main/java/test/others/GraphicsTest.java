@@ -279,14 +279,14 @@ public class GraphicsTest {
                 boolean[] tar = bits[i];
                 for (int j = 0; j < width; j++) {
                     byte b = array[bIndex++];
-                    tar[j * cheng + 0] = ByteUtil.getBoolean(b, 0);
-                    tar[j * cheng + 1] = ByteUtil.getBoolean(b, 1);
-                    tar[j * cheng + 2] = ByteUtil.getBoolean(b, 2);
-                    tar[j * cheng + 3] = ByteUtil.getBoolean(b, 3);
-                    tar[j * cheng + 4] = ByteUtil.getBoolean(b, 4);
-                    tar[j * cheng + 5] = ByteUtil.getBoolean(b, 5);
-                    tar[j * cheng + 6] = ByteUtil.getBoolean(b, 6);
-                    tar[j * cheng + 7] = ByteUtil.getBoolean(b, 7);
+                    tar[j * cheng + 0] = ByteUtil.getBit(b, 0);
+                    tar[j * cheng + 1] = ByteUtil.getBit(b, 1);
+                    tar[j * cheng + 2] = ByteUtil.getBit(b, 2);
+                    tar[j * cheng + 3] = ByteUtil.getBit(b, 3);
+                    tar[j * cheng + 4] = ByteUtil.getBit(b, 4);
+                    tar[j * cheng + 5] = ByteUtil.getBit(b, 5);
+                    tar[j * cheng + 6] = ByteUtil.getBit(b, 6);
+                    tar[j * cheng + 7] = ByteUtil.getBit(b, 7);
 
                     tar[j * cheng + 0] = r.nextBoolean();
                     tar[j * cheng + 1] = r.nextBoolean();

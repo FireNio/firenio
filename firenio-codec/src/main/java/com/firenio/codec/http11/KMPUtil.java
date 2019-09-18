@@ -15,7 +15,6 @@
  */
 package com.firenio.codec.http11;
 
-import com.firenio.collection.IntArray;
 import com.firenio.common.Util;
 
 //关键字：前缀，后缀，部分匹配表
@@ -28,53 +27,50 @@ public class KMPUtil {
     private String match_value;
 
     public KMPUtil(String value) {
-        this.initialize(value);
-    }
-
-    public static void main(String[] args) {
-
-        String s1 = "1111111111111111111211111111112111121111211111111";
-
-        String match = "1112";
-
-        KMPUtil kmp = new KMPUtil(match);
-
-        System.out.println(kmp.match_all(s1));
-
-    }
-
-    private void initialize(String value) {
         if (Util.isNullOrBlank(value)) {
             throw new IllegalArgumentException("null value");
         }
         this.match_value = value;
         this.match_array = match_value.toCharArray();
-        this.match_table = new int[match_value.length()];
-        this.initialize_part_match_table();
-    }
-
-    private void initialize_part_match_table() {
-        int length = this.match_value.length();
-        // 直接从两位开始比较
-        for (int i = 2; i < length; i++) {
-            match_table[i] = initialize_part_match_table0(match_array, i);
+        this.match_table = new int[match_value.length() - 1];
+        int length = this.match_value.length() - 1;
+        // 只需要计算长度减一位的部分匹配表，因为最后一位如果也匹配整个字符串就匹配了
+        // 直接从第二位开始比较
+        for (int i = 1; i < length; i++) {
+            match_table[i] = init_table(value, i + 1);
         }
     }
 
-    private int initialize_part_match_table0(char[] array, int length) {
+    public static void main(String[] args) {
+
+        String  src   = "ABC ABCA ABCABA";
+        String  match = "ABCAB";
+        src = "AABAABAABC";
+        match = "AABAABC";
+        KMPUtil kmp   = new KMPUtil(match);
+        int     find  = 0;
+        for (; ; ) {
+            find = kmp.match(src, find);
+            if (find == -1) {
+                break;
+            }
+            System.out.println(find);
+            find += match.length();
+        }
+
+    }
+
+    private int init_table(String value, int length) {
         int e = 0;
         WORD:
         for (int i = 1; i < length; i++) {
-            int t = 0;
-            int p = 0;
-            int s = length - i;
             for (int j = 0; j < i; j++) {
-                if (array[p++] != array[s++]) {
+                int fix = length - i;
+                if (value.charAt(j) != value.charAt(fix + j)) {
                     continue WORD;
                 }
-                t++;
             }
-            e = t;
+            e = i;
         }
         return e;
     }
@@ -83,70 +79,35 @@ public class KMPUtil {
         return match(value, 0);
     }
 
-    public int match(String value, int begin) {
-        if (Util.isNullOrBlank(value) || begin < 0) {
+    public int match(String value, int offset) {
+        if (value.length() - offset < match_array.length) {
             return -1;
         }
-        if (value.length() - begin < this.match_array.length) {
-            return -1;
-        }
-        int    source_length = value.length();
-        int    index         = begin;
-        int    match_length  = this.match_array.length;
-        char[] match_array   = this.match_array;
-        int[]  match_table   = this.match_table;
-        LOOP:
-        for (; index < source_length; ) {
-            for (int i = 0; i < match_length; i++) {
-                if (value.charAt(index + i) != match_array[i]) {
-                    if (i == 0) {
-                        index++;
-                    } else {
-                        index += (i - match_table[i]);
-                    }
-                    continue LOOP;
+        int    src_length   = value.length();
+        int    mat_index    = 0;
+        int    src_index    = offset;
+        int    match_length = this.match_array.length;
+        char[] match_array  = this.match_array;
+        int[]  match_table  = this.match_table;
+        for (; src_index < src_length; ) {
+            char s_c = value.charAt(src_index);
+            char m_c = match_array[mat_index];
+            if (s_c == m_c) {
+                mat_index++;
+                src_index++;
+                if (mat_index == match_length) {
+                    return src_index - match_length;
+                }
+            } else {
+                if (mat_index == 0) {
+                    src_index++;
+                } else {
+                    // 第mat_index位不匹配，查找这以前的匹配情况（-1）
+                    mat_index = match_table[mat_index - 1];
                 }
             }
-            return index;
         }
         return -1;
     }
 
-    public IntArray match_all(String value) {
-        if (Util.isNullOrBlank(value)) {
-            return null;
-        }
-        if (value.length() < match_value.length()) {
-            return null;
-        }
-        IntArray matchs = new IntArray();
-        if (value.equals(match_value)) {
-            matchs.add(0);
-            return matchs;
-        }
-        int    source_length = value.length();
-        int    index         = 0;
-        int    match_length  = this.match_array.length;
-        char[] match_array   = this.match_array;
-        int[]  match_table   = this.match_table;
-        LOOP:
-        for (; index < source_length; ) {
-            if (source_length - index < match_length) {
-                break;
-            }
-            for (int i = 0; i < match_length; i++) {
-                if (value.charAt(index + i) != match_array[i]) {
-                    if (i == 0) {
-                        index++;
-                    } else {
-                        index += (i - match_table[i]);
-                    }
-                    continue LOOP;
-                }
-            }
-            matchs.add(index);
-            index += match_length;
-        }
-        return matchs;
-    }
 }

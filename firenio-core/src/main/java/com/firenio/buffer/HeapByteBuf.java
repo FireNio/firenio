@@ -45,7 +45,7 @@ abstract class HeapByteBuf extends ByteBuf {
     }
 
     @Override
-    public void collation() {
+    public void compact() {
         if (!hasReadableBytes()) {
             clear();
             return;

@@ -25,7 +25,7 @@ public abstract class IoEventHandle implements ExceptionCaughtHandle {
     public abstract void accept(Channel ch, Frame frame) throws Exception;
 
     @Override
-    public void exceptionCaught(Channel ch, Frame frame, Exception ex) {
+    public void exceptionCaught(Channel ch, Frame frame, Throwable ex) {
         logger.error(ex.getMessage(), ex);
     }
 

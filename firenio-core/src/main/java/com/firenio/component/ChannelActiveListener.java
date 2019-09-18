@@ -24,7 +24,7 @@ public class ChannelActiveListener implements ChannelIdleListener {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void channelIdled(Channel ch, long lastIdleTime, long currentTime) {
+    public void channelIdled(Channel ch, long lastIdleTime) {
         if (ch.getLastAccessTime() < lastIdleTime) {
             logger.info("disconnect(hb) {}", ch);
             Util.close(ch);

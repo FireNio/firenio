@@ -15,7 +15,6 @@
  */
 package com.firenio.component;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
@@ -39,6 +38,7 @@ import com.firenio.Develop;
 import com.firenio.Releasable;
 import com.firenio.buffer.ByteBuf;
 import com.firenio.buffer.ByteBufAllocator;
+import com.firenio.collection.AttributeMap;
 import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
 import com.firenio.component.NioEventLoop.EpollEventLoop;
@@ -47,12 +47,13 @@ import com.firenio.concurrent.EventLoop;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
 
+import static com.firenio.Develop.SSL_DEBUG;
 import static com.firenio.Develop.debugException;
 import static com.firenio.common.Util.unknownStackTrace;
 
 
 //请勿使用remote.getRemoteHost(),可能出现阻塞
-public abstract class Channel implements Runnable, Closeable {
+public abstract class Channel extends AttributeMap implements Runnable, AutoCloseable {
 
     public static final InetSocketAddress ERROR_SOCKET_ADDRESS  = new InetSocketAddress(0);
     public static final Logger            logger                = NEW_LOGGER();
@@ -62,6 +63,8 @@ public abstract class Channel implements Runnable, Closeable {
     public static final int               SSL_PACKET_LIMIT      = 1024 * 64;
     public static final SSLException      SSL_PACKET_OVER_LIMIT = SSL_PACKET_OVER_LIMIT();
     public static final SSLException      SSL_UNWRAP_OVER_LIMIT = SSL_UNWRAP_OVER_LIMIT();
+    public static final SSLException      SSL_UNWRAP_CLOSED     = SSL_UNWRAP_CLOSED();
+    public static final SSLException      SSL_WRAP_CLOSED       = SSL_WRAP_CLOSED();
     public static final SSLException      SSL_UNWRAP_EXCEPTION  = SSL_UNWRAP_EXCEPTION();
     public static final IOException       TASK_REJECT           = TASK_REJECT();
 
@@ -75,12 +78,12 @@ public abstract class Channel implements Runnable, Closeable {
     protected final    SSLEngine      ssl_engine;
     protected final    Queue<ByteBuf> write_bufs;
     protected final    Integer        channelId;
-    protected final    int            localPort;
+    protected final    short          localPort;
     protected final    String         remoteAddr;
-    protected final    int            remotePort;
+    protected final    short          remotePort;
     protected          Object         attachment;
     protected          ProtocolCodec  codec;
-    protected          int            current_wbs_len;
+    protected          byte           current_wbs_len;
     protected          boolean        in_event;
     protected          long           last_access;
     protected volatile boolean        open          = true;
@@ -91,8 +94,8 @@ public abstract class Channel implements Runnable, Closeable {
 
     Channel(NioEventLoop el, ChannelContext ctx, String ra, int lp, int rp, Integer id) {
         this.remoteAddr = ra;
-        this.localPort = lp;
-        this.remotePort = rp;
+        this.localPort = (short) lp;
+        this.remotePort = (short) rp;
         this.channelId = id;
         this.context = ctx;
         this.eventLoop = el;
@@ -138,6 +141,14 @@ public abstract class Channel implements Runnable, Closeable {
 
     private static SSLException SSL_PACKET_OVER_LIMIT() {
         return Util.unknownStackTrace(new SSLException("over writeIndex (" + SSL_PACKET_LIMIT + ")"), Channel.class, "isEnoughSslUnwrap()");
+    }
+
+    private static SSLException SSL_UNWRAP_CLOSED() {
+        return unknownStackTrace(new SSLException("SSL_UNWRAP_CLOSED"), Channel.class, "unwrap()");
+    }
+
+    private static SSLException SSL_WRAP_CLOSED() {
+        return unknownStackTrace(new SSLException("SSL_WRAP_CLOSED"), Channel.class, "wrap()");
     }
 
     private static SSLException SSL_UNWRAP_OVER_LIMIT() {
@@ -196,7 +207,7 @@ public abstract class Channel implements Runnable, Closeable {
                 final Channel ch = Channel.this;
                 try {
                     ch.getIoEventHandle().accept(ch, f);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     ch.getIoEventHandle().exceptionCaught(ch, f, e);
                 }
             }
@@ -209,7 +220,7 @@ public abstract class Channel implements Runnable, Closeable {
     private void accept_line(IoEventHandle handle, Frame frame) {
         try {
             handle.accept(this, frame);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             exception_caught(frame, e);
         }
     }
@@ -267,7 +278,7 @@ public abstract class Channel implements Runnable, Closeable {
                     ByteBuf out = wrap(ByteBuf.empty());
                     write_bufs.offer(out);
                     write();
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     debugException(logger, e);
                 }
             }
@@ -277,7 +288,7 @@ public abstract class Channel implements Runnable, Closeable {
                     OpenSslHelper.setOpensslEngineReceivedShutdown(ssl_engine);
                 }
                 ssl_engine.closeInbound();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 debugException(logger, e);
             }
         }
@@ -287,7 +298,7 @@ public abstract class Channel implements Runnable, Closeable {
         return codec.encode(this, frame);
     }
 
-    private void exception_caught(Frame frame, Exception ex) {
+    private void exception_caught(Frame frame, Throwable ex) {
         try {
             getIoEventHandle().exceptionCaught(this, frame, ex);
         } catch (Throwable e) {
@@ -303,13 +314,12 @@ public abstract class Channel implements Runnable, Closeable {
     }
 
     private void fire_closed() {
-        eventLoop.removeChannel(channelId);
         List<ChannelEventListener> ls = context.getChannelEventListeners();
         for (int i = 0, count = ls.size(); i < count; i++) {
             ChannelEventListener l = ls.get(i);
             try {
                 l.channelClosed(this);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
         }
@@ -322,7 +332,7 @@ public abstract class Channel implements Runnable, Closeable {
             ChannelEventListener l = ls.get(i);
             try {
                 l.channelOpened(this);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
                 Util.close(this);
                 return;
@@ -348,6 +358,7 @@ public abstract class Channel implements Runnable, Closeable {
         return attachment;
     }
 
+    // why the attachment is not volatile ? see setCodec
     public void setAttachment(Object attachment) {
         this.attachment = attachment;
     }
@@ -364,6 +375,9 @@ public abstract class Channel implements Runnable, Closeable {
         return codec;
     }
 
+    // why the codec is not volatile ?
+    // this method always used by protocol update, and that thread deserved see the newest value of codec,
+    // the io thread will see the newest value after select(wakeup) too.
     public void setCodec(String codecId) throws IOException {
         if (inEventLoop()) {
             this.codec = context.getProtocolCodec(codecId);
@@ -372,10 +386,7 @@ public abstract class Channel implements Runnable, Closeable {
             if (codec == null) {
                 throw new IllegalArgumentException("codec not found");
             }
-            //FIXME .. is this work?
-            synchronized (this) {
-                this.codec = codec;
-            }
+            this.codec = codec;
         }
     }
 
@@ -412,7 +423,7 @@ public abstract class Channel implements Runnable, Closeable {
     }
 
     public int getLocalPort() {
-        return localPort;
+        return localPort & 0xffff;
     }
 
     public abstract int getOption(int name) throws IOException;
@@ -422,7 +433,7 @@ public abstract class Channel implements Runnable, Closeable {
     }
 
     public int getRemotePort() {
-        return remotePort;
+        return remotePort & 0xffff;
     }
 
     public SSLEngine getSSLEngine() {
@@ -451,6 +462,14 @@ public abstract class Channel implements Runnable, Closeable {
     @Override
     public int hashCode() {
         return desc.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Channel) {
+            return ((Channel) obj).desc.equals(desc);
+        }
+        return false;
     }
 
     public boolean inEventLoop() {
@@ -822,6 +841,14 @@ public abstract class Channel implements Runnable, Closeable {
                         continue;
                     }
                     return null;
+                } else if (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING) {
+                    // NOTICE: this handle may not the NOT_HANDSHAKING expected
+                    // NOT_HANDSHAKING is mean closed in wildfly-openssl.unwrap, so do not do finish_handshake
+                    // see: https://stackoverflow.com/questions/31149383/difference-between-not-handshaking-and-finished
+                    if (SSL_DEBUG) {
+                        logger.error("unwrap handle status: NOT_HANDSHAKING({})", this);
+                    }
+                    throw SSL_UNWRAP_CLOSED;
                 } else if (result.getStatus() == Status.BUFFER_OVERFLOW) {
                     throw SSL_UNWRAP_OVER_LIMIT;
                 }
@@ -905,6 +932,10 @@ public abstract class Channel implements Runnable, Closeable {
                             return out;
                         }
                         return swap(alloc, dst);
+                    } else if (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING) {
+                        // NOTICE: this handle may not the NOT_HANDSHAKING expected
+                        // It is shouldn't here to have "NOT_HANDSHAKING", because of the ssl is closed?
+                        throw SSL_WRAP_CLOSED;
                     } else if (handshakeStatus == HandshakeStatus.NEED_TASK) {
                         run_delegated_tasks(engine);
                         continue;
@@ -926,7 +957,7 @@ public abstract class Channel implements Runnable, Closeable {
                 ByteBuf old = buf;
                 try {
                     buf = wrap(old);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     debugException(logger, e);
                 } finally {
                     old.release();
@@ -955,6 +986,11 @@ public abstract class Channel implements Runnable, Closeable {
     public void writeAndFlush(Frame frame) throws Exception {
         write(codec.encode(this, frame));
         flush();
+    }
+
+    @Override
+    protected AttributeKeys getKeys() {
+        return getKeys(Channel.class);
     }
 
     abstract boolean isInterestWrite();
@@ -1067,7 +1103,7 @@ public abstract class Channel implements Runnable, Closeable {
                             System.arraycopy(cwb_array, i, cwb_array, 0, remain);
                             fill_null(cwb_array, remain, cw_len);
                             this.interestWrite = true;
-                            this.current_wbs_len = remain;
+                            this.current_wbs_len = (byte) remain;
                             return 0;
                         } else {
                             len -= r;
@@ -1148,7 +1184,7 @@ public abstract class Channel implements Runnable, Closeable {
         private int native_write(ByteBuffer src) {
             try {
                 return channel.write(src);
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 return -1;
             }
         }
@@ -1156,7 +1192,7 @@ public abstract class Channel implements Runnable, Closeable {
         private long native_write(ByteBuffer[] srcs, int len) {
             try {
                 return channel.write(srcs, 0, len);
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 return -1;
             }
         }
@@ -1165,7 +1201,7 @@ public abstract class Channel implements Runnable, Closeable {
         int native_read(ByteBuf dst) {
             try {
                 return channel.read(dst.nioWriteBuffer());
-            } catch (IOException e) {
+            } catch (Throwable e) {
                 return -1;
             }
         }
@@ -1240,7 +1276,7 @@ public abstract class Channel implements Runnable, Closeable {
                             fill_null(cwb_array, remain, cwb_len);
                             fill_null(wb_array, i, cwb_len);
                             interestWrite();
-                            this.current_wbs_len = remain;
+                            this.current_wbs_len = (byte) remain;
                             return 0;
                         } else {
                             wb_array[i] = null;
@@ -1294,7 +1330,7 @@ public abstract class Channel implements Runnable, Closeable {
 
         static boolean isOpensslEngineDestroyed(SSLEngine sslEngine) {
             try {
-                return ((Integer) OPENSSL_DESTROYED.get(sslEngine)) == 1;
+                return ((Integer) OPENSSL_DESTROYED.get(sslEngine)) != 0;
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
