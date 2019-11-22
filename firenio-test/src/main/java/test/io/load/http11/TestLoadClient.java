@@ -16,6 +16,7 @@
 package test.io.load.http11;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.firenio.buffer.ByteBuf;
 import com.firenio.codec.http11.ClientHttpCodec;
@@ -38,72 +39,82 @@ public class TestLoadClient {
 
         String request = "GET /plaintext HTTP/1.1\r\n" + "Host: localhost:8080\r\n" + "Connection: keep-alive\r\n" + "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36\r\n" + "Accept: text/plain,text/html;q=0.9,application/xhtml+xml;q=0.9,application/xml;q=0.8,*/*;q=0.7\r\n\r\n";
 
-        request = "GET /plaintext HTTP/1.1\r\n" + "Host: localhost:8080\r\n" + "Connection: keep-alive\r\n" + "User-Agent: ApacheBench/2.3\r\n" + "Accept: */*\r\n\r\n";
-        final String  host = "127.0.0.1";
-        final int     port = 8080;
-        final int     rpc  = 1024 * 4 * 16;
-        final int     ts   = 2;
-        final int     cpt  = 32;
-        final int     pipe = 64;
-        final ByteBuf req  = buildReqest(request, pipe);
+        //        request = "GET /plaintext HTTP/1.1\r\n" + "Host: localhost:8080\r\n" + "Connection: keep-alive\r\n" + "User-Agent: ApacheBench/2.3\r\n" + "Accept: */*\r\n\r\n";
 
-        test(host, port, req, rpc, ts, cpt, pipe);
+        TestLoadRound round = new TestLoadRound();
+        round.host = "127.0.0.1";
+        round.port = 8080;
+        round.pipes = 16;
+        round.threads = 4;
+        round.requests = 1024 * 1024 * 1;
+        round.connections = 1024 * 8;
+        round.request_buf = buildRequest(request, round.pipes);
+
+        test(round);
 
     }
 
-    private static ByteBuf buildReqest(String request, int pipe) {
+    private static ByteBuf buildRequest(String request, int pipes) {
         byte[]  bytes = request.getBytes();
-        ByteBuf buf   = ByteBuf.direct(bytes.length * pipe);
-        for (int i = 0; i < pipe; i++) {
+        ByteBuf buf   = ByteBuf.direct(bytes.length * pipes);
+        for (int i = 0; i < pipes; i++) {
             buf.writeBytes(bytes);
         }
         return buf;
     }
 
-    public static void test(final String host, final int port, final ByteBuf req, final int rpc, final int ts, final int cpt, final int pipe) throws Exception {
-        final int cs    = cpt * ts;
-        final int count = rpc * cs;
-        final int batch = count / pipe;
-        DebugUtil.info("ts:" + ts);
-        DebugUtil.info("cs:" + cs);
-        DebugUtil.info("count:" + count);
-        DebugUtil.info("pipe:" + pipe);
+    public static void test(TestLoadRound round) throws Exception {
+        final String  host        = round.host;
+        final ByteBuf buf         = round.request_buf;
+        final int     port        = round.port;
+        final int     pipes       = round.pipes;
+        final int     threads     = round.threads;
+        final int     requests    = round.requests;
+        final int     connections = round.connections;
+        final int     batch       = requests / pipes;
+        DebugUtil.info("requests:" + requests);
+        DebugUtil.info("threads:" + threads);
+        DebugUtil.info("connections:" + connections);
+        DebugUtil.info("pipes:" + pipes);
         DebugUtil.info("batch:" + batch);
-        NioEventLoopGroup g = new NioEventLoopGroup(true, ts, Integer.MAX_VALUE);
+        NioEventLoopGroup g = new NioEventLoopGroup(true, threads, Integer.MAX_VALUE);
         g.start();
-        Channel[] chs = new Channel[cs];
+        Channel[] chs = new Channel[connections];
         DebugUtil.info("build connections...");
-        long           last    = Util.now();
-        CountDownLatch c_latch = new CountDownLatch(cs);
-        CountDownLatch b_latch = new CountDownLatch(batch);
-        for (int i = 0; i < cs; i++) {
+        CountDownLatch c_latch    = new CountDownLatch(connections);
+        CountDownLatch b_latch    = new CountDownLatch(batch);
+        AtomicInteger  c_complete = new AtomicInteger();
+        long           last       = Util.now();
+        for (int i = 0; i < connections; i++) {
             ChannelConnector context = new ChannelConnector(g.getNext(), host, port);
             context.setPrintConfig(false);
             context.addProtocolCodec(new ClientHttpCodec());
             context.setIoEventHandle(new IoEventHandle() {
 
                 int c = 0;
-                int b = batch / cs;
+                int b = batch / connections;
 
                 @Override
-                public void accept(Channel ch, Frame frame) throws Exception {
-                    if (++c == pipe) {
+                public void accept(Channel ch, Frame frame) {
+                    if (++c == pipes) {
                         c = 0;
                         b_latch.countDown();
-                        if (--b == 0) {
-                            //                            DebugUtil.info("c complate......");
+                        if (--b > 0) {
+                            ch.writeAndFlush(buf.duplicate());
                         } else {
-                            ch.writeAndFlush(req.duplicate());
+                            DebugUtil.info("c complate......" + c_complete.incrementAndGet());
                         }
                     }
                 }
             });
-            final int ii = i;
-            //            context.addChannelEventListener(new LoggerChannelOpenListener());
+            final int i_copy = i;
             context.connect((ch, ex) -> {
-                chs[ii] = ch;
+                if (ex != null) {
+                    ex.printStackTrace();
+                }
+                chs[i_copy] = ch;
                 c_latch.countDown();
-            });
+            }, 9000);
         }
         c_latch.await();
         DebugUtil.info("build connections cost:" + (Util.now() - last));
@@ -111,16 +122,28 @@ public class TestLoadClient {
         DebugUtil.info("start request...");
         last = Util.now();
         for (int i = 0; i < chs.length; i++) {
-            chs[i].writeAndFlush(req.duplicate());
+            chs[i].writeAndFlush(buf.duplicate());
         }
         b_latch.await();
         long cost = (Util.now() - last);
         DebugUtil.info("request cost:" + cost);
-        DebugUtil.info("request rps:" + (count * 1000d / cost));
+        DebugUtil.info("request rps:" + (requests * 1000d / cost));
         for (int i = 0; i < chs.length; i++) {
             chs[i].close();
         }
         g.stop();
+    }
+
+    static class TestLoadRound {
+
+        String  host;
+        ByteBuf request_buf;
+        int     port;
+        int     threads;
+        int     pipes;
+        int     requests;
+        int     connections;
+
     }
 
 }

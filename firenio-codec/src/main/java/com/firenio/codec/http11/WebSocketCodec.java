@@ -16,12 +16,10 @@
 package com.firenio.codec.http11;
 
 import java.io.IOException;
-import java.util.List;
 
 import com.firenio.buffer.ByteBuf;
 import com.firenio.component.Channel;
 import com.firenio.component.Frame;
-import com.firenio.component.NioEventLoop;
 import com.firenio.component.ProtocolCodec;
 
 //FIXME 心跳貌似由服务端发起
@@ -53,7 +51,6 @@ import com.firenio.component.ProtocolCodec;
  */
 public final class WebSocketCodec extends ProtocolCodec {
 
-    public static final String      FRAME_STACK_KEY    = "FRAME_STACK_KEY_WS";
     public static final int         HEADER_LENGTH      = 2;
     public static final int         MAX_HEADER_LENGTH  = 10;
     public static final int         MAX_UNSIGNED_SHORT = 0xffff;
@@ -83,20 +80,15 @@ public final class WebSocketCodec extends ProtocolCodec {
         PONG.writeByte((byte) (o_h1 | 0));
     }
 
-    private final int frameStackSize;
     private final int limit;
 
     public WebSocketCodec() {
         this(1024 * 64);
     }
 
-    public WebSocketCodec(int limit) {
-        this(limit, 0);
-    }
 
-    public WebSocketCodec(int limit, int frameStackSize) {
+    public WebSocketCodec(int limit) {
         this.limit = limit;
-        this.frameStackSize = frameStackSize;
     }
 
     @Override
@@ -181,7 +173,7 @@ public final class WebSocketCodec extends ProtocolCodec {
         } else {
             src.readBytes(array);
         }
-        WebSocketFrame f = newWebSocketFrame(ch, opcode);
+        WebSocketFrame f = new WebSocketFrame(opcode);
         if (opcode == TYPE_TEXT) {
             f.setContent(new String(array, ch.getCharset()));
         } else if (opcode == TYPE_BINARY) {
@@ -216,10 +208,6 @@ public final class WebSocketCodec extends ProtocolCodec {
         return buf;
     }
 
-    public int getFrameStackSize() {
-        return frameStackSize;
-    }
-
     @Override
     public String getProtocolId() {
         return PROTOCOL_ID;
@@ -230,36 +218,9 @@ public final class WebSocketCodec extends ProtocolCodec {
         return MAX_HEADER_LENGTH;
     }
 
-    private WebSocketFrame newWebSocketFrame(Channel ch, byte opcode) {
-        if (frameStackSize > 0) {
-            //            NioEventLoop eventLoop = ch.getEventLoop();
-            //            FixedThreadStack<WebSocketFrame> stack = (FixedThreadStack<WebSocketFrame>) eventLoop
-            //                    .getAttribute(FRAME_STACK_KEY);
-            //            if (stack == null) {
-            //                stack = new FixedThreadStack<>(frameStackSize);
-            //                eventLoop.setAttribute(FRAME_STACK_KEY, stack);
-            //            }
-            //            WebSocketFrame frame = stack.pop();
-            //            if (frame == null) {
-            //                return new WebSocketFrame(ch, writeIndex);
-            //            }
-            //            return frame.reset(ch, writeIndex);
-        }
-        return new WebSocketFrame(opcode);
-    }
-
     @Override
     protected ByteBuf getPingBuf() {
         return PING.duplicate();
-    }
-
-    @SuppressWarnings("unchecked")
-    public void release(NioEventLoop eventLoop, Frame frame) {
-        //FIXME ..final stack is null or not null
-        List<WebSocketFrame> stack = (List<WebSocketFrame>) eventLoop.getAttribute(FRAME_STACK_KEY);
-        if (stack != null && stack.size() < frameStackSize) {
-            stack.add((WebSocketFrame) frame);
-        }
     }
 
 }

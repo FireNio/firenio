@@ -16,7 +16,6 @@
 package com.firenio;
 
 import com.firenio.common.Util;
-import com.firenio.component.Native;
 
 /**
  * @author wangkai
@@ -81,7 +80,7 @@ public class Options {
     }
 
     public static boolean isEnableUnsafeBuf() {
-        return Native.EPOLL_AVAILABLE && isTrue(ENABLE_UNSAFE_BUF);
+        return isTrue(ENABLE_UNSAFE_BUF);
     }
 
     public static void setBufAutoExpansion(boolean auto) {
@@ -92,7 +91,11 @@ public class Options {
         setBool(BUF_THREAD_YIELD, yield);
     }
 
+    // NOTICE: DO NOT USE
     public static void setBufRecycle(boolean recycle) {
+        if (recycle){
+            throw new RuntimeException("do not use BufRecycle");
+        }
         setBool(BUF_RECYCLE, recycle);
     }
 

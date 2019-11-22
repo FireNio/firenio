@@ -25,10 +25,13 @@ done
 PRG="$0"
 PRGDIR=`dirname "$PRG"`
 
-java -XX:+PrintGCDetails -Xloggc:gc.log -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=6666,suspend=n \
+(java -XX:+PrintGCDetails -Xloggc:gc.log -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=6666,suspend=n \
      -cp $CLASSPATH \
      -Dboot.mode=prod \
      -Dboot.libPath=/app/lib \
      -Dorg.wildfly.openssl.path=$1 \
      -Dboot.class=sample.http11.startup.TestHttpBootstrapEngine \
-     com.firenio.container.Bootstrap
+     com.firenio.container.Bootstrap) &
+
+## echo -17 > /proc/$(ps -ef | grep java | grep -v grep | awk '{print $2}')/oom_adj && cat /proc/$(ps -ef | grep java | grep -v grep | awk '{print $2}')/oom_adj
+

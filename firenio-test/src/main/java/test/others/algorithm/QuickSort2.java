@@ -20,50 +20,58 @@ package test.others.algorithm;
  */
 public class QuickSort2 {
 
-    private static int partition(ByteArray[] array, int low, int high) {
-        //三数取中
+    public static void main(String[] args) {
+
+        TestSort.test(QuickSort2::sort, 16);
+        TestSort.test_load(QuickSort2::sort, 1024 * 32, 1024);
+    }
+
+    private static int partition(int[] array, int low, int high) {
         int mid = low + (high - low) / 2;
-        if (array[mid].greater(array[high])) {
-            swap(array[mid], array[high]);
+        if (array[mid] > array[high]) {
+            swap(array, mid, high);
         }
-        if (array[low].greater(array[high])) {
-            swap(array[low], array[high]);
+        if (array[low] > array[high]) {
+            swap(array, low, high);
         }
-        if (array[mid].greater(array[low])) {
-            swap(array[mid], array[low]);
+        if (array[mid] > array[low]) {
+            swap(array, mid, low);
         }
-        ByteArray key = array[low];
+
+        int key = array[low];
 
         while (low < high) {
-            while (array[high].greaterOrEquals(key) && high > low) {
+            while (array[high] >= key && high > low) {
                 high--;
             }
             array[low] = array[high];
-            while (array[low].lessOrEquals(key) && high > low) {
+            while (array[low] <= key && high > low) {
                 low++;
             }
             array[high] = array[low];
         }
-        array[low] = key;//这里low
+        array[low] = key;
         return high;
     }
 
-    public static void sort(ByteArray[] array, int low, int high) {
-        if (low >= high) {
-            return;
-        }
-        int index = partition(array, low, high);
-        sort(array, low, index - 1);
-        sort(array, index + 1, high);
+    public static void sort(int[] array) {
+        sort(array, 0, array.length - 1);
     }
 
-    private static void swap(ByteArray a, ByteArray b) {
-        int tmpOff = a.getOff();
-        int tmpLen = a.getLength();
-        a.setLength(b.getLength());
-        a.setOff(b.getOff());
-        b.setLength(tmpLen);
-        b.setOff(tmpOff);
+    public static void sort(int[] array, int low, int high) {
+        if (high - low < 8) {
+            InsertSort.sort(array, low, high + 1);
+        } else {
+            int index = partition(array, low, high);
+            sort(array, low, index - 1);
+            sort(array, index + 1, high);
+        }
+    }
+
+    private static void swap(int[] array, int a, int b) {
+        int temp = array[a];
+        array[a] = array[b];
+        array[b] = temp;
     }
 
 }

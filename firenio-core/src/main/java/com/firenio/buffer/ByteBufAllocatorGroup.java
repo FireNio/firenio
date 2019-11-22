@@ -93,7 +93,7 @@ public final class ByteBufAllocatorGroup extends LifeCycle {
     public String[] toDebugString() {
         String[] res = new String[groupSize];
         for (int i = 0; i < res.length; i++) {
-            res[i] = allocators[i].toString();
+            res[i] = allocators[i].toDebugString();
         }
         return res;
     }

@@ -37,7 +37,7 @@ public final class ThreadEventLoop extends EventLoop {
         if (job != null) {
             try {
                 job.run();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
         }
@@ -49,7 +49,7 @@ public final class ThreadEventLoop extends EventLoop {
     }
 
     @Override
-    protected void doStart() throws Exception {
+    protected void doStart() {
         int maxQueueSize = group.getMaxQueueSize();
         this.jobs = new ArrayBlockingQueue<>(maxQueueSize);
     }

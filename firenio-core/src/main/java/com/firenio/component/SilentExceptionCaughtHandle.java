@@ -21,6 +21,6 @@ package com.firenio.component;
 public class SilentExceptionCaughtHandle implements ExceptionCaughtHandle {
 
     @Override
-    public void exceptionCaught(Channel ch, Frame frame, Exception ex) {}
+    public void exceptionCaught(Channel ch, Frame frame, Throwable ex) {}
 
 }

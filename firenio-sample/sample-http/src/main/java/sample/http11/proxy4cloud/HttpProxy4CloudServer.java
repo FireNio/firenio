@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import sample.http11.proxy.HttpProxyServer.HttpProxyAttr;
+
 import com.firenio.buffer.ByteBuf;
 import com.firenio.codec.http11.HttpAttachment;
 import com.firenio.codec.http11.HttpCodec;

@@ -26,7 +26,7 @@ public class LoggerExceptionCaughtHandle implements ExceptionCaughtHandle {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public void exceptionCaught(Channel ch, Frame frame, Exception ex) {
+    public void exceptionCaught(Channel ch, Frame frame, Throwable ex) {
         logger.error(ex.getMessage(), ex);
     }
 

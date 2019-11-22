@@ -48,32 +48,39 @@ public class Native {
     public static final  int      EPOLL_IN_OUT    = EPOLL_IN | EPOLL_OUT;
     public static final  int      EPOLL_OUT_ET    = EPOLL_OUT | EPOLL_ET;
     public static final  int      EPOLL_IN_OUT_ET = EPOLL_IN_ET | EPOLL_OUT_ET;
-    public static final  String[] ERRORS;
-    public static final  boolean  EPOLL_AVAILABLE;
+    public static final  boolean  EPOLL_AVAILABLE = try_load_epoll();
     public static final  int      SIZEOF_EPOLL_EVENT;
     public static final  int      SIZEOF_SOCK_ADDR_IN;
+    public static final  String[] ERRORS;
     private static final Logger   logger          = LoggerFactory.getLogger(Native.class);
 
     static {
-        EPOLL_AVAILABLE = Unsafe.IS_LINUX && Unsafe.DIRECT_BUFFER_AVAILABLE && try_load_epoll();
         if (EPOLL_AVAILABLE) {
-            ERRORS = new String[256];
-            byte[] temp = new byte[1024];
-            for (int i = 0; i < ERRORS.length; i++) {
-                int len = strerrno(i, temp);
-                ERRORS[i] = new String(temp, 0, len);
-            }
+            ERRORS = load_errors();
             SIZEOF_EPOLL_EVENT = size_of_epoll_event();
             SIZEOF_SOCK_ADDR_IN = size_of_sockaddr_in();
         } else {
+            ERRORS = null;
             SIZEOF_EPOLL_EVENT = -1;
             SIZEOF_SOCK_ADDR_IN = -1;
-            ERRORS = null;
         }
     }
 
+    private static String[] load_errors() {
+        String[] errors = new String[256];
+        byte[]   temp   = new byte[1024];
+        for (int i = 0; i < errors.length; i++) {
+            int len = strerrno(i, temp);
+            errors[i] = new String(temp, 0, len);
+        }
+        return errors;
+    }
+
     private static boolean try_load_epoll() {
-        if (Options.isEnableEpoll()) {
+        if (!Unsafe.DIRECT_BUFFER_AVAILABLE) {
+            return false;
+        }
+        if (Unsafe.IS_LINUX && Options.isEnableEpoll()) {
             boolean epollLoaded = false;
             if (Develop.EPOLL_DEBUG) {
                 logger.info("load epoll from:{}", Develop.EPOLL_PATH);
@@ -100,7 +107,7 @@ public class Native {
                         return true;
                     }
                     if (Develop.NATIVE_DEBUG) {
-                        logger.error("epoll creat failed:" + Native.err_str());
+                        logger.error("epoll create failed:" + Native.err_str());
                     }
                 } catch (Throwable e) {
                 }
@@ -262,8 +269,13 @@ public class Native {
             if (res == -1) {
                 print_exception(res);
             } else {
-                IOException e = new IOException(err_str(res & 0x7fffffff));
-                logger.error(e.getMessage(), e);
+                if (Develop.NATIVE_DEBUG) {
+                    if (res < 0) {
+                        res = -res;
+                    }
+                    IOException e = new IOException(err_str(res));
+                    logger.error(e.getMessage(), e);
+                }
             }
             return false;
         }

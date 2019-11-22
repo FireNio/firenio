@@ -31,7 +31,7 @@ public class FibonacciSeq {
         long n_2 = 0;
         long n_1 = 1;
         long sum = n_2 + n_1;
-        for (int i = 1; i < n; i++) {
+        for (; n > 0; n--) {
             n_2 = n_1;
             n_1 = sum;
             sum = n_2 + n_1;

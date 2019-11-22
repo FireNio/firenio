@@ -162,7 +162,7 @@ public abstract class ByteBuf implements Releasable {
 
     public abstract int capacity();
 
-    public abstract void collation();
+    public abstract void compact();
 
     protected void capacity(int cap) {}
 
@@ -437,7 +437,7 @@ public abstract class ByteBuf implements Releasable {
         return this;
     }
 
-    protected ByteBuf produce(int unitOffset, int unitEnd) {
+    protected ByteBuf produce(int unitOffset, int unitSize) {
         return this;
     }
 
@@ -701,6 +701,22 @@ public abstract class ByteBuf implements Releasable {
         return absWriteIndex() - absReadIndex();
     }
 
+    public void reset(byte[] memory) {
+        reset(memory, 0, memory.length);
+    }
+
+    public void reset(byte[] memory, int off, int len) {
+        throw unsupportedOperationException();
+    }
+
+    public void reset(long memory, int capacity, int off, int len) {
+        throw unsupportedOperationException();
+    }
+
+    public void reset(ByteBuffer memory) {
+        throw unsupportedOperationException();
+    }
+
     public int writableBytes() {
         return capacity() - writeIndex();
     }
@@ -713,6 +729,14 @@ public abstract class ByteBuf implements Releasable {
     public ByteBuf resetReadIndex() {
         this.abs_read_index = marked_abs_read_index;
         return this;
+    }
+
+    public int getMarkedReadIndex() {
+        return marked_abs_read_index - offset();
+    }
+
+    public int getMarkedWriteIndex() {
+        return marked_abs_write_index - offset();
     }
 
     public int getMarkedAbsReadIndex() {
@@ -757,6 +781,8 @@ public abstract class ByteBuf implements Releasable {
 
     protected void unitOffset(int unitOffset) {}
 
+    protected void recycleObject(){}
+
     UnsupportedOperationException unsupportedOperationException() {
         return new UnsupportedOperationException();
     }
@@ -790,10 +816,7 @@ public abstract class ByteBuf implements Releasable {
     }
 
     static long toUnsignedInt(int value) {
-        if (value < 0) {
-            return value & 0xffffffffffffffffL;
-        }
-        return value;
+        return value & 0xffffffffL;
     }
 
 }

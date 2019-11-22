@@ -21,11 +21,11 @@ import io.netty.util.CharsetUtil;
 public class NettyClientThread {
 
     public static void main(String[] args) throws Exception {
-        EventLoopGroup group = new NioEventLoopGroup();
+        EventLoopGroup group = NettyUtil.newEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();
             b.group(group);
-            b.channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, true);
+            b.channel(NettyUtil.newSocketChannel()).option(ChannelOption.TCP_NODELAY, true);
             b.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {

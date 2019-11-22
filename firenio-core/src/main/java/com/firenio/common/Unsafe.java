@@ -93,7 +93,7 @@ public class Unsafe {
                             return cause;
                         }
                         return constructor;
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         return e;
                     }
                 }
@@ -103,7 +103,7 @@ public class Unsafe {
                 try {
                     ((Constructor<?>) res).newInstance(address, 1);
                     directBufferConstructor = (Constructor<?>) res;
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     return null;
                 }
             } else {

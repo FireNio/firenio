@@ -18,6 +18,7 @@ package test.others.algorithm;
 import java.util.Random;
 
 import com.firenio.common.Util;
+import com.firenio.log.LoggerFactory;
 
 /**
  * @author wangkai
@@ -26,19 +27,13 @@ public class QuickSort {
 
     public static void main(String[] args) {
 
-        int[] array = new int[30];
-        for (int i = 0; i < array.length; i++) {
-            array[i] = new Random().nextInt(30);
-        }
-
-        Util.printArray(array);
-        sort(array, 0, 29);
-        Util.printArray(array);
+        TestSort.test(QuickSort::sort, 10);
+                TestSort.test_load(QuickSort::sort, 1024 * 32, 1024);
+//        TestSort.test_load(QuickSort::sort, 16, 1024 * 1024 * 8);
 
     }
 
     private static int partition(int[] array, int low, int high) {
-        //三数取中
         int mid = low + (high - low) / 2;
         if (array[mid] > array[high]) {
             swap(array, mid, high);
@@ -49,6 +44,7 @@ public class QuickSort {
         if (array[mid] > array[low]) {
             swap(array, mid, low);
         }
+
         int key = array[low];
 
         while (low < high) {
@@ -63,6 +59,10 @@ public class QuickSort {
         }
         array[low] = key;
         return high;
+    }
+
+    public static void sort(int[] array) {
+        sort(array, 0, array.length - 1);
     }
 
     public static void sort(int[] array, int low, int high) {

@@ -15,7 +15,6 @@
  */
 package com.firenio.common;
 
-import java.io.Closeable;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.nio.channels.Selector;
@@ -57,13 +56,12 @@ public class Util {
     }
 
     public static void close(AutoCloseable closeable) {
-        if (closeable == null) {
-            return;
-        }
-        try {
-            closeable.close();
-        } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (Throwable e) {
+                logger.warn(e.getMessage(), e);
+            }
         }
     }
 
@@ -85,31 +83,11 @@ public class Util {
         }
     }
 
-    public static void close(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (Exception e) {
-                logger.warn(e.getMessage(), e);
-            }
-        }
-    }
-
     public static String int2String(int i) {
         if ((((i >>> 1) & (1 << 30)) | (i & 0x7fffffff)) < int_strings.length) {
             return int_strings[i];
         }
         return String.valueOf(i);
-    }
-
-    public static void close(Selector selector) {
-        if (selector != null) {
-            try {
-                selector.close();
-            } catch (Exception e) {
-                logger.warn(e.getMessage(), e);
-            }
-        }
     }
 
     public static Thread exec(Runnable runnable, String name) {
@@ -139,7 +117,7 @@ public class Util {
         if (!isNullOrBlank(v)) {
             try {
                 return isTrueValue(v);
-            } catch (Exception e) {
+            } catch (Throwable e) {
             }
         }
         return defaultValue;
@@ -182,7 +160,7 @@ public class Util {
         if (!isNullOrBlank(v)) {
             try {
                 return Integer.parseInt(v);
-            } catch (Exception e) {
+            } catch (Throwable e) {
             }
         }
         return defaultValue;
@@ -229,7 +207,7 @@ public class Util {
                 }
                 c = next;
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -305,7 +283,7 @@ public class Util {
         }
         try {
             return clazz.newInstance();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -322,12 +300,22 @@ public class Util {
         return now_f() - start;
     }
 
-    public static void printArray(int[] array) {
-        for (int i = 0; i < array.length; i++) {
-            System.out.print(array[i]);
-            System.out.print(",");
+    public static String arrayToString(int[] array) {
+        return arrayToString(array, 0, array.length);
+    }
+
+    public static String arrayToString(int[] array, int off, int len) {
+        if (len == 0) {
+            return "";
         }
-        System.out.println();
+        StringBuilder sb  = new StringBuilder();
+        int           end = off + len;
+        for (int i = off; i < end; i++) {
+            sb.append(array[i]);
+            sb.append(',');
+        }
+        sb.setLength(sb.length() - 1);
+        return sb.toString();
     }
 
     public static void printArray(Object[] array) {
@@ -388,7 +376,7 @@ public class Util {
             }
             trySetAccessible(field);
             field.set(target, value);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -515,19 +503,18 @@ public class Util {
         try {
             object.setAccessible(true);
             return null;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             return e;
         }
     }
 
     public static void unbind(ChannelAcceptor unbindable) {
-        if (unbindable == null) {
-            return;
-        }
-        try {
-            unbindable.unbind();
-        } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+        if (unbindable != null) {
+            try {
+                unbindable.unbind();
+            } catch (Throwable e) {
+                logger.warn(e.getMessage(), e);
+            }
         }
     }
 

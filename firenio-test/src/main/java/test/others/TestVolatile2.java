@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.collection;
+package test.others;
 
-import java.util.Map;
-import java.util.Set;
+/**
+ * @author: wangkai
+ **/
+public class TestVolatile2 {
 
-public interface Attributes {
+    static          boolean running = true;
+    static volatile int     mem_bar = 0;
 
-    Map<Object, Object> attributes();
-
-    void clearAttributes();
-
-    Object getAttribute(Object key);
-
-    Set<Object> getAttributeNames();
-
-    Object removeAttribute(Object key);
-
-    void setAttribute(Object key, Object value);
+    public static void main(String[] args) throws Exception {
+        new Thread(() -> {
+            int temp = 0;
+            for (; running; ) {
+                temp = mem_bar;
+            }
+            System.out.println("worker stop");
+        }).start();
+        Thread.sleep(500);
+        running = false;
+        System.out.println("set running false");
+    }
 
 }

@@ -30,7 +30,6 @@ import com.firenio.common.Util;
 import com.firenio.component.Channel;
 import com.firenio.component.ChannelAcceptor;
 import com.firenio.component.ChannelConnector;
-import com.firenio.component.ChannelEventListenerAdapter;
 import com.firenio.component.Frame;
 import com.firenio.component.IoEventHandle;
 import com.firenio.component.LoggerChannelOpenListener;
@@ -126,7 +125,6 @@ public class HttpProxyServer {
                     });
                     String url = parseRequestURL(f.getRequestURL());
                     context.setPrintConfig(false);
-                    context.addChannelEventListener(new HttpProxyAttrListener());
                     context.addChannelEventListener(new LoggerChannelOpenListener());
                     context.connect((ch, ex) -> {
                         if (ex == null) {
@@ -150,20 +148,16 @@ public class HttpProxyServer {
         context = new ChannelAcceptor(group, 8088);
         context.addProtocolCodec(new HttpProxyCodec());
         context.setIoEventHandle(eventHandle);
-        context.addChannelEventListener(new HttpProxyAttrListener());
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.bind();
     }
 
-    static class HttpProxyAttrListener extends ChannelEventListenerAdapter {
+    static class HttpProxyCodec extends HttpCodec {
 
         @Override
-        public void channelOpened(Channel ch) {
-            ch.setAttachment(new HttpProxyAttr());
+        protected Object newAttachment() {
+            return new HttpProxyAttr();
         }
-    }
-
-    static class HttpProxyCodec extends HttpCodec {
 
         @Override
         public Frame decode(final Channel ch_src, ByteBuf src) throws Exception {

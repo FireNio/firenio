@@ -62,6 +62,26 @@ class UnpooledHeapByteBuf extends HeapByteBuf {
     @Override
     protected final void release0() {}
 
+    @Override
+    public void reset(ByteBuffer memory) {
+        if (memory.isDirect()) {
+            throw unsupportedOperationException();
+        }
+        this.referenceCount = 1;
+        this.memory = memory.array();
+        this.nioBuffer = memory;
+        this.writeIndex(memory.limit());
+        this.reverseRead();
+    }
+
+    @Override
+    public void reset(byte[] memory, int off, int len) {
+        this.referenceCount = 1;
+        this.memory = memory;
+        this.readIndex(off);
+        this.writeIndex(off + len);
+    }
+
     static final class EmptyByteBuf extends UnpooledHeapByteBuf {
 
         static final EmptyByteBuf EMPTY = new UnpooledHeapByteBuf.EmptyByteBuf();

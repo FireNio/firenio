@@ -59,4 +59,15 @@ final class UnpooledDirectByteBuf extends DirectByteBuf {
         Unsafe.freeByteBuffer(memory);
     }
 
+    @Override
+    public void reset(ByteBuffer memory) {
+        if (!memory.isDirect()){
+            throw unsupportedOperationException();
+        }
+        this.referenceCount = 1;
+        this.setMemory(memory);
+        this.writeIndex(memory.limit());
+        this.reverseRead();
+    }
+
 }

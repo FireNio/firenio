@@ -21,8 +21,8 @@ import com.firenio.buffer.ByteBuf;
 
 public class ByteUtil {
 
-    private static final String[] HEXES     = new String[256];
-    private static final String[] NUMS      = new String[256];
+    private static final String[] HEXES = new String[256];
+    private static final String[] NUMS  = new String[256];
 
     static {
         for (int i = 0; i < 16; i++) {
@@ -77,15 +77,10 @@ public class ByteUtil {
         return true;
     }
 
-    public static int findNextPositivePowerOfTwo(final int value) {
-        assert value > Integer.MIN_VALUE && value < 0x40000000;
-        return 1 << (32 - Integer.numberOfLeadingZeros(value - 1));
-    }
-
     /**
      * 右起0 ~ 7
      */
-    public static boolean getBoolean(byte b, int pos) {
+    public static boolean getBit(byte b, int pos) {
         return ((b >>> pos) & 1) != 0;
     }
 
@@ -170,14 +165,11 @@ public class ByteUtil {
     }
 
     public static int getInt31(byte[] bytes, int offset) {
-        return getInt(bytes, offset) & 0x7fffffff;
+        return getInt31(getInt(bytes, offset));
     }
 
     public static int getInt31(int value) {
-        if (value < 0) {
-            return value & 0x7FFFFFFF;
-        }
-        return value;
+        return value & 0x7FFFFFFF;
     }
 
     public static int getIntLE(byte[] bytes, int offset) {
@@ -386,10 +378,6 @@ public class ByteUtil {
         } else {
             Unsafe.putShort(address, Short.reverseBytes(value));
         }
-    }
-
-    public static int safeFindNextPositivePowerOfTwo(final int value) {
-        return value <= 0 ? 1 : value >= 0x40000000 ? 0x40000000 : findNextPositivePowerOfTwo(value);
     }
 
     public static int skip(ByteBuf src, int p, int e, byte v) {

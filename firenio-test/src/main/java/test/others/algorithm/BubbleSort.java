@@ -25,16 +25,10 @@ import com.firenio.common.Util;
 public class BubbleSort {
 
     public static void main(String[] args) {
-
-        int[] array = new int[30];
-        for (int i = 0; i < array.length; i++) {
-            array[i] = new Random().nextInt(30);
-        }
-
-        Util.printArray(array);
+        int[] array = TestSort.random_array();
+        System.out.println(Util.arrayToString(array));
         sort(array);
-        Util.printArray(array);
-
+        System.out.println(Util.arrayToString(array));
     }
 
     public static void sort(int[] array) {
