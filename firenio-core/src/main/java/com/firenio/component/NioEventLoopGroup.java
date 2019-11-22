@@ -33,27 +33,27 @@ import com.firenio.concurrent.RingSequence;
  */
 public class NioEventLoopGroup extends EventLoopGroup {
 
+    static final long MAX_MEMORY_CAPACITY = 1L + Integer.MAX_VALUE - 64;
+
     private final boolean               acceptor;
     private       ByteBufAllocatorGroup allocatorGroup;
     private       RingSequence          channelIds;
-    private       int                   channelReadBuffer      = 1024 * 512;
+    private       int                   channelReadBuffer    = 1024 * 512;
     //允许的最大连接数(单核)
-    private       int                   channelSizeLimit       = 1024 * 64;
-    private       boolean               concurrentFrameStack   = true;
+    private       int                   channelSizeLimit     = 1024 * 64;
+    private       boolean               concurrentFrameStack = true;
     private       ChannelContext        context;
-    private       boolean               enableMemoryPool       = true;
+    private       boolean               enableMemoryPool     = true;
     //内存池是否使用启用堆外内存
-    private       boolean               enableMemoryPoolDirect = Unsafe.DIRECT_BUFFER_AVAILABLE;
     private       NioEventLoop[]        eventLoops;
-    private       long                  idleTime               = 30 * 1000;
-    //内存池内存单元数量(单核)
-    private       int                   memoryPoolCapacity;
-    private       int                   memoryPoolRate         = 32;
+    private       long                  idleTime             = 30 * 1000;
+    //内存池内存总大小
+    private       long                  memoryCapacity;
     //内存池单元大小
-    private       int                   memoryPoolUnit         = 512;
+    private       int                   memoryUnit           = 512;
     private       boolean               sharable;
     //单条连接write(srcs)的数量
-    private       int                   writeBuffers           = 32;
+    private       int                   writeBuffers         = 32;
 
     public NioEventLoopGroup() {
         this(false);
@@ -98,24 +98,31 @@ public class NioEventLoopGroup extends EventLoopGroup {
     @Override
     protected void doStart() throws Exception {
         this.channelIds = new RingSequence(0x1000, Integer.MAX_VALUE);
-        if (memoryPoolCapacity == 0) {
-            long total = Runtime.getRuntime().maxMemory();
-            memoryPoolCapacity = (int) (total / (memoryPoolUnit * getEventLoopSize() * memoryPoolRate));
-        }
         if (isEnableMemoryPool() && getAllocatorGroup() == null) {
-            if (Native.EPOLL_AVAILABLE) {
-                if (!isEnableMemoryPoolDirect()) {
-                    throw new Exception("EPoll mode only support unsafe(direct) memory");
-                }
-            } else {
-                if (Unsafe.UNSAFE_BUF_AVAILABLE) {
-                    throw new Exception("Java(Nio) mode can not use unsafe memory");
-                }
+            if (!Native.EPOLL_AVAILABLE && Unsafe.UNSAFE_BUF_AVAILABLE) {
+                throw new IllegalArgumentException("Java(Nio) mode can not use unsafe memory");
             }
-            this.allocatorGroup = new ByteBufAllocatorGroup(getEventLoopSize(), memoryPoolCapacity, memoryPoolUnit, enableMemoryPoolDirect);
+            if (memoryCapacity == 0) {
+                memoryCapacity = Runtime.getRuntime().maxMemory() / 64;
+                memoryCapacity = Math.min(memoryCapacity, MAX_MEMORY_CAPACITY);
+                memoryCapacity = calcSuitableMemoryCapacity(memoryCapacity);
+            } else {
+                if (memoryCapacity > MAX_MEMORY_CAPACITY) {
+                    throw new IllegalArgumentException("MAX_MEMORY_CAPACITY: " + MAX_MEMORY_CAPACITY);
+                }
+                memoryCapacity = calcSuitableMemoryCapacity(memoryCapacity);
+            }
+            this.allocatorGroup = new ByteBufAllocatorGroup(getEventLoopSize(), memoryCapacity, memoryUnit, Unsafe.getMemoryTypeId());
         }
         Util.start(getAllocatorGroup());
         super.doStart();
+    }
+
+    private long calcSuitableMemoryCapacity(long memoryCapacity) {
+        memoryCapacity = memoryCapacity / getEventLoopSize();
+        memoryCapacity = memoryCapacity / memoryUnit * memoryUnit;
+        memoryCapacity = memoryCapacity * getEventLoopSize();
+        return memoryCapacity;
     }
 
     @Override
@@ -130,6 +137,10 @@ public class NioEventLoopGroup extends EventLoopGroup {
 
     public RingSequence getChannelIds() {
         return channelIds;
+    }
+
+    protected int nextChannelId() {
+        return channelIds.next();
     }
 
     public int getChannelReadBuffer() {
@@ -172,31 +183,22 @@ public class NioEventLoopGroup extends EventLoopGroup {
         this.idleTime = idleTime;
     }
 
-    public int getMemoryPoolCapacity() {
-        return memoryPoolCapacity;
+    public long getMemoryCapacity() {
+        return memoryCapacity;
     }
 
-    public void setMemoryPoolCapacity(int memoryPoolCapacity) {
+    public void setMemoryCapacity(int memoryCapacity) {
         checkNotRunning();
-        this.memoryPoolCapacity = memoryPoolCapacity;
+        this.memoryCapacity = memoryCapacity;
     }
 
-    public int getMemoryPoolRate() {
-        return memoryPoolRate;
+    public int getMemoryUnit() {
+        return memoryUnit;
     }
 
-    public void setMemoryPoolRate(int memoryPoolRate) {
+    public void setMemoryUnit(int memoryUnit) {
         checkNotRunning();
-        this.memoryPoolRate = memoryPoolRate;
-    }
-
-    public int getMemoryPoolUnit() {
-        return memoryPoolUnit;
-    }
-
-    public void setMemoryPoolUnit(int memoryPoolUnit) {
-        checkNotRunning();
-        this.memoryPoolUnit = memoryPoolUnit;
+        this.memoryUnit = memoryUnit;
     }
 
     @Override
@@ -204,7 +206,7 @@ public class NioEventLoopGroup extends EventLoopGroup {
         return eventLoops[getNextEventLoopIndex()];
     }
 
-    public ByteBufAllocator getNextByteBufAllocator(int index) {
+    public ByteBufAllocator getByteBufAllocator(int index) {
         ByteBufAllocatorGroup group = allocatorGroup;
         if (group == null) {
             return UnpooledByteBufAllocator.get();
@@ -247,15 +249,6 @@ public class NioEventLoopGroup extends EventLoopGroup {
     public void setEnableMemoryPool(boolean enableMemoryPool) {
         checkNotRunning();
         this.enableMemoryPool = enableMemoryPool;
-    }
-
-    public boolean isEnableMemoryPoolDirect() {
-        return enableMemoryPoolDirect;
-    }
-
-    public void setEnableMemoryPoolDirect(boolean enableMemoryPoolDirect) {
-        checkNotRunning();
-        this.enableMemoryPoolDirect = enableMemoryPoolDirect;
     }
 
     public boolean isSharable() {

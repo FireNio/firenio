@@ -19,6 +19,7 @@ import sample.http11.SpringHttpFrameHandle;
 import sample.http11.proxy4cloud.NetDataTransferServer;
 import sample.http11.service.CountChannelListener;
 
+import com.firenio.Develop;
 import com.firenio.DevelopConfig;
 import com.firenio.LifeCycle;
 import com.firenio.LifeCycleListener;
@@ -52,9 +53,9 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
     public void bootstrap(final String rootPath, final String mode) throws Exception {
         DevelopConfig.NATIVE_DEBUG = true;
         DevelopConfig.BUF_DEBUG = true;
+        DevelopConfig.BUF_PATH_DEBUG = true;
         DevelopConfig.SSL_DEBUG = true;
         DevelopConfig.CHANNEL_DEBUG = true;
-        Options.setBufRecycle(false);
         Options.setEnableEpoll(true);
         Options.setEnableUnsafe(true);
         Options.setEnableOpenssl(true);

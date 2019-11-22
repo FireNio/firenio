@@ -16,6 +16,8 @@
 package test.io;
 
 
+import io.netty.buffer.ByteBufAllocator;
+
 import com.firenio.log.LoggerFactory;
 
 /**
@@ -52,7 +54,7 @@ public class TestByteBufSkip {
 
     static void test_netty() {
 
-        io.netty.buffer.ByteBuf out = io.netty.buffer.Unpooled.buffer();
+        io.netty.buffer.ByteBuf out = ByteBufAllocator.DEFAULT.buffer();
 
         int writerIndex = out.writerIndex();
         out.writerIndex(out.writerIndex() + 4);

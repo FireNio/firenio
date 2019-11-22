@@ -67,26 +67,8 @@ public abstract class Frame {
         return this;
     }
 
-    public void setBytes(byte[] bytes, Channel ch) {
-        setBytes(bytes, 0, bytes.length, ch);
-    }
-
-    public void setBytes(int header, byte[] bytes) {
-        setBytes(header, bytes, 0, bytes.length);
-    }
-
-    public void setBytes(byte[] bytes, int off, int len, Channel ch) {
-        this.content = ch.allocate(len);
-        write(bytes, off, len);
-    }
-
-    public void setBytes(int header, byte[] bytes, int off, int len) {
-        this.content = ByteBuf.buffer(header + len).skipWrite(header);
-        write(bytes, off, len);
-    }
-
     public void setString(String value, Channel ch) {
-        setBytes(value.getBytes(ch.getCharset()), ch);
+        this.content = value.getBytes(ch.getCharset());
     }
 
     public void write(byte[] bytes) {

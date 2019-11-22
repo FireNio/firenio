@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.firenio.concurrent.AtomicArray;
+
 /**
  * use for static variable, eg:
  * <pre>
@@ -31,9 +33,7 @@ public abstract class AttributeMap {
 
     private static final Map<Class<?>, AttributeKeys> INDEX_MAPPING = new ConcurrentHashMap<>();
 
-    private final Object[] attributes;
-
-    private volatile int memoryBarrier = 0;
+    private final AtomicArray attributes;
 
     public AttributeMap() {
         AttributeKeys keys = getKeys();
@@ -42,7 +42,7 @@ public abstract class AttributeMap {
             return;
         }
         keys.initialized = true;
-        this.attributes = new Object[keys.getCounter()];
+        this.attributes = new AtomicArray(keys.getCounter());
         for (AttributeKey key : keys.keys.values()) {
             AttributeInitFunction function = key.getFunction();
             function.setValue(this, key.getIndex());
@@ -58,25 +58,27 @@ public abstract class AttributeMap {
     }
 
     public Object getAttribute(int key) {
-        memoryBarrier = 1;
-        return attributes[key];
+        return attributes.getVolatile(key);
     }
 
     public Object getAttributeUnsafe(int key) {
-        return attributes[key];
+        return attributes.get(key);
     }
 
     public void setAttribute(AttributeKey key, Object value) {
-        attributes[key.getIndex()] = value;
+        setAttribute(key.getIndex(), value);
+    }
+
+    public void setAttributeUnsafe(AttributeKey key, Object value) {
+        setAttributeUnsafe(key.getIndex(), value);
     }
 
     public void setAttribute(int key, Object value) {
-        memoryBarrier = 1;
-        attributes[key] = value;
+        attributes.setVolatile(key, value);
     }
 
     public void setAttributeUnsafe(int key, Object value) {
-        attributes[key] = value;
+        attributes.set(key, value);
     }
 
     public static AttributeKeys getKeys(Class clazz) {
@@ -99,10 +101,6 @@ public abstract class AttributeMap {
             }
         }
         return attributeKeys.valueOf(name, function);
-    }
-
-    protected int getMemoryBarrier() {
-        return memoryBarrier;
     }
 
     protected abstract AttributeKeys getKeys();

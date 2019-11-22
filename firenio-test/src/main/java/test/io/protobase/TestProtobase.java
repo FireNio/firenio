@@ -61,13 +61,13 @@ public class TestProtobase {
                 if (f.isText()) {
                     String text = f.getStringContent();
                     DebugUtil.debug("receive text:" + text);
-                    f.setContent(ch.allocate());
+                    f.setContent(ch.allocateWithSkipHeader(1));
                     f.write(res, ch);
                     f.write(text, ch);
                     ch.writeAndFlush(f);
                 } else {
                     byte[] text = f.getArrayContent();
-                    f.setContent(ch.allocate());
+                    f.setContent(ch.allocateWithSkipHeader(text.length));
                     f.write(res, ch);
                     f.write(text);
                     ch.writeAndFlush(f);

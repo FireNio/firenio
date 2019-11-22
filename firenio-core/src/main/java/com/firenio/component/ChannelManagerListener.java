@@ -25,7 +25,7 @@ import com.firenio.buffer.ByteBuf;
 /**
  * @author wangkai
  */
-public class ChannelManager {
+public class ChannelManagerListener implements ChannelEventListener {
 
     private Map<Integer, Channel> channels         = new ConcurrentHashMap<>();
     private Map<Integer, Channel> readOnlyChannels = Collections.unmodifiableMap(channels);
@@ -82,12 +82,22 @@ public class ChannelManager {
         return channels.size();
     }
 
-    public void putChannel(Channel ch) {
+    protected void putChannel(Channel ch) {
         channels.put(ch.getChannelId(), ch);
     }
 
-    public void removeChannel(Integer id) {
+    protected void removeChannel(Integer id) {
         channels.remove(id);
+    }
+
+    @Override
+    public void channelClosed(Channel ch) {
+        channels.remove(ch.getChannelId());
+    }
+
+    @Override
+    public void channelOpened(Channel ch) throws Exception {
+        channels.put(ch.getChannelId(), ch);
     }
 
 }

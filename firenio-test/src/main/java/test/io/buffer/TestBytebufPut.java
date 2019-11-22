@@ -22,7 +22,7 @@ import com.firenio.common.Assert;
 import com.firenio.log.LoggerFactory;
 
 
-public class TestBytebufAllocator {
+public class TestBytebufPut {
 
     static {
         LoggerFactory.setEnableSLF4JLogger(false);

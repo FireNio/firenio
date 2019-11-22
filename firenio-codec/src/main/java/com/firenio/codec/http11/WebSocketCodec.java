@@ -183,14 +183,10 @@ public final class WebSocketCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(Channel ch, Frame frame) throws IOException {
-        WebSocketFrame f   = (WebSocketFrame) frame;
-        ByteBuf        buf = f.getBufContent();
-        if (buf == null) {
-            throw new IOException("null buf content");
-        }
-        int  size      = buf.writeIndex() - MAX_HEADER_LENGTH;
-        byte mark_code = f.getMarkCode();
+    protected void encode(Channel ch, Frame frame, ByteBuf buf) {
+        WebSocketFrame f         = (WebSocketFrame) frame;
+        int            size      = buf.writeIndex() - MAX_HEADER_LENGTH;
+        byte           mark_code = f.getMarkCode();
         if (size < 126) {
             buf.readIndex(8);
             buf.setByte(8, mark_code);
@@ -205,7 +201,6 @@ public final class WebSocketCodec extends ProtocolCodec {
             buf.writeByte((byte) 127);
             buf.writeLong(size);
         }
-        return buf;
     }
 
     @Override

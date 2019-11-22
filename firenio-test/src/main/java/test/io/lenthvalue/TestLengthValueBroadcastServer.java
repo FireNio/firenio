@@ -19,6 +19,7 @@ import com.firenio.codec.lengthvalue.LengthValueCodec;
 import com.firenio.codec.lengthvalue.LengthValueFrame;
 import com.firenio.common.Util;
 import com.firenio.component.ChannelAcceptor;
+import com.firenio.component.ChannelManagerListener;
 import com.firenio.component.Frame;
 import com.firenio.component.IoEventHandle;
 import com.firenio.component.LoggerChannelOpenListener;
@@ -27,6 +28,8 @@ import com.firenio.component.Channel;
 public class TestLengthValueBroadcastServer {
 
     public static void main(String[] args) throws Exception {
+
+        final ChannelManagerListener channelManagerListener = new ChannelManagerListener();
 
         IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
@@ -42,6 +45,7 @@ public class TestLengthValueBroadcastServer {
         ChannelAcceptor context = new ChannelAcceptor(8300);
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addChannelEventListener(new SetOptionListener());
+        context.addChannelEventListener(channelManagerListener);
         context.setIoEventHandle(eventHandleAdaptor);
         context.addProtocolCodec(new LengthValueCodec());
         context.bind();
@@ -53,9 +57,9 @@ public class TestLengthValueBroadcastServer {
                 for (; ; ) {
                     Util.sleep(1000);
                     LengthValueFrame frame = new LengthValueFrame();
-                    frame.setBytes(LengthValueCodec.PROTOCOL_HEADER, "broadcast msg ........".getBytes());
+                    frame.setContent("broadcast msg ........".getBytes());
                     try {
-                        context.broadcast(frame);
+                        channelManagerListener.broadcast(frame);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

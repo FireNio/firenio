@@ -15,6 +15,7 @@
  */
 package sample.http11.service;
 
+import java.io.BufferedReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
@@ -39,7 +40,7 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
 
     @Override
     protected void doAccept(Channel ch, HttpFrame f) throws Exception {
-        TestWebSocketChatServlet chatServlet = ContextUtil.getBean(TestWebSocketChatServlet.class);
+        TestWebSocketChatServlet       chatServlet       = ContextUtil.getBean(TestWebSocketChatServlet.class);
         TestWebSocketRumpetrollServlet rumpetrollServlet = ContextUtil.getBean(TestWebSocketRumpetrollServlet.class);
 
         WebSocketMsgAdapter chatMsgAdapter       = chatServlet.getMsgAdapter();
@@ -49,9 +50,9 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
 
         String kill = f.getRequestParam("kill");
         if (!Util.isNullOrBlank(kill)) {
-            Integer id = Integer.valueOf(kill, 16);
+            Integer id       = Integer.valueOf(kill, 16);
             Channel close_ch = CountChannelListener.chs.get(id);
-            if (close_ch != null){
+            if (close_ch != null) {
                 close_ch.getEventLoop().schedule(new DelayTask(10) {
                     @Override
                     public void run() {
@@ -81,13 +82,14 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
             allocatorDes = builder.toString();
         }
 
-        int eventLoopSize               = group.getEventLoopSize();
-        int SERVER_MEMORY_POOL_CAPACITY = group.getMemoryPoolCapacity() * eventLoopSize;
-        int SERVER_MEMORY_POOL_UNIT     = group.getMemoryPoolUnit();
+        int  M                           = 1024 * 1024;
+        int  eventLoopSize               = group.getEventLoopSize();
+        int  SERVER_MEMORY_POOL_UNIT     = group.getMemoryUnit();
+        long SERVER_MEMORY_POOL_CAPACITY = group.getMemoryCapacity();
 
-        double MEMORY_POOL_SIZE = new BigDecimal(SERVER_MEMORY_POOL_CAPACITY * SERVER_MEMORY_POOL_UNIT).divide(new BigDecimal(1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        double MEMORY_POOL_SIZE = SERVER_MEMORY_POOL_CAPACITY / (M * 1d);
+        MEMORY_POOL_SIZE = new BigDecimal(MEMORY_POOL_SIZE).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 
-        int           M       = 1024 * 1024;
         Runtime       runtime = Runtime.getRuntime();
         StringBuilder builder = new StringBuilder(HttpUtil.HTML_HEADER);
 
@@ -101,18 +103,18 @@ public class TestShowMemoryServlet extends HttpFrameAcceptor {
         builder.append(runtime.freeMemory() / M);
         builder.append("M;\n</BR>内存池大小：");
         builder.append(MEMORY_POOL_SIZE);
-        builder.append("M;\n</BR>内存池状态（Heap）：");
+        builder.append("M;\n</BR>内存池状态：");
         builder.append(allocatorDes);
         builder.append("\n</BR>聊天室（WebSocket）客户端数量：");
         builder.append(chatMsgAdapter.getClientSize());
         builder.append("\n</BR>小蝌蚪（WebSocket）客户端数量：");
         builder.append(rumpetrollMsgAdapter.getClientSize());
-        builder.append("\n</BR>服务器当前连接数（io-session）：");
+        builder.append("\n</BR>服务器当前连接数（io-channel）：");
         builder.append(CountChannelListener.chs.size());
         for (Channel s : CountChannelListener.chs.values()) {
             builder.append("\n</BR>");
             builder.append(s);
-            builder.append(",opened:");
+            builder.append(", opened: ");
             builder.append(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss(new Date(s.getCreationTime())));
         }
         builder.append(";\n</BR>服务运行时间：");

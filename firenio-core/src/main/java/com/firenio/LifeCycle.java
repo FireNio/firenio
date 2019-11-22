@@ -16,7 +16,6 @@
 package com.firenio;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.firenio.common.Assert;
@@ -26,19 +25,22 @@ import com.firenio.log.LoggerFactory;
 
 public abstract class LifeCycle {
 
-    private static final byte                    FAILED             = -1;
-    private static final Logger                  logger             = LoggerFactory.getLogger(LifeCycle.class);
-    private static final byte                    RUNNING            = 2;
-    private static final byte                    STARTING           = 1;
-    private static final byte                    STOPPED            = 0;
-    private static final byte                    STOPPING           = 3;
-    private              List<LifeCycleListener> lifeCycleListeners = new ArrayList<>();
-    private volatile     byte                    state              = STOPPED;
+    private static final Logger logger         = LoggerFactory.getLogger(LifeCycle.class);
+    private static final int    EVENT_STOPPED  = 0;
+    private static final int    EVENT_STARTING = 1;
+    private static final int    EVENT_RUNNING  = 2;
+    private static final int    EVENT_STOPPING = 3;
+    private static final int    EVENT_FAILED   = -1;
+
+    private volatile boolean                 running            = false;
+    private          List<LifeCycleListener> lifeCycleListeners = null;
 
     public synchronized void addLifeCycleListener(LifeCycleListener listener) {
         checkNotRunning();
+        if (lifeCycleListeners == null) {
+            lifeCycleListeners = new ArrayList<>();
+        }
         lifeCycleListeners.add(listener);
-        Collections.sort(lifeCycleListeners);
     }
 
     protected void checkNotRunning() {
@@ -50,10 +52,10 @@ public abstract class LifeCycle {
     protected abstract void doStop();
 
     private void fireEvent(int event, Throwable exception) {
-        if (lifeCycleListeners.size() == 0) {
+        if (lifeCycleListeners == null) {
             return;
         }
-        if (event == STARTING) {
+        if (event == EVENT_STARTING) {
             for (LifeCycleListener listener : lifeCycleListeners) {
                 try {
                     listener.lifeCycleStarting(this);
@@ -61,7 +63,7 @@ public abstract class LifeCycle {
                     logger.error(e.getMessage(), e);
                 }
             }
-        } else if (event == RUNNING) {
+        } else if (event == EVENT_RUNNING) {
             for (LifeCycleListener listener : lifeCycleListeners) {
                 try {
                     listener.lifeCycleStarted(this);
@@ -69,7 +71,7 @@ public abstract class LifeCycle {
                     logger.error(e.getMessage(), e);
                 }
             }
-        } else if (event == STOPPING) {
+        } else if (event == EVENT_STOPPING) {
             for (LifeCycleListener listener : lifeCycleListeners) {
                 try {
                     listener.lifeCycleStopping(this);
@@ -77,7 +79,7 @@ public abstract class LifeCycle {
                     logger.error(e.getMessage(), e);
                 }
             }
-        } else if (event == STOPPED) {
+        } else if (event == EVENT_STOPPED) {
             for (LifeCycleListener listener : lifeCycleListeners) {
                 try {
                     listener.lifeCycleStopped(this);
@@ -85,7 +87,7 @@ public abstract class LifeCycle {
                     logger.error(e.getMessage(), e);
                 }
             }
-        } else if (event == FAILED) {
+        } else if (event == EVENT_FAILED) {
             for (LifeCycleListener listener : lifeCycleListeners) {
                 try {
                     listener.lifeCycleFailure(this, exception);
@@ -96,47 +98,31 @@ public abstract class LifeCycle {
         }
     }
 
-    public boolean isFailed() {
-        return state == FAILED;
-    }
-
     public boolean isRunning() {
-        return state == RUNNING;
-    }
-
-    public boolean isStarting() {
-        return state == STARTING;
-    }
-
-    public boolean isStopped() {
-        return state == STOPPED;
-    }
-
-    public boolean isStopping() {
-        return state == STOPPING;
+        return running;
     }
 
     public synchronized void removeLifeCycleListener(LifeCycleListener listener) {
         checkNotRunning();
-        lifeCycleListeners.remove(listener);
-        Collections.sort(lifeCycleListeners);
+        if (lifeCycleListeners != null) {
+            lifeCycleListeners.remove(listener);
+        }
     }
 
     public synchronized void start() throws Exception {
         if (!isRunning()) {
-            this.state = STARTING;
-            this.fireEvent(state, null);
+            this.fireEvent(EVENT_STARTING, null);
             try {
                 this.doStart();
-                this.state = RUNNING;
+                this.running = true;
                 this.onStarted();
             } catch (Throwable e) {
                 Util.stop(this);
-                this.state = FAILED;
-                this.fireEvent(state, e);
+                this.running = false;
+                this.fireEvent(EVENT_FAILED, e);
                 throw e;
             }
-            this.fireEvent(state, null);
+            this.fireEvent(EVENT_RUNNING, null);
         }
     }
 
@@ -144,8 +130,7 @@ public abstract class LifeCycle {
 
     public synchronized void stop() {
         if (isRunning()) {
-            this.state = STOPPING;
-            this.fireEvent(state, null);
+            this.fireEvent(EVENT_STOPPING, null);
             try {
                 wakeup();
             } catch (Throwable e) {
@@ -156,8 +141,8 @@ public abstract class LifeCycle {
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
-            this.state = STOPPED;
-            this.fireEvent(state, null);
+            this.running = false;
+            this.fireEvent(EVENT_STOPPED, null);
         }
     }
 

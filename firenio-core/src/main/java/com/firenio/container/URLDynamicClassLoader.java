@@ -431,11 +431,11 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         this.resourcesMap.clear();
         Util.close(this);
         try {
-            Field field = Util.getDeclaredFieldFC(getClass(), "defaultDomain");
+            Field field = Util.getDeclaredFieldDepth(getClass(), "defaultDomain");
             if (field != null) {
                 field.setAccessible(true);
                 ProtectionDomain pd = (ProtectionDomain) field.get(this);
-                field = Util.getDeclaredFieldFC(pd.getClass(), "classloader");
+                field = Util.getDeclaredFieldDepth(pd.getClass(), "classloader");
                 if (field != null) {
                     field.setAccessible(true);
                     field.set(pd, null);
@@ -444,7 +444,7 @@ public class URLDynamicClassLoader extends URLClassLoader implements DynamicClas
         } catch (Throwable e) {
         }
         try {
-            Field field = Util.getDeclaredFieldFC(getClass(), "classes");
+            Field field = Util.getDeclaredFieldDepth(getClass(), "classes");
             if (field != null) {
                 field.setAccessible(true);
                 @SuppressWarnings("unchecked") Vector<Class<?>> classes = (Vector<Class<?>>) field.get(this);

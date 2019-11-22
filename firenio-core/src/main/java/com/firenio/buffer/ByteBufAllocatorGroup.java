@@ -16,6 +16,7 @@
 package com.firenio.buffer;
 
 import com.firenio.LifeCycle;
+import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
 
 /**
@@ -24,38 +25,32 @@ import com.firenio.common.Util;
 public final class ByteBufAllocatorGroup extends LifeCycle {
 
     private final PooledByteBufAllocator[] allocators;
-    private final int                      capacity;
-    private final boolean                  direct;
+    private final long                     capacity;
     private final int                      groupSize;
-    private final int                      unit;
+    private final int                      memoryUnit;
+    private final int                      memoryType;
 
-    public ByteBufAllocatorGroup() {
-        this(1024 * 64);
-    }
+    //    public ByteBufAllocatorGroup(int groupSize, long capacity, int memoryUnit) {
+    //        this(groupSize, capacity, memoryUnit, Unsafe.getMemoryTypeId());
+    //    }
 
-    public ByteBufAllocatorGroup(int cap) {
-        this(1, cap);
-    }
-
-    public ByteBufAllocatorGroup(int groupSize, int cap) {
-        this(groupSize, cap, 512, true);
-    }
-
-    public ByteBufAllocatorGroup(int groupSize, int cap, int unit, boolean direct) {
+    public ByteBufAllocatorGroup(int groupSize, long capacity, int memoryUnit, int memoryType) {
         this.groupSize = groupSize;
-        this.capacity = cap;
-        this.unit = unit;
-        this.direct = direct;
+        this.capacity = capacity;
+        this.memoryUnit = memoryUnit;
+        this.memoryType = memoryType;
         this.allocators = new PooledByteBufAllocator[groupSize];
-        for (int i = 0; i < allocators.length; i++) {
-            allocators[i] = new PooledByteBufAllocator(this);
-        }
     }
 
     @Override
     protected void doStart() throws Exception {
-        for (PooledByteBufAllocator allocator : allocators) {
-            Util.start(allocator);
+        long                     allocCapacity = this.capacity / this.groupSize;
+        PooledByteBufAllocator[] allocators    = this.allocators;
+        for (int i = 0; i < allocators.length; i++) {
+            allocators[i] = new PooledByteBufAllocator(this, allocCapacity);
+        }
+        for (int i = 0; i < allocators.length; i++) {
+            Util.start(allocators[i]);
         }
     }
 
@@ -66,15 +61,11 @@ public final class ByteBufAllocatorGroup extends LifeCycle {
         }
     }
 
-    public int getAllCapacity() {
-        return capacity * groupSize;
-    }
-
     public PooledByteBufAllocator getAllocator(int index) {
         return allocators[index];
     }
 
-    public int getCapacity() {
+    public long getCapacity() {
         return capacity;
     }
 
@@ -82,12 +73,12 @@ public final class ByteBufAllocatorGroup extends LifeCycle {
         return groupSize;
     }
 
-    public int getUnit() {
-        return unit;
+    public int getMemoryUnit() {
+        return memoryUnit;
     }
 
-    public boolean isDirect() {
-        return direct;
+    protected int getMemoryType() {
+        return memoryType;
     }
 
     public String[] toDebugString() {

@@ -31,7 +31,20 @@ public class TestConcurrentHashMap {
         int count = 1024 * 1024 * 2;
         //        testConcurrentHashMap(count);
         //        testIntObjectHashMap(count);
-        testLinkedList(count);
+        //        testLinkedList(count);
+        testPutVal();
+
+    }
+
+    static void testPutVal() {
+        Map<Integer, String> map = new ConcurrentHashMap<>(4);
+        new Thread(() -> {
+            map.remove(1);
+        }).start();
+        map.put(1, "1");
+        map.put(1, "1");
+        System.out.println(map);
+
 
     }
 

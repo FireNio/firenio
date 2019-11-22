@@ -17,8 +17,12 @@ package test.io.buffer;
 
 import org.junit.Test;
 
+import com.firenio.Options;
 import com.firenio.buffer.ByteBuf;
 import com.firenio.buffer.ByteBufAllocator;
+import com.firenio.buffer.ByteBufAllocatorGroup;
+import com.firenio.buffer.PooledByteBufAllocator;
+import com.firenio.common.Unsafe;
 
 import junit.framework.Assert;
 
@@ -85,6 +89,22 @@ public class TestExpansion {
             buf.writeByte(a);
         }
         Assert.assertTrue(v(buf));
+    }
+
+    @Test
+    public void testExpansion() throws Exception {
+        Options.setBufAutoExpansion(true);
+        ByteBufAllocatorGroup g = new ByteBufAllocatorGroup(1, 8, 1, Unsafe.BUF_DIRECT);
+        g.start();
+        PooledByteBufAllocator alloc = g.getAllocator(0);
+        ByteBuf                buf1  = alloc.allocate(2);
+        buf1.expansion(6);
+        buf1.release();
+        ByteBuf buf2 = alloc.allocate(2);
+        buf2.expansion(4);
+        buf2.release();
+        Assert.assertTrue(alloc.getState().buf == 0);
+        g.stop();
     }
 
 }
