@@ -17,7 +17,6 @@ package com.firenio.common;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
-import java.nio.channels.Selector;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -136,7 +135,7 @@ public class Util {
         return null;
     }
 
-    public static Field getDeclaredFieldFC(Class<?> clazz, String name) {
+    public static Field getDeclaredFieldDepth(Class<?> clazz, String name) {
         Class<?> c = clazz;
         for (; ; ) {
             if (c == null) {
@@ -196,7 +195,7 @@ public class Util {
         try {
             Object c = target;
             for (; ; ) {
-                Field fieldNext = getDeclaredFieldFC(c.getClass(), fieldName);
+                Field fieldNext = getDeclaredFieldDepth(c.getClass(), fieldName);
                 if (fieldNext == null) {
                     return c;
                 }
@@ -370,7 +369,7 @@ public class Util {
 
     public static void setObjectValue(Object target, Object value, String fieldName) {
         try {
-            Field field = getDeclaredFieldFC(target.getClass(), fieldName);
+            Field field = getDeclaredFieldDepth(target.getClass(), fieldName);
             if (field == null) {
                 throw new NoSuchFieldException(fieldName);
             }

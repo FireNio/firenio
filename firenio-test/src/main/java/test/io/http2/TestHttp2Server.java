@@ -38,9 +38,8 @@ public class TestHttp2Server {
         };
 
         NioEventLoopGroup group = new NioEventLoopGroup();
-        group.setMemoryPoolCapacity(1024 * 64);
-        group.setMemoryPoolUnit(512);
-        group.setEnableMemoryPoolDirect(true);
+        group.setMemoryCapacity(1024 * 1024 * 4);
+        group.setMemoryUnit(512);
         group.setEnableMemoryPool(true);
         ChannelAcceptor context = new ChannelAcceptor(group, 443);
         context.setSslPem("localhost.crt;localhost.key");

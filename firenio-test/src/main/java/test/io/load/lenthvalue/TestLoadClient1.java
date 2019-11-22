@@ -51,7 +51,7 @@ public class TestLoadClient1 extends ITestThread {
         req = s.toString().getBytes();
     }
 
-    final AtomicInteger count = new AtomicInteger();
+    final   AtomicInteger    count   = new AtomicInteger();
     private ChannelConnector context = null;
 
     public static void main(String[] args) {
@@ -63,7 +63,7 @@ public class TestLoadClient1 extends ITestThread {
             Util.exec(() -> {
                 Util.sleep(7000);
                 for (; running; ) {
-                    synchronized (lock){
+                    synchronized (lock) {
                         Util.wait(lock, 3000);
                     }
                     for (ITestThread tt : ITestThreadHandle.ts) {
@@ -96,13 +96,11 @@ public class TestLoadClient1 extends ITestThread {
         };
 
         NioEventLoopGroup group = new NioEventLoopGroup();
-        group.setMemoryPoolCapacity(5120000 / CLIENT_CORE_SIZE);
-        group.setMemoryPoolUnit(TestLoadServer.MEM_UNIT);
+        group.setMemoryCapacity(5120000 * 256 * CLIENT_CORE_SIZE);
+        group.setMemoryUnit(256);
         group.setWriteBuffers(TestLoadServer.WRITE_BUFFERS);
         group.setEnableMemoryPool(TestLoadServer.ENABLE_POOL);
-        group.setEnableMemoryPoolDirect(TestLoadServer.ENABLE_POOL_DIRECT);
         context = new ChannelConnector(group, "127.0.0.1", 8300);
-        context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.setIoEventHandle(eventHandleAdaptor);
         if (TestLoadServer.ENABLE_SSL) {
             context.setSslContext(SslContextBuilder.forClient(true).build());
@@ -122,7 +120,7 @@ public class TestLoadClient1 extends ITestThread {
         try {
             for (int i = 0; i < time1; i++) {
                 Frame frame = new LengthValueFrame();
-                frame.setContent(ch.allocate());
+                frame.setContent(ch.allocateWithSkipHeader(1));
                 if (debug) {
                     byte[] bb = new byte[4];
                     ByteUtil.putInt(bb, i, 0);

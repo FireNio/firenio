@@ -16,7 +16,10 @@
 package test.io.load.lenthvalue;
 
 import com.firenio.Options;
+import com.firenio.buffer.ByteBuf;
 import com.firenio.codec.lengthvalue.LengthValueCodec;
+import com.firenio.collection.AttributeKey;
+import com.firenio.collection.AttributeMap;
 import com.firenio.component.ChannelAcceptor;
 import com.firenio.component.Frame;
 import com.firenio.component.IoEventHandle;
@@ -27,17 +30,19 @@ import com.firenio.concurrent.ThreadEventLoopGroup;
 
 public class TestLoadServer {
 
-    public static final boolean AUTO_EXPANSION         = false;
+    public static final boolean AUTO_EXPANSION         = true;
     public static final int     CLIENT_CORE_SIZE;
     public static final boolean ENABLE_POOL            = true;
-    public static final boolean ENABLE_POOL_DIRECT     = true;
     public static final boolean ENABLE_SSL             = false;
     public static final boolean ENABLE_WORK_EVENT_LOOP = false;
-    public static final int     MEM_UNIT               = 256;
+    public static final int     MEM_UNIT               = 1024;
     public static final int     SERVER_CORE_SIZE;
-    public static final int     WRITE_BUFFERS          = 16;
+    public static final int     WRITE_BUFFERS          = 32;
     public static final boolean ENABLE_EPOLL           = true;
-    public static final boolean ENABLE_UNSAFE_BUF      = true;
+    public static final boolean ENABLE_UNSAFE_BUF      = false;
+    public static final boolean BUFFERED_WRITE         = true;
+
+    static final AttributeKey<ByteBuf> WRITE_BUF = newWriteBufKey();
 
     static {
         SERVER_CORE_SIZE = 8;
@@ -52,19 +57,33 @@ public class TestLoadServer {
             @Override
             public void accept(Channel ch, Frame f) throws Exception {
                 String text = f.getStringContent();
-                f.setString(text, ch);
-                ch.writeAndFlush(f);
+                if (BUFFERED_WRITE) {
+                    ByteBuf buf = ch.getAttributeUnsafe(WRITE_BUF);
+                    if (buf == null) {
+                        buf = ch.allocate();
+                        ByteBuf temp = buf;
+                        ch.setAttributeUnsafe(WRITE_BUF, buf);
+                        ch.getEventLoop().submit(() -> {
+                            ch.writeAndFlush(temp);
+                            ch.setAttributeUnsafe(WRITE_BUF, null);
+                        });
+                    }
+                    byte[] data = text.getBytes(ch.getCharset());
+                    buf.writeInt(data.length);
+                    buf.writeBytes(data);
+                } else {
+                    f.setString(text, ch);
+                    ch.writeAndFlush(f);
+                }
             }
         };
 
         NioEventLoopGroup group = new NioEventLoopGroup(SERVER_CORE_SIZE);
-        group.setMemoryPoolCapacity(1024 * 512);
+        group.setMemoryCapacity(1024 * 512 * MEM_UNIT * SERVER_CORE_SIZE);
         group.setWriteBuffers(WRITE_BUFFERS);
-        group.setMemoryPoolUnit(MEM_UNIT);
+        group.setMemoryUnit(MEM_UNIT);
         group.setEnableMemoryPool(ENABLE_POOL);
-        group.setEnableMemoryPoolDirect(ENABLE_POOL_DIRECT);
         ChannelAcceptor context = new ChannelAcceptor(group, 8300);
-        context.setMaxWriteBacklog(Integer.MAX_VALUE);
         context.addProtocolCodec(new LengthValueCodec());
         context.setIoEventHandle(eventHandle);
         if (ENABLE_SSL) {
@@ -76,6 +95,10 @@ public class TestLoadServer {
         }
         context.bind();
 
+    }
+
+    static AttributeKey<ByteBuf> newWriteBufKey() {
+        return AttributeMap.valueOfKey(Channel.class, null);
     }
 
 }

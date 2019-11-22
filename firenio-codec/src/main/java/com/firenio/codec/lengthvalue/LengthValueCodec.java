@@ -107,10 +107,8 @@ public final class LengthValueCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(Channel ch, Frame frame) {
-        ByteBuf buf = frame.getBufContent();
+    protected void encode(Channel ch, Frame frame, ByteBuf buf) {
         buf.setInt(0, buf.writeIndex() - PROTOCOL_HEADER);
-        return buf;
     }
 
     @Override

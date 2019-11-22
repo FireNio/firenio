@@ -114,13 +114,11 @@ public final class ProtobaseCodec extends ProtocolCodec {
     }
 
     @Override
-    public ByteBuf encode(Channel ch, Frame frame) {
-        ProtobaseFrame f   = (ProtobaseFrame) frame;
-        ByteBuf        buf = f.getBufContent();
+    protected void encode(Channel ch, Frame frame, ByteBuf buf) {
+        ProtobaseFrame f = (ProtobaseFrame) frame;
         buf.setInt(0, (buf.writeIndex() - 4) | (f.getFlags() << 24));
         buf.setInt(4, f.getFrameId());
         buf.setInt(8, f.getChannelId());
-        return buf;
     }
 
     public int getLimit() {

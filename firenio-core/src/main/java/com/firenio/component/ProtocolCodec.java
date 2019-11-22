@@ -65,6 +65,20 @@ public abstract class ProtocolCodec {
 
     // 注意：encode失败要release掉encode过程中申请的内存
     public ByteBuf encode(Channel ch, Frame frame) throws Exception {
+        Object  content = frame.getContent();
+        ByteBuf buf;
+        if (content instanceof ByteBuf) {
+            buf = (ByteBuf) content;
+        } else {
+            byte[] data = (byte[]) content;
+            buf = ch.allocateWithSkipHeader(data.length);
+            buf.writeBytes(data);
+        }
+        encode(ch, frame, buf);
+        return buf;
+    }
+
+    protected void encode(Channel ch, Frame frame, ByteBuf buf) {
         throw new UnsupportedOperationException();
     }
 

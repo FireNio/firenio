@@ -15,12 +15,7 @@
  */
 package com.firenio;
 
-public abstract class LifeCycleListener implements Comparable<LifeCycleListener> {
-
-    @Override
-    public int compareTo(LifeCycleListener o) {
-        return sortIndex() - o.sortIndex();
-    }
+public abstract class LifeCycleListener {
 
     public void lifeCycleFailure(LifeCycle lifeCycle, Throwable exception) {}
 
@@ -31,9 +26,5 @@ public abstract class LifeCycleListener implements Comparable<LifeCycleListener>
     public void lifeCycleStopped(LifeCycle lifeCycle) {}
 
     public void lifeCycleStopping(LifeCycle lifeCycle) {}
-
-    public int sortIndex() {
-        return 0;
-    }
 
 }

@@ -99,7 +99,7 @@ public abstract class NioEventLoop extends EventLoop {
         this.group = group;
         this.sharable = group.isSharable();
         this.acceptor = group.isAcceptor();
-        this.alloc = group.getNextByteBufAllocator(index);
+        this.alloc = group.getByteBufAllocator(index);
         this.ch_size_limit = group.getChannelSizeLimit();
         int channelReadBuffer = group.getChannelReadBuffer();
         if (channelReadBuffer > 0) {
@@ -147,7 +147,6 @@ public abstract class NioEventLoop extends EventLoop {
 
     static void register_ch(ChannelContext ctx, int fd, IntMap<Channel> channels, Channel ch) {
         channels.put(fd, ch);
-        ctx.getChannelManager().putChannel(ch);
         if (ch.isEnableSsl()) {
             // fire open event later
             if (ctx.getSslContext().isClient()) {
@@ -249,6 +248,10 @@ public abstract class NioEventLoop extends EventLoop {
 
     protected ByteBuf getReadBuf() {
         return buf;
+    }
+
+    protected int nextChannelId() {
+        return group.nextChannelId();
     }
 
     public void release(AttributeKey<Stack<Object>> key, Object obj) {
@@ -414,7 +417,7 @@ public abstract class NioEventLoop extends EventLoop {
             for (int i = 0; i < c_list.size(); i++) {
                 Channel ch = channels.remove(c_list.get(i));
                 if (ch.isOpen()) {
-                    channels.put(ch.getChannelId(), ch);
+                    channels.put(ch.getFd(), ch);
                 }
             }
             c_list.clear();
@@ -703,12 +706,11 @@ public abstract class NioEventLoop extends EventLoop {
                 ctx.channelEstablish(null, OVER_CH_SIZE_LIMIT);
                 return;
             }
-            JavaEventLoop     elUnsafe  = (JavaEventLoop) el;
-            NioEventLoopGroup g         = el.getGroup();
-            int               channelId = g.getChannelIds().next();
-            SelectionKey      sk        = jch.register(elUnsafe.selector, SelectionKey.OP_READ);
+            JavaEventLoop elUnsafe  = (JavaEventLoop) el;
+            int           channelId = el.nextChannelId();
+            SelectionKey  sel_key   = jch.register(elUnsafe.selector, SelectionKey.OP_READ);
             Util.close(channels.get(channelId));
-            Util.close((Channel) sk.attachment());
+            Util.close((Channel) sel_key.attachment());
             String ra;
             int    lp;
             int    rp;
@@ -724,8 +726,8 @@ public abstract class NioEventLoop extends EventLoop {
                 ra = remote.getAddress().getHostAddress();
                 rp = remote.getPort();
             }
-            sk.attach(new JavaChannel(el, ctx, sk, ra, lp, rp, channelId));
-            Channel ch = (Channel) sk.attachment();
+            sel_key.attach(new JavaChannel(el, ctx, sel_key, ra, lp, rp, channelId));
+            Channel ch = (Channel) sel_key.attachment();
             register_ch(ctx, channelId, channels, ch);
         }
 
@@ -1034,7 +1036,8 @@ public abstract class NioEventLoop extends EventLoop {
                 }
                 old.close();
             }
-            Channel ch = new EpollChannel(el, ctx, epfd, fd, ra, lp, rp);
+            Integer id = el.nextChannelId();
+            Channel ch = new EpollChannel(el, ctx, epfd, fd, ra, lp, rp, id);
             register_ch(ctx, fd, channels, ch);
         }
 

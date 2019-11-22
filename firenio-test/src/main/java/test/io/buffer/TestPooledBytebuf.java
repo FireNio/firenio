@@ -16,17 +16,23 @@
 package test.io.buffer;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Assert;
 import org.junit.Test;
 
+import com.firenio.DevelopConfig;
 import com.firenio.buffer.ByteBuf;
 import com.firenio.buffer.PooledByteBufAllocator;
 import com.firenio.buffer.PooledByteBufAllocator.PoolState;
 import com.firenio.common.Util;
+import com.firenio.log.LoggerFactory;
 
 /**
  * @author wangkai
@@ -35,26 +41,34 @@ public class TestPooledBytebuf {
 
     @Test
     public void testAlloc() throws Exception {
-        final PooledByteBufAllocator a = TestAllocUtil.heap();
-        CountDownLatch               c = new CountDownLatch(Util.availableProcessors());
+        DevelopConfig.BUF_DEBUG = true;
+        LoggerFactory.setEnableSLF4JLogger(false);
+        final PooledByteBufAllocator a                    = TestAllocUtil.heap(1024 * 512);
+        final AtomicInteger          alloc_single_times   = new AtomicInteger();
+        final AtomicInteger          alloc_unpooled_times = new AtomicInteger();
+        CountDownLatch               c                    = new CountDownLatch(Util.availableProcessors());
         for (int i = 0; i < Util.availableProcessors(); i++) {
             Util.exec(() -> {
-                Random        r     = new Random();
-                List<ByteBuf> bufs  = new ArrayList<>();
-                int           alloc = 0;
-                for (int j = 0; j < 99999; j++) {
-                    int pa = r.nextInt((a.getCapacity() - alloc) / 2);
+                Random         r    = new Random();
+                Queue<ByteBuf> bufs = new LinkedList<>();
+                for (int j = 0; j < 1024 * 1024; j++) {
+                    int pa = r.nextInt(256);
                     if (pa == 0) {
                         pa = 1;
+                        alloc_single_times.getAndIncrement();
                     }
                     ByteBuf buf = a.allocate(pa);
-                    a.toString();
-                    bufs.add(buf);
-                    alloc += buf.writeIndex();
-                    if (buf.writeIndex() % 3 != 0) {
+                    if (!buf.isPooled()) {
+                        alloc_unpooled_times.getAndIncrement();
+                    }
+                    if ((pa & 1) == 1) {
                         buf.release();
-                        alloc -= buf.writeIndex();
-                        bufs.remove(buf);
+                    } else {
+                        bufs.offer(buf);
+                    }
+                    if (bufs.size() > 500) {
+                        ByteBuf buf1 = bufs.poll();
+                        buf1.release();
                     }
                 }
                 for (ByteBuf buf : bufs) {
@@ -65,6 +79,8 @@ public class TestPooledBytebuf {
         }
         c.await();
         PoolState s = a.getState();
+        System.out.println("alloc_single_times: " + alloc_single_times.get());
+        System.out.println("alloc_unpooled_times: " + alloc_unpooled_times.get());
         Assert.assertEquals(0, s.buf);
         Assert.assertEquals(s.free, s.memory);
         Assert.assertEquals(s.mfree, s.memory);

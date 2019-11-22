@@ -24,7 +24,6 @@ public class Options {
 
     static final String BUF_AUTO_EXPANSION     = "com.firenio.bufAutoExpansion";
     static final String BUF_THREAD_YIELD       = "com.firenio.bufThreadYield";
-    static final String BUF_RECYCLE            = "com.firenio.bufRecycle";
     static final String CHANNEL_READ_FIRST     = "com.firenio.channelReadFirst";
     static final String DEBUG_ERROR            = "com.firenio.debugError";
     static final String ENABLE_UNSAFE          = "com.firenio.enableUnsafe";
@@ -59,10 +58,6 @@ public class Options {
         return isTrue(BUF_THREAD_YIELD, false);
     }
 
-    public static boolean isBufRecycle() {
-        return isTrue(BUF_RECYCLE);
-    }
-
     public static boolean isChannelReadFirst() {
         return isTrue(CHANNEL_READ_FIRST);
     }
@@ -89,14 +84,6 @@ public class Options {
 
     public static void setBufThreadYield(boolean yield) {
         setBool(BUF_THREAD_YIELD, yield);
-    }
-
-    // NOTICE: DO NOT USE
-    public static void setBufRecycle(boolean recycle) {
-        if (recycle){
-            throw new RuntimeException("do not use BufRecycle");
-        }
-        setBool(BUF_RECYCLE, recycle);
     }
 
     public static void setChannelReadFirst(boolean channelReadFirst) {

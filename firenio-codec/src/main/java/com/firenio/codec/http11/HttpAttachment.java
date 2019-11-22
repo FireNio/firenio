@@ -26,16 +26,6 @@ public class HttpAttachment {
 
     private String websocketFrameName;
 
-    private ByteBuf lastWriteBuf = ByteBuf.empty();
-
-    public ByteBuf getLastWriteBuf() {
-        return lastWriteBuf;
-    }
-
-    public void setLastWriteBuf(ByteBuf lastWriteBuf) {
-        this.lastWriteBuf = lastWriteBuf;
-    }
-
     public String getWebsocketFrameName() {
         return websocketFrameName;
     }

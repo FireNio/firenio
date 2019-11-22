@@ -28,11 +28,9 @@ public abstract class ByteBufAllocator extends LifeCycle {
 
     public abstract void freeMemory();
 
-    public abstract int getCapacity();
+    public abstract long getCapacity();
 
     public abstract int getUnit();
-
-    public abstract boolean isDirect();
 
     protected abstract void release(ByteBuf buf);
 

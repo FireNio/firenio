@@ -15,8 +15,10 @@
  */
 package test.io.buffer;
 
+import com.firenio.DevelopConfig;
 import com.firenio.buffer.ByteBufAllocatorGroup;
 import com.firenio.buffer.PooledByteBufAllocator;
+import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
 
 /**
@@ -24,12 +26,16 @@ import com.firenio.common.Util;
  */
 public class TestAllocUtil {
 
+    static {
+        DevelopConfig.BUF_DEBUG = true;
+    }
+
     public static PooledByteBufAllocator direct() throws Exception {
         return direct(1024);
     }
 
     public static PooledByteBufAllocator direct(int cap) throws Exception {
-        ByteBufAllocatorGroup group = new ByteBufAllocatorGroup(1, cap, 1, true);
+        ByteBufAllocatorGroup group = new ByteBufAllocatorGroup(1, cap, 1, Unsafe.BUF_DIRECT);
         Util.start(group);
         return group.getAllocator(0);
     }
@@ -39,7 +45,7 @@ public class TestAllocUtil {
     }
 
     public static PooledByteBufAllocator heap(int cap) throws Exception {
-        ByteBufAllocatorGroup group = new ByteBufAllocatorGroup(1, cap, 1, false);
+        ByteBufAllocatorGroup group = new ByteBufAllocatorGroup(1, cap, 1, Unsafe.BUF_HEAP);
         Util.start(group);
         return group.getAllocator(0);
     }

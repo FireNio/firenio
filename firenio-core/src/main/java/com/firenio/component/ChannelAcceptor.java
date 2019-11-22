@@ -23,7 +23,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
-import com.firenio.buffer.ByteBuf;
 import com.firenio.common.Util;
 import com.firenio.component.NioEventLoop.EpollEventLoop;
 import com.firenio.component.NioEventLoop.JavaEventLoop;
@@ -76,7 +75,6 @@ public final class ChannelAcceptor extends ChannelContext {
         String name = "bind-" + getHost() + ":" + getPort();
         this.bindGroup = new NioEventLoopGroup(name, true);
         this.bindGroup.setEnableMemoryPool(false);
-        this.bindGroup.setEnableMemoryPoolDirect(false);
         this.bindGroup.setChannelReadBuffer(0);
         this.bindGroup.setWriteBuffers(0);
         this.getProcessorGroup().setContext(this);
@@ -121,14 +119,6 @@ public final class ChannelAcceptor extends ChannelContext {
             throw new IOException("bind failed", ex);
         }
         logger.info("server listening @" + getServerAddress());
-    }
-
-    public void broadcast(ByteBuf buf) {
-        getChannelManager().broadcast(buf);
-    }
-
-    public void broadcast(Frame frame) throws Exception {
-        getChannelManager().broadcast(frame);
     }
 
     protected AcceptorUnsafe getUnsafe() {
