@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.firenio</groupId>
         <artifactId>firenio</artifactId>
-        <version>1.3.3</version>
+        <version>1.3.4-SNAPSHOT</version>
         <relativePath>../firenio/pom.xml</relativePath>
     </parent>
 
