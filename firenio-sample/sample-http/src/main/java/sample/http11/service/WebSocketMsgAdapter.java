@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 import com.firenio.buffer.ByteBuf;
 import com.firenio.codec.http11.WebSocketFrame;
 import com.firenio.component.Channel;
-import com.firenio.component.ChannelManager;
+import com.firenio.component.ChannelManagerListener;
 import com.firenio.concurrent.EventLoop;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
@@ -67,15 +67,11 @@ public class WebSocketMsgAdapter extends EventLoop {
                     Channel        ch     = client.channel;
                     WebSocketFrame f      = new WebSocketFrame();
                     byte[]         data   = msg.msg.getBytes();
-                    ByteBuf        buf    = ch.allocate(data.length);
-                    buf.writeBytes(data);
-                    f.setContent(buf);
-                    ByteBuf buf2 = null;
+                    f.setContent(data);
                     try {
-                        buf2 = ch.getCodec().encode(ch, f);
-                        ChannelManager.broadcast(buf2, channelMap.values());
+                        ByteBuf buf = ch.getCodec().encode(ch, f);
+                        ChannelManagerListener.broadcast(buf, channelMap.values());
                     } catch (Exception e) {
-                        buf.release();
                         logger.error(e.getMessage(), e);
                     }
                 }

@@ -2,7 +2,7 @@
 # FireNio Project
 
 [![Website](https://img.shields.io/badge/website-firenio-green.svg)](https://www.firenio.com)
-[![Maven central](https://img.shields.io/badge/maven-1.3.2-green.svg)](http://mvnrepository.com/artifact/com.firenio/firenio-all)
+[![Maven central](https://img.shields.io/badge/maven-1.3.3-green.svg)](http://mvnrepository.com/artifact/com.firenio/firenio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/firenio/firenio/blob/master/LICENSE.txt)
 
 FireNio is an io framework which can build network project fast, it based on java nio, it is popular with Developers because of simple and easy of use APIs and high-performance.
@@ -28,7 +28,7 @@ FireNio is an io framework which can build network project fast, it based on jav
 	<dependency>
 		<groupId>com.firenio</groupId>
 		<artifactId>firenio-all</artifactId>
-		<version>1.3.2</version>
+		<version>1.3.3</version>
 	</dependency>  
   ```
   
@@ -43,7 +43,7 @@ FireNio is an io framework which can build network project fast, it based on jav
             @Override
             public void accept(Channel ch, Frame f) throws Exception {
                 String text = f.getStringContent();
-                f.setContent(ch.allocate());
+                f.setContent(ch.allocateWithSkipHeader(1));
                 f.write("yes server already accept your message:", ch);
                 f.write(text, ch);
                 ch.writeAndFlush(f);

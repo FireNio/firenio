@@ -61,7 +61,7 @@ public class TestLengthValueServerJunit {
             @Override
             public void accept(Channel ch, Frame f) throws Exception {
                 String text = f.getStringContent();
-                f.setContent(ch.allocate());
+                f.setContent(ch.allocateWithSkipHeader(1));
                 f.write("yes server already accept your message:", ch);
                 f.write(text, ch);
                 ch.writeAndFlush(f);

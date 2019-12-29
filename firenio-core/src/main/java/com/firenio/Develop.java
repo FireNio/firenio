@@ -22,13 +22,14 @@ import com.firenio.log.Logger;
  */
 public class Develop {
 
-    public static final boolean BUF_DEBUG     = DevelopConfig.BUF_DEBUG;
-    public static final boolean SSL_DEBUG     = DevelopConfig.SSL_DEBUG;
-    public static final boolean EPOLL_DEBUG   = DevelopConfig.EPOLL_DEBUG;
-    public static final String  EPOLL_PATH    = DevelopConfig.EPOLL_PATH;
-    public static final boolean NATIVE_DEBUG  = DevelopConfig.NATIVE_DEBUG;
-    public static final boolean CHANNEL_DEBUG = DevelopConfig.CHANNEL_DEBUG;
-    public static final boolean DEBUG_ERROR   = Options.isDebugError();
+    public static final boolean BUF_DEBUG      = DevelopConfig.BUF_DEBUG;
+    public static final boolean BUF_PATH_DEBUG = DevelopConfig.BUF_PATH_DEBUG;
+    public static final boolean SSL_DEBUG      = DevelopConfig.SSL_DEBUG;
+    public static final boolean EPOLL_DEBUG    = DevelopConfig.EPOLL_DEBUG;
+    public static final String  EPOLL_PATH     = DevelopConfig.EPOLL_PATH;
+    public static final boolean NATIVE_DEBUG   = DevelopConfig.NATIVE_DEBUG;
+    public static final boolean CHANNEL_DEBUG  = DevelopConfig.CHANNEL_DEBUG;
+    public static final boolean DEBUG_ERROR    = Options.isDebugError();
 
     public static void debugException(Logger logger, Throwable e) {
         if (DEBUG_ERROR) {

@@ -18,6 +18,7 @@ package com.firenio.buffer;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
+import com.firenio.Develop;
 import com.firenio.Options;
 import com.firenio.Releasable;
 import com.firenio.common.Unsafe;
@@ -135,15 +136,24 @@ public abstract class ByteBuf implements Releasable {
 
     public boolean retain() {
         int referenceCount = this.referenceCount;
-        if (referenceCount == 0) {
+        if (referenceCount < 1) {
             return false;
         }
         if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
             return true;
         }
+        for (int i = 0; i < 16; i++) {
+            referenceCount = this.referenceCount;
+            if (referenceCount < 1) {
+                return false;
+            }
+            if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
+                return true;
+            }
+        }
         for (; ; ) {
             referenceCount = this.referenceCount;
-            if (referenceCount == 0) {
+            if (referenceCount < 1) {
                 return false;
             }
             if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount + 1)) {
@@ -663,6 +673,18 @@ public abstract class ByteBuf implements Releasable {
             }
             return;
         }
+        for (int i = 0; i < 16; i++) {
+            referenceCount = this.referenceCount;
+            if (referenceCount < 1) {
+                return;
+            }
+            if (refCntUpdater.compareAndSet(this, referenceCount, referenceCount - 1)) {
+                if (referenceCount == 1) {
+                    release0();
+                }
+                return;
+            }
+        }
         for (; ; ) {
             referenceCount = this.referenceCount;
             if (referenceCount < 1) {
@@ -692,7 +714,16 @@ public abstract class ByteBuf implements Releasable {
 
     public ByteBuffer nioWriteBuffer() {
         ByteBuffer buffer = getNioBuffer();
-        return (ByteBuffer) buffer.limit(capacity() + offset()).position(absWriteIndex());
+        int        limit  = capacity() + offset();
+        if (Develop.BUF_DEBUG) {
+            try {
+                return (ByteBuffer) buffer.limit(limit).position(absWriteIndex());
+            } catch (Exception e) {
+                throw new RuntimeException("cap: " + capacity() + ", offset: " + offset(), e);
+            }
+        } else {
+            return (ByteBuffer) buffer.limit(limit).position(absWriteIndex());
+        }
     }
 
     protected abstract void release0();
@@ -780,8 +811,6 @@ public abstract class ByteBuf implements Releasable {
     }
 
     protected void unitOffset(int unitOffset) {}
-
-    protected void recycleObject(){}
 
     UnsupportedOperationException unsupportedOperationException() {
         return new UnsupportedOperationException();

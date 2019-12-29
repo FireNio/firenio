@@ -22,8 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.firenio.Develop;
-import com.firenio.Options;
-import com.firenio.collection.ObjectPool;
 import com.firenio.common.DateUtil;
 import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
@@ -33,37 +31,30 @@ import com.firenio.common.Util;
  */
 public final class PooledByteBufAllocator extends ByteBufAllocator {
 
-    public static final Map<ByteBuf, BufDebug>           BUF_DEBUGS            = NEW_BUF_DEBUGS();
-    public static final ByteBufException                 EXPANSION_FAILED      = EXPANSION_FAILED();
-    static final        int                              ADDRESS_BITS_PER_WORD = 6;
-    static final        int                              BUF_POOL_SIZE         = 1024 * 8;
-    static final        boolean                          BUF_POOL_ENABLE       = Options.isBufRecycle();
-    static final        ThreadLocal<ObjectPool<ByteBuf>> BUF_POOL              = new ThreadLocal<ObjectPool<ByteBuf>>() {
+    public static final Map<ByteBuf, BufDebug> BUF_DEBUGS            = NEW_BUF_DEBUGS();
+    public static final ByteBufException       EXPANSION_FAILED      = EXPANSION_FAILED();
+    static final        int                    ADDRESS_BITS_PER_WORD = 6;
 
-        @Override
-        protected ObjectPool<ByteBuf> initialValue() {
-            return new ObjectPool<>(Thread.currentThread(), BUF_POOL_SIZE);
-        }
-    };
-
-    private final int[]            blockEnds;
-    private final int              capacity;
+    private final int[]            blocks;
     private final long[]           frees;
-    private final boolean          isDirect;
     private final int              unit;
+    private final long             capacity;
+    private final int              b_capacity;
+    private final int              memory_type;
     private final ByteBufAllocator unpooled;
-    private final ReentrantLock    lock    = new ReentrantLock();
-    private       long             address = -1;
+    private final ReentrantLock    lock = new ReentrantLock();
+    private       int              mark;
+    private       long             address;
     private       ByteBuffer       directMemory;
     private       byte[]           heapMemory;
-    private       int              mark;
 
-    public PooledByteBufAllocator(ByteBufAllocatorGroup group) {
-        this.unit = group.getUnit();
-        this.isDirect = group.isDirect();
-        this.capacity = group.getCapacity();
-        this.frees = new long[getCapacity() / 8];
-        this.blockEnds = new int[getCapacity()];
+    public PooledByteBufAllocator(ByteBufAllocatorGroup group, long capacity) {
+        this.capacity = capacity;
+        this.unit = group.getMemoryUnit();
+        this.memory_type = group.getMemoryType();
+        this.b_capacity = (int) (capacity / unit);
+        this.frees = new long[b_capacity / 8];
+        this.blocks = new int[b_capacity];
         this.unpooled = UnpooledByteBufAllocator.get();
     }
 
@@ -73,7 +64,7 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
 
     @Override
     public ByteBuf allocate() {
-        return allocate(unit);
+        return allocate(1);
     }
 
     @Override
@@ -81,84 +72,175 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         if (limit < 1) {
             return ByteBuf.empty();
         }
-        int           size = (limit + unit - 1) / unit;
-        int           blockStart;
+        int           size = trans_size(limit, unit);
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
             if (!isRunning()) {
                 return unpooled.allocate(limit);
             }
-            int mark = this.mark;
-            blockStart = allocate(mark, capacity, size);
-            if (blockStart == -1) {
-                blockStart = allocate(0, mark, size);
+            int mark        = this.mark;
+            int block_start = allocate(mark, b_capacity, size);
+            if (block_start == -1) {
+                block_start = allocate(0, mark, size);
+                if (block_start != -1) {
+                    ByteBuf buf = newByteBuf().produce(block_start, size);
+                    debug_buf_alloc_path(buf);
+                    return buf;
+                }
+            } else {
+                ByteBuf buf = newByteBuf().produce(block_start, size);
+                debug_buf_alloc_path(buf);
+                return buf;
             }
         } finally {
             lock.unlock();
         }
-        ByteBuf buf;
-        if (blockStart == -1) {
-            // FIXME 是否申请java内存
-            return unpooled.allocate(limit);
-        } else {
-            buf = newByteBuf().produce(blockStart, size);
-            if (Develop.BUF_DEBUG) {
-                BufDebug d = new BufDebug();
-                d.buf = buf;
-                d.e = new Exception(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss_SSS());
-                BUF_DEBUGS.put(buf, d);
-            }
-            return buf;
+        // FIXME 是否申请java内存
+        return unpooled.allocate(limit);
+    }
+
+    private static int trans_size(int limit, int unit) {
+        return (limit + unit - 1) / unit;
+    }
+
+    private static void debug_buf_alloc_path(ByteBuf buf) {
+        if (Develop.BUF_PATH_DEBUG) {
+            BufDebug d = new BufDebug();
+            d.buf = buf;
+            d.e = new Exception(DateUtil.get().formatYyyy_MM_dd_HH_mm_ss_SSS());
+            BUF_DEBUGS.put(buf, d);
         }
     }
 
     // FIXME 判断余下的是否足够，否则退出循环
-    private int allocate(int start, int end, int size) {
-        int[] blockEnds = this.blockEnds;
-        int   pos       = start;
-        int   limit     = pos + size;
-        if (limit >= end) {
+    private int allocate(int pos, int end, int size) {
+        if (size == 1) {
+            return allocate_single(pos, end);
+        } else {
+            return allocate_multiple_inline(pos, end, size);
+        }
+    }
+
+    private int allocate_multiple(int pos, int end, int size) {
+        int[]  blocks = this.blocks;
+        long[] frees  = this.frees;
+        int    limit  = pos + size;
+        if (limit > end) {
             return -1;
         }
         for (; ; ) {
-            if (!isFree(pos)) {
-                pos = blockEnds[pos];
+            int free_index = scan_free(frees, pos, limit);
+            if (free_index == limit) {
+                int b_start = free_index - size;
+                clearFree(frees, b_start);
+                blocks[b_start] = free_index;
+                this.mark = free_index;
+                return b_start;
+            } else {
+                pos = blocks[free_index];
                 limit = pos + size;
-                if (limit >= end) {
+                if (limit > end) {
                     return -1;
                 }
-                continue;
-            }
-            if (++pos == limit) {
-                int blockEnd   = pos + 1;
-                int blockStart = blockEnd - size;
-                clearFree(blockStart);
-                blockEnds[blockStart] = blockEnd;
-                this.mark = blockEnd;
-                return blockStart;
             }
         }
     }
 
+    private int allocate_multiple_inline(int pos, int end, int size) {
+        int[]  blocks = this.blocks;
+        long[] frees  = this.frees;
+        int    limit  = pos + size;
+        if (limit > end) {
+            return -1;
+        }
+        RETRY:
+        for (; ; ) {
+            for (; pos < limit; pos++) {
+                if (!isFree(frees, pos)) {
+                    pos = blocks[pos];
+                    limit = pos + size;
+                    if (limit > end) {
+                        return -1;
+                    } else {
+                        continue RETRY;
+                    }
+                }
+            }
+            int b_start = limit - size;
+            clearFree(frees, b_start);
+            blocks[b_start] = limit;
+            this.mark = limit;
+            return b_start;
+        }
+    }
+
+    private int scan_free(long[] frees, int start, int limit) {
+        for (int i = start; i < limit; i++) {
+            if (!isFree(frees, i)) {
+                return i;
+            }
+        }
+        return limit;
+    }
+
+    private int allocate_single(int pos, int end) {
+        long[] frees  = this.frees;
+        int[]  blocks = this.blocks;
+        if (pos < end) {
+            if (isFree(frees, pos)) {
+                int block_end = pos + 1;
+                clearFree(frees, pos);
+                blocks[pos] = block_end;
+                this.mark = block_end;
+                return pos;
+            }
+            for (int i = pos + 1; i < end; ) {
+                if (isFree(frees, i)) {
+                    int block_end = i + 1;
+                    clearFree(frees, i);
+                    blocks[i] = block_end;
+                    this.mark = block_end;
+                    return i;
+                } else {
+                    i = blocks[i];
+                }
+            }
+        }
+        return -1;
+    }
+
     @Override
     protected void doStart() {
-        Arrays.fill(blockEnds, 0);
+        Arrays.fill(blocks, 0);
         Arrays.fill(frees, -1);
-        int cap = capacity * unit;
-        if (Unsafe.UNSAFE_BUF_AVAILABLE) {
-            this.address = Unsafe.allocate(cap);
+        if (Develop.BUF_DEBUG) {
+            if (memory_type == Unsafe.BUF_UNSAFE) {
+                this.address = Unsafe.allocate(capacity);
+            } else if (memory_type == Unsafe.BUF_DIRECT) {
+                this.directMemory = Unsafe.allocateDirectByteBuffer((int) capacity);
+                this.address = Unsafe.address(directMemory);
+            } else if (memory_type == Unsafe.BUF_HEAP) {
+                byte[] memory = this.heapMemory;
+                if (memory == null || memory.length != capacity) {
+                    this.address = -1;
+                    this.heapMemory = new byte[(int) capacity];
+                }
+            } else {
+                throw new IllegalArgumentException("memory type: " + memory_type);
+            }
         } else {
-            if (isDirect()) {
-                this.directMemory = Unsafe.allocateDirectByteBuffer(cap);
+            if (Unsafe.UNSAFE_BUF_AVAILABLE) {
+                this.address = Unsafe.allocate(capacity);
+            } else if (Unsafe.DIRECT_BUFFER_AVAILABLE) {
+                this.directMemory = Unsafe.allocateDirectByteBuffer((int) capacity);
                 this.address = Unsafe.address(directMemory);
             } else {
                 byte[] memory = this.heapMemory;
-                if (memory != null && memory.length == cap) {
-                    return;
+                if (memory == null || memory.length != capacity) {
+                    this.address = -1;
+                    this.heapMemory = new byte[(int) capacity];
                 }
-                this.address = -1;
-                this.heapMemory = new byte[cap];
             }
         }
     }
@@ -167,17 +249,17 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         return bitIndex >> ADDRESS_BITS_PER_WORD;
     }
 
-    private void setFree(int index) {
+    private static void setFree(long[] frees, int index) {
         int wordIndex = wordIndex(index);
         frees[wordIndex] |= (1L << index);
     }
 
-    private void clearFree(int index) {
+    private static void clearFree(long[] frees, int index) {
         int wordIndex = wordIndex(index);
         frees[wordIndex] &= ~(1L << index);
     }
 
-    private boolean isFree(int index) {
+    private static boolean isFree(long[] frees, int index) {
         int wordIndex = wordIndex(index);
         return ((frees[wordIndex] & (1L << index)) != 0);
     }
@@ -198,7 +280,6 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
             }
             Util.sleep(8);
         }
-
     }
 
     @Override
@@ -207,47 +288,13 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
             ReentrantLock lock = this.lock;
             lock.lock();
             try {
-                int size       = (cap + unit - 1) / unit;
-                int blockStart = buf.unitOffset();
-                int blockEnd   = blockEnds[blockStart];
-                int end        = blockStart + size;
-                int i          = blockEnd;
-                for (; i < end; ) {
-                    if (!isFree(i)) {
-                        break;
-                    }
-                    i++;
-                }
-                final int mark = this.mark;
-                if (i == end) {
-                    if (mark < end) {
-                        this.mark = end;
-                    }
-                    blockEnds[blockStart] = end;
-                    buf.capacity((end - buf.unitOffset()) * unit);
+                int size  = (cap + unit - 1) / unit;
+                int start = buf.unitOffset();
+                int alloc = expansion_alloc(start, size);
+                if (alloc == start) {
+                    buf.capacity(size * unit);
                 } else {
-                    setFree(blockStart);
-                    int pos = allocate(mark, capacity, size);
-                    if (pos == -1) {
-                        pos = allocate(0, mark, size);
-                        if (pos == -1) {
-                            throw EXPANSION_FAILED;
-                        }
-                    }
-                    int old_read_index  = buf.readIndex();
-                    int old_write_index = buf.writeIndex();
-                    int old_offset      = buf.offset();
-                    buf.produce(pos, size);
-                    if (Unsafe.UNSAFE_BUF_AVAILABLE) {
-                        Unsafe.copyMemory(address + old_offset, address + buf.offset(), old_write_index);
-                    } else {
-                        if (isDirect) {
-                            Unsafe.copyMemory(address + old_offset, address + buf.offset(), old_write_index);
-                        } else {
-                            System.arraycopy(heapMemory, old_offset, heapMemory, buf.offset(), old_write_index);
-                        }
-                    }
-                    buf.readIndex(old_read_index).writeIndex(old_write_index);
+                    expansion_and_copy(buf, alloc, size);
                 }
             } finally {
                 lock.unlock();
@@ -255,15 +302,62 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         }
     }
 
+    private int expansion_alloc(int start, int size) {
+        setFree(frees, start);
+        int alloc = allocate(start, b_capacity, size);
+        if (alloc == -1) {
+            alloc = allocate(0, start, size);
+            if (alloc == -1) {
+                clearFree(frees, start);
+                throw EXPANSION_FAILED;
+            }
+        }
+        return alloc;
+    }
+
+    private void expansion_and_copy(ByteBuf buf, int alloc, int size) {
+        int read_index  = buf.readIndex();
+        int write_index = buf.writeIndex();
+        int offset      = buf.offset();
+        buf.produce(alloc, size);
+        if (Develop.BUF_DEBUG) {
+            if (memory_type == Unsafe.BUF_UNSAFE) {
+                Unsafe.copyMemory(address + offset, address + buf.offset(), write_index);
+            } else if (memory_type == Unsafe.BUF_DIRECT) {
+                Unsafe.copyMemory(address + offset, address + buf.offset(), write_index);
+            } else {
+                System.arraycopy(heapMemory, offset, heapMemory, buf.offset(), write_index);
+            }
+        } else {
+            if (Unsafe.UNSAFE_BUF_AVAILABLE) {
+                Unsafe.copyMemory(address + offset, address + buf.offset(), write_index);
+            } else if (Unsafe.DIRECT_BUFFER_AVAILABLE) {
+                Unsafe.copyMemory(address + offset, address + buf.offset(), write_index);
+            } else {
+                System.arraycopy(heapMemory, offset, heapMemory, buf.offset(), write_index);
+            }
+        }
+        buf.readIndex(read_index).writeIndex(write_index);
+    }
+
     @Override
     public void freeMemory() {
-        if (Unsafe.UNSAFE_BUF_AVAILABLE) {
-            Unsafe.free(address);
-        } else {
-            if (isDirect()) {
+        if (Develop.BUF_DEBUG) {
+            if (memory_type == Unsafe.BUF_UNSAFE) {
+                Unsafe.free(address);
+            } else if (memory_type == Unsafe.BUF_DIRECT) {
                 Unsafe.freeByteBuffer(directMemory);
             } else {
-                // FIXME 这里不free了，如果在次申请的时候大小和这次一致，则不在重新申请
+                // FIXME 这里不free了，如果在次申请的时候大小和这次一致，则不再重新申请
+                // this.memory = null;
+            }
+        } else {
+            if (Unsafe.UNSAFE_BUF_AVAILABLE) {
+                Unsafe.free(address);
+            } else if (Unsafe.DIRECT_BUFFER_AVAILABLE) {
+                Unsafe.freeByteBuffer(directMemory);
+            } else {
+                // FIXME 这里不free了，如果在次申请的时候大小和这次一致，则不再重新申请
                 // this.memory = null;
             }
         }
@@ -274,7 +368,7 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
     }
 
     @Override
-    public final int getCapacity() {
+    public final long getCapacity() {
         return capacity;
     }
 
@@ -289,8 +383,8 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
     public PoolState getState() {
         PoolState state = new PoolState();
         state.buf = usedBuf();
-        state.free = getCapacity() - usedMem();
-        state.memory = getCapacity();
+        state.free = b_capacity - usedMem();
+        state.memory = b_capacity;
         state.mfree = maxFree();
         return state;
     }
@@ -301,31 +395,29 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
     }
 
     public ByteBuf getUsedBuf(int skip) {
-        int skiped = 0;
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!isFree(i)) {
+        int    skiped = 0;
+        long[] frees  = this.frees;
+        for (int i = 0; i < b_capacity; i++) {
+            if (!isFree(frees, i)) {
                 skiped++;
                 if (skiped > skip) {
-                    return newByteBuf().produce(i, blockEnds[i] - i);
+                    return newByteBuf().produce(i, blocks[i] - i);
                 }
             }
         }
         return null;
     }
 
-    public boolean isDirect() {
-        return isDirect;
-    }
-
     private int maxFree() {
-        int free    = 0;
-        int maxFree = 0;
-        for (int i = 0; i < getCapacity(); i++) {
-            if (isFree(i)) {
+        int    free    = 0;
+        int    maxFree = 0;
+        long[] frees   = this.frees;
+        for (int i = 0; i < b_capacity; i++) {
+            if (isFree(frees, i)) {
                 free++;
             } else {
                 maxFree = Math.max(maxFree, free);
-                i = blockEnds[i] - 1;
+                i = blocks[i] - 1;
                 free = 0;
             }
         }
@@ -333,23 +425,22 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
     }
 
     private ByteBuf newByteBuf() {
-        if (BUF_POOL_ENABLE) {
-            ObjectPool<ByteBuf> pool = BUF_POOL.get();
-            ByteBuf             buf  = pool.pop();
-            if (buf == null) {
-                return newByteBuf0(pool);
+        if (Develop.BUF_DEBUG) {
+            if (memory_type == Unsafe.BUF_UNSAFE) {
+                return new PooledUnsafeByteBuf(this, address);
+            } else if (memory_type == Unsafe.BUF_DIRECT) {
+                return new PooledDirectByteBuf(this, directMemory.duplicate());
+            } else {
+                return new PooledHeapByteBuf(this, heapMemory);
             }
-            return buf;
         } else {
-            return newByteBuf0(ObjectPool.BLANK);
-        }
-    }
-
-    private ByteBuf newByteBuf0(ObjectPool pool) {
-        if (Unsafe.UNSAFE_BUF_AVAILABLE) {
-            return new PooledUnsafeByteBuf(this, pool, address);
-        } else {
-            return isDirect() ? new PooledDirectByteBuf(this, pool, directMemory.duplicate()) : new PooledHeapByteBuf(this, pool, heapMemory);
+            if (Unsafe.UNSAFE_BUF_AVAILABLE) {
+                return new PooledUnsafeByteBuf(this, address);
+            } else if (Unsafe.DIRECT_BUFFER_AVAILABLE) {
+                return new PooledDirectByteBuf(this, directMemory.duplicate());
+            } else {
+                return new PooledHeapByteBuf(this, heapMemory);
+            }
         }
     }
 
@@ -358,14 +449,15 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
         ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            setFree(buf.unitOffset());
+            setFree(frees, buf.unitOffset());
         } finally {
             lock.unlock();
         }
-        if (BUF_POOL_ENABLE) {
-            buf.recycleObject();
-        }
-        if (Develop.BUF_DEBUG && buf.isPooled()) {
+        debug_buf_alloc_path_remove(buf);
+    }
+
+    private static void debug_buf_alloc_path_remove(ByteBuf buf) {
+        if (Develop.BUF_PATH_DEBUG && buf.isPooled()) {
             BufDebug d = BUF_DEBUGS.remove(buf);
             if (d == null) {
                 throw new RuntimeException("null bufDebug");
@@ -392,8 +484,8 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
             b.append(s.buf);
             b.append(",unit=");
             b.append(unit);
-            b.append(",isDirect=");
-            b.append(isDirect());
+            b.append(",type=");
+            b.append(Unsafe.getMemoryType());
             b.append("]");
             return b.toString();
         } finally {
@@ -402,9 +494,10 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
     }
 
     private int usedBuf() {
-        int used = 0;
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!isFree(i)) {
+        int    used  = 0;
+        long[] frees = this.frees;
+        for (int i = 0; i < b_capacity; i++) {
+            if (!isFree(frees, i)) {
                 used++;
             }
         }
@@ -412,10 +505,11 @@ public final class PooledByteBufAllocator extends ByteBufAllocator {
     }
 
     private int usedMem() {
-        int used = 0;
-        for (int i = 0; i < getCapacity(); i++) {
-            if (!isFree(i)) {
-                int next = blockEnds[i];
+        int    used  = 0;
+        long[] frees = this.frees;
+        for (int i = 0; i < b_capacity; i++) {
+            if (!isFree(frees, i)) {
+                int next = blocks[i];
                 used += (next - i);
                 i = next - 1;
             }

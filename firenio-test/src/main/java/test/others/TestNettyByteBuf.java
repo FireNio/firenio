@@ -19,6 +19,7 @@ package test.others;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
+import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
 
 /**
@@ -30,20 +31,33 @@ public class TestNettyByteBuf {
 
     public static void main(String[] args) {
 
-        ByteBufAllocator a = ByteBufAllocator.DEFAULT;
+//        test_exp();
 
+        long res = Unsafe.allocate(1024L * 1024 * 1024 * 4);
+        System.out.println(res);
+
+    }
+
+    static void test_exp(){
+        ByteBufAllocator a = ByteBufAllocator.DEFAULT;
+        ByteBuf buf =  a.buffer(512);
+        System.out.println(buf);
+        buf.writerIndex(508);
+        buf.writeLong(1L);
+        System.out.println(buf);
+    }
+
+    static void test_release(){
+        ByteBufAllocator a = ByteBufAllocator.DEFAULT;
         Util.exec(() ->{
             buf = a.buffer(16);
         });
-
         Util.exec(() ->{
             buf.release();
         });
-
         System.out.println(buf);
-
-
     }
+
 
 
 }

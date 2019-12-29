@@ -2,7 +2,7 @@
 # FireNio Project
 
 [![Website](https://img.shields.io/badge/website-firenio-green.svg)](https://www.firenio.com)
-[![Maven central](https://img.shields.io/badge/maven-1.3.2-green.svg)](http://mvnrepository.com/artifact/com.firenio/firenio-all)
+[![Maven central](https://img.shields.io/badge/maven-1.3.3-green.svg)](http://mvnrepository.com/artifact/com.firenio/firenio-all)
 [![License](https://img.shields.io/badge/License-Apache%202.0-585ac2.svg)](https://github.com/firenio/firenio/blob/master/LICENSE.txt)
 
 FireNio是基于java nio开发的一款可快速构建网络通讯项目的异步IO框架，其以简单易用的API和优良的性能深受开发者喜爱。
@@ -29,7 +29,7 @@ FireNio是基于java nio开发的一款可快速构建网络通讯项目的异�
 	<dependency>
 		<groupId>com.firenio</groupId>
 		<artifactId>firenio-all</artifactId>
-		<version>1.3.2</version>
+		<version>1.3.3</version>
 	</dependency>  
   ```
   
@@ -44,7 +44,7 @@ FireNio是基于java nio开发的一款可快速构建网络通讯项目的异�
             @Override
             public void accept(Channel ch, Frame f) throws Exception {
                 String text = f.getStringContent();
-                f.setContent(ch.allocate());
+                f.setContent(ch.allocateWithSkipHeader(1));
                 f.write("yes server already accept your message:", ch);
                 f.write(text, ch);
                 ch.writeAndFlush(f);

@@ -43,33 +43,32 @@ import com.firenio.log.LoggerFactory;
 public abstract class ChannelContext extends LifeCycle implements Configuration {
 
     private String[]                   applicationProtocols;
-    private Map<Object, Object>        attributes         = new HashMap<>();
-    private List<ChannelEventListener> cels               = new ArrayList<>();
-    private ChannelManager             channelManager     = new ChannelManager();
-    private Charset                    charset            = Util.UTF8;
-    private List<ChannelIdleListener>  ciels              = new ArrayList<>();
-    private Map<String, ProtocolCodec> codecs             = new HashMap<>();
+    private Map<Object, Object>        attributes             = new HashMap<>();
+    private List<ChannelEventListener> cels                   = new ArrayList<>();
+    private Charset                    charset                = Util.UTF8;
+    private List<ChannelIdleListener>  ciels                  = new ArrayList<>();
+    private Map<String, ProtocolCodec> codecs                 = new HashMap<>();
     private ProtocolCodec              defaultCodec;
-    private boolean                    enableHeartbeatLog = true;
+    private boolean                    enableHeartbeatLog     = true;
     private boolean                    enableSsl;
     //是否启用work event loop，如果启用，则frame在work event loop中处理
     private EventLoopGroup             executorGroup;
     private HeartBeatLogger            heartBeatLogger;
     private String                     host;
     private boolean                    initialized;
-    private IoEventHandle              ioEventHandle      = DefaultIoEventHandle.get();
-    private Logger                     logger             = LoggerFactory.getLogger(getClass());
-    private int                        maxWriteBacklog    = Integer.MAX_VALUE;
+    private IoEventHandle              ioEventHandle       = DefaultIoEventHandle.get();
+    private Logger                     logger              = LoggerFactory.getLogger(getClass());
+    private long                       maxPendingWriteSize = Long.MAX_VALUE;
     private String                     openSslPath;
     private int                        port;
-    private boolean                    printConfig        = true;
+    private boolean                    printConfig         = true;
     private NioEventLoopGroup          processorGroup;
     private Properties                 properties;
     private InetSocketAddress          serverAddress;
     private SslContext                 sslContext;
     private String                     sslKeystore;
     private String                     sslPem;
-    private long                       startupTime        = Util.now();
+    private long                       startupTime         = Util.now();
 
     ChannelContext(NioEventLoopGroup group, String host, int port) {
         Assert.notNull(host, "null host");
@@ -142,10 +141,12 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
             logger.info("channel idle          : [ {} ]", g.getIdleTime());
             logger.info("host and port         : [ {}:{} ]", getHost(), port);
             if (g.isEnableMemoryPool()) {
-                long   memoryPoolCapacity = g.getMemoryPoolCapacity() * g.getEventLoopSize();
-                long   memoryPoolByteSize = memoryPoolCapacity * g.getMemoryPoolUnit();
-                double memoryPoolSize     = memoryPoolByteSize / (1024 * 1024);
-                logger.info("memory pool           : [ {}/{}/{}M ({}) ]", g.getMemoryPoolUnit(), memoryPoolCapacity, BigDecimal.valueOf(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP), getByteBufPoolType(g));
+                long   memoryPoolCapacity    = g.getMemoryCapacity();
+                long   memoryPoolUnitSizeAll = memoryPoolCapacity / g.getMemoryUnit();
+                long   memoryPoolUnitSize    = memoryPoolUnitSizeAll / g.getEventLoopSize();
+                double memoryPoolSize        = memoryPoolCapacity / (1024d * 1024);
+                String memoryPoolCapacityM   = BigDecimal.valueOf(memoryPoolSize).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+                logger.info("memory pool           : [ {}/{}/{}/{}M ({}) ]", g.getMemoryUnit(), memoryPoolUnitSize, memoryPoolUnitSizeAll, memoryPoolCapacityM, Unsafe.getMemoryType());
             }
             if (isEnableSsl()) {
                 sb.setLength(0);
@@ -170,18 +171,8 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         }
     }
 
-    private String getByteBufPoolType(NioEventLoopGroup g) {
-        if (Unsafe.UNSAFE_BUF_AVAILABLE) {
-            return "unsafe";
-        }
-        return g.isEnableMemoryPoolDirect() ? "direct" : "heap";
-    }
-
     @Override
     protected void doStop() {
-        for (Channel ch : channelManager.getManagedChannels().values()) {
-            Util.close(ch);
-        }
         stopEventLoopGroup(getProcessorGroup());
         Util.stop(executorGroup);
         this.attributes.clear();
@@ -210,10 +201,6 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
 
     public List<ChannelIdleListener> getChannelIdleEventListeners() {
         return ciels;
-    }
-
-    public ChannelManager getChannelManager() {
-        return channelManager;
     }
 
     public Charset getCharset() {
@@ -260,13 +247,13 @@ public abstract class ChannelContext extends LifeCycle implements Configuration 
         this.ioEventHandle = ioEventHandle;
     }
 
-    public int getMaxWriteBacklog() {
-        return maxWriteBacklog;
+    public long getMaxPendingWriteSize() {
+        return maxPendingWriteSize;
     }
 
-    public void setMaxWriteBacklog(int maxWriteBacklog) {
+    public void setMaxPendingWriteSize(long maxPendingWriteSize) {
         checkNotRunning();
-        this.maxWriteBacklog = maxWriteBacklog;
+        this.maxPendingWriteSize = maxPendingWriteSize;
     }
 
     public EventLoop getNextExecutorEventLoop() {

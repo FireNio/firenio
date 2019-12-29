@@ -17,18 +17,14 @@ package com.firenio.buffer;
 
 import java.nio.ByteBuffer;
 
-import com.firenio.collection.ObjectPool;
-
 final class PooledDirectByteBuf extends DirectByteBuf {
 
     private final PooledByteBufAllocator allocator;
-    private final ObjectPool<ByteBuf>    pool;
     private       int                    capacity;
     private       int                    unitOffset;
 
-    PooledDirectByteBuf(PooledByteBufAllocator allocator, ObjectPool<ByteBuf> pool, ByteBuffer memory) {
+    PooledDirectByteBuf(PooledByteBufAllocator allocator, ByteBuffer memory) {
         super(memory);
-        this.pool = pool;
         this.allocator = allocator;
     }
 
@@ -82,11 +78,6 @@ final class PooledDirectByteBuf extends DirectByteBuf {
     @Override
     protected void unitOffset(int unitOffset) {
         this.unitOffset = unitOffset;
-    }
-
-    @Override
-    protected void recycleObject() {
-        pool.push(this);
     }
 
 }

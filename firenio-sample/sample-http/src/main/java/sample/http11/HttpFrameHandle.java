@@ -249,16 +249,16 @@ public class HttpFrameHandle extends IoEventHandle {
                 if (filter.filter(f)) {
                     continue;
                 }
-                String staticName1 = path + "/" + f.getName();
-                scanFolder(filter, f, mapping, staticName1);
+                String url = path + "/" + f.getName();
+                scanFolder(filter, f, mapping, url);
                 if (f.isDirectory()) {
-                    String a = "<a href=\"" + staticName1 + "\">&lt;dir&gt;" + f.getName() + "</a>\n";
+                    String a = buildLabelA(url, "&lt;dir&gt;" + f.getName());
                     db.append("     <p>\n");
-                    fb.append("         ");
-                    fb.append(a);
+                    db.append("         ");
+                    db.append(a);
                     db.append("     </p>\n");
                 } else {
-                    String a = "<a href=\"" + staticName1 + "\">" + f.getName() + "</a>\n";
+                    String a = buildLabelA(url, f.getName());
                     fb.append("     <p>\n");
                     fb.append("         ");
                     fb.append(a);
@@ -276,6 +276,10 @@ public class HttpFrameHandle extends IoEventHandle {
             entity.setBinary(b.toString().getBytes(charset));
             htmlCache.put(staticName, entity);
         }
+    }
+
+    private static String buildLabelA(String url, String content) {
+        return "<a href=\"" + url + "\">" + content + "</a>\n";
     }
 
     public void setCharset(Charset charset) {
