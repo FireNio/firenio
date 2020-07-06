@@ -46,14 +46,13 @@ public class ByteTree {
         temp_n.value = value;
     }
 
-    public String getString(byte[] bytes, int offset, int length) {
-        return (String) get(bytes, offset, length);
+    public String getString(byte[] bytes, int from, int to) {
+        return (String) get(bytes, from, to);
     }
 
-    public Object get(byte[] bytes, int offset, int length) {
-        Node node  = root;
-        int  count = offset + length;
-        for (int i = offset; i < count; i++) {
+    public Object get(byte[] bytes, int from, int to) {
+        Node node = root;
+        for (int i = from; i < to; i++) {
             node = node.next(bytes[i]);
             if (node == null) {
                 return null;
@@ -62,26 +61,26 @@ public class ByteTree {
         return node.value;
     }
 
-    public String getString(ByteBuf buf, int absPos, int length) {
-        return (String) get(buf, absPos, length);
+    public String getString(ByteBuf buf, int absFrom, int absTo) {
+        return (String) get(buf, absFrom, absTo);
     }
 
-    public Object get(ByteBuf buf, int absPos, int length) {
+    public Object get(ByteBuf buf, int absFrom, int absTo) {
         if (buf.hasArray()) {
-            return get(buf.array(), absPos, length);
+            return get(buf.array(), absFrom, absTo);
         } else {
-            return get(buf.address() + absPos, length);
+            long addr = buf.address();
+            return get(addr + absFrom, addr + absTo);
         }
     }
 
-    public String getString(long address, int length) {
-        return (String) get(address, length);
+    public String getString(long addressFrom, long addressTo) {
+        return (String) get(addressFrom, addressTo);
     }
 
-    public Object get(long address, int length) {
-        Node node  = root;
-        long count = address + length;
-        for (long i = address; i < count; i++) {
+    public Object get(long addressFrom, long addressTo) {
+        Node node = root;
+        for (long i = addressFrom; i < addressTo; i++) {
             node = node.next(Unsafe.getByte(i));
             if (node == null) {
                 return null;

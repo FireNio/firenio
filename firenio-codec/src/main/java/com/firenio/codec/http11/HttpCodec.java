@@ -22,10 +22,8 @@ import java.util.Map;
 
 import com.firenio.Develop;
 import com.firenio.buffer.ByteBuf;
-import com.firenio.collection.AttributeKey;
 import com.firenio.collection.ByteTree;
 import com.firenio.collection.IntMap;
-import com.firenio.collection.Stack;
 import com.firenio.common.ByteUtil;
 import com.firenio.common.Util;
 import com.firenio.component.Channel;
@@ -39,25 +37,27 @@ import com.firenio.component.ProtocolCodec;
  */
 public class HttpCodec extends ProtocolCodec {
 
-    protected static final byte[]                      CONTENT_LENGTH_MATCH  = ByteUtil.b("Content-Length:");
-    protected static final int                         decode_state_body     = 2;
-    protected static final int                         decode_state_complete = 3;
-    protected static final int                         decode_state_header   = 1;
-    protected static final int                         decode_state_line_one = 0;
-    protected static final AttributeKey<Stack<Object>> FRAME_CACHE_KEY       = NioEventLoop.valueOfKey("http_frame_cache_key");
-    protected static final byte                        N                     = '\n';
-    protected static final IOException                 OVER_LIMIT            = EXCEPTION("over writeIndex");
-    protected static final IOException                 ILLEGAL_METHOD        = EXCEPTION("illegal http method");
-    protected static final byte                        R                     = '\r';
-    protected static final byte                        SPACE                 = ' ';
-    protected static final int                         NUM_GET               = ByteUtil.getIntLE("GET ".getBytes(), 0);
-    protected static final int                         NUM_POST              = ByteUtil.getIntLE("POST".getBytes(), 0);
+    protected static final byte[]      CONTENT_LENGTH_MATCH  = ByteUtil.b("Content-Length:");
+    protected static final int         decode_state_body     = 2;
+    protected static final int         decode_state_complete = 3;
+    protected static final int         decode_state_header   = 1;
+    protected static final int         decode_state_line_one = 0;
+    protected static final int         FRAME_CACHE_KEY       = NioEventLoop.nextAttributeKey();
+    protected static final byte        N                     = '\n';
+    protected static final IOException OVER_LIMIT            = EXCEPTION("over writeIndex");
+    protected static final IOException ILLEGAL_METHOD        = EXCEPTION("illegal http method");
+    protected static final byte        R                     = '\r';
+    protected static final byte        SPACE                 = ' ';
+    protected static final int         NUM_GET               = ByteUtil.getIntLE("GET ".getBytes(), 0);
+    protected static final int         NUM_POST              = ByteUtil.getIntLE("POST".getBytes(), 0);
+    protected static final int         NUM_HEAD              = ByteUtil.getIntLE("HEAD ".getBytes(), 0);
 
     protected final int        blimit;
     protected final byte[][]   cl_bytes = new byte[1024][];
     protected final int        hlimit;
     protected final int        fcache;
     protected final boolean    lite;
+    protected final int        cthreshold;
     protected final ByteBuffer cl_buf;
     protected final ByteTree   cached_urls;
 
@@ -78,18 +78,19 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     public HttpCodec(String server, int frameCache, boolean lite) {
-        this(server, frameCache, 1024 * 8, 1024 * 256, lite, null);
+        this(server, frameCache, 1024 * 8, 1024 * 256, 1024 * 64, lite, null);
     }
 
     public HttpCodec(String server, int frameCache, boolean lite, ByteTree cachedUrls) {
-        this(server, frameCache, 1024 * 8, 1024 * 256, lite, cachedUrls);
+        this(server, frameCache, 1024 * 8, 1024 * 256, 1024 * 64, lite, cachedUrls);
     }
 
-    public HttpCodec(String server, int fcache, int hlimit, int blimit, boolean lite, ByteTree cachedUrls) {
+    public HttpCodec(String server, int fcache, int hlimit, int blimit, int cthreshold, boolean lite, ByteTree cachedUrls) {
         this.lite = lite;
         this.hlimit = hlimit;
         this.blimit = blimit;
         this.fcache = fcache;
+        this.cthreshold = cthreshold;
         this.cached_urls = cachedUrls;
         ByteBuffer temp = ByteBuffer.allocate(128);
         if (server == null) {
@@ -187,18 +188,17 @@ public class HttpCodec extends ProtocolCodec {
         return -1;
     }
 
-    private static int read_line_range(ByteBuf src, int abs_pos, int length, int limit) throws IOException {
-        int maybeRead = limit - length;
-        int s_limit   = src.absWriteIndex();
-        int remaining = s_limit - abs_pos;
-        if (remaining > maybeRead) {
-            int res_p = src.indexOf(N, abs_pos, maybeRead);
-            if (res_p == -1) {
+    private static int read_line_range(ByteBuf src, int abs_pos, int h_len, int limit) throws IOException {
+        int to          = abs_pos + limit - h_len;
+        int write_index = src.writeIndex();
+        if (to > write_index) {
+            return src.indexOf(N, abs_pos, to);
+        } else {
+            int index = src.indexOf(N, abs_pos, to);
+            if (index == -1) {
                 throw OVER_LIMIT;
             }
-            return res_p;
-        } else {
-            return src.indexOf(N, abs_pos, remaining);
+            return index;
         }
     }
 
@@ -235,7 +235,7 @@ public class HttpCodec extends ProtocolCodec {
         int abs_pos      = src.absReadIndex();
         int h_len        = f.getHeaderLength();
         if (decode_state == decode_state_line_one) {
-            int l_end = src.indexOf(N);
+            int l_end = read_line_range(src, abs_pos, h_len, hlimit);
             if (l_end == -1) {
                 return decode_state_line_one;
             } else {
@@ -249,16 +249,18 @@ public class HttpCodec extends ProtocolCodec {
                 } else if (num == NUM_POST) {
                     f.setMethod(HttpMethod.POST);
                     url_start += 5;
+                } else if (num == NUM_HEAD) {
+                    f.setMethod(HttpMethod.HEAD);
+                    url_start += 5;
                 } else {
                     throw ILLEGAL_METHOD;
                 }
                 int url_end = l_end - 10;
-                int url_len = url_end - url_start;
-                int qmark   = src.indexOf((byte) '?', url_start, url_len);
+                int qmark   = src.indexOf((byte) '?', url_start, url_end);
                 if (qmark == -1) {
                     String url;
                     if (cached_urls != null) {
-                        url = cached_urls.getString(src, url_start, url_len);
+                        url = cached_urls.getString(src, url_start, url_end);
                         if (url == null) {
                             url = parse_url(src, url_start, url_end);
                         }
@@ -372,7 +374,7 @@ public class HttpCodec extends ProtocolCodec {
     public Frame decode(Channel ch, ByteBuf src) throws Exception {
         boolean        remove = false;
         HttpAttachment att    = (HttpAttachment) ch.getAttachment();
-        HttpFrame      f      = att.getUncompleteFrame();
+        HttpFrame      f      = att.getUncompletedFrame();
         if (f == null) {
             f = alloc_frame(ch.getEventLoop());
         } else {
@@ -389,12 +391,12 @@ public class HttpCodec extends ProtocolCodec {
         }
         if (decode_state == decode_state_complete) {
             if (remove) {
-                att.setUncompleteFrame(null);
+                att.setUncompletedFrame(null);
             }
             return f;
         } else {
             f.setDecodeState(decode_state);
-            att.setUncompleteFrame(f);
+            att.setUncompletedFrame(f);
             return null;
         }
     }
@@ -473,7 +475,7 @@ public class HttpCodec extends ProtocolCodec {
             }
         }
         len += 2;
-        if (is_array) {
+        if (write_size <= cthreshold) {
             len += write_size;
         }
         ByteBuf buf;
@@ -500,13 +502,23 @@ public class HttpCodec extends ProtocolCodec {
         }
         buf.writeByte(R);
         buf.writeByte(N);
-        if (is_array) {
-            buf.writeBytes(content_array);
-            return buf;
-        } else {
+        if (write_size > cthreshold) {
             ch.write(buf);
-            ch.write(content_buf);
+            if (is_array) {
+                ch.write(ByteBuf.wrap(content_array));
+            } else {
+                ch.write(content_buf);
+            }
             return null;
+        } else {
+            if (write_size > 0) {
+                if (is_array) {
+                    buf.writeBytes(content_array);
+                } else {
+                    buf.writeBytes(content_buf);
+                }
+            }
+            return buf;
         }
     }
 
@@ -637,6 +649,9 @@ public class HttpCodec extends ProtocolCodec {
             parse_url(f, 4, line);
         } else if (v == NUM_POST) {
             f.setMethod(HttpMethod.POST);
+            parse_url(f, 5, line);
+        } else if (v == NUM_HEAD) {
+            f.setMethod(HttpMethod.HEAD);
             parse_url(f, 5, line);
         } else {
             throw ILLEGAL_METHOD;

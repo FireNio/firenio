@@ -15,16 +15,17 @@
  */
 package com.firenio.buffer;
 
-import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
-
 import com.firenio.Develop;
 import com.firenio.Options;
 import com.firenio.Releasable;
 import com.firenio.common.Unsafe;
 
+import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
 public abstract class ByteBuf implements Releasable {
 
+    static final boolean                            BUF_FAST_INDEX_OF;
     static final boolean                            BUF_THREAD_YIELD;
     static final boolean                            AUTO_EXPANSION;
     static final AtomicIntegerFieldUpdater<ByteBuf> refCntUpdater;
@@ -32,6 +33,7 @@ public abstract class ByteBuf implements Releasable {
     static {
         BUF_THREAD_YIELD = Options.isBufThreadYield();
         AUTO_EXPANSION = Options.isBufAutoExpansion();
+        BUF_FAST_INDEX_OF = Options.isBufFastIndexOf();
         refCntUpdater = AtomicIntegerFieldUpdater.newUpdater(ByteBuf.class, "referenceCount");
     }
 
@@ -44,7 +46,7 @@ public abstract class ByteBuf implements Releasable {
     protected int marked_abs_read_index;
 
     public static ByteBuf direct(int cap) {
-        return wrap(Unsafe.allocateDirectByteBuffer(cap));
+        return wrap(Unsafe.allocateDirectByteBuffer(cap)).clear();
     }
 
     public static ByteBuf buffer(int cap) {
@@ -60,7 +62,7 @@ public abstract class ByteBuf implements Releasable {
     }
 
     public static ByteBuf unsafe(int cap) {
-        return new UnpooledUnsafeByteBuf(Unsafe.allocate(cap), cap);
+        return new UnpooledUnsafeByteBuf(Unsafe.allocate(cap), cap).clear();
     }
 
     public static ByteBuf wrapAuto(byte[] data) {
@@ -91,7 +93,7 @@ public abstract class ByteBuf implements Releasable {
     }
 
     public static ByteBuf heap(int cap) {
-        return wrap(new byte[cap]);
+        return wrap(new byte[cap]).clear();
     }
 
     public static ByteBuf wrap(byte[] data) {
@@ -174,11 +176,12 @@ public abstract class ByteBuf implements Releasable {
 
     public abstract void compact();
 
-    protected void capacity(int cap) {}
+    protected void capacity(int cap) {
+    }
 
     public ByteBuf clear() {
-        abs_read_index = 0;
-        abs_write_index = 0;
+        abs_read_index = offset;
+        abs_write_index = offset;
         return this;
     }
 
@@ -188,7 +191,19 @@ public abstract class ByteBuf implements Releasable {
         if (AUTO_EXPANSION && len > writableBytes()) {
             int cap     = capacity();
             int wantCap = capacity() + len;
-            int newCap  = cap + (cap >> 1);
+            int newCap  = cap + ((cap + 1) >> 1);
+            for (; newCap < wantCap; ) {
+                newCap = newCap + (newCap >> 1);
+            }
+            expansion(newCap);
+        }
+    }
+
+    final void ensureSet(int pos, int len) {
+        if (AUTO_EXPANSION && len > capacity() - pos) {
+            int cap     = capacity();
+            int wantCap = pos + len;
+            int newCap  = cap + ((cap + 1) >> 1);
             for (; newCap < wantCap; ) {
                 newCap = newCap + (newCap >> 1);
             }
@@ -377,14 +392,14 @@ public abstract class ByteBuf implements Releasable {
     }
 
     public int indexOf(byte b) {
-        return indexOf(b, absReadIndex(), readableBytes());
+        return indexOf(b, absReadIndex(), absWriteIndex());
     }
 
-    public int indexOf(byte b, int size) {
-        return indexOf(b, absReadIndex(), size);
+    public int indexOf(byte b, int absTo) {
+        return indexOf(b, absReadIndex(), absTo);
     }
 
-    public abstract int indexOf(byte b, int absPos, int size);
+    public abstract int indexOf(byte b, int absFrom, int absTo);
 
     public boolean hasWritableBytes() {
         return writableBytes() > 0;
@@ -402,14 +417,14 @@ public abstract class ByteBuf implements Releasable {
     }
 
     public int lastIndexOf(byte b) {
-        return lastIndexOf(b, absWriteIndex() - 1, readableBytes());
+        return lastIndexOf(b, absWriteIndex() - 1, readIndex() - 1);
     }
 
-    public int lastIndexOf(byte b, int size) {
-        return lastIndexOf(b, absWriteIndex() - 1, size);
+    public int lastIndexOf(byte b, int absTo) {
+        return lastIndexOf(b, absWriteIndex() - 1, absTo);
     }
 
-    public abstract int lastIndexOf(byte b, int absPos, int size);
+    public abstract int lastIndexOf(byte b, int absFrom, int absTo);
 
     public int writeIndex() {
         return absWriteIndex() - offset();
@@ -466,7 +481,7 @@ public abstract class ByteBuf implements Releasable {
 
     public int setBytes(int index, byte[] src, int offset, int length) {
         if (AUTO_EXPANSION) {
-            ensureWritable(length);
+            ensureSet(index, length);
             return setBytes0(index, src, offset, length);
         } else {
             int len = Math.min(writableBytes(), length);
@@ -477,6 +492,21 @@ public abstract class ByteBuf implements Releasable {
         }
     }
 
+    public int setBytes(int index, long address, int length) {
+        if (AUTO_EXPANSION) {
+            ensureSet(index, length);
+            return setBytes0(index, address, length);
+        } else {
+            int len = Math.min(writableBytes(), length);
+            if (len == 0) {
+                return 0;
+            }
+            return setBytes0(index, address, length);
+        }
+    }
+
+    protected abstract int setBytes0(int index, long address, int length);
+
     protected abstract int setBytes0(int index, byte[] src, int offset, int length);
 
     public int setBytes(int index, ByteBuf src) {
@@ -485,7 +515,7 @@ public abstract class ByteBuf implements Releasable {
 
     public int setBytes(int index, ByteBuf src, int length) {
         if (AUTO_EXPANSION) {
-            ensureWritable(length);
+            ensureSet(index, length);
             return setBytes0(index, src, length);
         } else {
             int len = Math.min(writableBytes(), length);
@@ -502,7 +532,7 @@ public abstract class ByteBuf implements Releasable {
 
     public int setBytes(int index, ByteBuffer src, int length) {
         if (AUTO_EXPANSION) {
-            ensureWritable(length);
+            ensureSet(index, length);
             return setBytes0(index, src, length);
         } else {
             int len = Math.min(writableBytes(), length);
@@ -534,6 +564,21 @@ public abstract class ByteBuf implements Releasable {
             return writeBytes0(src, offset, length);
         }
     }
+
+    public int writeBytes(long address, int length) {
+        if (AUTO_EXPANSION) {
+            ensureWritable(length);
+            return writeBytes0(address, length);
+        } else {
+            int len = Math.min(writableBytes(), length);
+            if (len == 0) {
+                return 0;
+            }
+            return writeBytes0(address, length);
+        }
+    }
+
+    protected abstract int writeBytes0(long address, int length);
 
     protected abstract int writeBytes0(byte[] src, int offset, int length);
 
@@ -810,7 +855,8 @@ public abstract class ByteBuf implements Releasable {
         return -1;
     }
 
-    protected void unitOffset(int unitOffset) {}
+    protected void unitOffset(int unitOffset) {
+    }
 
     UnsupportedOperationException unsupportedOperationException() {
         return new UnsupportedOperationException();

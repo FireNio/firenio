@@ -44,10 +44,14 @@ public final class ByteBufAllocatorGroup extends LifeCycle {
 
     @Override
     protected void doStart() throws Exception {
-        long                     allocCapacity = this.capacity / this.groupSize;
+        int                      allocCapacity = (int) (this.capacity / this.groupSize);
         PooledByteBufAllocator[] allocators    = this.allocators;
         for (int i = 0; i < allocators.length; i++) {
-            allocators[i] = new PooledByteBufAllocator(this, allocCapacity);
+            if (memoryType == Unsafe.BUF_HEAP) {
+                allocators[i] = new HeapPooledByteBufAllocator(this, allocCapacity);
+            } else {
+                allocators[i] = new DirectPooledByteBufAllocator(this, allocCapacity);
+            }
         }
         for (int i = 0; i < allocators.length; i++) {
             Util.start(allocators[i]);

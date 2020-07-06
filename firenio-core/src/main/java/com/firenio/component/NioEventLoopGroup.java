@@ -22,8 +22,6 @@ import com.firenio.buffer.ByteBufAllocatorGroup;
 import com.firenio.buffer.UnpooledByteBufAllocator;
 import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
-import com.firenio.component.NioEventLoop.EpollEventLoop;
-import com.firenio.component.NioEventLoop.JavaEventLoop;
 import com.firenio.concurrent.EventLoopGroup;
 import com.firenio.concurrent.RingSequence;
 
@@ -34,6 +32,7 @@ import com.firenio.concurrent.RingSequence;
 public class NioEventLoopGroup extends EventLoopGroup {
 
     static final long MAX_MEMORY_CAPACITY = 1L + Integer.MAX_VALUE - 64;
+    static final long NOT_IDLE_TIME       = 1000L * 60 * 60 * 24 * 365 * 30;
 
     private final boolean               acceptor;
     private       ByteBufAllocatorGroup allocatorGroup;
@@ -54,6 +53,8 @@ public class NioEventLoopGroup extends EventLoopGroup {
     private       boolean               sharable;
     //单条连接write(srcs)的数量
     private       int                   writeBuffers         = 32;
+
+    private boolean preferHeap = false;
 
     public NioEventLoopGroup() {
         this(false);
@@ -104,25 +105,22 @@ public class NioEventLoopGroup extends EventLoopGroup {
             }
             if (memoryCapacity == 0) {
                 memoryCapacity = Runtime.getRuntime().maxMemory() / 64;
-                memoryCapacity = Math.min(memoryCapacity, MAX_MEMORY_CAPACITY);
-                memoryCapacity = calcSuitableMemoryCapacity(memoryCapacity);
-            } else {
-                if (memoryCapacity > MAX_MEMORY_CAPACITY) {
-                    throw new IllegalArgumentException("MAX_MEMORY_CAPACITY: " + MAX_MEMORY_CAPACITY);
-                }
-                memoryCapacity = calcSuitableMemoryCapacity(memoryCapacity);
             }
-            this.allocatorGroup = new ByteBufAllocatorGroup(getEventLoopSize(), memoryCapacity, memoryUnit, Unsafe.getMemoryTypeId());
+            int memoryTypeId = preferHeap ? Unsafe.BUF_HEAP : Unsafe.getMemoryTypeId();
+            this.memoryCapacity = calcSuitableMemoryCapacity(memoryCapacity);
+            this.allocatorGroup = new ByteBufAllocatorGroup(getEventLoopSize(), memoryCapacity, memoryUnit, memoryTypeId);
         }
         Util.start(getAllocatorGroup());
         super.doStart();
     }
 
     private long calcSuitableMemoryCapacity(long memoryCapacity) {
-        memoryCapacity = memoryCapacity / getEventLoopSize();
-        memoryCapacity = memoryCapacity / memoryUnit * memoryUnit;
-        memoryCapacity = memoryCapacity * getEventLoopSize();
-        return memoryCapacity;
+        long memoryCapacityPerEventLoop = memoryCapacity / getEventLoopSize();
+        memoryCapacityPerEventLoop = memoryCapacityPerEventLoop / memoryUnit * memoryUnit;
+        if (memoryCapacityPerEventLoop > MAX_MEMORY_CAPACITY) {
+            throw new IllegalArgumentException("MAX_MEMORY_CAPACITY_PER_EVENT_LOOP: " + MAX_MEMORY_CAPACITY);
+        }
+        return memoryCapacityPerEventLoop * getEventLoopSize();
     }
 
     @Override
@@ -180,6 +178,11 @@ public class NioEventLoopGroup extends EventLoopGroup {
 
     public void setIdleTime(long idleTime) {
         checkNotRunning();
+        if (idleTime < 1) {
+            idleTime = NOT_IDLE_TIME;
+        } else {
+            idleTime = Math.min(idleTime, NOT_IDLE_TIME);
+        }
         this.idleTime = idleTime;
     }
 
@@ -187,7 +190,7 @@ public class NioEventLoopGroup extends EventLoopGroup {
         return memoryCapacity;
     }
 
-    public void setMemoryCapacity(int memoryCapacity) {
+    public void setMemoryCapacity(long memoryCapacity) {
         checkNotRunning();
         this.memoryCapacity = memoryCapacity;
     }
@@ -249,6 +252,20 @@ public class NioEventLoopGroup extends EventLoopGroup {
     public void setEnableMemoryPool(boolean enableMemoryPool) {
         checkNotRunning();
         this.enableMemoryPool = enableMemoryPool;
+    }
+
+    public void setSharable(boolean sharable) {
+        checkNotRunning();
+        this.sharable = sharable;
+    }
+
+    public boolean isPreferHeap() {
+        return preferHeap;
+    }
+
+    public void setPreferHeap(boolean preferHeap) {
+        checkNotRunning();
+        this.preferHeap = preferHeap;
     }
 
     public boolean isSharable() {

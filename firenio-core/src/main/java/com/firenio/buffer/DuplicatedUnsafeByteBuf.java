@@ -114,6 +114,16 @@ final class DuplicatedUnsafeByteBuf extends UnsafeByteBuf {
     }
 
     @Override
+    public int setBytes0(int index, long address, int length) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int writeBytes0(long address, int length) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     protected int setBytes0(int index, byte[] src, int offset, int length) {
         throw unsupportedOperationException();
     }

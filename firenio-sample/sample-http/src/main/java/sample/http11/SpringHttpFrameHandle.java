@@ -15,28 +15,20 @@
  */
 package sample.http11;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import com.firenio.codec.http11.HttpFrame;
+import com.firenio.component.Channel;
 import com.firenio.component.ChannelContext;
 import com.firenio.component.Frame;
-import com.firenio.component.Channel;
-
-import sample.http11.service.ContextUtil;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class SpringHttpFrameHandle extends HttpFrameHandle {
 
     private ClassPathXmlApplicationContext applicationContext;
-    private boolean                        checkFilter = true;
     private HttpFrameFilter                filter;
 
     @Override
     public void accept(Channel ch, Frame f) throws Exception {
-        if (checkFilter) {
-            checkFilter = false;
-            filter = (HttpFrameFilter) ContextUtil.getBean("http-filter");
-        }
-        if (filter != null && filter.accept(ch, f)) {
+        if (filter.accept(ch, f)) {
             return;
         }
         String            frameName = HttpUtil.getFrameName(ch, f);
@@ -56,16 +48,21 @@ public class SpringHttpFrameHandle extends HttpFrameHandle {
     }
 
     private HttpFrameAcceptor getFrameAcceptor(String name) {
-        return (HttpFrameAcceptor) ContextUtil.getBean(name);
+        try {
+            return (HttpFrameAcceptor) applicationContext.getBean(name);
+        }catch (Exception e){
+            return null;
+        }
     }
 
     @Override
-    public void initialize(ChannelContext context, String rootPath, String mode) throws Exception {
-        super.initialize(context, rootPath, mode);
+    public void initialize(ChannelContext context, String rootPath, boolean prodMode) throws Exception {
+        super.initialize(context, rootPath, prodMode);
         System.setProperty("org.apache.commons.logging.log", Sl4jLogger.class.getName());
         Thread.currentThread().setContextClassLoader(null); //for spring
         applicationContext = new ClassPathXmlApplicationContext("classpath:spring-core.xml");
         applicationContext.start();
+        filter = (HttpFrameFilter) applicationContext.getBean("http-filter");
     }
 
 }

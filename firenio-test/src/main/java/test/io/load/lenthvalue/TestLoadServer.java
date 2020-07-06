@@ -18,8 +18,6 @@ package test.io.load.lenthvalue;
 import com.firenio.Options;
 import com.firenio.buffer.ByteBuf;
 import com.firenio.codec.lengthvalue.LengthValueCodec;
-import com.firenio.collection.AttributeKey;
-import com.firenio.collection.AttributeMap;
 import com.firenio.component.ChannelAcceptor;
 import com.firenio.component.Frame;
 import com.firenio.component.IoEventHandle;
@@ -42,7 +40,7 @@ public class TestLoadServer {
     public static final boolean ENABLE_UNSAFE_BUF      = false;
     public static final boolean BUFFERED_WRITE         = true;
 
-    static final AttributeKey<ByteBuf> WRITE_BUF = newWriteBufKey();
+    static final String WRITE_BUF = "write_buf";
 
     static {
         SERVER_CORE_SIZE = 8;
@@ -58,14 +56,15 @@ public class TestLoadServer {
             public void accept(Channel ch, Frame f) throws Exception {
                 String text = f.getStringContent();
                 if (BUFFERED_WRITE) {
-                    ByteBuf buf = ch.getAttributeUnsafe(WRITE_BUF);
+
+                    ByteBuf buf = ch.getAttribute(WRITE_BUF);
                     if (buf == null) {
                         buf = ch.allocate();
                         ByteBuf temp = buf;
-                        ch.setAttributeUnsafe(WRITE_BUF, buf);
+                        ch.setAttribute(WRITE_BUF, buf);
                         ch.getEventLoop().submit(() -> {
                             ch.writeAndFlush(temp);
-                            ch.setAttributeUnsafe(WRITE_BUF, null);
+                            ch.setAttribute(WRITE_BUF, null);
                         });
                     }
                     byte[] data = text.getBytes(ch.getCharset());
@@ -87,7 +86,7 @@ public class TestLoadServer {
         context.addProtocolCodec(new LengthValueCodec());
         context.setIoEventHandle(eventHandle);
         if (ENABLE_SSL) {
-            context.setSslPem("localhost.key;localhost.crt");
+//            context.setSslPem("localhost.key;localhost.crt");
         }
         context.addChannelEventListener(new LoggerChannelOpenListener());
         if (ENABLE_WORK_EVENT_LOOP) {
@@ -95,10 +94,6 @@ public class TestLoadServer {
         }
         context.bind();
 
-    }
-
-    static AttributeKey<ByteBuf> newWriteBufKey() {
-        return AttributeMap.valueOfKey(Channel.class, null);
     }
 
 }

@@ -159,6 +159,16 @@ final class DuplicatedDirectByteBuf extends DirectByteBuf {
     }
 
     @Override
+    public int setBytes0(int index, long address, int length) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int writeBytes0(long address, int length) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     protected int writeBytes0(ByteBuffer src, int len) {
         throw unsupportedOperationException();
     }

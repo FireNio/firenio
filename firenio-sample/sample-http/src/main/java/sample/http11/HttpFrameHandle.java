@@ -94,7 +94,8 @@ public class HttpFrameHandle extends IoEventHandle {
         ch.writeAndFlush(f);
     }
 
-    public void destroy(ChannelContext context) {}
+    public void destroy(ChannelContext context) {
+    }
 
     @Override
     public void exceptionCaught(Channel ch, Frame frame, Throwable ex) {
@@ -158,11 +159,16 @@ public class HttpFrameHandle extends IoEventHandle {
         return scanFileFilter;
     }
 
-    public void initialize(ChannelContext context, String rootPath, String mode) throws Exception {
+    public void initialize(ChannelContext context, String rootPath, boolean prodMode) throws Exception {
         String welcome  = context.getProperties().getProperty("app.welcome");
         String userPath = context.getProperties().getProperty("app.webRoot");
-        String path     = Util.isNullOrBlank(userPath) ? rootPath + "/app/html" : userPath;
-        File   rootFile = new File(path);
+        String path;
+        if (prodMode) {
+            path = Util.isNullOrBlank(userPath) ? rootPath + "/app/html" : userPath;
+        } else {
+            path = rootPath + "/target/classes/app/html";
+        }
+        File rootFile = new File(path);
         if (!Util.isNullOrBlank(welcome)) {
             this.welcome = welcome;
         }

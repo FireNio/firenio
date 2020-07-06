@@ -45,7 +45,8 @@ public enum HttpHeader {
     Location("Location"), // 
     Pragma("Pragma"), // 
     Proxy_Authenticate("Proxy-Authenticate"), // 
-    Proxy_Connection("Proxy-Connection"), // 
+    Proxy_Connection("Proxy-Connection"), //
+    Range("Range"), //
     Referer("Referer"), // 
     Refresh("Refresh"), // 
     Retry_After("Retry-After"), // 

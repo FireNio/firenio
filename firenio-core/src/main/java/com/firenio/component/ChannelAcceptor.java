@@ -24,8 +24,6 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
 import com.firenio.common.Util;
-import com.firenio.component.NioEventLoop.EpollEventLoop;
-import com.firenio.component.NioEventLoop.JavaEventLoop;
 import com.firenio.concurrent.Waiter;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;

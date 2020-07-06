@@ -25,18 +25,13 @@ class UnpooledHeapByteBuf extends HeapByteBuf {
     UnpooledHeapByteBuf(byte[] memory, int off, int len) {
         super(memory);
         this.abs_read_index = off;
-        this.abs_write_index = off;
+        this.abs_write_index = len + off;
     }
 
     UnpooledHeapByteBuf(ByteBuffer memory) {
         super(memory);
-        this.abs_read_index = memory.position();
+        this.abs_read_index = 0;
         this.abs_write_index = memory.position();
-    }
-
-    @Override
-    public long address() {
-        return -1;
     }
 
     @Override

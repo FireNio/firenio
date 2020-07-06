@@ -71,16 +71,35 @@ public class HttpDateUtil {
         }
     }
 
+    public static synchronized void stop() {
+        CLOCK.stop();
+    }
+
     private static class HttpDateTimeClock implements Runnable {
 
         volatile long time;
+        volatile long time_padding1;
+        volatile long time_padding2;
+        volatile long time_padding3;
+        volatile long time_padding4;
+        volatile long time_padding5;
+        volatile long time_padding6;
+        volatile long time_padding7;
+        volatile long time_padding8;
+
+        volatile boolean time_running = true;
+
 
         @Override
         public void run() {
-            for (; ; ) {
+            for (; time_running; ) {
                 time = Util.now();
                 Util.sleep(1000);
             }
+        }
+
+        void stop() {
+            time_running = false;
         }
     }
 

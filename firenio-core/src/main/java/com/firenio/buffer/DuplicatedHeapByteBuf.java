@@ -109,6 +109,16 @@ final class DuplicatedHeapByteBuf extends HeapByteBuf {
     }
 
     @Override
+    public int setBytes0(int index, long address, int length) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int writeBytes0(long address, int length) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     protected int setBytes0(int index, ByteBuffer src, int len) {
         throw unsupportedOperationException();
     }

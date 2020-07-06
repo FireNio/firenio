@@ -15,10 +15,10 @@
  */
 package com.firenio.buffer;
 
-import java.nio.ByteBuffer;
-
 import com.firenio.common.ByteUtil;
 import com.firenio.common.Unsafe;
+
+import java.nio.ByteBuffer;
 
 abstract class UnsafeByteBuf extends ByteBuf {
 
@@ -35,7 +35,7 @@ abstract class UnsafeByteBuf extends ByteBuf {
 
     @Override
     public byte[] array() {
-        return null;
+        throw unsupportedOperationException();
     }
 
     @Override
@@ -44,12 +44,11 @@ abstract class UnsafeByteBuf extends ByteBuf {
             clear();
             return;
         }
-        long address         = address();
-        int  remain          = readableBytes();
-        int  abs_read_index  = absReadIndex();
-        int  abs_write_index = absWriteIndex();
-        long src_addr        = address + abs_read_index;
-        long dst_addr        = address + offset();
+        long address        = address();
+        int  remain         = readableBytes();
+        int  abs_read_index = absReadIndex();
+        long src_addr       = address + abs_read_index;
+        long dst_addr       = address + offset();
         Unsafe.copyMemory(src_addr, dst_addr, remain);
         readIndex(0);
         writeIndex(remain);
@@ -279,23 +278,489 @@ abstract class UnsafeByteBuf extends ByteBuf {
     }
 
     @Override
-    public int indexOf(byte b, int abs_pos, int size) {
+    public int indexOf(byte b, int absFrom, int absTo) {
         long addr = address();
-        long p    = addr + abs_pos;
-        long l    = p + size;
-        for (; p < l; p++) {
-            if (Unsafe.getByte(p) == b) {
-                return (int) (p - addr);
+        if (BUF_FAST_INDEX_OF) {
+            int size = absTo - absFrom;
+            if (size < 16) {
+                return unroll_index_of(addr, addr + absFrom, size, b);
+            } else {
+                return index_of_16(addr, absFrom, size, b);
+            }
+        }
+        return plain_index_of(addr, addr + absFrom, addr + absTo, b);
+    }
+
+    private static int index_of_16(long addr, int from, int size, byte b) {
+        int  group      = 16;
+        int  count      = (size >>> 4) << 4;
+        long addr_from  = addr + from;
+        long addr_s1_to = addr_from + count;
+        for (long i = addr_from; i < addr_s1_to; i += group) {
+            if (Unsafe.getByte(i) == b) {
+                return (int) (i - addr);
+            }
+            if (Unsafe.getByte(i + 1) == b) {
+                return (int) (i + 1 - addr);
+            }
+            if (Unsafe.getByte(i + 2) == b) {
+                return (int) (i + 2 - addr);
+            }
+            if (Unsafe.getByte(i + 3) == b) {
+                return (int) (i + 3 - addr);
+            }
+            if (Unsafe.getByte(i + 4) == b) {
+                return (int) (i + 4 - addr);
+            }
+            if (Unsafe.getByte(i + 5) == b) {
+                return (int) (i + 5 - addr);
+            }
+            if (Unsafe.getByte(i + 6) == b) {
+                return (int) (i + 6 - addr);
+            }
+            if (Unsafe.getByte(i + 7) == b) {
+                return (int) (i + 7 - addr);
+            }
+            if (Unsafe.getByte(i + 8) == b) {
+                return (int) (i + 8 - addr);
+            }
+            if (Unsafe.getByte(i + 9) == b) {
+                return (int) (i + 9 - addr);
+            }
+            if (Unsafe.getByte(i + 10) == b) {
+                return (int) (i + 10 - addr);
+            }
+            if (Unsafe.getByte(i + 11) == b) {
+                return (int) (i + 11 - addr);
+            }
+            if (Unsafe.getByte(i + 12) == b) {
+                return (int) (i + 12 - addr);
+            }
+            if (Unsafe.getByte(i + 13) == b) {
+                return (int) (i + 13 - addr);
+            }
+            if (Unsafe.getByte(i + 14) == b) {
+                return (int) (i + 14 - addr);
+            }
+            if (Unsafe.getByte(i + 15) == b) {
+                return (int) (i + 15 - addr);
+            }
+        }
+        return unroll_index_of(addr, addr_s1_to, size & (group - 1), b);
+    }
+
+    private static int unroll_index_of(long addr, long from, int size, byte b) {
+        switch (size) {
+            case 1:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                break;
+            case 2:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                break;
+            case 3:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                break;
+            case 4:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                if (Unsafe.getByte(from + 3) == b) {
+                    return (int) (from + 3 - addr);
+                }
+                break;
+            case 5:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                if (Unsafe.getByte(from + 3) == b) {
+                    return (int) (from + 3 - addr);
+                }
+                if (Unsafe.getByte(from + 4) == b) {
+                    return (int) (from + 4 - addr);
+                }
+                break;
+            case 6:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                if (Unsafe.getByte(from + 3) == b) {
+                    return (int) (from + 3 - addr);
+                }
+                if (Unsafe.getByte(from + 4) == b) {
+                    return (int) (from + 4 - addr);
+                }
+                if (Unsafe.getByte(from + 5) == b) {
+                    return (int) (from + 5 - addr);
+                }
+                break;
+            case 7:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                if (Unsafe.getByte(from + 3) == b) {
+                    return (int) (from + 3 - addr);
+                }
+                if (Unsafe.getByte(from + 4) == b) {
+                    return (int) (from + 4 - addr);
+                }
+                if (Unsafe.getByte(from + 5) == b) {
+                    return (int) (from + 5 - addr);
+                }
+                if (Unsafe.getByte(from + 6) == b) {
+                    return (int) (from + 6 - addr);
+                }
+                break;
+            case 8:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                if (Unsafe.getByte(from + 3) == b) {
+                    return (int) (from + 3 - addr);
+                }
+                if (Unsafe.getByte(from + 4) == b) {
+                    return (int) (from + 4 - addr);
+                }
+                if (Unsafe.getByte(from + 5) == b) {
+                    return (int) (from + 5 - addr);
+                }
+                if (Unsafe.getByte(from + 6) == b) {
+                    return (int) (from + 6 - addr);
+                }
+                if (Unsafe.getByte(from + 7) == b) {
+                    return (int) (from + 7 - addr);
+                }
+                break;
+            case 9:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                if (Unsafe.getByte(from + 3) == b) {
+                    return (int) (from + 3 - addr);
+                }
+                if (Unsafe.getByte(from + 4) == b) {
+                    return (int) (from + 4 - addr);
+                }
+                if (Unsafe.getByte(from + 5) == b) {
+                    return (int) (from + 5 - addr);
+                }
+                if (Unsafe.getByte(from + 6) == b) {
+                    return (int) (from + 6 - addr);
+                }
+                if (Unsafe.getByte(from + 7) == b) {
+                    return (int) (from + 7 - addr);
+                }
+                if (Unsafe.getByte(from + 8) == b) {
+                    return (int) (from + 8 - addr);
+                }
+                break;
+            case 10:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                if (Unsafe.getByte(from + 3) == b) {
+                    return (int) (from + 3 - addr);
+                }
+                if (Unsafe.getByte(from + 4) == b) {
+                    return (int) (from + 4 - addr);
+                }
+                if (Unsafe.getByte(from + 5) == b) {
+                    return (int) (from + 5 - addr);
+                }
+                if (Unsafe.getByte(from + 6) == b) {
+                    return (int) (from + 6 - addr);
+                }
+                if (Unsafe.getByte(from + 7) == b) {
+                    return (int) (from + 7 - addr);
+                }
+                if (Unsafe.getByte(from + 8) == b) {
+                    return (int) (from + 8 - addr);
+                }
+                if (Unsafe.getByte(from + 9) == b) {
+                    return (int) (from + 9 - addr);
+                }
+                break;
+            case 11:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                if (Unsafe.getByte(from + 3) == b) {
+                    return (int) (from + 3 - addr);
+                }
+                if (Unsafe.getByte(from + 4) == b) {
+                    return (int) (from + 4 - addr);
+                }
+                if (Unsafe.getByte(from + 5) == b) {
+                    return (int) (from + 5 - addr);
+                }
+                if (Unsafe.getByte(from + 6) == b) {
+                    return (int) (from + 6 - addr);
+                }
+                if (Unsafe.getByte(from + 7) == b) {
+                    return (int) (from + 7 - addr);
+                }
+                if (Unsafe.getByte(from + 8) == b) {
+                    return (int) (from + 8 - addr);
+                }
+                if (Unsafe.getByte(from + 9) == b) {
+                    return (int) (from + 9 - addr);
+                }
+                if (Unsafe.getByte(from + 10) == b) {
+                    return (int) (from + 10 - addr);
+                }
+                break;
+            case 12:
+
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                if (Unsafe.getByte(from + 3) == b) {
+                    return (int) (from + 3 - addr);
+                }
+                if (Unsafe.getByte(from + 4) == b) {
+                    return (int) (from + 4 - addr);
+                }
+                if (Unsafe.getByte(from + 5) == b) {
+                    return (int) (from + 5 - addr);
+                }
+                if (Unsafe.getByte(from + 6) == b) {
+                    return (int) (from + 6 - addr);
+                }
+                if (Unsafe.getByte(from + 7) == b) {
+                    return (int) (from + 7 - addr);
+                }
+                if (Unsafe.getByte(from + 8) == b) {
+                    return (int) (from + 8 - addr);
+                }
+                if (Unsafe.getByte(from + 9) == b) {
+                    return (int) (from + 9 - addr);
+                }
+                if (Unsafe.getByte(from + 10) == b) {
+                    return (int) (from + 10 - addr);
+                }
+                if (Unsafe.getByte(from + 11) == b) {
+                    return (int) (from + 11 - addr);
+                }
+                break;
+            case 13:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                if (Unsafe.getByte(from + 3) == b) {
+                    return (int) (from + 3 - addr);
+                }
+                if (Unsafe.getByte(from + 4) == b) {
+                    return (int) (from + 4 - addr);
+                }
+                if (Unsafe.getByte(from + 5) == b) {
+                    return (int) (from + 5 - addr);
+                }
+                if (Unsafe.getByte(from + 6) == b) {
+                    return (int) (from + 6 - addr);
+                }
+                if (Unsafe.getByte(from + 7) == b) {
+                    return (int) (from + 7 - addr);
+                }
+                if (Unsafe.getByte(from + 8) == b) {
+                    return (int) (from + 8 - addr);
+                }
+                if (Unsafe.getByte(from + 9) == b) {
+                    return (int) (from + 9 - addr);
+                }
+                if (Unsafe.getByte(from + 10) == b) {
+                    return (int) (from + 10 - addr);
+                }
+                if (Unsafe.getByte(from + 11) == b) {
+                    return (int) (from + 11 - addr);
+                }
+                if (Unsafe.getByte(from + 12) == b) {
+                    return (int) (from + 12 - addr);
+                }
+                break;
+            case 14:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                if (Unsafe.getByte(from + 3) == b) {
+                    return (int) (from + 3 - addr);
+                }
+                if (Unsafe.getByte(from + 4) == b) {
+                    return (int) (from + 4 - addr);
+                }
+                if (Unsafe.getByte(from + 5) == b) {
+                    return (int) (from + 5 - addr);
+                }
+                if (Unsafe.getByte(from + 6) == b) {
+                    return (int) (from + 6 - addr);
+                }
+                if (Unsafe.getByte(from + 7) == b) {
+                    return (int) (from + 7 - addr);
+                }
+                if (Unsafe.getByte(from + 8) == b) {
+                    return (int) (from + 8 - addr);
+                }
+                if (Unsafe.getByte(from + 9) == b) {
+                    return (int) (from + 9 - addr);
+                }
+                if (Unsafe.getByte(from + 10) == b) {
+                    return (int) (from + 10 - addr);
+                }
+                if (Unsafe.getByte(from + 11) == b) {
+                    return (int) (from + 11 - addr);
+                }
+                if (Unsafe.getByte(from + 12) == b) {
+                    return (int) (from + 12 - addr);
+                }
+                if (Unsafe.getByte(from + 13) == b) {
+                    return (int) (from + 13 - addr);
+                }
+                break;
+            case 15:
+                if (Unsafe.getByte(from) == b) {
+                    return (int) (from - addr);
+                }
+                if (Unsafe.getByte(from + 1) == b) {
+                    return (int) (from + 1 - addr);
+                }
+                if (Unsafe.getByte(from + 2) == b) {
+                    return (int) (from + 2 - addr);
+                }
+                if (Unsafe.getByte(from + 3) == b) {
+                    return (int) (from + 3 - addr);
+                }
+                if (Unsafe.getByte(from + 4) == b) {
+                    return (int) (from + 4 - addr);
+                }
+                if (Unsafe.getByte(from + 5) == b) {
+                    return (int) (from + 5 - addr);
+                }
+                if (Unsafe.getByte(from + 6) == b) {
+                    return (int) (from + 6 - addr);
+                }
+                if (Unsafe.getByte(from + 7) == b) {
+                    return (int) (from + 7 - addr);
+                }
+                if (Unsafe.getByte(from + 8) == b) {
+                    return (int) (from + 8 - addr);
+                }
+                if (Unsafe.getByte(from + 9) == b) {
+                    return (int) (from + 9 - addr);
+                }
+                if (Unsafe.getByte(from + 10) == b) {
+                    return (int) (from + 10 - addr);
+                }
+                if (Unsafe.getByte(from + 11) == b) {
+                    return (int) (from + 11 - addr);
+                }
+                if (Unsafe.getByte(from + 12) == b) {
+                    return (int) (from + 12 - addr);
+                }
+                if (Unsafe.getByte(from + 13) == b) {
+                    return (int) (from + 13 - addr);
+                }
+                if (Unsafe.getByte(from + 14) == b) {
+                    return (int) (from + 14 - addr);
+                }
+                break;
+
+        }
+        return -1;
+    }
+
+    private static int plain_index_of(long addr, long from, long to, byte b) {
+        for (long i = from; i < to; i++) {
+            if (Unsafe.getByte(i) == b) {
+                return (int) (i - addr);
             }
         }
         return -1;
     }
 
     @Override
-    public int lastIndexOf(byte b, int abs_pos, int size) {
+    public int lastIndexOf(byte b, int absFrom, int absTo) {
         long addr = address();
-        long p    = addr + abs_pos;
-        long l    = p - size;
+        long p    = addr + absFrom;
+        long l    = addr + absTo;
         for (; p > l; p--) {
             if (Unsafe.getByte(p) == b) {
                 return (int) (p - addr);
@@ -339,6 +804,19 @@ abstract class UnsafeByteBuf extends ByteBuf {
             copy(Unsafe.address(src) + src.position(), address() + ix(index), len);
         }
         src.position(src.position() + len);
+        return len;
+    }
+
+    @Override
+    public int setBytes0(int index, long address, int len) {
+        copy(address, address() + ix(index), len);
+        return len;
+    }
+
+    @Override
+    public int writeBytes0(long address, int len) {
+        copy(address, address() + absWriteIndex(), len);
+        skipWrite(len);
         return len;
     }
 

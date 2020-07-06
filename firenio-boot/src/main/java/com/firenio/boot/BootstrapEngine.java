@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.container;
+package com.firenio.boot;
 
 /**
  * @author wangkai
  */
 public interface BootstrapEngine {
 
-    void bootstrap(String rootPath, String mode) throws Exception;
+    void bootstrap(String rootPath, boolean prodMode) throws Exception;
 }

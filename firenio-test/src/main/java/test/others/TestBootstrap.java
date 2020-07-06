@@ -15,8 +15,9 @@
  */
 package test.others;
 
-import com.firenio.container.Bootstrap;
-import com.firenio.container.BootstrapEngine;
+import com.firenio.common.Util;
+import com.firenio.boot.Bootstrap;
+import com.firenio.boot.BootstrapEngine;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
 
@@ -27,19 +28,29 @@ public class TestBootstrap implements BootstrapEngine {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
-    public static void main(String[] args) throws Exception {
-        System.setProperty(Bootstrap.BOOT_MODE, "prod");
-        Bootstrap.startup("test.others.TestBootstrap", "/");
-    }
-
     @Override
-    public void bootstrap(String rootPath, String mode) throws Exception {
+    public void bootstrap(String rootPath, boolean prodMode) throws Exception {
         logger.info("startup ............");
-        logger.info("runtime mode {}............", mode);
+        logger.info("runtime mode {}............", prodMode);
         logger.info("this class loader: {}", getClass().getClassLoader());
         logger.info("logger class loader: {}", logger.getClass().getClassLoader());
         logger.info("TestBootstrap class loader: {}", TestBootstrap.class.getClassLoader());
         logger.info("startup end ............");
+    }
+
+    public static void main(String[] args) throws Exception {
+        boolean   prodMode  = Util.getBooleanProperty("boot.prodMode");
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.setBootClassName(TestBootstrap.class.getName());
+        bootstrap.setCheckDuplicate(false);
+        bootstrap.setProdMode(prodMode);
+        if (prodMode) {
+            bootstrap.addRelativeLibPath("/app/lib");
+            bootstrap.addRelativeLibPath("/conf");
+        } else {
+            bootstrap.addRelativeLibPath("/target/classes");
+        }
+        bootstrap.startup();
     }
 
 }

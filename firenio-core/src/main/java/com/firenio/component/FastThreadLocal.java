@@ -19,31 +19,33 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.firenio.buffer.ByteBuf;
-import com.firenio.collection.AttributeKey;
-import com.firenio.collection.AttributeMap;
 import com.firenio.common.Util;
 
 /**
  * @author wangkai
  */
-public final class FastThreadLocal extends AttributeMap {
+public final class FastThreadLocal {
 
-    private static final ThreadLocal<FastThreadLocal> slowThreadLocal = new ThreadLocal<>();
+    static final AtomicInteger                ATTRIBUTE_KEYS    = new AtomicInteger();
+    static final ThreadLocal<FastThreadLocal> SLOW_THREAD_LOCAL = new ThreadLocal<>();
 
-    private byte[]                       bytes32         = new byte[32];
-    private Map<Charset, CharsetDecoder> charsetDecoders = new IdentityHashMap<>();
-    private Map<Charset, CharsetEncoder> charsetEncoders = new IdentityHashMap<>();
-    private ByteBuf                      sslUnwrapBuf;
     private ByteBuf                      sslWrapBuf;
+    private ByteBuf                      sslUnwrapBuf;
+    private byte[]                       bytes32         = new byte[32];
     private StringBuilder                stringBuilder   = new StringBuilder(512);
     private List<?>                      list            = new ArrayList<>();
     private Map<?, ?>                    map             = new HashMap<>();
+    private Object[]                     attributes      = new Object[16];
+    private Map<Charset, CharsetDecoder> charsetDecoders = new IdentityHashMap<>();
+    private Map<Charset, CharsetEncoder> charsetEncoders = new IdentityHashMap<>();
 
     FastThreadLocal() {}
 
@@ -53,7 +55,7 @@ public final class FastThreadLocal extends AttributeMap {
         if (thread instanceof FastThreadLocalThread) {
             l = ((FastThreadLocalThread) thread).getThreadLocal();
         } else {
-            l = slowThreadLocal.get();
+            l = SLOW_THREAD_LOCAL.get();
         }
         if (l != null) {
             l.destroy0();
@@ -65,21 +67,17 @@ public final class FastThreadLocal extends AttributeMap {
         if (thread instanceof FastThreadLocalThread) {
             return ((FastThreadLocalThread) thread).getThreadLocal();
         } else {
-            FastThreadLocal l = slowThreadLocal.get();
+            FastThreadLocal l = SLOW_THREAD_LOCAL.get();
             if (l == null) {
                 l = new FastThreadLocal();
-                slowThreadLocal.set(l);
+                SLOW_THREAD_LOCAL.set(l);
             }
             return l;
         }
     }
 
-    public static AttributeKey valueOfKey(String name) {
-        return AttributeMap.valueOfKey(FastThreadLocal.class, name);
-    }
-
-    public static AttributeKey valueOfKey(String name, AttributeInitFunction function) {
-        return AttributeMap.valueOfKey(FastThreadLocal.class, name, function);
+    public static int nextAttributeKey() {
+        return ATTRIBUTE_KEYS.getAndIncrement();
     }
 
     private void destroy0() {
@@ -138,8 +136,22 @@ public final class FastThreadLocal extends AttributeMap {
         return map;
     }
 
-    @Override
-    protected AttributeKeys getKeys() {
-        return getKeys(FastThreadLocal.class);
+    public <T> T getAttribute(int index) {
+        Object[] attributes = this.attributes;
+        if (index < attributes.length) {
+            return (T) attributes[index];
+        }
+        return null;
     }
+
+    public void setAttribute(int index, Object value) {
+        Object[] attributes = this.attributes;
+        if (index < attributes.length) {
+            attributes[index] = value;
+        } else {
+            this.attributes = Arrays.copyOf(attributes, index + 1);
+            this.attributes[index] = value;
+        }
+    }
+
 }

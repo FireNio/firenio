@@ -27,6 +27,8 @@ final class UnpooledDirectByteBuf extends DirectByteBuf {
     UnpooledDirectByteBuf(ByteBuffer memory) {
         super(memory);
         this.referenceCount = 1;
+        this.abs_read_index = 0;
+        this.abs_write_index = memory.position();
     }
 
     @Override

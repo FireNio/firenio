@@ -29,11 +29,6 @@ final class PooledDirectByteBuf extends DirectByteBuf {
     }
 
     @Override
-    public long address() {
-        return allocator.getAddress();
-    }
-
-    @Override
     public int capacity() {
         return capacity;
     }
