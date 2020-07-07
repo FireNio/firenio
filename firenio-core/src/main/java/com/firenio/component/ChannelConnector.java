@@ -27,8 +27,6 @@ import com.firenio.TimeoutException;
 import com.firenio.collection.DelayedQueue;
 import com.firenio.common.Assert;
 import com.firenio.common.Util;
-import com.firenio.component.NioEventLoop.EpollEventLoop;
-import com.firenio.component.NioEventLoop.JavaEventLoop;
 import com.firenio.concurrent.Callback;
 import com.firenio.concurrent.Waiter;
 import com.firenio.log.Logger;
@@ -267,7 +265,9 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         @Override
         void channelEstablish(Channel ch, Throwable ex) {
             if (ex != null) {
-                selectionKey.cancel();
+                if (selectionKey != null) {
+                    selectionKey.cancel();
+                }
                 Util.close(javaChannel);
             }
         }

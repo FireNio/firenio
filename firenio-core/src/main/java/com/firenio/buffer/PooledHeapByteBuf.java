@@ -27,11 +27,6 @@ final class PooledHeapByteBuf extends HeapByteBuf {
     }
 
     @Override
-    public long address() {
-        return allocator.getAddress();
-    }
-
-    @Override
     public int capacity() {
         return capacity;
     }

@@ -36,7 +36,7 @@ public class WebSocketFrame extends Frame {
     }
 
     public String getFrameName(Channel ch) {
-        return ((HttpAttachment) ch.getAttachment()).getWebsocketFrameName();
+        return ((HttpAttachment) ch.getAttachment()).getWebSocketFrameName();
     }
 
     public int getOpcode() {

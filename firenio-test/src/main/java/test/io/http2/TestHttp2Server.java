@@ -42,10 +42,9 @@ public class TestHttp2Server {
         group.setMemoryUnit(512);
         group.setEnableMemoryPool(true);
         ChannelAcceptor context = new ChannelAcceptor(group, 443);
-        context.setSslPem("localhost.crt;localhost.key");
         context.addProtocolCodec(new Http2Codec());
         context.setIoEventHandle(eventHandleAdaptor);
-        context.setApplicationProtocols(new String[]{"h2", "http/1.1"});
+//        context.setApplicationProtocols(new String[]{"h2", "http/1.1"});
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.bind();
     }

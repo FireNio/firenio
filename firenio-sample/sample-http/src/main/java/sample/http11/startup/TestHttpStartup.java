@@ -15,7 +15,8 @@
  */
 package sample.http11.startup;
 
-import com.firenio.container.Bootstrap;
+import com.firenio.common.Util;
+import com.firenio.boot.Bootstrap;
 
 /**
  * @author wangkai
@@ -23,9 +24,20 @@ import com.firenio.container.Bootstrap;
 public class TestHttpStartup {
 
     public static void main(String[] args) throws Exception {
-        //        Options.setEnableEpoll(true);
-        Bootstrap.startup("sample.http11.startup.TestHttpBootstrapEngine", "/app/lib");
 
+        boolean prodMode = Util.getBooleanProperty("boot.prodMode");
+
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.setBootClassName("sample.http11.startup.TestHttpBootstrapEngine");
+        bootstrap.setCheckDuplicate(false);
+        bootstrap.setProdMode(prodMode);
+        if (prodMode) {
+            bootstrap.addRelativeLibPath("/app/lib");
+            bootstrap.addRelativeLibPath("/conf");
+        } else {
+            bootstrap.addRelativeLibPath("/target/classes");
+        }
+        bootstrap.startup();
     }
 
 }

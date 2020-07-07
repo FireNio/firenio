@@ -83,6 +83,11 @@ public abstract class EventLoopGroup extends LifeCycle {
         return maxQueueSize;
     }
 
+    public void setEventLoopName(String eventLoopName) {
+        checkNotRunning();
+        this.eventLoopName = eventLoopName;
+    }
+
     public abstract EventLoop getNext();
 
     protected int getNextEventLoopIndex() {

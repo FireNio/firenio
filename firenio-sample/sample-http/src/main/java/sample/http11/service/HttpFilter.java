@@ -20,6 +20,7 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.firenio.common.Util;
@@ -34,7 +35,7 @@ import sample.http11.HttpUtil;
 /**
  * @author wangkai
  */
-@Service("http-filter")
+@Component("http-filter")
 public class HttpFilter implements HttpFrameFilter {
 
     private Logger      logger              = LoggerFactory.getLogger(getClass());

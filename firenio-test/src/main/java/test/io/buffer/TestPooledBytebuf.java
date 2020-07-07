@@ -43,11 +43,12 @@ public class TestPooledBytebuf {
     public void testAlloc() throws Exception {
         DevelopConfig.BUF_DEBUG = true;
         LoggerFactory.setEnableSLF4JLogger(false);
-        final PooledByteBufAllocator a                    = TestAllocUtil.heap(1024 * 512);
         final AtomicInteger          alloc_single_times   = new AtomicInteger();
         final AtomicInteger          alloc_unpooled_times = new AtomicInteger();
-        CountDownLatch               c                    = new CountDownLatch(Util.availableProcessors());
-        for (int i = 0; i < Util.availableProcessors(); i++) {
+        final int                    core                 = Math.max(4, Util.availableProcessors());
+        final PooledByteBufAllocator a                    = TestAllocUtil.heap(1024 * 1024 * 4 * core);
+        CountDownLatch               c                    = new CountDownLatch(core);
+        for (int i = 0; i < core; i++) {
             Util.exec(() -> {
                 Random         r    = new Random();
                 Queue<ByteBuf> bufs = new LinkedList<>();
@@ -66,7 +67,7 @@ public class TestPooledBytebuf {
                     } else {
                         bufs.offer(buf);
                     }
-                    if (bufs.size() > 500) {
+                    if (bufs.size() > 256) {
                         ByteBuf buf1 = bufs.poll();
                         buf1.release();
                     }

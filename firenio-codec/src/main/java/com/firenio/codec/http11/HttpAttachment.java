@@ -15,31 +15,29 @@
  */
 package com.firenio.codec.http11;
 
-import com.firenio.buffer.ByteBuf;
-
 /**
  * @author wangkai
  */
 public class HttpAttachment {
 
-    private HttpFrame uncompleteFrame;
+    private HttpFrame uncompletedFrame;
 
-    private String websocketFrameName;
+    private String webSocketFrameName;
 
-    public String getWebsocketFrameName() {
-        return websocketFrameName;
+    public String getWebSocketFrameName() {
+        return webSocketFrameName;
     }
 
-    public void setWebsocketFrameName(String websocketFrameName) {
-        this.websocketFrameName = websocketFrameName;
+    public void setWebSocketFrameName(String webSocketFrameName) {
+        this.webSocketFrameName = webSocketFrameName;
     }
 
-    public HttpFrame getUncompleteFrame() {
-        return uncompleteFrame;
+    public HttpFrame getUncompletedFrame() {
+        return uncompletedFrame;
     }
 
-    public void setUncompleteFrame(HttpFrame uncompleteFrame) {
-        this.uncompleteFrame = uncompleteFrame;
+    public void setUncompletedFrame(HttpFrame uncompleteFrame) {
+        this.uncompletedFrame = uncompleteFrame;
     }
 
 }

@@ -15,10 +15,10 @@
  */
 package com.firenio.buffer;
 
-import java.nio.ByteBuffer;
-
 import com.firenio.common.ByteUtil;
 import com.firenio.common.Unsafe;
+
+import java.nio.ByteBuffer;
 
 abstract class HeapByteBuf extends ByteBuf {
 
@@ -41,7 +41,7 @@ abstract class HeapByteBuf extends ByteBuf {
 
     @Override
     public long address() {
-        return -1;
+        throw unsupportedOperationException();
     }
 
     @Override
@@ -50,11 +50,9 @@ abstract class HeapByteBuf extends ByteBuf {
             clear();
             return;
         }
-        int remain          = readableBytes();
-        int abs_read_index  = absReadIndex();
-        int abs_write_index = absWriteIndex();
-        int src_offset      = abs_read_index;
-        int dst_offset      = offset();
+        int remain     = readableBytes();
+        int src_offset = absReadIndex();
+        int dst_offset = offset();
         System.arraycopy(memory, src_offset, memory, dst_offset, remain);
         readIndex(0);
         writeIndex(remain);
@@ -286,24 +284,487 @@ abstract class HeapByteBuf extends ByteBuf {
     }
 
     @Override
-    public int indexOf(byte b, int abs_pos, int size) {
-        int    p = abs_pos;
-        int    l = p + size;
+    public int indexOf(byte b, int absFrom, int absTo) {
         byte[] m = memory;
-        for (; p < l; p++) {
-            if (m[p] == b) {
-                return p;
+        if (BUF_FAST_INDEX_OF) {
+            int size = absTo - absFrom;
+            if (size < 16) {
+                return unroll_index_of(m, absFrom, size, b);
+            } else {
+                return index_of_16(m, absFrom, size, b);
+            }
+        }
+        return plain_index_of(m, absFrom, absTo, b);
+    }
+
+    private static int index_of_16(byte[] m, int from, int size, byte b) {
+        int group = 16;
+        int count = (size >>> 4) << 4;
+        int s1_to = from + count;
+        for (int i = from; i < s1_to; i += group) {
+            if (m[i] == b) {
+                return i;
+            }
+            if (m[i + 1] == b) {
+                return i + 1;
+            }
+            if (m[i + 2] == b) {
+                return i + 2;
+            }
+            if (m[i + 3] == b) {
+                return i + 3;
+            }
+            if (m[i + 4] == b) {
+                return i + 4;
+            }
+            if (m[i + 5] == b) {
+                return i + 5;
+            }
+            if (m[i + 6] == b) {
+                return i + 6;
+            }
+            if (m[i + 7] == b) {
+                return i + 7;
+            }
+            if (m[i + 8] == b) {
+                return i + 8;
+            }
+            if (m[i + 9] == b) {
+                return i + 9;
+            }
+            if (m[i + 10] == b) {
+                return i + 10;
+            }
+            if (m[i + 11] == b) {
+                return i + 11;
+            }
+            if (m[i + 12] == b) {
+                return i + 12;
+            }
+            if (m[i + 13] == b) {
+                return i + 13;
+            }
+            if (m[i + 14] == b) {
+                return i + 14;
+            }
+            if (m[i + 15] == b) {
+                return i + 15;
+            }
+        }
+        return unroll_index_of(m, s1_to, size & (group - 1), b);
+    }
+
+    private static int unroll_index_of(byte[] m, int from, int size, byte b) {
+        switch (size) {
+            case 1:
+                if (m[from] == b) {
+                    return from;
+                }
+                break;
+            case 2:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                break;
+            case 3:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                break;
+            case 4:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                if (m[from + 3] == b) {
+                    return from + 3;
+                }
+                break;
+            case 5:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                if (m[from + 3] == b) {
+                    return from + 3;
+                }
+                if (m[from + 4] == b) {
+                    return from + 4;
+                }
+                break;
+            case 6:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                if (m[from + 3] == b) {
+                    return from + 3;
+                }
+                if (m[from + 4] == b) {
+                    return from + 4;
+                }
+                if (m[from + 5] == b) {
+                    return from + 5;
+                }
+                break;
+            case 7:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                if (m[from + 3] == b) {
+                    return from + 3;
+                }
+                if (m[from + 4] == b) {
+                    return from + 4;
+                }
+                if (m[from + 5] == b) {
+                    return from + 5;
+                }
+                if (m[from + 6] == b) {
+                    return from + 6;
+                }
+                break;
+            case 8:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                if (m[from + 3] == b) {
+                    return from + 3;
+                }
+                if (m[from + 4] == b) {
+                    return from + 4;
+                }
+                if (m[from + 5] == b) {
+                    return from + 5;
+                }
+                if (m[from + 6] == b) {
+                    return from + 6;
+                }
+                if (m[from + 7] == b) {
+                    return from + 7;
+                }
+                break;
+            case 9:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                if (m[from + 3] == b) {
+                    return from + 3;
+                }
+                if (m[from + 4] == b) {
+                    return from + 4;
+                }
+                if (m[from + 5] == b) {
+                    return from + 5;
+                }
+                if (m[from + 6] == b) {
+                    return from + 6;
+                }
+                if (m[from + 7] == b) {
+                    return from + 7;
+                }
+                if (m[from + 8] == b) {
+                    return from + 8;
+                }
+                break;
+            case 10:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                if (m[from + 3] == b) {
+                    return from + 3;
+                }
+                if (m[from + 4] == b) {
+                    return from + 4;
+                }
+                if (m[from + 5] == b) {
+                    return from + 5;
+                }
+                if (m[from + 6] == b) {
+                    return from + 6;
+                }
+                if (m[from + 7] == b) {
+                    return from + 7;
+                }
+                if (m[from + 8] == b) {
+                    return from + 8;
+                }
+                if (m[from + 9] == b) {
+                    return from + 9;
+                }
+                break;
+            case 11:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                if (m[from + 3] == b) {
+                    return from + 3;
+                }
+                if (m[from + 4] == b) {
+                    return from + 4;
+                }
+                if (m[from + 5] == b) {
+                    return from + 5;
+                }
+                if (m[from + 6] == b) {
+                    return from + 6;
+                }
+                if (m[from + 7] == b) {
+                    return from + 7;
+                }
+                if (m[from + 8] == b) {
+                    return from + 8;
+                }
+                if (m[from + 9] == b) {
+                    return from + 9;
+                }
+                if (m[from + 10] == b) {
+                    return from + 10;
+                }
+                break;
+            case 12:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                if (m[from + 3] == b) {
+                    return from + 3;
+                }
+                if (m[from + 4] == b) {
+                    return from + 4;
+                }
+                if (m[from + 5] == b) {
+                    return from + 5;
+                }
+                if (m[from + 6] == b) {
+                    return from + 6;
+                }
+                if (m[from + 7] == b) {
+                    return from + 7;
+                }
+                if (m[from + 8] == b) {
+                    return from + 8;
+                }
+                if (m[from + 9] == b) {
+                    return from + 9;
+                }
+                if (m[from + 10] == b) {
+                    return from + 10;
+                }
+                if (m[from + 11] == b) {
+                    return from + 11;
+                }
+                break;
+            case 13:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                if (m[from + 3] == b) {
+                    return from + 3;
+                }
+                if (m[from + 4] == b) {
+                    return from + 4;
+                }
+                if (m[from + 5] == b) {
+                    return from + 5;
+                }
+                if (m[from + 6] == b) {
+                    return from + 6;
+                }
+                if (m[from + 7] == b) {
+                    return from + 7;
+                }
+                if (m[from + 8] == b) {
+                    return from + 8;
+                }
+                if (m[from + 9] == b) {
+                    return from + 9;
+                }
+                if (m[from + 10] == b) {
+                    return from + 10;
+                }
+                if (m[from + 11] == b) {
+                    return from + 11;
+                }
+                if (m[from + 12] == b) {
+                    return from + 12;
+                }
+                break;
+            case 14:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                if (m[from + 3] == b) {
+                    return from + 3;
+                }
+                if (m[from + 4] == b) {
+                    return from + 4;
+                }
+                if (m[from + 5] == b) {
+                    return from + 5;
+                }
+                if (m[from + 6] == b) {
+                    return from + 6;
+                }
+                if (m[from + 7] == b) {
+                    return from + 7;
+                }
+                if (m[from + 8] == b) {
+                    return from + 8;
+                }
+                if (m[from + 9] == b) {
+                    return from + 9;
+                }
+                if (m[from + 10] == b) {
+                    return from + 10;
+                }
+                if (m[from + 11] == b) {
+                    return from + 11;
+                }
+                if (m[from + 12] == b) {
+                    return from + 12;
+                }
+                if (m[from + 13] == b) {
+                    return from + 13;
+                }
+                break;
+            case 15:
+                if (m[from] == b) {
+                    return from;
+                }
+                if (m[from + 1] == b) {
+                    return from + 1;
+                }
+                if (m[from + 2] == b) {
+                    return from + 2;
+                }
+                if (m[from + 3] == b) {
+                    return from + 3;
+                }
+                if (m[from + 4] == b) {
+                    return from + 4;
+                }
+                if (m[from + 5] == b) {
+                    return from + 5;
+                }
+                if (m[from + 6] == b) {
+                    return from + 6;
+                }
+                if (m[from + 7] == b) {
+                    return from + 7;
+                }
+                if (m[from + 8] == b) {
+                    return from + 8;
+                }
+                if (m[from + 9] == b) {
+                    return from + 9;
+                }
+                if (m[from + 10] == b) {
+                    return from + 10;
+                }
+                if (m[from + 11] == b) {
+                    return from + 11;
+                }
+                if (m[from + 12] == b) {
+                    return from + 12;
+                }
+                if (m[from + 13] == b) {
+                    return from + 13;
+                }
+                if (m[from + 14] == b) {
+                    return from + 14;
+                }
+                break;
+
+        }
+        return -1;
+    }
+
+    private static int plain_index_of(byte[] m, int from, int to, byte b) {
+        for (; from < to; from++) {
+            if (m[from] == b) {
+                return from;
             }
         }
         return -1;
     }
 
     @Override
-    public int lastIndexOf(byte b, int abs_pos, int size) {
-        int    p = abs_pos;
-        int    l = p - size - 1;
+    public int lastIndexOf(byte b, int absFrom, int absTo) {
+        int    p = absFrom;
         byte[] m = memory;
-        for (; p > l; p--) {
+        for (; p > absTo; p--) {
             if (m[p] == b) {
                 return p;
             }
@@ -346,6 +807,19 @@ abstract class HeapByteBuf extends ByteBuf {
             copy(Unsafe.address(src) + src.position(), memory, ix(index), len);
         }
         src.position(src.position() + len);
+        return len;
+    }
+
+    @Override
+    public int setBytes0(int index, long address, int len) {
+        copy(address, memory, ix(index), len);
+        return len;
+    }
+
+    @Override
+    public int writeBytes0(long address, int len) {
+        copy(address, memory, absWriteIndex(), len);
+        skipWrite(len);
         return len;
     }
 

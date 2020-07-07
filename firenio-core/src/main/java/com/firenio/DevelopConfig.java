@@ -20,6 +20,7 @@ package com.firenio;
  */
 public class DevelopConfig {
 
+    public static boolean DEBUG_ERROR    = false;
     public static boolean BUF_PATH_DEBUG = false;
     public static boolean BUF_DEBUG      = false;
     public static boolean SSL_DEBUG      = false;

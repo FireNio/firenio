@@ -35,7 +35,7 @@ public class LoggerFactory {
 
     private static void configure() {
         try {
-            Class.forName("org.slf4j.LoggerFactory");
+            Class.forName("org.slf4j.LoggerFactory", false, LoggerFactory.class.getClassLoader());
             enableSLF4JLogger = true;
         } catch (ClassNotFoundException e) {
         }

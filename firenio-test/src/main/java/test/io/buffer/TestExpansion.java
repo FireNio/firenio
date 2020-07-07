@@ -62,6 +62,7 @@ public class TestExpansion {
     @Test
     public void arrayUnPool() {
         ByteBuf buf = ByteBuf.heap(2);
+        buf.clear();
         for (int i = 0; i < 10; i++) {
             buf.writeBytes(data);
             buf.writeByte(a);

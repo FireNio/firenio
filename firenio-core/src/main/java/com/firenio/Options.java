@@ -22,21 +22,17 @@ import com.firenio.common.Util;
  */
 public class Options {
 
-    static final String BUF_AUTO_EXPANSION     = "com.firenio.bufAutoExpansion";
-    static final String BUF_THREAD_YIELD       = "com.firenio.bufThreadYield";
-    static final String CHANNEL_READ_FIRST     = "com.firenio.channelReadFirst";
-    static final String DEBUG_ERROR            = "com.firenio.debugError";
-    static final String ENABLE_UNSAFE          = "com.firenio.enableUnsafe";
-    static final String ENABLE_EPOLL           = "com.firenio.ssl.enableEpoll";
-    static final String ENABLE_OPENSSL         = "com.firenio.ssl.enableOpenSsl";
-    static final String ENABLE_UNSAFE_BUF      = "com.firenio.ssl.enableUnsafeBuf";
+    static final String BUF_AUTO_EXPANSION     = "com.firenio.buf_auto_expansion";
+    static final String BUF_FAST_INDEX_OF      = "com.firenio.buf_auto_expansion";
+    static final String BUF_THREAD_YIELD       = "com.firenio.buf_thread_yield";
+    static final String CHANNEL_READ_FIRST     = "com.firenio.channel_read_first";
+    static final String ENABLE_UNSAFE          = "com.firenio.enable_unsafe";
+    static final String ENABLE_EPOLL           = "com.firenio.ssl.enable_epoll";
+    static final String ENABLE_OPENSSL         = "com.firenio.ssl.enable_openssl";
+    static final String ENABLE_UNSAFE_BUF      = "com.firenio.ssl.enable_unsafe_buf";
     static final String OPENSSL_PATH           = "org.wildfly.openssl.path";
-    static final String SSL_UNWRAP_BUFFER_SIZE = "com.firenio.ssl.unwrapBufferSize";
-    static final String SYS_CLOCK_STEP         = "com.firenio.sysClockStep";
-
-    public static boolean isDebugError() {
-        return isTrue(DEBUG_ERROR);
-    }
+    static final String SSL_UNWRAP_BUFFER_SIZE = "com.firenio.ssl.unwrap_buffer_size";
+    static final String SYS_CLOCK_STEP         = "com.firenio.sys_clock_step";
 
     public static String getOpensslPath() {
         return System.getProperty(OPENSSL_PATH);
@@ -52,6 +48,10 @@ public class Options {
 
     public static boolean isBufAutoExpansion() {
         return isTrue(BUF_AUTO_EXPANSION, true);
+    }
+
+    public static boolean isBufFastIndexOf() {
+        return isTrue(BUF_AUTO_EXPANSION, false);
     }
 
     public static boolean isBufThreadYield() {
@@ -82,16 +82,16 @@ public class Options {
         System.setProperty(BUF_AUTO_EXPANSION, String.valueOf(auto));
     }
 
+    public static void setBufFastIndexOf(boolean fast) {
+        System.setProperty(BUF_AUTO_EXPANSION, String.valueOf(fast));
+    }
+
     public static void setBufThreadYield(boolean yield) {
         setBool(BUF_THREAD_YIELD, yield);
     }
 
     public static void setChannelReadFirst(boolean channelReadFirst) {
         setBool(CHANNEL_READ_FIRST, channelReadFirst);
-    }
-
-    public static void setDebugError(boolean debugError) {
-        setBool(DEBUG_ERROR, debugError);
     }
 
     public static void setEnableUnsafe(boolean enable) {

@@ -36,7 +36,7 @@ import com.firenio.component.Frame;
  */
 public class HttpFrame extends Frame {
 
-    static final KMPUtil KMP_BOUNDARY = new KMPUtil("boundary=");
+    static final Kmp KMP_BOUNDARY = new Kmp("boundary=");
 
     private int                 connection      = HttpConnection.KEEP_ALIVE.getId();
     private int                 contentLength;
@@ -311,7 +311,7 @@ public class HttpFrame extends Frame {
             setConnection(HttpConnection.UPGRADE);
             setResponseHeader(Upgrade, HttpStatic.websocket_bytes);
             setResponseHeader(Sec_WebSocket_Accept, acceptKey.getBytes());
-            ((HttpAttachment) ch.getAttachment()).setWebsocketFrameName(getFrameName());
+            ((HttpAttachment) ch.getAttachment()).setWebSocketFrameName(getFrameName());
             ByteBuf buf = ch.encode(this);
             ch.setCodec(WebSocketCodec.PROTOCOL_ID);
             ch.writeAndFlush(buf);

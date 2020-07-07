@@ -17,14 +17,13 @@ package test.io.load.http11;
 
 import com.firenio.Options;
 import com.firenio.buffer.ByteBuf;
+import com.firenio.codec.http11.HttpAttachment;
 import com.firenio.codec.http11.HttpCodec;
 import com.firenio.codec.http11.HttpConnection;
 import com.firenio.codec.http11.HttpContentType;
 import com.firenio.codec.http11.HttpDateUtil;
 import com.firenio.codec.http11.HttpFrame;
 import com.firenio.codec.http11.HttpStatus;
-import com.firenio.collection.AttributeKey;
-import com.firenio.collection.AttributeMap;
 import com.firenio.collection.ByteTree;
 import com.firenio.common.Util;
 import com.firenio.component.Channel;
@@ -46,9 +45,8 @@ import com.jsoniter.spi.Slice;
  */
 public class TestHttpLoadServerTFB {
 
-    static final AttributeKey<ByteBuf> JSON_BUF         = newJsonBufKey();
-    static final AttributeKey<ByteBuf> WRITE_BUF        = newWriteBufKey();
-    static final byte[]                STATIC_PLAINTEXT = "Hello, World!".getBytes();
+    static final int    JSON_BUF         = FastThreadLocal.nextAttributeKey();
+    static final byte[] STATIC_PLAINTEXT = "Hello, World!".getBytes();
 
     static class Message {
 
@@ -69,14 +67,13 @@ public class TestHttpLoadServerTFB {
         System.setProperty("frame", "16");
         System.setProperty("readBuf", "512");
         System.setProperty("pool", "true");
-        System.setProperty("direct", "true");
         System.setProperty("inline", "true");
         System.setProperty("level", "1");
         System.setProperty("read", "false");
         System.setProperty("epoll", "true");
         System.setProperty("nodelay", "true");
         System.setProperty("cachedurl", "true");
-        System.setProperty("unsafeBuf", "true");
+        System.setProperty("unsafeBuf", "false");
 
 
         boolean lite      = Util.getBooleanProperty("lite");
@@ -97,6 +94,7 @@ public class TestHttpLoadServerTFB {
         Options.setChannelReadFirst(read);
         Options.setEnableEpoll(epoll);
         Options.setEnableUnsafeBuf(unsafeBuf);
+
         DebugUtil.info("lite: {}", lite);
         DebugUtil.info("read: {}", read);
         DebugUtil.info("pool: {}", pool);
@@ -104,7 +102,6 @@ public class TestHttpLoadServerTFB {
         DebugUtil.info("epoll: {}", epoll);
         DebugUtil.info("frame: {}", frame);
         DebugUtil.info("level: {}", level);
-        DebugUtil.info("direct: {}", direct);
         DebugUtil.info("readBuf: {}", readBuf);
         DebugUtil.info("nodelay: {}", nodelay);
         DebugUtil.info("cachedurl: {}", cachedurl);
@@ -121,7 +118,13 @@ public class TestHttpLoadServerTFB {
             cachedUrls.add("/plaintext");
             cachedUrls.add("/json");
         }
-        HttpCodec codec = new HttpCodec(server, fcache, lite, cachedUrls);
+        HttpCodec codec = new HttpCodec(server, fcache, lite, cachedUrls) {
+
+            @Override
+            protected Object newAttachment() {
+                return new MyHttpAttachment();
+            }
+        };
 
         IoEventHandle eventHandle = new IoEventHandle() {
 
@@ -130,14 +133,15 @@ public class TestHttpLoadServerTFB {
                 HttpFrame f      = (HttpFrame) frame;
                 String    action = f.getRequestURL();
                 if ("/plaintext".equals(action)) {
-                    ByteBuf buf = ch.getAttributeUnsafe(WRITE_BUF);
+                    MyHttpAttachment att = (MyHttpAttachment) ch.getAttachment();
+                    ByteBuf          buf = att.write_buf;
                     if (buf == null) {
                         buf = ch.allocate();
                         ByteBuf temp = buf;
-                        ch.setAttributeUnsafe(WRITE_BUF, buf);
+                        att.write_buf = buf;
                         ch.getEventLoop().submit(() -> {
                             ch.writeAndFlush(temp);
-                            ch.setAttributeUnsafe(WRITE_BUF, null);
+                            att.write_buf = null;
                         });
                     }
                     f.setContent(STATIC_PLAINTEXT);
@@ -145,9 +149,13 @@ public class TestHttpLoadServerTFB {
                     f.setConnection(HttpConnection.NONE);
                     f.setDate(HttpDateUtil.getDateLine());
                     codec.encode(ch, buf, f);
-                    ch.release(f);
+                    codec.release(ch.getEventLoop(),f);
                 } else if ("/json".equals(action)) {
-                    ByteBuf    temp   = FastThreadLocal.get().getAttributeUnsafe(JSON_BUF);
+                    ByteBuf temp = FastThreadLocal.get().getAttribute(JSON_BUF);
+                    if (temp == null) {
+                        temp = ByteBuf.heap(0);
+                        FastThreadLocal.get().setAttribute(JSON_BUF, temp);
+                    }
                     JsonStream stream = JsonStreamPool.borrowJsonStream();
                     try {
                         stream.reset(null);
@@ -178,7 +186,7 @@ public class TestHttpLoadServerTFB {
 
         HttpDateUtil.start();
         NioEventLoopGroup group   = new NioEventLoopGroup();
-        ChannelAcceptor   context = new ChannelAcceptor(group, 8080);
+        ChannelAcceptor   context = new ChannelAcceptor(group, 8081);
         group.setMemoryCapacity(pool_cap);
         group.setEnableMemoryPool(pool);
         group.setMemoryUnit(pool_unit);
@@ -201,12 +209,9 @@ public class TestHttpLoadServerTFB {
         context.bind(1024 * 8);
     }
 
-    static AttributeKey<ByteBuf> newJsonBufKey() {
-        return FastThreadLocal.valueOfKey("JSON_BUF", (AttributeMap map, int key) -> map.setAttribute(key, ByteBuf.heap(0)));
-    }
+    static class MyHttpAttachment extends HttpAttachment {
 
-    static AttributeKey<ByteBuf> newWriteBufKey() {
-        return Channel.valueOfKey("WRITE_BUF");
-    }
+        ByteBuf write_buf;
 
+    }
 }

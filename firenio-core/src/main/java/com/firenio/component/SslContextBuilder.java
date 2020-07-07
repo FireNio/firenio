@@ -34,7 +34,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.crypto.Cipher;
 import javax.crypto.EncryptedPrivateKeyInfo;
 import javax.crypto.NoSuchPaddingException;
@@ -62,18 +61,18 @@ import com.firenio.component.SslContext.ClientAuth;
 //ref from netty & undertow
 public final class SslContextBuilder {
 
-    private String[]              applicationProtocols;
-    private List<String>          ciphers;
-    private List<String>          protocols;
-    private ClientAuth            clientAuth = ClientAuth.NONE;
-    private TrustType             trustType;
-    private boolean               isServer;
-    private KeyManagerFactory     keyManagerFactory;
-    private long                  sessionCacheSize;
-    private long                  sessionTimeout;
-    private TrustManagerFactory   trustManagerFactory;
-    private List<X509Certificate> rawX509Certificates;
-    private X509TrustManager      x509TrustManager;
+    private final boolean               isServer;
+    private       String[]              applicationProtocols;
+    private       List<String>          ciphers;
+    private       List<String>          protocols;
+    private       ClientAuth            clientAuth = ClientAuth.NONE;
+    private       TrustType             trustType;
+    private       KeyManagerFactory     keyManagerFactory;
+    private       long                  sessionCacheSize;
+    private       long                  sessionTimeout;
+    private       TrustManagerFactory   trustManagerFactory;
+    private       List<X509Certificate> rawX509Certificates;
+    private       X509TrustManager      x509TrustManager;
 
     private SslContextBuilder(boolean isServer) {
         this.isServer = isServer;
@@ -92,7 +91,7 @@ public final class SslContextBuilder {
         try {
             ls = FileUtil.readLines(in, Util.UTF8);
         } catch (IOException e) {
-            throw new CertificateException("failed to native_read certificate input stream", e);
+            throw new CertificateException("failed to read certificate input stream", e);
         }
         return readCertificates(ls);
     }
@@ -165,25 +164,6 @@ public final class SslContextBuilder {
         }
     }
 
-    private TrustManagerFactory buildTrustManagerFactory(X509Certificate[] certCollection) throws SSLException {
-        try {
-            KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(null, null);
-            int i = 1;
-            for (X509Certificate cert : certCollection) {
-                String alias = Integer.toString(i);
-                ks.setCertificateEntry(alias, cert);
-                i++;
-            }
-            // Set up trust manager factory to use our key store.
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(ks);
-            return trustManagerFactory;
-        } catch (Exception e) {
-            throw new SSLException(e);
-        }
-    }
-
     public SslContextBuilder ciphers(List<String> ciphers) {
         needServer();
         this.ciphers = ciphers;
@@ -229,7 +209,6 @@ public final class SslContextBuilder {
     }
 
     private PrivateKey getPrivateKeyFromByteBuffer(byte[] encodedKey, String keyPassword) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException, KeyException, IOException {
-
         PKCS8EncodedKeySpec encodedKeySpec = generateKeySpec(keyPassword, encodedKey);
         try {
             return KeyFactory.getInstance("RSA").generatePrivate(encodedKeySpec);
@@ -329,7 +308,7 @@ public final class SslContextBuilder {
                     case X509TrustManager:
                         tms = new X509TrustManager[]{x509TrustManager};
                         break;
-                    case RawX509Certificate:
+                    case X509Certificate:
                         if (rawX509Certificates.size() == 1) {
                             tms = new X509TrustManager[]{new TrustOneX509TrustManager(rawX509Certificates.get(0))};
                         } else {
@@ -408,15 +387,6 @@ public final class SslContextBuilder {
         }
     }
 
-    public SslContextBuilder trust(List<String> trustCertCollectionLines) {
-        needClient();
-        try {
-            return trust(toX509Certificates(trustCertCollectionLines));
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Input stream does not contain valid certificate.", e);
-        }
-    }
-
     public SslContextBuilder trust(TrustManagerFactory trustManagerFactory) {
         needClient();
         Assert.notNull(trustManagerFactory, "null trustManagerFactory");
@@ -425,15 +395,7 @@ public final class SslContextBuilder {
         return this;
     }
 
-    public SslContextBuilder trustRaw(InputStream trustCertCollection) throws CertificateException {
-        return trustRaw(toX509Certificates(trustCertCollection));
-    }
-
-    public SslContextBuilder trustRaw(List<String> trustCertCollection) throws CertificateException {
-        return trustRaw(toX509Certificates(trustCertCollection));
-    }
-
-    public SslContextBuilder trustRaw(X509Certificate... trustCertCollection) {
+    public SslContextBuilder trust(X509Certificate... trustCertCollection) {
         needClient();
         Assert.notEmpty(trustCertCollection, "empty trustCertCollection");
         if (rawX509Certificates == null) {
@@ -444,14 +406,7 @@ public final class SslContextBuilder {
                 rawX509Certificates.add(certificate);
             }
         }
-        trustType = TrustType.RawX509Certificate;
-        return this;
-    }
-
-    public SslContextBuilder trust(X509Certificate... trustCertCollection) throws SSLException {
-        needClient();
-        Assert.notEmpty(trustCertCollection, "empty trustCertCollection");
-        trust(buildTrustManagerFactory(trustCertCollection));
+        trustType = TrustType.X509Certificate;
         return this;
     }
 
@@ -465,17 +420,19 @@ public final class SslContextBuilder {
 
     enum TrustType {
 
-        ALL, TrustManagerFactory, X509TrustManager, RawX509Certificate
+        ALL, TrustManagerFactory, X509TrustManager, X509Certificate
 
     }
 
     static class TrustAllX509TrustManager implements X509TrustManager {
 
         @Override
-        public void checkClientTrusted(X509Certificate[] arg0, String arg1) {}
+        public void checkClientTrusted(X509Certificate[] arg0, String arg1) {
+        }
 
         @Override
-        public void checkServerTrusted(X509Certificate[] arg0, String arg1) { }
+        public void checkServerTrusted(X509Certificate[] arg0, String arg1) {
+        }
 
         @Override
         public X509Certificate[] getAcceptedIssuers() {
@@ -494,7 +451,8 @@ public final class SslContextBuilder {
         }
 
         @Override
-        public void checkClientTrusted(X509Certificate[] arg0, String arg1) {}
+        public void checkClientTrusted(X509Certificate[] arg0, String arg1) {
+        }
 
         @Override
         public void checkServerTrusted(X509Certificate[] server_certs, String arg1) throws CertificateException {
@@ -525,7 +483,8 @@ public final class SslContextBuilder {
         }
 
         @Override
-        public void checkClientTrusted(X509Certificate[] arg0, String arg1) {}
+        public void checkClientTrusted(X509Certificate[] arg0, String arg1) {
+        }
 
         @Override
         public void checkServerTrusted(X509Certificate[] server_certs, String arg1) throws CertificateException {

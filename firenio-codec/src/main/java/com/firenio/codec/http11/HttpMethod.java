@@ -20,7 +20,11 @@ package com.firenio.codec.http11;
  */
 public enum HttpMethod {
 
-    CONNECT(3, "CONNECT"), GET(1, "GET"), OTHER(0, "OTHER"), POST(2, "POST");
+    CONNECT(3, "CONNECT"),
+    GET(1, "GET"),
+    OTHER(0, "OTHER"),
+    POST(2, "POST"),
+    HEAD(3, "HEAD");
 
     private static final HttpMethod[] enums;
 

@@ -15,6 +15,7 @@
  */
 package com.firenio.component;
 
+import java.lang.reflect.Method;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -56,8 +57,7 @@ public final class SslContext {
         boolean testOpenSsl = false;
         try {
             if (Options.isEnableOpenssl() && Unsafe.UNSAFE_AVAILABLE) {
-                Class.forName("org.wildfly.openssl.OpenSSLProvider");
-                org.wildfly.openssl.OpenSSLProvider.register();
+                registerOpenSsl();
                 testOpenSsl = true;
             }
         } catch (Throwable e) {
@@ -130,6 +130,15 @@ public final class SslContext {
         if (applicationProtocols != null && !OPENSSL_AVAILABLE) {
             throw new SSLException("applicationProtocols enabled but openssl not available");
         }
+    }
+
+    private static void registerOpenSsl() throws Exception {
+        String      clazzName = "org.wildfly.openssl.OpenSSLProvider";
+        ClassLoader cl        = SslContext.class.getClassLoader();
+        Class       clazz     = Class.forName(clazzName, false, cl);
+        Method      method    = clazz.getDeclaredMethod("register");
+        method.setAccessible(true);
+        method.invoke(null);
     }
 
     private static void addIfSupported(Set<String> supported, List<String> enabled, String... names) {

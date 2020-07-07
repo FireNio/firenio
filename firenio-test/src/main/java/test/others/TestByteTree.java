@@ -39,14 +39,14 @@ public class TestByteTree {
         t.add("bcdd");
         t.add("bbdd");
 
-        Assert.assertNotNull(t.get("1bcd1".getBytes(), 1, 3));
-        Assert.assertNotNull(t.get("1ccc1".getBytes(), 1, 3));
-        Assert.assertNotNull(t.get("1bbd1".getBytes(), 1, 3));
+        Assert.assertNotNull(t.get("1bcd1".getBytes(), 1, 4));
+        Assert.assertNotNull(t.get("1ccc1".getBytes(), 1, 4));
+        Assert.assertNotNull(t.get("1bbd1".getBytes(), 1, 4));
 
-        Assert.assertNull(t.get("1bbb1".getBytes(), 1, 3));
-        Assert.assertNull(t.get("1cccc1".getBytes(), 1, 4));
-        Assert.assertNull(t.get("1cc1".getBytes(), 1, 2));
-        Assert.assertNull(t.get("1bc1".getBytes(), 1, 2));
+        Assert.assertNull(t.get("1bbb1".getBytes(), 1, 4));
+        Assert.assertNull(t.get("1cccc1".getBytes(), 1, 5));
+        Assert.assertNull(t.get("1cc1".getBytes(), 1, 3));
+        Assert.assertNull(t.get("1bc1".getBytes(), 1, 3));
 
     }
 

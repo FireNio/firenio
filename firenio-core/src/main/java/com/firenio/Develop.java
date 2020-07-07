@@ -29,7 +29,7 @@ public class Develop {
     public static final String  EPOLL_PATH     = DevelopConfig.EPOLL_PATH;
     public static final boolean NATIVE_DEBUG   = DevelopConfig.NATIVE_DEBUG;
     public static final boolean CHANNEL_DEBUG  = DevelopConfig.CHANNEL_DEBUG;
-    public static final boolean DEBUG_ERROR    = Options.isDebugError();
+    public static final boolean DEBUG_ERROR    = DevelopConfig.DEBUG_ERROR;
 
     public static void debugException(Logger logger, Throwable e) {
         if (DEBUG_ERROR) {

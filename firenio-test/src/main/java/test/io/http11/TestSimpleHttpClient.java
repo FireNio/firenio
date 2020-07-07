@@ -58,7 +58,7 @@ public class TestSimpleHttpClient {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setSslContext(sslContext);
         long    start = Util.now();
-        Channel ch    = context.connect(9999999);
+        Channel ch    = context.connect(3000);
         ch.writeAndFlush(new ClientHttpFrame("/test?p=2222"));
         w.await(3000);
         System.out.println(Util.past(start));

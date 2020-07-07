@@ -36,7 +36,9 @@ import com.firenio.component.Frame;
  */
 public class ClientHttpCodec extends HttpCodec {
 
-    private static final byte[] PROTOCOL = b(" HTTP/1.1\r\nContent-Length: ");
+    private static final byte[] PROTOCOL = b(" HTTP/1.1\r\n");
+
+    private static final byte[] PROTOCOL_CL = b(" HTTP/1.1\r\nContent-Length: ");
 
     @Override
     ClientHttpFrame new_frame() {
@@ -103,10 +105,14 @@ public class ClientHttpCodec extends HttpCodec {
         buf.writeBytes(mtd_bytes);
         buf.writeByte(SPACE);
         buf.writeBytes(url_bytes);
-        buf.writeBytes(PROTOCOL);
-        buf.writeBytes(byte32, len_idx, len_len);
-        buf.writeByte(R);
-        buf.writeByte(N);
+        if (f.isGet()) {
+            buf.writeBytes(PROTOCOL);
+        } else {
+            buf.writeBytes(PROTOCOL_CL);
+            buf.writeBytes(byte32, len_idx, len_len);
+            buf.writeByte(R);
+            buf.writeByte(N);
+        }
         int j = 0;
         for (int i = 0; i < header_size; i++) {
             buf.writeBytes(bytes_array.get(j++));

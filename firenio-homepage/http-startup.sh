@@ -11,11 +11,11 @@ rm -rf ../../firenio-homepage/lib/*.jar
 
 cp -r -u -v target/classes/app ../../firenio-homepage
 cp -u -v target/sample-http-*-jar-with-dependencies.jar ../../firenio-homepage/app/lib/ 
-cp -u -v ../../firenio-all/target/firenio-all-*-SNAPSHOT.jar ../../firenio-homepage/lib/ 
+cp -u -v ../../firenio-boot/target/firenio-boot-*-SNAPSHOT.jar ../../firenio-homepage/lib/ 
 
 cd ../../firenio-homepage
 
-kill -9 $(ps -ef | grep java | grep -v grep | awk '{print $2}')
+kill -9 $(ps -ef | grep com.firenio.boot.Bootstrap | grep -v grep | awk '{print $2}')
 
 CLASSPATH=""
 for i in lib/*.jar; do
@@ -27,11 +27,10 @@ PRGDIR=`dirname "$PRG"`
 
 (java -XX:+PrintGCDetails -Xloggc:gc.log -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=6666,suspend=n \
      -cp $CLASSPATH \
-     -Dboot.mode=prod \
+     -Dboot.prodMode=true \
      -Dboot.libPath=/app/lib \
-     -Dorg.wildfly.openssl.path=$1 \
-     -Dboot.class=sample.http11.startup.TestHttpBootstrapEngine \
-     com.firenio.container.Bootstrap) &
+     -Dboot.className=sample.http11.startup.TestHttpBootstrapEngine \
+     com.firenio.boot.Bootstrap) &
 
 ## echo -17 > /proc/$(ps -ef | grep java | grep -v grep | awk '{print $2}')/oom_adj && cat /proc/$(ps -ef | grep java | grep -v grep | awk '{print $2}')/oom_adj
 

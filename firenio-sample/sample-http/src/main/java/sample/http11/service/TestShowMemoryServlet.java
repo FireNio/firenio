@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.firenio.buffer.ByteBufAllocatorGroup;
@@ -38,10 +40,13 @@ import sample.http11.HttpUtil;
 @Service("/test-show-memory")
 public class TestShowMemoryServlet extends HttpFrameAcceptor {
 
+    @Autowired
+    ApplicationContext context;
+
     @Override
     protected void doAccept(Channel ch, HttpFrame f) throws Exception {
-        TestWebSocketChatServlet       chatServlet       = ContextUtil.getBean(TestWebSocketChatServlet.class);
-        TestWebSocketRumpetrollServlet rumpetrollServlet = ContextUtil.getBean(TestWebSocketRumpetrollServlet.class);
+        TestWebSocketChatServlet       chatServlet       = context.getBean(TestWebSocketChatServlet.class);
+        TestWebSocketRumpetrollServlet rumpetrollServlet = context.getBean(TestWebSocketRumpetrollServlet.class);
 
         WebSocketMsgAdapter chatMsgAdapter       = chatServlet.getMsgAdapter();
         WebSocketMsgAdapter rumpetrollMsgAdapter = rumpetrollServlet.getMsgAdapter();

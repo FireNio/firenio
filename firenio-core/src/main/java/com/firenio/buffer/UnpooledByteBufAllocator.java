@@ -50,7 +50,7 @@ public final class UnpooledByteBufAllocator extends ByteBufAllocator {
     public void freeMemory() {}
 
     @Override
-    public long getCapacity() {
+    public int getCapacity() {
         return -1;
     }
 
