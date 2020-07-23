@@ -15,11 +15,6 @@
  */
 package com.firenio.codec.http11;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
-
 import com.firenio.Develop;
 import com.firenio.buffer.ByteBuf;
 import com.firenio.collection.ByteTree;
@@ -31,6 +26,11 @@ import com.firenio.component.FastThreadLocal;
 import com.firenio.component.Frame;
 import com.firenio.component.NioEventLoop;
 import com.firenio.component.ProtocolCodec;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author wangkai
@@ -50,7 +50,7 @@ public class HttpCodec extends ProtocolCodec {
     protected static final byte        SPACE                 = ' ';
     protected static final int         NUM_GET               = ByteUtil.getIntLE("GET ".getBytes(), 0);
     protected static final int         NUM_POST              = ByteUtil.getIntLE("POST".getBytes(), 0);
-    protected static final int         NUM_HEAD              = ByteUtil.getIntLE("HEAD ".getBytes(), 0);
+    protected static final int         NUM_HEAD              = ByteUtil.getIntLE("HEAD".getBytes(), 0);
 
     protected final int        blimit;
     protected final byte[][]   cl_bytes = new byte[1024][];
@@ -160,22 +160,21 @@ public class HttpCodec extends ProtocolCodec {
         }
     }
 
-    private static int read_line(StringBuilder line, ByteBuf src, int abs_pos, int length, int limit) throws IOException {
-        int maybeRead = limit - length;
-        int s_limit   = src.absWriteIndex();
-        int remaining = s_limit - abs_pos;
-        if (remaining > maybeRead) {
-            int i = read_line(line, src, abs_pos, abs_pos + maybeRead);
-            if (i == -1) {
+    private static int read_line_range(StringBuilder line, ByteBuf src, int abs_pos, int h_len, int limit) throws IOException {
+        int to          = abs_pos + (limit - h_len);
+        int write_index = src.writeIndex();
+        if (to > write_index) {
+            return append_line(line, src, abs_pos, write_index);
+        } else {
+            int index = append_line(line, src, abs_pos, to);
+            if (index == -1) {
                 throw OVER_LIMIT;
             }
-            return i;
-        } else {
-            return read_line(line, src, abs_pos, s_limit);
+            return index;
         }
     }
 
-    private static int read_line(StringBuilder line, ByteBuf src, int abs_pos, int abs_limit) {
+    private static int append_line(StringBuilder line, ByteBuf src, int abs_pos, int abs_limit) {
         for (int i = abs_pos; i < abs_limit; i++) {
             byte b = src.getByteAbs(i);
             if (b == N) {
@@ -189,10 +188,10 @@ public class HttpCodec extends ProtocolCodec {
     }
 
     private static int read_line_range(ByteBuf src, int abs_pos, int h_len, int limit) throws IOException {
-        int to          = abs_pos + limit - h_len;
+        int to          = abs_pos + (limit - h_len);
         int write_index = src.writeIndex();
         if (to > write_index) {
-            return src.indexOf(N, abs_pos, to);
+            return src.indexOf(N, abs_pos, write_index);
         } else {
             int index = src.indexOf(N, abs_pos, to);
             if (index == -1) {
@@ -330,7 +329,7 @@ public class HttpCodec extends ProtocolCodec {
         int           h_len        = f.getHeaderLength();
         int           abs_pos      = src.absReadIndex();
         if (decode_state == decode_state_line_one) {
-            int l_end = read_line(line, src, abs_pos, 0, hlimit);
+            int l_end = read_line_range(line, src, abs_pos, 0, hlimit);
             if (l_end == -1) {
                 return decode_state_line_one;
             } else {
@@ -343,7 +342,7 @@ public class HttpCodec extends ProtocolCodec {
         if (decode_state == decode_state_header) {
             for (; ; ) {
                 line.setLength(0);
-                int pn = read_line(line, src, abs_pos, h_len, hlimit);
+                int pn = read_line_range(line, src, abs_pos, h_len, hlimit);
                 if (pn == -1) {
                     src.absReadIndex(abs_pos);
                     f.setHeaderLength(h_len);
@@ -423,7 +422,6 @@ public class HttpCodec extends ProtocolCodec {
     public ByteBuf encode(final Channel ch, Frame frame) {
         HttpFrame       f             = (HttpFrame) frame;
         FastThreadLocal l             = FastThreadLocal.get();
-        HttpAttachment  att           = (HttpAttachment) ch.getAttachment();
         List<byte[]>    bytes_array   = (List<byte[]>) l.getList();
         Object          content       = f.getContent();
         ByteBuf         content_buf   = null;
@@ -525,7 +523,6 @@ public class HttpCodec extends ProtocolCodec {
     public void encode(final Channel ch, ByteBuf buf, Frame frame) {
         HttpFrame       f          = (HttpFrame) frame;
         FastThreadLocal l          = FastThreadLocal.get();
-        HttpAttachment  att        = (HttpAttachment) ch.getAttachment();
         List<byte[]>    bytes_list = (List<byte[]>) l.getList();
         byte[]          content    = (byte[]) f.getContent();
         byte[]          head_bytes = f.getStatus().getLine();
@@ -636,10 +633,7 @@ public class HttpCodec extends ProtocolCodec {
         if (c_type == null) {
             return false;
         }
-        if (c_type.startsWith("multipart/form-data;")) {
-            return true;
-        }
-        return false;
+        return c_type.startsWith("multipart/form-data;");
     }
 
     protected void parse_line_one(HttpFrame f, CharSequence line) throws IOException {

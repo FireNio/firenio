@@ -15,6 +15,21 @@
  */
 package com.firenio.component;
 
+import com.firenio.Develop;
+import com.firenio.Releasable;
+import com.firenio.buffer.ByteBuf;
+import com.firenio.buffer.ByteBufAllocator;
+import com.firenio.common.Unsafe;
+import com.firenio.common.Util;
+import com.firenio.concurrent.EventLoop;
+import com.firenio.log.Logger;
+import com.firenio.log.LoggerFactory;
+
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLEngineResult;
+import javax.net.ssl.SSLEngineResult.HandshakeStatus;
+import javax.net.ssl.SSLEngineResult.Status;
+import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.SocketOption;
@@ -28,23 +43,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLEngineResult;
-import javax.net.ssl.SSLEngineResult.HandshakeStatus;
-import javax.net.ssl.SSLEngineResult.Status;
-import javax.net.ssl.SSLException;
-
-import com.firenio.Develop;
-import com.firenio.Releasable;
-import com.firenio.buffer.ByteBuf;
-import com.firenio.buffer.ByteBufAllocator;
-import com.firenio.common.Unsafe;
-import com.firenio.common.Util;
-import com.firenio.concurrent.EventLoop;
-import com.firenio.log.Logger;
-import com.firenio.log.LoggerFactory;
 
 import static com.firenio.Develop.debugException;
 import static com.firenio.common.Util.unknownStackTrace;
@@ -106,7 +106,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
         this.enable_ssl = ctx.isEnableSsl();
         this.codec = ctx.getDefaultCodec();
         this.exec_el = ctx.getNextExecutorEventLoop();
-        this.write_bufs = new LinkedBlockingQueue<>();
+        this.write_bufs = new ConcurrentLinkedQueue<>();
         this.ioEventHandle = context.getIoEventHandle();
         this.last_access = creation_time + el.getGroup().getIdleTime();
         this.current_wbs = new ByteBuf[el.getGroup().getWriteBuffers()];

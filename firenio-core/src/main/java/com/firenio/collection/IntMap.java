@@ -80,7 +80,7 @@ public final class IntMap<V> {
         int   start_index = key & mask;
         int   index       = start_index;
         for (; ; ) {
-            int _key = keys[index & mask];
+            int _key = keys[index];
             if (_key == -1) {
                 keys[index] = key;
                 values[index] = value;
@@ -105,7 +105,7 @@ public final class IntMap<V> {
         int start_index = key & mask;
         int index       = start_index;
         for (; ; ) {
-            int _key = keys[index & mask];
+            int _key = keys[index];
             if (_key == -1) {
                 keys[index] = key;
                 values[index] = value;
@@ -192,7 +192,7 @@ public final class IntMap<V> {
         int   start_index = key & mask;
         int   index       = start_index;
         for (; ; ) {
-            int _key = keys[index & mask];
+            int _key = keys[index];
             if (_key == -1) {
                 return null;
             } else if (_key == key) {
@@ -235,7 +235,7 @@ public final class IntMap<V> {
         int   start_index = key & mask;
         int   index       = start_index;
         for (; ; ) {
-            int _key = keys[index & mask];
+            int _key = keys[index];
             if (_key == -1) {
                 return null;
             } else if (_key == key) {

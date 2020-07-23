@@ -15,6 +15,9 @@
  */
 package test.others;
 
+import com.firenio.common.Assert;
+import com.firenio.log.DebugUtil;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -25,12 +28,41 @@ public class TestTemp {
 
     public static void main(String[] args) {
 
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        String t = "tail";
 
-        System.out.println(buffer.order());
+        String head = "head";
+        String tail = "tail";
+        String p1 = "p";
+        String t1 = t;
 
-        System.out.println(ByteOrder.nativeOrder());
+//        p1 = (t1 != (t1 = tail)) ? t1 : head;
 
+        String temp = null;
+
+
+        p1 = (print(1,t1) != (t1 = temp = print(3,tail))) ? print(2,t1) : head;
+
+        System.out.println(temp);
+
+        String p2 = "p";
+        String t2 = t;
+
+
+        String t2_temp = t2;
+        t2 = tail;
+
+        p2 = t2_temp != tail ? t2 : head;
+
+        Assert.expectTrue(p1 == p2);
+        Assert.expectTrue(t1 == t2);
+
+
+
+    }
+
+    static String print(int i, String s){
+        DebugUtil.info("i: {}, s: {}", i, s);
+        return s;
     }
 
 }
