@@ -25,7 +25,7 @@ import com.firenio.codec.http11.HttpCodec;
 import com.firenio.codec.http11.HttpFrame;
 import com.firenio.codec.http11.HttpHeader;
 import com.firenio.codec.http11.HttpMethod;
-import com.firenio.collection.IntMap;
+import com.firenio.collection.IntObjectMap;
 import com.firenio.common.Util;
 import com.firenio.component.Channel;
 import com.firenio.component.ChannelAcceptor;
@@ -102,17 +102,20 @@ public class HttpProxyServer {
 
                         @Override
                         public void accept(Channel ch, Frame frame) throws Exception {
-                            ClientHttpFrame res = (ClientHttpFrame) frame;
-                            IntMap<String>  hs  = res.getResponse_headers();
+                            ClientHttpFrame      res = (ClientHttpFrame) frame;
+                            IntObjectMap<String> hs  = res.getResponse_headers();
                             for (hs.scan(); hs.hasNext(); ) {
-                                String v = hs.value();
+                                String v = hs.getValue();
                                 if (v == null) {
                                     continue;
                                 }
-                                if (hs.key() == HttpHeader.Content_Length.getId() || hs.key() == HttpHeader.Connection.getId() || hs.key() == HttpHeader.Transfer_Encoding.getId() || hs.key() == HttpHeader.Content_Encoding.getId()) {
+                                if (hs.getKey() == HttpHeader.Content_Length.getId()
+                                        || hs.getKey() == HttpHeader.Connection.getId()
+                                        || hs.getKey() == HttpHeader.Transfer_Encoding.getId()
+                                        || hs.getKey() == HttpHeader.Content_Encoding.getId()) {
                                     continue;
                                 }
-                                f.setResponseHeader(hs.key(), v.getBytes());
+                                f.setResponseHeader(hs.getKey(), v.getBytes());
                             }
                             if (res.getContent() != null) {
                                 f.setContent(res.getContent());

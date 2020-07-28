@@ -26,7 +26,6 @@ import org.junit.Test;
 import com.firenio.buffer.ByteBuf;
 import com.firenio.common.Assert;
 import com.firenio.common.Unsafe;
-import com.firenio.common.Util;
 import com.firenio.log.LoggerFactory;
 
 /**

@@ -90,7 +90,9 @@ public abstract class EventLoop extends LifeCycle implements Runnable {
             try {
                 doLoop();
             } catch (Throwable e) {
-                logger.error(e.getMessage(), e);
+                if (!(e instanceof InterruptedException)) {
+                    logger.error(e.getMessage(), e);
+                }
             }
         }
     }

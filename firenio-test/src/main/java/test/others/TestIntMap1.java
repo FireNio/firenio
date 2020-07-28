@@ -17,8 +17,8 @@ package test.others;
 
 import io.netty.util.collection.IntObjectHashMap;
 
-import com.firenio.collection.IntMap;
 import com.firenio.log.LoggerFactory;
+import test.backup.IntMap;
 
 /**
  * @author: wangkai

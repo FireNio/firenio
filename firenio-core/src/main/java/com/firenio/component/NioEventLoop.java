@@ -15,81 +15,62 @@
  */
 package com.firenio.component;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
-import java.nio.channels.spi.SelectorProvider;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.AbstractSet;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.firenio.Develop;
+import com.carrotsearch.hppc.IntArrayList;
 import com.firenio.Options;
 import com.firenio.buffer.ByteBuf;
 import com.firenio.buffer.ByteBufAllocator;
 import com.firenio.collection.ArrayListStack;
 import com.firenio.collection.DelayedQueue;
-import com.firenio.collection.IntArray;
-import com.firenio.collection.IntMap;
+import com.firenio.collection.IntObjectMap;
 import com.firenio.collection.LinkedBQStack;
 import com.firenio.collection.Stack;
-import com.firenio.common.ByteUtil;
-import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
-import com.firenio.component.Channel.EpollChannel;
-import com.firenio.component.Channel.JavaChannel;
-import com.firenio.component.ChannelConnector.EpollConnectorUnsafe;
-import com.firenio.component.ChannelConnector.JavaConnectorUnsafe;
 import com.firenio.concurrent.AtomicArray;
 import com.firenio.concurrent.EventLoop;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
-import static com.firenio.Develop.debugException;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.nio.channels.SocketChannel;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author wangkai
  */
 public abstract class NioEventLoop extends EventLoop {
 
-    static final boolean       CHANNEL_READ_FIRST = Options.isChannelReadFirst();
-    static final Logger        logger             = NEW_LOGGER();
-    static final IOException   NOT_FINISH_CONNECT = NOT_FINISH_CONNECT();
-    static final IOException   OVER_CH_SIZE_LIMIT = OVER_CH_SIZE_LIMIT();
-    static final AtomicInteger ATTRIBUTE_KEYS     = new AtomicInteger();
+    static final int           CHANNELS_COMPACT_SIZE = 1024 * 256;
+    static final boolean       CHANNEL_READ_FIRST    = Options.isChannelReadFirst();
+    static final Logger        logger                = NEW_LOGGER();
+    static final IOException   NOT_FINISH_CONNECT    = NOT_FINISH_CONNECT();
+    static final IOException   OVER_CH_SIZE_LIMIT    = OVER_CH_SIZE_LIMIT();
+    static final AtomicInteger ATTRIBUTE_KEYS        = new AtomicInteger();
     // NOTICE USE_HAS_TASK can make a memory barrier for io thread,
     // please do not change this value to false unless you are really need.
     // I am not sure if the select()/select(n) has memory barrier,
     // it can be set USE_HAS_TASK to false if there is a memory barrier.
-    static final boolean       USE_HAS_TASK       = true;
+    static final boolean       USE_HAS_TASK          = true;
 
-    final    ByteBufAllocator        alloc;
-    final    ByteBuf                 buf;
-    final    IntMap<Channel>         channels       = new IntMap<>(4096);
-    final    IntArray                close_channels = new IntArray();
-    final    int                     ch_size_limit;
-    final    DelayedQueue            delayed_queue  = new DelayedQueue();
-    final    BlockingQueue<Runnable> events         = new LinkedBlockingQueue<>();
-    final    AtomicArray             attributes     = new AtomicArray();
-    final    NioEventLoopGroup       group;
-    final    int                     index;
-    final    AtomicInteger           selecting      = new AtomicInteger();
-    final    boolean                 sharable;
-    final    long                    buf_address;
-    final    boolean                 acceptor;
-    volatile boolean                 has_task       = false;
+    final ByteBufAllocator        alloc;
+    final ByteBuf                 buf;
+    final IntArrayList            close_channels = new IntArrayList();
+    final int                     ch_size_limit;
+    final DelayedQueue            delayed_queue  = new DelayedQueue();
+    final BlockingQueue<Runnable> events         = new LinkedBlockingQueue<>();
+    final AtomicArray             attributes     = new AtomicArray();
+    final NioEventLoopGroup       group;
+    final int                     index;
+    final AtomicInteger           selecting      = new AtomicInteger();
+    final boolean                 sharable;
+    final long                    buf_address;
+    final boolean                 acceptor;
+
+    IntObjectMap<Channel> channels = new IntObjectMap<>(4096);
+    volatile boolean has_task = false;
 
     NioEventLoop(NioEventLoopGroup group, int index, String threadName) {
         super(threadName);
@@ -117,20 +98,20 @@ public abstract class NioEventLoop extends EventLoop {
         }
     }
 
-    private static void channel_idle(ChannelContext context, IntMap<Channel> channels, long last_idle_time) {
+    private static void channel_idle(ChannelContext context, IntObjectMap<Channel> channels, long last_idle_time) {
         List<ChannelIdleListener> ls = context.getChannelIdleEventListeners();
         for (int i = 0; i < ls.size(); i++) {
             ChannelIdleListener l = ls.get(i);
             for (channels.scan(); channels.hasNext(); ) {
-                Channel ch = channels.value();
+                Channel ch = channels.getValue();
                 channel_idle(l, ch, last_idle_time);
             }
         }
     }
 
-    private static void channel_idle_share(IntMap<Channel> channels, long last_idle_time) {
+    private static void channel_idle_share(IntObjectMap<Channel> channels, long last_idle_time) {
         for (channels.scan(); channels.hasNext(); ) {
-            Channel                   ch      = channels.value();
+            Channel                   ch      = channels.getValue();
             ChannelContext            context = ch.getContext();
             List<ChannelIdleListener> ls      = context.getChannelIdleEventListeners();
             if (ls.size() == 1) {
@@ -143,7 +124,7 @@ public abstract class NioEventLoop extends EventLoop {
         }
     }
 
-    static void register_ch(ChannelContext ctx, int fd, IntMap<Channel> channels, Channel ch) {
+    static void register_ch(ChannelContext ctx, int fd, IntObjectMap<Channel> channels, Channel ch) {
         channels.put(fd, ch);
         if (ch.isEnableSsl()) {
             // fire open event later
@@ -187,7 +168,7 @@ public abstract class NioEventLoop extends EventLoop {
 
     //FIXME ..optimize sharable group
     private void channel_idle(long last_idle_time) {
-        IntMap<Channel> channels = this.channels;
+        IntObjectMap<Channel> channels = this.channels;
         if (channels.isEmpty()) {
             return;
         }
@@ -199,9 +180,9 @@ public abstract class NioEventLoop extends EventLoop {
     }
 
     private void close_channels() {
-        IntMap<Channel> channels = this.channels;
+        IntObjectMap<Channel> channels = this.channels;
         for (channels.scan(); channels.hasNext(); ) {
-            Util.close(channels.value());
+            Util.close(channels.getValue());
         }
     }
 
@@ -413,8 +394,8 @@ public abstract class NioEventLoop extends EventLoop {
     }
 
     private void remove_closed_channels() {
-        IntArray        c_list   = this.close_channels;
-        IntMap<Channel> channels = this.channels;
+        IntArrayList          c_list   = this.close_channels;
+        IntObjectMap<Channel> channels = this.channels;
         if (!c_list.isEmpty()) {
             for (int i = 0; i < c_list.size(); i++) {
                 Channel ch = channels.remove(c_list.get(i));
@@ -423,6 +404,15 @@ public abstract class NioEventLoop extends EventLoop {
                 }
             }
             c_list.clear();
+            int keys_length = channels.keys.length;
+            if (keys_length >= CHANNELS_COMPACT_SIZE) {
+                if (channels.size() < keys_length >>> 3) {
+                    int                   map_size     = Math.max(CHANNELS_COMPACT_SIZE >>> 2, channels.size());
+                    IntObjectMap<Channel> new_channels = new IntObjectMap<>(map_size);
+                    new_channels.putAll(channels);
+                    this.channels = new_channels;
+                }
+            }
         }
     }
 
@@ -430,13 +420,7 @@ public abstract class NioEventLoop extends EventLoop {
         if (inEventLoop()) {
             return delayed_queue.offer(task);
         } else {
-            return submit(new Runnable() {
-
-                @Override
-                public void run() {
-                    delayed_queue.offer(task);
-                }
-            });
+            return submit(() -> delayed_queue.offer(task));
         }
     }
 

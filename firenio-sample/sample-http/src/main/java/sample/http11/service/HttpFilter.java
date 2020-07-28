@@ -21,7 +21,6 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import com.firenio.common.Util;
 import com.firenio.component.Frame;
@@ -75,7 +74,7 @@ public class HttpFilter implements HttpFrameFilter {
             return false;
         }
         if (!noneLoggerUrlSet.contains(frameName) && !endContains(frameName)) {
-            String remoteAddr = ch.getRemoteAddr();
+            String remoteAddr = ch.getRemoteAddress();
             String readText   = f.getStringContent();
             if (Util.isNullOrBlank(readText)) {
                 logger.info("request ip:{}, service name:{}", remoteAddr, frameName);

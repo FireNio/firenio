@@ -15,17 +15,10 @@
  */
 package test.io;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.Base64;
 
-import sun.reflect.misc.FieldUtil;
-
-import com.firenio.common.Cryptos;
-import com.firenio.common.FileUtil;
-import com.firenio.common.Unsafe;
 import com.firenio.common.Util;
 
 /**

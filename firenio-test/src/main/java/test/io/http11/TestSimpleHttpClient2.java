@@ -58,7 +58,7 @@ public class TestSimpleHttpClient2 {
             public void accept(Channel ch, Frame frame) throws Exception {
                 ClientHttpFrame res = (ClientHttpFrame) frame;
                 System.out.println();
-                System.out.println(new String(res.getArrayContent()));
+                System.out.println(new String(res.getBytesContent()));
                 System.out.println();
                 //                Util.close(context);
             }

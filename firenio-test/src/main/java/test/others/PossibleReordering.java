@@ -24,18 +24,14 @@ public class PossibleReordering {
     static int x = 0, y = 0;
 
     public static void main(String[] args) throws InterruptedException {
-        Thread one = new Thread(new Runnable() {
-            public void run() {
-                a = 1;
-                x = b;
-            }
+        Thread one = new Thread(() -> {
+            a = 1;
+            x = b;
         });
 
-        Thread other = new Thread(new Runnable() {
-            public void run() {
-                b = 1;
-                y = a;
-            }
+        Thread other = new Thread(() -> {
+            b = 1;
+            y = a;
         });
         one.start();
         other.start();

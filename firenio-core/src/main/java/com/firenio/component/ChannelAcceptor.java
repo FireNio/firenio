@@ -80,22 +80,18 @@ public final class ChannelAcceptor extends ChannelContext {
         Util.start(this);
         final NioEventLoop   bindEventLoop = bindGroup.getNext();
         final Waiter<Object> bindWaiter    = new Waiter<>(this);
-        boolean submitted = bindEventLoop.submit(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    unsafe.bind(bindEventLoop, ChannelAcceptor.this, backlog);
-                    bindWaiter.call(null, null);
-                } catch (Throwable e) {
-                    Throwable ex = e;
-                    if ("Already bound".equalsIgnoreCase(e.getMessage()) || e instanceof BindException) {
-                        ex = new BindException("Already bound at " + getPort());
-                    }
-                    bindWaiter.call(null, ex);
-                    if (bindWaiter.isTimeout()) {
-                        Util.unbind(ChannelAcceptor.this);
-                    }
+        boolean submitted = bindEventLoop.submit(() -> {
+            try {
+                unsafe.bind(bindEventLoop, ChannelAcceptor.this, backlog);
+                bindWaiter.call(null, null);
+            } catch (Throwable e) {
+                Throwable ex = e;
+                if ("Already bound".equalsIgnoreCase(e.getMessage()) || e instanceof BindException) {
+                    ex = new BindException("Already bound at " + getPort());
+                }
+                bindWaiter.call(null, ex);
+                if (bindWaiter.isTimeout()) {
+                    Util.unbind(ChannelAcceptor.this);
                 }
             }
         });

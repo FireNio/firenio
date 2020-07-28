@@ -9,9 +9,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.string.StringDecoder;
@@ -55,18 +53,14 @@ public class NettyClientThread {
                 s.append(len % 10);
             }
             final String msg = s.toString();
-            Util.exec(new Runnable() {
-
-                @Override
-                public void run() {
-                    int i = 0;
-                    for (; ; ) {
-                        //						String s = "hello Service! ---> :" + i;
-                        ChannelFuture f = channel.writeAndFlush(msg);
-                        Util.sleep(1);
-                        System.out.println(f.isDone() + "--------" + i);
-                        i++;
-                    }
+            Util.exec(() -> {
+                int i = 0;
+                for (; ; ) {
+                    //						String s = "hello Service! ---> :" + i;
+                    ChannelFuture f1 = channel.writeAndFlush(msg);
+                    Util.sleep(1);
+                    System.out.println(f1.isDone() + "--------" + i);
+                    i++;
                 }
             });
 

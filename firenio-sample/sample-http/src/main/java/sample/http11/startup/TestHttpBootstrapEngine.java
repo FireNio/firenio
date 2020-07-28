@@ -113,16 +113,15 @@ public class TestHttpBootstrapEngine implements BootstrapEngine {
             context.addProtocolCodec(new HttpCodec(4));
             context.addProtocolCodec(new WebSocketCodec());
         }
-        int        defaultPort = 80;
-        SslContext sslContext  = null;
-        String     pem         = properties.getProperty("server.sslPem");
+        int    defaultPort = 80;
+        String pem         = properties.getProperty("server.sslPem");
         if (!Util.isNullOrBlank(pem)) {
             defaultPort = 443;
-            sslContext = loadSslContextFromPem(pem, applicationProtocols, cl);
+            SslContext sslContext = loadSslContextFromPem(pem, applicationProtocols, cl);
+            context.setSslContext(sslContext);
         }
         int port = properties.getIntegerProperty("server.port", defaultPort);
         context.setPort(port);
-        context.setSslContext(sslContext);
         try {
             context.bind();
         } catch (Exception e) {

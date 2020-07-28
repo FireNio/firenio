@@ -15,8 +15,6 @@
  */
 package test.others.algorithm;
 
-import java.util.Random;
-
 import com.firenio.common.Util;
 
 /**

@@ -15,12 +15,12 @@
  */
 package test.others;
 
+import com.firenio.common.Util;
+import test.backup.IntMap;
+
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.firenio.collection.IntMap;
-import com.firenio.common.Util;
 
 /**
  * @author wangkai

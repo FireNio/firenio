@@ -15,14 +15,14 @@
  */
 package com.firenio.component;
 
-import java.io.IOException;
-
 import com.firenio.Develop;
-import com.firenio.collection.IntMap;
+import com.firenio.collection.IntObjectMap;
 import com.firenio.common.ByteUtil;
 import com.firenio.common.Unsafe;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * @author: wangkai
@@ -31,13 +31,13 @@ public class EpollEventLoop extends NioEventLoop {
 
     private static final Logger logger = NEW_LOGGER();
 
-    final IntMap<ChannelContext> ctxs    = new IntMap<>(256);
-    final int                    ep_size = 1024;
-    final int                    epfd;
-    final int                    event_fd;
-    final long                   data;
-    final long                   ep_events;
-    final long                   iovec;
+    final IntObjectMap<ChannelContext> ctxs    = new IntObjectMap<>(256);
+    final int                          ep_size = 1024;
+    final int                          epfd;
+    final int                          event_fd;
+    final long                         data;
+    final long                         ep_events;
+    final long                         iovec;
 
     public EpollEventLoop(NioEventLoopGroup group, int index, String threadName) {
         super(group, index, threadName);
@@ -133,13 +133,7 @@ public class EpollEventLoop extends NioEventLoop {
         final int    _lp = ctx.getPort();
         final int    _rp = rp;
         final String _ra = ra;
-        targetEL.submit(new Runnable() {
-
-            @Override
-            public void run() {
-                register_channel(targetEL, ctx, cfd, _ra, _lp, _rp, true);
-            }
-        });
+        targetEL.submit(() -> register_channel(targetEL, ctx, cfd, _ra, _lp, _rp, true));
     }
 
     private void accept(int fd, int e) {
@@ -225,7 +219,7 @@ public class EpollEventLoop extends NioEventLoop {
     }
 
     private void register_channel(NioEventLoop el, ChannelContext ctx, int fd, String ra, int lp, int rp, boolean add) {
-        IntMap<Channel> channels = el.channels;
+        IntObjectMap<Channel> channels = el.channels;
         if (channels.size() >= ch_size_limit) {
             logger.error(OVER_CH_SIZE_LIMIT.getMessage(), OVER_CH_SIZE_LIMIT);
             ctx.channelEstablish(null, OVER_CH_SIZE_LIMIT);

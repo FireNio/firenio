@@ -15,6 +15,14 @@
  */
 package com.firenio.common;
 
+import com.firenio.LifeCycle;
+import com.firenio.Releasable;
+import com.firenio.collection.IntObjectMap;
+import com.firenio.component.ChannelAcceptor;
+import com.firenio.component.FastThreadLocal;
+import com.firenio.log.Logger;
+import com.firenio.log.LoggerFactory;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
@@ -24,14 +32,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import com.firenio.LifeCycle;
-import com.firenio.Releasable;
-import com.firenio.collection.IntMap;
-import com.firenio.component.ChannelAcceptor;
-import com.firenio.component.FastThreadLocal;
-import com.firenio.log.Logger;
-import com.firenio.log.LoggerFactory;
 
 /**
  * @author wangkai
@@ -70,7 +70,7 @@ public class Util {
         }
     }
 
-    public static void clear(IntMap<byte[]> map) {
+    public static void clear(IntObjectMap map) {
         if (map != null) {
             map.clear();
         }
@@ -517,9 +517,13 @@ public class Util {
         }
     }
 
-    public static <T extends Throwable> T unknownStackTrace(T cause, Class<?> clazz, String method) {
-        cause.setStackTrace(new StackTraceElement[]{new StackTraceElement(clazz.getName(), method, null, -1)});
+    public static <T extends Throwable> T unknownStackTrace(T cause, String className, String method) {
+        cause.setStackTrace(new StackTraceElement[]{new StackTraceElement(className, method, null, -1)});
         return cause;
+    }
+
+    public static <T extends Throwable> T unknownStackTrace(T cause, Class<?> clazz, String method) {
+        return unknownStackTrace(cause, clazz.getName(), method);
     }
 
     public static int valueOf(int value, byte[] data) {

@@ -121,16 +121,12 @@ public final class ChannelConnector extends ChannelContext implements Closeable 
         if (eventLoop == null || !eventLoop.isRunning()) {
             eventLoop = getProcessorGroup().getNext();
         }
-        boolean submitted = this.eventLoop.submit(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    ChannelConnector ctx = ChannelConnector.this;
-                    unsafe.connect(ctx, ctx.eventLoop);
-                } catch (Throwable e) {
-                    channelEstablish(null, e);
-                }
+        boolean submitted = this.eventLoop.submit(() -> {
+            try {
+                ChannelConnector ctx = ChannelConnector.this;
+                unsafe.connect(ctx, ctx.eventLoop);
+            } catch (Throwable e) {
+                channelEstablish(null, e);
             }
         });
         if (!submitted) {

@@ -15,20 +15,17 @@
  */
 package com.firenio.codec.http11;
 
-import static com.firenio.codec.http11.HttpHeader.Content_Type;
-import static com.firenio.codec.http11.HttpHeader.Sec_WebSocket_Accept;
-import static com.firenio.codec.http11.HttpHeader.Sec_WebSocket_Key;
-import static com.firenio.codec.http11.HttpHeader.Upgrade;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import com.firenio.buffer.ByteBuf;
-import com.firenio.collection.IntMap;
+import com.firenio.collection.IntObjectMap;
 import com.firenio.common.Cryptos;
 import com.firenio.common.Util;
 import com.firenio.component.Channel;
 import com.firenio.component.Frame;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.firenio.codec.http11.HttpHeader.*;
 
 /**
  * Content-Type: application/x-www-form-urlencoded</BR> Content-Type:
@@ -38,19 +35,19 @@ public class HttpFrame extends Frame {
 
     static final Kmp KMP_BOUNDARY = new Kmp("boundary=");
 
-    private int                 connection      = HttpConnection.KEEP_ALIVE.getId();
-    private int                 contentLength;
-    private int                 contentType     = HttpContentType.text_plain_utf8.getId();
-    private byte[]              date;
-    private int                 decodeState;
-    private int                 headerLength;
-    private boolean             isForm;
-    private int                 method;
-    private Map<String, String> params          = new HashMap<>();
-    private IntMap<String>      request_headers = new IntMap<>(16);
-    private String              requestURL;
-    private IntMap<byte[]>      response_headers;
-    private int                 status          = HttpStatus.C200.getStatus();
+    private int                  connection      = HttpConnection.KEEP_ALIVE.getId();
+    private int                  contentLength;
+    private int                  contentType     = HttpContentType.text_plain_utf8.getId();
+    private byte[]               date;
+    private int                  decodeState;
+    private int                  headerLength;
+    private boolean              isForm;
+    private int                  method;
+    private Map<String, String>  params          = new HashMap<>();
+    private IntObjectMap<String> request_headers = new IntObjectMap<>();
+    private String               requestURL;
+    private IntObjectMap<byte[]> response_headers;
+    private int                  status          = HttpStatus.C200.getStatus();
 
     public String getBoundary() {
         if (isForm) {
@@ -91,11 +88,6 @@ public class HttpFrame extends Frame {
         return decodeState;
     }
 
-    @Override
-    public String getFrameName() {
-        return getRequestURL();
-    }
-
     HttpHeader getHeader(String name) {
         HttpHeader header = HttpHeader.ALL.get(name);
         if (header == null) {
@@ -128,7 +120,7 @@ public class HttpFrame extends Frame {
         return request_headers.get(name);
     }
 
-    public IntMap<String> getRequestHeaders() {
+    public IntObjectMap<String> getRequestHeaders() {
         return request_headers;
     }
 
@@ -164,7 +156,7 @@ public class HttpFrame extends Frame {
         return requestURL;
     }
 
-    public IntMap<byte[]> getResponseHeaders() {
+    public IntObjectMap<byte[]> getResponseHeaders() {
         return response_headers;
     }
 
@@ -250,7 +242,7 @@ public class HttpFrame extends Frame {
         this.request_headers.put(header.getId(), value);
     }
 
-    public void setRequestHeaders(IntMap<String> requestHeaders) {
+    public void setRequestHeaders(IntObjectMap<String> requestHeaders) {
         this.request_headers = requestHeaders;
     }
 
@@ -272,7 +264,7 @@ public class HttpFrame extends Frame {
 
     private void setResponseHeader0(int name, byte[] value, boolean absent) {
         if (response_headers == null) {
-            response_headers = new IntMap<>(8);
+            response_headers = new IntObjectMap<>();
         }
         response_headers.put(name, value);
     }
@@ -311,7 +303,7 @@ public class HttpFrame extends Frame {
             setConnection(HttpConnection.UPGRADE);
             setResponseHeader(Upgrade, HttpStatic.websocket_bytes);
             setResponseHeader(Sec_WebSocket_Accept, acceptKey.getBytes());
-            ((HttpAttachment) ch.getAttachment()).setWebSocketFrameName(getFrameName());
+            ((HttpAttachment) ch.getAttachment()).setWebSocketFrameName(getRequestURL());
             ByteBuf buf = ch.encode(this);
             ch.setCodec(WebSocketCodec.PROTOCOL_ID);
             ch.writeAndFlush(buf);

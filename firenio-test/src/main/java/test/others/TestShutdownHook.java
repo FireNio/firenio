@@ -22,14 +22,7 @@ public class TestShutdownHook {
 
     public static void main(String[] args) {
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-
-                System.out.println("shutdown.....");
-            }
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("shutdown.....")));
 
         System.out.println("before shutdown....");
 

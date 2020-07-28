@@ -18,7 +18,7 @@ package com.firenio.codec.http11;
 import com.firenio.Develop;
 import com.firenio.buffer.ByteBuf;
 import com.firenio.collection.ByteTree;
-import com.firenio.collection.IntMap;
+import com.firenio.collection.IntObjectMap;
 import com.firenio.common.ByteUtil;
 import com.firenio.common.Util;
 import com.firenio.component.Channel;
@@ -453,17 +453,17 @@ public class HttpCodec extends ProtocolCodec {
             System.arraycopy(cl_len_bytes, len_idx, cl_len_bytes, tmp_len, num_len);
             cl_len = tmp_len + num_len;
         }
-        int            hlen    = head_bytes.length;
-        int            tlen    = type_bytes == null ? 0 : type_bytes.length;
-        int            clen    = conn_bytes == null ? 0 : conn_bytes.length;
-        int            dlen    = date_bytes == null ? 0 : date_bytes.length;
-        int            len     = hlen + cl_len + dlen + 2 + clen + tlen;
-        int            h_size  = 0;
-        IntMap<byte[]> headers = f.getResponseHeaders();
+        int                  hlen    = head_bytes.length;
+        int                  tlen    = type_bytes == null ? 0 : type_bytes.length;
+        int                  clen    = conn_bytes == null ? 0 : conn_bytes.length;
+        int                  dlen    = date_bytes == null ? 0 : date_bytes.length;
+        int                  len     = hlen + cl_len + dlen + 2 + clen + tlen;
+        int                  h_size  = 0;
+        IntObjectMap<byte[]> headers = f.getResponseHeaders();
         if (headers != null) {
             for (headers.scan(); headers.hasNext(); ) {
-                byte[] k = HttpHeader.get(headers.key()).getBytes();
-                byte[] v = headers.value();
+                byte[] k = HttpHeader.get(headers.getKey()).getBytes();
+                byte[] v = headers.getValue();
                 h_size++;
                 bytes_array.add(k);
                 bytes_array.add(v);
@@ -544,11 +544,11 @@ public class HttpCodec extends ProtocolCodec {
             cl_len = tmp_len + num_len;
         }
         int            h_size  = 0;
-        IntMap<byte[]> headers = f.getResponseHeaders();
+        IntObjectMap<byte[]> headers = f.getResponseHeaders();
         if (headers != null) {
             for (headers.scan(); headers.hasNext(); ) {
-                byte[] k = HttpHeader.get(headers.key()).getBytes();
-                byte[] v = headers.value();
+                byte[] k = HttpHeader.get(headers.getKey()).getBytes();
+                byte[] v = headers.getValue();
                 h_size++;
                 bytes_list.add(k);
                 bytes_list.add(v);

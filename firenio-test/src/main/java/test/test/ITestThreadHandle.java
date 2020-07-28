@@ -17,7 +17,6 @@ package test.test;
 
 import java.math.BigDecimal;
 
-import com.firenio.common.FileUtil.OnDirectoryScan;
 import com.firenio.common.Util;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;

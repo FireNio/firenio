@@ -67,6 +67,11 @@ public final class ThreadEventLoop extends EventLoop {
     }
 
     @Override
+    public void wakeup() {
+        getMonitor().interrupt();
+    }
+
+    @Override
     public ThreadEventLoopGroup getGroup() {
         return group;
     }

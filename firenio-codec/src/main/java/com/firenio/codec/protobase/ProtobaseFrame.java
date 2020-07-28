@@ -17,95 +17,62 @@ package com.firenio.codec.protobase;
 
 import com.firenio.component.Frame;
 
+import static com.firenio.codec.protobase.ProtobaseCodec.*;
+
 public class ProtobaseFrame extends Frame {
 
-    static final byte MASK_BINARY;
-    static final byte MASK_BROADCAST;
-    static final byte MASK_CONTINUE;
-    static final byte MASK_EXT_TYPE;
-    static final byte MASK_EXT_TYPE_INVERSE;
-    static final byte MASK_LAST;
-    static final byte MASK_TEXT;
-    static final byte MASK_TUNNEL;
+    private byte flags = (byte) (make_type(TYPE_TEXT) | LAST);
+    private long channelId;
+    private long frameId;
 
-    static {
-        MASK_TEXT = 0b0010_0000;
-        MASK_TUNNEL = 0b0100_0000;
-        MASK_LAST = 0b0001_0000;
-        MASK_EXT_TYPE = 0b0000_1111;
-        MASK_BINARY = (byte) ~MASK_TEXT;
-        MASK_BROADCAST = (byte) ~MASK_TUNNEL;
-        MASK_CONTINUE = (byte) ~MASK_LAST;
-        MASK_EXT_TYPE_INVERSE = (byte) ~MASK_EXT_TYPE;
-    }
-
-    private int  channelId;
-    private byte flags = (byte) (MASK_TEXT | MASK_TUNNEL | MASK_LAST);
-    private int  frameId;
-
-    public ProtobaseFrame() {}
-
-    public ProtobaseFrame(int frameId) {
-        this.frameId = frameId;
-    }
-
-    public int getChannelId() {
-        return channelId;
-    }
-
-    public int getChannelKey() {
-        return channelId;
-    }
-
-    public int getExtType() {
-        return flags & MASK_EXT_TYPE;
-    }
-
-    public int getFrameId() {
-        return frameId;
-    }
-
-    public byte[] getReadBinary() {
-        if (isText()) {
-            return null;
-        }
-        return getArrayContent();
+    public void setLast() {
+        this.flags |= LAST;
     }
 
     @Override
     public boolean isLast() {
-        return (flags & MASK_LAST) != 0;
+        return (flags & LAST) != 0;
+    }
+
+    public void setText() {
+        setType(TYPE_TEXT);
     }
 
     @Override
     public boolean isText() {
-        return (flags & MASK_TEXT) != 0;
-    }
-
-    //is tunnel or broadcast
-    public boolean isTunnel() {
-        return (flags & MASK_TUNNEL) != 0;
+        return getType() == TYPE_TEXT;
     }
 
     public void setBinary() {
-        this.flags &= MASK_BINARY;
+        this.setType(TYPE_BINARY);
+    }
+
+    public boolean isBinary() {
+        return getType() == TYPE_BINARY;
     }
 
     public void setBroadcast() {
-        this.flags &= MASK_BROADCAST;
+        this.flags |= BROADCAST;
     }
 
-    public void setChannelId(int channelId) {
+    public boolean isBroadcast() {
+        return (flags & BROADCAST) != 0;
+    }
+
+    public void setChannelId(long channelId) {
         this.channelId = channelId;
     }
 
-    public void setContinue() {
-        this.flags &= MASK_CONTINUE;
+    public long getChannelId() {
+        return channelId;
     }
 
-    public void setExtType(byte extType) {
-        this.flags &= MASK_EXT_TYPE_INVERSE;
-        this.flags |= extType;
+    public void setFrameId(long frameId) {
+        this.frameId = frameId;
+    }
+
+    public long getFrameId() {
+        return frameId;
     }
 
     public void setFlags(byte flags) {
@@ -116,20 +83,21 @@ public class ProtobaseFrame extends Frame {
         return flags;
     }
 
-    public void setFrameId(int frameId) {
-        this.frameId = frameId;
+    public void setType(byte type) {
+        this.flags = (byte) ((flags & 0b1111) | make_type(type));
     }
 
-    public void setLast() {
-        this.flags |= MASK_LAST;
+    public int getType() {
+        return get_type(flags);
     }
 
-    public void setText() {
-        this.flags |= MASK_TEXT;
+    public void setContinue() {
+        this.flags &= ~LAST;
     }
 
     public void setTunnel() {
-        this.flags |= MASK_TUNNEL;
+        this.flags &= ~BROADCAST;
     }
+
 
 }

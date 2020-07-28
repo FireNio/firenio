@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.firenio.collection;
-
-import java.util.Arrays;
+package test.backup;
 
 import com.firenio.common.Util;
+
+import java.util.Arrays;
 
 /**
  * @author wangkai
