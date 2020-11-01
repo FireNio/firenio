@@ -24,32 +24,33 @@ import com.firenio.component.ProtocolCodec;
 
 /**
  * <pre>
- *  B0    : 0-1 : 0:tunnel,   1:broadcast, 2:ping, 3:pong
- *  B0    : 2   : 0:text,     1:binary
- *  B0    : 3   : 0:continue, 1:last
- *  B0    : 4-7 : ExtType
- *  B1-B3 : FrameLen
- *  B4-B7 : FrameId
- *  B8-B11: ChannelId
+ *  B0(type)      : 0-3 : 0:ping, 1:pong, 2:text, 3:binary
+ *  B0(position)  : 4-7 : 4:last, 5:broadcast
+ *  B1-B3         : FrameLen
+ *  B4-B11        : FrameId
+ *  B12-B19       : ChannelId
  *
  * </pre>
  */
 public final class ProtobaseCodec extends ProtocolCodec {
 
-    public static final IOException ILLEGAL_PROTOCOL   = EXCEPTION("illegal protocol");
-    public static final IOException OVER_LIMIT         = EXCEPTION("over writeIndex");
+    public static final IOException ILLEGAL_PROTOCOL = EXCEPTION("illegal protocol");
+    public static final IOException OVER_LIMIT       = EXCEPTION("over writeIndex");
     static final        ByteBuf     PING;
     static final        ByteBuf     PONG;
-    static final        int         PROTOCOL_HEADER    = 12;
-    static final        int         PROTOCOL_PING      = 0b1000_0000;
-    static final        int         PROTOCOL_PONG      = 0b1100_0000;
-    static final        int         PROTOCOL_PONG_MASK = 0b1100_0000;
+    static final        byte        TYPE_PING        = 0;
+    static final        byte        TYPE_PONG        = 1;
+    static final        byte        TYPE_TEXT        = 2;
+    static final        byte        TYPE_BINARY      = 3;
+    static final        byte        LAST             = 1 << 0;
+    static final        byte        BROADCAST        = 1 << 1;
+    static final        int         PROTOCOL_HEADER  = 4 + 8 + 8;
 
     static {
         PING = ByteBuf.buffer(4);
         PONG = ByteBuf.buffer(4);
-        PING.writeInt(PROTOCOL_PING << 24);
-        PONG.writeInt(PROTOCOL_PONG << 24);
+        PING.writeInt(make_type(TYPE_PING) << 24);
+        PONG.writeInt(make_type(TYPE_PONG) << 24);
     }
 
     private final int limit;
@@ -69,8 +70,9 @@ public final class ProtobaseCodec extends ProtocolCodec {
         }
         byte flags = src.getByteAbs(src.absReadIndex());
         int  len   = src.readInt() & 0xffffff;
-        if (flags < 0) {
-            return decode_ping(ch, flags);
+        int  type  = get_type(flags);
+        if (type <= TYPE_PONG) {
+            return decode_ping_pong(ch, type);
         }
         if (len > limit) {
             throw OVER_LIMIT;
@@ -79,9 +81,9 @@ public final class ProtobaseCodec extends ProtocolCodec {
             src.skipRead(-4);
             return null;
         }
-        int    frameId   = src.readInt();
-        int    channelId = src.readInt();
-        byte[] data      = new byte[len - 8];
+        long    channelId = src.readLongLE();
+        long    frameId   = src.readLongLE();
+        byte[] data      = new byte[len - 16];
         src.readBytes(data);
         ProtobaseFrame f = new ProtobaseFrame();
         f.setFlags(flags);
@@ -95,12 +97,11 @@ public final class ProtobaseCodec extends ProtocolCodec {
         return f;
     }
 
-    private Frame decode_ping(Channel ch, int type) throws IOException {
-        type &= PROTOCOL_PONG_MASK;
-        if (type == PROTOCOL_PING) {
+    private Frame decode_ping_pong(Channel ch, int type) throws IOException {
+        if (type == TYPE_PING) {
             log_ping_from(ch);
             flush_pong(ch, PONG.duplicate());
-        } else if (type == PROTOCOL_PONG) {
+        } else if (type == TYPE_PONG) {
             log_pong_from(ch);
         } else {
             throw ILLEGAL_PROTOCOL;
@@ -117,8 +118,8 @@ public final class ProtobaseCodec extends ProtocolCodec {
     protected void encode(Channel ch, Frame frame, ByteBuf buf) {
         ProtobaseFrame f = (ProtobaseFrame) frame;
         buf.setInt(0, (buf.writeIndex() - 4) | (f.getFlags() << 24));
-        buf.setInt(4, f.getFrameId());
-        buf.setInt(8, f.getChannelId());
+        buf.setLongLE(4, f.getChannelId());
+        buf.setLongLE(12, f.getFrameId());
     }
 
     public int getLimit() {
@@ -133,6 +134,18 @@ public final class ProtobaseCodec extends ProtocolCodec {
     @Override
     public int getHeaderLength() {
         return PROTOCOL_HEADER;
+    }
+
+    static byte make_type(byte type) {
+        return (byte) (type << 4);
+    }
+
+    static byte get_type(byte flags) {
+        return (byte) (flags >> 4);
+    }
+
+    static boolean is_ping(byte flags) {
+        return TYPE_PING == get_type(flags);
     }
 
 }

@@ -80,7 +80,7 @@ public class Unsafe {
         }
     }
 
-    private Unsafe() {}
+    private Unsafe() { }
 
     private static Constructor<?> getDirectBufferConstructor() {
         Constructor<?>   directBufferConstructor = null;
@@ -494,14 +494,10 @@ public class Unsafe {
 
     public static void freeByteBuffer(ByteBuffer buffer) {
         if (buffer.isDirect()) {
-            if (RAW_DIRECT_AVAILABLE) {
-                free(address(buffer));
+            if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
+                ((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
             } else {
-                if (((sun.nio.ch.DirectBuffer) buffer).cleaner() != null) {
-                    ((sun.nio.ch.DirectBuffer) buffer).cleaner().clean();
-                } else {
-                    free(address(buffer));
-                }
+                free(address(buffer));
             }
         }
     }

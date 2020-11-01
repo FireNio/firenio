@@ -1,10 +1,5 @@
 package test.others;
 
-import org.junit.Test;
-import test.others.RBTree.RBTNode;
-
-import static org.junit.Assert.*;
-
 /*
  * Copyright 2015 The FireNio Project
  *
@@ -34,7 +29,7 @@ public class RBTreeTest {
       tree.insert(6, "6");
 
       for(;;){
-          RBTNode n = tree.maximum();
+          RBTree.RBTNode n = tree.maximum();
           if (n == null){
               break;
           }

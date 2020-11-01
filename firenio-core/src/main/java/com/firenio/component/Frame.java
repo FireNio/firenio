@@ -24,7 +24,7 @@ public abstract class Frame {
 
     private Object content;
 
-    public byte[] getArrayContent() {
+    public byte[] getBytesContent() {
         return (byte[]) content;
     }
 
@@ -38,10 +38,6 @@ public abstract class Frame {
 
     public void setContent(Object content) {
         this.content = content;
-    }
-
-    public String getFrameName() {
-        return null;
     }
 
     public String getStringContent() {

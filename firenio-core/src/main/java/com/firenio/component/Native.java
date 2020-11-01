@@ -13,6 +13,8 @@ import com.firenio.log.LoggerFactory;
 //not complete
 public class Native {
 
+    private static final Logger   logger          = LoggerFactory.getLogger(Native.class);
+
     //gcc -shared -g -fPIC -m64 -o obj/native.o src/Native.cpp
     //gcc -shared -fPIC -m64 -o obj/native.o src/Native.cpp
 
@@ -52,7 +54,6 @@ public class Native {
     public static final  int      SIZEOF_EPOLL_EVENT;
     public static final  int      SIZEOF_SOCK_ADDR_IN;
     public static final  String[] ERRORS;
-    private static final Logger   logger          = LoggerFactory.getLogger(Native.class);
 
     static {
         if (EPOLL_AVAILABLE) {

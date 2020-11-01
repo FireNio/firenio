@@ -71,8 +71,8 @@ public abstract class ProtocolCodec {
         return unknownStackTrace(new SSLException("over writeIndex (SSL_UNWRAP_BUFFER_SIZE)"), Channel.class, "unwrap()");
     }
 
-    protected static IOException EXCEPTION(Class<?> clazz, String method, String msg) {
-        return unknownStackTrace(new IOException(msg), clazz, method);
+    protected static IOException EXCEPTION(String className, String method, String msg) {
+        return unknownStackTrace(new IOException(msg), className, method);
     }
 
     protected static IOException EXCEPTION(String msg) {
@@ -252,15 +252,11 @@ public abstract class ProtocolCodec {
     }
 
     protected void accept_async(final Channel ch, final EventLoop eel, final Frame f) {
-        final Runnable job = new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    ch.getIoEventHandle().accept(ch, f);
-                } catch (Throwable e) {
-                    ch.getIoEventHandle().exceptionCaught(ch, f, e);
-                }
+        final Runnable job = () -> {
+            try {
+                ch.getIoEventHandle().accept(ch, f);
+            } catch (Throwable e) {
+                ch.getIoEventHandle().exceptionCaught(ch, f, e);
             }
         };
         if (!eel.submit(job)) {
@@ -286,11 +282,10 @@ public abstract class ProtocolCodec {
     }
 
     protected static IOException EXCEPTION(String method, String msg) {
-        Class<?>            clazz = null;
-        StackTraceElement[] sts   = Thread.currentThread().getStackTrace();
+        String              className = null;
+        StackTraceElement[] sts       = Thread.currentThread().getStackTrace();
         if (sts.length > 1) {
             String thisClassName = ProtocolCodec.class.getName();
-            String className     = null;
             for (int i = 1; i < sts.length; i++) {
                 String name = sts[i].getClassName();
                 if (!name.equals(thisClassName)) {
@@ -298,17 +293,11 @@ public abstract class ProtocolCodec {
                     break;
                 }
             }
-            if (className != null) {
-                try {
-                    clazz = Class.forName(sts[3].getClassName(), false, ProtocolCodec.class.getClassLoader());
-                } catch (ClassNotFoundException e) {
-                }
-            }
         }
-        if (clazz == null) {
-            clazz = ProtocolCodec.class;
+        if (className == null) {
+            className = ProtocolCodec.class.getName();
         }
-        return EXCEPTION(clazz, method, msg);
+        return EXCEPTION(className, method, msg);
     }
 
     // 可能会遭受一种攻击，比如最大可接收数据为100，客户端传输到99后暂停，
@@ -332,7 +321,7 @@ public abstract class ProtocolCodec {
         return buf;
     }
 
-    protected void encode(Channel ch, Frame frame, ByteBuf buf) throws Exception{
+    protected void encode(Channel ch, Frame frame, ByteBuf buf) throws Exception {
         throw new UnsupportedOperationException();
     }
 

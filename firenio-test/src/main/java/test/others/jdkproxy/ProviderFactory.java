@@ -17,8 +17,6 @@ package test.others.jdkproxy;
 
 import java.lang.reflect.Proxy;
 
-import com.firenio.common.Util;
-
 public class ProviderFactory {
 
     public static FontProvider getFontProvider() {

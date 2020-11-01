@@ -25,18 +25,8 @@ public class VolatileExample {
 
     public static void main(String[] args) throws Exception {
         final VolatileExample example = new VolatileExample();
-        Thread thread1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                example.write();
-            }
-        });
-        Thread thread2 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                example.read();
-            }
-        });
+        Thread thread1 = new Thread(() -> example.write());
+        Thread thread2 = new Thread(() -> example.read());
         thread1.start();
         thread2.start();
         thread1.join();

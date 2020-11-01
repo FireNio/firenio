@@ -66,7 +66,7 @@ public class TestProtobase {
                     f.write(text, ch);
                     ch.writeAndFlush(f);
                 } else {
-                    byte[] text = f.getArrayContent();
+                    byte[] text = f.getBytesContent();
                     f.setContent(ch.allocateWithSkipHeader(text.length));
                     f.write(res, ch);
                     f.write(text);
@@ -95,7 +95,7 @@ public class TestProtobase {
 
             @Override
             public void accept(Channel ch, Frame f) {
-                String text = new String(f.getArrayContent(), ch.getCharset());
+                String text = new String(f.getBytesContent(), ch.getCharset());
                 System.out.println();
                 System.out.println("____________________" + text);
                 System.out.println();

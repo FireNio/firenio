@@ -17,14 +17,14 @@ package com.firenio.codec.http11;
 
 import java.io.IOException;
 
-import com.firenio.collection.IntMap;
+import com.firenio.collection.IntObjectMap;
 import com.firenio.common.Util;
 import com.firenio.component.Channel;
 
 public class ClientHttpFrame extends HttpFrame {
 
-    boolean        chunked;
-    IntMap<String> client_response_headers = new IntMap<>();
+    boolean              chunked;
+    IntObjectMap<String> client_response_headers = new IntObjectMap<>();
 
     public ClientHttpFrame() {
         this.setMethod(HttpMethod.GET);
@@ -47,7 +47,7 @@ public class ClientHttpFrame extends HttpFrame {
         return client_response_headers.get(header);
     }
 
-    public IntMap<String> getResponse_headers() {
+    public IntObjectMap<String> getResponse_headers() {
         return client_response_headers;
     }
 

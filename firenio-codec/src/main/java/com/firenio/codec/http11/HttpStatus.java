@@ -15,7 +15,7 @@
  */
 package com.firenio.codec.http11;
 
-import com.firenio.collection.IntMap;
+import com.firenio.collection.IntObjectMap;
 
 public enum HttpStatus {
 
@@ -168,7 +168,7 @@ public enum HttpStatus {
      */
     C505(505, "HTTP Version Not Supported", "505 HTTP Version Not Supported");
 
-    private static final IntMap<HttpStatus> STATUSES = new IntMap<>();
+    private static final IntObjectMap<HttpStatus> STATUSES = new IntObjectMap<>();
 
     static {
         HttpStatus[] values = HttpStatus.values();

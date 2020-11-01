@@ -15,6 +15,9 @@
  */
 package com.firenio.component;
 
+import com.firenio.collection.IntObjectMap;
+import com.firenio.common.Util;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
@@ -31,8 +34,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.firenio.collection.IntMap;
-import com.firenio.common.Util;
 import static com.firenio.Develop.debugException;
 
 /**
@@ -184,15 +185,11 @@ public class JavaEventLoop extends NioEventLoop {
             final NioEventLoopGroup group    = acceptor.getProcessorGroup();
             final NioEventLoop      targetEL = group.getNext();
             ch.configureBlocking(false);
-            targetEL.submit(new Runnable() {
-
-                @Override
-                public void run() {
-                    try {
-                        register_channel(ch, targetEL, acceptor, true);
-                    } catch (Throwable e) {
-                        logger.error(e.getMessage(), e);
-                    }
+            targetEL.submit(() -> {
+                try {
+                    register_channel(ch, targetEL, acceptor, true);
+                } catch (Throwable e) {
+                    logger.error(e.getMessage(), e);
                 }
             });
         } catch (Throwable e) {
@@ -252,7 +249,7 @@ public class JavaEventLoop extends NioEventLoop {
     }
 
     private void register_channel(SocketChannel jch, NioEventLoop el, ChannelContext ctx, boolean acceptor) throws IOException {
-        IntMap<Channel> channels = el.channels;
+        IntObjectMap<Channel> channels = el.channels;
         if (channels.size() >= el.ch_size_limit) {
             logger.error(OVER_CH_SIZE_LIMIT.getMessage(), OVER_CH_SIZE_LIMIT);
             ctx.channelEstablish(null, OVER_CH_SIZE_LIMIT);

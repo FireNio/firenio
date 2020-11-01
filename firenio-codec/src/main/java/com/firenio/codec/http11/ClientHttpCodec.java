@@ -25,7 +25,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.firenio.buffer.ByteBuf;
-import com.firenio.collection.IntMap;
+import com.firenio.collection.IntObjectMap;
 import com.firenio.common.Util;
 import com.firenio.component.Channel;
 import com.firenio.component.FastThreadLocal;
@@ -72,20 +72,20 @@ public class ClientHttpCodec extends HttpCodec {
             contentArray = (byte[]) content;
             write_size = contentArray.length;
         }
-        byte[]         byte32      = FastThreadLocal.get().getBytes32();
-        byte[]         url_bytes   = getRequestURI(f).getBytes();
-        byte[]         mtd_bytes   = f.getMethod().getBytes();
-        int            len_idx     = Util.valueOf(write_size, byte32);
-        int            len_len     = 32 - len_idx;
-        int            len         = mtd_bytes.length + 1 + url_bytes.length + PROTOCOL.length + len_len + 2;
-        int            header_size = 0;
-        List<byte[]>   bytes_array = (List<byte[]>) FastThreadLocal.get().getList();
-        IntMap<String> headers     = f.getRequestHeaders();
+        byte[]               byte32      = FastThreadLocal.get().getBytes32();
+        byte[]               url_bytes   = getRequestURI(f).getBytes();
+        byte[]               mtd_bytes   = f.getMethod().getBytes();
+        int                  len_idx     = Util.valueOf(write_size, byte32);
+        int                  len_len     = 32 - len_idx;
+        int                  len         = mtd_bytes.length + 1 + url_bytes.length + PROTOCOL.length + len_len + 2;
+        int                  header_size = 0;
+        List<byte[]>         bytes_array = (List<byte[]>) FastThreadLocal.get().getList();
+        IntObjectMap<String> headers     = f.getRequestHeaders();
         if (headers != null) {
             headers.remove(HttpHeader.Content_Length.getId());
             for (headers.scan(); headers.hasNext(); ) {
-                byte[] k = HttpHeader.get(headers.key()).getBytes();
-                byte[] v = headers.value().getBytes();
+                byte[] k = HttpHeader.get(headers.getKey()).getBytes();
+                byte[] v = headers.getValue().getBytes();
                 if (v == null) {
                     continue;
                 }

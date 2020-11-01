@@ -17,22 +17,37 @@ package test.io;
 
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author wangkai
  */
 public class Test6 {
 
+    static Map map = new MyMap();
 
     public static void main(String[] args) throws Exception {
-        int          count = 1024 * 8;
-        List<Socket> ss    = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            ss.add(new Socket("192.168.1.103", 8080));
+
+        map.put("aaa", 111);
+
+        map.forEach((o, o2) -> {
+            System.out.println(o);
+            System.out.println(o2);
+        });
+
+
+
+    }
+
+    static class MyMap extends ConcurrentHashMap{
+
+        MyMap(){
+            super();
         }
-        System.out.println(".............");
-        Thread.sleep(99999);
+
     }
 
 }

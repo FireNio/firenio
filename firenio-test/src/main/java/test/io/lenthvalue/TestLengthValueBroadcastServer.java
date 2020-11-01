@@ -50,19 +50,15 @@ public class TestLengthValueBroadcastServer {
         context.addProtocolCodec(new LengthValueCodec());
         context.bind();
 
-        Util.exec(new Runnable() {
-
-            @Override
-            public void run() {
-                for (; ; ) {
-                    Util.sleep(1000);
-                    LengthValueFrame frame = new LengthValueFrame();
-                    frame.setContent("broadcast msg ........".getBytes());
-                    try {
-                        channelManagerListener.broadcast(frame);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+        Util.exec(() -> {
+            for (; ; ) {
+                Util.sleep(1000);
+                LengthValueFrame frame = new LengthValueFrame();
+                frame.setContent("broadcast msg ........".getBytes());
+                try {
+                    channelManagerListener.broadcast(frame);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });

@@ -69,35 +69,35 @@ public abstract class Channel implements Runnable, AutoCloseable {
 
     protected final    ChannelContext      context;
     protected final    long                creation_time = Util.now();
-    protected final    ByteBuf[]           current_wbs;
+    protected final    ByteBuf[]           current_wb_array;
     protected final    String              desc;
     protected final    boolean             enable_ssl;
     protected final    NioEventLoop        eventLoop;
     protected final    EventLoop           exec_el;
     protected final    SSLEngine           ssl_engine;
-    protected final    Queue<ByteBuf>      write_bufs;
+    protected final    Queue<ByteBuf>      write_buf_queue;
     protected final    IoEventHandle       ioEventHandle;
     protected final    int                 channelId;
     protected final    short               localPort;
-    protected final    String              remoteAddr;
+    protected final    String              remoteAddress;
     protected final    short               remotePort;
     protected final    long                max_pending_write_size;
     protected          Object              attachment;
     protected          Map<String, Object> attributes;
     protected          ProtocolCodec       codec;
-    protected          byte                current_wbs_len;
+    protected          byte                current_wb_len;
     protected          boolean             in_event;
     protected          boolean             interestWrite;
     protected          long                last_access;
-    protected volatile boolean             open          = true;
-    protected volatile long                pending_write_size;
     protected          ByteBuf             plain_remain_buf;
     protected          boolean             ssl_handshake_finished;
     protected          ByteBuf             ssl_remain_buf;
     protected          byte                ssl_wrap_ext;
+    protected volatile boolean             open          = true;
+    protected volatile long                pending_write_size;
 
     Channel(NioEventLoop el, ChannelContext ctx, String ra, int lp, int rp, Integer id) {
-        this.remoteAddr = ra;
+        this.remoteAddress = ra;
         this.localPort = (short) lp;
         this.remotePort = (short) rp;
         this.channelId = id;
@@ -106,14 +106,14 @@ public abstract class Channel implements Runnable, AutoCloseable {
         this.enable_ssl = ctx.isEnableSsl();
         this.codec = ctx.getDefaultCodec();
         this.exec_el = ctx.getNextExecutorEventLoop();
-        this.write_bufs = new ConcurrentLinkedQueue<>();
+        this.write_buf_queue = new ConcurrentLinkedQueue<>();
         this.ioEventHandle = context.getIoEventHandle();
         this.last_access = creation_time + el.getGroup().getIdleTime();
-        this.current_wbs = new ByteBuf[el.getGroup().getWriteBuffers()];
+        this.current_wb_array = new ByteBuf[el.getGroup().getWriteBuffers()];
         this.max_pending_write_size = context.getMaxPendingWriteSize();
         this.desc = new_desc(Integer.toHexString(channelId));
         if (this.enable_ssl) {
-            this.ssl_engine = ctx.getSslContext().newEngine(getRemoteAddr(), getRemotePort());
+            this.ssl_engine = ctx.getSslContext().newEngine(getRemoteAddress(), getRemotePort());
         } else {
             this.ssl_handshake_finished = true;
             this.ssl_engine = null;
@@ -180,13 +180,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
             safe_close();
         } else {
             if (isOpen()) {
-                eventLoop.submit(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        Channel.this.close();
-                    }
-                });
+                eventLoop.submit(Channel.this::close);
             }
         }
     }
@@ -211,7 +205,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
         if (!ssl_engine.isOutboundDone()) {
             try {
                 ByteBuf out = wrap(ByteBuf.empty());
-                write_bufs.offer(out);
+                write_buf_queue.offer(out);
                 write();
             } catch (Throwable e) {
                 debugException(logger, e);
@@ -367,8 +361,8 @@ public abstract class Channel implements Runnable, AutoCloseable {
 
     public abstract int getOption(int name) throws IOException;
 
-    public String getRemoteAddr() {
-        return remoteAddr;
+    public String getRemoteAddress() {
+        return remoteAddress;
     }
 
     public int getRemotePort() {
@@ -379,6 +373,9 @@ public abstract class Channel implements Runnable, AutoCloseable {
         return ssl_engine;
     }
 
+    /**
+     * @return The pending write bytes of channel
+     */
     public long getPendingWriteSize() {
         return pending_write_size;
     }
@@ -435,7 +432,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
         sb.append("[id(0x");
         sb.append(id_hex);
         sb.append(")R/");
-        sb.append(getRemoteAddr());
+        sb.append(getRemoteAddress());
         sb.append(':');
         sb.append(getRemotePort());
         sb.append("; L:");
@@ -500,7 +497,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
     }
 
     private void release_wb_array() {
-        final ByteBuf[] c_wbs   = this.current_wbs;
+        final ByteBuf[] c_wbs   = this.current_wb_array;
         final int       max_len = c_wbs.length;
         // 这里有可能是因为异常关闭，current_wbs_len不准确
         // 对所有不为空的ByteBuf release
@@ -515,7 +512,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
     }
 
     private void release_wb_queue() {
-        Queue<ByteBuf> wfs = this.write_bufs;
+        Queue<ByteBuf> wfs = this.write_buf_queue;
         ByteBuf        buf = wfs.poll();
         for (; buf != null; ) {
             release(buf);
@@ -729,8 +726,9 @@ public abstract class Channel implements Runnable, AutoCloseable {
                 close();
                 return;
             }
-            write_bufs.offer(buf);
-            if (!isOpen()) {
+            Queue<ByteBuf> write_buf_queue = this.write_buf_queue;
+            write_buf_queue.offer(buf);
+            if (!isOpen() && write_buf_queue.remove(buf)) {
                 buf.release();
             }
         }
@@ -854,12 +852,12 @@ public abstract class Channel implements Runnable, AutoCloseable {
         public int write() {
             final EpollEventLoop el        = (EpollEventLoop) eventLoop;
             final int            fd        = this.fd;
-            final ByteBuf[]      cwb_array = this.current_wbs;
-            final Queue<ByteBuf> wb_queue  = this.write_bufs;
+            final ByteBuf[]      cwb_array = this.current_wb_array;
+            final Queue<ByteBuf> wb_queue  = this.write_buf_queue;
             final long           iovec     = el.getIovec();
             final int            iov_len   = cwb_array.length;
             for (; ; ) {
-                int cw_len = this.current_wbs_len;
+                int cw_len = this.current_wb_len;
                 for (; cw_len < iov_len; ) {
                     ByteBuf buf = wb_queue.poll();
                     if (buf == null) {
@@ -881,12 +879,12 @@ public abstract class Channel implements Runnable, AutoCloseable {
                     inc_pending_write_size(-len);
                     buf.skipRead(len);
                     if (buf.hasReadableBytes()) {
-                        this.current_wbs_len = 1;
+                        this.current_wb_len = 1;
                         this.interestWrite = true;
                         return 0;
                     } else {
                         buf.release();
-                        this.current_wbs_len = 0;
+                        this.current_wb_len = 0;
                         if (wb_queue.isEmpty()) {
                             cwb_array[0] = null;
                             this.interestWrite = false;
@@ -918,7 +916,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
                             System.arraycopy(cwb_array, i, cwb_array, 0, remain);
                             fill_null(cwb_array, remain, cw_len);
                             this.interestWrite = true;
-                            this.current_wbs_len = (byte) remain;
+                            this.current_wb_len = (byte) remain;
                             return 0;
                         } else {
                             len -= r;
@@ -926,7 +924,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
                         }
                     }
                     fill_null(cwb_array, 0, cw_len);
-                    this.current_wbs_len = 0;
+                    this.current_wb_len = 0;
                     if (wb_queue.isEmpty()) {
                         this.interestWrite = false;
                         return 1;
@@ -1035,13 +1033,13 @@ public abstract class Channel implements Runnable, AutoCloseable {
 
         @Override
         public int write() {
-            final ByteBuf[]      cwb_array   = this.current_wbs;
-            final Queue<ByteBuf> wb_queue    = this.write_bufs;
+            final ByteBuf[]      cwb_array   = this.current_wb_array;
+            final Queue<ByteBuf> wb_queue    = this.write_buf_queue;
             final JavaEventLoop  el          = (JavaEventLoop) eventLoop;
             final ByteBuffer[]   wb_array    = el.getWriteBuffers();
             final int            max_cwb_len = cwb_array.length;
             for (; ; ) {
-                int cwb_len = this.current_wbs_len;
+                int cwb_len = this.current_wb_len;
                 for (; cwb_len < max_cwb_len; ) {
                     ByteBuf buf = wb_queue.poll();
                     if (buf == null) {
@@ -1062,13 +1060,13 @@ public abstract class Channel implements Runnable, AutoCloseable {
                     }
                     inc_pending_write_size(-len);
                     if (nioBuf.hasRemaining()) {
-                        this.current_wbs_len = 1;
+                        this.current_wb_len = 1;
                         buf.reverseRead();
                         interestWrite();
                         return 0;
                     } else {
                         buf.release();
-                        this.current_wbs_len = 0;
+                        this.current_wb_len = 0;
                         if (wb_queue.isEmpty()) {
                             cwb_array[0] = null;
                             interestRead();
@@ -1093,7 +1091,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
                             fill_null(cwb_array, remain, cwb_len);
                             fill_null(wb_array, i, cwb_len);
                             interestWrite();
-                            this.current_wbs_len = (byte) remain;
+                            this.current_wb_len = (byte) remain;
                             return 0;
                         } else {
                             wb_array[i] = null;
@@ -1101,7 +1099,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
                         }
                     }
                     fill_null(cwb_array, 0, cwb_len);
-                    this.current_wbs_len = 0;
+                    this.current_wb_len = 0;
                     if (wb_queue.isEmpty()) {
                         interestRead();
                         return 1;
@@ -1114,12 +1112,13 @@ public abstract class Channel implements Runnable, AutoCloseable {
 
     static class OpenSslHelper {
 
-        private static final Class   OPENSSL_CLASS                    = OPENSSL_CLASS();
-        private static final Field   OPENSSL_RECEIVED_SHUTDOWN        = OPENSSL_RECEIVED_SHUTDOWN();
-        private static final Field   OPENSSL_DESTROYED                = OPENSSL_DESTROYED();
-        private static final long    OPENSSL_DESTROYED_OFFSET         = OPENSSL_DESTROYED_OFFSET();
-        private static final long    OPENSSL_RECEIVED_SHUTDOWN_OFFSET = OPENSSL_RECEIVED_SHUTDOWN_OFFSET();
-        private static final boolean ENABLE_OPENSSL_UNSAFE            = true;
+        private static final Class   OPENSSL_CLASS                       = OPENSSL_CLASS();
+        private static final Field   OPENSSL_RECEIVED_SHUTDOWN           = OPENSSL_RECEIVED_SHUTDOWN();
+        private static final Field   OPENSSL_DESTROYED                   = OPENSSL_DESTROYED();
+        private static final Field   OPENSSL_MAX_ENCRYPTED_PACKET_LENGTH = OPENSSL_MAX_ENCRYPTED_PACKET_LENGTH();
+        private static final long    OPENSSL_DESTROYED_OFFSET            = OPENSSL_DESTROYED_OFFSET();
+        private static final long    OPENSSL_RECEIVED_SHUTDOWN_OFFSET    = OPENSSL_RECEIVED_SHUTDOWN_OFFSET();
+        private static final boolean ENABLE_OPENSSL_UNSAFE               = true;
 
         private static Field OPENSSL_RECEIVED_SHUTDOWN() {
             if (SslContext.OPENSSL_AVAILABLE) {
@@ -1157,6 +1156,20 @@ public abstract class Channel implements Runnable, AutoCloseable {
             }
         }
 
+        private static Field OPENSSL_MAX_ENCRYPTED_PACKET_LENGTH() {
+            if (SslContext.OPENSSL_AVAILABLE) {
+                try {
+                    Field f = OPENSSL_CLASS.getDeclaredField("MAX_ENCRYPTED_PACKET_LENGTH");
+                    f.setAccessible(true);
+                    return f;
+                } catch (NoSuchFieldException e) {
+                    throw new Error(e);
+                }
+            } else {
+                return null;
+            }
+        }
+
         private static long OPENSSL_DESTROYED_OFFSET() {
             if (SslContext.OPENSSL_AVAILABLE) {
                 return Unsafe.fieldOffset(OPENSSL_DESTROYED);
@@ -1178,6 +1191,14 @@ public abstract class Channel implements Runnable, AutoCloseable {
                 return isOpensslEngineDestroyedUnsafe(sslEngine);
             } else {
                 return isOpensslEngineDestroyedField(sslEngine);
+            }
+        }
+
+        static int MAX_ENCRYPTED_PACKET_LENGTH() {
+            try {
+                return ((Integer) OPENSSL_MAX_ENCRYPTED_PACKET_LENGTH.get(null));
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
         }
 

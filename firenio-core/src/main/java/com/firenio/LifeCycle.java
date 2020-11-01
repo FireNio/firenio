@@ -15,13 +15,12 @@
  */
 package com.firenio;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.firenio.common.Assert;
-import com.firenio.common.Util;
 import com.firenio.log.Logger;
 import com.firenio.log.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class LifeCycle {
 
@@ -109,7 +108,7 @@ public abstract class LifeCycle {
         }
     }
 
-    public synchronized void start() throws Exception {
+    public final synchronized void start() throws Exception {
         if (!isRunning()) {
             this.fireEvent(EVENT_STARTING, null);
             try {
@@ -117,8 +116,17 @@ public abstract class LifeCycle {
                 this.running = true;
                 this.onStarted();
             } catch (Throwable e) {
-                Util.stop(this);
                 this.running = false;
+                try {
+                    wakeup();
+                } catch (Throwable e1) {
+                    logger.error(e1.getMessage(), e1);
+                }
+                try {
+                    this.doStop();
+                } catch (Throwable e1) {
+                    logger.error(e1.getMessage(), e1);
+                }
                 this.fireEvent(EVENT_FAILED, e);
                 throw e;
             }
@@ -128,20 +136,20 @@ public abstract class LifeCycle {
 
     protected void onStarted() throws Exception { }
 
-    public synchronized void stop() {
+    public final synchronized void stop() {
         if (isRunning()) {
-            this.fireEvent(EVENT_STOPPING, null);
+            this.running = false;
             try {
                 wakeup();
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
+            this.fireEvent(EVENT_STOPPING, null);
             try {
                 this.doStop();
             } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
-            this.running = false;
             this.fireEvent(EVENT_STOPPED, null);
         }
     }

@@ -15,6 +15,7 @@
  */
 package sample.http11;
 
+import com.firenio.codec.http11.HttpFrame;
 import com.firenio.codec.http11.WebSocketFrame;
 import com.firenio.component.Frame;
 import com.firenio.component.Channel;
@@ -68,7 +69,7 @@ public class HttpUtil {
         if (f instanceof WebSocketFrame) {
             return ((WebSocketFrame) f).getFrameName(ch);
         }
-        return f.getFrameName();
+        return ((HttpFrame)f).getRequestURL();
     }
 
 }

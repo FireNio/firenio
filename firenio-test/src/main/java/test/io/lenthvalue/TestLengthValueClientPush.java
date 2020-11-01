@@ -41,34 +41,30 @@ public class TestLengthValueClientPush {
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.addProtocolCodec(new LengthValueCodec());
         Channel ch = context.connect();
-        Util.exec(new Runnable() {
-
-            @Override
-            public void run() {
-                System.out.println("************************************************");
-                System.out.println("提示:");
-                System.out.println("list(获取所有客户端id)");
-                System.out.println("id(获取当前客户端id)");
-                System.out.println("push id msg(推送消息到)");
-                System.out.println("broadcast msg(广播消息)");
-                System.out.println("exit(退出客户端)");
-                System.out.println("仅用于演示，msg请勿包含空格");
-                System.out.println("************************************************");
-                Scanner scanner = new Scanner(System.in);
-                for (; ; ) {
-                    System.out.println(">");
-                    String line = scanner.nextLine();
-                    if ("exit".equals(line)) {
-                        Util.close(ch);
-                        break;
-                    }
-                    LengthValueFrame frame = new LengthValueFrame();
-                    frame.write(line, ch);
-                    try {
-                        ch.writeAndFlush(frame);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+        Util.exec(() -> {
+            System.out.println("************************************************");
+            System.out.println("提示:");
+            System.out.println("list(获取所有客户端id)");
+            System.out.println("id(获取当前客户端id)");
+            System.out.println("push id msg(推送消息到)");
+            System.out.println("broadcast msg(广播消息)");
+            System.out.println("exit(退出客户端)");
+            System.out.println("仅用于演示，msg请勿包含空格");
+            System.out.println("************************************************");
+            Scanner scanner = new Scanner(System.in);
+            for (; ; ) {
+                System.out.println(">");
+                String line = scanner.nextLine();
+                if ("exit".equals(line)) {
+                    Util.close(ch);
+                    break;
+                }
+                LengthValueFrame frame = new LengthValueFrame();
+                frame.write(line, ch);
+                try {
+                    ch.writeAndFlush(frame);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });

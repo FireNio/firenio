@@ -100,12 +100,7 @@ public class ReConnector implements Closeable {
         this.connector.addChannelEventListener(new ChannelEventListenerAdapter() {
             @Override
             public void channelClosed(Channel ch) {
-                Util.exec(new Runnable() {
-                    @Override
-                    public void run() {
-                        reConnector.connect0();
-                    }
-                });
+                Util.exec(reConnector::connect0);
             }
         });
     }

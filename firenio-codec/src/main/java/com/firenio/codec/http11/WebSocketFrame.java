@@ -30,11 +30,6 @@ public class WebSocketFrame extends Frame {
         this.setOpcode(opcode);
     }
 
-    @Override
-    public String getFrameName() {
-        throw new UnsupportedOperationException("use getFrameName(ch) instead");
-    }
-
     public String getFrameName(Channel ch) {
         return ((HttpAttachment) ch.getAttachment()).getWebSocketFrameName();
     }

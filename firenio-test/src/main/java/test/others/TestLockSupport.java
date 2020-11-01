@@ -21,27 +21,19 @@ public class TestLockSupport {
 
     public static void main(String[] args) {
 
-        final Thread t1 = new Thread(new Runnable() {
+        final Thread t1 = new Thread(() -> {
 
-            @Override
-            public void run() {
+            System.out.println("lock....");
 
-                System.out.println("lock....");
+            LockSupport.park();
 
-                LockSupport.park();
-
-            }
         });
 
-        final Thread t2 = new Thread(new Runnable() {
+        final Thread t2 = new Thread(() -> {
 
-            @Override
-            public void run() {
+            System.out.println("unlock....");
 
-                System.out.println("unlock....");
-
-                LockSupport.unpark(t1);
-            }
+            LockSupport.unpark(t1);
         });
 
         t1.start();

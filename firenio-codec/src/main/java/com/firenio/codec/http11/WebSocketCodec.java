@@ -140,6 +140,7 @@ public final class WebSocketCodec extends ProtocolCodec {
             } else {
                 log_pong_from(ch);
             }
+            src.skipRead(payload_len + mask_len);
             return null;
         }
         byte[] array = new byte[payload_len];

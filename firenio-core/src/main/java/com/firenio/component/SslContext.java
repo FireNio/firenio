@@ -72,7 +72,6 @@ public final class SslContext {
         }
         SSLEngine engine = context.createSSLEngine();
         SSL_UNWRAP_BUFFER_SIZE = Options.getSslUnwrapBufferSize(1024 * 256);
-        SSL_PACKET_BUFFER_SIZE = engine.getSession().getPacketBufferSize();
 
         // Choose the sensible default list of protocols.
         final String[] supportedProtocols = engine.getSupportedProtocols();
@@ -84,6 +83,11 @@ public final class SslContext {
         SUPPORTED_CIPHERS = new HashSet<>(supportedCiphers.length);
         Collections.addAll(SUPPORTED_CIPHERS, supportedCiphers);
 
+        if (OPENSSL_AVAILABLE) {
+            SSL_PACKET_BUFFER_SIZE = Channel.OpenSslHelper.MAX_ENCRYPTED_PACKET_LENGTH();
+        } else {
+            SSL_PACKET_BUFFER_SIZE = engine.getSession().getPacketBufferSize();
+        }
         // default protocols
         List<String> defaultProtocols = new ArrayList<>();
         defaultProtocols.add("TLSv1.3");

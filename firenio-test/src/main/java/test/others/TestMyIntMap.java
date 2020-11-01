@@ -17,8 +17,8 @@ package test.others;
 
 import java.util.Random;
 
-import com.firenio.collection.IntMap;
 
+import test.backup.IntMap;
 import test.test.ITestThread;
 import test.test.ITestThreadHandle;
 

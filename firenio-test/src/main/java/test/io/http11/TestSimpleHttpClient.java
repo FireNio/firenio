@@ -49,10 +49,10 @@ public class TestSimpleHttpClient {
             public void accept(Channel ch, Frame frame) {
                 ClientHttpFrame res = (ClientHttpFrame) frame;
                 System.out.println();
-                System.out.println(new String(res.getArrayContent()));
+                System.out.println(new String(res.getBytesContent()));
                 System.out.println();
                 Util.close(context);
-                w.call(new String(res.getArrayContent()), null);
+                w.call(new String(res.getBytesContent()), null);
             }
         });
         context.addChannelEventListener(new LoggerChannelOpenListener());
