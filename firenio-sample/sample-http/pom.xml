@@ -59,7 +59,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.JdkVersion>1.8</project.JdkVersion>
-        <firenio.version>1.3.6-SNAPSHOT</firenio.version>
+        <firenio.version>1.3.7-SNAPSHOT</firenio.version>
         <wildfly.version>2.1.0.Final</wildfly.version>
     </properties>
 
