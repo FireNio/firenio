@@ -1,0 +1,77 @@
+/*
+ * Copyright 2015 The FireNio Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package test.io.lenthvalue;
+
+import com.firenio.buffer.ByteBuf;
+import com.firenio.buffer.ByteBufListener;
+import com.firenio.codec.lengthvalue.LengthValueCodec;
+import com.firenio.codec.lengthvalue.LengthValueFrame;
+import com.firenio.component.Channel;
+import com.firenio.component.ChannelConnector;
+import com.firenio.component.Frame;
+import com.firenio.component.IoEventHandle;
+import com.firenio.component.LoggerChannelOpenListener;
+import javafx.scene.layout.BackgroundRepeat;
+
+public class TestLengthValueClientByteBufListener {
+
+    public static void main(String[] args) throws Exception {
+        ChannelConnector context = new ChannelConnector("127.0.0.1", 8300);
+        IoEventHandle eventHandle = new IoEventHandle() {
+            @Override
+            public void accept(Channel ch, Frame f) throws Exception {
+                System.out.println();
+                System.out.println("____________________" + f.getStringContent());
+                System.out.println();
+            }
+        };
+
+        context.setIoEventHandle(eventHandle);
+        context.addChannelEventListener(new LoggerChannelOpenListener());
+        context.addProtocolCodec(new LengthValueCodec());
+        Channel          ch    = context.connect(3000);
+        LengthValueFrame frame = new LengthValueFrame();
+        frame.setString("hello server!", ch);
+        ByteBuf buf = ch.getCodec().encode(ch, frame);
+        buf.setListener(new ByteBufListener() {
+
+            int count = 5;
+
+            @Override
+            public void onComplete(Channel channel) {
+                if (count-- != 0) {
+                    System.out.println("Write complete..." + count);
+                    LengthValueFrame frame = new LengthValueFrame();
+                    frame.setString("hello server!222222" + count, ch);
+                    try {
+                        ByteBuf buf = ch.getCodec().encode(ch, frame);
+                        buf.setListener(this);
+                        ch.writeAndFlush(buf);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onCanceled(Channel channel) {
+                System.out.println("Channel closed, buf not write");
+            }
+        });
+        ch.writeAndFlush(buf);
+    }
+
+}

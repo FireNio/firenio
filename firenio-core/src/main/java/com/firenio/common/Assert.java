@@ -83,7 +83,7 @@ public abstract class Assert {
     }
 
     public static void notNull(Object object) {
-        notNull(object, "argument is required; it must not be null");
+        notNull(object, "Argument is required, it must not be null");
     }
 
     public static void notNull(Object object, String message) {

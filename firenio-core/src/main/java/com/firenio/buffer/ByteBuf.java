@@ -18,6 +18,7 @@ package com.firenio.buffer;
 import com.firenio.Develop;
 import com.firenio.Options;
 import com.firenio.Releasable;
+import com.firenio.common.Assert;
 import com.firenio.common.Unsafe;
 
 import java.nio.ByteBuffer;
@@ -44,6 +45,8 @@ public abstract class ByteBuf implements Releasable {
     protected int abs_read_index;
     protected int marked_abs_write_index;
     protected int marked_abs_read_index;
+
+    private ByteBufListener listener = ByteBufListener.NOOP;
 
     public static ByteBuf direct(int cap) {
         return wrap(Unsafe.allocateDirectByteBuffer(cap)).clear();
@@ -166,6 +169,15 @@ public abstract class ByteBuf implements Releasable {
                 }
             }
         }
+    }
+
+    public ByteBufListener getListener() {
+        return listener;
+    }
+
+    public void setListener(ByteBufListener listener) {
+        Assert.notNull(listener);
+        this.listener = listener;
     }
 
     public abstract long address();

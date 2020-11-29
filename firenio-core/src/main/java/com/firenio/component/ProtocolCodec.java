@@ -30,7 +30,6 @@ import java.io.IOException;
 
 import static com.firenio.Develop.SSL_DEBUG;
 import static com.firenio.Develop.debugException;
-import static com.firenio.common.Util.unknownStackTrace;
 
 /**
  * @author wangkai
@@ -48,31 +47,35 @@ public abstract class ProtocolCodec {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static SSLException newNOT_TLS() {
-        return unknownStackTrace(new SSLException("not tls"), Channel.class, "isEnoughSslUnwrap()");
+        return unknownStackTrace(new SSLException("not tls"), "isEnoughSslUnwrap()");
     }
 
     private static SSLException newSSL_UNWRAP_EXCEPTION() {
-        return unknownStackTrace(new SSLException("unwrap exception(enable debug to get detail)"), Channel.class, "unwrap()");
+        return unknownStackTrace(new SSLException("unwrap exception(enable debug to get detail)"), "unwrap()");
     }
 
     private static SSLException newSSL_PACKET_OVER_LIMIT() {
-        return unknownStackTrace(new SSLException("over writeIndex (" + SSL_PACKET_LIMIT + ")"), Channel.class, "isEnoughSslUnwrap()");
+        return unknownStackTrace(new SSLException("over writeIndex (" + SSL_PACKET_LIMIT + ")"), "isEnoughSslUnwrap()");
     }
 
     private static SSLException newSSL_UNWRAP_CLOSED() {
-        return unknownStackTrace(new SSLException("SSL_UNWRAP_CLOSED"), Channel.class, "unwrap()");
+        return unknownStackTrace(new SSLException("SSL_UNWRAP_CLOSED"), "unwrap()");
     }
 
     private static IOException newTASK_REJECT() {
-        return unknownStackTrace(new IOException(), Channel.class, "accept_reject(...)");
+        return unknownStackTrace(new IOException(), "accept_reject(...)");
     }
 
     private static SSLException newSSL_UNWRAP_OVER_LIMIT() {
-        return unknownStackTrace(new SSLException("over writeIndex (SSL_UNWRAP_BUFFER_SIZE)"), Channel.class, "unwrap()");
+        return unknownStackTrace(new SSLException("over writeIndex (SSL_UNWRAP_BUFFER_SIZE)"), "unwrap()");
+    }
+
+    private static <T extends Throwable> T unknownStackTrace(T cause, String method) {
+        return Util.unknownStackTrace(cause, Channel.class.getName(), method);
     }
 
     protected static IOException EXCEPTION(String className, String method, String msg) {
-        return unknownStackTrace(new IOException(msg), className, method);
+        return Util.unknownStackTrace(new IOException(msg), className, method);
     }
 
     protected static IOException EXCEPTION(String msg) {

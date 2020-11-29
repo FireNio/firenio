@@ -176,12 +176,11 @@ public abstract class Channel implements Runnable, AutoCloseable {
      */
     @Override
     public void close() {
-        if (inEventLoop()) {
-            safe_close();
-        } else {
-            if (isOpen()) {
-                eventLoop.submit(Channel.this::close);
-            }
+        // Submit a task to close this channel even in its owner event loop to ensure "safe" close,
+        // when a close request is from the ByteBufListener.onCanceled function, if close the channel
+        // immediately, the buf in wb_array will may not release.
+        if (isOpen()) {
+            eventLoop.submit(Channel.this::safe_close);
         }
     }
 
@@ -444,7 +443,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
     /**
      * Not safe API, DO NOT USE this unless you are really know how to use this.
      */
-    public void read() throws Exception {
+    protected void read() throws Exception {
         last_access = Util.now();
         if (enable_ssl) {
             codec.read_ssl(this);
@@ -494,6 +493,14 @@ public abstract class Channel implements Runnable, AutoCloseable {
 
     private static void release(Releasable r) {
         Util.release(r);
+    }
+
+    private static void fireByteBufComplete(Channel ch, ByteBuf buf) {
+        try {
+            buf.getListener().onComplete(ch);
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
     private void release_wb_array() {
@@ -746,11 +753,9 @@ public abstract class Channel implements Runnable, AutoCloseable {
     }
 
     /**
-     * Not safe API, DO NOT USE this unless you are really know how to use this.
-     *
      * @return 1 complete, 0 keep write, -1 close
      */
-    public abstract int write();
+    protected abstract int write();
 
     public <T> T getAttribute(String key) {
         if (attributes == null) {
@@ -849,7 +854,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
         }
 
         @Override
-        public int write() {
+        protected int write() {
             final EpollEventLoop el        = (EpollEventLoop) eventLoop;
             final int            fd        = this.fd;
             final ByteBuf[]      cwb_array = this.current_wb_array;
@@ -884,6 +889,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
                         return 0;
                     } else {
                         buf.release();
+                        Channel.fireByteBufComplete(this, buf);
                         this.current_wb_len = 0;
                         if (wb_queue.isEmpty()) {
                             cwb_array[0] = null;
@@ -921,6 +927,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
                         } else {
                             len -= r;
                             buf.release();
+                            Channel.fireByteBufComplete(this, buf);
                         }
                     }
                     fill_null(cwb_array, 0, cw_len);
@@ -1032,7 +1039,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
         }
 
         @Override
-        public int write() {
+        protected int write() {
             final ByteBuf[]      cwb_array   = this.current_wb_array;
             final Queue<ByteBuf> wb_queue    = this.write_buf_queue;
             final JavaEventLoop  el          = (JavaEventLoop) eventLoop;
@@ -1066,6 +1073,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
                         return 0;
                     } else {
                         buf.release();
+                        Channel.fireByteBufComplete(this, buf);
                         this.current_wb_len = 0;
                         if (wb_queue.isEmpty()) {
                             cwb_array[0] = null;
@@ -1096,6 +1104,7 @@ public abstract class Channel implements Runnable, AutoCloseable {
                         } else {
                             wb_array[i] = null;
                             buf.release();
+                            Channel.fireByteBufComplete(this, buf);
                         }
                     }
                     fill_null(cwb_array, 0, cwb_len);
