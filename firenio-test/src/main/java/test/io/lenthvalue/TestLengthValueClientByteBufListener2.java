@@ -24,23 +24,25 @@ import com.firenio.component.ChannelConnector;
 import com.firenio.component.Frame;
 import com.firenio.component.IoEventHandle;
 import com.firenio.component.LoggerChannelOpenListener;
-import javafx.scene.layout.BackgroundRepeat;
+import test.test.TestUtil;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TestLengthValueClientByteBufListener {
+public class TestLengthValueClientByteBufListener2 {
 
     public static void main(String[] args) throws Exception {
+
+        AtomicBoolean flag = new AtomicBoolean();
 
         ChannelConnector context = new ChannelConnector("127.0.0.1", 8300);
         IoEventHandle eventHandle = new IoEventHandle() {
             @Override
             public void accept(Channel ch, Frame f) throws Exception {
-                System.out.println();
-                System.out.println("____________________" + f.getStringContent());
-                System.out.println();
+                flag.set(true);
             }
         };
+
+        byte[] bytes = TestUtil.newString(1024).getBytes();
 
         context.setIoEventHandle(eventHandle);
         context.addChannelEventListener(new LoggerChannelOpenListener());
@@ -51,14 +53,15 @@ public class TestLengthValueClientByteBufListener {
         ByteBuf buf = ch.getCodec().encode(ch, frame);
         buf.setListener(new ByteBufListener() {
 
-            int count = 5;
+            int count = 0;
 
             @Override
             public void onComplete(Channel channel) {
-                if (count-- != 0) {
+                count++;
+                if (!flag.get()) {
                     System.out.println("Write complete..." + count);
                     LengthValueFrame frame = new LengthValueFrame();
-                    frame.setString("hello server!222222" + count, ch);
+                    frame.setContent(ByteBuf.wrap(bytes));
                     try {
                         ByteBuf buf = ch.getCodec().encode(ch, frame);
                         buf.setListener(this);
@@ -66,6 +69,9 @@ public class TestLengthValueClientByteBufListener {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                } else {
+                    System.out.println("Write not complete...");
+                    channel.close();
                 }
             }
 

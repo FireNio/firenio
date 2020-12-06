@@ -31,7 +31,6 @@ import com.firenio.common.Util;
 public abstract class PooledByteBufAllocator extends ByteBufAllocator {
 
     public static final Map<ByteBuf, BufDebug> BUF_DEBUGS            = NEW_BUF_DEBUGS();
-    public static final ByteBufException       EXPANSION_FAILED      = EXPANSION_FAILED();
     static final        int                    ADDRESS_BITS_PER_WORD = 6;
 
     private final int[]            blocks;
@@ -50,10 +49,6 @@ public abstract class PooledByteBufAllocator extends ByteBufAllocator {
         this.frees = new long[b_capacity / 8];
         this.blocks = new int[b_capacity];
         this.unpooled = UnpooledByteBufAllocator.get();
-    }
-
-    static ByteBufException EXPANSION_FAILED() {
-        return Util.unknownStackTrace(new ByteBufException(), PooledByteBufAllocator.class, "expansion");
     }
 
     @Override
@@ -277,7 +272,7 @@ public abstract class PooledByteBufAllocator extends ByteBufAllocator {
             alloc = allocate(0, start, size);
             if (alloc == -1) {
                 clearFree(frees, start);
-                throw EXPANSION_FAILED;
+                throw new RuntimeException("Expansion allocate failed, " + (size * unit));
             }
         }
         return alloc;
