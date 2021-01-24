@@ -38,4 +38,12 @@ public class FastThreadLocalThread extends Thread {
         return threadLocal;
     }
 
+    @Override
+    public void run() {
+        try {
+            super.run();
+        } finally {
+            threadLocal.clean();
+        }
+    }
 }

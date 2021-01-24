@@ -49,7 +49,7 @@ public final class FastThreadLocal {
 
     FastThreadLocal() {}
 
-    public static void destroy() {
+    public static void remove() {
         Thread          thread = Thread.currentThread();
         FastThreadLocal l;
         if (thread instanceof FastThreadLocalThread) {
@@ -58,7 +58,7 @@ public final class FastThreadLocal {
             l = SLOW_THREAD_LOCAL.get();
         }
         if (l != null) {
-            l.destroy0();
+            l.clean();
         }
     }
 
@@ -80,7 +80,7 @@ public final class FastThreadLocal {
         return ATTRIBUTE_KEYS.getAndIncrement();
     }
 
-    private void destroy0() {
+    protected void clean() {
         Util.release(sslWrapBuf);
         Util.release(sslUnwrapBuf);
     }
