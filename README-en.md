@@ -97,8 +97,3 @@ FireNio is an io framework which can build network project fast, it based on jav
 ## License
 
 FireNio is released under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
-
-## To learn more, join this QQ group, more java technique can talk at there.
- * QQ group NO: 540637859
- * Join by click this link: [![img](http://pub.idqqimg.com/wpa/images/group.png)](http://shang.qq.com/wpa/qunwpa?idkey=2bd71e10d876bb6035fa0ddc6720b5748fc8985cb666e17157d17bcfbd2bdaef)
- * Scan QR code:<br />  ![image](/firenio-doc/java-io-group-code-small.png)
